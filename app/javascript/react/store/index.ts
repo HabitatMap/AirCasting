@@ -5,6 +5,7 @@ import crowdMapReducer from "./crowdMapSlice";
 import sessionReducer from "./exportSessionSlice";
 import fixedSessionsReducer from "./fixedSessionsSlice";
 import fixedStreamReducer from "./fixedStreamSlice";
+import { selectIsLoading } from "./loadingSelectors";
 import mapReducer from "./mapSlice";
 import markersLoadingReducer from "./markersLoadingSlice";
 import mobileSessionsReducer from "./mobileSessionsSlice";
@@ -14,7 +15,7 @@ import realtimeMapUpdatesReducer from "./realtimeMapUpdatesSlice";
 import sensorsReducer from "./sensorsSlice";
 import sessionFilterReducer from "./sessionFiltersSlice";
 import thresholdReducer from "./thresholdSlice";
-import { selectIsLoading } from "./loadingSelectors";
+import timelapseReducer from "./timelapseSlice";
 
 const store = configureStore({
   reducer: {
@@ -32,6 +33,7 @@ const store = configureStore({
     sessionFilter: sessionFilterReducer,
     threshold: thresholdReducer,
     sensors: sensorsReducer,
+    timelapse: timelapseReducer,
   },
 });
 

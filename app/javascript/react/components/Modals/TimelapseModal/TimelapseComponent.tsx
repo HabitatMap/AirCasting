@@ -11,6 +11,10 @@ import * as S from "./TimelapseComponent.style";
 
 interface TimelapseComponentProps {
   onClose: () => void;
+  currentStep: number;
+  totalSteps: number;
+  onNextStep: () => void;
+  onPreviousStep: () => void;
 }
 
 type CustomPopupProps = {
@@ -21,79 +25,86 @@ type CustomPopupProps = {
 
 const TimelapseComponent: React.FC<
   TimelapseComponentProps & Omit<PopupProps, "children">
-> = React.memo(({ onClose }) => {
-  const TimelapseModal: React.FC<
-    CustomPopupProps & Omit<PopupProps, "children">
-  > = useCallback((props) => {
-    return <S.TimelapseModal {...(props as PopupProps)} />;
-  }, []);
+> = React.memo(
+  ({ onClose, currentStep, totalSteps, onNextStep, onPreviousStep }) => {
+    const TimelapseModal: React.FC<
+      CustomPopupProps & Omit<PopupProps, "children">
+    > = useCallback((props) => {
+      return <S.TimelapseModal {...(props as PopupProps)} />;
+    }, []);
 
-  const isMobile = useMobileDetection();
-  const { t } = useTranslation();
-  const [showReadOnlyPopup, setShowReadOnlyPopup] = useState(false);
+    const isMobile = useMobileDetection();
+    const { t } = useTranslation();
+    const [showReadOnlyPopup, setShowReadOnlyPopup] = useState(false);
 
-  const overlayRef = useRef<HTMLDivElement>(null);
+    const overlayRef = useRef<HTMLDivElement>(null);
 
-  const closeHandler = useCallback(() => {
-    onClose();
-  }, [onClose]);
+    const closeHandler = useCallback(() => {
+      onClose();
+    }, [onClose]);
 
-  const handleOverlayClick = useCallback(
-    (event: MouseEvent) => {
-      if (
-        overlayRef.current &&
-        !overlayRef.current.contains(event.target as Node)
-      ) {
-        setShowReadOnlyPopup(true);
-      }
-    },
-    [overlayRef]
-  );
+    const handleOverlayClick = useCallback(
+      (event: MouseEvent) => {
+        if (
+          overlayRef.current &&
+          !overlayRef.current.contains(event.target as Node)
+        ) {
+          setShowReadOnlyPopup(true);
+        }
+      },
+      [overlayRef]
+    );
 
-  useAutoDismissAlert(showReadOnlyPopup, setShowReadOnlyPopup);
+    useAutoDismissAlert(showReadOnlyPopup, setShowReadOnlyPopup);
 
-  useEffect(() => {
-    document.addEventListener("mousedown", handleOverlayClick);
-    return () => {
-      document.removeEventListener("mousedown", handleOverlayClick);
-    };
-  }, [handleOverlayClick]);
+    useEffect(() => {
+      document.addEventListener("mousedown", handleOverlayClick);
+      return () => {
+        document.removeEventListener("mousedown", handleOverlayClick);
+      };
+    }, [handleOverlayClick]);
 
-  return (
-    <>
-      <TimelapseModal
-        open={true}
-        modal
-        nested
-        overlayStyle={{
-          margin: 0,
-          zIndex: 2,
-        }}
-        contentStyle={{ margin: 0 }}
-        onClose={closeHandler}
-        closeOnDocumentClick={false}
-      >
-        {(close) => (
-          <div ref={overlayRef}>
-            <S.TimeAxisContainer>
-              <NavigatioButtons />
-              <TimeAxis />
-            </S.TimeAxisContainer>
+    return (
+      <>
+        <TimelapseModal
+          open={true}
+          modal
+          nested
+          overlayStyle={{
+            margin: 0,
+            zIndex: 2,
+          }}
+          contentStyle={{ margin: 0 }}
+          onClose={closeHandler}
+          closeOnDocumentClick={false}
+        >
+          {(close) => (
+            <div ref={overlayRef}>
+              <S.TimeAxisContainer>
+                <NavigatioButtons
+                  currentStep={currentStep}
+                  totalSteps={totalSteps}
+                  onNextStep={onNextStep}
+                  onPreviousStep={onPreviousStep}
+                />
+                <TimeAxis currentStep={currentStep} totalSteps={totalSteps} />
+              </S.TimeAxisContainer>
 
-            <S.CancelButtonX onClick={close}>
-              <img src={closeTimelapseButton} alt={t("navbar.altClose")} />
-            </S.CancelButtonX>
-          </div>
+              <S.CancelButtonX onClick={close}>
+                <img src={closeTimelapseButton} alt={t("navbar.altClose")} />
+              </S.CancelButtonX>
+            </div>
+          )}
+        </TimelapseModal>
+
+        {showReadOnlyPopup && (
+          <S.SmallPopup open>
+            <S.AlertInfo>{t("timelapse.readOnly")}</S.AlertInfo>
+          </S.SmallPopup>
         )}
-      </TimelapseModal>
-
-      {showReadOnlyPopup && (
-        <S.SmallPopup open>
-          <S.AlertInfo>{t("timelapse.readOnly")}</S.AlertInfo>
-        </S.SmallPopup>
-      )}
-    </>
-  );
-});
+      </>
+    );
+  }
+);
 
 export { TimelapseComponent };

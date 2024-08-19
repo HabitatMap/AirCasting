@@ -10,6 +10,7 @@ import { useNavigate } from "react-router-dom";
 
 import { Map as GoogleMap, MapEvent } from "@vis.gl/react-google-maps";
 
+import { Cluster } from "@googlemaps/markerclusterer";
 import clockIcon from "../../assets/icons/clockIcon.svg";
 import filterIcon from "../../assets/icons/filterIcon.svg";
 import mapLegend from "../../assets/icons/mapLegend.svg";
@@ -50,12 +51,12 @@ import {
 } from "../../store/thresholdSlice";
 import { SessionTypes } from "../../types/filters";
 import { SessionList } from "../../types/sessionType";
+import { TimelapseCluster } from "../../types/timelapse";
 import { UserSettings } from "../../types/userStates";
 import { UrlParamsTypes, useMapParams } from "../../utils/mapParamsHandler";
 import useMobileDetection from "../../utils/useScreenSizeDetection";
 import { Loader } from "../Loader/Loader";
 import { SessionDetailsModal } from "../Modals/SessionDetailsModal";
-import { TimelapseComponent } from "../Modals/TimelapseModal";
 import { SectionButton } from "../SectionButton/SectionButton";
 import { MobileSessionFilters } from "../SessionFilters/MobileSessionFilters";
 import { MobileSessionList } from "../SessionsListView/MobileSessionList/MobileSessionList";
@@ -111,6 +112,10 @@ const Map = () => {
   const [pulsatingSessionId, setPulsatingSessionId] = useState<number | null>(
     null
   );
+  const [timelapseData, setTimelapseData] = useState<TimelapseCluster | null>(
+    null
+  );
+  const [currentTimelapseStep, setCurrentTimelapseStep] = useState(0);
 
   // Selectors
   const defaultThresholds = useAppSelector(selectDefaultThresholds);
@@ -325,6 +330,27 @@ const Map = () => {
     ]
   );
 
+  // const loadTimelapseData = useCallback(async () => {
+  //   const clusters = {
+  //     "0": [101, 102], // Example stream IDs
+  //     "1": [201, 202, 203],
+  //   };
+  //   const data = await dispatch(
+  //     fetchTimelapseData({ clusters, timePeriod: 1 })
+  //   ).unwrap();
+  //   // console.log(clusters, "clusters");
+  //   // console.log(data, "data");
+  //   // console.log;
+  //   setTimelapseData(data);
+  //   setCurrentTimelapseStep(Object.keys(data).length - 1); // Start at the most recent data
+  // }, [dispatch]);
+
+  // useEffect(() => {
+  //   if (isTimelapseView) {
+  //     loadTimelapseData();
+  //   }
+  // }, [isTimelapseView, loadTimelapseData]);
+
   // Handlers;
   const handleMarkerClick = (
     selectedStreamId: number | null,
@@ -450,6 +476,13 @@ const Map = () => {
     );
   };
 
+  const [visibleClusters, setVisibleClusters] = useState<Cluster[]>([]);
+
+  const handleClustersChange = useCallback((clusters: Cluster[]) => {
+    // Update the state with visible clusters
+    setVisibleClusters(clusters);
+  }, []);
+
   return (
     <>
       {(selectorsLoading || markersLoading) && (
@@ -476,6 +509,7 @@ const Map = () => {
             onMarkerClick={handleMarkerClick}
             selectedStreamId={streamId}
             pulsatingSessionId={pulsatingSessionId}
+            onClustersChange={handleClustersChange} // Pass the callback to FixedMarkers
           />
         )}
         {!fixedSessionTypeSelected &&
@@ -501,6 +535,26 @@ const Map = () => {
             unitSymbol={unitSymbol}
           />
         )}
+
+        {/* Timelapse Markers */}
+        {isTimelapseView && timelapseData && (
+          <>
+            {Object.entries(timelapseData).map(([clusterId, data]) =>
+              data.map((entry, index) =>
+                index === currentTimelapseStep ? (
+                  <FixedMarkers
+                    key={`${clusterId}-${index}`}
+                    sessions={entry.sessions}
+                    onMarkerClick={handleMarkerClick}
+                    selectedStreamId={streamId}
+                    pulsatingSessionId={pulsatingSessionId}
+                    onClustersChange={handleClustersChange} // Pass the callback to FixedMarkers
+                  />
+                ) : null
+              )
+            )}
+          </>
+        )}
       </GoogleMap>
       {/* Show ThresholdsConfigurator only on desktop, if it's mobile, it should only be shown when modal is open */}
       {(!isMobile ||
@@ -522,13 +576,23 @@ const Map = () => {
           streamId={streamId}
         />
       )}
-      {currentUserSettings === UserSettings.TimelapseView && (
+      {/* {currentUserSettings === UserSettings.TimelapseView && (
         <TimelapseComponent
           onClose={() => {
             goToUserSettings(previousUserSettings);
           }}
+          currentStep={currentTimelapseStep}
+          totalSteps={timelapseData ? Object.keys(timelapseData).length : 0}
+          onNextStep={() =>
+            setCurrentTimelapseStep((prev) =>
+              prev < Object.keys(timelapseData).length - 1 ? prev + 1 : prev
+            )
+          }
+          onPreviousStep={() =>
+            setCurrentTimelapseStep((prev) => (prev > 0 ? prev - 1 : prev))
+          }
         />
-      )}
+      )} */}
       <S.MobileContainer>
         <S.MobileButtons $isTimelapseView={isTimelapseView}>
           <SectionButton
