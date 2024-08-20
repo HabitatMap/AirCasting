@@ -182,10 +182,32 @@ const StepMarker = styled.div<{
   transition: transform 0.2s ease-in-out;
 `;
 
+const DateContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: ${gray400};
+  width: 10rem;
+  gap: 0.5rem;
+`;
+
+const Time = styled.span`
+  font-size: 1.2rem;
+  font-weight: 400;
+`;
+
+const Date = styled.span`
+  font-size: 1.4rem;
+  font-weight: 500;
+`;
+
 export {
   AlertInfo,
   AxisContainer,
   CancelButtonX,
+  Date,
+  DateContainer,
   NavigationButton,
   NavigationButtonsContainer,
   ProgressBar,
@@ -193,6 +215,7 @@ export {
   SmallPopup,
   StepMarker,
   StepMarkers,
+  Time,
   TimeAxisContainer,
   TimelapseModal,
   Wrapper,
