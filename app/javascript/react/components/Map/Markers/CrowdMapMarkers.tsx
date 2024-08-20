@@ -9,6 +9,7 @@ import {
 import { useAppDispatch, useAppSelector } from "../../../store/hooks";
 import { setMarkersLoading } from "../../../store/markersLoadingSlice";
 import { selectMobileSessionsStreamIds } from "../../../store/mobileSessionsSelectors";
+import { fetchRectangleData } from "../../../store/rectangleSlice";
 import { selectThresholds } from "../../../store/thresholdSlice";
 import { Session } from "../../../types/sessionType";
 import { useMapParams } from "../../../utils/mapParamsHandler";
@@ -68,14 +69,44 @@ const CrowdMapMarkers = ({ pulsatingSessionId, sessions }: Props) => {
       usernames,
     ]
   );
+  const rectangleFilters = useMemo(
+    () =>
+      JSON.stringify({
+        east: rectangleBoundEast,
+        grid_size_x: 50, // TODO: temporary solution, ticket: Session Filter [Mobile]: Grid size
+        grid_size_y: 50, // TODO: temporary solution, ticket: Session Filter [Mobile]: Grid size
+        measurement_type: measurementType,
+        north: rectangleBoundNorth,
+        sensor_name: "AirBeam-PM2.5", // TODO: temporary solution, ticket: Session Filter [Both]: Sensor Picker
+        south: rectangleBoundSouth,
+        stream_ids: mobileSessionsStreamIds,
+        tags: tags,
+        time_from: "1685318400", // TODO: temporary solution, ticket: Session Filter [Both]: Year Picker
+        time_to: "1717027199", // TODO: temporary solution, ticket: Session Filter [Both]: Year Picker
+        unit_symbol: unitSymbol,
+        usernames: usernames,
+        west: rectangleBoundWest,
+      }),
+    [
+      rectangleBoundEast,
+      rectangleBoundNorth,
+      rectangleBoundSouth,
+      rectangleBoundWest,
+      measurementType,
+      mobileSessionsStreamIds,
+      tags,
+      unitSymbol,
+      usernames,
+    ]
+  );
   const rectanglesRef = useRef<google.maps.Rectangle[]>([]);
+  const [selectedRectangle, setSelectedRectangle] =
+    useState<google.maps.Rectangle | null>(null);
 
   const crowdMapRectanglesLength: number = crowdMapRectangles.length;
   const displayedSession: Session | undefined = sessions.find(
     (session) => session.id === pulsatingSessionId
   );
-  const [selectedRectangle, setSelectedRectangle] =
-    useState<google.maps.Rectangle | null>(null);
 
   useEffect(() => {
     dispatch(fetchCrowdMapData(filters));
@@ -111,8 +142,7 @@ const CrowdMapMarkers = ({ pulsatingSessionId, sessions }: Props) => {
           setSelectedRectangle(newRectangle);
           // Add additional logic for what should happen on rectangle click
           console.log("Rectangle clicked:", newRectangle);
-
-          dispatch(fetchRectangleData());
+          dispatch(fetchRectangleData(rectangleFilters));
         });
 
         return newRectangle;
