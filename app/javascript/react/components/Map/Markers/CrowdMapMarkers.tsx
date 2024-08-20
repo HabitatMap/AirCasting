@@ -111,6 +111,8 @@ const CrowdMapMarkers = ({ pulsatingSessionId, sessions }: Props) => {
           setSelectedRectangle(newRectangle);
           // Add additional logic for what should happen on rectangle click
           console.log("Rectangle clicked:", newRectangle);
+
+          dispatch(fetchRectangleData());
         });
 
         return newRectangle;
