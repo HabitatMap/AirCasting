@@ -1,10 +1,11 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 
+import moment from "moment";
 import type { PopupProps } from "reactjs-popup/dist/types";
 import closeTimelapseButton from "../../../assets/icons/closeTimelapseButton.svg";
+import { DateFormat } from "../../../types/dateFormat";
 import { useAutoDismissAlert } from "../../../utils/useAutoDismissAlert";
-import useMobileDetection from "../../../utils/useScreenSizeDetection";
 import NavigationButtons from "./NavigationButtons";
 import TimeAxis from "./TimeAxis";
 import * as S from "./TimelapseComponent.style";
@@ -41,7 +42,6 @@ const TimelapseComponent: React.FC<
       return <S.TimelapseModal {...(props as PopupProps)} />;
     }, []);
 
-    const isMobile = useMobileDetection();
     const { t } = useTranslation();
     const [showReadOnlyPopup, setShowReadOnlyPopup] = useState(false);
 
@@ -72,6 +72,12 @@ const TimelapseComponent: React.FC<
       };
     }, [handleOverlayClick]);
 
+    const currentTimestamp = timestamps[currentStep];
+    const currentDate = moment
+      .utc(currentTimestamp)
+      .format(DateFormat.us_without_year);
+    const currentTime = moment.utc(currentTimestamp).format("hh:mm A");
+
     return (
       <>
         <TimelapseModal
@@ -89,6 +95,10 @@ const TimelapseComponent: React.FC<
           {(close) => (
             <div ref={overlayRef}>
               <S.TimeAxisContainer>
+                <S.MobileDateContainer>
+                  <S.Date>{currentDate}</S.Date>
+                  <S.Time>{currentTime}</S.Time>
+                </S.MobileDateContainer>
                 <NavigationButtons
                   currentStep={currentStep}
                   totalSteps={totalSteps}
