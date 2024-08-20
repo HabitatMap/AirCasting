@@ -17,10 +17,8 @@ import {
 } from "../../../store/rectangleSlice";
 import { selectThresholds } from "../../../store/thresholdSlice";
 import { Session } from "../../../types/sessionType";
-import { getRectanglePixelPosition } from "../../../utils/getRectanglePixelPosition";
 import { useMapParams } from "../../../utils/mapParamsHandler";
 import { getColorForValue } from "../../../utils/thresholdColors";
-import { ClusterInfo } from "./ClusterInfo/ClusterInfo";
 import { SessionDotMarker } from "./SessionDotMarker/SessionDotMarker";
 
 type Props = {
@@ -85,9 +83,8 @@ const CrowdMapMarkers = ({ pulsatingSessionId, sessions }: Props) => {
   const [selectedRectangle, setSelectedRectangle] =
     useState<google.maps.Rectangle | null>(null);
   const [rectanglePosition, setRectanglePosition] = useState<{
-    top: number;
-    left: number;
-  }>({ top: 0, left: 0 });
+    point: google.maps.LatLng | null;
+  }>({ point: null });
 
   const crowdMapRectanglesLength: number = crowdMapRectangles.length;
   const displayedSession: Session | undefined = sessions.find(
@@ -155,17 +152,9 @@ const CrowdMapMarkers = ({ pulsatingSessionId, sessions }: Props) => {
             ).toString();
 
             dispatch(fetchRectangleData(queryString));
-            console.log(newRectangle);
-            if (map) {
-              const pixelPosition = getRectanglePixelPosition(
-                map,
-                newRectangle
-              );
-              setRectanglePosition({
-                top: pixelPosition.top,
-                left: pixelPosition.left,
-              });
-            }
+            setRectanglePosition({
+              point: rectangleBounds.getNorthEast(),
+            });
             setSelectedRectangle(newRectangle);
             dispatch(setVisibility(true));
           }
@@ -194,6 +183,14 @@ const CrowdMapMarkers = ({ pulsatingSessionId, sessions }: Props) => {
     usernames,
   ]);
 
+  useEffect(() => {
+    console.log("rectanglePosition", rectanglePosition);
+  }, [rectanglePosition]);
+
+  useEffect(() => {
+    console.log("rectangleData", rectangleData);
+  }, [rectangleData]);
+
   const renderMarker = (displayedSession: Session) => {
     return (
       <AdvancedMarker
@@ -215,19 +212,13 @@ const CrowdMapMarkers = ({ pulsatingSessionId, sessions }: Props) => {
   return (
     <>
       {displayedSession && renderMarker(displayedSession)}
-      {selectedRectangle &&
-        rectangleData &&
-        !rectangleLoading &&
-        rectangleData && (
-          <ClusterInfo
-            color={getColorForValue(thresholds, rectangleData.average)}
-            average={rectangleData.average}
-            numberOfSessions={rectangleData.numberOfContributors}
-            handleZoomIn={() => {}}
-            position={rectanglePosition}
-            visible={true}
-          />
-        )}
+      <AdvancedMarker position={rectanglePosition} key={1234567890}>
+        <SessionDotMarker
+          color={getColorForValue(thresholds, 145)}
+          onClick={() => {}}
+          opacity={0.6}
+        />
+      </AdvancedMarker>
     </>
   );
 };
