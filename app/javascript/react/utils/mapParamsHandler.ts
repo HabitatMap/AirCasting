@@ -14,12 +14,13 @@ import {
   selectThresholds,
 } from "../store/thresholdSlice";
 import {
-  FixedBasicParameterTypes,
+  ParameterTypes,
   SessionType,
   SessionTypes,
   UnitSymbols,
 } from "../types/filters";
 
+import { SENSOR_NAMES } from "../types/sensors";
 import { UserSettings } from "../types/userStates";
 import useMobileDetection from "../utils/useScreenSizeDetection";
 
@@ -121,7 +122,7 @@ export const useMapParams = () => {
     MAP_CONFIGS[0].mapTypeId;
   const measurementType = getSearchParam(
     UrlParamsTypes.measurementType,
-    FixedBasicParameterTypes.PARTICULATE_MATTER
+    ParameterTypes.PARTICULATE_MATTER
   )!;
   const initialOffset = parseInt(getSearchParam(UrlParamsTypes.offset, "0")!);
   const previousCenter = useMemo(
@@ -143,7 +144,7 @@ export const useMapParams = () => {
   );
   const sensorName = getSearchParam(
     UrlParamsTypes.sensorName,
-    "Government-PM2.5"
+    SENSOR_NAMES.PARTICULATE_MATTER.AIRBEAM_PM25
   )!;
   const sessionId =
     getSearchParam(UrlParamsTypes.sessionId, null) !== null

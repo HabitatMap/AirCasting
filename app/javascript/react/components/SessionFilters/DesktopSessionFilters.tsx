@@ -5,6 +5,7 @@ import { useMapParams } from "../../utils/mapParamsHandler";
 import { CrowdMapToggle } from "./CrowdmapToggle";
 import { DesktopParameterFilter } from "./ParameterFilter";
 import { ProfileNamesInput } from "./ProfileNamesInput";
+import { DesktopSensorFilter } from "./SensorFilter";
 import * as S from "./SessionFilters.style";
 import { SessionTypeToggle } from "./SessionTypeToggle";
 import { TagsInput } from "./TagsInput";
@@ -17,6 +18,7 @@ const DesktopSessionFilters = () => {
     <S.SessionFilters>
       <SessionTypeToggle />
       <DesktopParameterFilter />
+      <DesktopSensorFilter />
       <ProfileNamesInput />
       <TagsInput />
       {!fixedSessionTypeSelected && <CrowdMapToggle />}

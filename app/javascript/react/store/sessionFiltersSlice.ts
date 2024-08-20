@@ -14,6 +14,8 @@ interface SessionFilterState {
   fetchTagsStatus: StatusEnum;
   basicParametersModalOpen: boolean;
   customParametersModalOpen: boolean;
+  basicSensorsModalOpen: boolean;
+  customSensorsModalOpen: boolean;
 }
 
 const initialState: SessionFilterState = {
@@ -23,6 +25,8 @@ const initialState: SessionFilterState = {
   fetchTagsStatus: StatusEnum.Idle,
   basicParametersModalOpen: false,
   customParametersModalOpen: false,
+  basicSensorsModalOpen: false,
+  customSensorsModalOpen: false,
 };
 
 export const fetchUsernames = createAsyncThunk(
@@ -64,6 +68,12 @@ const sessionFilterSlice = createSlice({
     },
     setCustomParametersModalOpen: (state, action: PayloadAction<boolean>) => {
       state.customParametersModalOpen = action.payload;
+    },
+    setBasicSensorsModalOpen: (state, action: PayloadAction<boolean>) => {
+      state.basicSensorsModalOpen = action.payload;
+    },
+    setCustomSensorsModalOpen: (state, action: PayloadAction<boolean>) => {
+      state.customSensorsModalOpen = action.payload;
     },
   },
   extraReducers: (builder) => {
@@ -109,6 +119,16 @@ export const selectBasicParametersModalOpen = (state: RootState): boolean =>
 export const selectCustomParametersModalOpen = (state: RootState): boolean =>
   state.sessionFilter.customParametersModalOpen;
 
-export const { setBasicParametersModalOpen, setCustomParametersModalOpen } =
-  sessionFilterSlice.actions;
+export const selectBasicSensorsModalOpen = (state: RootState): boolean =>
+  state.sessionFilter.basicSensorsModalOpen;
+
+export const selectCustomSensorsModalOpen = (state: RootState): boolean =>
+  state.sessionFilter.customSensorsModalOpen;
+
+export const {
+  setBasicParametersModalOpen,
+  setCustomParametersModalOpen,
+  setBasicSensorsModalOpen,
+  setCustomSensorsModalOpen,
+} = sessionFilterSlice.actions;
 export default sessionFilterSlice.reducer;

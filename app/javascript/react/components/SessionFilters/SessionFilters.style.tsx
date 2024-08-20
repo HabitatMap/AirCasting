@@ -269,8 +269,8 @@ const FiltersOptionButton = styled(Button)<{ $isSelected: boolean }>`
   gap: 0;
   padding: 0.5rem 0.8rem;
   margin-bottom: 0.8rem;
-  width: 12rem;
-  height: 2.4rem;
+  min-width: 12rem;
+  height: 3rem;
   justify-content: flex-start;
   color: ${(props) => (props.$isSelected ? acBlue : gray300)};
   border: 1px solid ${gray500};

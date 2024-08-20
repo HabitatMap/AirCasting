@@ -10,93 +10,108 @@ import { useAppDispatch, useAppSelector } from "../../store/hooks";
 import { setFetchingData } from "../../store/mapSlice";
 import { selectSensors } from "../../store/sensorsSlice";
 import {
-  selectBasicParametersModalOpen,
-  selectCustomParametersModalOpen,
+  selectBasicSensorsModalOpen,
+  selectCustomSensorsModalOpen,
   setBasicParametersModalOpen,
   setBasicSensorsModalOpen,
-  setCustomParametersModalOpen,
+  setCustomSensorsModalOpen,
 } from "../../store/sessionFiltersSlice";
-import {
-  FixedBasicParameterTypes,
-  MobileBasicParameterTypes,
-  ParameterType,
-  SessionType,
-  SessionTypes,
-} from "../../types/filters";
+import { ParameterTypes, SessionTypes } from "../../types/filters";
+import { BasicSensorTypes, Sensor } from "../../types/sensors";
 import { UserSettings } from "../../types/userStates";
 import { UrlParamsTypes, useMapParams } from "../../utils/mapParamsHandler";
-import { setSensor } from "../../utils/setSensor";
 import useMobileDetection from "../../utils/useScreenSizeDetection";
-import { CustomParameterFilter } from "./CustomParameterFilter";
+import { CustomSensorFilter } from "./CustomSensorFilter";
 import { FilterInfoPopup } from "./FilterInfoPopup";
 import * as S from "./SessionFilters.style";
 
-const basicMeasurementTypes = (sessionType: SessionType) =>
-  sessionType === SessionTypes.FIXED
-    ? FixedBasicParameterTypes
-    : MobileBasicParameterTypes;
+export const getBasicSensors = (
+  measurementType: string,
+  sessionType: string
+) => {
+  if (measurementType !== ParameterTypes.PARTICULATE_MATTER) {
+    for (const [key, value] of Object.entries(ParameterTypes) as Array<
+      [keyof typeof ParameterTypes, string]
+    >) {
+      if (value === measurementType) {
+        return BasicSensorTypes[key].toString().split(",");
+      }
+    }
+  } else {
+    if (sessionType === SessionTypes.FIXED) {
+      return BasicSensorTypes.PARTICULATE_MATTER.FIXED.toString().split(",");
+    } else if (sessionType === SessionTypes.MOBILE) {
+      return BasicSensorTypes.PARTICULATE_MATTER.MOBILE.toString().split(",");
+    }
+  }
+};
 
-interface ParameterFilterProps {
+export const getSensorUnitSymbol = (
+  selectedSensor: string,
+  sensors: Sensor[]
+) => {
+  const sensor = sensors.filter((el) => el.sensorName === selectedSensor);
+  return sensor[0].unitSymbol;
+};
+
+interface SensorFilterProps {
   isBasicOpen: boolean;
 }
 
-export const ParameterFilter: React.FC<ParameterFilterProps> = ({
-  isBasicOpen,
-}) => {
+export const SensorFilter: React.FC<SensorFilterProps> = ({ isBasicOpen }) => {
   const { t } = useTranslation();
-  const { measurementType } = useMapParams();
+  const { sensorName } = useMapParams();
   const dispatch = useAppDispatch();
-  const basicParametersModalOpen = useAppSelector(
-    selectBasicParametersModalOpen
-  );
+  const basicSensorsModalOpen = useAppSelector(selectBasicSensorsModalOpen);
 
-  const handleShowParametersClick = () => {
-    dispatch(setBasicParametersModalOpen(!basicParametersModalOpen));
-    dispatch(setBasicSensorsModalOpen(false));
+  const handleShowSensorClick = () => {
+    dispatch(setBasicSensorsModalOpen(!basicSensorsModalOpen));
+    dispatch(setBasicParametersModalOpen(false));
   };
 
   return (
     <S.SingleFilterWrapper>
       <S.SelectedOptionButton
-        onClick={handleShowParametersClick}
+        onClick={handleShowSensorClick}
         $isActive={isBasicOpen}
       >
         <S.SelectedOptionHeadingWrapper>
           <S.SelectedOptionHeading $isSelected={isBasicOpen}>
-            {t("filters.parameter")}
+            {t("filters.sensor")}
           </S.SelectedOptionHeading>
           <S.SelectedOption $isSelected={isBasicOpen}>
-            {measurementType}
+            {sensorName}
           </S.SelectedOption>
         </S.SelectedOptionHeadingWrapper>
         <S.ChevronIcon $src={chevron} $isActive={isBasicOpen} />
       </S.SelectedOptionButton>
-      <FilterInfoPopup filterTranslationLabel="filters.parameterInfo" />
+      <FilterInfoPopup filterTranslationLabel="filters.sensorInfo" />
     </S.SingleFilterWrapper>
   );
 };
 
-export const DesktopParameterFilter = () => {
+export const DesktopSensorFilter = () => {
   const [isBasicOpen, setIsBasicOpen] = useState(false);
   const [moreOpen, setMoreOpen] = useState(false);
   const { t } = useTranslation();
-  const { measurementType, setUrlParams, sessionType, currentUserSettings } =
-    useMapParams();
+  const {
+    measurementType,
+    setUrlParams,
+    sessionType,
+    currentUserSettings,
+    sensorName,
+  } = useMapParams();
   const dispatch = useAppDispatch();
   const isMobile = useMobileDetection();
   const sensors = useAppSelector(selectSensors);
-  const basicParametersModalOpen = useAppSelector(
-    selectBasicParametersModalOpen
-  );
-  const customParametersModalOpen = useAppSelector(
-    selectCustomParametersModalOpen
-  );
+  const basicSensorsModalOpen = useAppSelector(selectBasicSensorsModalOpen);
+  const customSensorsModalOpen = useAppSelector(selectCustomSensorsModalOpen);
 
   const handleOnMoreClick = () => {
     setMoreOpen(!moreOpen);
   };
 
-  const handleSelectParameter = (selectedParameter: ParameterType) => {
+  const handleSelectSensor = (selectedSensor: string) => {
     dispatch(setFetchingData(true));
     setUrlParams([
       {
@@ -112,48 +127,47 @@ export const DesktopParameterFilter = () => {
           : UserSettings.MapView,
       },
       {
-        key: UrlParamsTypes.measurementType,
-        value: selectedParameter,
-      },
-      {
         key: UrlParamsTypes.sensorName,
-        value: setSensor(selectedParameter, sensors).sensorName,
+        value: selectedSensor,
       },
       {
         key: UrlParamsTypes.unitSymbol,
-        value: setSensor(selectedParameter, sensors).unitSymbol,
+        value: getSensorUnitSymbol(selectedSensor, sensors),
       },
       {
         key: UrlParamsTypes.currentZoom,
         value: UrlParamsTypes.previousZoom,
       },
     ]);
-    dispatch(setBasicParametersModalOpen(false));
+    dispatch(setBasicSensorsModalOpen(false));
   };
 
+  const basicSensors = getBasicSensors(measurementType, sessionType);
+
   useEffect(() => {
-    setIsBasicOpen(basicParametersModalOpen);
-    setMoreOpen(customParametersModalOpen);
-  }, [basicParametersModalOpen]);
+    setIsBasicOpen(basicSensorsModalOpen);
+    setMoreOpen(customSensorsModalOpen);
+  }, [basicSensorsModalOpen, customSensorsModalOpen]);
 
   return (
     <S.Wrapper>
-      <ParameterFilter isBasicOpen={isBasicOpen} />
+      <SensorFilter isBasicOpen={isBasicOpen} />
       {!isMobile && isBasicOpen && (
         <S.FiltersOptionsWrapper>
           <S.BasicParameterWrapper>
             <S.FiltersOptionHeading>
-              {t("filters.parameter")}
+              {t("filters.sensor")}
             </S.FiltersOptionHeading>
-            {basicMeasurementTypes(sessionType).map((item, id) => (
+            {basicSensors?.map((item, id) => (
               <S.FiltersOptionButton
-                $isSelected={item === measurementType}
+                onClick={() => handleSelectSensor(item)}
+                $isSelected={item === sensorName}
                 key={id}
-                onClick={() => handleSelectParameter(item)}
               >
                 {item}
               </S.FiltersOptionButton>
             ))}
+
             {moreOpen ? (
               <S.SeeMoreButton onClick={handleOnMoreClick}>
                 <S.SeeMoreSpan>{t("filters.seeLess")}</S.SeeMoreSpan>
@@ -166,48 +180,46 @@ export const DesktopParameterFilter = () => {
               </S.SeeMoreButton>
             )}
           </S.BasicParameterWrapper>
-          {moreOpen && <CustomParameterFilter />}
+          {moreOpen && <CustomSensorFilter />}
         </S.FiltersOptionsWrapper>
       )}
     </S.Wrapper>
   );
 };
 
-interface MobileDeviceParameterFilterProps {
+interface MobileDeviceSensorFilterProps {
   sessionsCount: number | undefined;
   onClose: () => void;
 }
 
-export const MobileDeviceParameterFilter = ({
+export const MobileDeviceSensorFilter = ({
   sessionsCount,
   onClose,
-}: MobileDeviceParameterFilterProps) => {
+}: MobileDeviceSensorFilterProps) => {
   const dispatch = useAppDispatch();
   const { t } = useTranslation();
-  const { measurementType, setUrlParams, sessionType } = useMapParams();
+  const { measurementType, setUrlParams, sessionType, sensorName } =
+    useMapParams();
   const sensors = useAppSelector(selectSensors);
+  const basicSensors = getBasicSensors(measurementType, sessionType);
 
-  const handleSelectParameter = (selectedParameter: ParameterType) => {
+  const handleSelectSensor = (selectedSensor: string) => {
     dispatch(setFetchingData(true));
     setUrlParams([
       {
-        key: UrlParamsTypes.measurementType,
-        value: selectedParameter,
-      },
-      {
         key: UrlParamsTypes.sensorName,
-        value: setSensor(selectedParameter, sensors).sensorName,
+        value: selectedSensor,
       },
       {
         key: UrlParamsTypes.unitSymbol,
-        value: setSensor(selectedParameter, sensors).unitSymbol,
+        value: getSensorUnitSymbol(selectedSensor, sensors),
       },
     ]);
   };
 
   const handleShowMoreClick = () => {
-    dispatch(setBasicParametersModalOpen(false));
-    dispatch(setCustomParametersModalOpen(true));
+    dispatch(setBasicSensorsModalOpen(false));
+    dispatch(setCustomSensorsModalOpen(true));
   };
 
   return (
@@ -215,34 +227,32 @@ export const MobileDeviceParameterFilter = ({
       <S.ModalContent>
         <S.Header>
           <S.ChevronBackButton
-            onClick={() => dispatch(setBasicParametersModalOpen(false))}
+            onClick={() => dispatch(setBasicSensorsModalOpen(false))}
           >
             <img src={chevronLeft} />
           </S.ChevronBackButton>
-          <S.HeaderTitle>{t("filters.selectParameter")}</S.HeaderTitle>
+          <S.HeaderTitle>{t("filters.selectSensor")}</S.HeaderTitle>
         </S.Header>
-        <S.Description>{t("filters.selectParameterDescription")}</S.Description>
+        <S.Description>{t("filters.selectSensorsDescription")}</S.Description>
         <S.BasicParameterButtonsWrapper>
-          {basicMeasurementTypes(sessionType).map((item, id) => (
+          {basicSensors?.map((item, id) => (
             <S.BasicParameterButton
               key={id}
-              onClick={() => handleSelectParameter(item)}
+              onClick={() => handleSelectSensor(item)}
             >
-              <S.ButtonSpan $isActive={item === measurementType}>
+              <S.ButtonSpan $isActive={item === sensorName}>
                 {item}
               </S.ButtonSpan>
-              {item === measurementType && <img src={checkmark} />}
+              {item === sensorName && <img src={checkmark} />}
             </S.BasicParameterButton>
           ))}
         </S.BasicParameterButtonsWrapper>
         <S.GrayButton onClick={handleShowMoreClick}>
-          {t("filters.showCustomParameters")}
+          {t("filters.showCustomSensors")}
         </S.GrayButton>
       </S.ModalContent>
       <S.ButtonsWrapper>
-        <S.BackButton
-          onClick={() => dispatch(setBasicParametersModalOpen(false))}
-        >
+        <S.BackButton onClick={() => dispatch(setBasicSensorsModalOpen(false))}>
           {t("filters.back")}
         </S.BackButton>
         <S.MinorShowSessionsButton onClick={onClose}>

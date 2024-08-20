@@ -6,18 +6,22 @@ import { useAppSelector } from "../../store/hooks";
 import { selectMobileSessionsState } from "../../store/mobileSessionsSelectors";
 import {
   selectBasicParametersModalOpen,
+  selectBasicSensorsModalOpen,
   selectCustomParametersModalOpen,
+  selectCustomSensorsModalOpen,
 } from "../../store/sessionFiltersSlice";
 import { SessionTypes } from "../../types/filters";
 import { useMapParams } from "../../utils/mapParamsHandler";
 import { CloseButton } from "../Map/Legend/Legend.style";
 import { CrowdMapToggle } from "./CrowdmapToggle";
 import { CustomParameterFilter } from "./CustomParameterFilter";
+import { CustomSensorFilter } from "./CustomSensorFilter";
 import {
   MobileDeviceParameterFilter,
   ParameterFilter,
 } from "./ParameterFilter";
 import { ProfileNamesInput } from "./ProfileNamesInput";
+import { MobileDeviceSensorFilter, SensorFilter } from "./SensorFilter";
 import * as S from "./SessionFilters.style";
 import { SessionTypeToggle } from "./SessionTypeToggle";
 import { TagsInput } from "./TagsInput";
@@ -35,10 +39,17 @@ const MobileSessionFilters = ({ onClose }: MobileSessionFiltersProps) => {
   const customParametersModalOpen = useAppSelector(
     selectCustomParametersModalOpen
   );
-  const [basicModalOpen, setBasicModalOpen] = useState(
+  const [isBasicParametersModalOpen, setIsBasicParametersModalOpen] = useState(
     basicParametersModalOpen
   );
-  const [customModalOpen, setCustomModalOpen] = useState(
+  const [isCustomParametersModalOpen, setIsCustomParametersModalOpen] =
+    useState(customParametersModalOpen);
+  const basicSensorsModalOpen = useAppSelector(selectBasicSensorsModalOpen);
+  const customSensorsModalOpen = useAppSelector(selectCustomSensorsModalOpen);
+  const [isBasicSensorsModalOpen, setIsBasicSensorsModalOpen] = useState(
+    basicParametersModalOpen
+  );
+  const [isCustomSensorsModalOpen, setIsCustomSensorsModalOpen] = useState(
     customParametersModalOpen
   );
   const { sessionType } = useMapParams();
@@ -56,22 +67,36 @@ const MobileSessionFilters = ({ onClose }: MobileSessionFiltersProps) => {
   }, [fixedSessionsState, mobileSessionsState, sessionType]);
 
   useEffect(() => {
-    setBasicModalOpen(basicParametersModalOpen);
-    setCustomModalOpen(customParametersModalOpen);
-  }, [basicParametersModalOpen, customParametersModalOpen]);
+    setIsBasicParametersModalOpen(basicParametersModalOpen);
+    setIsCustomParametersModalOpen(customParametersModalOpen);
+    setIsBasicSensorsModalOpen(basicSensorsModalOpen);
+    setIsCustomSensorsModalOpen(customSensorsModalOpen);
+  }, [
+    basicParametersModalOpen,
+    customParametersModalOpen,
+    basicSensorsModalOpen,
+    customSensorsModalOpen,
+  ]);
 
   return (
     <S.MobileSessionFilters>
-      {basicModalOpen ? (
+      {isBasicParametersModalOpen ? (
         <MobileDeviceParameterFilter
           sessionsCount={sessionsCount}
           onClose={onClose}
         />
-      ) : customModalOpen ? (
+      ) : isCustomParametersModalOpen ? (
         <CustomParameterFilter
           sessionsCount={sessionsCount}
           onClose={onClose}
         />
+      ) : isBasicSensorsModalOpen ? (
+        <MobileDeviceSensorFilter
+          sessionsCount={sessionsCount}
+          onClose={onClose}
+        />
+      ) : isCustomSensorsModalOpen ? (
+        <CustomSensorFilter sessionsCount={sessionsCount} onClose={onClose} />
       ) : (
         <>
           <S.ModalContent>
@@ -80,7 +105,8 @@ const MobileSessionFilters = ({ onClose }: MobileSessionFiltersProps) => {
               <S.HeaderTitle>{t("filters.editFilters")}</S.HeaderTitle>
             </S.Header>
             <SessionTypeToggle />
-            <ParameterFilter isBasicOpen={basicModalOpen} />
+            <ParameterFilter isBasicOpen={isBasicParametersModalOpen} />
+            <SensorFilter isBasicOpen={isBasicSensorsModalOpen} />
             <ProfileNamesInput />
             <TagsInput />
             {!fixedSessionTypeSelected && <CrowdMapToggle />}
