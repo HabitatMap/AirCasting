@@ -19,6 +19,7 @@ import { selectThresholds } from "../../../store/thresholdSlice";
 import { Session } from "../../../types/sessionType";
 import { useMapParams } from "../../../utils/mapParamsHandler";
 import { getColorForValue } from "../../../utils/thresholdColors";
+import { RectangleInfo } from "./RectangleInfo/RectangleInfo";
 import { SessionDotMarker } from "./SessionDotMarker/SessionDotMarker";
 
 type Props = {
@@ -206,12 +207,13 @@ const CrowdMapMarkers = ({ pulsatingSessionId, sessions }: Props) => {
   return (
     <>
       {displayedSession && renderMarker(displayedSession)}
-      {rectanglePoint && (
+      {rectangleData && rectanglePoint && (
         <AdvancedMarker position={rectanglePoint} key={1234567890}>
-          <SessionDotMarker
-            color={getColorForValue(thresholds, 145)}
-            onClick={() => {}}
-            opacity={0.6}
+          <RectangleInfo
+            color={getColorForValue(thresholds, rectangleData.average)}
+            average={rectangleData.average}
+            numberOfSessions={rectangleData.numberOfContributors}
+            visible={true}
           />
         </AdvancedMarker>
       )}

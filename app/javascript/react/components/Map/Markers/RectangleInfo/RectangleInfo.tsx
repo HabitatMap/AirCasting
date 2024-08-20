@@ -21,8 +21,6 @@ interface RectangleProps {
   color: string;
   average: number;
   numberOfSessions: number;
-  handleZoomIn: () => void;
-  position: { top: number; left: number };
   visible: boolean;
 }
 
@@ -30,8 +28,6 @@ const RectangleInfo = ({
   color,
   average,
   numberOfSessions,
-  handleZoomIn,
-  position,
   visible,
 }: RectangleProps) => {
   const { unitSymbol } = useMapParams();
@@ -42,8 +38,6 @@ const RectangleInfo = ({
     <>
       <RectangleInfoContainer
         $color={color}
-        $top={position.top}
-        $left={position.left}
         $isMobile={isMobile}
         $visible={visible}
       >

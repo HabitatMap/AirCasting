@@ -4,8 +4,6 @@ import { gray400, white } from "../../../../assets/styles/colors";
 
 interface RectangleInfoContainerProps {
   $color: string;
-  $top: number;
-  $left: number;
   $isMobile?: boolean;
   $visible?: boolean;
 }
@@ -21,8 +19,6 @@ const RectangleInfoContainer = styled.div<RectangleInfoContainerProps>`
   gap: 0.5rem;
   width: fit-content;
   z-index: 100;
-  top: ${(props) => `${props.$top}px`};
-  left: ${(props) => `${props.$left}px`};
 
   height: ${(props) => (props.$isMobile ? "auto" : "2.8rem")};
   ${(props) =>
