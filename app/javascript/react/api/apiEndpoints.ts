@@ -34,7 +34,7 @@ export const API_ENDPOINTS: ApiEndpoints = {
   fetchFixedStreamById: (id) => `/fixed_streams/${id}`,
   fetchMobileSessions: (filters) => `/mobile/sessions.json?q=${filters}`,
   fetchMobileStreamById: (id) => `/mobile/streams/${id}`,
-  fetchRectangleData: (filters) => `/region.json?q=${filters}`,
+  fetchRectangleData: (filters) => `/region.json?${filters}`,
   fetchSelectedDataRangeOfStream: (id, startDate, endDate) =>
     `/stream_daily_averages?stream_id=${id}&start_date=${startDate}&end_date=${endDate}`,
   fetchThresholds: (filters) => `/thresholds/${filters}`,

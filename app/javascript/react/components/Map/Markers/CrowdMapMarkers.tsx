@@ -69,36 +69,7 @@ const CrowdMapMarkers = ({ pulsatingSessionId, sessions }: Props) => {
       usernames,
     ]
   );
-  const rectangleFilters = useMemo(
-    () =>
-      JSON.stringify({
-        east: rectangleBoundEast,
-        grid_size_x: 50, // TODO: temporary solution, ticket: Session Filter [Mobile]: Grid size
-        grid_size_y: 50, // TODO: temporary solution, ticket: Session Filter [Mobile]: Grid size
-        measurement_type: measurementType,
-        north: rectangleBoundNorth,
-        sensor_name: "AirBeam-PM2.5", // TODO: temporary solution, ticket: Session Filter [Both]: Sensor Picker
-        south: rectangleBoundSouth,
-        stream_ids: mobileSessionsStreamIds,
-        tags: tags,
-        time_from: "1685318400", // TODO: temporary solution, ticket: Session Filter [Both]: Year Picker
-        time_to: "1717027199", // TODO: temporary solution, ticket: Session Filter [Both]: Year Picker
-        unit_symbol: unitSymbol,
-        usernames: usernames,
-        west: rectangleBoundWest,
-      }),
-    [
-      rectangleBoundEast,
-      rectangleBoundNorth,
-      rectangleBoundSouth,
-      rectangleBoundWest,
-      measurementType,
-      mobileSessionsStreamIds,
-      tags,
-      unitSymbol,
-      usernames,
-    ]
-  );
+
   const rectanglesRef = useRef<google.maps.Rectangle[]>([]);
   const [selectedRectangle, setSelectedRectangle] =
     useState<google.maps.Rectangle | null>(null);
@@ -137,12 +108,39 @@ const CrowdMapMarkers = ({ pulsatingSessionId, sessions }: Props) => {
           strokeWeight: 0,
         });
 
-        // Make rectangle clickable
         google.maps.event.addListener(newRectangle, "click", () => {
           setSelectedRectangle(newRectangle);
-          // Add additional logic for what should happen on rectangle click
-          console.log("Rectangle clicked:", newRectangle);
-          dispatch(fetchRectangleData(rectangleFilters));
+
+          const rectangleBounds = newRectangle.getBounds();
+
+          if (rectangleBounds) {
+            const rectangleBoundEast = rectangleBounds.getNorthEast().lng();
+            const rectangleBoundWest = rectangleBounds.getSouthWest().lng();
+            const rectangleBoundNorth = rectangleBounds.getNorthEast().lat();
+            const rectangleBoundSouth = rectangleBounds.getSouthWest().lat();
+
+            const rectangleFilters = {
+              west: rectangleBoundWest.toString(),
+              east: rectangleBoundEast.toString(),
+              south: rectangleBoundSouth.toString(),
+              north: rectangleBoundNorth.toString(),
+              time_from: "1685318400", // Adjust these values based on your actual time range
+              time_to: "1717027199",
+              grid_size_x: "50", // Adjust these values based on your actual grid size requirements
+              grid_size_y: "50",
+              tags: tags || "",
+              usernames: usernames || "",
+              sensor_name: "airbeam-pm2.5", // Adjust to lowercase
+              measurement_type: "Particulate Matter",
+              unit_symbol: encodeURIComponent(unitSymbol), // Encoding the unit symbol
+              stream_ids: mobileSessionsStreamIds.join(","), // Convert array to comma-separated string
+            };
+            const queryString = new URLSearchParams(
+              rectangleFilters
+            ).toString();
+            // Dispatch the action to fetch rectangle data
+            dispatch(fetchRectangleData(queryString));
+          }
         });
 
         return newRectangle;
@@ -156,7 +154,16 @@ const CrowdMapMarkers = ({ pulsatingSessionId, sessions }: Props) => {
       rectanglesRef.current.forEach((rectangle) => rectangle.setMap(null));
       rectanglesRef.current = [];
     };
-  }, [crowdMapRectangles, map, thresholds]);
+  }, [
+    crowdMapRectangles,
+    map,
+    thresholds,
+    measurementType,
+    mobileSessionsStreamIds,
+    tags,
+    unitSymbol,
+    usernames,
+  ]);
 
   const renderMarker = (displayedSession: Session) => {
     return (
