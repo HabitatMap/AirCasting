@@ -93,6 +93,9 @@ const FixedMarkers = ({
   const memoizedSessions = useMemo(() => sessions, [sessions]);
   const memoizedMarkers = useMemo(() => markers, [markers]);
 
+  console.log(memoizedSessions, " memoizedSessions");
+  console.log(memoizedMarkers, " memoizedMarkers");
+
   useEffect(() => {
     if (map) {
       if (clusterer.current) {
