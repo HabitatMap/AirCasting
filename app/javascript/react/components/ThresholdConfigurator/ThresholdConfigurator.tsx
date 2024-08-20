@@ -54,7 +54,7 @@ const ThresholdsConfigurator: React.FC<ThresholdsConfiguratorProps> = ({
       {isMobile || noDisclaimers ? (
         <>
           {renderSlider()}
-          {resetButtonVariant && sessionId && (
+          {resetButtonVariant && (
             <ResetButton
               variant={resetButtonVariant}
               resetButtonText={resetButtonText}
