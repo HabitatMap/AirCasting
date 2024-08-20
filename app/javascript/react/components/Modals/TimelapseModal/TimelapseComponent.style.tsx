@@ -162,7 +162,7 @@ const ProgressFiller = styled.div`
 
 const StepMarkers = styled.div`
   position: absolute;
-  top: -7px;
+  top: -6px;
   left: 0;
   right: 0;
   height: 1rem;
@@ -176,7 +176,7 @@ const StepMarker = styled.div<{
   left: ${({ $position }) => `${$position}%`};
   position: absolute;
   width: 0.1rem;
-  height: 1.6rem;
+  height: 1.4rem;
   background-color: ${({ $isActive }) => ($isActive ? acBlue : gray500)};
   transform: scale(1);
   transition: transform 0.2s ease-in-out;
@@ -202,6 +202,18 @@ const Date = styled.span`
   font-weight: 500;
 `;
 
+const RoundMarker = styled.div<{ $position: number }>`
+  position: absolute;
+  top: -7px;
+  left: ${({ $position }) => `${$position}%`};
+  width: 1.6rem;
+  height: 1.6rem;
+  background-color: ${acBlue};
+  border-radius: 50%;
+  transform: translateX(-50%);
+  transition: left 0.2s ease-in-out;
+`;
+
 export {
   AlertInfo,
   AxisContainer,
@@ -212,6 +224,7 @@ export {
   NavigationButtonsContainer,
   ProgressBar,
   ProgressFiller,
+  RoundMarker,
   SmallPopup,
   StepMarker,
   StepMarkers,
