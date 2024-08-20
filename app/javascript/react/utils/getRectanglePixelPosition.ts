@@ -4,7 +4,7 @@ const getRectanglePixelPosition = (
 ): { top: number; left: number } => {
   const bounds = rectangle.getBounds();
   if (!bounds) {
-    throw new Error("Map bounds are undefined");
+    throw new Error("Rectangle bounds are undefined");
   }
 
   const projection = map.getProjection();
@@ -19,12 +19,15 @@ const getRectanglePixelPosition = (
   const nePoint = projection.fromLatLngToPoint(ne);
   const swPoint = projection.fromLatLngToPoint(sw);
 
+  if (!nePoint || !swPoint) {
+    throw new Error("Conversion from LatLng to Point failed");
+  }
+
   // Convert Point to pixel position on the map's container
   const scale = Math.pow(2, map.getZoom()!); // The scale based on the current zoom level
-  const mapDiv = map.getDiv();
 
   const nePixel = new google.maps.Point(
-    Math.floor(nePoint?.x * scale),
+    Math.floor(nePoint.x * scale),
     Math.floor(nePoint.y * scale)
   );
   const swPixel = new google.maps.Point(
