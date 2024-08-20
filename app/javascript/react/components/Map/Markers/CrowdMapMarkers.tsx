@@ -1,7 +1,9 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
+import { useSelector } from "react-redux";
 
 import { AdvancedMarker, useMap } from "@vis.gl/react-google-maps";
 
+import { RootState } from "../../../store";
 import {
   fetchCrowdMapData,
   selectCrowdMapRectangles,
@@ -15,9 +17,10 @@ import {
 } from "../../../store/rectangleSlice";
 import { selectThresholds } from "../../../store/thresholdSlice";
 import { Session } from "../../../types/sessionType";
+import { getClusterPixelPosition } from "../../../utils/getClusterPixelPosition";
 import { useMapParams } from "../../../utils/mapParamsHandler";
 import { getColorForValue } from "../../../utils/thresholdColors";
-import ClusterInfo from "./ClusterInfo"; // Assuming you have a ClusterInfo component
+import { ClusterInfo } from "./ClusterInfo/ClusterInfo";
 import { SessionDotMarker } from "./SessionDotMarker/SessionDotMarker";
 
 type Props = {
@@ -75,15 +78,16 @@ const CrowdMapMarkers = ({ pulsatingSessionId, sessions }: Props) => {
   );
 
   const rectanglesRef = useRef<google.maps.Rectangle[]>([]);
+  const rectangleData = useSelector((state: RootState) => state.rectangle.data);
+  const rectangleLoading = useSelector(
+    (state: RootState) => state.rectangle.loading
+  );
   const [selectedRectangle, setSelectedRectangle] =
     useState<google.maps.Rectangle | null>(null);
-  const [clusterPosition, setClusterPosition] = useState<{
+  const [rectanglePosition, setRectanglePosition] = useState<{
     top: number;
     left: number;
   } | null>(null);
-  const [clusterVisible, setClusterVisible] = useState(false);
-  const [clusterData, setClusterData] = useState<ClusterData | null>(null);
-  const [clusterLoading, setClusterLoading] = useState(false);
 
   const crowdMapRectanglesLength: number = crowdMapRectangles.length;
   const displayedSession: Session | undefined = sessions.find(
@@ -152,18 +156,17 @@ const CrowdMapMarkers = ({ pulsatingSessionId, sessions }: Props) => {
 
             dispatch(fetchRectangleData(queryString));
 
-            setSelectedRectangle(newRectangle);
-
-            // Assume you have a way to get cluster data here, setting cluster data and position.
-            setClusterPosition({ top: 100, left: 100 }); // Example position
-            setClusterData({
-              average: 10, // Example data
-              numberOfContributors: 5,
-              numberOfSamples: 20,
-              numberOfInstruments: 3,
+            const pixelPosition = getClusterPixelPosition(
+              map,
+              newRectangle.position
+            );
+            setRectanglePosition({
+              top: pixelPosition.y,
+              left: pixelPosition.x,
             });
-            setClusterLoading(false);
-            setClusterVisible(true);
+
+            setSelectedRectangle(newRectangle);
+            dispatch(setVisibility(true));
           }
         });
 
@@ -212,16 +215,16 @@ const CrowdMapMarkers = ({ pulsatingSessionId, sessions }: Props) => {
     <>
       {displayedSession && renderMarker(displayedSession)}
       {selectedRectangle &&
-        clusterPosition &&
-        !clusterLoading &&
-        clusterData && (
+        rectangleData &&
+        !rectangleLoading &&
+        rectangleData && (
           <ClusterInfo
-            color={getColorForValue(thresholds, clusterData.average)}
-            average={clusterData.average}
-            numberOfSessions={clusterData.numberOfInstruments}
+            color={getColorForValue(thresholds, rectangleData.average)}
+            average={rectangleData.average}
+            numberOfSessions={rectangleData.numberOfInstruments}
             handleZoomIn={() => {}}
-            position={clusterPosition}
-            visible={clusterVisible}
+            position={rectanglePosition}
+            visible={true}
           />
         )}
     </>
