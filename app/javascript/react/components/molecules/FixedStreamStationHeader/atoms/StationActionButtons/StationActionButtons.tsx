@@ -11,7 +11,7 @@ import { ExportDataComponent } from "../../../../Popups/ExportDataComponent";
 import * as S from "./StationActionButtons.style";
 
 interface Props {
-  sessionId: string;
+  sessionId: number;
 }
 
 const StationActionButtons = ({ sessionId }: Props) => {

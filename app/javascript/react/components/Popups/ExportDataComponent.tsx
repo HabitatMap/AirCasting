@@ -13,7 +13,7 @@ import * as S from "./Popups.style";
 
 interface ExportDataComponentProps {
   button: JSX.Element | ((isOpen: boolean) => JSX.Element) | undefined;
-  sessionsIds: string[];
+  sessionsIds: number[];
   isIconOnly: boolean;
   onSubmit: (data: ExportModalData) => void;
   fixedSessionTypeSelected?: boolean;

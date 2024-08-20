@@ -34,7 +34,7 @@ const SessionsListView: React.FC<SessionsListViewProps> = ({
 }) => {
   const { t } = useTranslation();
   const results = sessions.length;
-  const sessionsIds = sessions.map((session) => session.id.toString());
+  const sessionsIds = sessions.map((session) => session.id);
   const exportButtonRef = React.useRef<HTMLDivElement>(null);
   const [buttonPosition, setButtonPosition] = React.useState({
     top: 0,

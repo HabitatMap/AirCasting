@@ -1,5 +1,4 @@
 import React from "react";
-import { useTranslation } from "react-i18next";
 import { useSelector } from "react-redux";
 
 import {
@@ -43,7 +42,6 @@ const SessionInfo: React.FC<SessionInfoProps> = ({
     fixedSessionTypeSelected ? selectFixedExtremes : selectMobileExtremes
   );
   const thresholds = useSelector(selectThresholds);
-  const { t } = useTranslation();
 
   const toggleVisibility = () => {
     setIsVisible(!isVisible);

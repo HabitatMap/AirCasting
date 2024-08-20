@@ -29,7 +29,7 @@ const initialState: FixedStreamState = {
       unitSymbol: "",
       updateFrequency: "",
       active: true,
-      sessionId: "",
+      sessionId: 0,
       startTime: "",
       endTime: "",
       min: 0,

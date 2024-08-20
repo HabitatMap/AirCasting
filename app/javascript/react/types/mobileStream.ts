@@ -32,7 +32,7 @@ interface MobileStreamShortInfo {
   minMeasurementValue: number;
   profile: string;
   sensorName: string;
-  sessionId: string;
+  sessionId: number;
   startTime: string;
   title: string;
   unitSymbol: string;

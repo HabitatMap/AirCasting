@@ -62,7 +62,7 @@ const selectMobileStreamShortInfo = createSelector(
       minMeasurementValue,
       profile: mobileStreamData.username,
       sensorName: mobileStreamData.sensorName,
-      sessionId: mobileStreamData.id.toString(),
+      sessionId: mobileStreamData.id,
       startTime: formattedStartTime,
       title: mobileStreamData.title,
       unitSymbol: mobileStreamData.sensorUnit,

@@ -1,7 +1,7 @@
 import { SessionType, fetchTagsParamsType } from "../types/filters";
 
 interface ApiEndpoints {
-  readonly exportSessionData: (sessionsIds: string[], email: string) => string;
+  readonly exportSessionData: (sessionsIds: number[], email: string) => string;
   readonly fetchClusterData: (streamIds: string[]) => string;
   readonly fetchCrowdMap: (filters: string) => string;
   readonly fetchFixedSessions: (filters: string) => string;
@@ -20,7 +20,7 @@ interface ApiEndpoints {
 }
 
 export const API_ENDPOINTS: ApiEndpoints = {
-  exportSessionData: (sessionsIds: string[], email: string) => {
+  exportSessionData: (sessionsIds: number[], email: string) => {
     const sessionParams = sessionsIds
       .map((id) => `session_ids[]=${id}`)
       .join("&");

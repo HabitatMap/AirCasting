@@ -11,7 +11,7 @@ interface DataSource {
 }
 
 interface FixedStreamStationInfo extends StreamUpdate, DataSource {
-  sessionId: string;
+  sessionId: number;
   title: string;
   unitSymbol: string;
   active: boolean;
@@ -46,13 +46,11 @@ interface FixedStreamShortInfo extends FixedStreamStationInfo {
   minMeasurementValue: number;
 }
 
-
-
 interface FixedGraphData {
   measurements: Measurement[];
   unitSymbol: string;
   measurementType: string;
- }
+}
 
 export type {
   StreamUpdate,

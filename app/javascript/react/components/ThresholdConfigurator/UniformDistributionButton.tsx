@@ -34,7 +34,7 @@ const UniformDistributionButton = ({
       max = mobileStream.maxMeasurementValue!;
     } else if (
       fixedStream.status === StatusEnum.Fulfilled &&
-      fixedStream.data.stream.sessionId === sessionId?.toString()
+      fixedStream.data.stream.sessionId === sessionId
     ) {
       min = fixedStream.minMeasurementValue!;
       max = fixedStream.maxMeasurementValue!;
@@ -48,7 +48,7 @@ const UniformDistributionButton = ({
         "Can't distribute thresholds when Min and Max values are both the same."
       );
       console.error(
-        "While using discrete uniform distribution the Min and Max values cannot both be 0"
+        "While using discrete uniform distribution the Min and Max values cannot both be the same"
       );
 
       setTimeout(() => {
