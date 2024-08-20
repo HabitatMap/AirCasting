@@ -2,15 +2,22 @@ import React, { useEffect, useMemo, useRef, useState } from "react";
 
 import { AdvancedMarker, useMap } from "@vis.gl/react-google-maps";
 
-import { fetchCrowdMapData, selectCrowdMapRectangles } from "../../../store/crowdMapSlice";
+import {
+  fetchCrowdMapData,
+  selectCrowdMapRectangles,
+} from "../../../store/crowdMapSlice";
 import { useAppDispatch, useAppSelector } from "../../../store/hooks";
 import { setMarkersLoading } from "../../../store/markersLoadingSlice";
 import { selectMobileSessionsStreamIds } from "../../../store/mobileSessionsSelectors";
-import { fetchRectangleData, setVisibility } from "../../../store/rectangleSlice";
+import {
+  fetchRectangleData,
+  setVisibility,
+} from "../../../store/rectangleSlice";
 import { selectThresholds } from "../../../store/thresholdSlice";
 import { Session } from "../../../types/sessionType";
 import { useMapParams } from "../../../utils/mapParamsHandler";
 import { getColorForValue } from "../../../utils/thresholdColors";
+import ClusterInfo from "./ClusterInfo"; // Assuming you have a ClusterInfo component
 import { SessionDotMarker } from "./SessionDotMarker/SessionDotMarker";
 
 type Props = {
@@ -70,6 +77,13 @@ const CrowdMapMarkers = ({ pulsatingSessionId, sessions }: Props) => {
   const rectanglesRef = useRef<google.maps.Rectangle[]>([]);
   const [selectedRectangle, setSelectedRectangle] =
     useState<google.maps.Rectangle | null>(null);
+  const [clusterPosition, setClusterPosition] = useState<{
+    top: number;
+    left: number;
+  } | null>(null);
+  const [clusterVisible, setClusterVisible] = useState(false);
+  const [clusterData, setClusterData] = useState<ClusterData | null>(null);
+  const [clusterLoading, setClusterLoading] = useState(false);
 
   const crowdMapRectanglesLength: number = crowdMapRectangles.length;
   const displayedSession: Session | undefined = sessions.find(
@@ -78,7 +92,7 @@ const CrowdMapMarkers = ({ pulsatingSessionId, sessions }: Props) => {
 
   useEffect(() => {
     dispatch(fetchCrowdMapData(filters));
-  }, [filters]);
+  }, [filters, dispatch]);
 
   useEffect(() => {
     dispatch(setMarkersLoading(true));
@@ -121,24 +135,35 @@ const CrowdMapMarkers = ({ pulsatingSessionId, sessions }: Props) => {
               east: rectangleBoundEast.toString(),
               south: rectangleBoundSouth.toString(),
               north: rectangleBoundNorth.toString(),
-              time_from: "1685318400", // Adjust these values based on your actual time range
+              time_from: "1685318400",
               time_to: "1717027199",
-              grid_size_x: "50", // Adjust these values based on your actual grid size requirements
+              grid_size_x: "50",
               grid_size_y: "50",
               tags: tags || "",
               usernames: usernames || "",
-              sensor_name: "airbeam-pm2.5", // Adjust to lowercase
+              sensor_name: "airbeam-pm2.5",
               measurement_type: "Particulate Matter",
-              unit_symbol: encodeURIComponent(unitSymbol), // Encoding the unit symbol
-              stream_ids: mobileSessionsStreamIds.join(","), // Convert array to comma-separated string
+              unit_symbol: encodeURIComponent(unitSymbol),
+              stream_ids: mobileSessionsStreamIds.join(","),
             };
             const queryString = new URLSearchParams(
               rectangleFilters
             ).toString();
-            // Dispatch the action to fetch rectangle data
+
             dispatch(fetchRectangleData(queryString));
+
             setSelectedRectangle(newRectangle);
-            dispatch(setVisibility(true));
+
+            // Assume you have a way to get cluster data here, setting cluster data and position.
+            setClusterPosition({ top: 100, left: 100 }); // Example position
+            setClusterData({
+              average: 10, // Example data
+              numberOfContributors: 5,
+              numberOfSamples: 20,
+              numberOfInstruments: 3,
+            });
+            setClusterLoading(false);
+            setClusterVisible(true);
           }
         });
 
@@ -157,6 +182,7 @@ const CrowdMapMarkers = ({ pulsatingSessionId, sessions }: Props) => {
     crowdMapRectangles,
     map,
     thresholds,
+    dispatch,
     measurementType,
     mobileSessionsStreamIds,
     tags,
@@ -182,20 +208,24 @@ const CrowdMapMarkers = ({ pulsatingSessionId, sessions }: Props) => {
     );
   };
 
-  if (displayedSession) {
-    return renderMarker(displayedSession);
-  } else {
-    return (      {selectedCluster && clusterPosition && !clusterLoading && clusterData && (
-      <ClusterInfo
-        color={getColorForValue(thresholds, clusterData.average)}
-        average={clusterData.average}
-        numberOfSessions={clusterData.numberOfInstruments}
-        handleZoomIn={handleZoomIn}
-        position={clusterPosition}
-        visible={clusterVisible}
-      />
-    )});
-  }
+  return (
+    <>
+      {displayedSession && renderMarker(displayedSession)}
+      {selectedRectangle &&
+        clusterPosition &&
+        !clusterLoading &&
+        clusterData && (
+          <ClusterInfo
+            color={getColorForValue(thresholds, clusterData.average)}
+            average={clusterData.average}
+            numberOfSessions={clusterData.numberOfInstruments}
+            handleZoomIn={() => {}}
+            position={clusterPosition}
+            visible={clusterVisible}
+          />
+        )}
+    </>
+  );
 };
 
 export { CrowdMapMarkers };
