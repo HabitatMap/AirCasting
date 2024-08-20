@@ -11,6 +11,10 @@ const TimeAxis: React.FC<TimeAxisProps> = ({ currentStep, totalSteps }) => {
 
   return (
     <S.AxisContainer>
+      <S.DateContainer>
+        <S.Time>00:00 AM</S.Time>
+        <S.Date>01/01</S.Date>
+      </S.DateContainer>
       <S.ProgressBar>
         <S.ProgressFiller style={{ width: `${progressPercentage}%` }} />
         <S.StepMarkers>
@@ -27,6 +31,10 @@ const TimeAxis: React.FC<TimeAxisProps> = ({ currentStep, totalSteps }) => {
           })}
         </S.StepMarkers>
       </S.ProgressBar>
+      <S.DateContainer>
+        <S.Time>00:00 AM</S.Time>
+        <S.Date>01/01</S.Date>
+      </S.DateContainer>
     </S.AxisContainer>
   );
 };
