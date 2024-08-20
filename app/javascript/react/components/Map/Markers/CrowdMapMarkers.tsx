@@ -212,7 +212,8 @@ const CrowdMapMarkers = ({ pulsatingSessionId, sessions }: Props) => {
           <RectangleInfo
             color={getColorForValue(thresholds, rectangleData.average)}
             average={rectangleData.average}
-            numberOfSessions={rectangleData.numberOfContributors}
+            numberOfContributors={rectangleData.numberOfContributors}
+            numberOfSamples={rectangleData.numberOfSamples}
             visible={true}
           />
         </AdvancedMarker>

@@ -20,14 +20,16 @@ import {
 interface RectangleProps {
   color: string;
   average: number;
-  numberOfSessions: number;
+  numberOfContributors: number;
+  numberOfSamples: number;
   visible: boolean;
 }
 
 const RectangleInfo = ({
   color,
   average,
-  numberOfSessions,
+  numberOfContributors,
+  numberOfSamples,
   visible,
 }: RectangleProps) => {
   const { unitSymbol } = useMapParams();
@@ -58,13 +60,12 @@ const RectangleInfo = ({
               <RectangleCircle $color={color} />
               <RectangleInfoText>
                 <RectangleInfoColorText $color={color}>
-                  {numberOfSessions} {t("map.rectangleInfo.stations")}
+                  {`${t("map.rectangleInfo.average")} ${average.toFixed(
+                    0
+                  )} ${unitSymbol} `}
                 </RectangleInfoColorText>
-                {" - "}
-                <RectangleInfoBoldText>
-                  {average.toFixed(0)}
-                </RectangleInfoBoldText>
-                {` ${unitSymbol} ${t("map.rectangleInfo.average")}`}
+                <RectangleInfoBoldText>{numberOfSamples}</RectangleInfoBoldText>
+                {` ${t("map.rectangleInfo.measurements")}`}
               </RectangleInfoText>
             </DataContainer>
           </RectangleInfoDataAndZoomIn>

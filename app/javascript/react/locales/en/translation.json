@@ -134,6 +134,10 @@
       "stations": "stations",
       "measurements": "measurements"
     },
+    "rectangleInfo": {
+      "average": "avg.",
+      "measurements": "measurements"
+    },
     "timelapsTile": "Timelapse",
     "altTimelapseTile": "Show the timelapse for the map"
   },

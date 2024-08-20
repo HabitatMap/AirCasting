@@ -73,8 +73,8 @@ const RectangleInfoDataAndZoomIn = styled.div`
 `;
 
 const RectangleCircle = styled.div<RectangleInfoProps>`
-  width: 2rem;
-  height: 2rem;
+  width: 1rem;
+  height: 1rem;
   border-radius: 50%;
   background-color: ${(props) => props.$color};
   pointer-events: none;
