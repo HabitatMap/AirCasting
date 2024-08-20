@@ -2,14 +2,11 @@ import React, { useEffect, useMemo, useRef, useState } from "react";
 
 import { AdvancedMarker, useMap } from "@vis.gl/react-google-maps";
 
-import {
-  fetchCrowdMapData,
-  selectCrowdMapRectangles,
-} from "../../../store/crowdMapSlice";
+import { fetchCrowdMapData, selectCrowdMapRectangles } from "../../../store/crowdMapSlice";
 import { useAppDispatch, useAppSelector } from "../../../store/hooks";
 import { setMarkersLoading } from "../../../store/markersLoadingSlice";
 import { selectMobileSessionsStreamIds } from "../../../store/mobileSessionsSelectors";
-import { fetchRectangleData } from "../../../store/rectangleSlice";
+import { fetchRectangleData, setVisibility } from "../../../store/rectangleSlice";
 import { selectThresholds } from "../../../store/thresholdSlice";
 import { Session } from "../../../types/sessionType";
 import { useMapParams } from "../../../utils/mapParamsHandler";
@@ -109,7 +106,7 @@ const CrowdMapMarkers = ({ pulsatingSessionId, sessions }: Props) => {
         });
 
         google.maps.event.addListener(newRectangle, "click", () => {
-          setSelectedRectangle(newRectangle);
+          dispatch(setVisibility(false));
 
           const rectangleBounds = newRectangle.getBounds();
 
@@ -140,6 +137,8 @@ const CrowdMapMarkers = ({ pulsatingSessionId, sessions }: Props) => {
             ).toString();
             // Dispatch the action to fetch rectangle data
             dispatch(fetchRectangleData(queryString));
+            setSelectedRectangle(newRectangle);
+            dispatch(setVisibility(true));
           }
         });
 
@@ -186,7 +185,16 @@ const CrowdMapMarkers = ({ pulsatingSessionId, sessions }: Props) => {
   if (displayedSession) {
     return renderMarker(displayedSession);
   } else {
-    return null;
+    return (      {selectedCluster && clusterPosition && !clusterLoading && clusterData && (
+      <ClusterInfo
+        color={getColorForValue(thresholds, clusterData.average)}
+        average={clusterData.average}
+        numberOfSessions={clusterData.numberOfInstruments}
+        handleZoomIn={handleZoomIn}
+        position={clusterPosition}
+        visible={clusterVisible}
+      />
+    )});
   }
 };
 
