@@ -163,6 +163,7 @@ const MobileAxisContainer = styled.div`
   width: 100%;
   grid-column: 1 / 3;
   grid-row: 3 / 3;
+  padding-left: 0.8rem;
   @media ${media.smallDesktop} {
     display: none;
   }
@@ -246,6 +247,9 @@ const MobileDateContainer = styled.div`
   justify-content: center;
   align-items: center;
   gap: 1rem;
+  @media ${media.smallDesktop} {
+    display: none;
+  }
 `;
 
 const Time = styled.span`
