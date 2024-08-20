@@ -1,10 +1,10 @@
 const getRectanglePixelPosition = (
   map: google.maps.Map,
-  latLng: google.maps.LatLng
-) => {
-  const zoom = map.getZoom();
-  if (!zoom) {
-    throw new Error("Map zoom level is undefined");
+  rectangle: google.maps.Rectangle
+): { top: number; left: number } => {
+  const bounds = rectangle.getBounds();
+  if (!bounds) {
+    throw new Error("Map bounds are undefined");
   }
 
   const projection = map.getProjection();
@@ -12,41 +12,31 @@ const getRectanglePixelPosition = (
     throw new Error("Map projection is undefined");
   }
 
-  const scale = Math.pow(2, zoom);
-  const bounds = map.getBounds();
-  if (!bounds) {
-    throw new Error("Map bounds are undefined");
-  }
+  const ne = bounds.getNorthEast(); // Northeast corner of the rectangle
+  const sw = bounds.getSouthWest(); // Southwest corner of the rectangle
 
-  const nw = new google.maps.LatLng(
-    bounds.getNorthEast().lat(),
-    bounds.getSouthWest().lng()
+  // Convert LatLng to Point (pixel position)
+  const nePoint = projection.fromLatLngToPoint(ne);
+  const swPoint = projection.fromLatLngToPoint(sw);
+
+  // Convert Point to pixel position on the map's container
+  const scale = Math.pow(2, map.getZoom()!); // The scale based on the current zoom level
+  const mapDiv = map.getDiv();
+
+  const nePixel = new google.maps.Point(
+    Math.floor(nePoint?.x * scale),
+    Math.floor(nePoint.y * scale)
   );
-  const worldCoordinateNW = projection.fromLatLngToPoint(nw);
-  const worldCoordinate = projection.fromLatLngToPoint(latLng);
-  if (!worldCoordinate || !worldCoordinateNW) {
-    throw new Error("World coordinate is null");
-  }
-
-  let xOffset = (worldCoordinate.x - worldCoordinateNW.x) * scale;
-  const yOffset = (worldCoordinate.y - worldCoordinateNW.y) * scale;
-
-  const totalWorldPixels = 256 * scale;
-
-  if (xOffset < -totalWorldPixels / 2) {
-    xOffset += totalWorldPixels;
-  } else if (xOffset > totalWorldPixels / 2) {
-    xOffset -= totalWorldPixels;
-  }
-
-  xOffset = (xOffset + totalWorldPixels) % totalWorldPixels;
-
-  const pixelOffset = new google.maps.Point(
-    Math.floor(xOffset),
-    Math.floor(yOffset)
+  const swPixel = new google.maps.Point(
+    Math.floor(swPoint.x * scale),
+    Math.floor(swPoint.y * scale)
   );
 
-  return pixelOffset;
+  // Calculate the top and left position based on the northeast and southwest points
+  const top = nePixel.y;
+  const left = swPixel.x;
+
+  return { top, left };
 };
 
 export { getRectanglePixelPosition };

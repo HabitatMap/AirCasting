@@ -159,11 +159,11 @@ const CrowdMapMarkers = ({ pulsatingSessionId, sessions }: Props) => {
             if (map) {
               const pixelPosition = getRectanglePixelPosition(
                 map,
-                newRectangle.position
+                newRectangle
               );
               setRectanglePosition({
-                top: pixelPosition.y,
-                left: pixelPosition.x,
+                top: pixelPosition.top,
+                left: pixelPosition.left,
               });
             }
             setSelectedRectangle(newRectangle);
