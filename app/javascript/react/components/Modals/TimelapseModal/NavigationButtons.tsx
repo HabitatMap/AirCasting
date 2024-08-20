@@ -36,7 +36,7 @@ const NavigationButtons: React.FC<NavigationButtonsProps> = ({
         } else {
           setIsPlaying(false);
         }
-      }, 1000); // Adjust the speed of the timelapse as needed
+      }, 1000);
     }
 
     return () => {

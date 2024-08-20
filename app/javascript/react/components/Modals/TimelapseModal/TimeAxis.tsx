@@ -17,6 +17,7 @@ const TimeAxis: React.FC<TimeAxisProps> = ({ currentStep, totalSteps }) => {
       </S.DateContainer>
       <S.ProgressBar>
         <S.ProgressFiller style={{ width: `${progressPercentage}%` }} />
+        <S.RoundMarker $position={progressPercentage} />
         <S.StepMarkers>
           {Array.from({ length: totalSteps }).map((_, index) => {
             const position = (index / (totalSteps - 1)) * 100;
