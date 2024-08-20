@@ -82,9 +82,10 @@ const CrowdMapMarkers = ({ pulsatingSessionId, sessions }: Props) => {
   );
   const [selectedRectangle, setSelectedRectangle] =
     useState<google.maps.Rectangle | null>(null);
-  const [rectanglePosition, setRectanglePosition] = useState<{
-    point: google.maps.LatLng | null;
-  }>({ point: null });
+  const [rectanglePoint, setRectanglePoint] = useState<{
+    lat: number;
+    lng: number;
+  } | null>(null);
 
   const crowdMapRectanglesLength: number = crowdMapRectangles.length;
   const displayedSession: Session | undefined = sessions.find(
@@ -152,8 +153,9 @@ const CrowdMapMarkers = ({ pulsatingSessionId, sessions }: Props) => {
             ).toString();
 
             dispatch(fetchRectangleData(queryString));
-            setRectanglePosition({
-              point: rectangleBounds.getNorthEast(),
+            setRectanglePoint({
+              lat: rectangleBoundSouth,
+              lng: rectangleBoundEast,
             });
             setSelectedRectangle(newRectangle);
             dispatch(setVisibility(true));
@@ -183,14 +185,6 @@ const CrowdMapMarkers = ({ pulsatingSessionId, sessions }: Props) => {
     usernames,
   ]);
 
-  useEffect(() => {
-    console.log("rectanglePosition", rectanglePosition);
-  }, [rectanglePosition]);
-
-  useEffect(() => {
-    console.log("rectangleData", rectangleData);
-  }, [rectangleData]);
-
   const renderMarker = (displayedSession: Session) => {
     return (
       <AdvancedMarker
@@ -212,13 +206,15 @@ const CrowdMapMarkers = ({ pulsatingSessionId, sessions }: Props) => {
   return (
     <>
       {displayedSession && renderMarker(displayedSession)}
-      <AdvancedMarker position={rectanglePosition} key={1234567890}>
-        <SessionDotMarker
-          color={getColorForValue(thresholds, 145)}
-          onClick={() => {}}
-          opacity={0.6}
-        />
-      </AdvancedMarker>
+      {rectanglePoint && (
+        <AdvancedMarker position={rectanglePoint} key={1234567890}>
+          <SessionDotMarker
+            color={getColorForValue(thresholds, 145)}
+            onClick={() => {}}
+            opacity={0.6}
+          />
+        </AdvancedMarker>
+      )}
     </>
   );
 };
