@@ -66,6 +66,10 @@ const RectangleInfo = ({
                 </RectangleInfoColorText>
                 <RectangleInfoBoldText>{numberOfSamples}</RectangleInfoBoldText>
                 {` ${t("map.rectangleInfo.measurements")}`}
+                <RectangleInfoBoldText>
+                  {numberOfContributors}
+                </RectangleInfoBoldText>
+                {` ${t("map.rectangleInfo.contributors")}`}
               </RectangleInfoText>
             </DataContainer>
           </RectangleInfoDataAndZoomIn>
