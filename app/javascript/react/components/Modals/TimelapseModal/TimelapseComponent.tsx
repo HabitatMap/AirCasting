@@ -15,6 +15,7 @@ interface TimelapseComponentProps {
   totalSteps: number;
   onNextStep: () => void;
   onPreviousStep: () => void;
+  timestamps: string[];
 }
 
 type CustomPopupProps = {
@@ -26,7 +27,14 @@ type CustomPopupProps = {
 const TimelapseComponent: React.FC<
   TimelapseComponentProps & Omit<PopupProps, "children">
 > = React.memo(
-  ({ onClose, currentStep, totalSteps, onNextStep, onPreviousStep }) => {
+  ({
+    onClose,
+    currentStep,
+    totalSteps,
+    onNextStep,
+    onPreviousStep,
+    timestamps,
+  }) => {
     const TimelapseModal: React.FC<
       CustomPopupProps & Omit<PopupProps, "children">
     > = useCallback((props) => {
@@ -87,7 +95,11 @@ const TimelapseComponent: React.FC<
                   onNextStep={onNextStep}
                   onPreviousStep={onPreviousStep}
                 />
-                <TimeAxis currentStep={currentStep} totalSteps={totalSteps} />
+                <TimeAxis
+                  currentStep={currentStep}
+                  totalSteps={totalSteps}
+                  timestamps={timestamps}
+                />
               </S.TimeAxisContainer>
 
               <S.CancelButtonX onClick={close}>
