@@ -1,37 +1,41 @@
-import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
 import { AxiosError, AxiosResponse } from "axios";
-import { API_ENDPOINTS } from "../api/apiEndpoints";
-import { oldApiClient } from "../api/apiClient";
 
-interface ClusterData {
-  average: number;
-  numberOfContributors: number;
-  numberOfSamples: number;
-  numberOfInstruments: number;
+import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
+
+import { oldApiClient } from "../api/apiClient";
+import { API_ENDPOINTS } from "../api/apiEndpoints";
+
+interface RectangleData {
+  id: string;
+  north: number;
+  south: number;
+  east: number;
+  west: number;
+  value: number; // The value for coloring or other purposes
 }
 
-interface ClusterState {
-  data: ClusterData | null;
+interface RectangleState {
+  rectangles: RectangleData[]; // List of rectangles
   loading: boolean;
   error: string | null;
   visible: boolean;
 }
 
-const initialState: ClusterState = {
-  data: null,
+const initialState: RectangleState = {
+  rectangles: [],
   loading: false,
   error: null,
   visible: false,
 };
 
-export const fetchClusterData = createAsyncThunk<
-  ClusterData,
-  string[],
+export const fetchRectangleData = createAsyncThunk<
+  RectangleData[],
+  string[], // This can be modified based on what parameters you need
   { rejectValue: string }
->("cluster/fetchClusterData", async (streamIds, { rejectWithValue }) => {
+>("rectangle/fetchRectangleData", async (params, { rejectWithValue }) => {
   try {
-    const response: AxiosResponse<ClusterData> = await oldApiClient.get(
-      API_ENDPOINTS.fetchClusterData(streamIds)
+    const response: AxiosResponse<RectangleData[]> = await oldApiClient.get(
+      API_ENDPOINTS.fetchRectangleData(params)
     );
     return response.data;
   } catch (error) {
@@ -43,31 +47,35 @@ export const fetchClusterData = createAsyncThunk<
   }
 });
 
-const clusterSlice = createSlice({
-  name: "cluster",
+const rectangleSlice = createSlice({
+  name: "rectangle",
   initialState,
   reducers: {
     setVisibility: (state, action: PayloadAction<boolean>) => {
       state.visible = action.payload;
     },
+    // Additional reducer to clear rectangles if needed
+    clearRectangles: (state) => {
+      state.rectangles = [];
+    },
   },
   extraReducers: (builder) => {
     builder
-      .addCase(fetchClusterData.pending, (state) => {
+      .addCase(fetchRectangleData.pending, (state) => {
         state.loading = true;
         state.error = null;
         state.visible = true;
       })
       .addCase(
-        fetchClusterData.fulfilled,
-        (state, action: PayloadAction<ClusterData>) => {
-          state.data = action.payload;
+        fetchRectangleData.fulfilled,
+        (state, action: PayloadAction<RectangleData[]>) => {
+          state.rectangles = action.payload;
           state.loading = false;
           state.visible = true;
         }
       )
       .addCase(
-        fetchClusterData.rejected,
+        fetchRectangleData.rejected,
         (state, action: PayloadAction<string | undefined>) => {
           state.error = action.payload ?? "An unknown error occurred";
           state.loading = false;
@@ -77,6 +85,6 @@ const clusterSlice = createSlice({
   },
 });
 
-export const { setVisibility } = clusterSlice.actions;
+export const { setVisibility, clearRectangles } = rectangleSlice.actions;
 
-export default clusterSlice.reducer;
+export default rectangleSlice.reducer;
