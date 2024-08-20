@@ -6,6 +6,7 @@ import {
   gray400,
   gray500,
   gray900,
+  grayStroke,
   white,
 } from "../../../assets/styles/colors";
 import { media } from "../../../utils/media";
@@ -108,13 +109,13 @@ const Wrapper = styled.div`
 
 const TimeAxisContainer = styled.div`
   display: grid;
-  grid-template-columns: 1fr 5fr;
-  grid-template-rows: 1fr 1fr;
-  width: 100%;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: 1fr auto;
+  width: calc(100vw - 3rem);
   height: 100%;
   background-color: ${white};
   gap: 1.2rem;
-  padding: 1rem;
+  padding: 2rem 1.5rem;
   border-radius: 1rem;
   box-shadow: 2px 2px 4px 0px ${gray900};
   @media ${media.smallDesktop} {
@@ -123,6 +124,7 @@ const TimeAxisContainer = styled.div`
     min-width: 50rem;
     grid-template-rows: auto;
     grid-template-columns: 1fr 5fr;
+    padding: 1rem;
   }
 `;
 
@@ -136,37 +138,74 @@ const NavigationButtonsContainer = styled.div`
   display: flex;
   flex-direction: row;
   align-items: center;
-  gap: 1rem;
-  align-self: flex-end;
+  gap: 1.6rem;
+
+  @media ${media.smallDesktop} {
+    gap: 1rem;
+    align-self: flex-end;
+  }
 `;
 
-const AxisContainer = styled.div`
+const DesktopAxisContainer = styled.div`
+  display: none;
+  @media ${media.smallDesktop} {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+  }
+`;
+
+const MobileAxisContainer = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
   width: 100%;
+  grid-column: 1 / 3;
+  grid-row: 3 / 3;
+  @media ${media.smallDesktop} {
+    display: none;
+  }
 `;
 
 const ProgressBar = styled.div`
   width: 100%;
-  height: 2px;
+  height: 6px;
   background-color: ${gray500};
   position: relative;
+  border-radius: 1rem;
+  @media ${media.smallDesktop} {
+    height: 2px;
+    border-radius: 0;
+  }
 `;
 
 const ProgressFiller = styled.div`
-  height: 4px;
+  height: 6px;
   background-color: ${acBlue};
-  margin-top: -0.1rem;
+  border-radius: 1rem;
+
+  @media ${media.smallDesktop} {
+    height: 4px;
+    background-color: ${acBlue};
+    margin-top: -0.1rem;
+    border-radius: 0;
+  }
 `;
 
 const StepMarkers = styled.div`
   position: absolute;
-  top: -6px;
+  top: 0;
   left: 0;
   right: 0;
   height: 1rem;
   width: 100%;
+  @media ${media.smallDesktop} {
+    top: -6px;
+    left: 0;
+    right: 0;
+    height: 1rem;
+  }
 `;
 const StepMarker = styled.div<{
   $isActive: boolean;
@@ -176,10 +215,14 @@ const StepMarker = styled.div<{
   left: ${({ $position }) => `${$position}%`};
   position: absolute;
   width: 0.1rem;
-  height: 1.4rem;
-  background-color: ${({ $isActive }) => ($isActive ? acBlue : gray500)};
+  height: 0.6rem;
+  background-color: ${({ $isActive }) => ($isActive ? acBlue : white)};
   transform: scale(1);
   transition: transform 0.2s ease-in-out;
+  @media ${media.smallDesktop} {
+    height: 1.4rem;
+    background-color: ${({ $isActive }) => ($isActive ? acBlue : gray500)};
+  }
 `;
 
 const DateContainer = styled.div`
@@ -192,19 +235,39 @@ const DateContainer = styled.div`
   gap: 0.5rem;
 `;
 
+const MobileDateContainer = styled.div`
+  display: flex;
+  width: 100%;
+  height: 3.2rem;
+  border-radius: 1.2rem;
+  border: 1px solid ${grayStroke};
+  padding: 2rem 0.5rem;
+  color: ${acBlue};
+  justify-content: center;
+  align-items: center;
+  gap: 1rem;
+`;
+
 const Time = styled.span`
   font-size: 1.2rem;
-  font-weight: 400;
+  @media ${media.smallDesktop} {
+    font-size: 1.2rem;
+    font-weight: 400;
+  }
 `;
 
 const Date = styled.span`
-  font-size: 1.4rem;
+  font-size: 1.6rem;
   font-weight: 500;
+  @media ${media.smallDesktop} {
+    font-size: 1.4rem;
+    font-weight: 500;
+  }
 `;
 
 const RoundMarker = styled.div<{ $position: number }>`
   position: absolute;
-  top: -8px;
+  top: -6px;
   left: ${({ $position }) => `${$position}%`};
   width: 1.6rem;
   height: 1.6rem;
@@ -212,6 +275,9 @@ const RoundMarker = styled.div<{ $position: number }>`
   border-radius: 50%;
   transform: translateX(-50%);
   transition: left 0.2s ease-in-out;
+  @media ${media.smallDesktop} {
+    top: -8px;
+  }
 `;
 
 const Tooltip = styled.div`
@@ -244,10 +310,12 @@ const Tooltip = styled.div`
 
 export {
   AlertInfo,
-  AxisContainer,
   CancelButtonX,
   Date,
   DateContainer,
+  DesktopAxisContainer,
+  MobileAxisContainer,
+  MobileDateContainer,
   NavigationButton,
   NavigationButtonsContainer,
   ProgressBar,

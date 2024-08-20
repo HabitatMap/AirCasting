@@ -33,38 +33,61 @@ const TimeAxis: React.FC<TimeAxisProps> = ({
     .format(DateFormat.us_without_year);
 
   return (
-    <S.AxisContainer>
-      <S.DateContainer>
-        <S.Time>{firstFormattedTime}</S.Time>
-        <S.Date>{firstFormattedDate}</S.Date>
-      </S.DateContainer>
-      <S.ProgressBar>
-        <S.ProgressFiller style={{ width: `${progressPercentage}%` }} />
-        <S.RoundMarker $position={progressPercentage}>
-          <S.Tooltip>
-            <span>{currentTime}</span>
-            <span>{currentDate}</span>
-          </S.Tooltip>
-        </S.RoundMarker>
-        <S.StepMarkers>
-          {Array.from({ length: totalSteps }).map((_, index) => {
-            const position = (index / (totalSteps - 1)) * 100;
-            return (
-              <S.StepMarker
-                key={index}
-                $isActive={index <= currentStep}
-                $isCurrent={index === currentStep}
-                $position={position}
-              />
-            );
-          })}
-        </S.StepMarkers>
-      </S.ProgressBar>
-      <S.DateContainer>
-        <S.Time>{lastFormattedTime}</S.Time>
-        <S.Date>{lastFormattedDate}</S.Date>
-      </S.DateContainer>
-    </S.AxisContainer>
+    <>
+      <S.DesktopAxisContainer>
+        <S.DateContainer>
+          <S.Time>{firstFormattedTime}</S.Time>
+          <S.Date>{firstFormattedDate}</S.Date>
+        </S.DateContainer>
+        <S.ProgressBar>
+          <S.ProgressFiller style={{ width: `${progressPercentage}%` }} />
+          <S.RoundMarker $position={progressPercentage}>
+            <S.Tooltip>
+              <span>{currentTime}</span>
+              <span>{currentDate}</span>
+            </S.Tooltip>
+          </S.RoundMarker>
+          <S.StepMarkers>
+            {Array.from({ length: totalSteps }).map((_, index) => {
+              const position = (index / (totalSteps - 1)) * 100;
+              return (
+                <S.StepMarker
+                  key={index}
+                  $isActive={index <= currentStep}
+                  $isCurrent={index === currentStep}
+                  $position={position}
+                />
+              );
+            })}
+          </S.StepMarkers>
+        </S.ProgressBar>
+        <S.DateContainer>
+          <S.Time>{lastFormattedTime}</S.Time>
+          <S.Date>{lastFormattedDate}</S.Date>
+        </S.DateContainer>
+      </S.DesktopAxisContainer>
+
+      <S.MobileAxisContainer>
+        <S.ProgressBar>
+          <S.ProgressFiller style={{ width: `${progressPercentage}%` }} />
+          <S.RoundMarker $position={progressPercentage} />
+
+          <S.StepMarkers>
+            {Array.from({ length: totalSteps }).map((_, index) => {
+              const position = (index / (totalSteps - 1)) * 100;
+              return (
+                <S.StepMarker
+                  key={index}
+                  $isActive={index <= currentStep}
+                  $isCurrent={index === currentStep}
+                  $position={position}
+                />
+              );
+            })}
+          </S.StepMarkers>
+        </S.ProgressBar>
+      </S.MobileAxisContainer>
+    </>
   );
 };
 
