@@ -6,35 +6,31 @@ import { oldApiClient } from "../api/apiClient";
 import { API_ENDPOINTS } from "../api/apiEndpoints";
 
 interface RectangleData {
-  id: string;
-  north: number;
-  south: number;
-  east: number;
-  west: number;
-  value: number; // The value for coloring or other purposes
+  average: number;
+  numberOfContributors: number;
+  numberOfSamples: number;
 }
 
 interface RectangleState {
-  rectangles: RectangleData[]; // List of rectangles
-  loading: boolean;
+  data?: RectangleData;
   error: string | null;
+  loading: boolean;
   visible: boolean;
 }
 
 const initialState: RectangleState = {
-  rectangles: [],
   loading: false,
   error: null,
   visible: false,
 };
 
 export const fetchRectangleData = createAsyncThunk<
-  RectangleData[],
+  RectangleData,
   string, // This can be modified based on what parameters you need
   { rejectValue: string }
 >("rectangle/fetchRectangleData", async (params, { rejectWithValue }) => {
   try {
-    const response: AxiosResponse<RectangleData[]> = await oldApiClient.get(
+    const response: AxiosResponse<RectangleData> = await oldApiClient.get(
       API_ENDPOINTS.fetchRectangleData(params)
     );
     return response.data;
@@ -56,7 +52,7 @@ const rectangleSlice = createSlice({
     },
     // Additional reducer to clear rectangles if needed
     clearRectangles: (state) => {
-      state.rectangles = [];
+      state.data = undefined;
     },
   },
   extraReducers: (builder) => {
@@ -68,8 +64,8 @@ const rectangleSlice = createSlice({
       })
       .addCase(
         fetchRectangleData.fulfilled,
-        (state, action: PayloadAction<RectangleData[]>) => {
-          state.rectangles = action.payload;
+        (state, action: PayloadAction<RectangleData>) => {
+          state.data = action.payload;
           state.loading = false;
           state.visible = true;
         }

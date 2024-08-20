@@ -17,7 +17,7 @@ import {
 } from "../../../store/rectangleSlice";
 import { selectThresholds } from "../../../store/thresholdSlice";
 import { Session } from "../../../types/sessionType";
-import { getClusterPixelPosition } from "../../../utils/getClusterPixelPosition";
+import { getRectanglePixelPosition } from "../../../utils/getRectanglePixelPosition";
 import { useMapParams } from "../../../utils/mapParamsHandler";
 import { getColorForValue } from "../../../utils/thresholdColors";
 import { ClusterInfo } from "./ClusterInfo/ClusterInfo";
@@ -87,7 +87,7 @@ const CrowdMapMarkers = ({ pulsatingSessionId, sessions }: Props) => {
   const [rectanglePosition, setRectanglePosition] = useState<{
     top: number;
     left: number;
-  } | null>(null);
+  }>({ top: 0, left: 0 });
 
   const crowdMapRectanglesLength: number = crowdMapRectangles.length;
   const displayedSession: Session | undefined = sessions.find(
@@ -155,16 +155,17 @@ const CrowdMapMarkers = ({ pulsatingSessionId, sessions }: Props) => {
             ).toString();
 
             dispatch(fetchRectangleData(queryString));
-
-            const pixelPosition = getClusterPixelPosition(
-              map,
-              newRectangle.position
-            );
-            setRectanglePosition({
-              top: pixelPosition.y,
-              left: pixelPosition.x,
-            });
-
+            console.log(newRectangle);
+            if (map) {
+              const pixelPosition = getRectanglePixelPosition(
+                map,
+                newRectangle.position
+              );
+              setRectanglePosition({
+                top: pixelPosition.y,
+                left: pixelPosition.x,
+              });
+            }
             setSelectedRectangle(newRectangle);
             dispatch(setVisibility(true));
           }
@@ -221,7 +222,7 @@ const CrowdMapMarkers = ({ pulsatingSessionId, sessions }: Props) => {
           <ClusterInfo
             color={getColorForValue(thresholds, rectangleData.average)}
             average={rectangleData.average}
-            numberOfSessions={rectangleData.numberOfInstruments}
+            numberOfSessions={rectangleData.numberOfContributors}
             handleZoomIn={() => {}}
             position={rectanglePosition}
             visible={true}
