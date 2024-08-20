@@ -466,8 +466,8 @@ const Map = () => {
 
   const timelapseData = useAppSelector(selectTimelapseData);
   const currentTimestamp = useAppSelector(selectCurrentTimestamp);
+  const timestamps = Object.keys(timelapseData);
   const handleNextTimelapseStep = () => {
-    const timestamps = Object.keys(timelapseData);
     if (currentTimelapseStep < timestamps.length - 1) {
       setCurrentTimelapseStep((prevStep) => prevStep + 1);
       dispatch(setCurrentTimestamp(timestamps[currentTimelapseStep + 1]));
@@ -475,7 +475,6 @@ const Map = () => {
   };
 
   const handlePreviousTimelapseStep = () => {
-    const timestamps = Object.keys(timelapseData);
     if (currentTimelapseStep > 0) {
       setCurrentTimelapseStep((prevStep) => prevStep - 1);
       dispatch(setCurrentTimestamp(timestamps[currentTimelapseStep - 1]));
@@ -592,6 +591,7 @@ const Map = () => {
           totalSteps={Object.keys(timelapseData).length}
           onNextStep={handleNextTimelapseStep}
           onPreviousStep={handlePreviousTimelapseStep}
+          timestamps={timestamps}
         />
       )}
       <S.MobileContainer>

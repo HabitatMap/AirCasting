@@ -204,7 +204,7 @@ const Date = styled.span`
 
 const RoundMarker = styled.div<{ $position: number }>`
   position: absolute;
-  top: -7px;
+  top: -8px;
   left: ${({ $position }) => `${$position}%`};
   width: 1.6rem;
   height: 1.6rem;
@@ -212,6 +212,34 @@ const RoundMarker = styled.div<{ $position: number }>`
   border-radius: 50%;
   transform: translateX(-50%);
   transition: left 0.2s ease-in-out;
+`;
+
+const Tooltip = styled.div`
+  display: flex;
+  background-color: ${acBlue};
+  color: ${white};
+  padding: 1rem;
+  gap: 1rem;
+  border-radius: 0.5rem;
+  font-size: 1.2rem;
+  text-align: center;
+  white-space: nowrap;
+  position: absolute;
+  bottom: 140%;
+  left: 50%;
+  transform: translateX(-50%);
+  pointer-events: none;
+
+  &::after {
+    content: "";
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    border-width: 6px;
+    border-style: solid;
+    border-color: ${acBlue} transparent transparent transparent;
+  }
 `;
 
 export {
@@ -231,5 +259,6 @@ export {
   Time,
   TimeAxisContainer,
   TimelapseModal,
+  Tooltip,
   Wrapper,
 };
