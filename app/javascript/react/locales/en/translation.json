@@ -79,8 +79,11 @@
     "maxLessThanMinMessage": "The maximum value should be higher than {{minValue}}",
     "minGreaterThanMaxMessage": "The minimum value should be lower than {{maxValue}}",
     "resetButton": "Reset ranges",
-    "altResetButton": "Reset the threshold values to default",
     "resetButtonDesktop": "Reset to default",
+    "altResetButton": "Reset the threshold values to default",
+    "altUniformDistribution": "Distribute the measurement thresholds uniformly",
+    "uniformDistributionButton": "Uniform distribution",
+    "uniformDistributionButtonDesktop": "Scale to fit data",
     "invalidOrderMessage": "The values should be in ascending order"
   },
   "notFoundPage": {
@@ -184,12 +187,12 @@
     "searchCustomParameters": "Search for a custom parameters"
   },
   "timelapse": {
-  "readOnly": "This view is read-only. You can explore the map, but interaction is limited.",
-  "altRewind": "Rewind icon",
-  "altFastForward": "Fast forward icon",
-  "altPlay": "Play icon",
-  "altPause": "Pause icon",
-  "altSkipLeft": "Skip left icon",
-  "altSkipRight": "Skip right icon"
+    "readOnly": "This view is read-only. You can explore the map, but interaction is limited.",
+    "altRewind": "Rewind icon",
+    "altFastForward": "Fast forward icon",
+    "altPlay": "Play icon",
+    "altPause": "Pause icon",
+    "altSkipLeft": "Skip left icon",
+    "altSkipRight": "Skip right icon"
   }
 }

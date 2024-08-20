@@ -3,14 +3,15 @@ import { useTranslation } from "react-i18next";
 
 import { useMapParams } from "../../utils/mapParamsHandler";
 import useMobileDetection from "../../utils/useScreenSizeDetection";
-import { ResetButton, ResetButtonVariant } from "./ResetButton";
+import { ResetButton } from "./ThresholdButtons/ResetButton";
 import * as S from "./ThresholdConfigurator.style";
 import ThresholdSlider from "./ThresholdSlider";
-import { UniformDistributionButton } from "./UniformDistributionButton";
+import { UniformDistributionButton } from "./ThresholdButtons/UniformDistributionButton";
 import { UserSettings } from "../../types/userStates";
+import { ThresholdButtonVariant } from "./ThresholdButtons/ThresholdButton";
 
 interface ThresholdsConfiguratorProps {
-  resetButtonVariant?: ResetButtonVariant;
+  resetButtonVariant?: ThresholdButtonVariant;
   resetButtonText?: string;
   swapIconTextPosition?: boolean;
   isMobileOldStyle?: boolean;
@@ -34,7 +35,8 @@ const ThresholdsConfigurator: React.FC<ThresholdsConfiguratorProps> = ({
   const isMobile = useMobileDetection();
   const { unitSymbol, sessionId, currentUserSettings } = useMapParams();
   const isUniformDistributionButtonVisible =
-    currentUserSettings === UserSettings.ModalView;
+    currentUserSettings === UserSettings.ModalView ||
+    currentUserSettings === UserSettings.CalendarView;
 
   const renderSlider = () => (
     <S.SliderContainer $isMobileOldStyle={isMobileOldStyle}>

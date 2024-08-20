@@ -3,7 +3,7 @@ import styled from "styled-components";
 import * as colors from "../../assets/styles/colors";
 import { media } from "../../utils/media";
 import { Button } from "../Button/Button.style";
-import { ResetButtonVariant } from "./ResetButton";
+import { ThresholdButtonVariant } from "./ThresholdButtons/ThresholdButton";
 
 interface Props {
   $isMobileOldStyle?: boolean;
@@ -65,7 +65,7 @@ const InputContainer = styled.div<Props>`
   }
 `;
 
-const ResetButton = styled(Button)<{ variant: ResetButtonVariant }>`
+const ThresholdButton = styled(Button)<{ variant: ThresholdButtonVariant }>`
   white-space: nowrap;
   background: ${colors.gray100};
   border: none;
@@ -79,7 +79,7 @@ const ResetButton = styled(Button)<{ variant: ResetButtonVariant }>`
   @media ${media.desktop} {
     margin-left: 0;
     ${(props) =>
-      props.variant === ResetButtonVariant.IconOnly &&
+      props.variant === ThresholdButtonVariant.IconOnly &&
       `
         height: 32px;
       `}
@@ -88,7 +88,7 @@ const ResetButton = styled(Button)<{ variant: ResetButtonVariant }>`
   @media ${media.smallDesktop} {
     margin-left: 0;
     ${(props) =>
-      props.variant === ResetButtonVariant.IconOnly &&
+      props.variant === ThresholdButtonVariant.IconOnly &&
       `
         height: 32px;
       `}
@@ -106,7 +106,7 @@ const ResetButton = styled(Button)<{ variant: ResetButtonVariant }>`
   }
 `;
 
-const ResetButtonWrapper = styled.div`
+const ThresholdButtonWrapper = styled.div`
   display: grid;
   gap: 10px;
   align-items: center;
@@ -521,11 +521,11 @@ export {
   OldStyleSliderHandles,
   OldStyleSliderText,
   RangeInput,
-  ResetButton,
-  ResetButtonWrapper,
   SliderContainer,
   StaticMobileSliderContainer,
   StyledContainer,
+  ThresholdButton,
+  ThresholdButtonWrapper,
   ThresholdButtonsWrapper,
   ThresholdsDisclaimer,
   UniformDistributionButton,

@@ -60,7 +60,7 @@ import { SectionButton } from "../SectionButton/SectionButton";
 import { MobileSessionFilters } from "../SessionFilters/MobileSessionFilters";
 import { MobileSessionList } from "../SessionsListView/MobileSessionList/MobileSessionList";
 import { SessionsListView } from "../SessionsListView/SessionsListView";
-import { ResetButtonVariant } from "../ThresholdConfigurator/ResetButton";
+import { ThresholdButtonVariant } from "../ThresholdConfigurator/ThresholdButtons/ThresholdButton";
 import { ThresholdsConfigurator } from "../ThresholdConfigurator/ThresholdConfigurator";
 import { Legend } from "./Legend/Legend";
 import * as S from "./Map.style";
@@ -507,7 +507,7 @@ const Map = () => {
         (isMobile && currentUserSettings === UserSettings.ModalView)) && (
         <S.ThresholdContainer>
           <ThresholdsConfigurator
-            resetButtonVariant={ResetButtonVariant.IconOnly}
+            resetButtonVariant={ThresholdButtonVariant.IconOnly}
             isMobileOldStyle={
               isMobile && currentUserSettings === UserSettings.ModalView
             }

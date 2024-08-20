@@ -1,7 +1,7 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
 import { ThresholdsConfigurator } from "../../ThresholdConfigurator";
-import { ResetButtonVariant } from "../../ThresholdConfigurator/ResetButton";
+import { ThresholdButtonVariant } from "../../ThresholdConfigurator/ThresholdButtons/ThresholdButton";
 import * as S from "./Legend.style";
 
 interface LegendProps {
@@ -19,7 +19,7 @@ const Legend = ({ onClose }: LegendProps) => {
       </S.Header>
       <S.SliderContainer>
         <ThresholdsConfigurator
-          resetButtonVariant={ResetButtonVariant.TextWithIcon}
+          resetButtonVariant={ThresholdButtonVariant.TextWithIcon}
           resetButtonText={t("map.legend.resetRangesButton")}
           useColorBoxStyle
           useDarkBlueIcon
