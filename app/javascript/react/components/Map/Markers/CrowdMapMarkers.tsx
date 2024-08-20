@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 
 import { AdvancedMarker, useMap } from "@vis.gl/react-google-maps";
 
@@ -38,13 +38,6 @@ const CrowdMapMarkers = ({ pulsatingSessionId, sessions }: Props) => {
     unitSymbol,
     usernames,
   } = useMapParams();
-  const rectanglesRef = useRef<google.maps.Rectangle[]>([]);
-
-  const crowdMapRectanglesLength: number = crowdMapRectangles.length;
-  const displayedSession: Session | undefined = sessions.find(
-    (session) => session.id === pulsatingSessionId
-  );
-
   const filters = useMemo(
     () =>
       JSON.stringify({
@@ -75,6 +68,14 @@ const CrowdMapMarkers = ({ pulsatingSessionId, sessions }: Props) => {
       usernames,
     ]
   );
+  const rectanglesRef = useRef<google.maps.Rectangle[]>([]);
+
+  const crowdMapRectanglesLength: number = crowdMapRectangles.length;
+  const displayedSession: Session | undefined = sessions.find(
+    (session) => session.id === pulsatingSessionId
+  );
+  const [selectedRectangle, setSelectedRectangle] =
+    useState<google.maps.Rectangle | null>(null);
 
   useEffect(() => {
     dispatch(fetchCrowdMapData(filters));
@@ -92,19 +93,29 @@ const CrowdMapMarkers = ({ pulsatingSessionId, sessions }: Props) => {
 
   useEffect(() => {
     if (crowdMapRectanglesLength > 0) {
-      const newRectangles = crowdMapRectangles.map(
-        (rectangle) =>
-          new google.maps.Rectangle({
-            bounds: new google.maps.LatLngBounds(
-              new google.maps.LatLng(rectangle.south, rectangle.west),
-              new google.maps.LatLng(rectangle.north, rectangle.east)
-            ),
-            fillColor: getColorForValue(thresholds, rectangle.value),
-            fillOpacity: 0.6,
-            map: map,
-            strokeWeight: 0,
-          })
-      );
+      const newRectangles = crowdMapRectangles.map((rectangle) => {
+        const newRectangle = new google.maps.Rectangle({
+          bounds: new google.maps.LatLngBounds(
+            new google.maps.LatLng(rectangle.south, rectangle.west),
+            new google.maps.LatLng(rectangle.north, rectangle.east)
+          ),
+          clickable: true,
+          fillColor: getColorForValue(thresholds, rectangle.value),
+          fillOpacity: 0.6,
+          map: map,
+          strokeWeight: 0,
+        });
+
+        // Make rectangle clickable
+        google.maps.event.addListener(newRectangle, "click", () => {
+          setSelectedRectangle(newRectangle);
+          // Add additional logic for what should happen on rectangle click
+          console.log("Rectangle clicked:", newRectangle);
+        });
+
+        return newRectangle;
+      });
+
       rectanglesRef.current.push(...newRectangles);
     }
 
@@ -121,16 +132,14 @@ const CrowdMapMarkers = ({ pulsatingSessionId, sessions }: Props) => {
         position={displayedSession.point}
         key={displayedSession.point.streamId}
       >
-        {
-          <SessionDotMarker
-            color={getColorForValue(
-              thresholds,
-              displayedSession.lastMeasurementValue
-            )}
-            onClick={() => {}}
-            opacity={0.6}
-          />
-        }
+        <SessionDotMarker
+          color={getColorForValue(
+            thresholds,
+            displayedSession.lastMeasurementValue
+          )}
+          onClick={() => {}}
+          opacity={0.6}
+        />
       </AdvancedMarker>
     );
   };
