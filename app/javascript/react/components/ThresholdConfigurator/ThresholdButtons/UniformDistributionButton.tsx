@@ -46,13 +46,13 @@ const UniformDistributionButton: React.FC<UniformDistributionButtonProps> = ({
       min = Math.round(fixedStream.minMeasurementValue!);
       max = Math.round(fixedStream.maxMeasurementValue!);
     } else {
-      console.log("No stream data available or session mismatch");
+      console.warn("No stream data available or session mismatch");
       return;
     }
 
     if (min === max) {
       hasErrorMessage(
-        "Can't distribute thresholds when Min and Max values are both the same."
+        t("thresholdConfigurator.uniformDistributionErrorMessage")
       );
       console.error(
         "While using discrete uniform distribution the Min and Max values cannot both be the same"

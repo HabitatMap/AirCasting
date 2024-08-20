@@ -82,8 +82,9 @@
     "resetButtonDesktop": "Reset to default",
     "altResetButton": "Reset the threshold values to default",
     "altUniformDistribution": "Distribute the measurement thresholds uniformly",
-    "uniformDistributionButton": "Uniform distribution",
+    "uniformDistributionButton": "Fit to scale",
     "uniformDistributionButtonDesktop": "Scale to fit data",
+    "uniformDistributionButtonSameValuesError": "Can't distribute thresholds when Min and Max values are both the same.",
     "invalidOrderMessage": "The values should be in ascending order"
   },
   "notFoundPage": {
