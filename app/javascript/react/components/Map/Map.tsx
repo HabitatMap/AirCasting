@@ -48,10 +48,10 @@ import {
   selectDefaultThresholds,
   setUserThresholdValues,
 } from "../../store/thresholdSlice";
+import { selectTimelapseSessionsPoints } from "../../store/timelapseSelectors";
 import {
   fetchTimelapseData,
   selectCurrentTimestamp,
-  selectTimelapseData,
   setCurrentTimestamp,
 } from "../../store/timelapseSlice";
 import { SessionTypes } from "../../types/filters";
@@ -463,13 +463,16 @@ const Map = () => {
   useEffect(() => {
     if (currentUserSettings === UserSettings.TimelapseView) {
       const streamIds = sessionsPoints.map((session) => session.point.streamId);
-      dispatch(fetchTimelapseData({ streamIds, timePeriod: 1 }));
-    }
-  }, [currentUserSettings, sessionsPoints, dispatch]);
+      const timePeriod = 7;
 
-  const timelapseData = useAppSelector(selectTimelapseData);
+      dispatch(fetchTimelapseData({ filters }));
+    }
+  }, [currentUserSettings, sessionsPoints]);
+
+  const timelapseData = useAppSelector(selectTimelapseSessionsPoints);
   const currentTimestamp = useAppSelector(selectCurrentTimestamp);
   const timestamps = Object.keys(timelapseData);
+
   const handleNextTimelapseStep = () => {
     if (currentTimelapseStep < timestamps.length - 1) {
       setCurrentTimelapseStep((prevStep) => prevStep + 1);
@@ -483,6 +486,8 @@ const Map = () => {
       dispatch(setCurrentTimestamp(timestamps[currentTimelapseStep - 1]));
     }
   };
+
+  console.log(timelapseData, "timelapseData");
 
   const renderTimelapseMarkers = () => {
     if (
