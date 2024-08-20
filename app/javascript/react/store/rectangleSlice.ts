@@ -30,7 +30,7 @@ const initialState: RectangleState = {
 
 export const fetchRectangleData = createAsyncThunk<
   RectangleData[],
-  any, // This can be modified based on what parameters you need
+  string, // This can be modified based on what parameters you need
   { rejectValue: string }
 >("rectangle/fetchRectangleData", async (params, { rejectWithValue }) => {
   try {
