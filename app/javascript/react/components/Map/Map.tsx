@@ -48,15 +48,16 @@ import {
   selectDefaultThresholds,
   setUserThresholdValues,
 } from "../../store/thresholdSlice";
-import { selectTimelapseSessionsPoints } from "../../store/timelapseSelectors";
 import {
   fetchTimelapseData,
   selectCurrentTimestamp,
+  selectTimelapseData,
   setCurrentTimestamp,
 } from "../../store/timelapseSlice";
 import { SessionTypes } from "../../types/filters";
 import { SessionList } from "../../types/sessionType";
 import { UserSettings } from "../../types/userStates";
+import { combineTimelapseWithFixedSessions } from "../../utils/createTimelapseData";
 import { UrlParamsTypes, useMapParams } from "../../utils/mapParamsHandler";
 import useMobileDetection from "../../utils/useScreenSizeDetection";
 import { Loader } from "../Loader/Loader";
@@ -74,6 +75,7 @@ import { CrowdMapMarkers } from "./Markers/CrowdMapMarkers";
 import { FixedMarkers } from "./Markers/FixedMarkers";
 import { MobileMarkers } from "./Markers/MobileMarkers";
 import { StreamMarkers } from "./Markers/StreamMarkers";
+import { TimelapseMarkers } from "./Markers/TimelapseMarkers";
 
 const Map = () => {
   // Hooks
@@ -460,18 +462,21 @@ const Map = () => {
   };
 
   const [currentTimelapseStep, setCurrentTimelapseStep] = useState(0);
+
   useEffect(() => {
     if (currentUserSettings === UserSettings.TimelapseView) {
-      const streamIds = sessionsPoints.map((session) => session.point.streamId);
       const timePeriod = 7;
 
       dispatch(fetchTimelapseData({ filters }));
     }
   }, [currentUserSettings, sessionsPoints]);
 
-  const timelapseData = useAppSelector(selectTimelapseSessionsPoints);
+  const timelapseResponse = useAppSelector(selectTimelapseData);
+  // const timelapseResponse = useAppSelector(
+  //   selectFilteredTimelapseData("2495500")
+  // );
   const currentTimestamp = useAppSelector(selectCurrentTimestamp);
-  const timestamps = Object.keys(timelapseData);
+  const timestamps = Object.keys(timelapseResponse);
 
   const handleNextTimelapseStep = () => {
     if (currentTimelapseStep < timestamps.length - 1) {
@@ -487,21 +492,21 @@ const Map = () => {
     }
   };
 
-  console.log(timelapseData, "timelapseData");
+  const timelapseData = combineTimelapseWithFixedSessions(
+    sessionsPoints,
+    timelapseResponse
+  );
+
+  const memoizedTimelapseData = useMemo(() => timelapseData, [timelapseData]);
 
   const renderTimelapseMarkers = () => {
     if (
       currentUserSettings === UserSettings.TimelapseView &&
       currentTimestamp &&
-      timelapseData[currentTimestamp]
+      memoizedTimelapseData[currentTimestamp]
     ) {
       return (
-        <FixedMarkers
-          sessions={timelapseData[currentTimestamp]}
-          onMarkerClick={handleMarkerClick}
-          selectedStreamId={streamId}
-          pulsatingSessionId={pulsatingSessionId}
-        />
+        <TimelapseMarkers sessions={memoizedTimelapseData[currentTimestamp]} />
       );
     }
     return null;

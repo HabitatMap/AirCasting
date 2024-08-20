@@ -78,6 +78,8 @@ const TimelapseComponent: React.FC<
       .format(DateFormat.us_without_year);
     const currentTime = moment.utc(currentTimestamp).format("hh:mm A");
 
+    console.log("currentTimestamp", currentTimestamp);
+
     return (
       <>
         <TimelapseModal
