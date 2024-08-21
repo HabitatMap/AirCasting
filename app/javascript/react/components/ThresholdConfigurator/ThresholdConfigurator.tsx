@@ -59,8 +59,10 @@ const ThresholdsConfigurator: React.FC<ThresholdsConfiguratorProps> = ({
         <>
           {renderSlider()}
           <S.ThresholdButtonsMobileWrapper>
+            {/* --start -- remove Placeholders after adding the color switch functionality */}
             <S.PlaceholderButton />
             {!uniformDistributionButtonText && <S.PlaceholderButton />}
+            {/* -- end -- remove Placeholders after adding the color switch functionality */}
             {uniformDistributionButtonVariant && (
               <UniformDistributionButton
                 variant={uniformDistributionButtonVariant}
