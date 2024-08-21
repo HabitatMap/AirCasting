@@ -16,7 +16,7 @@ export const SENSOR_NAMES = {
   NITROGEN_DIOXIDE: "Government-NO2",
   OZONE: "Government-Ozone",
   TEMPERATURE: "AirBeam-F",
-  SOUND_LEVEL: "Phone microphone",
+  SOUND_LEVEL: "Phone Microphone",
 };
 
 export const BasicSensorTypes = {
