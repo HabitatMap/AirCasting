@@ -33,7 +33,7 @@ const UniformDistributionButton: React.FC<UniformDistributionButtonProps> = ({
   const mobileStream = useAppSelector((state: RootState) => state.mobileStream);
   const fixedStream = useAppSelector((state: RootState) => state.fixedStream);
   const defaultButtonText = t(
-    "thresholdConfigurator.uniformDistributionButton"
+    "thresholdConfigurator.uniformDistributionButtonDesktop"
   );
 
   const minMaxValues = React.useMemo(() => {
