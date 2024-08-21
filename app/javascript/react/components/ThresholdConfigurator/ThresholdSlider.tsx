@@ -193,9 +193,10 @@ const ThresholdSlider: React.FC<ThresholdSliderProps> = ({
       style={{
         ...positionStyle,
         zIndex: 10,
-        marginLeft: value === min || value === max ? "0px" : "-15px",
+        marginLeft:
+          thresholdKey === "min" ? "-1px" : value === max ? "0px" : "-15px",
         left:
-          value === max
+          thresholdKey === "max"
             ? "auto"
             : `${calculateThumbPosition(
                 value,
@@ -204,7 +205,7 @@ const ThresholdSlider: React.FC<ThresholdSliderProps> = ({
                 sliderWidth,
                 isMobile
               )}px`,
-        right: value === max ? "0px" : "auto",
+        right: thresholdKey === "max" ? "-1px" : "auto",
       }}
       onChange={(e) => setInputValue(e.target.value)}
       onTouchStart={(event: React.TouchEvent<HTMLInputElement>) =>
