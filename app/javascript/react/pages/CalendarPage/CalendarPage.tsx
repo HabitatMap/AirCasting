@@ -174,6 +174,12 @@ const CalendarPage: React.FC<CalendarPageProps> = ({ children }) => {
                     resetButtonVariant={ThresholdButtonVariant.TextWithIcon}
                     resetButtonText={t("thresholdConfigurator.resetButton")}
                     useColorBoxStyle
+                    uniformDistributionButtonText={t(
+                      "thresholdConfigurator.uniformDistributionButton"
+                    )}
+                    uniformDistributionButtonVariant={
+                      ThresholdButtonVariant.TextWithIcon
+                    }
                   />
                 }
               />

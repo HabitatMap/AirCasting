@@ -13,6 +13,7 @@ import { useTranslation } from "react-i18next";
 
 interface UniformDistributionButtonProps {
   variant?: ThresholdButtonVariant;
+  uniformDistributionButtonText?: string;
   swapIconTextPosition?: boolean;
   useDarkBlueIcon?: boolean;
   hasErrorMessage: (message: string) => void;
@@ -20,6 +21,7 @@ interface UniformDistributionButtonProps {
 
 const UniformDistributionButton: React.FC<UniformDistributionButtonProps> = ({
   variant = ThresholdButtonVariant.IconOnly,
+  uniformDistributionButtonText,
   swapIconTextPosition = false,
   useDarkBlueIcon = false,
   hasErrorMessage,
@@ -30,6 +32,9 @@ const UniformDistributionButton: React.FC<UniformDistributionButtonProps> = ({
 
   const mobileStream = useAppSelector((state: RootState) => state.mobileStream);
   const fixedStream = useAppSelector((state: RootState) => state.fixedStream);
+  const defaultButtonText = t(
+    "thresholdConfigurator.uniformDistributionButton"
+  );
 
   const minMaxValues = React.useMemo(() => {
     return calculateMinMaxValues(mobileStream, fixedStream, sessionId);
@@ -63,14 +68,12 @@ const UniformDistributionButton: React.FC<UniformDistributionButtonProps> = ({
     dispatch(setUserThresholdValues(thresholds));
   };
 
-  const uniformDistributionButtonText = t(
-    "thresholdConfigurator.uniformDistributionButtonDesktop"
-  );
+  const buttonText = uniformDistributionButtonText || defaultButtonText;
 
   return (
     <ThresholdButton
       variant={variant}
-      buttonText={uniformDistributionButtonText}
+      buttonText={buttonText}
       swapIconTextPosition={swapIconTextPosition}
       useDarkBlueIcon={useDarkBlueIcon}
       IconComponent={UniformDistributionIcon}

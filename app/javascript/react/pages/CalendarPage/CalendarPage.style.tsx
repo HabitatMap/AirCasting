@@ -89,10 +89,12 @@ const ThresholdContainer = styled.div<{ $isMobile: boolean }>`
 `;
 
 const ThresholdButtonsContainer = styled.div`
-  display: flex;
+  display: grid;
   justify-content: space-between;
   align-items: center;
   gap: 2.4rem;
+  min-width: 4.4rem;
+  grid-template-columns: repeat(2, 1fr);
 `;
 
 const ErrorMessage = styled.p`

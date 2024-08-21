@@ -70,7 +70,7 @@ const ThresholdButton = styled(Button)<{ variant: ThresholdButtonVariant }>`
   background: ${colors.gray100};
   border: none;
   color: ${colors.gray300};
-  width: fit-content;
+  width: 100%;
   text-transform: uppercase;
   align-items: center;
   justify-content: center;
@@ -101,10 +101,27 @@ const ThresholdButton = styled(Button)<{ variant: ThresholdButtonVariant }>`
     white-space: pre-line;
     text-align: left;
     line-height: 1.6rem;
-    width: 33%;
-    min-width: 100px;
-    padding: 0.6rem 1.85rem;
+    width: 100%;
+    min-width: 5rem;
+    padding: 0.6rem 1.2rem;
     font-size: 1.2rem;
+  }
+`;
+
+const PlaceholderButton = styled(Button)`
+  background: transparent;
+  border: none;
+  width: 100%;
+  height: 3.2rem;
+  min-width: 5.2rem;
+
+  @media ${media.smallDesktop} {
+    display: none;
+  }
+
+  @media ${media.mobile} {
+    width: 100%;
+    min-width: 100px;
   }
 `;
 
@@ -132,6 +149,18 @@ const ThresholdButtonsWrapper = styled.div`
   }
   @media ${media.desktop} {
     display: flex;
+  }
+`;
+
+const ThresholdButtonsMobileWrapper = styled.div`
+  display: grid;
+  gap: 1rem;
+  justify-content: center;
+  width: 100%;
+  grid-template-columns: repeat(3, 1fr);
+
+  @media ${media.desktop} {
+    display: none;
   }
 `;
 
@@ -522,12 +551,14 @@ export {
   OldStyleSliderHandle,
   OldStyleSliderHandles,
   OldStyleSliderText,
+  PlaceholderButton,
   RangeInput,
   SliderContainer,
   StaticMobileSliderContainer,
   StyledContainer,
   ThresholdButton,
   ThresholdButtonWrapper,
+  ThresholdButtonsMobileWrapper,
   ThresholdButtonsWrapper,
   ThresholdsDisclaimer,
   UniformDistributionButton,
