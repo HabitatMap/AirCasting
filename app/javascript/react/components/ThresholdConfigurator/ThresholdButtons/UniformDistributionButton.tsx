@@ -3,8 +3,10 @@ import { useAppDispatch, useAppSelector } from "../../../store/hooks";
 import { RootState } from "../../../store";
 import { UniformDistributionIcon } from "./Icons/UniformDistributionIcon";
 import { ThresholdButton, ThresholdButtonVariant } from "./ThresholdButton";
-import { StatusEnum } from "../../../types/api";
-import { calculateUniformThresholds } from "../../../utils/uniformDistributionThresholdCalc";
+import {
+  calculateMinMaxValues,
+  calculateUniformThresholds,
+} from "../../../utils/uniformDistributionThresholdCalc";
 import { setUserThresholdValues } from "../../../store/thresholdSlice";
 import { useMapParams } from "../../../utils/mapParamsHandler";
 import { useTranslation } from "react-i18next";
@@ -29,26 +31,16 @@ const UniformDistributionButton: React.FC<UniformDistributionButtonProps> = ({
   const mobileStream = useAppSelector((state: RootState) => state.mobileStream);
   const fixedStream = useAppSelector((state: RootState) => state.fixedStream);
 
-  const onClick = () => {
-    let min = 0;
-    let max = 0;
+  const minMaxValues = React.useMemo(() => {
+    return calculateMinMaxValues(mobileStream, fixedStream, sessionId);
+  }, [mobileStream, fixedStream, sessionId]);
 
-    if (
-      mobileStream.status === StatusEnum.Fulfilled &&
-      mobileStream.data.id === sessionId
-    ) {
-      min = Math.round(mobileStream.minMeasurementValue!);
-      max = Math.round(mobileStream.maxMeasurementValue!);
-    } else if (
-      fixedStream.status === StatusEnum.Fulfilled &&
-      fixedStream.data.stream.sessionId === sessionId
-    ) {
-      min = Math.round(fixedStream.minMeasurementValue!);
-      max = Math.round(fixedStream.maxMeasurementValue!);
-    } else {
-      console.warn("No stream data available or session mismatch");
+  const distributeThresholds = () => {
+    if (!minMaxValues) {
       return;
     }
+
+    const { min, max } = minMaxValues;
 
     if (min === max) {
       hasErrorMessage(
@@ -82,7 +74,7 @@ const UniformDistributionButton: React.FC<UniformDistributionButtonProps> = ({
       swapIconTextPosition={swapIconTextPosition}
       useDarkBlueIcon={useDarkBlueIcon}
       IconComponent={UniformDistributionIcon}
-      onClick={onClick}
+      onClick={distributeThresholds}
     />
   );
 };
