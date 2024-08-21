@@ -415,6 +415,7 @@ const CustomParameterList = styled.ul`
   list-style: none;
   display: grid;
   grid-template-columns: 1fr;
+  column-gap: 0.5rem;
   overflow-y: auto;
   margin-top: 1.8rem;
 
@@ -457,6 +458,7 @@ const CustomParameter = styled.button<{ $isActive?: boolean }>`
   color: ${(props) => (props.$isActive ? acBlue : black)};
   font-size: 1.6rem;
   text-align: left;
+  text-wrap: nowrap;
   margin-bottom: 0.8rem;
   @media (${media.desktop}) {
     font-size: 1.2rem;
