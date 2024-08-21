@@ -12,8 +12,8 @@ import { useAppDispatch, useAppSelector } from "../../../store/hooks";
 import { setMarkersLoading } from "../../../store/markersLoadingSlice";
 import { selectMobileSessionsStreamIds } from "../../../store/mobileSessionsSelectors";
 import {
+  clearRectangles,
   fetchRectangleData,
-  setVisibility,
 } from "../../../store/rectangleSlice";
 import { selectThresholds } from "../../../store/thresholdSlice";
 import { Session } from "../../../types/sessionType";
@@ -81,8 +81,6 @@ const CrowdMapMarkers = ({ pulsatingSessionId, sessions }: Props) => {
   const rectangleLoading = useSelector(
     (state: RootState) => state.rectangle.loading
   );
-  const [selectedRectangle, setSelectedRectangle] =
-    useState<google.maps.Rectangle | null>(null);
   const [rectanglePoint, setRectanglePoint] = useState<{
     lat: number;
     lng: number;
@@ -108,6 +106,25 @@ const CrowdMapMarkers = ({ pulsatingSessionId, sessions }: Props) => {
   }, [dispatch, rectanglesRef.current.length, crowdMapRectanglesLength]);
 
   useEffect(() => {
+    const handleMapInteraction = () => {
+      dispatch(clearRectangles());
+    };
+
+    map && map.addListener("click", handleMapInteraction);
+    map && map.addListener("touchend", handleMapInteraction);
+    map && map.addListener("dragstart", handleMapInteraction);
+    map && map.addListener("zoom_changed", handleMapInteraction);
+
+    return () => {
+      if (map) {
+        google.maps.event.clearListeners(map, "click");
+        google.maps.event.clearListeners(map, "touchend");
+        google.maps.event.clearListeners(map, "dragstart");
+      }
+    };
+  }, [map, dispatch]);
+
+  useEffect(() => {
     if (crowdMapRectanglesLength > 0) {
       const newRectangles = crowdMapRectangles.map((rectangle) => {
         const newRectangle = new google.maps.Rectangle({
@@ -123,8 +140,6 @@ const CrowdMapMarkers = ({ pulsatingSessionId, sessions }: Props) => {
         });
 
         google.maps.event.addListener(newRectangle, "click", () => {
-          dispatch(setVisibility(false));
-
           const rectangleBounds = newRectangle.getBounds();
 
           if (rectangleBounds) {
@@ -145,7 +160,7 @@ const CrowdMapMarkers = ({ pulsatingSessionId, sessions }: Props) => {
               tags: tags || "",
               usernames: usernames || "",
               sensor_name: "airbeam-pm2.5",
-              measurement_type: "Particulate Matter",
+              measurement_type: measurementType,
               unit_symbol: encodeURIComponent(unitSymbol),
               stream_ids: mobileSessionsStreamIds.join(","),
             };
@@ -158,8 +173,6 @@ const CrowdMapMarkers = ({ pulsatingSessionId, sessions }: Props) => {
               lat: rectangleBoundSouth,
               lng: rectangleBoundEast,
             });
-            setSelectedRectangle(newRectangle);
-            dispatch(setVisibility(true));
           }
         });
 
@@ -207,7 +220,7 @@ const CrowdMapMarkers = ({ pulsatingSessionId, sessions }: Props) => {
   return (
     <>
       {displayedSession && renderMarker(displayedSession)}
-      {rectangleData && rectanglePoint && (
+      {rectangleData && !rectangleLoading && rectanglePoint && (
         <AdvancedMarker position={rectanglePoint} key={1234567890}>
           <RectangleInfo
             color={getColorForValue(thresholds, rectangleData.average)}

@@ -2,7 +2,6 @@ import React from "react";
 import { useTranslation } from "react-i18next";
 
 import { useMapParams } from "../../../../utils/mapParamsHandler";
-import useScreenSizeDetection from "../../../../utils/useScreenSizeDetection";
 import {
   DataContainer,
   RectangleCircle,
@@ -28,7 +27,6 @@ const RectangleInfo = ({
   numberOfSamples,
 }: RectangleProps) => {
   const { unitSymbol } = useMapParams();
-  const isMobile = useScreenSizeDetection();
   const { t } = useTranslation();
 
   return (
