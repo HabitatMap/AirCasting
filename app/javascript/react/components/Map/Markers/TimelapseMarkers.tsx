@@ -1,35 +1,35 @@
-import React, { useMemo, useRef, useState } from "react";
-import { useSelector } from "react-redux";
-
-import { Cluster, Marker, MarkerClusterer } from "@googlemaps/markerclusterer";
+import {
+  MarkerClusterer,
+  SuperClusterAlgorithm,
+} from "@googlemaps/markerclusterer";
 import { AdvancedMarker, useMap } from "@vis.gl/react-google-maps";
-
-import { useAppDispatch } from "../../../store/hooks";
+import React, { useCallback, useMemo, useRef, useState } from "react";
+import { useSelector } from "react-redux";
 import { selectThresholds } from "../../../store/thresholdSlice";
-import { Session } from "../../../types/sessionType";
 import { useMapParams } from "../../../utils/mapParamsHandler";
 import { getColorForValue } from "../../../utils/thresholdColors";
+import { customRenderer } from "./ClusterConfiguration";
 import { SessionFullMarker } from "./SessionFullMarker/SessionFullMarker";
 
 type Props = {
-  sessions: Session[];
+  sessions: {
+    streamId: number;
+    value: number;
+    latitude: number;
+    longitude: number;
+  }[];
 };
 
 interface CustomMarkerClusterer extends MarkerClusterer {
-  markerStreamIdMap?: Map<Marker, string>;
+  markerStreamIdMap?: Map<google.maps.marker.AdvancedMarkerElement, number>;
 }
 
 const TimelapseMarkers = ({ sessions }: Props) => {
-  const ZOOM_FOR_SELECTED_SESSION = 15;
-
   const map = useMap();
-  const dispatch = useAppDispatch();
-
   const clusterer = useRef<CustomMarkerClusterer | null>(null);
   const markerRefs = useRef<{
     [streamId: string]: google.maps.marker.AdvancedMarkerElement | null;
   }>({});
-  const pulsatingClusterer = useRef<MarkerClusterer | null>(null);
 
   const thresholds = useSelector(selectThresholds);
   const { unitSymbol } = useMapParams();
@@ -37,112 +37,100 @@ const TimelapseMarkers = ({ sessions }: Props) => {
   const [markers, setMarkers] = useState<{
     [streamId: string]: google.maps.marker.AdvancedMarkerElement | null;
   }>({});
-  const markersCount = Object.values(markers).filter(
-    (marker) => marker !== null
-  ).length;
-
-  const [selectedCluster, setSelectedCluster] = useState<Cluster | null>(null);
-  const [clusterPosition, setClusterPosition] = useState<{
-    top: number;
-    left: number;
-  } | null>(null);
 
   const memoizedSessions = useMemo(() => sessions, [sessions]);
   const memoizedMarkers = useMemo(() => markers, [markers]);
 
-  // useEffect(() => {
-  //   if (map) {
-  //     if (clusterer.current) {
-  //       clusterer.current.clearMarkers();
-  //     }
-  //     clusterer.current = new MarkerClusterer({
-  //       map,
-  //       renderer: customRenderer(thresholds),
-  //       algorithm: new SuperClusterAlgorithm({
-  //         maxZoom: 21,
-  //         radius: 40,
-  //       }),
-  //     }) as CustomMarkerClusterer;
-  //   }
-  // }, [map, thresholds]);
+  // Initialize or update clusterer without clearing markers
+  if (map && !clusterer.current) {
+    clusterer.current = new MarkerClusterer({
+      map,
+      renderer: customRenderer(thresholds),
+      algorithm: new SuperClusterAlgorithm({
+        maxZoom: 21,
+        radius: 40,
+      }),
+    }) as CustomMarkerClusterer;
+  }
 
-  // const updateClusterer = useCallback(() => {
-  //   if (clusterer.current && memoizedSessions.length > 0) {
-  //     const sessionStreamIds = memoizedSessions.map(
-  //       (session) => session.point.streamId
-  //     );
-  //     const markerStreamIdMap = new Map<Marker, string>();
+  // Update clusters with new markers
+  const updateClusterer = useCallback(() => {
+    if (clusterer.current && memoizedSessions.length > 0) {
+      const sessionStreamIds = memoizedSessions.map((session) =>
+        session.streamId.toString()
+      );
+      const markerStreamIdMap = new Map<
+        google.maps.marker.AdvancedMarkerElement,
+        number
+      >();
 
-  //     Object.keys(memoizedMarkers).forEach((key) => {
-  //       if (!sessionStreamIds.includes(key)) {
-  //         delete memoizedMarkers[key];
-  //       }
-  //     });
+      Object.keys(memoizedMarkers).forEach((key) => {
+        if (!sessionStreamIds.includes(key)) {
+          delete memoizedMarkers[key];
+        }
+      });
 
-  //     const validMarkers = Object.values(memoizedMarkers).filter(
-  //       (marker): marker is google.maps.marker.AdvancedMarkerElement =>
-  //         marker !== null
-  //     );
+      const validMarkers = Object.values(memoizedMarkers).filter(
+        (marker): marker is google.maps.marker.AdvancedMarkerElement =>
+          marker !== null
+      );
 
-  //     validMarkers.forEach((marker) => {
-  //       const streamId = sessionStreamIds.find(
-  //         (id) => memoizedMarkers[id] === marker
-  //       );
-  //       if (streamId) {
-  //         markerStreamIdMap.set(marker, streamId);
-  //       }
-  //     });
+      validMarkers.forEach((marker) => {
+        const streamId = sessionStreamIds.find(
+          (id) => memoizedMarkers[id] === marker
+        );
+        if (streamId) {
+          markerStreamIdMap.set(marker, Number(streamId));
+        }
+      });
 
-  //     clusterer.current.clearMarkers();
-  //     clusterer.current.addMarkers(validMarkers);
-  //     clusterer.current.markerStreamIdMap = markerStreamIdMap;
-  //   }
-  // }, [memoizedSessions, memoizedMarkers, dispatch]);
+      clusterer.current?.clearMarkers();
+      clusterer.current?.addMarkers(validMarkers);
+      clusterer.current.markerStreamIdMap = markerStreamIdMap;
+    }
+  }, [memoizedSessions, memoizedMarkers]);
 
-  // useEffect(() => {
-  //   updateClusterer();
-  // }, [updateClusterer]);
+  updateClusterer();
 
-  // // useEffect(() => {
-  // //   dispatch(setMarkersLoading(true));
-  // // }, [dispatch, sessions.length]);
+  const setMarkerRef = useCallback(
+    (marker: google.maps.marker.AdvancedMarkerElement | null, key: string) => {
+      if (markerRefs.current[key] === marker) return;
 
-  // const setMarkerRef = useCallback(
-  //   (marker: google.maps.marker.AdvancedMarkerElement | null, key: string) => {
-  //     if (markerRefs.current[key] === marker) return;
-
-  //     markerRefs.current[key] = marker;
-  //     setMarkers((prev) => {
-  //       if (marker) {
-  //         return { ...prev, [key]: marker };
-  //       } else {
-  //         const newMarkers = { ...prev };
-  //         delete newMarkers[key];
-  //         return newMarkers;
-  //       }
-  //     });
-  //   },
-  //   []
-  // );
+      markerRefs.current[key] = marker;
+      setMarkers((prev) => {
+        if (marker) {
+          return { ...prev, [key]: marker };
+        } else {
+          const newMarkers = { ...prev };
+          delete newMarkers[key];
+          return newMarkers;
+        }
+      });
+    },
+    []
+  );
 
   return (
     <>
       {memoizedSessions.map((session) => (
         <AdvancedMarker
-          position={session.point}
-          key={session.point.streamId}
+          position={{
+            lat: session.latitude,
+            lng: session.longitude,
+          }}
+          key={session.streamId}
           zIndex={Number(google.maps.Marker.MAX_ZINDEX + 1)}
-          title={session.lastMeasurementValue.toString()}
-          // ref={(marker) => {
-          //   if (marker && clusterer.current) {
-          //     setMarkerRef(marker, session.point.streamId);
-          //     clusterer.current.addMarker(marker);
-          //   }
-          // }}
+          title={session.value.toString()}
+          ref={(marker) => {
+            if (marker && clusterer.current) {
+              setMarkerRef(marker, session.streamId.toString());
+              clusterer.current.addMarker(marker);
+            }
+          }}
         >
           <SessionFullMarker
-            color={getColorForValue(thresholds, session.lastMeasurementValue)}
-            value={`${Math.round(session.lastMeasurementValue)} ${unitSymbol}`}
+            color={getColorForValue(thresholds, session.value)}
+            value={`${Math.round(session.value)} ${unitSymbol}`}
           />
         </AdvancedMarker>
       ))}

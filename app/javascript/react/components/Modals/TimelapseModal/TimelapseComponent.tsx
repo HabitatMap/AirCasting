@@ -74,11 +74,11 @@ const TimelapseComponent: React.FC<
 
     const currentTimestamp = timestamps[currentStep];
     const currentDate = moment
-      .utc(currentTimestamp)
+      .utc(currentTimestamp, "YYYYMMDDHH:mm:ssZ")
       .format(DateFormat.us_without_year);
-    const currentTime = moment.utc(currentTimestamp).format("hh:mm A");
-
-    console.log("currentTimestamp", currentTimestamp);
+    const currentTime = moment
+      .utc(currentTimestamp, "YYYYMMDDHH:mm:ssZ")
+      .format("hh:mm A");
 
     return (
       <>

@@ -279,6 +279,7 @@ const RoundMarker = styled.div<{ $position: number }>`
   border-radius: 50%;
   transform: translateX(-50%);
   transition: left 0.2s ease-in-out;
+  z-index: 1;
   @media ${media.smallDesktop} {
     top: -8px;
   }
