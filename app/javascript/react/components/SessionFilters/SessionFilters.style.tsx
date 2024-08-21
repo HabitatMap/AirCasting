@@ -269,14 +269,15 @@ const FiltersOptionButton = styled(Button)<{ $isSelected: boolean }>`
   gap: 0;
   padding: 0.5rem 0.8rem;
   margin-bottom: 0.8rem;
-  width: 12rem;
-  height: 2.4rem;
+  min-width: 12rem;
+  height: 3rem;
   justify-content: flex-start;
   color: ${(props) => (props.$isSelected ? acBlue : gray300)};
   border: 1px solid ${gray500};
   border-color: ${(props) => props.$isSelected && lightBlue};
   font-size: 1.2rem;
   text-transform: capitalize;
+  text-wrap: nowrap;
 
   &:last-of-type {
     margin-bottom: 0;
@@ -414,6 +415,7 @@ const CustomParameterList = styled.ul`
   list-style: none;
   display: grid;
   grid-template-columns: 1fr;
+  column-gap: 0.5rem;
   overflow-y: auto;
   margin-top: 1.8rem;
 
@@ -456,6 +458,7 @@ const CustomParameter = styled.button<{ $isActive?: boolean }>`
   color: ${(props) => (props.$isActive ? acBlue : black)};
   font-size: 1.6rem;
   text-align: left;
+  text-wrap: nowrap;
   margin-bottom: 0.8rem;
   @media (${media.desktop}) {
     font-size: 1.2rem;

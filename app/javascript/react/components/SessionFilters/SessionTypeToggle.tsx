@@ -5,10 +5,15 @@ import mobileIcon from "../../assets/icons/mobileIcon.svg";
 import pinIcon from "../../assets/icons/pin.svg";
 import { useAppDispatch } from "../../store/hooks";
 import { setFetchingData } from "../../store/mapSlice";
-import { setBasicParametersModalOpen } from "../../store/sessionFiltersSlice";
+import {
+  setBasicParametersModalOpen,
+  setBasicSensorsModalOpen,
+  setCustomParametersModalOpen,
+  setCustomSensorsModalOpen,
+} from "../../store/sessionFiltersSlice";
 import { resetUserThresholds } from "../../store/thresholdSlice";
 import {
-  FixedBasicParameterTypes,
+  ParameterTypes,
   SessionType,
   SessionTypes,
   UnitSymbols,
@@ -31,6 +36,9 @@ const SessionTypeToggle = () => {
     (type: SessionType) => {
       dispatch(resetUserThresholds());
       dispatch(setBasicParametersModalOpen(false));
+      dispatch(setCustomParametersModalOpen(false));
+      dispatch(setBasicSensorsModalOpen(false));
+      dispatch(setCustomSensorsModalOpen(false));
       dispatch(setFetchingData(true));
       setUrlParams([
         {
@@ -55,14 +63,11 @@ const SessionTypeToggle = () => {
         },
         {
           key: UrlParamsTypes.measurementType,
-          value: FixedBasicParameterTypes.PARTICULATE_MATTER,
+          value: ParameterTypes.PARTICULATE_MATTER,
         },
         {
           key: UrlParamsTypes.sensorName,
-          value:
-            type === SessionTypes.FIXED
-              ? SENSOR_NAMES.PARTICULATE_MATTER.GOVERNMENT_PM25
-              : SENSOR_NAMES.PARTICULATE_MATTER.AIRBEAM_PM25,
+          value: SENSOR_NAMES.PARTICULATE_MATTER.AIRBEAM_PM25,
         },
         {
           key: UrlParamsTypes.unitSymbol,

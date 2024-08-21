@@ -181,15 +181,23 @@
     "seeLess": "see less",
     "showCustomParameters": "show custom parameters",
     "selectCustomParameter": "select custom parameter",
-    "searchCustomParameters": "Search for a custom parameters"
+    "searchCustomParameters": "Search for a custom parameters",
+    "sensor": "sensor",
+    "sensorInfo": "The sensor field describes the specific make and model of the sensor that is creating measurements.",
+    "customSensors": "custom sensors",
+    "selectSensor": "select sensor",
+    "selectCustomSensor": "select custom sensor",
+    "searchCustomSensors": "Search for a custom sensors",
+    "selectSensorsDescription": "The sensor field describes the specific make and model of the sensor that is creating measurements.",
+    "showCustomSensors": "show custom sensors"
   },
   "timelapse": {
-  "readOnly": "This view is read-only. You can explore the map, but interaction is limited.",
-  "altRewind": "Rewind icon",
-  "altFastForward": "Fast forward icon",
-  "altPlay": "Play icon",
-  "altPause": "Pause icon",
-  "altSkipLeft": "Skip left icon",
-  "altSkipRight": "Skip right icon"
+    "readOnly": "This view is read-only. You can explore the map, but interaction is limited.",
+    "altRewind": "Rewind icon",
+    "altFastForward": "Fast forward icon",
+    "altPlay": "Play icon",
+    "altPause": "Pause icon",
+    "altSkipLeft": "Skip left icon",
+    "altSkipRight": "Skip right icon"
   }
 }

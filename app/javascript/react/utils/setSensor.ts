@@ -1,16 +1,7 @@
-import {
-  FixedBasicParameterTypes,
-  MobileBasicParameterTypes,
-  ParameterType,
-  SessionType,
-} from "../types/filters";
+import { ParameterType, ParameterTypes } from "../types/filters";
 import { Sensor, SENSOR_NAMES } from "../types/sensors";
 
-const setSensor = (
-  selectedParameter: ParameterType,
-  sessionType: SessionType,
-  sensors: Sensor[]
-) => {
+const setSensor = (selectedParameter: ParameterType, sensors: Sensor[]) => {
   const getSensor = (parameter: string, sensorName?: string) => {
     const matchingSensors = sensors.filter(
       (item) =>
@@ -23,26 +14,22 @@ const setSensor = (
 
   let sensorName = "";
   switch (selectedParameter) {
-    case FixedBasicParameterTypes.PARTICULATE_MATTER:
-      sensorName = SENSOR_NAMES.PARTICULATE_MATTER.GOVERNMENT_PM25;
-    case MobileBasicParameterTypes.PARTICULATE_MATTER:
+    case ParameterTypes.PARTICULATE_MATTER:
       sensorName = SENSOR_NAMES.PARTICULATE_MATTER.AIRBEAM_PM25;
       break;
-    case FixedBasicParameterTypes.HUMIDITY:
-    case MobileBasicParameterTypes.HUMIDITY:
+    case ParameterTypes.HUMIDITY:
       sensorName = SENSOR_NAMES.HUMIDITY;
       break;
-    case FixedBasicParameterTypes.NITROGEN_DIOXIDE:
+    case ParameterTypes.NITROGEN_DIOXIDE:
       sensorName = SENSOR_NAMES.NITROGEN_DIOXIDE;
       break;
-    case FixedBasicParameterTypes.OZONE:
+    case ParameterTypes.OZONE:
       sensorName = SENSOR_NAMES.OZONE;
       break;
-    case FixedBasicParameterTypes.TEMPERATURE:
-    case MobileBasicParameterTypes.TEMPERATURE:
+    case ParameterTypes.TEMPERATURE:
       sensorName = SENSOR_NAMES.TEMPERATURE;
       break;
-    case MobileBasicParameterTypes.SOUND_LEVEL:
+    case ParameterTypes.SOUND_LEVEL:
       sensorName = SENSOR_NAMES.SOUND_LEVEL;
       break;
     default:
