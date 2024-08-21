@@ -15,6 +15,8 @@ interface RectangleInfoProps {
 
 const RectangleInfoContainer = styled.div<RectangleInfoContainerProps>`
   display: grid;
+  pointer-events: auto;
+
   position: absolute;
   transition: opacity 0.3s ease-in-out, transform 0.3s ease-in-out;
 `;
@@ -41,17 +43,18 @@ const ShadowCircle = styled.div<RectangleInfoProps>`
 `;
 
 const DataContainer = styled.div<RectangleInfoProps>`
-  display: flex;
-  height: 5.5rem;
-  border-radius: 1.5rem;
-  padding: 0.5rem;
+  display: grid;
+  height: auto;
+  border-radius: 2rem;
+  padding: 0.4rem 1.6rem;
   box-shadow: 0.125rem 0.125rem 0.25rem 0 rgba(76, 86, 96, 0.1);
-  align-items: center;
-  gap: 0.25rem;
+  align-items: flex-start;
+  gap: 0.8rem;
   pointer-events: auto;
   border: 1px solid ${(props) => props.$color};
   background-color: ${white};
   z-index: 20;
+  grid-template-columns: auto 1fr;
 `;
 
 const RectangleCircle = styled.div<RectangleInfoProps>`
@@ -85,36 +88,11 @@ const RectangleInfoColorText = styled.span<RectangleInfoProps>`
   font-weight: 400;
   pointer-events: none;
   white-space: nowrap;
-`;
-
-const MobileDataContainer = styled(DataContainer)`
-  display: grid;
-  grid-template-columns: auto 1fr;
-  align-items: flex-start;
-  border-radius: 2rem;
-  gap: 0.8rem;
-  height: auto;
-  padding: 0.4rem 1.6rem;
-  z-index: 20;
-  pointer-events: auto;
-`;
-
-const MobileRectangleInfoText = styled(RectangleInfoText)`
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 0.2rem;
-`;
-
-const MobileRectangleInfoColorText = styled(RectangleInfoColorText)`
-  font-weight: bold;
+  flex-direction: row;
 `;
 
 export {
   DataContainer,
-  MobileDataContainer,
-  MobileRectangleInfoColorText,
-  MobileRectangleInfoText,
   RectangleCircle,
   RectangleInfoBoldText,
   RectangleInfoColorText,

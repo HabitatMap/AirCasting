@@ -5,9 +5,6 @@ import { useMapParams } from "../../../../utils/mapParamsHandler";
 import useScreenSizeDetection from "../../../../utils/useScreenSizeDetection";
 import {
   DataContainer,
-  MobileDataContainer,
-  MobileRectangleInfoColorText,
-  MobileRectangleInfoText,
   RectangleCircle,
   RectangleInfoBoldText,
   RectangleInfoColorText,
@@ -43,34 +40,23 @@ const RectangleInfo = ({
         $visible={visible}
       >
         <ShadowCircle $color={color} $isMobile={isMobile} />
-        {isMobile ? (
-          <MobileDataContainer $color={color}>
-            <MobileRectangleInfoText>
-              <MobileRectangleInfoColorText $color={color}>
-                {numberOfSamples} {t("map.rectangleInfo.stations")}
-              </MobileRectangleInfoColorText>
-              {average.toFixed(0)}{" "}
-              {` ${unitSymbol} ${t("map.rectangleInfo.average")}`}
-            </MobileRectangleInfoText>
-          </MobileDataContainer>
-        ) : (
-          <DataContainer $color={color}>
-            <RectangleCircle $color={color} />
-            <RectangleInfoText>
-              <RectangleInfoColorText $color={color}>
-                {`${t("map.rectangleInfo.average")} ${average.toFixed(
-                  0
-                )} ${unitSymbol} `}
-              </RectangleInfoColorText>
-              <RectangleInfoBoldText>{numberOfSamples}</RectangleInfoBoldText>
-              {` ${t("map.rectangleInfo.measurements")}`}
-              <RectangleInfoBoldText>
-                {numberOfContributors}
-              </RectangleInfoBoldText>
-              {` ${t("map.rectangleInfo.contributors")}`}
-            </RectangleInfoText>
-          </DataContainer>
-        )}
+        <DataContainer $color={color}>
+          <RectangleInfoText>
+            <RectangleInfoColorText $color={color}>
+              <RectangleCircle $color={color} />
+
+              {`${t("map.rectangleInfo.average")} ${average.toFixed(
+                0
+              )} ${unitSymbol} `}
+            </RectangleInfoColorText>
+            <RectangleInfoBoldText>{numberOfSamples}</RectangleInfoBoldText>
+            {` ${t("map.rectangleInfo.measurements")}`}
+            <RectangleInfoBoldText>
+              {numberOfContributors}
+            </RectangleInfoBoldText>
+            {` ${t("map.rectangleInfo.contributors")}`}
+          </RectangleInfoText>
+        </DataContainer>
       </RectangleInfoContainer>
     </>
   );
