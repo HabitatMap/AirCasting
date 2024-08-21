@@ -188,12 +188,12 @@ const CrowdMapMarkers = ({ pulsatingSessionId, sessions }: Props) => {
     };
   }, [
     crowdMapRectangles,
-    map,
-    thresholds,
     dispatch,
+    map,
     measurementType,
     mobileSessionsStreamIds,
     tags,
+    thresholds,
     unitSymbol,
     usernames,
   ]);
