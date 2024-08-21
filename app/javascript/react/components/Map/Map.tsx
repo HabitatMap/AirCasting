@@ -507,7 +507,7 @@ const Map = () => {
   const resetTimelapse = useCallback(() => {
     setCurrentTimelapseStep(0);
     dispatch(setCurrentTimestamp(""));
-  }, [dispatch]);
+  }, []);
 
   return (
     <>

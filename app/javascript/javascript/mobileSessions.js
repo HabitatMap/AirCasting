@@ -1,17 +1,17 @@
 import _ from "underscore";
-import * as Session from "./session";
-import { clusterer } from "./clusterer";
 import { calculateBounds } from "./calculateBounds";
 import { clearMap } from "./clearMap";
-import { sessionsInfoForElm } from "./sessionListUtils";
-import heat from "./heat";
-import sensors from "./sensors";
-import params from "./params2";
-import map from "./map";
+import { clusterer } from "./clusterer";
 import drawSession from "./drawSession";
+import heat from "./heat";
+import map from "./map";
+import params from "./params2";
+import pubsub from "./pubsub";
+import sensors from "./sensors";
+import * as Session from "./session";
+import { sessionsInfoForElm } from "./sessionListUtils";
 import sessionsDownloader from "./sessionsDownloader";
 import updateCrowdMapLayer from "./updateCrowdMapLayer";
-import pubsub from "./pubsub";
 
 export default (() => {
   var MobileSessions = function () {

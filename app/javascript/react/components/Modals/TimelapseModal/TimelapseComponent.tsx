@@ -35,7 +35,7 @@ const TimelapseComponent: React.FC<
     onNextStep,
     onPreviousStep,
     timestamps,
-    resetTimelapse, // Destructure the new prop
+    resetTimelapse,
   }) => {
     const TimelapseModal: React.FC<
       CustomPopupProps & Omit<PopupProps, "children">
@@ -48,7 +48,7 @@ const TimelapseComponent: React.FC<
     const overlayRef = useRef<HTMLDivElement>(null);
 
     const closeHandler = useCallback(() => {
-      resetTimelapse(); // Call the reset function on close
+      resetTimelapse();
       onClose();
     }, [onClose, resetTimelapse]);
 
