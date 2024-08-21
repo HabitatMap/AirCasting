@@ -277,6 +277,7 @@ const FiltersOptionButton = styled(Button)<{ $isSelected: boolean }>`
   border-color: ${(props) => props.$isSelected && lightBlue};
   font-size: 1.2rem;
   text-transform: capitalize;
+  text-wrap: nowrap;
 
   &:last-of-type {
     margin-bottom: 0;
