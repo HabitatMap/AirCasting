@@ -66,9 +66,6 @@ const RectangleInfoText = styled.span`
 const RectangleInfoBoldText = styled.span`
   color: ${gray400};
   font-weight: 700;
-  font-size: 1.4rem;
-  pointer-events: none;
-  white-space: nowrap;
   margin: 0rem 0.5rem 0rem 0rem;
 `;
 
