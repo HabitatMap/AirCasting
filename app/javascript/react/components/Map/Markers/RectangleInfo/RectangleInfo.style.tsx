@@ -39,16 +39,12 @@ const DataContainer = styled.div<RectangleInfoProps>`
   background-color: ${white};
   border: 1px solid ${(props) => props.$color};
   border-radius: 2rem;
-  padding: 1rem;
-  z-index: 20;
-`;
-
-const RectangleInfoText = styled.div`
-  color: ${gray400};
   display: flex;
   flex-direction: column;
   font-size: 1.4rem;
   font-weight: 400;
+  padding: 1rem;
+  z-index: 20;
 `;
 
 const RectangleCircle = styled.div<RectangleInfoProps>`
@@ -82,6 +78,5 @@ export {
   RectangleInfoBoldText,
   RectangleInfoColorText,
   RectangleInfoContainer,
-  RectangleInfoText,
   ShadowCircle,
 };
