@@ -504,6 +504,11 @@ const Map = () => {
     return null;
   };
 
+  const resetTimelapse = useCallback(() => {
+    setCurrentTimelapseStep(0);
+    dispatch(setCurrentTimestamp(""));
+  }, [dispatch]);
+
   return (
     <>
       {(selectorsLoading || markersLoading) && (
@@ -597,6 +602,7 @@ const Map = () => {
           onNextStep={handleNextTimelapseStep}
           onPreviousStep={handlePreviousTimelapseStep}
           timestamps={timestamps}
+          resetTimelapse={resetTimelapse}
         />
       )}
       <S.MobileContainer>
