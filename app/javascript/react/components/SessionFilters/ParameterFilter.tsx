@@ -8,7 +8,7 @@ import minus from "../../assets/icons/minus.svg";
 import plus from "../../assets/icons/plus.svg";
 import { useAppDispatch, useAppSelector } from "../../store/hooks";
 import { setFetchingData } from "../../store/mapSlice";
-import { selectSensors } from "../../store/sensorsSlice";
+import { selectParameters, selectSensors } from "../../store/sensorsSlice";
 import {
   selectBasicParametersModalOpen,
   selectCustomParametersModalOpen,
@@ -39,6 +39,18 @@ const basicMeasurementTypes = (sessionType: SessionType) =>
 interface ParameterFilterProps {
   isBasicOpen: boolean;
 }
+
+export const filterCustomParameters = (
+  parameters: string[],
+  sessionType: string
+) => {
+  const basicParameters =
+    sessionType === SessionTypes.FIXED
+      ? FixedBasicParameterTypes
+      : MobileBasicParameterTypes;
+
+  return parameters.filter((param: string) => !basicParameters.includes(param));
+};
 
 export const ParameterFilter: React.FC<ParameterFilterProps> = ({
   isBasicOpen,
@@ -91,6 +103,8 @@ export const DesktopParameterFilter = () => {
   const customParametersModalOpen = useAppSelector(
     selectCustomParametersModalOpen
   );
+  const parameters = useAppSelector(selectParameters);
+  const customParameters = filterCustomParameters(parameters, sessionType);
 
   const handleOnMoreClick = () => {
     setMoreOpen(!moreOpen);
@@ -154,19 +168,22 @@ export const DesktopParameterFilter = () => {
                 {item}
               </S.FiltersOptionButton>
             ))}
-            {moreOpen ? (
-              <S.SeeMoreButton onClick={handleOnMoreClick}>
-                <S.SeeMoreSpan>{t("filters.seeLess")}</S.SeeMoreSpan>
-                <img src={minus} />
-              </S.SeeMoreButton>
-            ) : (
-              <S.SeeMoreButton onClick={handleOnMoreClick}>
-                <S.SeeMoreSpan>{t("filters.seeMore")}</S.SeeMoreSpan>
-                <img src={plus} />
-              </S.SeeMoreButton>
-            )}
+            {customParameters.length > 0 &&
+              (moreOpen ? (
+                <S.SeeMoreButton onClick={handleOnMoreClick}>
+                  <S.SeeMoreSpan>{t("filters.seeLess")}</S.SeeMoreSpan>
+                  <img src={minus} />
+                </S.SeeMoreButton>
+              ) : (
+                <S.SeeMoreButton onClick={handleOnMoreClick}>
+                  <S.SeeMoreSpan>{t("filters.seeMore")}</S.SeeMoreSpan>
+                  <img src={plus} />
+                </S.SeeMoreButton>
+              ))}
           </S.BasicParameterWrapper>
-          {moreOpen && <CustomParameterFilter />}
+          {moreOpen && (
+            <CustomParameterFilter customParameters={customParameters} />
+          )}
         </S.FiltersOptionsWrapper>
       )}
     </S.Wrapper>
@@ -174,11 +191,13 @@ export const DesktopParameterFilter = () => {
 };
 
 interface MobileDeviceParameterFilterProps {
+  customParameters: string[];
   sessionsCount: number | undefined;
   onClose: () => void;
 }
 
 export const MobileDeviceParameterFilter = ({
+  customParameters,
   sessionsCount,
   onClose,
 }: MobileDeviceParameterFilterProps) => {
@@ -235,9 +254,11 @@ export const MobileDeviceParameterFilter = ({
             </S.BasicParameterButton>
           ))}
         </S.BasicParameterButtonsWrapper>
-        <S.GrayButton onClick={handleShowMoreClick}>
-          {t("filters.showCustomParameters")}
-        </S.GrayButton>
+        {customParameters?.length > 0 && (
+          <S.GrayButton onClick={handleShowMoreClick}>
+            {t("filters.showCustomParameters")}
+          </S.GrayButton>
+        )}
       </S.ModalContent>
       <S.ButtonsWrapper>
         <S.BackButton

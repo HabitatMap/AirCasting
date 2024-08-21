@@ -1,5 +1,5 @@
 import { useCombobox } from "downshift";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
 
 import checkmark from "../../assets/icons/checkmarkBlue.svg";
@@ -11,28 +11,11 @@ import {
   setBasicSensorsModalOpen,
   setCustomSensorsModalOpen,
 } from "../../store/sessionFiltersSlice";
-import { SessionType } from "../../types/filters";
-import { Sensor } from "../../types/sensors";
 import { UserSettings } from "../../types/userStates";
 import { UrlParamsTypes, useMapParams } from "../../utils/mapParamsHandler";
 import useMobileDetection from "../../utils/useScreenSizeDetection";
-import { getBasicSensors, getSensorUnitSymbol } from "./SensorFilter";
+import { getSensorUnitSymbol } from "./SensorFilter";
 import * as S from "./SessionFilters.style";
-
-const filterCustomSensors = (
-  sensors: Sensor[],
-  measurementType: string,
-  sessionType: SessionType
-) => {
-  const sensorsForMeasurementType = sensors.filter(
-    (sensor: Sensor) => sensor.measurementType === measurementType
-  );
-  const basicSensors = getBasicSensors(measurementType, sessionType);
-  const sensorsFiltered = sensorsForMeasurementType.filter(
-    (sensor: Sensor) => !basicSensors?.includes(sensor.sensorName)
-  );
-  return sensorsFiltered.map((sensor: Sensor) => sensor.sensorName);
-};
 
 const getSensorsFilter = (inputValue: string) => {
   const lowerCasedInputValue = inputValue.toLowerCase();
@@ -41,18 +24,20 @@ const getSensorsFilter = (inputValue: string) => {
 };
 
 interface CustomSensorFilterProps {
+  customSensors: string[];
   sessionsCount?: number;
   onClose?: () => void;
 }
 
 const CustomSensorFilter: React.FC<CustomSensorFilterProps> = ({
+  customSensors,
   sessionsCount = 0,
   onClose = () => {},
 }) => {
-  const [filteredSensors, setFilteredSensors] = useState<string[]>([]);
+  const [filteredSensors, setFilteredSensors] =
+    useState<string[]>(customSensors);
   const [inputValue, setInputValue] = useState<string>("");
   const [selectedItem, setSelectedItem] = useState<string>("");
-
   const sensors = useAppSelector(selectSensors);
   const {
     setUrlParams,
@@ -65,26 +50,13 @@ const CustomSensorFilter: React.FC<CustomSensorFilterProps> = ({
   const dispatch = useAppDispatch();
   const { t } = useTranslation();
 
-  useEffect(() => {
-    const customSensors = filterCustomSensors(
-      sensors,
-      measurementType,
-      sessionType
-    );
-    setFilteredSensors(customSensors);
-  }, [sensors, measurementType, sessionType]);
-
   const { getInputProps, getMenuProps, getItemProps } = useCombobox({
     items: filteredSensors,
     inputValue,
     selectedItem,
     onInputValueChange: ({ inputValue }) => {
       setInputValue(inputValue);
-      setFilteredSensors(
-        filterCustomSensors(sensors, measurementType, sessionType).filter(
-          getSensorsFilter(inputValue)
-        )
-      );
+      setFilteredSensors(customSensors.filter(getSensorsFilter(inputValue)));
     },
     onSelectedItemChange: ({ selectedItem: newSelectedItem }) => {
       if (newSelectedItem) {

@@ -4,6 +4,7 @@ import { useTranslation } from "react-i18next";
 import { selectFixedSessionsState } from "../../store/fixedSessionsSelectors";
 import { useAppSelector } from "../../store/hooks";
 import { selectMobileSessionsState } from "../../store/mobileSessionsSelectors";
+import { selectParameters, selectSensors } from "../../store/sensorsSlice";
 import {
   selectBasicParametersModalOpen,
   selectBasicSensorsModalOpen,
@@ -17,11 +18,16 @@ import { CrowdMapToggle } from "./CrowdmapToggle";
 import { CustomParameterFilter } from "./CustomParameterFilter";
 import { CustomSensorFilter } from "./CustomSensorFilter";
 import {
+  filterCustomParameters,
   MobileDeviceParameterFilter,
   ParameterFilter,
 } from "./ParameterFilter";
 import { ProfileNamesInput } from "./ProfileNamesInput";
-import { MobileDeviceSensorFilter, SensorFilter } from "./SensorFilter";
+import {
+  filterCustomSensors,
+  MobileDeviceSensorFilter,
+  SensorFilter,
+} from "./SensorFilter";
 import * as S from "./SessionFilters.style";
 import { SessionTypeToggle } from "./SessionTypeToggle";
 import { TagsInput } from "./TagsInput";
@@ -52,8 +58,18 @@ const MobileSessionFilters = ({ onClose }: MobileSessionFiltersProps) => {
   const [isCustomSensorsModalOpen, setIsCustomSensorsModalOpen] = useState(
     customParametersModalOpen
   );
-  const { sessionType } = useMapParams();
+  const { sessionType, measurementType } = useMapParams();
   const { t } = useTranslation();
+
+  const parameters = useAppSelector(selectParameters);
+  const customParameters = filterCustomParameters(parameters, sessionType);
+
+  const sensors = useAppSelector(selectSensors);
+  const customSensors = filterCustomSensors(
+    sensors,
+    measurementType,
+    sessionType
+  );
 
   const fixedSessionTypeSelected: boolean = sessionType === SessionTypes.FIXED;
 
@@ -82,21 +98,28 @@ const MobileSessionFilters = ({ onClose }: MobileSessionFiltersProps) => {
     <S.MobileSessionFilters>
       {isBasicParametersModalOpen ? (
         <MobileDeviceParameterFilter
+          customParameters={customParameters}
           sessionsCount={sessionsCount}
           onClose={onClose}
         />
       ) : isCustomParametersModalOpen ? (
         <CustomParameterFilter
+          customParameters={customParameters}
           sessionsCount={sessionsCount}
           onClose={onClose}
         />
       ) : isBasicSensorsModalOpen ? (
         <MobileDeviceSensorFilter
+          customSensors={customSensors}
           sessionsCount={sessionsCount}
           onClose={onClose}
         />
       ) : isCustomSensorsModalOpen ? (
-        <CustomSensorFilter sessionsCount={sessionsCount} onClose={onClose} />
+        <CustomSensorFilter
+          customSensors={customSensors}
+          sessionsCount={sessionsCount}
+          onClose={onClose}
+        />
       ) : (
         <>
           <S.ModalContent>

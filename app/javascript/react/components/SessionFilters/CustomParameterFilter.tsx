@@ -1,35 +1,21 @@
 import { useCombobox } from "downshift";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
 
 import checkmark from "../../assets/icons/checkmarkBlue.svg";
 import chevronLeft from "../../assets/icons/chevronLeft.svg";
 import { useAppDispatch, useAppSelector } from "../../store/hooks";
 import { setFetchingData } from "../../store/mapSlice";
-import { selectParameters, selectSensors } from "../../store/sensorsSlice";
+import { selectSensors } from "../../store/sensorsSlice";
 import {
   setBasicParametersModalOpen,
   setCustomParametersModalOpen,
 } from "../../store/sessionFiltersSlice";
-import {
-  FixedBasicParameterTypes,
-  MobileBasicParameterTypes,
-  SessionTypes,
-} from "../../types/filters";
 import { UserSettings } from "../../types/userStates";
 import { UrlParamsTypes, useMapParams } from "../../utils/mapParamsHandler";
 import { setSensor } from "../../utils/setSensor";
 import useMobileDetection from "../../utils/useScreenSizeDetection";
 import * as S from "./SessionFilters.style";
-
-const filterCustomParameters = (parameters: string[], sessionType: string) => {
-  const basicParameters =
-    sessionType === SessionTypes.FIXED
-      ? FixedBasicParameterTypes
-      : MobileBasicParameterTypes;
-
-  return parameters.filter((param: string) => !basicParameters.includes(param));
-};
 
 const getParametersFilter = (inputValue: string) => {
   const lowerCasedInputValue = inputValue.toLowerCase();
@@ -38,19 +24,22 @@ const getParametersFilter = (inputValue: string) => {
 };
 
 interface CustomParameterFilterProps {
+  customParameters: string[];
   sessionsCount?: number;
   onClose?: () => void;
 }
 
 const CustomParameterFilter: React.FC<CustomParameterFilterProps> = ({
+  customParameters,
   sessionsCount = 0,
   onClose = () => {},
 }) => {
-  const [filteredParameters, setFilteredParameters] = useState<string[]>([]);
+  const [filteredParameters, setFilteredParameters] =
+    useState<string[]>(customParameters);
   const [inputValue, setInputValue] = useState<string>("");
   const [selectedItem, setSelectedItem] = useState<string>("");
 
-  const parameters = useAppSelector(selectParameters);
+  // const parameters = useAppSelector(selectParameters);
   const { setUrlParams, sessionType, currentUserSettings, measurementType } =
     useMapParams();
   const isMobile = useMobileDetection();
@@ -58,10 +47,10 @@ const CustomParameterFilter: React.FC<CustomParameterFilterProps> = ({
   const dispatch = useAppDispatch();
   const { t } = useTranslation();
 
-  useEffect(() => {
-    const customParameters = filterCustomParameters(parameters, sessionType);
-    setFilteredParameters(customParameters);
-  }, [parameters, sessionType]);
+  // useEffect(() => {
+  //   const customParameters = filterCustomParameters(parameters, sessionType);
+  //   setFilteredParameters(customParameters);
+  // }, [parameters, sessionType]);
 
   const { getInputProps, getMenuProps, getItemProps } = useCombobox({
     items: filteredParameters,
@@ -70,9 +59,7 @@ const CustomParameterFilter: React.FC<CustomParameterFilterProps> = ({
     onInputValueChange: ({ inputValue }) => {
       setInputValue(inputValue);
       setFilteredParameters(
-        filterCustomParameters(parameters, sessionType).filter(
-          getParametersFilter(inputValue)
-        )
+        customParameters.filter(getParametersFilter(inputValue))
       );
     },
     onSelectedItemChange: ({ selectedItem: newSelectedItem }) => {

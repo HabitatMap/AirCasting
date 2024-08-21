@@ -16,7 +16,7 @@ import {
   setBasicSensorsModalOpen,
   setCustomSensorsModalOpen,
 } from "../../store/sessionFiltersSlice";
-import { ParameterTypes, SessionTypes } from "../../types/filters";
+import { ParameterTypes, SessionType, SessionTypes } from "../../types/filters";
 import { BasicSensorTypes, Sensor } from "../../types/sensors";
 import { UserSettings } from "../../types/userStates";
 import { UrlParamsTypes, useMapParams } from "../../utils/mapParamsHandler";
@@ -52,6 +52,21 @@ export const getSensorUnitSymbol = (
 ) => {
   const sensor = sensors.filter((el) => el.sensorName === selectedSensor);
   return sensor[0].unitSymbol;
+};
+
+export const filterCustomSensors = (
+  sensors: Sensor[],
+  measurementType: string,
+  sessionType: SessionType
+) => {
+  const sensorsForMeasurementType = sensors.filter(
+    (sensor: Sensor) => sensor.measurementType === measurementType
+  );
+  const basicSensors = getBasicSensors(measurementType, sessionType);
+  const sensorsFiltered = sensorsForMeasurementType.filter(
+    (sensor: Sensor) => !basicSensors?.includes(sensor.sensorName)
+  );
+  return sensorsFiltered.map((sensor: Sensor) => sensor.sensorName);
 };
 
 interface SensorFilterProps {
@@ -106,6 +121,12 @@ export const DesktopSensorFilter = () => {
   const sensors = useAppSelector(selectSensors);
   const basicSensorsModalOpen = useAppSelector(selectBasicSensorsModalOpen);
   const customSensorsModalOpen = useAppSelector(selectCustomSensorsModalOpen);
+
+  const customSensors = filterCustomSensors(
+    sensors,
+    measurementType,
+    sessionType
+  );
 
   const handleOnMoreClick = () => {
     setMoreOpen(!moreOpen);
@@ -168,19 +189,20 @@ export const DesktopSensorFilter = () => {
               </S.FiltersOptionButton>
             ))}
 
-            {moreOpen ? (
-              <S.SeeMoreButton onClick={handleOnMoreClick}>
-                <S.SeeMoreSpan>{t("filters.seeLess")}</S.SeeMoreSpan>
-                <img src={minus} />
-              </S.SeeMoreButton>
-            ) : (
-              <S.SeeMoreButton onClick={handleOnMoreClick}>
-                <S.SeeMoreSpan>{t("filters.seeMore")}</S.SeeMoreSpan>
-                <img src={plus} />
-              </S.SeeMoreButton>
-            )}
+            {customSensors.length > 0 &&
+              (moreOpen ? (
+                <S.SeeMoreButton onClick={handleOnMoreClick}>
+                  <S.SeeMoreSpan>{t("filters.seeLess")}</S.SeeMoreSpan>
+                  <img src={minus} />
+                </S.SeeMoreButton>
+              ) : (
+                <S.SeeMoreButton onClick={handleOnMoreClick}>
+                  <S.SeeMoreSpan>{t("filters.seeMore")}</S.SeeMoreSpan>
+                  <img src={plus} />
+                </S.SeeMoreButton>
+              ))}
           </S.BasicParameterWrapper>
-          {moreOpen && <CustomSensorFilter />}
+          {moreOpen && <CustomSensorFilter customSensors={customSensors} />}
         </S.FiltersOptionsWrapper>
       )}
     </S.Wrapper>
@@ -188,11 +210,13 @@ export const DesktopSensorFilter = () => {
 };
 
 interface MobileDeviceSensorFilterProps {
+  customSensors: string[];
   sessionsCount: number | undefined;
   onClose: () => void;
 }
 
 export const MobileDeviceSensorFilter = ({
+  customSensors,
   sessionsCount,
   onClose,
 }: MobileDeviceSensorFilterProps) => {
@@ -247,9 +271,11 @@ export const MobileDeviceSensorFilter = ({
             </S.BasicParameterButton>
           ))}
         </S.BasicParameterButtonsWrapper>
-        <S.GrayButton onClick={handleShowMoreClick}>
-          {t("filters.showCustomSensors")}
-        </S.GrayButton>
+        {customSensors.length > 0 && (
+          <S.GrayButton onClick={handleShowMoreClick}>
+            {t("filters.showCustomSensors")}
+          </S.GrayButton>
+        )}
       </S.ModalContent>
       <S.ButtonsWrapper>
         <S.BackButton onClick={() => dispatch(setBasicSensorsModalOpen(false))}>
