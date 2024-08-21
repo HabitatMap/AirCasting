@@ -12,11 +12,7 @@ module Api
       end
 
       def index2
-        trigger_time = Time.current
         sessions = FixedSession.active.filter_(data)
-        Rails.logger.info "Sessions filter took #{Time.current - trigger_time} seconds"
-
-        stream_fetch_time = Time.current
 
         end_of_last_time_slice = Time.current.end_of_hour - 1.hour
         begining_of_first_time_slice = end_of_last_time_slice.beginning_of_hour - 168.hours
@@ -24,10 +20,7 @@ module Api
         streams = Stream.where(session_id: sessions.pluck('sessions.id'))
         selected_sensor_streams = streams.select { |stream| Sensor.sensor_name(data[:sensor_name]).include? stream.sensor_name.downcase }
 
-        Rails.logger.info "Stream fetch took #{Time.current - stream_fetch_time} seconds"
         result = {}
-
-        averages_time = Time.current
 
         sessions.each do |session|
           related_stream_id = selected_sensor_streams.find { |stream| stream.session_id == session.id }.id
@@ -41,11 +34,15 @@ module Api
 
           averages.each do |average|
             result[average[:time]] ||= []
-            result[average[:time]] << { related_stream_id => average[:value] }
+            result[average[:time]] <<
+              {
+                "stream_id" => related_stream_id,
+                "value" => average[:value],
+                "latitude" => session.latitude,
+                "longitude" => session.longitude,
+              }
           end
         end
-
-        Rails.logger.info "Averages took #{Time.current - averages_time} seconds"
 
         render json: result, status: :ok
       end
