@@ -59,7 +59,7 @@ const TimelapseMarkers = ({ sessions }: Props) => {
     }) as CustomMarkerClusterer;
   }
 
-  // Cleaning cluster after closing timelapse modal
+  // Clearing cluster after closing timelapse modal
   useEffect(() => {
     return () => {
       if (clusterer.current) {
