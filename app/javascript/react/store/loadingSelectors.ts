@@ -11,6 +11,8 @@ const selectMobileSessionsLoading = (state: RootState) =>
   state.mobileSessions.status === StatusEnum.Pending;
 const selectMobileStreamLoading = (state: RootState) =>
   state.mobileStream.status === StatusEnum.Pending;
+const selectTimelapseLoading = (state: RootState) =>
+  state.timelapse.status === StatusEnum.Pending;
 
 // Combine loading states
 export const selectIsLoading = createSelector(
@@ -19,15 +21,18 @@ export const selectIsLoading = createSelector(
     selectFixedSessionsLoading,
     selectMobileSessionsLoading,
     selectMobileStreamLoading,
+    selectTimelapseLoading,
   ],
   (
     fixedStreamLoading,
     fixedSessionsLoading,
     mobileSessionsLoading,
-    mobileStreamLoading
+    mobileStreamLoading,
+    timelapseLoading
   ) =>
     fixedStreamLoading ||
     fixedSessionsLoading ||
     mobileSessionsLoading ||
-    mobileStreamLoading
+    mobileStreamLoading ||
+    timelapseLoading
 );
