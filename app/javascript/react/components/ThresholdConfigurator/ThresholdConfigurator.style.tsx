@@ -81,7 +81,8 @@ const ThresholdButton = styled(Button)<{ variant: ThresholdButtonVariant }>`
     ${(props) =>
       props.variant === ThresholdButtonVariant.IconOnly &&
       `
-        height: 32px;
+        height: 3.2rem;
+        min-width: 5.2rem;
       `}
   }
 
@@ -90,7 +91,8 @@ const ThresholdButton = styled(Button)<{ variant: ThresholdButtonVariant }>`
     ${(props) =>
       props.variant === ThresholdButtonVariant.IconOnly &&
       `
-        height: 32px;
+        height: 3.2rem;
+        min-width: 5.2rem;
       `}
   }
 
