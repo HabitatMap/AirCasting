@@ -39,18 +39,12 @@ const CustomParameterFilter: React.FC<CustomParameterFilterProps> = ({
   const [inputValue, setInputValue] = useState<string>("");
   const [selectedItem, setSelectedItem] = useState<string>("");
 
-  // const parameters = useAppSelector(selectParameters);
   const { setUrlParams, sessionType, currentUserSettings, measurementType } =
     useMapParams();
   const isMobile = useMobileDetection();
   const sensors = useAppSelector(selectSensors);
   const dispatch = useAppDispatch();
   const { t } = useTranslation();
-
-  // useEffect(() => {
-  //   const customParameters = filterCustomParameters(parameters, sessionType);
-  //   setFilteredParameters(customParameters);
-  // }, [parameters, sessionType]);
 
   const { getInputProps, getMenuProps, getItemProps } = useCombobox({
     items: filteredParameters,
