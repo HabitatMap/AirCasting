@@ -1,9 +1,7 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import { useSelector } from "react-redux";
 
 import { AdvancedMarker, useMap } from "@vis.gl/react-google-maps";
 
-import { RootState } from "../../../store";
 import {
   fetchCrowdMapData,
   selectCrowdMapRectangles,
@@ -14,6 +12,8 @@ import { selectMobileSessionsStreamIds } from "../../../store/mobileSessionsSele
 import {
   clearRectangles,
   fetchRectangleData,
+  selectRectangleData,
+  selectRectangleLoading,
 } from "../../../store/rectangleSlice";
 import { selectThresholds } from "../../../store/thresholdSlice";
 import { Session } from "../../../types/sessionType";
@@ -32,6 +32,8 @@ const CrowdMapMarkers = ({ pulsatingSessionId, sessions }: Props) => {
 
   const crowdMapRectangles = useAppSelector(selectCrowdMapRectangles);
   const mobileSessionsStreamIds = useAppSelector(selectMobileSessionsStreamIds);
+  const rectangleData = useAppSelector(selectRectangleData);
+  const rectangleLoading = useAppSelector(selectRectangleLoading);
   const thresholds = useAppSelector(selectThresholds);
 
   const map = useMap();
@@ -77,10 +79,6 @@ const CrowdMapMarkers = ({ pulsatingSessionId, sessions }: Props) => {
   );
 
   const rectanglesRef = useRef<google.maps.Rectangle[]>([]);
-  const rectangleData = useSelector((state: RootState) => state.rectangle.data);
-  const rectangleLoading = useSelector(
-    (state: RootState) => state.rectangle.loading
-  );
   const [rectanglePoint, setRectanglePoint] = useState<{
     lat: number;
     lng: number;
@@ -170,7 +168,7 @@ const CrowdMapMarkers = ({ pulsatingSessionId, sessions }: Props) => {
 
             dispatch(fetchRectangleData(queryString));
             setRectanglePoint({
-              lat: rectangleBoundSouth,
+              lat: rectangleBoundNorth,
               lng: rectangleBoundEast,
             });
           }

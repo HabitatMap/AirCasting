@@ -4,6 +4,7 @@ import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
 
 import { oldApiClient } from "../api/apiClient";
 import { API_ENDPOINTS } from "../api/apiEndpoints";
+import { RootState } from "./";
 
 interface RectangleData {
   average: number;
@@ -75,3 +76,7 @@ const rectangleSlice = createSlice({
 export const { clearRectangles } = rectangleSlice.actions;
 
 export default rectangleSlice.reducer;
+
+export const selectRectangleData = (state: RootState) => state.rectangle.data;
+export const selectRectangleLoading = (state: RootState) =>
+  state.rectangle.loading;

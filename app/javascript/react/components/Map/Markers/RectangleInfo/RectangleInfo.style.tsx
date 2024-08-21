@@ -9,7 +9,6 @@ interface RectangleInfoProps {
 const RectangleInfoContainer = styled.div`
   display: grid;
   position: absolute;
-  top: -10px;
   left: -20px;
 `;
 
