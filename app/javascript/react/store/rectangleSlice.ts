@@ -14,12 +14,11 @@ export interface RectangleData {
 
 interface RectangleState {
   data?: RectangleData;
-  error: string | null;
+  error?: string;
   loading: boolean;
 }
 
 const initialState: RectangleState = {
-  error: null,
   loading: false,
 };
 
@@ -54,7 +53,7 @@ const rectangleSlice = createSlice({
     builder
       .addCase(fetchRectangleData.pending, (state) => {
         state.loading = true;
-        state.error = null;
+        state.error = undefined;
       })
       .addCase(
         fetchRectangleData.fulfilled,
