@@ -15,15 +15,12 @@ interface RectangleInfoProps {
 
 const RectangleInfoContainer = styled.div<RectangleInfoContainerProps>`
   display: grid;
-  pointer-events: auto;
-
   position: absolute;
-  transition: opacity 0.3s ease-in-out, transform 0.3s ease-in-out;
 `;
 
 const ShadowCircle = styled.div<RectangleInfoProps>`
-  width: ${(props) => (props.$isMobile ? "5rem" : "5rem")};
-  height: ${(props) => (props.$isMobile ? "5rem" : "5rem")};
+  width: 5rem;
+  height: 5rem;
   position: absolute;
   border-radius: 50%;
   z-index: 10;
@@ -35,34 +32,15 @@ const ShadowCircle = styled.div<RectangleInfoProps>`
   );
   filter: blur(5px);
   pointer-events: none;
-
-  ${(props) =>
-    props.$isMobile
-      ? "transform: translate(-15%, -10%);"
-      : "transform: translate(-20%, -25%);"}
+  transform: translate(-25%, -25%);
 `;
 
 const DataContainer = styled.div<RectangleInfoProps>`
-  display: grid;
-  height: auto;
-  border-radius: 2rem;
-  padding: 0.4rem 1.6rem;
-  box-shadow: 0.125rem 0.125rem 0.25rem 0 rgba(76, 86, 96, 0.1);
-  align-items: flex-start;
-  gap: 0.8rem;
-  pointer-events: auto;
-  border: 1px solid ${(props) => props.$color};
   background-color: ${white};
+  border: 1px solid ${(props) => props.$color};
+  border-radius: 2rem;
+  padding: 1rem;
   z-index: 20;
-  grid-template-columns: auto 1fr;
-`;
-
-const RectangleCircle = styled.div<RectangleInfoProps>`
-  width: 1rem;
-  height: 1rem;
-  border-radius: 50%;
-  background-color: ${(props) => props.$color};
-  pointer-events: none;
 `;
 
 const RectangleInfoText = styled.div`
@@ -72,6 +50,14 @@ const RectangleInfoText = styled.div`
   pointer-events: none;
   display: flex;
   flex-direction: column;
+`;
+
+const RectangleCircle = styled.div<RectangleInfoProps>`
+  width: 1rem;
+  height: 1rem;
+  border-radius: 50%;
+  background-color: ${(props) => props.$color};
+  pointer-events: none;
 `;
 
 const RectangleInfoBoldText = styled.span`
