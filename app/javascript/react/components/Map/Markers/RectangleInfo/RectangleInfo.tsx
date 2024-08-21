@@ -12,7 +12,6 @@ import {
   RectangleInfoBoldText,
   RectangleInfoColorText,
   RectangleInfoContainer,
-  RectangleInfoDataAndZoomIn,
   RectangleInfoText,
   ShadowCircle,
 } from "./RectangleInfo.style";
@@ -55,24 +54,22 @@ const RectangleInfo = ({
             </MobileRectangleInfoText>
           </MobileDataContainer>
         ) : (
-          <RectangleInfoDataAndZoomIn>
-            <DataContainer $color={color}>
-              <RectangleCircle $color={color} />
-              <RectangleInfoText>
-                <RectangleInfoColorText $color={color}>
-                  {`${t("map.rectangleInfo.average")} ${average.toFixed(
-                    0
-                  )} ${unitSymbol} `}
-                </RectangleInfoColorText>
-                <RectangleInfoBoldText>{numberOfSamples}</RectangleInfoBoldText>
-                {` ${t("map.rectangleInfo.measurements")}`}
-                <RectangleInfoBoldText>
-                  {numberOfContributors}
-                </RectangleInfoBoldText>
-                {` ${t("map.rectangleInfo.contributors")}`}
-              </RectangleInfoText>
-            </DataContainer>
-          </RectangleInfoDataAndZoomIn>
+          <DataContainer $color={color}>
+            <RectangleCircle $color={color} />
+            <RectangleInfoText>
+              <RectangleInfoColorText $color={color}>
+                {`${t("map.rectangleInfo.average")} ${average.toFixed(
+                  0
+                )} ${unitSymbol} `}
+              </RectangleInfoColorText>
+              <RectangleInfoBoldText>{numberOfSamples}</RectangleInfoBoldText>
+              {` ${t("map.rectangleInfo.measurements")}`}
+              <RectangleInfoBoldText>
+                {numberOfContributors}
+              </RectangleInfoBoldText>
+              {` ${t("map.rectangleInfo.contributors")}`}
+            </RectangleInfoText>
+          </DataContainer>
         )}
       </RectangleInfoContainer>
     </>

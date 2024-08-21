@@ -16,17 +16,6 @@ interface RectangleInfoProps {
 const RectangleInfoContainer = styled.div<RectangleInfoContainerProps>`
   display: grid;
   position: absolute;
-  gap: 0.5rem;
-  width: fit-content;
-  z-index: 100;
-
-  height: ${(props) => (props.$isMobile ? "auto" : "2.8rem")};
-  ${(props) =>
-    props.$isMobile
-      ? "transform: translate(-15%, -90%);"
-      : "transform: translate(-6%, -100%);"}
-
-  opacity: ${(props) => (props.$visible ? 1 : 0)};
   transition: opacity 0.3s ease-in-out, transform 0.3s ease-in-out;
 `;
 
@@ -53,7 +42,7 @@ const ShadowCircle = styled.div<RectangleInfoProps>`
 
 const DataContainer = styled.div<RectangleInfoProps>`
   display: flex;
-  height: 2.8rem;
+  height: 5.5rem;
   border-radius: 1.5rem;
   padding: 0.5rem;
   box-shadow: 0.125rem 0.125rem 0.25rem 0 rgba(76, 86, 96, 0.1);
@@ -62,13 +51,6 @@ const DataContainer = styled.div<RectangleInfoProps>`
   pointer-events: auto;
   border: 1px solid ${(props) => props.$color};
   background-color: ${white};
-`;
-
-const RectangleInfoDataAndZoomIn = styled.div`
-  display: grid;
-  grid-template-columns: auto 1fr;
-  gap: 0.5rem;
-  pointer-events: auto;
   z-index: 20;
 `;
 
@@ -85,7 +67,8 @@ const RectangleInfoText = styled.div`
   font-size: 1.4rem;
   font-weight: 400;
   pointer-events: none;
-  white-space: nowrap;
+  display: flex;
+  flex-direction: column;
 `;
 
 const RectangleInfoBoldText = styled.span`
@@ -136,7 +119,6 @@ export {
   RectangleInfoBoldText,
   RectangleInfoColorText,
   RectangleInfoContainer,
-  RectangleInfoDataAndZoomIn,
   RectangleInfoText,
   ShadowCircle,
 };
