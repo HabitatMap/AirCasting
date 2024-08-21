@@ -118,6 +118,7 @@ const CrowdMapMarkers = ({ pulsatingSessionId, sessions }: Props) => {
         google.maps.event.clearListeners(map, "click");
         google.maps.event.clearListeners(map, "touchend");
         google.maps.event.clearListeners(map, "dragstart");
+        google.maps.event.clearListeners(map, "zoom_changed");
       }
     };
   }, [map, dispatch]);
