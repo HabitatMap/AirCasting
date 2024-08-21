@@ -48,7 +48,7 @@ const RectangleInfo = ({
           <MobileDataContainer $color={color}>
             <MobileRectangleInfoText>
               <MobileRectangleInfoColorText $color={color}>
-                {numberOfSessions} {t("map.rectangleInfo.stations")}
+                {numberOfSamples} {t("map.rectangleInfo.stations")}
               </MobileRectangleInfoColorText>
               {average.toFixed(0)}{" "}
               {` ${unitSymbol} ${t("map.rectangleInfo.average")}`}
