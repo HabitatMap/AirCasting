@@ -12,6 +12,7 @@ import { selectMobileSessionsStreamIds } from "../../../store/mobileSessionsSele
 import {
   clearRectangles,
   fetchRectangleData,
+  RectangleData,
   selectRectangleData,
   selectRectangleLoading,
 } from "../../../store/rectangleSlice";
@@ -216,19 +217,26 @@ const CrowdMapMarkers = ({ pulsatingSessionId, sessions }: Props) => {
     );
   };
 
+  const renderInfo = (rectangleData: RectangleData) => {
+    return (
+      <AdvancedMarker position={rectanglePoint}>
+        <RectangleInfo
+          color={getColorForValue(thresholds, rectangleData.average)}
+          average={rectangleData.average}
+          numberOfContributors={rectangleData.numberOfContributors}
+          numberOfSamples={rectangleData.numberOfSamples}
+        />
+      </AdvancedMarker>
+    );
+  };
+
   return (
     <>
       {displayedSession && renderMarker(displayedSession)}
-      {rectangleData && !rectangleLoading && rectanglePoint && (
-        <AdvancedMarker position={rectanglePoint} key={1234567890}>
-          <RectangleInfo
-            color={getColorForValue(thresholds, rectangleData.average)}
-            average={rectangleData.average}
-            numberOfContributors={rectangleData.numberOfContributors}
-            numberOfSamples={rectangleData.numberOfSamples}
-          />
-        </AdvancedMarker>
-      )}
+      {!rectangleLoading &&
+        rectangleData &&
+        rectanglePoint &&
+        renderInfo(rectangleData)}
     </>
   );
 };

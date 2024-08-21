@@ -6,7 +6,7 @@ import { oldApiClient } from "../api/apiClient";
 import { API_ENDPOINTS } from "../api/apiEndpoints";
 import { RootState } from "./";
 
-interface RectangleData {
+export interface RectangleData {
   average: number;
   numberOfContributors: number;
   numberOfSamples: number;
