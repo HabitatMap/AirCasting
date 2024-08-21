@@ -45,19 +45,27 @@ const DataContainer = styled.div<RectangleInfoProps>`
 
 const RectangleInfoText = styled.div`
   color: ${gray400};
-  font-size: 1.4rem;
-  font-weight: 400;
-  pointer-events: none;
   display: flex;
   flex-direction: column;
+  font-size: 1.4rem;
+  font-weight: 400;
 `;
 
 const RectangleCircle = styled.div<RectangleInfoProps>`
-  width: 1rem;
-  height: 1rem;
-  border-radius: 50%;
   background-color: ${(props) => props.$color};
-  pointer-events: none;
+  border-radius: 50%;
+  height: 1rem;
+  margin: 0rem 0.5rem 0rem 0rem;
+  width: 1rem;
+`;
+
+const RectangleInfoColorText = styled.span<RectangleInfoProps>`
+  color: ${(props) => props.$color};
+  display: flex;
+  flex-direction: row;
+  font-size: 1.4rem;
+  font-weight: 400;
+  white-space: nowrap;
 `;
 
 const RectangleInfoBoldText = styled.span`
@@ -66,15 +74,6 @@ const RectangleInfoBoldText = styled.span`
   font-size: 1.4rem;
   pointer-events: none;
   white-space: nowrap;
-`;
-
-const RectangleInfoColorText = styled.span<RectangleInfoProps>`
-  color: ${(props) => props.$color};
-  font-size: 1.4rem;
-  font-weight: 400;
-  pointer-events: none;
-  white-space: nowrap;
-  flex-direction: row;
 `;
 
 export {
