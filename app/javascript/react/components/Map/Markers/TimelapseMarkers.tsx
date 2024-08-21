@@ -3,7 +3,13 @@ import {
   SuperClusterAlgorithm,
 } from "@googlemaps/markerclusterer";
 import { AdvancedMarker, useMap } from "@vis.gl/react-google-maps";
-import React, { useCallback, useMemo, useRef, useState } from "react";
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { useSelector } from "react-redux";
 import { selectThresholds } from "../../../store/thresholdSlice";
 import { useMapParams } from "../../../utils/mapParamsHandler";
@@ -52,6 +58,15 @@ const TimelapseMarkers = ({ sessions }: Props) => {
       }),
     }) as CustomMarkerClusterer;
   }
+
+  // Cleaning cluster after closing timelapse modal
+  useEffect(() => {
+    return () => {
+      if (clusterer.current) {
+        clusterer.current.clearMarkers();
+      }
+    };
+  }, []);
 
   // Update clusters with new markers
   const updateClusterer = useCallback(() => {
