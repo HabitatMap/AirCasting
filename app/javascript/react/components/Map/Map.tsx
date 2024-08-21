@@ -489,6 +489,16 @@ const Map = () => {
     }
   };
 
+  const handleGoToStart = () => {
+    setCurrentTimelapseStep(0);
+    dispatch(setCurrentTimestamp(timestamps[0]));
+  };
+
+  const handleGoToEnd = () => {
+    const lastIndex = timestamps.length - 1;
+    setCurrentTimelapseStep(lastIndex);
+    dispatch(setCurrentTimestamp(timestamps[lastIndex]));
+  };
   const memoizedTimelapseData = useMemo(() => timelapseData, [timelapseData]);
 
   const renderTimelapseMarkers = () => {
@@ -601,6 +611,8 @@ const Map = () => {
           totalSteps={Object.keys(timelapseData).length}
           onNextStep={handleNextTimelapseStep}
           onPreviousStep={handlePreviousTimelapseStep}
+          onGoToStart={handleGoToStart}
+          onGoToEnd={handleGoToEnd}
           timestamps={timestamps}
           resetTimelapse={resetTimelapse}
         />
