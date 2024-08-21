@@ -18,7 +18,9 @@ interface TimelapseComponentProps {
   onNextStep: () => void;
   onPreviousStep: () => void;
   timestamps: string[];
-  resetTimelapse: () => void; // Add a new prop to reset timelapse
+  resetTimelapse: () => void;
+  onGoToStart: () => void;
+  onGoToEnd: () => void;
 }
 
 type CustomPopupProps = {
@@ -38,6 +40,8 @@ const TimelapseComponent: React.FC<
     onPreviousStep,
     timestamps,
     resetTimelapse,
+    onGoToStart,
+    onGoToEnd,
   }) => {
     const TimelapseModal: React.FC<
       CustomPopupProps & Omit<PopupProps, "children">
@@ -109,6 +113,8 @@ const TimelapseComponent: React.FC<
                     totalSteps={totalSteps}
                     onNextStep={onNextStep}
                     onPreviousStep={onPreviousStep}
+                    onGoToStart={onGoToStart}
+                    onGoToEnd={onGoToEnd}
                   />
                   <TimeAxis
                     currentStep={currentStep}

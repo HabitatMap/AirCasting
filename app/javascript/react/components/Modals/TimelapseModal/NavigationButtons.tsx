@@ -14,6 +14,8 @@ interface NavigationButtonsProps {
   totalSteps: number;
   onNextStep: () => void;
   onPreviousStep: () => void;
+  onGoToStart: () => void;
+  onGoToEnd: () => void;
 }
 
 const NavigationButtons: React.FC<NavigationButtonsProps> = ({
@@ -21,6 +23,8 @@ const NavigationButtons: React.FC<NavigationButtonsProps> = ({
   totalSteps,
   onNextStep,
   onPreviousStep,
+  onGoToStart,
+  onGoToEnd,
 }) => {
   const { t } = useTranslation();
   const [isPlaying, setIsPlaying] = useState(false);
@@ -36,7 +40,7 @@ const NavigationButtons: React.FC<NavigationButtonsProps> = ({
         } else {
           setIsPlaying(false);
         }
-      }, 5000);
+      }, 3000);
     }
 
     return () => {
@@ -50,7 +54,7 @@ const NavigationButtons: React.FC<NavigationButtonsProps> = ({
 
   return (
     <S.NavigationButtonsContainer>
-      <S.NavigationButton onClick={onPreviousStep} disabled={currentStep === 0}>
+      <S.NavigationButton onClick={onGoToStart} disabled={currentStep === 0}>
         <img src={rewindButton} alt={t("timelapse.altRewind")} />
       </S.NavigationButton>
       <S.NavigationButton onClick={onPreviousStep} disabled={currentStep === 0}>
@@ -69,7 +73,7 @@ const NavigationButtons: React.FC<NavigationButtonsProps> = ({
         <img src={skipRightButton} alt={t("timelapse.altSkipRight")} />
       </S.NavigationButton>
       <S.NavigationButton
-        onClick={onNextStep}
+        onClick={onGoToEnd}
         disabled={currentStep === totalSteps - 1}
       >
         <img src={fastForwardButton} alt={t("timelapse.altFastForward")} />
