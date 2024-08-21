@@ -1,7 +1,6 @@
+import moment from "moment";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
-
-import moment from "moment";
 import type { PopupProps } from "reactjs-popup/dist/types";
 import closeTimelapseButton from "../../../assets/icons/closeTimelapseButton.svg";
 import { DateFormat } from "../../../types/dateFormat";
@@ -17,6 +16,7 @@ interface TimelapseComponentProps {
   onNextStep: () => void;
   onPreviousStep: () => void;
   timestamps: string[];
+  resetTimelapse: () => void; // Add a new prop to reset timelapse
 }
 
 type CustomPopupProps = {
@@ -35,6 +35,7 @@ const TimelapseComponent: React.FC<
     onNextStep,
     onPreviousStep,
     timestamps,
+    resetTimelapse, // Destructure the new prop
   }) => {
     const TimelapseModal: React.FC<
       CustomPopupProps & Omit<PopupProps, "children">
@@ -44,12 +45,12 @@ const TimelapseComponent: React.FC<
 
     const { t } = useTranslation();
     const [showReadOnlyPopup, setShowReadOnlyPopup] = useState(false);
-
     const overlayRef = useRef<HTMLDivElement>(null);
 
     const closeHandler = useCallback(() => {
+      resetTimelapse(); // Call the reset function on close
       onClose();
-    }, [onClose]);
+    }, [onClose, resetTimelapse]);
 
     const handleOverlayClick = useCallback(
       (event: MouseEvent) => {
@@ -86,10 +87,7 @@ const TimelapseComponent: React.FC<
           open={true}
           modal
           nested
-          overlayStyle={{
-            margin: 0,
-            zIndex: 2,
-          }}
+          overlayStyle={{ margin: 0, zIndex: 2 }}
           contentStyle={{ margin: 0 }}
           onClose={closeHandler}
           closeOnDocumentClick={false}

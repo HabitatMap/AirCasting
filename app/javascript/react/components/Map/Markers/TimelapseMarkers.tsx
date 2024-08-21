@@ -84,7 +84,7 @@ const TimelapseMarkers = ({ sessions }: Props) => {
         }
       });
 
-      clusterer.current?.addMarkers(validMarkers);
+      clusterer.current?.addMarkers(validMarkers, true);
       clusterer.current.markerStreamIdMap = markerStreamIdMap;
     }
   }, [memoizedSessions, memoizedMarkers]);
