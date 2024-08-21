@@ -214,7 +214,6 @@ const CrowdMapMarkers = ({ pulsatingSessionId, sessions }: Props) => {
             average={rectangleData.average}
             numberOfContributors={rectangleData.numberOfContributors}
             numberOfSamples={rectangleData.numberOfSamples}
-            visible={true}
           />
         </AdvancedMarker>
       )}

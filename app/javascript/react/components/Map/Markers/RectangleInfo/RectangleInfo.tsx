@@ -19,7 +19,6 @@ interface RectangleProps {
   average: number;
   numberOfContributors: number;
   numberOfSamples: number;
-  visible: boolean;
 }
 
 const RectangleInfo = ({
@@ -27,7 +26,6 @@ const RectangleInfo = ({
   average,
   numberOfContributors,
   numberOfSamples,
-  visible,
 }: RectangleProps) => {
   const { unitSymbol } = useMapParams();
   const isMobile = useScreenSizeDetection();
@@ -35,12 +33,8 @@ const RectangleInfo = ({
 
   return (
     <>
-      <RectangleInfoContainer
-        $color={color}
-        $isMobile={isMobile}
-        $visible={visible}
-      >
-        <ShadowCircle $color={color} $isMobile={isMobile} />
+      <RectangleInfoContainer>
+        <ShadowCircle $color={color} />
         <DataContainer $color={color}>
           <RectangleInfoHeader>
             <RectangleCircle $color={color} />

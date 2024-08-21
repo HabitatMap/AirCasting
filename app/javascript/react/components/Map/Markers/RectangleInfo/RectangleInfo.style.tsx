@@ -2,18 +2,11 @@ import styled from "styled-components";
 
 import { gray400, white } from "../../../../assets/styles/colors";
 
-interface RectangleInfoContainerProps {
-  $color: string;
-  $isMobile?: boolean;
-  $visible?: boolean;
-}
-
 interface RectangleInfoProps {
   $color: string;
-  $isMobile?: boolean;
 }
 
-const RectangleInfoContainer = styled.div<RectangleInfoContainerProps>`
+const RectangleInfoContainer = styled.div`
   display: grid;
   position: absolute;
   top: -10px;
@@ -21,20 +14,19 @@ const RectangleInfoContainer = styled.div<RectangleInfoContainerProps>`
 `;
 
 const ShadowCircle = styled.div<RectangleInfoProps>`
-  width: 5rem;
-  height: 5rem;
-  position: absolute;
-  border-radius: 50%;
-  z-index: 10;
   background: radial-gradient(
     circle at center,
     ${(props) => props.$color} 0%,
     ${(props) => props.$color} 30%,
     transparent 100%
   );
+  border-radius: 50%;
   filter: blur(5px);
-  pointer-events: none;
+  height: 5rem;
+  position: absolute;
   transform: translate(-25%, -25%);
+  width: 5rem;
+  z-index: 10;
 `;
 
 const DataContainer = styled.div<RectangleInfoProps>`
@@ -50,23 +42,26 @@ const DataContainer = styled.div<RectangleInfoProps>`
 `;
 
 const RectangleInfoHeader = styled.span`
-  display: flex;
   align-items: center;
-  margin-bottom: 2px;
+  display: flex;
+  gap: 5px;
+  margin-bottom: 4px;
 `;
 
 const RectangleCircle = styled.div<RectangleInfoProps>`
   background-color: ${(props) => props.$color};
   border-radius: 50%;
   height: 1rem;
-  margin: 0rem 0.5rem 0rem 0rem;
   width: 1rem;
 `;
 
 const RectangleInfoColorText = styled.span<RectangleInfoProps>`
   color: ${(props) => props.$color};
-  font-size: 1.4rem;
-  font-weight: 400;
+`;
+
+const RectangleInfoText = styled.span`
+  display: flex;
+  flex-direction: row;
 `;
 
 const RectangleInfoBoldText = styled.span`
@@ -76,11 +71,6 @@ const RectangleInfoBoldText = styled.span`
   pointer-events: none;
   white-space: nowrap;
   margin: 0rem 0.5rem 0rem 0rem;
-`;
-
-const RectangleInfoText = styled.span`
-  display: flex;
-  flex-direction: row;
 `;
 
 export {
