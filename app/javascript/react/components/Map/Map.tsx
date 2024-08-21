@@ -57,7 +57,6 @@ import {
 import { SessionTypes } from "../../types/filters";
 import { SessionList } from "../../types/sessionType";
 import { UserSettings } from "../../types/userStates";
-import { combineTimelapseWithFixedSessions } from "../../utils/createTimelapseData";
 import { UrlParamsTypes, useMapParams } from "../../utils/mapParamsHandler";
 import useMobileDetection from "../../utils/useScreenSizeDetection";
 import { Loader } from "../Loader/Loader";
@@ -471,12 +470,10 @@ const Map = () => {
     }
   }, [currentUserSettings, sessionsPoints]);
 
-  const timelapseResponse = useAppSelector(selectTimelapseData);
-  // const timelapseResponse = useAppSelector(
-  //   selectFilteredTimelapseData("2495500")
-  // );
+  const timelapseData = useAppSelector(selectTimelapseData);
+
   const currentTimestamp = useAppSelector(selectCurrentTimestamp);
-  const timestamps = Object.keys(timelapseResponse);
+  const timestamps = Object.keys(timelapseData);
 
   const handleNextTimelapseStep = () => {
     if (currentTimelapseStep < timestamps.length - 1) {
@@ -491,11 +488,6 @@ const Map = () => {
       dispatch(setCurrentTimestamp(timestamps[currentTimelapseStep - 1]));
     }
   };
-
-  const timelapseData = combineTimelapseWithFixedSessions(
-    sessionsPoints,
-    timelapseResponse
-  );
 
   const memoizedTimelapseData = useMemo(() => timelapseData, [timelapseData]);
 

@@ -17,19 +17,27 @@ const TimeAxis: React.FC<TimeAxisProps> = ({
   const progressPercentage = (currentStep / (totalSteps - 1)) * 100;
 
   const currentTimestamp = timestamps[currentStep];
-  const currentDate = moment.utc(currentTimestamp).format(DateFormat.us);
-  const currentTime = moment.utc(currentTimestamp).format("hh:mm A");
+  const currentDate = moment
+    .utc(currentTimestamp, "YYYYMMDDHH:mm:ssZ")
+    .format(DateFormat.us);
+  const currentTime = moment
+    .utc(currentTimestamp, "YYYYMMDDHH:mm:ssZ")
+    .format("hh:mm A");
 
   const firstTimestamp = timestamps[0];
   const lastTimestamp = timestamps[timestamps.length - 1];
 
-  const firstFormattedTime = moment.utc(firstTimestamp).format("hh:mm A");
+  const firstFormattedTime = moment
+    .utc(firstTimestamp, "YYYYMMDDHH:mm:ssZ")
+    .format("hh:mm A");
   const firstFormattedDate = moment
-    .utc(firstTimestamp)
+    .utc(firstTimestamp, "YYYYMMDDHH:mm:ssZ")
     .format(DateFormat.us_without_year);
-  const lastFormattedTime = moment.utc(lastTimestamp).format("hh:mm A");
+  const lastFormattedTime = moment
+    .utc(lastTimestamp, "YYYYMMDDHH:mm:ssZ")
+    .format("hh:mm A");
   const lastFormattedDate = moment
-    .utc(lastTimestamp)
+    .utc(lastTimestamp, "YYYYMMDDHH:mm:ssZ")
     .format(DateFormat.us_without_year);
 
   return (
