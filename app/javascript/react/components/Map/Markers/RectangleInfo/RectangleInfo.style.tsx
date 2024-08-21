@@ -16,6 +16,8 @@ interface RectangleInfoProps {
 const RectangleInfoContainer = styled.div<RectangleInfoContainerProps>`
   display: grid;
   position: absolute;
+  top: -10px;
+  left: -20px;
 `;
 
 const ShadowCircle = styled.div<RectangleInfoProps>`
@@ -47,6 +49,12 @@ const DataContainer = styled.div<RectangleInfoProps>`
   z-index: 20;
 `;
 
+const RectangleInfoHeader = styled.span`
+  display: flex;
+  align-items: center;
+  margin-bottom: 2px;
+`;
+
 const RectangleCircle = styled.div<RectangleInfoProps>`
   background-color: ${(props) => props.$color};
   border-radius: 50%;
@@ -57,11 +65,8 @@ const RectangleCircle = styled.div<RectangleInfoProps>`
 
 const RectangleInfoColorText = styled.span<RectangleInfoProps>`
   color: ${(props) => props.$color};
-  display: flex;
-  flex-direction: row;
   font-size: 1.4rem;
   font-weight: 400;
-  white-space: nowrap;
 `;
 
 const RectangleInfoBoldText = styled.span`
@@ -70,6 +75,12 @@ const RectangleInfoBoldText = styled.span`
   font-size: 1.4rem;
   pointer-events: none;
   white-space: nowrap;
+  margin: 0rem 0.5rem 0rem 0rem;
+`;
+
+const RectangleInfoText = styled.span`
+  display: flex;
+  flex-direction: row;
 `;
 
 export {
@@ -78,5 +89,7 @@ export {
   RectangleInfoBoldText,
   RectangleInfoColorText,
   RectangleInfoContainer,
+  RectangleInfoHeader,
+  RectangleInfoText,
   ShadowCircle,
 };
