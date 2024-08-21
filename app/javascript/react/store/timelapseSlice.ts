@@ -107,4 +107,5 @@ export default timelapseSlice.reducer;
 export const selectTimelapseData = (state: RootState) => state.timelapse.data;
 export const selectCurrentTimestamp = (state: RootState) =>
   state.timelapse.currentTimestamp;
-export const selectIsLoading = (state: RootState) => state.timelapse.isLoading;
+export const selectTimelapseIsLoading = (state: RootState) =>
+  state.timelapse.isLoading;

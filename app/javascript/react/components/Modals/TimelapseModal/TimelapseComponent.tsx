@@ -3,6 +3,8 @@ import React, { useCallback, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import type { PopupProps } from "reactjs-popup/dist/types";
 import closeTimelapseButton from "../../../assets/icons/closeTimelapseButton.svg";
+import { useAppSelector } from "../../../store/hooks";
+import { selectTimelapseIsLoading } from "../../../store/timelapseSlice";
 import { DateFormat } from "../../../types/dateFormat";
 import { useAutoDismissAlert } from "../../../utils/useAutoDismissAlert";
 import NavigationButtons from "./NavigationButtons";
@@ -47,6 +49,8 @@ const TimelapseComponent: React.FC<
     const [showReadOnlyPopup, setShowReadOnlyPopup] = useState(false);
     const overlayRef = useRef<HTMLDivElement>(null);
 
+    const isLoading = useAppSelector(selectTimelapseIsLoading);
+
     const closeHandler = useCallback(() => {
       resetTimelapse();
       onClose();
@@ -83,41 +87,43 @@ const TimelapseComponent: React.FC<
 
     return (
       <>
-        <TimelapseModal
-          open={true}
-          modal
-          nested
-          overlayStyle={{ margin: 0, zIndex: 2 }}
-          contentStyle={{ margin: 0 }}
-          onClose={closeHandler}
-          closeOnDocumentClick={false}
-        >
-          {(close) => (
-            <div ref={overlayRef}>
-              <S.TimeAxisContainer>
-                <S.MobileDateContainer>
-                  <S.Date>{currentDate}</S.Date>
-                  <S.Time>{currentTime}</S.Time>
-                </S.MobileDateContainer>
-                <NavigationButtons
-                  currentStep={currentStep}
-                  totalSteps={totalSteps}
-                  onNextStep={onNextStep}
-                  onPreviousStep={onPreviousStep}
-                />
-                <TimeAxis
-                  currentStep={currentStep}
-                  totalSteps={totalSteps}
-                  timestamps={timestamps}
-                />
-              </S.TimeAxisContainer>
+        {!isLoading && (
+          <TimelapseModal
+            open={true}
+            modal
+            nested
+            overlayStyle={{ margin: 0, zIndex: 2 }}
+            contentStyle={{ margin: 0 }}
+            onClose={closeHandler}
+            closeOnDocumentClick={false}
+          >
+            {(close) => (
+              <div ref={overlayRef}>
+                <S.TimeAxisContainer>
+                  <S.MobileDateContainer>
+                    <S.Date>{currentDate}</S.Date>
+                    <S.Time>{currentTime}</S.Time>
+                  </S.MobileDateContainer>
+                  <NavigationButtons
+                    currentStep={currentStep}
+                    totalSteps={totalSteps}
+                    onNextStep={onNextStep}
+                    onPreviousStep={onPreviousStep}
+                  />
+                  <TimeAxis
+                    currentStep={currentStep}
+                    totalSteps={totalSteps}
+                    timestamps={timestamps}
+                  />
+                </S.TimeAxisContainer>
 
-              <S.CancelButtonX onClick={close}>
-                <img src={closeTimelapseButton} alt={t("navbar.altClose")} />
-              </S.CancelButtonX>
-            </div>
-          )}
-        </TimelapseModal>
+                <S.CancelButtonX onClick={close}>
+                  <img src={closeTimelapseButton} alt={t("navbar.altClose")} />
+                </S.CancelButtonX>
+              </div>
+            )}
+          </TimelapseModal>
+        )}
 
         {showReadOnlyPopup && (
           <S.SmallPopup open>
