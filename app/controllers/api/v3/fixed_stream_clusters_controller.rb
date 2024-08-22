@@ -40,7 +40,7 @@ module Api
 
         time_current = Time.current
 
-        clusters = ClusterPoints.new(points, 40).perform_clustering
+        clusters = ClusterPoints.new(points, 400).perform_clustering
 
         Rails.logger.info("FixedStreamClustersController#index2: Performed clustering in #{Time.current - time_current} seconds")
 
