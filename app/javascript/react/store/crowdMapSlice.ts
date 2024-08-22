@@ -1,6 +1,6 @@
 import { AxiosResponse } from "axios";
 
-import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
+import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
 
 import { oldApiClient } from "../api/apiClient";
 import { API_ENDPOINTS } from "../api/apiEndpoints";
@@ -18,11 +18,13 @@ interface RectangleData {
 
 interface CrowdMapState {
   error?: Error;
+  fetchingData: boolean;
   rectangles: RectangleData[];
   status: StatusEnum;
 }
 
 const initialState: CrowdMapState = {
+  fetchingData: true,
   rectangles: [],
   status: StatusEnum.Idle,
 };
@@ -45,7 +47,11 @@ export const fetchCrowdMapData = createAsyncThunk<
 export const crowdMapSlice = createSlice({
   name: "crowdMap",
   initialState,
-  reducers: {},
+  reducers: {
+    setFetchingCrowdMapData(state, action: PayloadAction<boolean>) {
+      state.fetchingData = action.payload;
+    },
+  },
   extraReducers: (builder) => {
     builder
       .addCase(fetchCrowdMapData.pending, (state) => {
@@ -54,14 +60,21 @@ export const crowdMapSlice = createSlice({
       .addCase(fetchCrowdMapData.fulfilled, (state, { payload }) => {
         state.status = StatusEnum.Fulfilled;
         state.rectangles = payload;
+        state.fetchingData = false;
       })
       .addCase(fetchCrowdMapData.rejected, (state, { payload }) => {
         state.status = StatusEnum.Rejected;
         state.error = payload;
+        state.fetchingData = false;
       });
   },
 });
 
+export const { setFetchingCrowdMapData } = crowdMapSlice.actions;
+
 export default crowdMapSlice.reducer;
+
 export const selectCrowdMapRectangles = (state: RootState) =>
   state.crowdMap.rectangles;
+export const selectFetchingCrowdMapData = (state: RootState) =>
+  state.crowdMap.fetchingData;
