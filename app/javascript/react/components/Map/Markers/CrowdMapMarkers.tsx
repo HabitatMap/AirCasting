@@ -18,6 +18,7 @@ import {
 } from "../../../store/rectangleSlice";
 import { selectThresholds } from "../../../store/thresholdSlice";
 import { Session } from "../../../types/sessionType";
+import useMapEventListeners from "../../../utils/mapEventListeners";
 import { useMapParams } from "../../../utils/mapParamsHandler";
 import { getColorForValue } from "../../../utils/thresholdColors";
 import {
@@ -108,26 +109,6 @@ const CrowdMapMarkers = ({ pulsatingSessionId, sessions }: Props) => {
   }, [dispatch, rectanglesRef.current.length, crowdMapRectanglesLength]);
 
   useEffect(() => {
-    const handleMapInteraction = () => {
-      dispatch(clearRectangles());
-    };
-
-    map && map.addListener("click", handleMapInteraction);
-    map && map.addListener("touchend", handleMapInteraction);
-    map && map.addListener("dragstart", handleMapInteraction);
-    map && map.addListener("zoom_changed", handleMapInteraction);
-
-    return () => {
-      if (map) {
-        google.maps.event.clearListeners(map, "click");
-        google.maps.event.clearListeners(map, "touchend");
-        google.maps.event.clearListeners(map, "dragstart");
-        google.maps.event.clearListeners(map, "zoom_changed");
-      }
-    };
-  }, [map, dispatch]);
-
-  useEffect(() => {
     if (crowdMapRectanglesLength > 0) {
       const newRectangles = crowdMapRectangles.map((rectangle) => {
         const newRectangle = new google.maps.Rectangle({
@@ -201,6 +182,13 @@ const CrowdMapMarkers = ({ pulsatingSessionId, sessions }: Props) => {
     unitSymbol,
     usernames,
   ]);
+
+  useMapEventListeners(map, {
+    click: () => dispatch(clearRectangles()),
+    touchend: () => dispatch(clearRectangles()),
+    dragstart: () => dispatch(clearRectangles()),
+    zoom_changed: () => dispatch(clearRectangles()),
+  });
 
   const renderMarker = (displayedSession: Session) => {
     return (

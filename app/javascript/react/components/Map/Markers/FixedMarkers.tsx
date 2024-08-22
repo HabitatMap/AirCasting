@@ -25,6 +25,7 @@ import { setMarkersLoading } from "../../../store/markersLoadingSlice"; // Impor
 import { selectThresholds } from "../../../store/thresholdSlice";
 import { Session } from "../../../types/sessionType";
 import { getClusterPixelPosition } from "../../../utils/getClusterPixelPosition";
+import useMapEventListeners from "../../../utils/mapEventListeners";
 import { useMapParams } from "../../../utils/mapParamsHandler";
 import { getColorForValue } from "../../../utils/thresholdColors";
 import { customRenderer, pulsatingRenderer } from "./ClusterConfiguration";
@@ -262,6 +263,16 @@ const FixedMarkers = ({
     }
   }, [hoverStreamId, memoizedSessions]);
 
+  const handleBoundsChanged = useCallback(() => {
+    if (selectedCluster && map) {
+      const pixelPosition = getClusterPixelPosition(
+        map,
+        selectedCluster.position
+      );
+      setClusterPosition({ top: pixelPosition.y, left: pixelPosition.x });
+    }
+  }, [map, selectedCluster]);
+
   const handleClusterClick = useCallback(
     async (
       event: google.maps.MapMouseEvent,
@@ -290,6 +301,12 @@ const FixedMarkers = ({
     [dispatch]
   );
 
+  const handleMapInteraction = useCallback(() => {
+    dispatch(setVisibility(false));
+    setSelectedCluster(null);
+    setClusterPosition(null);
+  }, [dispatch]);
+
   const handleZoomIn = useCallback(() => {
     if (map && selectedCluster) {
       defaultOnClusterClickHandler(
@@ -301,44 +318,27 @@ const FixedMarkers = ({
       if (currentZoom !== null && currentZoom !== undefined) {
         map.setZoom(currentZoom - 0.5);
       }
-      dispatch(setVisibility(false));
-      setSelectedCluster(null);
-      setClusterPosition(null);
+      handleMapInteraction();
     }
   }, [map, selectedCluster]);
 
-  useEffect(() => {
-    const handleMapInteraction = () => {
-      dispatch(setVisibility(false));
-      setSelectedCluster(null);
-      setClusterPosition(null);
-    };
-
-    const handleBoundsChanged = () => {
-      if (selectedCluster && map) {
-        const pixelPosition = getClusterPixelPosition(
-          map,
-          selectedCluster.position
-        );
-        setClusterPosition({ top: pixelPosition.y, left: pixelPosition.x });
-      }
-    };
-
-    map && map.addListener("click", handleMapInteraction);
-    map && map.addListener("touchend", handleMapInteraction);
-    map && map.addListener("dragstart", handleMapInteraction);
-    map && map.addListener("zoom_changed", handleMapInteraction);
-    map && map.addListener("bounds_changed", handleBoundsChanged);
-
-    return () => {
-      if (map) {
-        google.maps.event.clearListeners(map, "click");
-        google.maps.event.clearListeners(map, "touchend");
-        google.maps.event.clearListeners(map, "dragstart");
-        google.maps.event.clearListeners(map, "bounds_changed");
-      }
-    };
-  }, [map, selectedCluster, dispatch, clusterer.current]);
+  useMapEventListeners(map, {
+    click: () => {
+      handleMapInteraction();
+    },
+    touchend: () => {
+      handleMapInteraction();
+    },
+    dragstart: () => {
+      handleMapInteraction();
+    },
+    zoom_changed: () => {
+      handleMapInteraction();
+    },
+    bounds_changed: () => {
+      handleBoundsChanged();
+    },
+  });
 
   return (
     <>
