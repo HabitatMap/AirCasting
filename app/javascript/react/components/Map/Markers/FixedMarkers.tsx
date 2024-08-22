@@ -322,6 +322,10 @@ const FixedMarkers = ({
     }
   }, [map, selectedCluster]);
 
+  useEffect(() => {
+    map && map.addListener("zoom_changed", handleMapInteraction);
+  }, [map, selectedCluster, dispatch, clusterer.current]);
+
   useMapEventListeners(map, {
     click: () => {
       handleMapInteraction();
@@ -330,9 +334,6 @@ const FixedMarkers = ({
       handleMapInteraction();
     },
     dragstart: () => {
-      handleMapInteraction();
-    },
-    zoom_changed: () => {
       handleMapInteraction();
     },
     bounds_changed: () => {
