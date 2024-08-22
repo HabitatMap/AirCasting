@@ -183,11 +183,14 @@ const CrowdMapMarkers = ({ pulsatingSessionId, sessions }: Props) => {
     usernames,
   ]);
 
+  useEffect(() => {
+    map && map.addListener("zoom_changed", () => dispatch(clearRectangles()));
+  }, [map, , dispatch]);
+
   useMapEventListeners(map, {
     click: () => dispatch(clearRectangles()),
     touchend: () => dispatch(clearRectangles()),
     dragstart: () => dispatch(clearRectangles()),
-    zoom_changed: () => dispatch(clearRectangles()),
   });
 
   const renderMarker = (displayedSession: Session) => {
