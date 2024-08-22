@@ -5,6 +5,7 @@ import { AdvancedMarker, useMap } from "@vis.gl/react-google-maps";
 import {
   fetchCrowdMapData,
   selectCrowdMapRectangles,
+  selectFetchingCrowdMapData,
 } from "../../../store/crowdMapSlice";
 import { useAppDispatch, useAppSelector } from "../../../store/hooks";
 import { setMarkersLoading } from "../../../store/markersLoadingSlice";
@@ -36,6 +37,7 @@ const CrowdMapMarkers = ({ pulsatingSessionId, sessions }: Props) => {
   const dispatch = useAppDispatch();
 
   const crowdMapRectangles = useAppSelector(selectCrowdMapRectangles);
+  const fetchingCrowdMapData = useAppSelector(selectFetchingCrowdMapData);
   const mobileSessionsStreamIds = useAppSelector(selectMobileSessionsStreamIds);
   const rectangleData = useAppSelector(selectRectangleData);
   const rectangleLoading = useAppSelector(selectRectangleLoading);
@@ -99,8 +101,10 @@ const CrowdMapMarkers = ({ pulsatingSessionId, sessions }: Props) => {
   );
 
   useEffect(() => {
-    dispatch(fetchCrowdMapData(filters));
-  }, [filters, dispatch]);
+    if (fetchingCrowdMapData) {
+      dispatch(fetchCrowdMapData(filters));
+    }
+  }, [fetchingCrowdMapData, filters, dispatch]);
 
   useEffect(() => {
     dispatch(setMarkersLoading(true));
