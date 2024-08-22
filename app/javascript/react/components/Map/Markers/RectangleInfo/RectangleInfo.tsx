@@ -25,30 +25,26 @@ const RectangleInfo = ({ color, rectangleData }: RectangleProps) => {
   const { average, numberOfSamples, numberOfContributors } = rectangleData;
 
   return (
-    <>
-      <RectangleInfoContainer>
-        <DataContainer $color={color}>
-          <RectangleInfoHeader>
-            <RectangleCircle $color={color} />
-            <RectangleInfoColorText $color={color}>
-              {`${t("map.rectangleInfo.average")} ${average.toFixed(
-                0
-              )} ${unitSymbol} `}
-            </RectangleInfoColorText>
-          </RectangleInfoHeader>
-          <RectangleInfoText>
-            <RectangleInfoBoldText>{numberOfSamples}</RectangleInfoBoldText>
-            {` ${t("map.rectangleInfo.measurements")}`}
-          </RectangleInfoText>
-          <RectangleInfoText>
-            <RectangleInfoBoldText>
-              {numberOfContributors}
-            </RectangleInfoBoldText>
-            {` ${t("map.rectangleInfo.contributors")}`}
-          </RectangleInfoText>
-        </DataContainer>
-      </RectangleInfoContainer>
-    </>
+    <RectangleInfoContainer>
+      <DataContainer $color={color}>
+        <RectangleInfoHeader>
+          <RectangleCircle $color={color} />
+          <RectangleInfoColorText $color={color}>
+            {`${t("map.rectangleInfo.average")} ${average.toFixed(
+              0
+            )} ${unitSymbol} `}
+          </RectangleInfoColorText>
+        </RectangleInfoHeader>
+        <RectangleInfoText>
+          <RectangleInfoBoldText>{numberOfSamples}</RectangleInfoBoldText>
+          {` ${t("map.rectangleInfo.measurements")}`}
+        </RectangleInfoText>
+        <RectangleInfoText>
+          <RectangleInfoBoldText>{numberOfContributors}</RectangleInfoBoldText>
+          {` ${t("map.rectangleInfo.contributors")}`}
+        </RectangleInfoText>
+      </DataContainer>
+    </RectangleInfoContainer>
   );
 };
 
@@ -56,18 +52,16 @@ const RectangleInfoLoading = () => {
   const { t } = useTranslation();
 
   return (
-    <>
-      <RectangleInfoContainer>
-        <DataContainer $color={grey}>
-          <RectangleInfoHeader>
-            <RectangleCircle $color={grey} />
-            <RectangleInfoColorText $color={grey}>
-              {`${t("map.rectangleInfo.loading")}`}
-            </RectangleInfoColorText>
-          </RectangleInfoHeader>
-        </DataContainer>
-      </RectangleInfoContainer>
-    </>
+    <RectangleInfoContainer>
+      <DataContainer $color={grey}>
+        <RectangleInfoHeader>
+          <RectangleCircle $color={grey} />
+          <RectangleInfoColorText $color={grey}>
+            {`${t("map.rectangleInfo.loading")}`}
+          </RectangleInfoColorText>
+        </RectangleInfoHeader>
+      </DataContainer>
+    </RectangleInfoContainer>
   );
 };
 
