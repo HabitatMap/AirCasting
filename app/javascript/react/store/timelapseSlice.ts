@@ -1,5 +1,9 @@
 import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { AxiosResponse } from "axios";
+import { apiClient } from "../api/apiClient";
+import { API_ENDPOINTS } from "../api/apiEndpoints";
 import { StatusEnum } from "../types/api";
+import { getErrorMessage } from "../utils/getErrorMessage";
 import { RootState } from "./index";
 
 const mockData = {
@@ -278,70 +282,70 @@ interface TimelapseState {
   currentTimestamp: string | null;
 }
 
-// const initialState: TimelapseState = {
-//   data: {},
-//   status: StatusEnum.Idle,
-//   isLoading: false,
-//   currentTimestamp: null,
-// };
-
-interface TimelapseFilters {
-  filters: string;
-}
-
 const initialState: TimelapseState = {
-  data: mockData, // Use mock data as the initial state
+  data: {},
   status: StatusEnum.Idle,
   isLoading: false,
-  currentTimestamp: Object.keys(mockData)[0] || null, // Set the initial timestamp
+  currentTimestamp: null,
 };
 
 interface TimelapseFilters {
   filters: string;
 }
-export const fetchTimelapseData = createAsyncThunk<
-  { [timestamp: string]: SessionData[] },
-  TimelapseFilters,
-  { rejectValue: string }
->("timelapse/fetchData", async (_, { rejectWithValue }) => {
-  try {
-    // Simulate an API response delay
-    await new Promise((resolve) => setTimeout(resolve, 500));
 
-    // Return the mock data as the response
-    return mockData;
-  } catch (error) {
-    return rejectWithValue("Failed to fetch timelapse data");
-  }
-});
+// const initialState: TimelapseState = {
+//   data: mockData, // Use mock data as the initial state
+//   status: StatusEnum.Idle,
+//   isLoading: false,
+//   currentTimestamp: Object.keys(mockData)[0] || null, // Set the initial timestamp
+// };
 
+// interface TimelapseFilters {
+//   filters: string;
+// }
 // export const fetchTimelapseData = createAsyncThunk<
 //   { [timestamp: string]: SessionData[] },
 //   TimelapseFilters,
 //   { rejectValue: string }
-// >(
-//   "timelapse/fetchData",
-//   async (sessionsData, { rejectWithValue }) => {
-//     try {
-//       const response: AxiosResponse<{ [timestamp: string]: SessionData[] }> =
-//         await apiClient.get(
-//           API_ENDPOINTS.fetchTimelapseData(sessionsData.filters)
-//         );
+// >("timelapse/fetchData", async (_, { rejectWithValue }) => {
+//   try {
+//     // Simulate an API response delay
+//     await new Promise((resolve) => setTimeout(resolve, 500));
 
-//       return response.data;
-//     } catch (error) {
-//       return rejectWithValue(getErrorMessage(error));
-//     }
-//   },
-//   {
-//     condition: (_, { getState }) => {
-//       const { timelapse } = getState() as RootState;
-//       if (timelapse.status === StatusEnum.Pending) {
-//         return false;
-//       }
-//     },
+//     // Return the mock data as the response
+//     return mockData;
+//   } catch (error) {
+//     return rejectWithValue("Failed to fetch timelapse data");
 //   }
-// );
+// });
+
+export const fetchTimelapseData = createAsyncThunk<
+  { [timestamp: string]: SessionData[] },
+  TimelapseFilters,
+  { rejectValue: string }
+>(
+  "timelapse/fetchData",
+  async (sessionsData, { rejectWithValue }) => {
+    try {
+      const response: AxiosResponse<{ [timestamp: string]: SessionData[] }> =
+        await apiClient.get(
+          API_ENDPOINTS.fetchTimelapseData(sessionsData.filters)
+        );
+
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(getErrorMessage(error));
+    }
+  },
+  {
+    condition: (_, { getState }) => {
+      const { timelapse } = getState() as RootState;
+      if (timelapse.status === StatusEnum.Pending) {
+        return false;
+      }
+    },
+  }
+);
 
 const timelapseSlice = createSlice({
   name: "timelapse",

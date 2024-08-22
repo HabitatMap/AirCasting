@@ -7,6 +7,8 @@ import rewindButton from "../../../assets/icons/rewindButton.svg";
 import skipLeftButton from "../../../assets/icons/skipLeftButton.svg";
 import skipRightButton from "../../../assets/icons/skipRightButton.svg";
 
+import { UserSettings } from "../../../types/userStates";
+import { useMapParams } from "../../../utils/mapParamsHandler";
 import * as S from "./TimelapseComponent.style";
 
 interface NavigationButtonsProps {
@@ -29,6 +31,10 @@ const NavigationButtons: React.FC<NavigationButtonsProps> = ({
   const { t } = useTranslation();
   const [isPlaying, setIsPlaying] = useState(false);
 
+  const { currentUserSettings } = useMapParams();
+
+  const isModalOpen = currentUserSettings === UserSettings.TimelapseView;
+
   // Auto-play functionality
   useEffect(() => {
     let interval: NodeJS.Timeout | undefined;
@@ -47,6 +53,12 @@ const NavigationButtons: React.FC<NavigationButtonsProps> = ({
       if (interval) clearInterval(interval);
     };
   }, [isPlaying, currentStep, totalSteps, onNextStep]);
+
+  useEffect(() => {
+    if (isModalOpen) {
+      setIsPlaying(true);
+    }
+  }, [isModalOpen]);
 
   const handlePlayPause = () => {
     setIsPlaying((prev) => !prev);
