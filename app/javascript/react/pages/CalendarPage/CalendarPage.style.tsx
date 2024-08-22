@@ -1,6 +1,6 @@
 import styled from "styled-components";
 
-import { gray100, gray400, white } from "../../assets/styles/colors";
+import { gray100, gray400, white, red } from "../../assets/styles/colors";
 import { NAVBAR_HEIGHT } from "../../components/Navbar/Navbar.style";
 import { H3 } from "../../components/Typography";
 import { media } from "../../utils/media";
@@ -88,6 +88,34 @@ const ThresholdContainer = styled.div<{ $isMobile: boolean }>`
   ${(props) => props.$isMobile && `padding: 1.5rem; gap: 2rem;`}
 `;
 
+const ThresholdButtonsContainer = styled.div`
+  display: grid;
+  justify-content: space-between;
+  align-items: center;
+  gap: 2.4rem;
+  min-width: 4.4rem;
+  grid-template-columns: repeat(2, 1fr);
+`;
+
+const ErrorMessage = styled.p`
+  color: ${red};
+  position: absolute;
+  background-color: ${white};
+  top: 8%;
+  left: 50%;
+  transform: translate(-50%, -40%);
+  font-size: 1.2rem;
+  font-weight: bold;
+  text-align: center;
+  z-index: 20;
+
+  @media ${media.smallDesktop} {
+    font-size: 1.5rem;
+    transform: translate(-50%, -50%);
+    top: 30%;
+  }
+`;
+
 const SliderWrapper = styled.div`
   display: flex;
   @media ${media.desktop} {
@@ -126,6 +154,7 @@ const SelectLabelContainer = styled.span`
 
 export {
   CalendarPageLayout,
+  ErrorMessage,
   GraphContainer,
   Heading,
   SelectLabelContainer,
@@ -133,6 +162,7 @@ export {
   StationDataContainer,
   StyledContainer,
   StyledContainerWithGraph,
+  ThresholdButtonsContainer,
   ThresholdContainer,
   Units,
 };

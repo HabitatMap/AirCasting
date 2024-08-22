@@ -3,7 +3,7 @@ import styled from "styled-components";
 import * as colors from "../../assets/styles/colors";
 import { media } from "../../utils/media";
 import { Button } from "../Button/Button.style";
-import { ResetButtonVariant } from "./ResetButton";
+import { ThresholdButtonVariant } from "./ThresholdButtons/ThresholdButton";
 
 interface Props {
   $isMobileOldStyle?: boolean;
@@ -65,12 +65,12 @@ const InputContainer = styled.div<Props>`
   }
 `;
 
-const ResetButton = styled(Button)<{ variant: ResetButtonVariant }>`
+const ThresholdButton = styled(Button)<{ variant: ThresholdButtonVariant }>`
   white-space: nowrap;
   background: ${colors.gray100};
   border: none;
   color: ${colors.gray300};
-  width: fit-content;
+  width: 100%;
   text-transform: uppercase;
   align-items: center;
   justify-content: center;
@@ -79,18 +79,20 @@ const ResetButton = styled(Button)<{ variant: ResetButtonVariant }>`
   @media ${media.desktop} {
     margin-left: 0;
     ${(props) =>
-      props.variant === ResetButtonVariant.IconOnly &&
+      props.variant === ThresholdButtonVariant.IconOnly &&
       `
-        height: 32px;
+        height: 3.2rem;
+        min-width: 5.2rem;
       `}
   }
 
   @media ${media.smallDesktop} {
     margin-left: 0;
     ${(props) =>
-      props.variant === ResetButtonVariant.IconOnly &&
+      props.variant === ThresholdButtonVariant.IconOnly &&
       `
-        height: 32px;
+        height: 3.2rem;
+        min-width: 5.2rem;
       `}
   }
 
@@ -99,14 +101,31 @@ const ResetButton = styled(Button)<{ variant: ResetButtonVariant }>`
     white-space: pre-line;
     text-align: left;
     line-height: 1.6rem;
-    width: 33%;
-    min-width: 100px;
-    padding: 0.6rem 1.85rem;
+    width: 100%;
+    min-width: 5rem;
+    padding: 0.6rem 1.2rem;
     font-size: 1.2rem;
   }
 `;
 
-const ResetButtonWrapper = styled.div`
+const PlaceholderButton = styled(Button)`
+  background: transparent;
+  border: none;
+  width: 100%;
+  height: 3.2rem;
+  min-width: 5.2rem;
+
+  @media ${media.smallDesktop} {
+    display: none;
+  }
+
+  @media ${media.mobile} {
+    width: 100%;
+    min-width: 100px;
+  }
+`;
+
+const ThresholdButtonWrapper = styled.div`
   display: grid;
   gap: 10px;
   align-items: center;
@@ -116,6 +135,59 @@ const ResetButtonWrapper = styled.div`
     grid-template-columns: 1fr auto;
     max-width: 100px;
     gap: 10px;
+  }
+`;
+
+const ThresholdButtonsWrapper = styled.div`
+  display: flex;
+  gap: 1.6rem;
+  justify-content: center;
+  width: fit-content;
+
+  @media ${media.tabletMax} {
+    display: none;
+  }
+  @media ${media.desktop} {
+    display: flex;
+  }
+`;
+
+const ThresholdButtonsMobileWrapper = styled.div`
+  display: grid;
+  gap: 1rem;
+  justify-content: center;
+  width: 100%;
+  grid-template-columns: repeat(3, 1fr);
+
+  @media ${media.desktop} {
+    display: none;
+  }
+`;
+
+const UniformDistributionButton = styled(Button)`
+  white-space: nowrap;
+  background: ${colors.gray100};
+  border: none;
+  color: ${colors.gray300};
+  width: 5.2rem;
+  text-transform: uppercase;
+  align-items: center;
+  justify-content: center;
+  align-content: center;
+
+  @media ${media.desktop} {
+    margin-left: 0;
+    height: 32px;
+  }
+
+  @media ${media.smallDesktop} {
+    margin-left: 0;
+
+    height: 32px;
+  }
+
+  @media ${media.mobile} {
+    display: none;
   }
 `;
 
@@ -136,7 +208,7 @@ const DesktopContainer = styled.div`
   align-items: center;
 
   @media ${media.desktop} {
-    grid-template-columns: auto 1fr auto;
+    grid-template-columns: auto 1fr auto auto;
     grid-template-rows: auto;
     gap: 1rem;
   }
@@ -397,7 +469,7 @@ const ErrorMessage = styled.p`
   color: ${colors.red};
   position: absolute;
   background-color: ${colors.white};
-  top: 12%;
+  top: 8%;
   left: 50%;
   transform: translate(-50%, -40%);
   font-size: 1.2rem;
@@ -479,13 +551,17 @@ export {
   OldStyleSliderHandle,
   OldStyleSliderHandles,
   OldStyleSliderText,
+  PlaceholderButton,
   RangeInput,
-  ResetButton,
-  ResetButtonWrapper,
   SliderContainer,
   StaticMobileSliderContainer,
   StyledContainer,
+  ThresholdButton,
+  ThresholdButtonWrapper,
+  ThresholdButtonsMobileWrapper,
+  ThresholdButtonsWrapper,
   ThresholdsDisclaimer,
+  UniformDistributionButton,
   Units,
   Wrapper,
 };

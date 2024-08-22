@@ -38,7 +38,7 @@ export const initialState: ThresholdState = {
     middle: 0,
     high: 0,
   },
-  errorMessage: '',
+  errorMessage: "",
 };
 
 export const fetchThresholds = createAsyncThunk<
@@ -104,7 +104,7 @@ export const thresholdSlice = createSlice({
       state.thumbPositions = action.payload;
     },
     clearErrorMessage: (state) => {
-      state.errorMessage = '';
+      state.errorMessage = "";
     },
   },
 });
@@ -115,7 +115,7 @@ export const {
   setUserThresholdValues,
   updateSliderWidth,
   updateThumbPositions,
-  clearErrorMessage
+  clearErrorMessage,
 } = thresholdSlice.actions;
 
 export default thresholdSlice.reducer;

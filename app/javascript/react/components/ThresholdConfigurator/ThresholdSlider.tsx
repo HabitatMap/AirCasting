@@ -190,7 +190,23 @@ const ThresholdSlider: React.FC<ThresholdSliderProps> = ({
       value={activeInput === thresholdKey ? inputValue : value.toString()}
       onFocus={() => handleInputFocus(thresholdKey)}
       onBlur={() => handleInputBlur(thresholdKey, inputValue)}
-      style={positionStyle}
+      style={{
+        ...positionStyle,
+        zIndex: 10,
+        marginLeft:
+          thresholdKey === "min" ? "-1px" : value === max ? "0px" : "-15px",
+        left:
+          thresholdKey === "max"
+            ? "auto"
+            : `${calculateThumbPosition(
+                value,
+                min,
+                max,
+                sliderWidth,
+                isMobile
+              )}px`,
+        right: thresholdKey === "max" ? "-1px" : "auto",
+      }}
       onChange={(e) => setInputValue(e.target.value)}
       onTouchStart={(event: React.TouchEvent<HTMLInputElement>) =>
         handleTouchStart(

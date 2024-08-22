@@ -6,7 +6,7 @@ import { Error, StatusEnum } from "../types/api";
 
 interface ExportSessionState {
   data: {
-    sessionsIds: string[];
+    sessionsIds: number[];
     email: string;
   };
   status: StatusEnum;
@@ -14,7 +14,7 @@ interface ExportSessionState {
 }
 
 export interface SessionData {
-  sessionsIds: string[];
+  sessionsIds: number[];
   email: string;
 }
 
@@ -28,7 +28,7 @@ const initialState: ExportSessionState = {
 
 export const exportSession = createAsyncThunk<
   SessionData,
-  { sessionsIds: string[]; email: string },
+  { sessionsIds: number[]; email: string },
   { rejectValue: { message: string } }
 >("session/exportSession", async (sessionData, { rejectWithValue }) => {
   try {

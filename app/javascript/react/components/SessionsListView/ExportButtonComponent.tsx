@@ -7,7 +7,7 @@ import * as S from "./SessionsListView.style";
 interface ExportButtonComponentProps {
   NO_SESSIONS: boolean;
   EXCEEDS_LIMIT: boolean;
-  sessionsIds: string[];
+  sessionsIds: number[];
   showExportPopup: boolean;
   handleExportClick: () => void;
   exportButtonRef: React.RefObject<HTMLDivElement>;

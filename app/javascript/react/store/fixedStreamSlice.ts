@@ -9,7 +9,7 @@ import { FixedStream } from "../types/fixedStream";
 import { getErrorMessage } from "../utils/getErrorMessage";
 import { RootState } from "./index";
 
-interface FixedStreamState {
+export interface FixedStreamState {
   data: FixedStream;
   status: StatusEnum;
   error?: Error;
@@ -29,7 +29,7 @@ const initialState: FixedStreamState = {
       unitSymbol: "",
       updateFrequency: "",
       active: true,
-      sessionId: "",
+      sessionId: 0,
       startTime: "",
       endTime: "",
       min: 0,

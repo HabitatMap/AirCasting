@@ -8,7 +8,7 @@ import { Error, StatusEnum } from "../types/api";
 import { MobileStream } from "../types/mobileStream";
 import { getErrorMessage } from "../utils/getErrorMessage";
 
-interface MobileStreamState {
+export interface MobileStreamState {
   data: MobileStream;
   status: StatusEnum;
   error?: Error;
@@ -63,17 +63,23 @@ export const mobileStreamSlice = createSlice({
   name: "mobileStream",
   initialState,
   reducers: {
-    updateMobileMeasurementExtremes(state, action: PayloadAction<{ min: number; max: number }>) {
+    updateMobileMeasurementExtremes(
+      state,
+      action: PayloadAction<{ min: number; max: number }>
+    ) {
       const { min, max } = action.payload;
-      const measurementsInRange = state.data.measurements.filter(measurement => {
-        const time = measurement.time;
-        return time >= min && time <= max;
-      });
+      const measurementsInRange = state.data.measurements.filter(
+        (measurement) => {
+          const time = measurement.time;
+          return time >= min && time <= max;
+        }
+      );
 
-      const values = measurementsInRange.map(m => m.value);
+      const values = measurementsInRange.map((m) => m.value);
       const newMin = Math.min(...values);
       const newMax = Math.max(...values);
-      const newAvg = values.reduce((sum, value) => sum + value, 0) / values.length;
+      const newAvg =
+        values.reduce((sum, value) => sum + value, 0) / values.length;
 
       state.minMeasurementValue = newMin;
       state.maxMeasurementValue = newMax;
@@ -95,7 +101,6 @@ export const mobileStreamSlice = createSlice({
     );
   },
 });
-
 
 export const { updateMobileMeasurementExtremes } = mobileStreamSlice.actions;
 

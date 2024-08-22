@@ -3,13 +3,18 @@ import { useTranslation } from "react-i18next";
 
 import { useMapParams } from "../../utils/mapParamsHandler";
 import useMobileDetection from "../../utils/useScreenSizeDetection";
-import { ResetButton, ResetButtonVariant } from "./ResetButton";
+import { ResetButton } from "./ThresholdButtons/ResetButton";
 import * as S from "./ThresholdConfigurator.style";
 import ThresholdSlider from "./ThresholdSlider";
+import { UniformDistributionButton } from "./ThresholdButtons/UniformDistributionButton";
+import { UserSettings } from "../../types/userStates";
+import { ThresholdButtonVariant } from "./ThresholdButtons/ThresholdButton";
 
 interface ThresholdsConfiguratorProps {
-  resetButtonVariant?: ResetButtonVariant;
+  resetButtonVariant?: ThresholdButtonVariant;
+  uniformDistributionButtonVariant?: ThresholdButtonVariant;
   resetButtonText?: string;
+  uniformDistributionButtonText?: string;
   swapIconTextPosition?: boolean;
   isMobileOldStyle?: boolean;
   noDisclaimers?: boolean;
@@ -20,6 +25,8 @@ interface ThresholdsConfiguratorProps {
 const ThresholdsConfigurator: React.FC<ThresholdsConfiguratorProps> = ({
   resetButtonVariant,
   resetButtonText,
+  uniformDistributionButtonVariant,
+  uniformDistributionButtonText,
   swapIconTextPosition = false,
   isMobileOldStyle = false,
   noDisclaimers = false,
@@ -30,7 +37,10 @@ const ThresholdsConfigurator: React.FC<ThresholdsConfiguratorProps> = ({
 
   const { t } = useTranslation();
   const isMobile = useMobileDetection();
-  const { unitSymbol } = useMapParams();
+  const { unitSymbol, currentUserSettings } = useMapParams();
+  const isUniformDistributionButtonVisible =
+    currentUserSettings === UserSettings.ModalView ||
+    currentUserSettings === UserSettings.CalendarView;
 
   const renderSlider = () => (
     <S.SliderContainer $isMobileOldStyle={isMobileOldStyle}>
@@ -48,14 +58,27 @@ const ThresholdsConfigurator: React.FC<ThresholdsConfiguratorProps> = ({
       {isMobile || noDisclaimers ? (
         <>
           {renderSlider()}
-          {resetButtonVariant && (
-            <ResetButton
-              variant={resetButtonVariant}
-              resetButtonText={resetButtonText}
-              swapIconTextPosition={swapIconTextPosition}
-              useDarkBlueIcon={useDarkBlueIcon}
-            />
-          )}
+          <S.ThresholdButtonsMobileWrapper>
+            {/* --start -- remove Placeholders after adding the color switch functionality */}
+            <S.PlaceholderButton />
+            {!uniformDistributionButtonText && <S.PlaceholderButton />}
+            {/* -- end -- remove Placeholders after adding the color switch functionality */}
+            {uniformDistributionButtonVariant && (
+              <UniformDistributionButton
+                variant={uniformDistributionButtonVariant}
+                hasErrorMessage={setErrorMessage}
+                uniformDistributionButtonText={uniformDistributionButtonText}
+              />
+            )}
+            {resetButtonVariant && (
+              <ResetButton
+                variant={resetButtonVariant}
+                resetButtonText={resetButtonText}
+                swapIconTextPosition={swapIconTextPosition}
+                useDarkBlueIcon={useDarkBlueIcon}
+              />
+            )}
+          </S.ThresholdButtonsMobileWrapper>
         </>
       ) : (
         <>
@@ -66,14 +89,19 @@ const ThresholdsConfigurator: React.FC<ThresholdsConfiguratorProps> = ({
             {renderSlider()}
             <S.Units>({unitSymbol})</S.Units>
           </S.DesktopContainer>
-          {resetButtonVariant && (
-            <ResetButton
-              variant={resetButtonVariant}
-              resetButtonText={resetButtonText}
-              swapIconTextPosition={swapIconTextPosition}
-              useDarkBlueIcon={useDarkBlueIcon}
-            />
-          )}
+          <S.ThresholdButtonsWrapper>
+            {resetButtonVariant && (
+              <ResetButton
+                variant={resetButtonVariant}
+                resetButtonText={resetButtonText}
+                swapIconTextPosition={swapIconTextPosition}
+                useDarkBlueIcon={useDarkBlueIcon}
+              />
+            )}
+            {isUniformDistributionButtonVisible && (
+              <UniformDistributionButton hasErrorMessage={setErrorMessage} />
+            )}
+          </S.ThresholdButtonsWrapper>
         </>
       )}
     </>

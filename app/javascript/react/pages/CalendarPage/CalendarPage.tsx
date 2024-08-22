@@ -1,5 +1,5 @@
 import moment from "moment";
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 
 import { Graph } from "../../components/Graph";
@@ -10,10 +10,8 @@ import { EmptyCalendar } from "../../components/molecules/Calendar/EmptyCalendar
 import HeaderToggle from "../../components/molecules/Calendar/HeaderToggle/HeaderToggle";
 import { FixedStreamStationHeader } from "../../components/molecules/FixedStreamStationHeader";
 import { ThresholdsConfigurator } from "../../components/ThresholdConfigurator";
-import {
-  ResetButton,
-  ResetButtonVariant,
-} from "../../components/ThresholdConfigurator/ResetButton";
+import { ResetButton } from "../../components/ThresholdConfigurator/ThresholdButtons/ResetButton";
+import { ThresholdButtonVariant } from "../../components/ThresholdConfigurator/ThresholdButtons/ThresholdButton";
 import { selectFixedStreamShortInfo } from "../../store/fixedStreamSelectors";
 import {
   fetchFixedStreamById,
@@ -30,6 +28,7 @@ import { useMapParams } from "../../utils/mapParamsHandler";
 import { formatTime } from "../../utils/measurementsCalc";
 import useMobileDetection from "../../utils/useScreenSizeDetection";
 import * as S from "./CalendarPage.style";
+import { UniformDistributionButton } from "../../components/ThresholdConfigurator/ThresholdButtons/UniformDistributionButton";
 
 interface CalendarPageProps {
   children: React.ReactNode;
@@ -50,6 +49,8 @@ const CalendarPage: React.FC<CalendarPageProps> = ({ children }) => {
   const rangeDisplayRef = useRef(null);
 
   const { formattedMinTime, formattedMaxTime } = formatTime(startTime, endTime);
+
+  const [errorMessage, setErrorMessage] = useState("");
 
   const calendarIsVisible =
     movingCalendarData.data.length &&
@@ -135,14 +136,24 @@ const CalendarPage: React.FC<CalendarPageProps> = ({ children }) => {
                   <S.StyledContainer>
                     {t("calendarHeader.legendTitle")}
                     <S.Units>({unitSymbol})</S.Units>
-                    <ResetButton
-                      variant={ResetButtonVariant.TextWithIcon}
-                      swapIconTextPosition={true}
-                    ></ResetButton>
+                    <S.ThresholdButtonsContainer>
+                      <ResetButton
+                        variant={ThresholdButtonVariant.TextWithIcon}
+                        swapIconTextPosition={true}
+                      ></ResetButton>
+                      <UniformDistributionButton
+                        variant={ThresholdButtonVariant.TextWithIcon}
+                        swapIconTextPosition={true}
+                        hasErrorMessage={setErrorMessage}
+                      />
+                    </S.ThresholdButtonsContainer>
                   </S.StyledContainer>
                 }
                 componentToToggle={
                   <S.SliderWrapper>
+                    {errorMessage && (
+                      <S.ErrorMessage>{errorMessage}</S.ErrorMessage>
+                    )}
                     <ThresholdsConfigurator noDisclaimers={true} />
                   </S.SliderWrapper>
                 }
@@ -160,9 +171,15 @@ const CalendarPage: React.FC<CalendarPageProps> = ({ children }) => {
                 }
                 componentToToggle={
                   <ThresholdsConfigurator
-                    resetButtonVariant={ResetButtonVariant.TextWithIcon}
+                    resetButtonVariant={ThresholdButtonVariant.TextWithIcon}
                     resetButtonText={t("thresholdConfigurator.resetButton")}
                     useColorBoxStyle
+                    uniformDistributionButtonText={t(
+                      "thresholdConfigurator.uniformDistributionButton"
+                    )}
+                    uniformDistributionButtonVariant={
+                      ThresholdButtonVariant.TextWithIcon
+                    }
                   />
                 }
               />
