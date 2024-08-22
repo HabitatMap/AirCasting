@@ -19,7 +19,6 @@ import {
   SessionTypes,
   UnitSymbols,
 } from "../types/filters";
-
 import { SENSOR_NAMES } from "../types/sensors";
 import { UserSettings } from "../types/userStates";
 import useMobileDetection from "../utils/useScreenSizeDetection";
@@ -32,6 +31,7 @@ export enum UrlParamsTypes {
   currentCenter = "currentCenter",
   currentUserSettings = "currentUserSettings",
   currentZoom = "currentZoom",
+  gridSize = "gridSize",
   limit = "limit",
   mapType = "mapType",
   measurementType = "measurementType",
@@ -116,6 +116,7 @@ export const useMapParams = () => {
   const currentZoom = parseFloat(
     getSearchParam(UrlParamsTypes.currentZoom, DEFAULT_ZOOM.toString())!
   );
+  const gridSize = parseInt(getSearchParam(UrlParamsTypes.gridSize, "20")!);
   const initialLimit = parseInt(getSearchParam(UrlParamsTypes.limit, "100")!);
   const mapTypeId =
     getSearchParam(UrlParamsTypes.mapType, MAP_CONFIGS[0].mapTypeId) ||
@@ -320,6 +321,7 @@ export const useMapParams = () => {
     currentZoom,
     debouncedUpdateURL,
     goToUserSettings,
+    gridSize,
     initialLimit,
     mapTypeId,
     measurementType,

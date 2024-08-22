@@ -47,7 +47,9 @@ const CrowdMapMarkers = ({ pulsatingSessionId, sessions }: Props) => {
     boundNorth,
     boundSouth,
     boundWest,
+    gridSize,
     measurementType,
+    sensorName,
     tags,
     unitSymbol,
     usernames,
@@ -56,11 +58,11 @@ const CrowdMapMarkers = ({ pulsatingSessionId, sessions }: Props) => {
     () =>
       JSON.stringify({
         east: boundEast,
-        grid_size_x: 50, // TODO: temporary solution, ticket: Session Filter [Mobile]: Grid size
-        grid_size_y: 50, // TODO: temporary solution, ticket: Session Filter [Mobile]: Grid size
+        grid_size_x: gridSize,
+        grid_size_y: gridSize,
         measurement_type: measurementType,
         north: boundNorth,
-        sensor_name: "AirBeam-PM2.5", // TODO: temporary solution, ticket: Session Filter [Both]: Sensor Picker
+        sensor_name: sensorName,
         south: boundSouth,
         stream_ids: mobileSessionsStreamIds,
         tags: tags,
