@@ -133,7 +133,8 @@
     "clusterInfo": {
       "average": "avg",
       "stations": "stations",
-      "measurements": "measurements"
+      "measurements": "measurements",
+      "altClusterIcon": "Cluster icon"
     },
     "rectangleInfo": {
       "average": "avg.",

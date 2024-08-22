@@ -1,18 +1,12 @@
 import React from "react";
-
-import Cluster from "../../../../assets/icons/markers/marker-cluster-green.svg";
+import { ClusterIcon } from "./ClusterIcon";
 
 interface MarkerProps {
   color: string;
-  value: string;
 }
 
-const ClusterlMarker = ({ color, value }: MarkerProps) => {
-  return (
-    <div>
-      <img src={Cluster} color={color} />
-    </div>
-  );
+const ClusterlMarker = ({ color }: MarkerProps) => {
+  return <ClusterIcon color={color} />;
 };
 
 export { ClusterlMarker };
