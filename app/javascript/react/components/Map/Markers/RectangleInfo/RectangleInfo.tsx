@@ -29,18 +29,18 @@ const RectangleInfo = ({ color, rectangleData }: RectangleProps) => {
       <DataContainer $color={color}>
         <RectangleInfoHeader>
           <RectangleCircle $color={color} />
-          <RectangleInfoColorText $color={color}>
+          <RectangleInfoBoldText>
             {`${t("map.rectangleInfo.average")} ${average.toFixed(
               0
             )} ${unitSymbol} `}
-          </RectangleInfoColorText>
+          </RectangleInfoBoldText>
         </RectangleInfoHeader>
         <RectangleInfoText>
-          <RectangleInfoBoldText>{numberOfSamples}</RectangleInfoBoldText>
+          {numberOfSamples}
           {` ${t("map.rectangleInfo.measurements")}`}
         </RectangleInfoText>
         <RectangleInfoText>
-          <RectangleInfoBoldText>{numberOfContributors}</RectangleInfoBoldText>
+          {numberOfContributors}
           {` ${t("map.rectangleInfo.contributors")}`}
         </RectangleInfoText>
       </DataContainer>

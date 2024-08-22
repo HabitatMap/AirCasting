@@ -45,12 +45,14 @@ const RectangleInfoColorText = styled.span<RectangleInfoProps>`
 const RectangleInfoText = styled.span`
   display: flex;
   flex-direction: row;
+  white-space: nowrap;
 `;
 
 const RectangleInfoBoldText = styled.span`
   color: ${gray400};
   font-weight: 700;
   margin: 0rem 0.5rem 0rem 0rem;
+  white-space: nowrap;
 `;
 
 export {
