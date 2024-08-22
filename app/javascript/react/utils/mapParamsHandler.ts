@@ -288,7 +288,10 @@ export const useMapParams = () => {
           },
           {
             key: UrlParamsTypes.currentUserSettings,
-            value: UserSettings.MapView,
+            value:
+              currentUserSettings === UserSettings.CrowdMapView
+                ? UserSettings.CrowdMapView
+                : UserSettings.MapView,
           },
           {
             key: UrlParamsTypes.sessionId,
