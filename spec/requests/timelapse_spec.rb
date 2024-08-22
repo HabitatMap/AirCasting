@@ -300,16 +300,16 @@ describe 'GET api/v3/timelapse', type: :request do
         expect(response.code).to eq(200)
         parsed_response = JSON.parse(response.body)
 
-        puts "Parsed Response: #{parsed_response}"
+        # puts "Parsed Response: #{parsed_response}"
 
         stream_ids = parsed_response['sessions'].map { |session| session['streams']['Government-PM2.5']['id'] }
 
-        puts "Extracted Stream IDs: #{stream_ids}"
+        # puts "Extracted Stream IDs: #{stream_ids}"
 
         clusters = {}
-        stream_ids.each_slice(15).each_with_index.map { |slice, index| clusters[index] = slice }
+        stream_ids.each_slice(1).each_with_index.map { |slice, index| clusters[index] = slice }
 
-        puts "Created Clusters: #{clusters}"
+        # puts "Created Clusters: #{clusters}"
 
         request_body = {
           clusters: clusters,
@@ -318,15 +318,15 @@ describe 'GET api/v3/timelapse', type: :request do
 
         post_url = 'http://172.104.20.165/api/v3/timelapse'
 
-        puts "POST Request URL: #{post_url}"
-        puts "POST Request Body: #{request_body}"
+        # puts "POST Request URL: #{post_url}"
+        # puts "POST Request Body: #{request_body}"
 
         post_request_sent_at = Time.current
         post_response = HTTParty.post(post_url, body: request_body, headers: { 'Content-Type' => 'application/json' })
         response_time = Time.current - post_request_sent_at
 
-        puts "POST Response Code: #{post_response.code}"
-        puts "POST Response Body: #{post_response.body}"
+        # puts "POST Response Code: #{post_response.code}"
+        # puts "POST Response Body: #{post_response.body}"
 
         puts "-------------------------------------"
         puts "Response Time in seconds: #{response_time}"
