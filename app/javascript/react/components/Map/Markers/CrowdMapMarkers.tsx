@@ -207,6 +207,7 @@ const CrowdMapMarkers = ({ pulsatingSessionId, sessions }: Props) => {
       <AdvancedMarker
         position={displayedSession.point}
         key={displayedSession.point.streamId}
+        zIndex={10}
       >
         <SessionDotMarker
           color={getColorForValue(
@@ -225,7 +226,7 @@ const CrowdMapMarkers = ({ pulsatingSessionId, sessions }: Props) => {
     rectangleLoading: boolean
   ) => {
     return (
-      <AdvancedMarker position={rectanglePoint}>
+      <AdvancedMarker position={rectanglePoint} zIndex={20}>
         {rectangleData && !rectangleLoading && (
           <RectangleInfo
             color={getColorForValue(thresholds, rectangleData.average)}
