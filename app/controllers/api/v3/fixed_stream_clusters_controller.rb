@@ -49,8 +49,8 @@ module Api
             result[average[:time]] <<
               {
                 "value" => average[:value],
-                "latitude" => session.latitude,
-                "longitude" => session.longitude,
+                "latitude" => cluster.latitude,
+                "longitude" => cluster.longitude,
                 "sessions" => cluster.points.count
               }
           end
