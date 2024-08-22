@@ -9,7 +9,7 @@ import {
 interface MarkerProps {
   color: string;
   shouldPulse?: boolean;
-  onClick: () => void;
+  onClick?: () => void;
   opacity?: number;
 }
 
