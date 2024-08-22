@@ -10,16 +10,20 @@ import {
 interface ToggleProps {
   isChecked: boolean;
   onChange: (isChecked: boolean) => void;
-  labelLeft: string;
+  noLabel?: boolean;
+  labelLeft?: string;
   labelRight?: string;
+  biggerMobileVersion?: boolean;
   variant: "switch" | "toggle";
 }
 
 const Toggle: React.FC<ToggleProps> = ({
   isChecked,
   onChange,
+  noLabel = false,
   labelLeft,
   labelRight,
+  biggerMobileVersion = false,
   variant,
 }) => {
   const handleClick = () => {
@@ -28,14 +32,23 @@ const Toggle: React.FC<ToggleProps> = ({
 
   return (
     <ToggleContainer onClick={handleClick}>
-      <Label $isActive={!isChecked && variant === "switch"}>{labelLeft}</Label>
-      <ToggleLabel>
+      {!noLabel && (
+        <Label $isActive={!isChecked && variant === "switch"}>
+          {labelLeft}
+        </Label>
+      )}
+      <ToggleLabel biggerMobileVersion={biggerMobileVersion}>
         <ToggleInput
           type="checkbox"
           checked={isChecked}
           onChange={handleClick}
+          biggerMobileVersion={biggerMobileVersion}
         />
-        <Slider $isActive={isChecked} $variant={variant} />
+        <Slider
+          $isActive={isChecked}
+          $variant={variant}
+          biggerMobileVersion={biggerMobileVersion}
+        />
       </ToggleLabel>
       {variant === "switch" && labelRight && (
         <Label $isActive={isChecked}>{labelRight}</Label>
