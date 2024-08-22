@@ -8,7 +8,7 @@ const mockData = {
       value: 6,
       latitude: 40.42735,
       longitude: -80.59253,
-      sessions: 3,
+      sessions: 1,
     },
     {
       value: 7,
@@ -20,7 +20,7 @@ const mockData = {
       value: 4,
       latitude: 39.9233,
       longitude: -77.3081,
-      sessions: 3,
+      sessions: 1,
     },
     {
       value: 6,
@@ -94,7 +94,7 @@ const mockData = {
       value: 6,
       latitude: 40.42735,
       longitude: -80.59253,
-      sessions: 3,
+      sessions: 1,
     },
     {
       value: 7,
@@ -106,7 +106,7 @@ const mockData = {
       value: 4,
       latitude: 39.9233,
       longitude: -77.3081,
-      sessions: 3,
+      sessions: 1,
     },
     {
       value: 6,
@@ -180,7 +180,7 @@ const mockData = {
       value: 6,
       latitude: 40.42735,
       longitude: -80.59253,
-      sessions: 3,
+      sessions: 1,
     },
     {
       value: 7,
@@ -258,7 +258,7 @@ const mockData = {
       value: 44,
       latitude: 42.325197,
       longitude: -71.056056,
-      sessions: 3,
+      sessions: 1,
     },
   ],
 };
