@@ -9,23 +9,7 @@ interface RectangleInfoProps {
 const RectangleInfoContainer = styled.div`
   display: grid;
   position: absolute;
-  left: -20px;
-`;
-
-const ShadowCircle = styled.div<RectangleInfoProps>`
-  background: radial-gradient(
-    circle at center,
-    ${(props) => props.$color} 0%,
-    ${(props) => props.$color} 30%,
-    transparent 100%
-  );
-  border-radius: 50%;
-  filter: blur(5px);
-  height: 5rem;
-  position: absolute;
-  transform: translate(-25%, -25%);
-  width: 5rem;
-  z-index: 10;
+  left: -21.5px;
 `;
 
 const DataContainer = styled.div<RectangleInfoProps>`
@@ -77,5 +61,4 @@ export {
   RectangleInfoContainer,
   RectangleInfoHeader,
   RectangleInfoText,
-  ShadowCircle,
 };

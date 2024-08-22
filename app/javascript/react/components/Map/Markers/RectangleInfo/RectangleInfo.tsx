@@ -12,7 +12,6 @@ import {
   RectangleInfoContainer,
   RectangleInfoHeader,
   RectangleInfoText,
-  ShadowCircle,
 } from "./RectangleInfo.style";
 
 interface RectangleProps {
@@ -28,7 +27,6 @@ const RectangleInfo = ({ color, rectangleData }: RectangleProps) => {
   return (
     <>
       <RectangleInfoContainer>
-        <ShadowCircle $color={color} />
         <DataContainer $color={color}>
           <RectangleInfoHeader>
             <RectangleCircle $color={color} />
@@ -60,7 +58,6 @@ const RectangleInfoLoading = () => {
   return (
     <>
       <RectangleInfoContainer>
-        <ShadowCircle $color={grey} />
         <DataContainer $color={grey}>
           <RectangleInfoHeader>
             <RectangleCircle $color={grey} />
