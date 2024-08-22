@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 
 import { AdvancedMarker, useMap } from "@vis.gl/react-google-maps";
 
@@ -9,10 +9,22 @@ import {
 import { useAppDispatch, useAppSelector } from "../../../store/hooks";
 import { setMarkersLoading } from "../../../store/markersLoadingSlice";
 import { selectMobileSessionsStreamIds } from "../../../store/mobileSessionsSelectors";
+import {
+  clearRectangles,
+  fetchRectangleData,
+  RectangleData,
+  selectRectangleData,
+  selectRectangleLoading,
+} from "../../../store/rectangleSlice";
 import { selectThresholds } from "../../../store/thresholdSlice";
 import { Session } from "../../../types/sessionType";
+import useMapEventListeners from "../../../utils/mapEventListeners";
 import { useMapParams } from "../../../utils/mapParamsHandler";
 import { getColorForValue } from "../../../utils/thresholdColors";
+import {
+  RectangleInfo,
+  RectangleInfoLoading,
+} from "./RectangleInfo/RectangleInfo";
 import { SessionDotMarker } from "./SessionDotMarker/SessionDotMarker";
 
 type Props = {
@@ -25,6 +37,8 @@ const CrowdMapMarkers = ({ pulsatingSessionId, sessions }: Props) => {
 
   const crowdMapRectangles = useAppSelector(selectCrowdMapRectangles);
   const mobileSessionsStreamIds = useAppSelector(selectMobileSessionsStreamIds);
+  const rectangleData = useAppSelector(selectRectangleData);
+  const rectangleLoading = useAppSelector(selectRectangleLoading);
   const thresholds = useAppSelector(selectThresholds);
 
   const map = useMap();
@@ -38,13 +52,6 @@ const CrowdMapMarkers = ({ pulsatingSessionId, sessions }: Props) => {
     unitSymbol,
     usernames,
   } = useMapParams();
-  const rectanglesRef = useRef<google.maps.Rectangle[]>([]);
-
-  const crowdMapRectanglesLength: number = crowdMapRectangles.length;
-  const displayedSession: Session | undefined = sessions.find(
-    (session) => session.id === pulsatingSessionId
-  );
-
   const filters = useMemo(
     () =>
       JSON.stringify({
@@ -76,9 +83,20 @@ const CrowdMapMarkers = ({ pulsatingSessionId, sessions }: Props) => {
     ]
   );
 
+  const rectanglesRef = useRef<google.maps.Rectangle[]>([]);
+  const [rectanglePoint, setRectanglePoint] = useState<{
+    lat: number;
+    lng: number;
+  } | null>(null);
+
+  const crowdMapRectanglesLength: number = crowdMapRectangles.length;
+  const displayedSession: Session | undefined = sessions.find(
+    (session) => session.id === pulsatingSessionId
+  );
+
   useEffect(() => {
     dispatch(fetchCrowdMapData(filters));
-  }, [filters]);
+  }, [filters, dispatch]);
 
   useEffect(() => {
     dispatch(setMarkersLoading(true));
@@ -92,19 +110,59 @@ const CrowdMapMarkers = ({ pulsatingSessionId, sessions }: Props) => {
 
   useEffect(() => {
     if (crowdMapRectanglesLength > 0) {
-      const newRectangles = crowdMapRectangles.map(
-        (rectangle) =>
-          new google.maps.Rectangle({
-            bounds: new google.maps.LatLngBounds(
-              new google.maps.LatLng(rectangle.south, rectangle.west),
-              new google.maps.LatLng(rectangle.north, rectangle.east)
-            ),
-            fillColor: getColorForValue(thresholds, rectangle.value),
-            fillOpacity: 0.6,
-            map: map,
-            strokeWeight: 0,
-          })
-      );
+      const newRectangles = crowdMapRectangles.map((rectangle) => {
+        const newRectangle = new google.maps.Rectangle({
+          bounds: new google.maps.LatLngBounds(
+            new google.maps.LatLng(rectangle.south, rectangle.west),
+            new google.maps.LatLng(rectangle.north, rectangle.east)
+          ),
+          clickable: true,
+          fillColor: getColorForValue(thresholds, rectangle.value),
+          fillOpacity: 0.6,
+          map: map,
+          strokeWeight: 0,
+        });
+
+        google.maps.event.addListener(newRectangle, "click", () => {
+          const rectangleBounds = newRectangle.getBounds();
+
+          if (rectangleBounds) {
+            const rectangleBoundEast = rectangleBounds.getNorthEast().lng();
+            const rectangleBoundWest = rectangleBounds.getSouthWest().lng();
+            const rectangleBoundNorth = rectangleBounds.getNorthEast().lat();
+            const rectangleBoundSouth = rectangleBounds.getSouthWest().lat();
+
+            const rectangleFilters = {
+              west: rectangleBoundWest.toString(),
+              east: rectangleBoundEast.toString(),
+              south: rectangleBoundSouth.toString(),
+              north: rectangleBoundNorth.toString(),
+              time_from: "1685318400",
+              time_to: "1717027199",
+              grid_size_x: "50",
+              grid_size_y: "50",
+              tags: tags || "",
+              usernames: usernames || "",
+              sensor_name: "airbeam-pm2.5",
+              measurement_type: measurementType,
+              unit_symbol: encodeURIComponent(unitSymbol),
+              stream_ids: mobileSessionsStreamIds.join(","),
+            };
+            const queryString = new URLSearchParams(
+              rectangleFilters
+            ).toString();
+
+            dispatch(fetchRectangleData(queryString));
+            setRectanglePoint({
+              lat: rectangleBoundNorth,
+              lng: rectangleBoundEast,
+            });
+          }
+        });
+
+        return newRectangle;
+      });
+
       rectanglesRef.current.push(...newRectangles);
     }
 
@@ -113,33 +171,67 @@ const CrowdMapMarkers = ({ pulsatingSessionId, sessions }: Props) => {
       rectanglesRef.current.forEach((rectangle) => rectangle.setMap(null));
       rectanglesRef.current = [];
     };
-  }, [crowdMapRectangles, map, thresholds]);
+  }, [
+    crowdMapRectangles,
+    dispatch,
+    map,
+    measurementType,
+    mobileSessionsStreamIds,
+    tags,
+    thresholds,
+    unitSymbol,
+    usernames,
+  ]);
+
+  useMapEventListeners(map, {
+    click: () => dispatch(clearRectangles()),
+    touchend: () => dispatch(clearRectangles()),
+    dragstart: () => dispatch(clearRectangles()),
+    zoom_changed: () => dispatch(clearRectangles()),
+  });
 
   const renderMarker = (displayedSession: Session) => {
     return (
       <AdvancedMarker
         position={displayedSession.point}
         key={displayedSession.point.streamId}
+        zIndex={10}
       >
-        {
-          <SessionDotMarker
-            color={getColorForValue(
-              thresholds,
-              displayedSession.lastMeasurementValue
-            )}
-            onClick={() => {}}
-            opacity={0.6}
-          />
-        }
+        <SessionDotMarker
+          color={getColorForValue(
+            thresholds,
+            displayedSession.lastMeasurementValue
+          )}
+          onClick={() => {}}
+          opacity={0.6}
+        />
       </AdvancedMarker>
     );
   };
 
-  if (displayedSession) {
-    return renderMarker(displayedSession);
-  } else {
-    return null;
-  }
+  const renderInfo = (
+    rectangleData: RectangleData | undefined,
+    rectangleLoading: boolean
+  ) => {
+    return (
+      <AdvancedMarker position={rectanglePoint} zIndex={20}>
+        {rectangleData && !rectangleLoading && (
+          <RectangleInfo
+            color={getColorForValue(thresholds, rectangleData.average)}
+            rectangleData={rectangleData}
+          />
+        )}
+        {rectangleLoading && <RectangleInfoLoading />}
+      </AdvancedMarker>
+    );
+  };
+
+  return (
+    <>
+      {displayedSession && renderMarker(displayedSession)}
+      {rectanglePoint && renderInfo(rectangleData, rectangleLoading)}
+    </>
+  );
 };
 
 export { CrowdMapMarkers };

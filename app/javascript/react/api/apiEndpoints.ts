@@ -1,4 +1,4 @@
-import { SessionType, fetchTagsParamsType } from "../types/filters";
+import { fetchTagsParamsType, SessionType } from "../types/filters";
 
 interface ApiEndpoints {
   readonly exportSessionData: (sessionsIds: number[], email: string) => string;
@@ -8,6 +8,7 @@ interface ApiEndpoints {
   readonly fetchFixedStreamById: (id: number) => string;
   readonly fetchMobileSessions: (filters: string) => string;
   readonly fetchMobileStreamById: (id: number) => string;
+  readonly fetchRectangleData: (filters: string) => string;
   readonly fetchSelectedDataRangeOfStream: (
     id: number,
     startDate: string,
@@ -33,6 +34,7 @@ export const API_ENDPOINTS: ApiEndpoints = {
   fetchFixedStreamById: (id) => `/fixed_streams/${id}`,
   fetchMobileSessions: (filters) => `/mobile/sessions.json?q=${filters}`,
   fetchMobileStreamById: (id) => `/mobile/streams/${id}`,
+  fetchRectangleData: (filters) => `/region.json?${filters}`,
   fetchSelectedDataRangeOfStream: (id, startDate, endDate) =>
     `/stream_daily_averages?stream_id=${id}&start_date=${startDate}&end_date=${endDate}`,
   fetchThresholds: (filters) => `/thresholds/${filters}`,
