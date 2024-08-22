@@ -550,14 +550,6 @@ const Map = () => {
                 pulsatingSessionId={pulsatingSessionId}
               />
             )}
-        {/* {fixedSessionsStatusFulfilled && fixedSessionTypeSelected && (
-          <FixedMarkers
-            sessions={sessionsPoints}
-            onMarkerClick={handleMarkerClick}
-            selectedStreamId={streamId}
-            pulsatingSessionId={pulsatingSessionId}
-          />
-        )} */}
         {!fixedSessionTypeSelected &&
           ([UserSettings.CrowdMapView].includes(currentUserSettings) ||
           ([UserSettings.CrowdMapView].includes(previousUserSettings) &&

@@ -40,7 +40,7 @@ const NavigationButtons: React.FC<NavigationButtonsProps> = ({
         } else {
           setIsPlaying(false);
         }
-      }, 3000);
+      }, 1000);
     }
 
     return () => {
