@@ -1,10 +1,15 @@
 import React from "react";
 
+import { UrlParamsTypes, useMapParams } from "../../utils/mapParamsHandler";
 import * as S from "./SessionFilters.style";
 
 const CrowdMapGridSize = () => {
+  const { setFilters } = useMapParams();
   const handleGridSize = (gridSize: number) => {
-    console.log("gridSize", gridSize);
+    setFilters(UrlParamsTypes.gridSize, gridSize.toString());
+    // setTimeout(() => {
+    //   dispatch(setFetchingCrowdMapData(true));
+    // }, 200);
   };
 
   return (
