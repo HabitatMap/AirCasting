@@ -38,6 +38,10 @@ const RectangleCircle = styled.div<RectangleInfoProps>`
   width: 1rem;
 `;
 
+const RectangleInfoColorText = styled.span<RectangleInfoProps>`
+  color: ${(props) => props.$color};
+`;
+
 const RectangleInfoText = styled.span`
   display: flex;
   flex-direction: row;
@@ -55,6 +59,7 @@ export {
   DataContainer,
   RectangleCircle,
   RectangleInfoBoldText,
+  RectangleInfoColorText,
   RectangleInfoContainer,
   RectangleInfoHeader,
   RectangleInfoText,

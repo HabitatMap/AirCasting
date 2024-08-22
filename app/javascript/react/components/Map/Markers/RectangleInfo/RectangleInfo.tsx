@@ -8,6 +8,7 @@ import {
   DataContainer,
   RectangleCircle,
   RectangleInfoBoldText,
+  RectangleInfoColorText,
   RectangleInfoContainer,
   RectangleInfoHeader,
   RectangleInfoText,
