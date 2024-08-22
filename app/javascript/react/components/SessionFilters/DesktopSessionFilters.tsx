@@ -2,6 +2,7 @@ import React from "react";
 
 import { SessionTypes } from "../../types/filters";
 import { useMapParams } from "../../utils/mapParamsHandler";
+import { CrowdMapGridSize } from "./CrowdMapGridSize";
 import { CrowdMapToggle } from "./CrowdmapToggle";
 import { DesktopParameterFilter } from "./ParameterFilter";
 import { ProfileNamesInput } from "./ProfileNamesInput";
@@ -22,6 +23,7 @@ const DesktopSessionFilters = () => {
       <ProfileNamesInput />
       <TagsInput />
       {!fixedSessionTypeSelected && <CrowdMapToggle />}
+      {!fixedSessionTypeSelected && <CrowdMapGridSize />}
     </S.SessionFilters>
   );
 };
