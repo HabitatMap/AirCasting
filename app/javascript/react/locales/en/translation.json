@@ -136,8 +136,9 @@
     },
     "rectangleInfo": {
       "average": "avg.",
-      "measurements": "measurements",
-      "contributors": "contributors"
+      "contributors": "contributors",
+      "loading": "Fetching...",
+      "measurements": "measurements"
     },
     "timelapsTile": "Timelapse",
     "altTimelapseTile": "Show the timelapse for the map"

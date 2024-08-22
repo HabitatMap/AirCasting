@@ -1,6 +1,8 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
 
+import { grey } from "../../../../assets/styles/colors";
+import { RectangleData } from "../../../../store/rectangleSlice";
 import { useMapParams } from "../../../../utils/mapParamsHandler";
 import {
   DataContainer,
@@ -15,19 +17,13 @@ import {
 
 interface RectangleProps {
   color: string;
-  average: number;
-  numberOfContributors: number;
-  numberOfSamples: number;
+  rectangleData: RectangleData;
 }
 
-const RectangleInfo = ({
-  color,
-  average,
-  numberOfContributors,
-  numberOfSamples,
-}: RectangleProps) => {
+const RectangleInfo = ({ color, rectangleData }: RectangleProps) => {
   const { unitSymbol } = useMapParams();
   const { t } = useTranslation();
+  const { average, numberOfSamples, numberOfContributors } = rectangleData;
 
   return (
     <>
@@ -58,4 +54,24 @@ const RectangleInfo = ({
   );
 };
 
-export { RectangleInfo };
+const RectangleInfoLoading = () => {
+  const { t } = useTranslation();
+
+  return (
+    <>
+      <RectangleInfoContainer>
+        <ShadowCircle $color={grey} />
+        <DataContainer $color={grey}>
+          <RectangleInfoHeader>
+            <RectangleCircle $color={grey} />
+            <RectangleInfoColorText $color={grey}>
+              {`${t("map.rectangleInfo.loading")}`}
+            </RectangleInfoColorText>
+          </RectangleInfoHeader>
+        </DataContainer>
+      </RectangleInfoContainer>
+    </>
+  );
+};
+
+export { RectangleInfo, RectangleInfoLoading };
