@@ -10,6 +10,7 @@ import {
 import { setUserThresholdValues } from "../../../store/thresholdSlice";
 import { useMapParams } from "../../../utils/mapParamsHandler";
 import { useTranslation } from "react-i18next";
+import { selectMovingCalendarMinMax } from "../../../store/movingStreamSelectors";
 
 interface UniformDistributionButtonProps {
   variant?: ThresholdButtonVariant;
@@ -32,27 +33,52 @@ const UniformDistributionButton: React.FC<UniformDistributionButtonProps> = ({
 
   const mobileStream = useAppSelector((state: RootState) => state.mobileStream);
   const fixedStream = useAppSelector((state: RootState) => state.fixedStream);
+  const calendarMinMax = useAppSelector(selectMovingCalendarMinMax);
   const defaultButtonText = t(
     "thresholdConfigurator.uniformDistributionButtonDesktop"
   );
 
-  const minMaxValues = React.useMemo(() => {
+  const streamMinMaxValues = React.useMemo(() => {
     return calculateMinMaxValues(mobileStream, fixedStream, sessionId);
   }, [mobileStream, fixedStream, sessionId]);
 
+  const combinedMinMaxValues = React.useMemo(() => {
+    const allMinValues = [streamMinMaxValues?.min, calendarMinMax?.min].filter(
+      (value) => value !== null && value !== undefined
+    );
+
+    const allMaxValues = [streamMinMaxValues?.max, calendarMinMax?.max].filter(
+      (value) => value !== null && value !== undefined
+    );
+
+    const min = allMinValues.length > 0 ? Math.min(...allMinValues) : null;
+    const max = allMaxValues.length > 0 ? Math.max(...allMaxValues) : null;
+
+    if (min === null || max === null) {
+      return null;
+    }
+
+    return { min, max };
+  }, [streamMinMaxValues, calendarMinMax]);
+
   const distributeThresholds = () => {
-    if (!minMaxValues) {
+    if (!combinedMinMaxValues) {
+      hasErrorMessage(t("thresholdConfigurator.noValidDataErrorMessage"));
+      console.error("No valid data available to distribute thresholds.");
+
+      setTimeout(() => {
+        hasErrorMessage("");
+      }, 3000);
+
       return;
     }
 
-    const { min, max } = minMaxValues;
+    const { min, max } = combinedMinMaxValues;
 
     if (min === max) {
-      hasErrorMessage(
-        t("thresholdConfigurator.uniformDistributionErrorMessage")
-      );
+      hasErrorMessage(t("thresholdConfigurator.sameValuesError"));
       console.error(
-        "While using discrete uniform distribution the Min and Max values cannot both be the same"
+        "While using discrete uniform distribution, the Min and Max values cannot both be the same."
       );
 
       setTimeout(() => {
@@ -60,8 +86,6 @@ const UniformDistributionButton: React.FC<UniformDistributionButtonProps> = ({
       }, 3000);
 
       return;
-    } else {
-      hasErrorMessage("");
     }
 
     const thresholds = calculateUniformThresholds(min, max);

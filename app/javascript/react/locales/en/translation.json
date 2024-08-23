@@ -84,7 +84,8 @@
     "altUniformDistribution": "Distribute the measurement thresholds uniformly",
     "uniformDistributionButton": "Fit\nto scale",
     "uniformDistributionButtonDesktop": "Scale to fit data",
-    "uniformDistributionButtonSameValuesError": "Can't distribute thresholds when Min and Max values are both the same.",
+    "sameValuesError": "Can't distribute thresholds when Min and Max values are both the same.",
+    "noValidDataErrorMessage": "Insufficient data to distribute thresholds.",
     "invalidOrderMessage": "The values should be in ascending order"
   },
   "notFoundPage": {
