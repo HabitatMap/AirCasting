@@ -1,12 +1,20 @@
-import moment from "moment";
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import moment, { Moment } from "moment";
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { useTranslation } from "react-i18next";
 import type { PopupProps } from "reactjs-popup/dist/types";
 import closeTimelapseButton from "../../../assets/icons/closeTimelapseButton.svg";
 import { useAppDispatch, useAppSelector } from "../../../store/hooks";
 import {
   fetchTimelapseData,
+  selectTimelapseData,
   selectTimelapseIsLoading,
+  setCurrentTimestamp,
 } from "../../../store/timelapseSlice";
 import { DateFormat } from "../../../types/dateFormat";
 import { TimeRanges } from "../../../types/timelapse";
@@ -18,14 +26,6 @@ import TimeRangeButtons from "./TimeRangeButtons";
 
 interface TimelapseComponentProps {
   onClose: () => void;
-  currentStep: number;
-  totalSteps: number;
-  onNextStep: () => void;
-  onPreviousStep: () => void;
-  timestamps: string[];
-  resetTimelapse: () => void;
-  onGoToStart: () => void;
-  onGoToEnd: () => void;
 }
 
 type CustomPopupProps = {
@@ -36,131 +36,189 @@ type CustomPopupProps = {
 
 const TimelapseComponent: React.FC<
   TimelapseComponentProps & Omit<PopupProps, "children">
-> = React.memo(
-  ({
-    onClose,
-    currentStep,
-    totalSteps,
-    onNextStep,
-    onPreviousStep,
-    timestamps,
-    resetTimelapse,
-    onGoToStart,
-    onGoToEnd,
-  }) => {
-    const TimelapseModal: React.FC<
-      CustomPopupProps & Omit<PopupProps, "children">
-    > = useCallback((props) => {
-      return <S.TimelapseModal {...(props as PopupProps)} />;
-    }, []);
+> = React.memo(({ onClose }) => {
+  const TimelapseModal: React.FC<
+    CustomPopupProps & Omit<PopupProps, "children">
+  > = useCallback((props) => {
+    return <S.TimelapseModal {...(props as PopupProps)} />;
+  }, []);
 
-    const { t } = useTranslation();
-    const dispatch = useAppDispatch();
-    const [showReadOnlyPopup, setShowReadOnlyPopup] = useState(false);
-    const overlayRef = useRef<HTMLDivElement>(null);
+  const { t } = useTranslation();
+  const dispatch = useAppDispatch();
+  const [showReadOnlyPopup, setShowReadOnlyPopup] = useState(false);
+  const overlayRef = useRef<HTMLDivElement>(null);
 
-    const isLoading = useAppSelector(selectTimelapseIsLoading);
-    const [timeRange, setTimeRange] = useState<TimeRanges>(TimeRanges.HOURS_24);
+  const isLoading = useAppSelector(selectTimelapseIsLoading);
+  const fullTimestamps = useAppSelector(selectTimelapseData);
+  const [timeRange, setTimeRange] = useState<TimeRanges>(TimeRanges.HOURS_24);
+  const [currentStep, setCurrentStep] = useState(0);
 
-    const fetchDataForTimeRange = useCallback(
-      (range: TimeRanges) => {
-        dispatch(fetchTimelapseData({ filters: range }));
-        setTimeRange(range);
-      },
-      [dispatch]
-    );
+  const resetTimelapse = useCallback(() => {
+    setCurrentStep(0);
+    dispatch(setCurrentTimestamp(""));
+  }, [dispatch]);
 
-    useEffect(() => {
-      fetchDataForTimeRange(TimeRanges.HOURS_24);
-    }, [fetchDataForTimeRange]);
+  const filteredTimestamps = useMemo(() => {
+    const now = moment.utc();
+    let startTime: Moment;
 
-    const closeHandler = useCallback(() => {
-      resetTimelapse();
-      onClose();
-    }, [onClose, resetTimelapse]);
+    switch (timeRange) {
+      case TimeRanges.HOURS_24:
+        startTime = now.clone().subtract(24, "hours");
+        break;
+      case TimeRanges.DAYS_3:
+        startTime = now.clone().subtract(3, "days");
+        break;
+      case TimeRanges.DAYS_7:
+        startTime = now.clone().subtract(7, "days");
+        break;
+      default:
+        startTime = now.clone().subtract(24, "hours");
+        break;
+    }
 
-    const handleOverlayClick = useCallback(
-      (event: MouseEvent) => {
-        if (
-          overlayRef.current &&
-          !overlayRef.current.contains(event.target as Node)
-        ) {
-          setShowReadOnlyPopup(true);
-        }
-      },
-      [overlayRef]
-    );
+    const filtered = Object.keys(fullTimestamps)
+      .filter((timestamp) => {
+        const parsedTimestamp = moment.utc(
+          timestamp,
+          "YYYY-MM-DD HH:mm:ss UTC"
+        );
+        return parsedTimestamp.isAfter(startTime);
+      })
+      .sort((a, b) =>
+        moment
+          .utc(a, "YYYY-MM-DD HH:mm:ss UTC")
+          .diff(moment.utc(b, "YYYY-MM-DD HH:mm:ss UTC"))
+      );
 
-    useAutoDismissAlert(showReadOnlyPopup, setShowReadOnlyPopup);
+    if (filtered.length === 0) {
+      return Object.keys(fullTimestamps).sort((a, b) =>
+        moment
+          .utc(a, "YYYY-MM-DD HH:mm:ss UTC")
+          .diff(moment.utc(b, "YYYY-MM-DD HH:mm:ss UTC"))
+      );
+    }
 
-    useEffect(() => {
-      document.addEventListener("mousedown", handleOverlayClick);
-      return () => {
-        document.removeEventListener("mousedown", handleOverlayClick);
-      };
-    }, [handleOverlayClick]);
+    return filtered;
+  }, [timeRange, fullTimestamps]);
 
-    const currentTimestamp = timestamps[currentStep];
-    const currentDate = moment
-      .utc(currentTimestamp, "YYYYMMDDHH:mm:ssZ")
-      .format(DateFormat.us_without_year);
-    const currentTime = moment
-      .utc(currentTimestamp, "YYYYMMDDHH:mm:ssZ")
-      .format("hh:mm A");
+  useEffect(() => {
+    dispatch(fetchTimelapseData({ filters: TimeRanges.DAYS_7 }));
+  }, [dispatch]);
 
-    return (
-      <>
-        {!isLoading && (
-          <TimelapseModal
-            open={true}
-            modal
-            nested
-            overlayStyle={{ margin: 0, zIndex: 2 }}
-            contentStyle={{ margin: 0 }}
-            onClose={closeHandler}
-            closeOnDocumentClick={false}
-          >
-            {(close) => (
-              <div ref={overlayRef}>
-                <S.TimeAxisContainer>
-                  <S.MobileDateContainer>
-                    <S.Date>{currentDate}</S.Date>
-                    <S.Time>{currentTime}</S.Time>
-                  </S.MobileDateContainer>
-                  <NavigationButtons
-                    currentStep={currentStep}
-                    totalSteps={totalSteps}
-                    onNextStep={onNextStep}
-                    onPreviousStep={onPreviousStep}
-                    onGoToStart={onGoToStart}
-                    onGoToEnd={onGoToEnd}
-                  />
-                  <TimeAxis
-                    currentStep={currentStep}
-                    totalSteps={totalSteps}
-                    timestamps={timestamps}
-                  />
-                </S.TimeAxisContainer>
-                <TimeRangeButtons
-                  timeRange={timeRange}
-                  onSelectTimeRange={fetchDataForTimeRange}
-                />
-                <S.CancelButtonX onClick={close}>
-                  <img src={closeTimelapseButton} alt={t("navbar.altClose")} />
-                </S.CancelButtonX>
-              </div>
-            )}
-          </TimelapseModal>
-        )}
+  useEffect(() => {
+    setCurrentStep(0);
+  }, [timeRange]);
 
-        {showReadOnlyPopup && (
-          <S.SmallPopup open>
-            <S.AlertInfo>{t("timelapse.readOnly")}</S.AlertInfo>
-          </S.SmallPopup>
-        )}
-      </>
-    );
-  }
-);
+  const closeHandler = useCallback(() => {
+    resetTimelapse();
+    onClose();
+  }, [onClose, resetTimelapse]);
+
+  const handleNextStep = () => {
+    if (currentStep < filteredTimestamps.length - 1) {
+      setCurrentStep((prevStep) => prevStep + 1);
+      dispatch(setCurrentTimestamp(filteredTimestamps[currentStep + 1]));
+    }
+  };
+
+  const handlePreviousStep = () => {
+    if (currentStep > 0) {
+      setCurrentStep((prevStep) => prevStep - 1);
+      dispatch(setCurrentTimestamp(filteredTimestamps[currentStep - 1]));
+    }
+  };
+
+  const handleGoToStart = () => {
+    setCurrentStep(0);
+    dispatch(setCurrentTimestamp(filteredTimestamps[0]));
+  };
+
+  const handleGoToEnd = () => {
+    const lastIndex = filteredTimestamps.length - 1;
+    setCurrentStep(lastIndex);
+    dispatch(setCurrentTimestamp(filteredTimestamps[lastIndex]));
+  };
+
+  const handleOverlayClick = useCallback(
+    (event: MouseEvent) => {
+      if (
+        overlayRef.current &&
+        !overlayRef.current.contains(event.target as Node)
+      ) {
+        setShowReadOnlyPopup(true);
+      }
+    },
+    [overlayRef]
+  );
+
+  useAutoDismissAlert(showReadOnlyPopup, setShowReadOnlyPopup);
+
+  useEffect(() => {
+    document.addEventListener("mousedown", handleOverlayClick);
+    return () => {
+      document.removeEventListener("mousedown", handleOverlayClick);
+    };
+  }, [handleOverlayClick]);
+
+  const currentTimestamp = filteredTimestamps[currentStep];
+  const currentDate = moment
+    .utc(currentTimestamp, "YYYY-MM-DD HH:mm:ss UTC")
+    .format(DateFormat.us_without_year);
+  const currentTime = moment
+    .utc(currentTimestamp, "YYYY-MM-DD HH:mm:ss UTC")
+    .format("hh:mm A");
+
+  return (
+    <>
+      {!isLoading && (
+        <S.TimelapseModal
+          open={true}
+          modal
+          nested
+          overlayStyle={{ margin: 0, zIndex: 2 }}
+          contentStyle={{ margin: 0 }}
+          onClose={closeHandler}
+          closeOnDocumentClick={false}
+        >
+          <div ref={overlayRef}>
+            <S.TimeAxisContainer>
+              <S.MobileDateContainer>
+                <S.Date>{currentDate}</S.Date>
+                <S.Time>{currentTime}</S.Time>
+              </S.MobileDateContainer>
+              <NavigationButtons
+                currentStep={currentStep}
+                totalSteps={filteredTimestamps.length}
+                onNextStep={handleNextStep}
+                onPreviousStep={handlePreviousStep}
+                onGoToStart={handleGoToStart}
+                onGoToEnd={handleGoToEnd}
+              />
+              <TimeAxis
+                currentStep={currentStep}
+                totalSteps={filteredTimestamps.length}
+                timestamps={filteredTimestamps}
+              />
+            </S.TimeAxisContainer>
+            <TimeRangeButtons
+              timeRange={timeRange}
+              onSelectTimeRange={setTimeRange}
+            />
+            <S.CancelButtonX onClick={closeHandler}>
+              <img src={closeTimelapseButton} alt={t("navbar.altClose")} />
+            </S.CancelButtonX>
+          </div>
+        </S.TimelapseModal>
+      )}
+
+      {showReadOnlyPopup && (
+        <S.SmallPopup open>
+          <S.AlertInfo>{t("timelapse.readOnly")}</S.AlertInfo>
+        </S.SmallPopup>
+      )}
+    </>
+  );
+});
 
 export { TimelapseComponent };
