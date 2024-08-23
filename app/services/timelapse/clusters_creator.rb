@@ -10,7 +10,7 @@ module Timelapse
       selected_sensor_streams = streams.select { |stream| Sensor.sensor_name(sensor_name).include? stream.sensor_name.downcase }
 
       # clusters = cluster_measurements(selected_sensor_streams, determine_clustering_distance(data[:zoom_level]))
-      clusters = cluster_measurements(selected_sensor_streams, 100)
+      clusters = cluster_measurements(selected_sensor_streams, 100000)
 
       clusters = calculate_centroids_for_clusters(clusters)
 
