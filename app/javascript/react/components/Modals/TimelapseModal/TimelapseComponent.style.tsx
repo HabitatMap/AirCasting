@@ -3,6 +3,7 @@ import styled from "styled-components";
 
 import {
   acBlue,
+  gray300,
   gray400,
   gray500,
   gray900,
@@ -50,13 +51,13 @@ const CancelButtonX = styled.button`
   align-self: flex-end;
   cursor: pointer;
   @media ${media.smallDesktop} {
-    top: -9rem;
+    top: -14rem;
     left: 97%;
     right: 0;
     bottom: 0;
   }
   @media ${media.desktop} {
-    top: -6rem;
+    top: -11rem;
     left: 101%;
   }
   body:not(.user-is-tabbing) &:focus-visible {
@@ -313,6 +314,39 @@ const Tooltip = styled.div`
   }
 `;
 
+const TimeRangeButtonsContainer = styled.div`
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 1rem;
+  background-color: ${white}80;
+  padding: 0.4rem 0.8rem;
+  width: fit-content;
+  border-radius: 8px;
+`;
+
+const TimeRangeButton = styled.button<{ isActive: boolean }>`
+  padding: 0.7rem 1.5rem;
+  margin: 0 5px;
+  background-color: ${({ isActive }) => (isActive ? acBlue : white)};
+  color: ${({ isActive }) => (isActive ? white : gray300)};
+  border: none;
+  border-radius: 5px;
+  box-shadow: 2px 2px 4px 0px rgba(76, 86, 96, 0.1);
+  font-size: 1.2rem;
+
+  cursor: pointer;
+  &:hover {
+    background-color: ${({ isActive }) => (isActive ? acBlue : white)};
+  }
+`;
+
+const TimeRangeLabel = styled.span`
+  font-size: 1.2rem;
+  color: ${gray400};
+`;
+
 export {
   AlertInfo,
   CancelButtonX,
@@ -332,6 +366,9 @@ export {
   Time,
   TimeAxisContainer,
   TimelapseModal,
+  TimeRangeButton,
+  TimeRangeButtonsContainer,
+  TimeRangeLabel,
   Tooltip,
   Wrapper,
 };
