@@ -1,4 +1,3 @@
-//add width and height props to svg
 import React from "react";
 import { useTranslation } from "react-i18next";
 import { green } from "../../../../assets/styles/colors";
@@ -21,9 +20,9 @@ const ClusterIcon = ({ color = green }: ClusterIconProps) => {
       <g
         id="Page-1"
         stroke="none"
-        stroke-width="1"
+        strokeWidth="1"
         fill="none"
-        fill-rule="evenodd"
+        fillRule="evenodd"
       >
         <g
           id="Colors/green"

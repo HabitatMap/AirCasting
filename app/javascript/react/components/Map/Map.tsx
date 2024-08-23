@@ -52,7 +52,6 @@ import {
   fetchTimelapseData,
   selectCurrentTimestamp,
   selectTimelapseData,
-  setCurrentTimestamp,
 } from "../../store/timelapseSlice";
 import { SessionTypes } from "../../types/filters";
 import { SessionList } from "../../types/sessionType";
@@ -460,8 +459,6 @@ const Map = () => {
     );
   };
 
-  const [currentTimelapseStep, setCurrentTimelapseStep] = useState(0);
-
   useEffect(() => {
     if (currentUserSettings === UserSettings.TimelapseView) {
       const timePeriod = 7;
@@ -473,32 +470,7 @@ const Map = () => {
   const timelapseData = useAppSelector(selectTimelapseData);
 
   const currentTimestamp = useAppSelector(selectCurrentTimestamp);
-  const timestamps = Object.keys(timelapseData);
 
-  const handleNextTimelapseStep = () => {
-    if (currentTimelapseStep < timestamps.length - 1) {
-      setCurrentTimelapseStep((prevStep) => prevStep + 1);
-      dispatch(setCurrentTimestamp(timestamps[currentTimelapseStep + 1]));
-    }
-  };
-
-  const handlePreviousTimelapseStep = () => {
-    if (currentTimelapseStep > 0) {
-      setCurrentTimelapseStep((prevStep) => prevStep - 1);
-      dispatch(setCurrentTimestamp(timestamps[currentTimelapseStep - 1]));
-    }
-  };
-
-  const handleGoToStart = () => {
-    setCurrentTimelapseStep(0);
-    dispatch(setCurrentTimestamp(timestamps[0]));
-  };
-
-  const handleGoToEnd = () => {
-    const lastIndex = timestamps.length - 1;
-    setCurrentTimelapseStep(lastIndex);
-    dispatch(setCurrentTimestamp(timestamps[lastIndex]));
-  };
   const memoizedTimelapseData = useMemo(() => timelapseData, [timelapseData]);
 
   const renderTimelapseMarkers = () => {
@@ -513,11 +485,6 @@ const Map = () => {
     }
     return null;
   };
-
-  const resetTimelapse = useCallback(() => {
-    setCurrentTimelapseStep(0);
-    dispatch(setCurrentTimestamp(""));
-  }, []);
 
   return (
     <>
@@ -599,14 +566,6 @@ const Map = () => {
           onClose={() => {
             goToUserSettings(previousUserSettings);
           }}
-          currentStep={currentTimelapseStep}
-          totalSteps={Object.keys(timelapseData).length}
-          onNextStep={handleNextTimelapseStep}
-          onPreviousStep={handlePreviousTimelapseStep}
-          onGoToStart={handleGoToStart}
-          onGoToEnd={handleGoToEnd}
-          timestamps={timestamps}
-          resetTimelapse={resetTimelapse}
         />
       )}
       <S.MobileContainer>

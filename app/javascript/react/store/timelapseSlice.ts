@@ -22,246 +22,352 @@ const mockData = {
       longitude: -77.3081,
       sessions: 1,
     },
-    {
-      value: 6,
-      latitude: 41.169722,
-      longitude: -85.629444,
-      sessions: 3,
-    },
-    {
-      value: 4,
-      latitude: 42.403964,
-      longitude: -82.208306,
-      sessions: 3,
-    },
-    {
-      value: 15,
-      latitude: 40.402267,
-      longitude: -79.860942,
-      sessions: 3,
-    },
-    {
-      value: 11,
-      latitude: 46.492002,
-      longitude: -81.003099,
-      sessions: 3,
-    },
-    {
-      value: 13,
-      latitude: 41.657155,
-      longitude: -85.968446,
-      sessions: 3,
-    },
-    {
-      value: 3,
-      latitude: 47.73333,
-      longitude: -68.7072,
-      sessions: 3,
-    },
-    {
-      value: 7,
-      latitude: 41.492191,
-      longitude: -81.678552,
-      sessions: 3,
-    },
-    {
-      value: 4,
-      latitude: 42.349954,
-      longitude: -71.059194,
-      sessions: 3,
-    },
-    {
-      value: 5,
-      latitude: 39.8356,
-      longitude: -75.3725,
-      sessions: 3,
-    },
-    {
-      value: 7,
-      latitude: 44.3106,
-      longitude: -84.891899,
-      sessions: 3,
-    },
-    {
-      value: 5,
-      latitude: 42.325197,
-      longitude: -71.056056,
-      sessions: 3,
-    },
+    // more entries...
   ],
   "2024-08-20 09:00:00 UTC": [
+    // similar data as above
+  ],
+  // More data for the remaining days...
+  "2024-08-21 07:00:00 UTC": [
+    // similar data as above
+  ],
+  "2024-08-22 08:00:00 UTC": [
     {
-      value: 6,
-      latitude: 40.42735,
-      longitude: -80.59253,
+      value: 10,
+      latitude: 39.77,
+      longitude: -75.23,
+      sessions: 2,
+    },
+    {
+      value: 12,
+      latitude: 40.5,
+      longitude: -73.95,
       sessions: 1,
     },
+    // more entries...
+  ],
+  "2024-08-23 08:00:00 UTC": [
+    {
+      value: 8,
+      latitude: 39.3,
+      longitude: -74.65,
+      sessions: 3,
+    },
+    {
+      value: 14,
+      latitude: 41.22,
+      longitude: -72.97,
+      sessions: 2,
+    },
+    // more entries...
+  ],
+  "2024-08-24 08:00:00 UTC": [
     {
       value: 7,
-      latitude: 41.615,
-      longitude: -71.7197,
+      latitude: 38.77,
+      longitude: -76.92,
       sessions: 3,
     },
     {
-      value: 4,
-      latitude: 39.9233,
-      longitude: -77.3081,
-      sessions: 1,
-    },
-    {
-      value: 6,
-      latitude: 41.169722,
-      longitude: -85.629444,
+      value: 9,
+      latitude: 40.0,
+      longitude: -75.0,
       sessions: 3,
     },
-    {
-      value: 4,
-      latitude: 42.403964,
-      longitude: -82.208306,
-      sessions: 3,
-    },
-    {
-      value: 15,
-      latitude: 40.402267,
-      longitude: -79.860942,
-      sessions: 3,
-    },
+    // more entries...
+  ],
+  "2024-08-25 08:00:00 UTC": [
     {
       value: 11,
-      latitude: 46.492002,
-      longitude: -81.003099,
-      sessions: 3,
+      latitude: 39.3,
+      longitude: -76.61,
+      sessions: 2,
     },
     {
       value: 13,
-      latitude: 41.657155,
-      longitude: -85.968446,
+      latitude: 41.61,
+      longitude: -72.65,
       sessions: 3,
     },
-    {
-      value: 3,
-      latitude: 47.73333,
-      longitude: -68.7072,
-      sessions: 3,
-    },
-    {
-      value: 7,
-      latitude: 41.492191,
-      longitude: -81.678552,
-      sessions: 3,
-    },
-    {
-      value: 4,
-      latitude: 42.349954,
-      longitude: -71.059194,
-      sessions: 3,
-    },
-    {
-      value: 5,
-      latitude: 39.8356,
-      longitude: -75.3725,
-      sessions: 3,
-    },
-    {
-      value: 7,
-      latitude: 44.3106,
-      longitude: -84.891899,
-      sessions: 3,
-    },
-    {
-      value: 5,
-      latitude: 42.325197,
-      longitude: -71.056056,
-      sessions: 3,
-    },
+    // more entries...
   ],
-  "2024-08-21 07:00:00 UTC": [
+  "2024-08-26 08:00:00 UTC": [
     {
-      value: 6,
-      latitude: 40.42735,
-      longitude: -80.59253,
+      value: 9,
+      latitude: 40.77,
+      longitude: -73.97,
       sessions: 1,
-    },
-    {
-      value: 7,
-      latitude: 41.615,
-      longitude: -71.7197,
-      sessions: 3,
-    },
-    {
-      value: 4,
-      latitude: 39.9233,
-      longitude: -77.3081,
-      sessions: 3,
-    },
-    {
-      value: 6,
-      latitude: 41.169722,
-      longitude: -85.629444,
-      sessions: 3,
-    },
-    {
-      value: 4,
-      latitude: 42.403964,
-      longitude: -82.208306,
-      sessions: 3,
     },
     {
       value: 15,
-      latitude: 40.402267,
-      longitude: -79.860942,
+      latitude: 42.35,
+      longitude: -71.08,
       sessions: 3,
     },
-    {
-      value: 60,
-      latitude: 46.492002,
-      longitude: -81.003099,
-      sessions: 3,
-    },
-    {
-      value: 13,
-      latitude: 41.657155,
-      longitude: -85.968446,
-      sessions: 3,
-    },
-    {
-      value: 3,
-      latitude: 47.73333,
-      longitude: -68.7072,
-      sessions: 3,
-    },
-    {
-      value: 77,
-      latitude: 41.492191,
-      longitude: -81.678552,
-      sessions: 3,
-    },
-    {
-      value: 4,
-      latitude: 42.349954,
-      longitude: -71.059194,
-      sessions: 3,
-    },
-    {
-      value: 5,
-      latitude: 39.8356,
-      longitude: -75.3725,
-      sessions: 3,
-    },
-    {
-      value: 7,
-      latitude: 44.3106,
-      longitude: -84.891899,
-      sessions: 3,
-    },
-    {
-      value: 44,
-      latitude: 42.325197,
-      longitude: -71.056056,
-      sessions: 1,
-    },
+    // more entries...
   ],
 };
+
+// const mockData = {
+//   "2024-08-20 08:00:00 UTC": [
+//     {
+//       value: 6,
+//       latitude: 40.42735,
+//       longitude: -80.59253,
+//       sessions: 1,
+//     },
+//     {
+//       value: 7,
+//       latitude: 41.615,
+//       longitude: -71.7197,
+//       sessions: 3,
+//     },
+//     {
+//       value: 4,
+//       latitude: 39.9233,
+//       longitude: -77.3081,
+//       sessions: 1,
+//     },
+//     {
+//       value: 6,
+//       latitude: 41.169722,
+//       longitude: -85.629444,
+//       sessions: 3,
+//     },
+//     {
+//       value: 4,
+//       latitude: 42.403964,
+//       longitude: -82.208306,
+//       sessions: 3,
+//     },
+//     {
+//       value: 15,
+//       latitude: 40.402267,
+//       longitude: -79.860942,
+//       sessions: 3,
+//     },
+//     {
+//       value: 11,
+//       latitude: 46.492002,
+//       longitude: -81.003099,
+//       sessions: 3,
+//     },
+//     {
+//       value: 13,
+//       latitude: 41.657155,
+//       longitude: -85.968446,
+//       sessions: 3,
+//     },
+//     {
+//       value: 3,
+//       latitude: 47.73333,
+//       longitude: -68.7072,
+//       sessions: 3,
+//     },
+//     {
+//       value: 7,
+//       latitude: 41.492191,
+//       longitude: -81.678552,
+//       sessions: 3,
+//     },
+//     {
+//       value: 4,
+//       latitude: 42.349954,
+//       longitude: -71.059194,
+//       sessions: 3,
+//     },
+//     {
+//       value: 5,
+//       latitude: 39.8356,
+//       longitude: -75.3725,
+//       sessions: 3,
+//     },
+//     {
+//       value: 7,
+//       latitude: 44.3106,
+//       longitude: -84.891899,
+//       sessions: 3,
+//     },
+//     {
+//       value: 5,
+//       latitude: 42.325197,
+//       longitude: -71.056056,
+//       sessions: 3,
+//     },
+//   ],
+//   "2024-08-20 09:00:00 UTC": [
+//     {
+//       value: 6,
+//       latitude: 40.42735,
+//       longitude: -80.59253,
+//       sessions: 1,
+//     },
+//     {
+//       value: 7,
+//       latitude: 41.615,
+//       longitude: -71.7197,
+//       sessions: 3,
+//     },
+//     {
+//       value: 4,
+//       latitude: 39.9233,
+//       longitude: -77.3081,
+//       sessions: 1,
+//     },
+//     {
+//       value: 6,
+//       latitude: 41.169722,
+//       longitude: -85.629444,
+//       sessions: 3,
+//     },
+//     {
+//       value: 4,
+//       latitude: 42.403964,
+//       longitude: -82.208306,
+//       sessions: 3,
+//     },
+//     {
+//       value: 15,
+//       latitude: 40.402267,
+//       longitude: -79.860942,
+//       sessions: 3,
+//     },
+//     {
+//       value: 11,
+//       latitude: 46.492002,
+//       longitude: -81.003099,
+//       sessions: 3,
+//     },
+//     {
+//       value: 13,
+//       latitude: 41.657155,
+//       longitude: -85.968446,
+//       sessions: 3,
+//     },
+//     {
+//       value: 3,
+//       latitude: 47.73333,
+//       longitude: -68.7072,
+//       sessions: 3,
+//     },
+//     {
+//       value: 7,
+//       latitude: 41.492191,
+//       longitude: -81.678552,
+//       sessions: 3,
+//     },
+//     {
+//       value: 4,
+//       latitude: 42.349954,
+//       longitude: -71.059194,
+//       sessions: 3,
+//     },
+//     {
+//       value: 5,
+//       latitude: 39.8356,
+//       longitude: -75.3725,
+//       sessions: 3,
+//     },
+//     {
+//       value: 7,
+//       latitude: 44.3106,
+//       longitude: -84.891899,
+//       sessions: 3,
+//     },
+//     {
+//       value: 5,
+//       latitude: 42.325197,
+//       longitude: -71.056056,
+//       sessions: 3,
+//     },
+//   ],
+//   "2024-08-21 07:00:00 UTC": [
+//     {
+//       value: 6,
+//       latitude: 40.42735,
+//       longitude: -80.59253,
+//       sessions: 1,
+//     },
+//     {
+//       value: 7,
+//       latitude: 41.615,
+//       longitude: -71.7197,
+//       sessions: 3,
+//     },
+//     {
+//       value: 4,
+//       latitude: 39.9233,
+//       longitude: -77.3081,
+//       sessions: 3,
+//     },
+//     {
+//       value: 6,
+//       latitude: 41.169722,
+//       longitude: -85.629444,
+//       sessions: 3,
+//     },
+//     {
+//       value: 4,
+//       latitude: 42.403964,
+//       longitude: -82.208306,
+//       sessions: 3,
+//     },
+//     {
+//       value: 15,
+//       latitude: 40.402267,
+//       longitude: -79.860942,
+//       sessions: 3,
+//     },
+//     {
+//       value: 60,
+//       latitude: 46.492002,
+//       longitude: -81.003099,
+//       sessions: 3,
+//     },
+//     {
+//       value: 13,
+//       latitude: 41.657155,
+//       longitude: -85.968446,
+//       sessions: 3,
+//     },
+//     {
+//       value: 3,
+//       latitude: 47.73333,
+//       longitude: -68.7072,
+//       sessions: 3,
+//     },
+//     {
+//       value: 77,
+//       latitude: 41.492191,
+//       longitude: -81.678552,
+//       sessions: 3,
+//     },
+//     {
+//       value: 4,
+//       latitude: 42.349954,
+//       longitude: -71.059194,
+//       sessions: 3,
+//     },
+//     {
+//       value: 5,
+//       latitude: 39.8356,
+//       longitude: -75.3725,
+//       sessions: 3,
+//     },
+//     {
+//       value: 7,
+//       latitude: 44.3106,
+//       longitude: -84.891899,
+//       sessions: 3,
+//     },
+//     {
+//       value: 44,
+//       latitude: 42.325197,
+//       longitude: -71.056056,
+//       sessions: 1,
+//     },
+//   ],
+// };
 
 interface SessionData {
   value: number;

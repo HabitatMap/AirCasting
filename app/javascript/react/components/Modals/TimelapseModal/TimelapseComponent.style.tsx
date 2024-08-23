@@ -45,7 +45,7 @@ const CancelButtonX = styled.button`
   position: relative;
   top: auto;
   right: 0;
-  bottom: -2rem;
+  bottom: 2.8rem;
   left: 0;
   height: fit-content;
   align-self: flex-end;
@@ -316,35 +316,54 @@ const Tooltip = styled.div`
 
 const TimeRangeButtonsContainer = styled.div`
   display: flex;
-  justify-content: flex-start;
+  justify-content: flex-end;
   align-items: center;
   gap: 0.5rem;
   margin-top: 1rem;
-  background-color: ${white}80;
-  padding: 0.4rem 0.8rem;
-  width: fit-content;
-  border-radius: 8px;
+  width: 100%;
+
+  @media ${media.smallDesktop} {
+    justify-content: flex-start;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 1rem;
+    background-color: ${white}80;
+    padding: 0.4rem 0.8rem;
+    width: fit-content;
+    border-radius: 8px;
+  }
 `;
 
-const TimeRangeButton = styled.button<{ isActive: boolean }>`
+const TimeRangeButton = styled.button<{ $isActive: boolean }>`
   padding: 0.7rem 1.5rem;
   margin: 0 5px;
-  background-color: ${({ isActive }) => (isActive ? acBlue : white)};
-  color: ${({ isActive }) => (isActive ? white : gray300)};
+  background-color: ${white};
+  color: ${({ $isActive }) => ($isActive ? acBlue : gray300)};
   border: none;
   border-radius: 5px;
   box-shadow: 2px 2px 4px 0px rgba(76, 86, 96, 0.1);
   font-size: 1.2rem;
+  margin: 0;
 
   cursor: pointer;
-  &:hover {
-    background-color: ${({ isActive }) => (isActive ? acBlue : white)};
+
+  @media ${media.smallDesktop} {
+    background-color: ${({ $isActive }) => ($isActive ? acBlue : white)};
+    color: ${({ $isActive }) => ($isActive ? white : gray300)};
+    &:hover {
+      background-color: ${acBlue};
+      color: ${white};
+    }
   }
 `;
 
 const TimeRangeLabel = styled.span`
-  font-size: 1.2rem;
-  color: ${gray400};
+  display: none;
+  @media ${media.smallDesktop} {
+    display: flex;
+    font-size: 1.2rem;
+    color: ${gray400};
+  }
 `;
 
 export {

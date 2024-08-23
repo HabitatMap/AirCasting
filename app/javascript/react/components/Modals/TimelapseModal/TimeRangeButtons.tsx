@@ -18,19 +18,19 @@ const TimeRangeButtons: React.FC<TimeRangeButtonsProps> = ({
     <S.TimeRangeButtonsContainer>
       <S.TimeRangeLabel>{t("timelapse.timeRange.label")}</S.TimeRangeLabel>
       <S.TimeRangeButton
-        isActive={timeRange === TimeRanges.HOURS_24}
+        $isActive={timeRange === TimeRanges.HOURS_24}
         onClick={() => onSelectTimeRange(TimeRanges.HOURS_24)}
       >
         {t("timelapse.timeRange.24hours")}
       </S.TimeRangeButton>
       <S.TimeRangeButton
-        isActive={timeRange === TimeRanges.DAYS_3}
+        $isActive={timeRange === TimeRanges.DAYS_3}
         onClick={() => onSelectTimeRange(TimeRanges.DAYS_3)}
       >
         {t("timelapse.timeRange.3days")}
       </S.TimeRangeButton>
       <S.TimeRangeButton
-        isActive={timeRange === TimeRanges.DAYS_7}
+        $isActive={timeRange === TimeRanges.DAYS_7}
         onClick={() => onSelectTimeRange(TimeRanges.DAYS_7)}
       >
         {t("timelapse.timeRange.7days")}
