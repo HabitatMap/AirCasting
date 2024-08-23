@@ -351,9 +351,12 @@ const Map = () => {
           UrlParamsTypes.currentUserSettings,
           UserSettings.CalendarView
         );
-        navigate(
-          `/fixed_stream?streamId=${selectedStreamId}&${newSearchParams.toString()}`
+        newSearchParams.set(UrlParamsTypes.sessionId, id?.toString() || "");
+        newSearchParams.set(
+          UrlParamsTypes.streamId,
+          selectedStreamId?.toString() || ""
         );
+        navigate(`/fixed_stream?${newSearchParams.toString()}`);
         return;
       }
     }

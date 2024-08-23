@@ -17,7 +17,9 @@ const getMonthWeekBoundariesForDate = (
 ): { firstDayOfMonthWeek: Moment; lastDayOfMonthWeek: Moment } => {
   const year = date.year();
   const month = date.month();
-  const firstDayOfMonthWeek = moment([year, month]).startOf("month").startOf("week");
+  const firstDayOfMonthWeek = moment([year, month])
+    .startOf("month")
+    .startOf("week");
   const lastDayOfMonthWeek = moment([year, month]).endOf("month").endOf("week");
   return { firstDayOfMonthWeek, lastDayOfMonthWeek };
 };
@@ -132,4 +134,19 @@ const selectThreeMonthsDailyAverage = createSelector(
   }
 );
 
-export { selectThreeMonthsDailyAverage };
+const selectMovingCalendarMinMax = createSelector(
+  selectMovingCalendarData,
+  (calendarData) => {
+    if (!calendarData || calendarData.length === 0) {
+      return { min: null, max: null };
+    }
+
+    const values = calendarData.map((entry) => entry.value);
+    const min = Math.min(...values);
+    const max = Math.max(...values);
+
+    return { min, max };
+  }
+);
+
+export { selectThreeMonthsDailyAverage, selectMovingCalendarMinMax };
