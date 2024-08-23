@@ -7,4 +7,5 @@ export enum UserSettings {
   ModalView = "MODAL_VIEW",
   SessionListView = "SESSION_LIST_VIEW",
   TimelapseView = "TIMELAPSE_VIEW",
+  IndoorView = "INDOOR_VIEW",
 }

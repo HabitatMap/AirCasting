@@ -53,6 +53,7 @@ export enum UrlParamsTypes {
   unitSymbol = "unitSymbol",
   usernames = "usernames",
   tags = "tags",
+  isIndoor = "isIndoor",
 }
 
 export const useMapParams = () => {
@@ -200,6 +201,7 @@ export const useMapParams = () => {
       ? parseInt(getSearchParam(UrlParamsTypes.streamId, "0")!)
       : null;
   const tags = getSearchParam(UrlParamsTypes.tags, "");
+  const isIndoor = getSearchParam(UrlParamsTypes.isIndoor, "false");
   const initialThresholds = useMemo(
     () => ({
       min: parseFloat(
@@ -364,6 +366,7 @@ export const useMapParams = () => {
     gridSize,
     limit,
     mapTypeId,
+    isIndoor,
     measurementType,
     offset,
     previousCenter,

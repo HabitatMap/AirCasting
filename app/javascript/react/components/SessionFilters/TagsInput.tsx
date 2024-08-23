@@ -27,6 +27,7 @@ const TagsInput = () => {
     tags,
     unitSymbol,
     usernames,
+    isIndoor,
   } = useMapParams();
 
   const tagsToSelect = useAppSelector(selectTags);
@@ -48,6 +49,7 @@ const TagsInput = () => {
       sensorName: sensorName,
       unitSymbol: preparedUnitSymbol,
       sessionType: selectedSessionType,
+      isIndoor: isIndoor === "true",
     };
   };
 

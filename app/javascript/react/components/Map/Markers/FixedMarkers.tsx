@@ -20,7 +20,6 @@ import { RootState } from "../../../store";
 import { fetchClusterData, setVisibility } from "../../../store/clusterSlice";
 import { useAppDispatch, useAppSelector } from "../../../store/hooks";
 import { selectHoverStreamId } from "../../../store/mapSlice";
-import { setMarkersLoading } from "../../../store/markersLoadingSlice"; // Import the action
 import { selectThresholds } from "../../../store/thresholdSlice";
 import { Session } from "../../../types/sessionType";
 import { getClusterPixelPosition } from "../../../utils/getClusterPixelPosition";
@@ -30,9 +29,10 @@ import { getColorForValue } from "../../../utils/thresholdColors";
 import { customRenderer, pulsatingRenderer } from "./ClusterConfiguration";
 import { ClusterInfo } from "./ClusterInfo/ClusterInfo";
 import HoverMarker from "./HoverMarker/HoverMarker";
-import { SessionFullMarker } from "./SessionFullMarker/SessionFullMarker";
 
+import { setMarkersLoading } from "../../../store/markersLoadingSlice";
 import type { LatLngLiteral } from "../../../types/googleMaps";
+import { SessionFullMarker } from "./SessionFullMarker/SessionFullMarker";
 type Props = {
   sessions: Session[];
   onMarkerClick: (streamId: number | null, id: number | null) => void;
@@ -64,7 +64,7 @@ const FixedMarkers = ({
   const thresholds = useAppSelector(selectThresholds);
 
   const map = useMap();
-  const { unitSymbol } = useMapParams();
+  const { unitSymbol, isIndoor } = useMapParams();
 
   const clusterer = useRef<CustomMarkerClusterer | null>(null);
   const markerRefs = useRef<{
@@ -90,6 +90,8 @@ const FixedMarkers = ({
   const markersCount = Object.values(markers).filter(
     (marker) => marker !== null
   ).length;
+
+  const isIndoorParameterInUrl = isIndoor === "true";
 
   const centerMapOnMarker = useCallback(
     (position: LatLngLiteral, streamId: string) => {
@@ -239,7 +241,7 @@ const FixedMarkers = ({
 
   useEffect(() => {
     dispatch(setMarkersLoading(true));
-  }, [dispatch, sessions.length]);
+  }, [dispatch, sessions.length, isIndoorParameterInUrl]);
 
   useEffect(() => {
     if (hoverStreamId) {
@@ -339,44 +341,56 @@ const FixedMarkers = ({
   });
 
   return (
-    <>
-      {memoizedSessions.map((session) => (
-        <AdvancedMarker
-          position={session.point}
-          key={session.point.streamId}
-          zIndex={Number(google.maps.Marker.MAX_ZINDEX + 1)}
-          title={session.lastMeasurementValue.toString()}
-          ref={(marker) => {
-            if (marker && clusterer.current) {
-              setMarkerRef(marker, session.point.streamId);
-              clusterer.current.addMarker(marker);
-            }
-          }}
-        >
-          <SessionFullMarker
-            color={getColorForValue(thresholds, session.lastMeasurementValue)}
-            value={`${Math.round(session.lastMeasurementValue)} ${unitSymbol}`}
-            isSelected={session.point.streamId === selectedStreamId?.toString()}
-            shouldPulse={session.id === pulsatingSessionId}
-            onClick={() => {
-              onMarkerClick(Number(session.point.streamId), Number(session.id));
-              centerMapOnMarker(session.point, session.point.streamId);
+    !isIndoorParameterInUrl && (
+      <>
+        {memoizedSessions.map((session) => (
+          <AdvancedMarker
+            position={session.point}
+            key={session.point.streamId}
+            zIndex={Number(google.maps.Marker.MAX_ZINDEX + 1)}
+            title={session.lastMeasurementValue.toString()}
+            ref={(marker) => {
+              if (marker && clusterer.current) {
+                setMarkerRef(marker, session.point.streamId);
+                clusterer.current.addMarker(marker);
+              }
             }}
-          />
-        </AdvancedMarker>
-      ))}
-      {hoverPosition && <HoverMarker position={hoverPosition} />}
-      {selectedCluster && clusterPosition && !clusterLoading && clusterData && (
-        <ClusterInfo
-          color={getColorForValue(thresholds, clusterData.average)}
-          average={clusterData.average}
-          numberOfSessions={clusterData.numberOfInstruments}
-          handleZoomIn={handleZoomIn}
-          position={clusterPosition}
-          visible={clusterVisible}
-        />
-      )}
-    </>
+          >
+            <SessionFullMarker
+              color={getColorForValue(thresholds, session.lastMeasurementValue)}
+              value={`${Math.round(
+                session.lastMeasurementValue
+              )} ${unitSymbol}`}
+              isSelected={
+                session.point.streamId === selectedStreamId?.toString()
+              }
+              shouldPulse={session.id === pulsatingSessionId}
+              onClick={() => {
+                onMarkerClick(
+                  Number(session.point.streamId),
+                  Number(session.id)
+                );
+                centerMapOnMarker(session.point, session.point.streamId);
+              }}
+            />
+          </AdvancedMarker>
+        ))}
+        {hoverPosition && <HoverMarker position={hoverPosition} />}
+        {selectedCluster &&
+          clusterPosition &&
+          !clusterLoading &&
+          clusterData && (
+            <ClusterInfo
+              color={getColorForValue(thresholds, clusterData.average)}
+              average={clusterData.average}
+              numberOfSessions={clusterData.numberOfInstruments}
+              handleZoomIn={handleZoomIn}
+              position={clusterPosition}
+              visible={clusterVisible}
+            />
+          )}
+      </>
+    )
   );
 };
 

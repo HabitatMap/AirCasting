@@ -17,6 +17,7 @@ import { CloseButton } from "../Map/Legend/Legend.style";
 import { CrowdMapToggle } from "./CrowdmapToggle";
 import { CustomParameterFilter } from "./CustomParameterFilter";
 import { CustomSensorFilter } from "./CustomSensorFilter";
+import { IndoorOutdoorSwitch } from "./IndoorOutdoorSwitch";
 import {
   filterCustomParameters,
   MobileDeviceParameterFilter,
@@ -132,6 +133,7 @@ const MobileSessionFilters = ({ onClose }: MobileSessionFiltersProps) => {
             <SensorFilter isBasicOpen={isBasicSensorsModalOpen} />
             <ProfileNamesInput />
             <TagsInput />
+            {fixedSessionTypeSelected && <IndoorOutdoorSwitch />}
             {!fixedSessionTypeSelected && <CrowdMapToggle />}
           </S.ModalContent>
           <S.ShowSessionsButton onClick={onClose}>

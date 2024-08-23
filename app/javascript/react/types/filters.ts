@@ -17,6 +17,7 @@ type fetchTagsParamsType = {
   sensorName: string;
   unitSymbol: string;
   sessionType: string;
+  isIndoor: boolean;
 };
 
 const ParameterTypes = {

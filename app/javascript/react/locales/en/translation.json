@@ -210,7 +210,13 @@
     "selectCustomSensor": "select custom sensor",
     "searchCustomSensors": "Search for a custom sensors",
     "selectSensorsDescription": "The sensor field describes the specific make and model of the sensor that is creating measurements.",
-    "showCustomSensors": "show custom sensors"
+    "showCustomSensors": "show custom sensors",
+    "placementOfStations": "placement of stations",
+    "indoor": "indoor",
+    "outdoor": "outdoor",
+    "indoorInfo": "Outdoor sessions are recorded by instruments located outdoors. Indoor measurements are recorded by instruments located indoors. Indoor sessions do not include geocoordinates and are therefore not geolocated on the map.",
+    "indoorMapInfo": "Indoor sessions aren't mapped to maintain privacy.",
+    "nonAirbeamIndoor": "Switch to an AirBeam sensor to display results."
   },
   "timelapse": {
     "readOnly": "This view is read-only. You can explore the map, but interaction is limited.",

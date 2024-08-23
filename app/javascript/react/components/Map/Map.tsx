@@ -108,6 +108,7 @@ const Map = () => {
     unitSymbol,
     updateFetchedSessions,
     usernames,
+    isIndoor,
   } = useMapParams();
   const isMobile = useMobileDetection();
   const navigate = useNavigate();
@@ -167,6 +168,7 @@ const Map = () => {
   const sensorNamedDecoded = decodeURIComponent(sensorName);
   const tagsDecoded = tags && decodeURIComponent(tags);
   const usernamesDecoded = usernames && decodeURIComponent(usernames);
+  const isIndoorParameterInUrl = isIndoor === "true";
 
   const isTimelapseView = currentUserSettings === UserSettings.TimelapseView;
 
@@ -177,8 +179,8 @@ const Map = () => {
   const filters = useMemo(
     () =>
       JSON.stringify({
-        time_from: "1685318400",
-        time_to: "1717027199",
+        time_from: "1692662400",
+        time_to: "1724371199",
         tags: tagsDecoded,
         usernames: usernamesDecoded,
         west: boundWest,
@@ -191,6 +193,7 @@ const Map = () => {
         measurement_type: measurementType,
         unit_symbol: encodedUnitSymbol,
         zoom_level: zoomLevel,
+        is_indoor: isIndoorParameterInUrl,
       }),
     [
       boundEast,
@@ -205,6 +208,7 @@ const Map = () => {
       tagsDecoded,
       usernamesDecoded,
       zoomLevel,
+      isIndoorParameterInUrl,
     ]
   );
 
@@ -213,7 +217,6 @@ const Map = () => {
   }, [sensorName, encodedUnitSymbol]);
 
   // Effects
-
   useEffect(() => {
     dispatch(fetchSensors(sessionType));
   }, [sessionType]);
@@ -310,12 +313,18 @@ const Map = () => {
 
   useEffect(() => {
     if (streamId && currentUserSettings === UserSettings.ModalView) {
-      dispatch(setMarkersLoading(true));
+      previousUserSettings !== UserSettings.IndoorView &&
+        dispatch(setMarkersLoading(true));
       fixedSessionTypeSelected
         ? dispatch(fetchFixedStreamById(streamId))
         : dispatch(fetchMobileStreamById(streamId));
     }
-  }, [streamId, currentUserSettings, fixedSessionTypeSelected]);
+  }, [
+    streamId,
+    currentUserSettings,
+    fixedSessionTypeSelected,
+    previousUserSettings,
+  ]);
 
   useEffect(() => {
     if (realtimeMapUpdates) {
@@ -430,7 +439,10 @@ const Map = () => {
     }
 
     if (selectedStreamId) {
-      dispatch(setMarkersLoading(true));
+      currentUserSettings !== UserSettings.IndoorView ||
+        (isMobile &&
+          !isIndoorParameterInUrl &&
+          dispatch(setMarkersLoading(true)));
       fixedSessionTypeSelected
         ? dispatch(fetchFixedStreamById(selectedStreamId))
         : dispatch(fetchMobileStreamById(selectedStreamId));
@@ -480,9 +492,11 @@ const Map = () => {
 
   const setPreviousZoomOnTheMap = () => {
     if (
-      [UserSettings.MapView, UserSettings.CrowdMapView].includes(
-        currentUserSettings
-      ) &&
+      [
+        UserSettings.MapView,
+        UserSettings.CrowdMapView,
+        UserSettings.IndoorView,
+      ].includes(currentUserSettings) &&
       ![
         UserSettings.MapView,
         UserSettings.MapLegendView,
@@ -596,7 +610,8 @@ const Map = () => {
         {isTimelapseView
           ? renderTimelapseMarkers()
           : fixedSessionsStatusFulfilled &&
-            fixedSessionTypeSelected && (
+            fixedSessionTypeSelected &&
+            !isIndoorParameterInUrl && (
               <FixedMarkers
                 sessions={sessionsPoints}
                 onMarkerClick={handleMarkerClick}
@@ -729,9 +744,11 @@ const Map = () => {
           />
         )}
       </S.MobileContainer>
-      {[UserSettings.MapView, UserSettings.CrowdMapView].includes(
-        currentUserSettings
-      ) && (
+      {[
+        UserSettings.MapView,
+        UserSettings.CrowdMapView,
+        UserSettings.IndoorView,
+      ].includes(currentUserSettings) && (
         <S.DesktopContainer>
           <SessionsListView
             sessions={listSessions.map((session) => ({
