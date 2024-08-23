@@ -341,6 +341,7 @@ const Map = () => {
         : dispatch(fetchMobileStreamById(selectedStreamId));
     }
 
+    // Ensure sessionId is set in the URL for mobile devices
     if (isMobile) {
       if (fixedSessionTypeSelected) {
         newSearchParams.set(
@@ -351,13 +352,17 @@ const Map = () => {
           UrlParamsTypes.currentUserSettings,
           UserSettings.CalendarView
         );
-        navigate(
-          `/fixed_stream?streamId=${selectedStreamId}&${newSearchParams.toString()}`
+        newSearchParams.set(UrlParamsTypes.sessionId, id?.toString() || ""); // Add this line
+        newSearchParams.set(
+          UrlParamsTypes.streamId,
+          selectedStreamId?.toString() || ""
         );
+        navigate(`/fixed_stream?${newSearchParams.toString()}`);
         return;
       }
     }
 
+    // Update sessionId and streamId in the URL for desktop or general case
     if (!streamId) {
       newSearchParams.set(UrlParamsTypes.sessionId, id?.toString() || "");
       newSearchParams.set(
