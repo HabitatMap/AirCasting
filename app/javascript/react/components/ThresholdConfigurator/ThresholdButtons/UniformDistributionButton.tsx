@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useMemo } from "react";
 import { useAppDispatch, useAppSelector } from "../../../store/hooks";
 import { RootState } from "../../../store";
 import { UniformDistributionIcon } from "./Icons/UniformDistributionIcon";
@@ -11,6 +11,7 @@ import { setUserThresholdValues } from "../../../store/thresholdSlice";
 import { useMapParams } from "../../../utils/mapParamsHandler";
 import { useTranslation } from "react-i18next";
 import { selectMovingCalendarMinMax } from "../../../store/movingStreamSelectors";
+import { UserSettings } from "../../../types/userStates";
 
 interface UniformDistributionButtonProps {
   variant?: ThresholdButtonVariant;
@@ -28,63 +29,45 @@ const UniformDistributionButton: React.FC<UniformDistributionButtonProps> = ({
   hasErrorMessage,
 }) => {
   const dispatch = useAppDispatch();
-  const { sessionId } = useMapParams();
+  const { sessionId, currentUserSettings } = useMapParams();
   const { t } = useTranslation();
 
   const mobileStream = useAppSelector((state: RootState) => state.mobileStream);
   const fixedStream = useAppSelector((state: RootState) => state.fixedStream);
-  const calendarMinMax = useAppSelector(selectMovingCalendarMinMax);
+  const calendarMinMaxValues = useAppSelector(selectMovingCalendarMinMax);
+
   const defaultButtonText = t(
     "thresholdConfigurator.uniformDistributionButtonDesktop"
   );
+  const isCalendarView = currentUserSettings === UserSettings.CalendarView;
 
-  const streamMinMaxValues = React.useMemo(() => {
+  const streamMinMaxValues = useMemo(() => {
     return calculateMinMaxValues(mobileStream, fixedStream, sessionId);
   }, [mobileStream, fixedStream, sessionId]);
 
-  const combinedMinMaxValues = React.useMemo(() => {
-    const allMinValues = [streamMinMaxValues?.min, calendarMinMax?.min].filter(
-      (value) => value !== null && value !== undefined
-    );
-
-    const allMaxValues = [streamMinMaxValues?.max, calendarMinMax?.max].filter(
-      (value) => value !== null && value !== undefined
-    );
-
-    const min = allMinValues.length > 0 ? Math.min(...allMinValues) : null;
-    const max = allMaxValues.length > 0 ? Math.max(...allMaxValues) : null;
-
-    if (min === null || max === null) {
-      return null;
-    }
-
-    return { min, max };
-  }, [streamMinMaxValues, calendarMinMax]);
+  const minMaxValues = useMemo(() => {
+    const minMax = isCalendarView ? calendarMinMaxValues : streamMinMaxValues;
+    const min = minMax?.min ?? null;
+    const max = minMax?.max ?? null;
+    return min !== null && max !== null ? { min, max } : null;
+  }, [isCalendarView, streamMinMaxValues, calendarMinMaxValues]);
 
   const distributeThresholds = () => {
-    if (!combinedMinMaxValues) {
+    if (!minMaxValues) {
       hasErrorMessage(t("thresholdConfigurator.noValidDataErrorMessage"));
       console.error("No valid data available to distribute thresholds.");
-
-      setTimeout(() => {
-        hasErrorMessage("");
-      }, 3000);
-
+      setTimeout(() => hasErrorMessage(""), 3000);
       return;
     }
 
-    const { min, max } = combinedMinMaxValues;
+    const { min, max } = minMaxValues;
 
     if (min === max) {
       hasErrorMessage(t("thresholdConfigurator.sameValuesError"));
       console.error(
         "While using discrete uniform distribution, the Min and Max values cannot both be the same."
       );
-
-      setTimeout(() => {
-        hasErrorMessage("");
-      }, 3000);
-
+      setTimeout(() => hasErrorMessage(""), 3000);
       return;
     }
 
