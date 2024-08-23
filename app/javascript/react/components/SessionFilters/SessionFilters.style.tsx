@@ -4,6 +4,7 @@ import {
   acBlue,
   acBlueTransparent,
   black,
+  blue,
   gray100,
   gray200,
   gray300,
@@ -210,6 +211,41 @@ const InfoPopup = styled(SmallPopup)`
 `;
 
 const CrowdMapButton = styled(Button)``;
+
+const CrowdMapSettingsContainer = styled.div`
+  display: grid;
+  grid-template-columns: 1fr;
+  grid-template-rows: auto auto;
+  // grid-gap: 0.8rem; // unused until grid size selector is added
+  justify-content: center;
+  align-items: center;
+  border: 1px solid ${gray200};
+  min-height: 4.2rem;
+  width: 100%;
+  padding: 1.1rem 1.6rem;
+  border-radius: 0.5rem;
+`;
+
+const CrowdMapToggleWrapper = styled.div`
+  display: grid;
+  grid-template-columns: auto 1fr;
+  grid-gap: 0.8rem;
+  align-items: center;
+  font-size: 1.4rem;
+  color: ${gray600};
+  width: 100%;
+`;
+
+const CrowdMapToggleText = styled.span<{ $isActive?: boolean }>`
+  &::first-letter {
+    text-transform: uppercase;
+  }
+`;
+
+const CrowdMapToggleOnOff = styled.span`
+  text-transform: uppercase;
+  font-weight: 700;
+`;
 
 const SelectedOptionButton = styled(Button)<{ $isActive: boolean }>`
   width: 100%;
@@ -494,6 +530,10 @@ export {
   ChevronIcon,
   CloseSelectedItemButton,
   CrowdMapButton,
+  CrowdMapSettingsContainer,
+  CrowdMapToggleText,
+  CrowdMapToggleOnOff,
+  CrowdMapToggleWrapper,
   CustomParameter,
   CustomParameterItem,
   CustomParameterList,
