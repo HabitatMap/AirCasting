@@ -7,6 +7,8 @@ import { UrlParamsTypes, useMapParams } from "../../utils/mapParamsHandler";
 import * as S from "./SessionFilters.style";
 import { FilterInfoPopup } from "./FilterInfoPopup";
 import { Toggle } from "../Toggle/Toggle";
+import { CrowdMapGridSize } from "./CrowdMapGridSize";
+
 const CrowdMapToggle = () => {
   const {
     currentUserSettings,
@@ -29,6 +31,7 @@ const CrowdMapToggle = () => {
   const [isCrowdMapActive, setIsCrowdMapActive] = useState(
     getInitialCrowdMapState
   );
+  const [renderGridSize, setRenderGridSize] = useState(isCrowdMapActive);
 
   const isFiltersViewActive = currentUserSettings === UserSettings.FiltersView;
 
@@ -72,7 +75,14 @@ const CrowdMapToggle = () => {
         newCheckedState ? UserSettings.CrowdMapView : UserSettings.MapView
       );
     }
-    setIsCrowdMapActive(newCheckedState);
+
+    if (newCheckedState) {
+      setRenderGridSize(true);
+      setIsCrowdMapActive(true);
+    } else {
+      setIsCrowdMapActive(false);
+      setTimeout(() => setRenderGridSize(false), 500);
+    }
   }, [
     isCrowdMapActive,
     isMobile,
@@ -84,7 +94,7 @@ const CrowdMapToggle = () => {
   return (
     <S.Wrapper>
       <S.SingleFilterWrapper>
-        <S.CrowdMapSettingsContainer>
+        <S.CrowdMapSettingsContainer $isCrowdMapActive={isCrowdMapActive}>
           <S.CrowdMapToggleWrapper onClick={handleToggleClick}>
             <Toggle
               isChecked={isCrowdMapActive}
@@ -102,6 +112,12 @@ const CrowdMapToggle = () => {
               </S.CrowdMapToggleOnOff>
             </S.CrowdMapToggleText>
           </S.CrowdMapToggleWrapper>
+          {renderGridSize && (
+            <S.CrowdMapGridSizeWrapper isVisible={isCrowdMapActive}>
+              {t("filters.crowdMapGridCellSizeHeader")}
+              <CrowdMapGridSize />
+            </S.CrowdMapGridSizeWrapper>
+          )}
         </S.CrowdMapSettingsContainer>
         <FilterInfoPopup filterTranslationLabel="filters.crowdMapInfo" />
       </S.SingleFilterWrapper>
