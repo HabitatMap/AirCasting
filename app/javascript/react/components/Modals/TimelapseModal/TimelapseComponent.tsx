@@ -3,13 +3,18 @@ import React, { useCallback, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import type { PopupProps } from "reactjs-popup/dist/types";
 import closeTimelapseButton from "../../../assets/icons/closeTimelapseButton.svg";
-import { useAppSelector } from "../../../store/hooks";
-import { selectTimelapseIsLoading } from "../../../store/timelapseSlice";
+import { useAppDispatch, useAppSelector } from "../../../store/hooks";
+import {
+  fetchTimelapseData,
+  selectTimelapseIsLoading,
+} from "../../../store/timelapseSlice";
 import { DateFormat } from "../../../types/dateFormat";
+import { TimeRanges } from "../../../types/timelapse";
 import { useAutoDismissAlert } from "../../../utils/useAutoDismissAlert";
 import NavigationButtons from "./NavigationButtons";
 import TimeAxis from "./TimeAxis";
 import * as S from "./TimelapseComponent.style";
+import TimeRangeButtons from "./TimeRangeButtons";
 
 interface TimelapseComponentProps {
   onClose: () => void;
@@ -50,10 +55,24 @@ const TimelapseComponent: React.FC<
     }, []);
 
     const { t } = useTranslation();
+    const dispatch = useAppDispatch();
     const [showReadOnlyPopup, setShowReadOnlyPopup] = useState(false);
     const overlayRef = useRef<HTMLDivElement>(null);
 
     const isLoading = useAppSelector(selectTimelapseIsLoading);
+    const [timeRange, setTimeRange] = useState<TimeRanges>(TimeRanges.HOURS_24);
+
+    const fetchDataForTimeRange = useCallback(
+      (range: TimeRanges) => {
+        dispatch(fetchTimelapseData({ filters: range }));
+        setTimeRange(range);
+      },
+      [dispatch]
+    );
+
+    useEffect(() => {
+      fetchDataForTimeRange(TimeRanges.HOURS_24);
+    }, [fetchDataForTimeRange]);
 
     const closeHandler = useCallback(() => {
       resetTimelapse();
@@ -122,7 +141,10 @@ const TimelapseComponent: React.FC<
                     timestamps={timestamps}
                   />
                 </S.TimeAxisContainer>
-
+                <TimeRangeButtons
+                  timeRange={timeRange}
+                  onSelectTimeRange={fetchDataForTimeRange}
+                />
                 <S.CancelButtonX onClick={close}>
                   <img src={closeTimelapseButton} alt={t("navbar.altClose")} />
                 </S.CancelButtonX>

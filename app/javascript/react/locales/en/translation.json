@@ -217,6 +217,12 @@
     "altPlay": "Play icon",
     "altPause": "Pause icon",
     "altSkipLeft": "Skip left icon",
-    "altSkipRight": "Skip right icon"
+    "altSkipRight": "Skip right icon",
+    "timeRange": {
+      "label": "Time range",
+      "7days": "7 days",
+      "3days": "3 days",
+      "24hours": "24 hours"
+    }
   }
 }
