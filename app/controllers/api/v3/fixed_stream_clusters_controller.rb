@@ -45,8 +45,8 @@ module Api
 
         Api::ParamsForm.new(
           params: q,
-          schema: Api::FixedSessions::Schema,
-          struct: Api::FixedSessions::Struct
+          schema: Api::Timelapse::Schema,
+          struct: Api::Timelapse::Struct
         )
       end
 
