@@ -25,7 +25,7 @@ module Api
             sessions: sessions,
             begining_of_first_time_slice: begining_of_first_time_slice,
             end_of_last_time_slice: end_of_last_time_slice,
-            sensor_name: data[:sensor_name]
+            sensor_name: data[:sensor_name],
             zoom_level: zoom_level
           )
 
