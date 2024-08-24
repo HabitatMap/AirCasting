@@ -15,12 +15,19 @@ module Api
         start_time = Time.current
         sessions = FixedSession.active.filter_(data)
 
-        zoom_level = data[:zoom_level] || 5
+        zoom_level = data[:zoom_level].presence || 5
 
         end_of_last_time_slice = Time.current.end_of_hour - 1.hour
         begining_of_first_time_slice = end_of_last_time_slice.beginning_of_hour - 168.hours
 
-        result = Timelapse::ClustersCreator.new.call(sessions: sessions, begining_of_first_time_slice: begining_of_first_time_slice, end_of_last_time_slice: end_of_last_time_slice, sensor_name: data[:sensor_name])
+        result =
+          Timelapse::ClustersCreator.new.call(
+            sessions: sessions,
+            begining_of_first_time_slice: begining_of_first_time_slice,
+            end_of_last_time_slice: end_of_last_time_slice,
+            sensor_name: data[:sensor_name]
+            zoom_level: zoom_level
+          )
 
         render json: result, status: :ok
       end
