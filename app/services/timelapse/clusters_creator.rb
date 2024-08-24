@@ -10,7 +10,7 @@ module Timelapse
       selected_sensor_streams = streams.select { |stream| Sensor.sensor_name(sensor_name).include? stream.sensor_name.downcase }
 
       time_now = Time.current
-      clusters = cluster_measurements(selected_sensor_streams, determine_clustering_distance(data[:zoom_level]))
+      clusters = cluster_measurements(selected_sensor_streams, determine_clustering_distance(zoom_level))
       Rails.logger.info("Clusters creation took #{Time.current - time_now} seconds")
 
       time_now = Time.current
