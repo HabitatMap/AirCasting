@@ -37,7 +37,7 @@ module Timelapse
               m.longitude
             FROM measurements m
             WHERE m.stream_id IN (?)
-            ORDER BY m.stream_id, RANDOM()
+            ORDER BY m.stream_id, m.time DESC
           )
           SELECT
             rm.stream_id,
