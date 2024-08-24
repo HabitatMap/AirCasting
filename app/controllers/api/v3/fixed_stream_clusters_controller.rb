@@ -14,7 +14,7 @@ module Api
       def index2
         sessions = FixedSession.active.filter_(data)
 
-        zoom_level = data[:zoom_level].presence || 1
+        zoom_level = data[:zoom_level] || 1
 
         Rails.logger.info("zoom_level: #{zoom_level}")
 
