@@ -23,8 +23,11 @@ module Timelapse
       sql = ActiveRecord::Base.sanitize_sql_array([
         <<-SQL, stream_ids, distance
           WITH random_measurements AS (
-            SELECT DISTINCT ON (m.stream_id) m.stream_id,
-              ST_Transform(m.location, 3857) as projected_location
+            SELECT DISTINCT ON (m.stream_id)
+              m.stream_id,
+              ST_Transform(m.location, 3857) as projected_location,
+              m.latitude,
+              m.longitude
             FROM measurements m
             WHERE m.stream_id IN (?)
             ORDER BY m.stream_id, RANDOM()
@@ -32,50 +35,38 @@ module Timelapse
           SELECT
             rm.stream_id,
             rm.projected_location,
+            rm.latitude,
+            rm.longitude,
             ST_ClusterDBSCAN(rm.projected_location, eps := ?, minpoints := 1) OVER () as cluster_id
           FROM
             random_measurements rm
         SQL
       ])
 
-      # Execute the query
       result = ActiveRecord::Base.connection.exec_query(sql)
 
-      # Group the results by cluster_id while keeping the location data
-      clusters = result.rows.group_by { |row| row[2] } # row[2] is the cluster_id
-      clusters.transform_values { |rows| rows.map { |row| [row[0], row[1]] } } # Keep both stream_id and location
+      clusters = result.rows.group_by { |row| row[4] } # row[4] is the cluster_id
+      clusters.transform_values { |rows| rows.map { |row| [row[0], row[1], row[2], row[3]] } } # Keep stream_id, location, latitude, and longitude
     end
-
 
     def calculate_centroids_for_clusters(clusters)
       clusters.map do |cluster_id, measurements|
-        # Extract the hex-encoded WKT locations for this cluster
-        wkts = measurements.map { |_, wkt| wkt }.reject(&:blank?)
+        latitudes = measurements.map { |_, _, latitude, _| latitude.to_f }
+        longitudes = measurements.map { |_, _, _, longitude| longitude.to_f }
 
-        # Skip clusters with no valid geometries
-        next if wkts.empty?
+        next if latitudes.empty? || longitudes.empty?
 
-        # Convert the hex-encoded EWKB to WKT using ST_AsText
-        wkts_as_text = wkts.map { |wkt| "ST_GeomFromEWKB('\\x#{wkt}')" }
-
-        # Create a PostGIS query to calculate the centroid and transform it back to EPSG:4326
-        centroid_sql = <<-SQL
-          SELECT
-            ST_X(ST_Transform(ST_Centroid(ST_Collect(ARRAY[#{wkts_as_text.join(', ')}])), 4326)) AS longitude,
-            ST_Y(ST_Transform(ST_Centroid(ST_Collect(ARRAY[#{wkts_as_text.join(', ')}])), 4326)) AS latitude
-        SQL
-
-        # Execute the query to get the centroid coordinates
-        centroid_result = ActiveRecord::Base.connection.exec_query(centroid_sql).first
+        centroid_latitude = latitudes.sum / latitudes.size
+        centroid_longitude = longitudes.sum / longitudes.size
 
         {
           cluster_id: cluster_id,
-          latitude: centroid_result['latitude'].to_f,
-          longitude: centroid_result['longitude'].to_f,
-          stream_ids: measurements.map { |measurement| measurement[0] }, # Extract stream_ids
+          latitude: centroid_latitude,
+          longitude: centroid_longitude,
+          stream_ids: measurements.map { |measurement| measurement[0] },
           session_count: measurements.size
         }
-      end.compact # Remove any nil results for clusters with no valid geometries
+      end.compact
     end
 
     def process_clusters(clusters, begining_of_first_time_slice, end_of_last_time_slice)
