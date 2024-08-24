@@ -14,6 +14,8 @@ module Api
       def index2
         sessions = FixedSession.active.filter_(data)
 
+        Rails.logger.info("data: #{data}")
+
         zoom_level = data[:zoom_level] || 1
 
         Rails.logger.info("zoom_level: #{zoom_level}")
