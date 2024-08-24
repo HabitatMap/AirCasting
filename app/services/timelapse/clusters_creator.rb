@@ -9,10 +9,8 @@ module Timelapse
       streams = Stream.where(session_id: sessions.pluck('sessions.id'))
       selected_sensor_streams = streams.select { |stream| Sensor.sensor_name(sensor_name).include? stream.sensor_name.downcase }
 
-      # clusters = cluster_measurements(selected_sensor_streams, determine_clustering_distance(data[:zoom_level]))
-
       time_now = Time.current
-      clusters = cluster_measurements(selected_sensor_streams, 100000)
+      clusters = cluster_measurements(selected_sensor_streams, determine_clustering_distance(data[:zoom_level]))
       Rails.logger.info("Clusters creation took #{Time.current - time_now} seconds")
 
       time_now = Time.current
@@ -102,6 +100,14 @@ module Timelapse
       end
 
       result
+    end
+
+    def determine_clustering_distance(zoom_level)
+      base_distance = 500000
+
+      clustering_distance = base_distance / (2**zoom_level)
+
+      [clustering_distance, 10].max
     end
   end
 end
