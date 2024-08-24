@@ -12,10 +12,11 @@ module Api
       end
 
       def index2
-        start_time = Time.current
         sessions = FixedSession.active.filter_(data)
 
         zoom_level = data[:zoom_level].presence || 1
+
+        Rails.logger.info("zoom_level: #{zoom_level}")
 
         end_of_last_time_slice = Time.current.end_of_hour - 1.hour
         begining_of_first_time_slice = end_of_last_time_slice.beginning_of_hour - 168.hours
