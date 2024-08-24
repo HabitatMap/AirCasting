@@ -24,7 +24,7 @@ module Api
         begining_of_first_time_slice = end_of_last_time_slice.beginning_of_hour - 168.hours
 
         result =
-          Timelapse::ClustersCreator.new.call(
+          ::Timelapse::ClustersCreator.new.call(
             sessions: sessions,
             begining_of_first_time_slice: begining_of_first_time_slice,
             end_of_last_time_slice: end_of_last_time_slice,
