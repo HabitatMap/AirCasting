@@ -4,7 +4,7 @@ module Timelapse
       @measurements_repository = MeasurementsRepository.new
     end
 
-    def call(sessions:, begining_of_first_time_slice:, end_of_last_time_slice:, sensor_name:)
+    def call(sessions:, begining_of_first_time_slice:, end_of_last_time_slice:, sensor_name:, zoom_level:)
 
       streams = Stream.where(session_id: sessions.pluck('sessions.id'))
       selected_sensor_streams = streams.select { |stream| Sensor.sensor_name(sensor_name).include? stream.sensor_name.downcase }
@@ -22,6 +22,8 @@ module Timelapse
       time_now = Time.current
       clusters = process_clusters(clusters, begining_of_first_time_slice, end_of_last_time_slice)
       Rails.logger.info("Clusters processing took #{Time.current - time_now} seconds")
+
+      clusters
     end
 
     def cluster_measurements(selected_sensor_streams, distance)
