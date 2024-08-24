@@ -10,11 +10,18 @@ module Timelapse
       selected_sensor_streams = streams.select { |stream| Sensor.sensor_name(sensor_name).include? stream.sensor_name.downcase }
 
       # clusters = cluster_measurements(selected_sensor_streams, determine_clustering_distance(data[:zoom_level]))
+
+      time_now = Time.current
       clusters = cluster_measurements(selected_sensor_streams, 100000)
+      Rails.logger.info("Clusters creation took #{Time.current - time_now} seconds")
 
+      time_now = Time.current
       clusters = calculate_centroids_for_clusters(clusters)
+      Rails.logger.info("Centroids calculation took #{Time.current - time_now} seconds")
 
+      time_now = Time.current
       clusters = process_clusters(clusters, begining_of_first_time_slice, end_of_last_time_slice)
+      Rails.logger.info("Clusters processing took #{Time.current - time_now} seconds")
     end
 
     def cluster_measurements(selected_sensor_streams, distance)
