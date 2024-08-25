@@ -12,7 +12,7 @@ module Api
       end
 
       def index2
-        sessions = FixedSession.active.filter_(data)
+        sessions = FixedSession.active_for_last_days(days: 7).filter_(data)
 
         Rails.logger.info("data: #{data}")
 
