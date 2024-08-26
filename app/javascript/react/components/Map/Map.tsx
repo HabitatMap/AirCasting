@@ -155,6 +155,8 @@ const Map = () => {
 
   const isTimelapseView = currentUserSettings === UserSettings.TimelapseView;
 
+  const zoomLevel = !Number.isNaN(currentZoom) ? Math.round(currentZoom) : 5;
+
   const filters = useMemo(
     () =>
       // Change timeFrom and timeTo also in TagsInput
@@ -172,6 +174,7 @@ const Map = () => {
         sensor_name: sensorNamedDecoded.toLowerCase(),
         measurement_type: measurementType,
         unit_symbol: encodedUnitSymbol,
+        zoom_level: zoomLevel,
       }),
     [
       boundEast,
@@ -185,6 +188,7 @@ const Map = () => {
       sensorNamedDecoded,
       tagsDecoded,
       usernamesDecoded,
+      zoomLevel,
     ]
   );
 
@@ -468,7 +472,7 @@ const Map = () => {
         ? Math.round(currentZoom)
         : 5;
 
-      dispatch(fetchTimelapseData({ filters: filters, zoom: zoomLevel }));
+      dispatch(fetchTimelapseData({ filters: filters }));
     }
   }, [currentUserSettings, sessionsPoints]);
 

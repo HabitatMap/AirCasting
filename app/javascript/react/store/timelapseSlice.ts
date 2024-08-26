@@ -136,7 +136,6 @@ const initialState: TimelapseState = {
 
 interface TimelapseFilters {
   filters: string;
-  zoom: number;
 }
 
 // const initialState: TimelapseState = {
@@ -173,11 +172,11 @@ export const fetchTimelapseData = createAsyncThunk<
   "timelapse/fetchData",
   async (sessionsData, { rejectWithValue }) => {
     try {
-      const zoomLevel = sessionsData.zoom.toString();
+
 
       const response: AxiosResponse<{ [timestamp: string]: SessionData[] }> =
         await apiClient.get(
-          API_ENDPOINTS.fetchTimelapseData(sessionsData.filters, zoomLevel)
+          API_ENDPOINTS.fetchTimelapseData(sessionsData.filters)
         );
 
       return response.data;
