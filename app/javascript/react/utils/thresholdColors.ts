@@ -14,7 +14,6 @@ const getColorForValue = (
   thresholdValues: Thresholds,
   value: number | null
 ) => {
-  console.log("value", value);
   const defaultColor = "transparent";
 
   if (value !== 0 && !value) return defaultColor;
