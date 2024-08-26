@@ -24,7 +24,7 @@ const CrowdMapGridSize = () => {
         <S.CrowdGridSizeButton
           key={size}
           onClick={() => handleGridSize(size)}
-          $isActive={gridSize === size}
+          $isActive={gridSize === 51 - size}
         >
           {size}
         </S.CrowdGridSizeButton>
