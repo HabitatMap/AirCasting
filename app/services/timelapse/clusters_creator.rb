@@ -24,35 +24,41 @@ module Timelapse
     end
 
     def cluster_measurements(selected_sensor_streams, zoom_level)
+      stream_ids = selected_sensor_streams.pluck(:id)
+
       # Define grid cell size based on zoom level (adjust the base size as needed)
       grid_cell_size = determine_grid_cell_size(zoom_level)
 
       # Calculate clusters using grid-based approach
       grid = Hash.new { |hash, key| hash[key] = [] }
 
-      # Query only one latitude and longitude per stream
+      # Fetch the last measurement for each stream to get its latitude and longitude
       sql = ActiveRecord::Base.sanitize_sql_array([
-        <<-SQL, selected_sensor_streams.pluck(:id)
-          SELECT
-            s.id AS stream_id,
-            s.latitude,
-            s.longitude
-          FROM streams s
-          WHERE s.id IN (?)
+        <<-SQL, stream_ids
+          WITH last_measurements AS (
+            SELECT DISTINCT ON (m.stream_id)
+              m.stream_id,
+              m.latitude,
+              m.longitude
+            FROM measurements m
+            WHERE m.stream_id IN (?)
+            ORDER BY m.stream_id, m.time DESC
+          )
+          SELECT stream_id, latitude, longitude FROM last_measurements
         SQL
       ])
 
       result = ActiveRecord::Base.connection.exec_query(sql)
 
-      # Group streams into grid cells based on lat/lon
+      # Group stream locations into grid cells
       result.rows.each do |row|
         stream_id, latitude, longitude = row
 
-        # Determine the grid cell this stream belongs to
+        # Determine the grid cell this point belongs to
         cell_x = (longitude.to_f / grid_cell_size).floor
         cell_y = (latitude.to_f / grid_cell_size).floor
 
-        # Assign the stream to the appropriate grid cell
+        # Assign the point to the appropriate grid cell
         grid[[cell_x, cell_y]] << { stream_id: stream_id, latitude: latitude.to_f, longitude: longitude.to_f }
       end
 
