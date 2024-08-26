@@ -24,37 +24,35 @@ module Timelapse
     end
 
     def cluster_measurements(selected_sensor_streams, zoom_level)
-      stream_ids = selected_sensor_streams.pluck(:id)
-
       # Define grid cell size based on zoom level (adjust the base size as needed)
       grid_cell_size = determine_grid_cell_size(zoom_level)
 
       # Calculate clusters using grid-based approach
       grid = Hash.new { |hash, key| hash[key] = [] }
 
+      # Query only one latitude and longitude per stream
       sql = ActiveRecord::Base.sanitize_sql_array([
-        <<-SQL, stream_ids
+        <<-SQL, selected_sensor_streams.pluck(:id)
           SELECT
-            m.stream_id,
-            m.latitude,
-            m.longitude
-          FROM measurements m
-          WHERE m.stream_id IN (?)
-          ORDER BY m.stream_id, m.time DESC
+            s.id AS stream_id,
+            s.latitude,
+            s.longitude
+          FROM streams s
+          WHERE s.id IN (?)
         SQL
       ])
 
       result = ActiveRecord::Base.connection.exec_query(sql)
 
-      # Group measurements into grid cells
+      # Group streams into grid cells based on lat/lon
       result.rows.each do |row|
         stream_id, latitude, longitude = row
 
-        # Determine the grid cell this point belongs to
+        # Determine the grid cell this stream belongs to
         cell_x = (longitude.to_f / grid_cell_size).floor
         cell_y = (latitude.to_f / grid_cell_size).floor
 
-        # Assign the point to the appropriate grid cell
+        # Assign the stream to the appropriate grid cell
         grid[[cell_x, cell_y]] << { stream_id: stream_id, latitude: latitude.to_f, longitude: longitude.to_f }
       end
 
@@ -72,9 +70,9 @@ module Timelapse
     end
 
     def calculate_centroids_for_clusters(clusters)
-      clusters.map do |measurements|
-        latitudes = measurements.map { |measurement| measurement[:latitude] }
-        longitudes = measurements.map { |measurement| measurement[:longitude] }
+      clusters.map do |streams|
+        latitudes = streams.map { |stream| stream[:latitude] }
+        longitudes = streams.map { |stream| stream[:longitude] }
 
         next if latitudes.empty? || longitudes.empty?
 
@@ -84,8 +82,8 @@ module Timelapse
         {
           latitude: centroid_latitude,
           longitude: centroid_longitude,
-          stream_ids: measurements.map { |measurement| measurement[:stream_id] },
-          session_count: measurements.size
+          stream_ids: streams.map { |stream| stream[:stream_id] },
+          session_count: streams.size
         }
       end.compact
     end
