@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useCallback } from "react";
 
 import { setFetchingCrowdMapData } from "../../store/crowdMapSlice";
 import { useAppDispatch } from "../../store/hooks";
@@ -11,12 +11,15 @@ const CrowdMapGridSize = () => {
   const dispatch = useAppDispatch();
   const { setFilters, gridSize } = useMapParams();
 
-  const handleGridSize = (size: number) => {
-    setFilters(UrlParamsTypes.gridSize, (51 - size).toString());
-    setTimeout(() => {
-      dispatch(setFetchingCrowdMapData(true));
-    }, 200);
-  };
+  const handleGridSize = useCallback(
+    (size: number) => {
+      setFilters(UrlParamsTypes.gridSize, (51 - size).toString());
+      setTimeout(() => {
+        dispatch(setFetchingCrowdMapData(true));
+      }, 200);
+    },
+    [dispatch, gridSize, setFilters]
+  );
 
   return (
     <S.CrowdMapGridButtonsContainer>
