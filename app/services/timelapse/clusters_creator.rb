@@ -2,64 +2,60 @@ module Timelapse
   class ClustersCreator
     def initialize
       @measurements_repository = MeasurementsRepository.new
+      @streams_repository = StreamsRepository.new
     end
 
     def call(sessions:, begining_of_first_time_slice:, end_of_last_time_slice:, sensor_name:, zoom_level:)
-
-      streams = Stream.where(session_id: sessions.pluck('sessions.id'))
+      streams = streams_repository.find_by_session_id(sessions.pluck(:id))
       selected_sensor_streams = streams.select { |stream| Sensor.sensor_name(sensor_name).include? stream.sensor_name.downcase }
 
-      time_now = Time.current
-      clusters = cluster_measurements(selected_sensor_streams, determine_clustering_distance(zoom_level))
-      Rails.logger.info("Clusters creation took #{Time.current - time_now} seconds")
+      clusters = cluster_measurements(selected_sensor_streams, zoom_level)
 
-      time_now = Time.current
       clusters = calculate_centroids_for_clusters(clusters)
-      Rails.logger.info("Centroids calculation took #{Time.current - time_now} seconds")
 
-      time_now = Time.current
       clusters = process_clusters(clusters, begining_of_first_time_slice, end_of_last_time_slice)
-      Rails.logger.info("Clusters processing took #{Time.current - time_now} seconds")
 
       clusters
     end
 
-    def cluster_measurements(selected_sensor_streams, distance)
+    private
+
+    attr_reader :measurements_repository, :streams_repository
+
+    def cluster_measurements(selected_sensor_streams, zoom_level)
       stream_ids = selected_sensor_streams.pluck(:id)
 
-      sql = ActiveRecord::Base.sanitize_sql_array([
-        <<-SQL, stream_ids, distance
-          WITH random_measurements AS (
-            SELECT DISTINCT ON (m.stream_id)
-              m.stream_id,
-              ST_Transform(m.location, 3857) as projected_location,
-              m.latitude,
-              m.longitude
-            FROM measurements m
-            WHERE m.stream_id IN (?)
-            ORDER BY m.stream_id, m.time DESC
-          )
-          SELECT
-            rm.stream_id,
-            rm.projected_location,
-            rm.latitude,
-            rm.longitude,
-            ST_ClusterDBSCAN(rm.projected_location, eps := ?, minpoints := 1) OVER () as cluster_id
-          FROM
-            random_measurements rm
-        SQL
-      ])
+      grid_cell_size = determine_grid_cell_size(zoom_level)
 
-      result = ActiveRecord::Base.connection.exec_query(sql)
+      grid = Hash.new { |hash, key| hash[key] = [] }
 
-      clusters = result.rows.group_by { |row| row[4] } # row[4] is the cluster_id
-      clusters.transform_values { |rows| rows.map { |row| [row[0], row[1], row[2], row[3]] } } # Keep stream_id, location, latitude, and longitude
+      result = measurements_repository.streams_coordinates(stream_ids)
+
+      result.rows.each do |row|
+        stream_id, latitude, longitude = row
+
+        cell_x = (longitude.to_f / grid_cell_size).floor
+        cell_y = (latitude.to_f / grid_cell_size).floor
+
+        grid[[cell_x, cell_y]] << { stream_id: stream_id, latitude: latitude.to_f, longitude: longitude.to_f }
+      end
+
+      clusters = grid.values
+
+      clusters
+    end
+
+    def determine_grid_cell_size(zoom_level)
+      base_cell_size = 15
+      cell_size = base_cell_size / (1.7**zoom_level)
+      minimum_cell_size = 0.0001
+      [cell_size, minimum_cell_size].max
     end
 
     def calculate_centroids_for_clusters(clusters)
-      clusters.map do |cluster_id, measurements|
-        latitudes = measurements.map { |_, _, latitude, _| latitude.to_f }
-        longitudes = measurements.map { |_, _, _, longitude| longitude.to_f }
+      clusters.map do |streams|
+        latitudes = streams.map { |stream| stream[:latitude] }
+        longitudes = streams.map { |stream| stream[:longitude] }
 
         next if latitudes.empty? || longitudes.empty?
 
@@ -67,11 +63,10 @@ module Timelapse
         centroid_longitude = longitudes.sum / longitudes.size
 
         {
-          cluster_id: cluster_id,
           latitude: centroid_latitude,
           longitude: centroid_longitude,
-          stream_ids: measurements.map { |measurement| measurement[0] },
-          session_count: measurements.size
+          stream_ids: streams.map { |stream| stream[:stream_id] },
+          session_count: streams.size
         }
       end.compact
     end
@@ -81,7 +76,7 @@ module Timelapse
 
       clusters.each do |cluster|
         averages =
-          MeasurementsRepository.new.streams_averages_from_period(
+          measurements_repository.streams_averages_from_period(
             stream_ids: cluster[:stream_ids],
             start_date: begining_of_first_time_slice,
             end_date: end_of_last_time_slice
@@ -100,14 +95,6 @@ module Timelapse
       end
 
       result
-    end
-
-    def determine_clustering_distance(zoom_level)
-      base_distance = 500000
-
-      clustering_distance = base_distance / (2**zoom_level)
-
-      [clustering_distance, 10].max
     end
   end
 end

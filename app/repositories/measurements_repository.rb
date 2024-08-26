@@ -27,4 +27,23 @@ class MeasurementsRepository
       "
     ).map { |record| { time: record['hour'], value: record['average_value'] } }
   end
+
+  def streams_coordinates(stream_ids)
+    sql = ActiveRecord::Base.sanitize_sql_array([
+      <<-SQL, stream_ids
+        WITH last_measurements AS (
+          SELECT DISTINCT ON (m.stream_id)
+            m.stream_id,
+            m.latitude,
+            m.longitude
+          FROM measurements m
+          WHERE m.stream_id IN (?)
+          ORDER BY m.stream_id, m.time DESC
+        )
+        SELECT stream_id, latitude, longitude FROM last_measurements
+      SQL
+    ])
+
+    ActiveRecord::Base.connection.exec_query(sql)
+  end
 end
