@@ -48,6 +48,9 @@ export const crowdMapSlice = createSlice({
   name: "crowdMap",
   initialState,
   reducers: {
+    clearCrowdMap: (state) => {
+      state.rectangles = [];
+    },
     setFetchingCrowdMapData(state, action: PayloadAction<boolean>) {
       state.fetchingData = action.payload;
     },
@@ -70,7 +73,7 @@ export const crowdMapSlice = createSlice({
   },
 });
 
-export const { setFetchingCrowdMapData } = crowdMapSlice.actions;
+export const { clearCrowdMap, setFetchingCrowdMapData } = crowdMapSlice.actions;
 
 export default crowdMapSlice.reducer;
 

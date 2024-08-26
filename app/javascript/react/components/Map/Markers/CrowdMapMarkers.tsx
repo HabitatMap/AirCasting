@@ -3,6 +3,7 @@ import React, { useEffect, useMemo, useRef, useState } from "react";
 import { AdvancedMarker, useMap } from "@vis.gl/react-google-maps";
 
 import {
+  clearCrowdMap,
   fetchCrowdMapData,
   selectCrowdMapRectangles,
   selectFetchingCrowdMapData,
@@ -130,6 +131,7 @@ const CrowdMapMarkers = ({ pulsatingSessionId, sessions }: Props) => {
   useEffect(() => {
     if (!mobileSessionsLoading || fetchingCrowdMapData) {
       setRectanglePoint(null);
+      dispatch(clearCrowdMap());
       dispatch(fetchCrowdMapData(filters));
     }
   }, [dispatch, fetchingCrowdMapData, filters, mobileSessionsLoading]);
