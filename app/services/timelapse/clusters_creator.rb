@@ -26,13 +26,10 @@ module Timelapse
     def cluster_measurements(selected_sensor_streams, zoom_level)
       stream_ids = selected_sensor_streams.pluck(:id)
 
-      # Define grid cell size based on zoom level (adjust the base size as needed)
       grid_cell_size = determine_grid_cell_size(zoom_level)
 
-      # Calculate clusters using grid-based approach
       grid = Hash.new { |hash, key| hash[key] = [] }
 
-      # Fetch the last measurement for each stream to get its latitude and longitude
       sql = ActiveRecord::Base.sanitize_sql_array([
         <<-SQL, stream_ids
           WITH last_measurements AS (
@@ -50,33 +47,24 @@ module Timelapse
 
       result = ActiveRecord::Base.connection.exec_query(sql)
 
-      # Group stream locations into grid cells
       result.rows.each do |row|
         stream_id, latitude, longitude = row
 
-        # Determine the grid cell this point belongs to
         cell_x = (longitude.to_f / grid_cell_size).floor
         cell_y = (latitude.to_f / grid_cell_size).floor
 
-        # Assign the point to the appropriate grid cell
         grid[[cell_x, cell_y]] << { stream_id: stream_id, latitude: latitude.to_f, longitude: longitude.to_f }
       end
 
-      # Group the grid cells into clusters
       clusters = grid.values
 
       clusters
     end
 
     def determine_grid_cell_size(zoom_level)
-      # Use a smaller base cell size for smoother transitions
-      base_cell_size = 1 # degrees or meters, adjust based on your needs
-
-      # Use a less aggressive scale for smoother changes across zoom levels
-      cell_size = base_cell_size / (1.5**zoom_level)
-
-      # Set a minimum grid cell size to avoid excessively small values
-      minimum_cell_size = 0.0001 # You can adjust this based on your use case
+      base_cell_size = 15
+      cell_size = base_cell_size / (1.7**zoom_level)
+      minimum_cell_size = 0.0001
       [cell_size, minimum_cell_size].max
     end
 
