@@ -3,6 +3,7 @@ import { useCallback, useEffect, useMemo } from "react";
 import { useSearchParams } from "react-router-dom";
 
 import { MAP_CONFIGS } from "../components/Map/mapConfigs";
+import { defaultGridSize } from "../components/SessionFilters/CrowdMapGridSize";
 import {
   DEFAULT_MAP_BOUNDS,
   DEFAULT_MAP_CENTER,
@@ -116,7 +117,9 @@ export const useMapParams = () => {
   const currentZoom = parseFloat(
     getSearchParam(UrlParamsTypes.currentZoom, DEFAULT_ZOOM.toString())!
   );
-  const gridSize = parseInt(getSearchParam(UrlParamsTypes.gridSize, "20")!);
+  const gridSize = parseInt(
+    getSearchParam(UrlParamsTypes.gridSize, defaultGridSize.toString())!
+  );
   const initialLimit = parseInt(getSearchParam(UrlParamsTypes.limit, "100")!);
   const mapTypeId =
     getSearchParam(UrlParamsTypes.mapType, MAP_CONFIGS[0].mapTypeId) ||

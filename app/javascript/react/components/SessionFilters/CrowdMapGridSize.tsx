@@ -6,6 +6,7 @@ import { UrlParamsTypes, useMapParams } from "../../utils/mapParamsHandler";
 import * as S from "./SessionFilters.style";
 
 const gridSizes = [1, 10, 20, 30, 40];
+export const defaultGridSize = 51 - gridSizes[2];
 
 const CrowdMapGridSize = () => {
   const dispatch = useAppDispatch();
