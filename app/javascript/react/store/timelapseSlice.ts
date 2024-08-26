@@ -40,10 +40,10 @@ export const fetchTimelapseData = createAsyncThunk<
   "timelapse/fetchData",
   async (sessionsData, { rejectWithValue }) => {
     try {
-      const query = encodeURIComponent(sessionsData.filters);
-
       const response: AxiosResponse<{ [timestamp: string]: SessionData[] }> =
-        await apiClient.get(API_ENDPOINTS.fetchTimelapseData(query));
+        await apiClient.get(
+          API_ENDPOINTS.fetchTimelapseData(sessionsData.filters)
+        );
 
       return response.data;
     } catch (error) {

@@ -27,21 +27,9 @@ interface TimelapseComponentProps {
   onClose: () => void;
 }
 
-type CustomPopupProps = {
-  children:
-    | React.ReactNode
-    | ((close: () => void, isOpen: boolean) => React.ReactNode);
-};
-
 const TimelapseComponent: React.FC<
   TimelapseComponentProps & Omit<PopupProps, "children">
 > = React.memo(({ onClose }) => {
-  const TimelapseModal: React.FC<
-    CustomPopupProps & Omit<PopupProps, "children">
-  > = useCallback((props) => {
-    return <S.TimelapseModal {...(props as PopupProps)} />;
-  }, []);
-
   const { t } = useTranslation();
   const dispatch = useAppDispatch();
   const [showReadOnlyPopup, setShowReadOnlyPopup] = useState(false);
@@ -55,7 +43,7 @@ const TimelapseComponent: React.FC<
   const resetTimelapse = useCallback(() => {
     setCurrentStep(0);
     dispatch(setCurrentTimestamp(""));
-  }, [dispatch]);
+  }, []);
 
   const filteredTimestamps = useMemo(() => {
     const now = moment.utc();
@@ -110,30 +98,32 @@ const TimelapseComponent: React.FC<
     onClose();
   }, [onClose, resetTimelapse]);
 
-  const handleNextStep = () => {
+  const handleNextStep = useCallback(() => {
     if (currentStep < filteredTimestamps.length - 1) {
-      setCurrentStep((prevStep) => prevStep + 1);
-      dispatch(setCurrentTimestamp(filteredTimestamps[currentStep + 1]));
+      const nextStep = currentStep + 1;
+      setCurrentStep(nextStep);
+      dispatch(setCurrentTimestamp(filteredTimestamps[nextStep]));
     }
-  };
+  }, [currentStep, filteredTimestamps]);
 
-  const handlePreviousStep = () => {
+  const handlePreviousStep = useCallback(() => {
     if (currentStep > 0) {
-      setCurrentStep((prevStep) => prevStep - 1);
-      dispatch(setCurrentTimestamp(filteredTimestamps[currentStep - 1]));
+      const prevStep = currentStep - 1;
+      setCurrentStep(prevStep);
+      dispatch(setCurrentTimestamp(filteredTimestamps[prevStep]));
     }
-  };
+  }, [currentStep, filteredTimestamps]);
 
-  const handleGoToStart = () => {
+  const handleGoToStart = useCallback(() => {
     setCurrentStep(0);
     dispatch(setCurrentTimestamp(filteredTimestamps[0]));
-  };
+  }, [filteredTimestamps, dispatch]);
 
-  const handleGoToEnd = () => {
+  const handleGoToEnd = useCallback(() => {
     const lastIndex = filteredTimestamps.length - 1;
     setCurrentStep(lastIndex);
     dispatch(setCurrentTimestamp(filteredTimestamps[lastIndex]));
-  };
+  }, [filteredTimestamps]);
 
   const handleOverlayClick = useCallback(
     (event: MouseEvent) => {

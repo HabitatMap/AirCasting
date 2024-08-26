@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import fastForwardButton from "../../../assets/icons/fastForwardButton.svg";
 import pauseButton from "../../../assets/icons/pauseButton.svg";
@@ -32,25 +32,24 @@ const NavigationButtons: React.FC<NavigationButtonsProps> = ({
   const [isPlaying, setIsPlaying] = useState(false);
 
   const { currentUserSettings } = useMapParams();
-
   const isModalOpen = currentUserSettings === UserSettings.TimelapseView;
 
   // Auto-play functionality
   useEffect(() => {
-    let interval: NodeJS.Timeout | undefined;
+    let intervalId: NodeJS.Timeout | undefined;
 
     if (isPlaying) {
-      interval = setInterval(() => {
+      intervalId = setInterval(() => {
         if (currentStep < totalSteps - 1) {
           onNextStep();
         } else {
           setIsPlaying(false);
         }
-      }, 1000);
+      }, 500);
     }
 
     return () => {
-      if (interval) clearInterval(interval);
+      if (intervalId) clearInterval(intervalId);
     };
   }, [isPlaying, currentStep, totalSteps, onNextStep]);
 
@@ -60,9 +59,9 @@ const NavigationButtons: React.FC<NavigationButtonsProps> = ({
     }
   }, [isModalOpen]);
 
-  const handlePlayPause = () => {
+  const handlePlayPause = useCallback(() => {
     setIsPlaying((prev) => !prev);
-  };
+  }, []);
 
   return (
     <S.NavigationButtonsContainer>

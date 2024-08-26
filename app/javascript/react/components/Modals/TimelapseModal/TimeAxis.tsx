@@ -1,5 +1,5 @@
 import moment from "moment";
-import React from "react";
+import React, { useMemo } from "react";
 import { DateFormat } from "../../../types/dateFormat";
 import * as S from "./TimelapseComponent.style";
 
@@ -14,31 +14,44 @@ const TimeAxis: React.FC<TimeAxisProps> = ({
   totalSteps,
   timestamps,
 }) => {
-  const progressPercentage = (currentStep / (totalSteps - 1)) * 100;
+  const progressPercentage = useMemo(() => {
+    return (currentStep / (totalSteps - 1)) * 100;
+  }, [currentStep, totalSteps]);
 
   const currentTimestamp = timestamps[currentStep];
-  const currentDate = moment
-    .utc(currentTimestamp, "YYYYMMDDHH:mm:ssZ")
-    .format(DateFormat.us);
-  const currentTime = moment
-    .utc(currentTimestamp, "YYYYMMDDHH:mm:ssZ")
-    .format("hh:mm A");
+
+  const currentDate = useMemo(() => {
+    return moment
+      .utc(currentTimestamp, "YYYYMMDDHH:mm:ssZ")
+      .format(DateFormat.us);
+  }, [currentTimestamp]);
+
+  const currentTime = useMemo(() => {
+    return moment.utc(currentTimestamp, "YYYYMMDDHH:mm:ssZ").format("hh:mm A");
+  }, [currentTimestamp]);
 
   const firstTimestamp = timestamps[0];
   const lastTimestamp = timestamps[timestamps.length - 1];
 
-  const firstFormattedTime = moment
-    .utc(firstTimestamp, "YYYYMMDDHH:mm:ssZ")
-    .format("hh:mm A");
-  const firstFormattedDate = moment
-    .utc(firstTimestamp, "YYYYMMDDHH:mm:ssZ")
-    .format(DateFormat.us_without_year);
-  const lastFormattedTime = moment
-    .utc(lastTimestamp, "YYYYMMDDHH:mm:ssZ")
-    .format("hh:mm A");
-  const lastFormattedDate = moment
-    .utc(lastTimestamp, "YYYYMMDDHH:mm:ssZ")
-    .format(DateFormat.us_without_year);
+  const firstFormattedTime = useMemo(() => {
+    return moment.utc(firstTimestamp, "YYYYMMDDHH:mm:ssZ").format("hh:mm A");
+  }, [firstTimestamp]);
+
+  const firstFormattedDate = useMemo(() => {
+    return moment
+      .utc(firstTimestamp, "YYYYMMDDHH:mm:ssZ")
+      .format(DateFormat.us_without_year);
+  }, [firstTimestamp]);
+
+  const lastFormattedTime = useMemo(() => {
+    return moment.utc(lastTimestamp, "YYYYMMDDHH:mm:ssZ").format("hh:mm A");
+  }, [lastTimestamp]);
+
+  const lastFormattedDate = useMemo(() => {
+    return moment
+      .utc(lastTimestamp, "YYYYMMDDHH:mm:ssZ")
+      .format(DateFormat.us_without_year);
+  }, [lastTimestamp]);
 
   return (
     <>
@@ -56,7 +69,7 @@ const TimeAxis: React.FC<TimeAxisProps> = ({
             </S.Tooltip>
           </S.RoundMarker>
           <S.StepMarkers>
-            {Array.from({ length: totalSteps }).map((_, index) => {
+            {timestamps.map((_, index) => {
               const position = (index / (totalSteps - 1)) * 100;
               return (
                 <S.StepMarker
@@ -79,9 +92,8 @@ const TimeAxis: React.FC<TimeAxisProps> = ({
         <S.ProgressBar>
           <S.ProgressFiller style={{ width: `${progressPercentage}%` }} />
           <S.RoundMarker $position={progressPercentage} />
-
           <S.StepMarkers>
-            {Array.from({ length: totalSteps }).map((_, index) => {
+            {timestamps.map((_, index) => {
               const position = (index / (totalSteps - 1)) * 100;
               return (
                 <S.StepMarker
