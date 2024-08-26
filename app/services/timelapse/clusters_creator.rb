@@ -5,7 +5,6 @@ module Timelapse
     end
 
     def call(sessions:, begining_of_first_time_slice:, end_of_last_time_slice:, sensor_name:, zoom_level:)
-
       streams = Stream.where(session_id: sessions.pluck('sessions.id'))
       selected_sensor_streams = streams.select { |stream| Sensor.sensor_name(sensor_name).include? stream.sensor_name.downcase }
 
@@ -103,10 +102,8 @@ module Timelapse
     end
 
     def determine_clustering_distance(zoom_level)
-      base_distance = 2000000
-
+      base_distance = 40_075_000
       clustering_distance = base_distance / (2**zoom_level)
-
       [clustering_distance, 10].max
     end
   end
