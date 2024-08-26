@@ -70,9 +70,10 @@ module Timelapse
 
     def determine_grid_cell_size(zoom_level)
       # Adjust the base cell size (in degrees or meters) based on your needs
-      base_cell_size = 0.1 # degrees for lower zoom levels, adjust as needed
+      base_cell_size = 40 # degrees for lower zoom levels, adjust as needed
       cell_size = base_cell_size / (2**zoom_level)
-      cell_size
+      minimum_cell_size = 0.00001 # You can adjust this based on your use case
+      [cell_size, minimum_cell_size].max
     end
 
     def calculate_centroids_for_clusters(clusters)
