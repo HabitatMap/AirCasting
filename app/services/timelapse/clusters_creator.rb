@@ -31,7 +31,7 @@ module Timelapse
           WITH random_measurements AS (
             SELECT DISTINCT ON (m.stream_id)
               m.stream_id,
-              ST_Transform(m.location, 3857) as projected_location,
+              ST_Transform(m.location, 3395) as projected_location,
               m.latitude,
               m.longitude
             FROM measurements m
