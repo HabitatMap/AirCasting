@@ -464,7 +464,9 @@ const Map = () => {
     if (currentUserSettings === UserSettings.TimelapseView) {
       const timePeriod = 7;
 
-      const zoomLevel = !Number.isNaN(currentZoom) ? currentZoom : 5;
+      const zoomLevel = !Number.isNaN(currentZoom)
+        ? Math.round(currentZoom)
+        : 5;
 
       dispatch(fetchTimelapseData({ filters: filters, zoom: zoomLevel }));
     }
