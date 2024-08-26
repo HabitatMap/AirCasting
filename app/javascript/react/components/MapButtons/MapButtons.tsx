@@ -5,6 +5,8 @@ import clockIcon from "../../assets/icons/clockIcon.svg";
 import copyLinkIcon from "../../assets/icons/copyLinkIcon.svg";
 import filterIcon from "../../assets/icons/filterIcon.svg";
 import shareIcon from "../../assets/icons/shareIcon.svg";
+import { selectFixedSessionsList } from "../../store/fixedSessionsSelectors";
+import { useAppSelector } from "../../store/hooks";
 import { SessionTypes } from "../../types/filters";
 import { UserSettings } from "../../types/userStates";
 import { useMapParams } from "../../utils/mapParamsHandler";
@@ -35,7 +37,12 @@ const MapButtons = () => {
   const [showFilters, setShowFilters] = useState(false);
   const { t } = useTranslation();
 
+  const listSessions = useAppSelector(selectFixedSessionsList);
+
   const isModalView = currentUserSettings === UserSettings.ModalView;
+  const isTimelapseButtonVisible =
+    !isModalView && sessionType === SessionTypes.FIXED;
+  const isTimelapseDisabled = listSessions.length === 0;
 
   const handleClick = (buttonType: ButtonTypes) => {
     setActiveButton((prevState) =>
@@ -59,9 +66,6 @@ const MapButtons = () => {
     }
   }, [activeButton, currentUserSettings]);
 
-  const isTimelapseButtonVisible =
-    !isModalView && sessionType === SessionTypes.FIXED;
-
   return (
     <S.MapButtonsWrapper>
       <S.MapButtons>
@@ -82,6 +86,7 @@ const MapButtons = () => {
               activeButton === ButtonTypes.TIMELAPSE &&
               currentUserSettings === UserSettings.TimelapseView
             }
+            isDisabled={isTimelapseDisabled}
           />
         )}
 

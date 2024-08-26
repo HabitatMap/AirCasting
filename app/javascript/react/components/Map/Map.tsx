@@ -155,6 +155,8 @@ const Map = () => {
 
   const isTimelapseView = currentUserSettings === UserSettings.TimelapseView;
 
+  const isTimelapseDisabled = listSessions.length === 0;
+
   const filters = useMemo(
     () =>
       // Change timeFrom and timeTo also in TagsInput
@@ -597,6 +599,7 @@ const Map = () => {
               onClick={openTimelapse}
               isNotTimelapseButton={false}
               isActive={currentUserSettings === UserSettings.TimelapseView}
+              isDisabled={isTimelapseDisabled}
             />
           )}
           <SectionButton

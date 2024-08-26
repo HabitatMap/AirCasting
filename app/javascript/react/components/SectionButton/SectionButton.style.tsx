@@ -5,6 +5,7 @@ import { H6 } from "../Typography";
 const StyledSectionButton = styled.button<{
   $isNotTimelapseButton: boolean;
   $isActive: boolean;
+  $isDisabled?: boolean;
 }>`
   background-color: ${(props) => (props.$isActive ? blue : white)};
   border-radius: 1rem;
@@ -19,9 +20,16 @@ const StyledSectionButton = styled.button<{
   padding: 1.6rem;
   height: 4.2rem;
   border: none;
+
   ${(props) =>
     props.$isNotTimelapseButton &&
     `opacity: 0.7;
+    pointer-events: none;`}
+
+  ${(props) =>
+    props.$isDisabled &&
+    `opacity: 0.5;
+    cursor: not-allowed;
     pointer-events: none;`}
 
   @media (min-width: 390px) {
