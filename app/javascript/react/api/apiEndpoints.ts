@@ -18,7 +18,7 @@ interface ApiEndpoints {
   readonly fetchUsernames: (username: string) => string;
   readonly fetchTags: (params: fetchTagsParamsType) => string;
   readonly fetchSensors: (sessionType: SessionType) => string;
-  readonly fetchTimelapseData: (filters: string) => string;
+  readonly fetchTimelapseData: (filters: string, zoomLevel: string) => string;
 }
 
 export const API_ENDPOINTS: ApiEndpoints = {
@@ -67,5 +67,6 @@ export const API_ENDPOINTS: ApiEndpoints = {
     return url;
   },
   fetchSensors: (sessionType) => `/sensors?session_type=${sessionType}Session`,
-  fetchTimelapseData: (filters) => `/timelapse2.json?q=${filters}`,
+  fetchTimelapseData: (filters, zoomLevel) =>
+    `/timelapse2.json?q=${filters}&zoom_level=${zoomLevel}`,
 };
