@@ -21,7 +21,9 @@ enum ButtonTypes {
 }
 
 const MapButtons = () => {
-  const [activeButton, setActiveButton] = useState<ButtonTypes | null>(null);
+  const [activeButton, setActiveButton] = useState<ButtonTypes | null>(
+    ButtonTypes.FILTER
+  );
   const [showFilters, setShowFilters] = useState(false);
   const { t } = useTranslation();
   const {

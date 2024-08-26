@@ -144,7 +144,7 @@ export const useMapParams = () => {
   );
   const sensorName = getSearchParam(
     UrlParamsTypes.sensorName,
-    SENSOR_NAMES.PARTICULATE_MATTER.AIRBEAM_PM25
+    SENSOR_NAMES.PARTICULATE_MATTER.GOVERNMENT_PM25
   )!;
   const sessionId =
     getSearchParam(UrlParamsTypes.sessionId, null) !== null
