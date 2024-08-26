@@ -1,13 +1,13 @@
-import React, { useEffect, useState, useCallback } from "react";
-import { useTranslation } from "react-i18next";
 import { debounce } from "lodash";
+import React, { useCallback, useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 
 import { UserSettings } from "../../types/userStates";
 import { UrlParamsTypes, useMapParams } from "../../utils/mapParamsHandler";
-import * as S from "./SessionFilters.style";
-import { FilterInfoPopup } from "./FilterInfoPopup";
 import { Toggle } from "../Toggle/Toggle";
 import { CrowdMapGridSize } from "./CrowdMapGridSize";
+import { FilterInfoPopup } from "./FilterInfoPopup";
+import * as S from "./SessionFilters.style";
 
 const CrowdMapToggle = () => {
   const {
@@ -113,7 +113,7 @@ const CrowdMapToggle = () => {
             </S.CrowdMapToggleText>
           </S.CrowdMapToggleWrapper>
           {renderGridSize && (
-            <S.CrowdMapGridSizeWrapper isVisible={isCrowdMapActive}>
+            <S.CrowdMapGridSizeWrapper $isVisible={isCrowdMapActive}>
               {t("filters.crowdMapGridCellSizeHeader")}
               <CrowdMapGridSize />
             </S.CrowdMapGridSizeWrapper>

@@ -29,7 +29,7 @@ const fadeIn = keyframes`
   to {
     opacity: 1;
     transform: translateY(0);
-    max-height: 33rem; 
+    max-height: 33rem;
   }
 `;
 
@@ -37,7 +37,7 @@ const fadeOut = keyframes`
   from {
     opacity: 1;
     transform: translateY(0);
-    max-height: 33rem; 
+    max-height: 33rem;
   }
   to {
     opacity: 0;
@@ -235,7 +235,7 @@ const InfoPopup = styled(SmallPopup)`
   }
 `;
 
-const CrowdMapGridSizeWrapper = styled.div<{ isVisible: boolean }>`
+const CrowdMapGridSizeWrapper = styled.div<{ $isVisible: boolean }>`
   display: grid;
   grid-template-columns: 1fr;
   grid-template-rows: auto auto;
@@ -243,18 +243,18 @@ const CrowdMapGridSizeWrapper = styled.div<{ isVisible: boolean }>`
   justify-content: center;
   align-items: center;
   text-transform: uppercase;
-  text-size: 1.4rem;
+  font-size: 1.4rem;
   color: ${gray300};
   letter-spacing: 0.01em;
 
   overflow: hidden;
-  max-height: ${({ isVisible }) =>
-    isVisible ? "33rem" : "0"}; /* Match the value in animation */
-  animation: ${({ isVisible }) => (isVisible ? fadeIn : fadeOut)} 0.5s ease
+  max-height: ${({ $isVisible }) =>
+    $isVisible ? "33rem" : "0"}; /* Match the value in animation */
+  animation: ${({ $isVisible }) => ($isVisible ? fadeIn : fadeOut)} 0.5s ease
     forwards;
-  opacity: ${({ isVisible }) => (isVisible ? 1 : 0)};
-  transform: ${({ isVisible }) =>
-    isVisible ? "translateY(0)" : "translateY(-1.5rem)"};
+  opacity: ${({ $isVisible }) => ($isVisible ? 1 : 0)};
+  transform: ${({ $isVisible }) =>
+    $isVisible ? "translateY(0)" : "translateY(-1.5rem)"};
   transition: max-height 1s ease, opacity 0.5s ease, transform 0.5s ease;
 `;
 
@@ -594,12 +594,12 @@ export {
   ChevronBackButton,
   ChevronIcon,
   CloseSelectedItemButton,
-  CrowdMapGridButtonsContainer,
   CrowdGridSizeButton,
+  CrowdMapGridButtonsContainer,
   CrowdMapGridSizeWrapper,
   CrowdMapSettingsContainer,
-  CrowdMapToggleText,
   CrowdMapToggleOnOff,
+  CrowdMapToggleText,
   CrowdMapToggleWrapper,
   CustomParameter,
   CustomParameterItem,
