@@ -129,6 +129,7 @@ const CrowdMapMarkers = ({ pulsatingSessionId, sessions }: Props) => {
 
   useEffect(() => {
     if (!mobileSessionsLoading || fetchingCrowdMapData) {
+      setRectanglePoint(null);
       dispatch(fetchCrowdMapData(filters));
     }
   }, [dispatch, fetchingCrowdMapData, filters, mobileSessionsLoading]);
