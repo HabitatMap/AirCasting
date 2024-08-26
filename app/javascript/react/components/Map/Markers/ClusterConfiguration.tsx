@@ -33,7 +33,7 @@ const clusterStyles = [
   },
 ];
 
-export const calculateClusterStyleIndex = (
+const calculateClusterStyleIndex = (
   markers: google.maps.marker.AdvancedMarkerElement[],
   thresholds: Thresholds
 ): number => {
