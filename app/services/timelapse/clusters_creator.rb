@@ -9,7 +9,7 @@ module Timelapse
       selected_sensor_streams = streams.select { |stream| Sensor.sensor_name(sensor_name).include? stream.sensor_name.downcase }
 
       time_now = Time.current
-      clusters = cluster_measurements(selected_sensor_streams, determine_clustering_distance(zoom_level))
+      clusters = cluster_measurements(selected_sensor_streams, zoom_level)
       Rails.logger.info("Clusters creation took #{Time.current - time_now} seconds")
 
       time_now = Time.current
@@ -23,42 +23,58 @@ module Timelapse
       clusters
     end
 
-    def cluster_measurements(selected_sensor_streams, distance)
+    def cluster_measurements(selected_sensor_streams, zoom_level)
       stream_ids = selected_sensor_streams.pluck(:id)
 
+      # Define grid cell size based on zoom level (adjust the base size as needed)
+      grid_cell_size = determine_grid_cell_size(zoom_level)
+
+      # Calculate clusters using grid-based approach
+      grid = Hash.new { |hash, key| hash[key] = [] }
+
       sql = ActiveRecord::Base.sanitize_sql_array([
-        <<-SQL, stream_ids, distance
-          WITH random_measurements AS (
-            SELECT DISTINCT ON (m.stream_id)
-              m.stream_id,
-              ST_Transform(m.location, 3395) as projected_location,
-              m.latitude,
-              m.longitude
-            FROM measurements m
-            WHERE m.stream_id IN (?)
-            ORDER BY m.stream_id, m.time DESC
-          )
+        <<-SQL, stream_ids
           SELECT
-            rm.stream_id,
-            rm.projected_location,
-            rm.latitude,
-            rm.longitude,
-            ST_ClusterDBSCAN(rm.projected_location, eps := ?, minpoints := 1) OVER () as cluster_id
-          FROM
-            random_measurements rm
+            m.stream_id,
+            m.latitude,
+            m.longitude
+          FROM measurements m
+          WHERE m.stream_id IN (?)
+          ORDER BY m.stream_id, m.time DESC
         SQL
       ])
 
       result = ActiveRecord::Base.connection.exec_query(sql)
 
-      clusters = result.rows.group_by { |row| row[4] } # row[4] is the cluster_id
-      clusters.transform_values { |rows| rows.map { |row| [row[0], row[1], row[2], row[3]] } } # Keep stream_id, location, latitude, and longitude
+      # Group measurements into grid cells
+      result.rows.each do |row|
+        stream_id, latitude, longitude = row
+
+        # Determine the grid cell this point belongs to
+        cell_x = (longitude.to_f / grid_cell_size).floor
+        cell_y = (latitude.to_f / grid_cell_size).floor
+
+        # Assign the point to the appropriate grid cell
+        grid[[cell_x, cell_y]] << { stream_id: stream_id, latitude: latitude.to_f, longitude: longitude.to_f }
+      end
+
+      # Group the grid cells into clusters
+      clusters = grid.values
+
+      clusters
+    end
+
+    def determine_grid_cell_size(zoom_level)
+      # Adjust the base cell size (in degrees or meters) based on your needs
+      base_cell_size = 0.1 # degrees for lower zoom levels, adjust as needed
+      cell_size = base_cell_size / (2**zoom_level)
+      cell_size
     end
 
     def calculate_centroids_for_clusters(clusters)
-      clusters.map do |cluster_id, measurements|
-        latitudes = measurements.map { |_, _, latitude, _| latitude.to_f }
-        longitudes = measurements.map { |_, _, _, longitude| longitude.to_f }
+      clusters.map do |measurements|
+        latitudes = measurements.map { |measurement| measurement[:latitude] }
+        longitudes = measurements.map { |measurement| measurement[:longitude] }
 
         next if latitudes.empty? || longitudes.empty?
 
@@ -66,10 +82,9 @@ module Timelapse
         centroid_longitude = longitudes.sum / longitudes.size
 
         {
-          cluster_id: cluster_id,
           latitude: centroid_latitude,
           longitude: centroid_longitude,
-          stream_ids: measurements.map { |measurement| measurement[0] },
+          stream_ids: measurements.map { |measurement| measurement[:stream_id] },
           session_count: measurements.size
         }
       end.compact
@@ -99,12 +114,6 @@ module Timelapse
       end
 
       result
-    end
-
-    def determine_clustering_distance(zoom_level)
-      base_distance = 2000000
-      clustering_distance = base_distance / (2**zoom_level)
-      [clustering_distance, 10].max
     end
   end
 end
