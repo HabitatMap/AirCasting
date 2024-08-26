@@ -15,6 +15,10 @@ class StreamsRepository
       .find(id)
   end
 
+  def find_by_session_id(session_id)
+    Stream.where(session_id: session_id)
+  end
+
   def calculate_bounding_box!(
     stream,
     calculator = Outliers::CalculateBoundingBox.new
