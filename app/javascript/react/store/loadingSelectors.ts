@@ -8,7 +8,7 @@ const selectFixedStreamLoading = (state: RootState) =>
   state.fixedStream.status === StatusEnum.Pending;
 const selectFixedSessionsLoading = (state: RootState) =>
   state.fixedSessions.status === StatusEnum.Pending;
-const selectMobileSessionsLoading = (state: RootState) =>
+export const selectMobileSessionsLoading = (state: RootState) =>
   state.mobileSessions.status === StatusEnum.Pending;
 const selectMobileStreamLoading = (state: RootState) =>
   state.mobileStream.status === StatusEnum.Pending;

@@ -8,6 +8,7 @@ import {
   selectFetchingCrowdMapData,
 } from "../../../store/crowdMapSlice";
 import { useAppDispatch, useAppSelector } from "../../../store/hooks";
+import { selectMobileSessionsLoading } from "../../../store/loadingSelectors";
 import { setMarkersLoading } from "../../../store/markersLoadingSlice";
 import { selectMobileSessionsStreamIds } from "../../../store/mobileSessionsSelectors";
 import {
@@ -38,6 +39,7 @@ const CrowdMapMarkers = ({ pulsatingSessionId, sessions }: Props) => {
 
   const crowdMapRectangles = useAppSelector(selectCrowdMapRectangles);
   const fetchingCrowdMapData = useAppSelector(selectFetchingCrowdMapData);
+  const mobileSessionsLoading = useAppSelector(selectMobileSessionsLoading);
   const mobileSessionsStreamIds = useAppSelector(selectMobileSessionsStreamIds);
   const rectangleData = useAppSelector(selectRectangleData);
   const rectangleLoading = useAppSelector(selectRectangleLoading);
@@ -116,23 +118,23 @@ const CrowdMapMarkers = ({ pulsatingSessionId, sessions }: Props) => {
   );
 
   useEffect(() => {
-    if (fetchingCrowdMapData) {
-      dispatch(fetchCrowdMapData(filters));
-    }
-  }, [fetchingCrowdMapData, filters, dispatch]);
-
-  useEffect(() => {
     dispatch(setMarkersLoading(true));
-  }, [dispatch, crowdMapRectanglesLength]);
+  }, [crowdMapRectanglesLength, dispatch]);
 
   useEffect(() => {
     if (rectanglesRef.current.length >= crowdMapRectanglesLength) {
       dispatch(setMarkersLoading(false));
     }
-  }, [dispatch, rectanglesRef.current.length, crowdMapRectanglesLength]);
+  }, [crowdMapRectanglesLength, dispatch, rectanglesRef.current.length]);
 
   useEffect(() => {
-    if (crowdMapRectanglesLength > 0) {
+    if (!mobileSessionsLoading && fetchingCrowdMapData) {
+      dispatch(fetchCrowdMapData(filters));
+    }
+  }, [dispatch, fetchingCrowdMapData, filters, mobileSessionsLoading]);
+
+  useEffect(() => {
+    if (!mobileSessionsLoading && crowdMapRectanglesLength > 0) {
       const newRectangles = crowdMapRectangles.map((rectangle) => {
         const newRectangle = new google.maps.Rectangle({
           bounds: new google.maps.LatLngBounds(
@@ -200,6 +202,7 @@ const CrowdMapMarkers = ({ pulsatingSessionId, sessions }: Props) => {
     gridSize,
     map,
     measurementType,
+    mobileSessionsLoading,
     mobileSessionsStreamIds,
     sensorName,
     tags,
@@ -210,7 +213,7 @@ const CrowdMapMarkers = ({ pulsatingSessionId, sessions }: Props) => {
 
   useEffect(() => {
     map && map.addListener("zoom_changed", () => dispatch(clearRectangles()));
-  }, [map, , dispatch]);
+  }, [dispatch, map]);
 
   useMapEventListeners(map, {
     click: () => dispatch(clearRectangles()),
