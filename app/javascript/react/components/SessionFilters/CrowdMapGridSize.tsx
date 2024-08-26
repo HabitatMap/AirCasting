@@ -1,4 +1,5 @@
 import React from "react";
+
 import { setFetchingCrowdMapData } from "../../store/crowdMapSlice";
 import { useAppDispatch } from "../../store/hooks";
 import { UrlParamsTypes, useMapParams } from "../../utils/mapParamsHandler";
@@ -11,7 +12,7 @@ const CrowdMapGridSize = () => {
   const { setFilters, gridSize } = useMapParams();
 
   const handleGridSize = (size: number) => {
-    setFilters(UrlParamsTypes.gridSize, size.toString());
+    setFilters(UrlParamsTypes.gridSize, (51 - size).toString());
     setTimeout(() => {
       dispatch(setFetchingCrowdMapData(true));
     }, 200);

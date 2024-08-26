@@ -56,11 +56,26 @@ const CrowdMapMarkers = ({ pulsatingSessionId, sessions }: Props) => {
     unitSymbol,
     usernames,
   } = useMapParams();
+
+  const gridSizeX = (x: number) => {
+    const width =
+      window.innerWidth ||
+      document.documentElement.clientWidth ||
+      document.body.clientWidth;
+
+    const height =
+      window.innerHeight ||
+      document.documentElement.clientHeight ||
+      document.body.clientHeight;
+
+    return (Math.round(x) * width) / height;
+  };
+
   const filters = useMemo(
     () =>
       JSON.stringify({
         east: boundEast,
-        grid_size_x: gridSize,
+        grid_size_x: gridSizeX(gridSize),
         grid_size_y: gridSize,
         measurement_type: measurementType,
         north: boundNorth,
@@ -147,11 +162,11 @@ const CrowdMapMarkers = ({ pulsatingSessionId, sessions }: Props) => {
               north: rectangleBoundNorth.toString(),
               time_from: "1685318400",
               time_to: "1717027199",
-              grid_size_x: "50",
-              grid_size_y: "50",
+              grid_size_x: gridSizeX(gridSize).toString(),
+              grid_size_y: gridSize.toString(),
               tags: tags || "",
               usernames: usernames || "",
-              sensor_name: "airbeam-pm2.5",
+              sensor_name: sensorName,
               measurement_type: measurementType,
               unit_symbol: encodeURIComponent(unitSymbol),
               stream_ids: mobileSessionsStreamIds.join(","),
@@ -182,9 +197,11 @@ const CrowdMapMarkers = ({ pulsatingSessionId, sessions }: Props) => {
   }, [
     crowdMapRectangles,
     dispatch,
+    gridSize,
     map,
     measurementType,
     mobileSessionsStreamIds,
+    sensorName,
     tags,
     thresholds,
     unitSymbol,
