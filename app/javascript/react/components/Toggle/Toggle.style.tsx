@@ -91,6 +91,7 @@ const ToggleContainer = styled.div`
   display: flex;
   align-items: center;
   gap: 1rem;
+  z-index: 0;
 `;
 
 export { Label, Slider, ToggleContainer, ToggleInput, ToggleLabel };
