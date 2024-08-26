@@ -69,10 +69,14 @@ module Timelapse
     end
 
     def determine_grid_cell_size(zoom_level)
-      # Adjust the base cell size (in degrees or meters) based on your needs
-      base_cell_size = 40 # degrees for lower zoom levels, adjust as needed
-      cell_size = base_cell_size / (2**zoom_level)
-      minimum_cell_size = 0.00001 # You can adjust this based on your use case
+      # Use a smaller base cell size for smoother transitions
+      base_cell_size = 1 # degrees or meters, adjust based on your needs
+
+      # Use a less aggressive scale for smoother changes across zoom levels
+      cell_size = base_cell_size / (1.5**zoom_level)
+
+      # Set a minimum grid cell size to avoid excessively small values
+      minimum_cell_size = 0.0001 # You can adjust this based on your use case
       [cell_size, minimum_cell_size].max
     end
 
