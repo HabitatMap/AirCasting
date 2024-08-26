@@ -102,7 +102,7 @@ module Timelapse
     end
 
     def determine_clustering_distance(zoom_level)
-      base_distance = 1000000
+      base_distance = 2000000
       clustering_distance = base_distance / (2**zoom_level)
       [clustering_distance, 10].max
     end
