@@ -1,10 +1,11 @@
 import React from "react";
+
 import {
   Label,
   Slider,
+  ToggleContainer,
   ToggleInput,
   ToggleLabel,
-  ToggleContainer,
 } from "./Toggle.style";
 
 interface ToggleProps {
@@ -37,17 +38,17 @@ const Toggle: React.FC<ToggleProps> = ({
           {labelLeft}
         </Label>
       )}
-      <ToggleLabel biggerMobileVersion={biggerMobileVersion}>
+      <ToggleLabel $biggerMobileVersion={biggerMobileVersion}>
         <ToggleInput
           type="checkbox"
           checked={isChecked}
           onChange={handleClick}
-          biggerMobileVersion={biggerMobileVersion}
+          $biggerMobileVersion={biggerMobileVersion}
         />
         <Slider
           $isActive={isChecked}
           $variant={variant}
-          biggerMobileVersion={biggerMobileVersion}
+          $biggerMobileVersion={biggerMobileVersion}
         />
       </ToggleLabel>
       {variant === "switch" && labelRight && (

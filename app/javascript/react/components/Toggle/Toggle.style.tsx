@@ -1,20 +1,21 @@
 import styled from "styled-components";
+
 import { blue, gray400, gray600, white } from "../../assets/styles/colors";
 import { media } from "../../utils/media";
 
-const ToggleLabel = styled.label<{ biggerMobileVersion: boolean }>`
+const ToggleLabel = styled.label<{ $biggerMobileVersion: boolean }>`
   position: relative;
   display: inline-block;
   width: 3.6rem;
   height: 1.8rem;
 
   @media ${media.mobile} {
-    width: ${(props) => (props.biggerMobileVersion ? "3.6rem" : "2.5rem")};
-    height: ${(props) => (props.biggerMobileVersion ? "1.8rem" : "1.3rem")};
+    width: ${(props) => (props.$biggerMobileVersion ? "3.6rem" : "2.5rem")};
+    height: ${(props) => (props.$biggerMobileVersion ? "1.8rem" : "1.3rem")};
   }
 `;
 
-const ToggleInput = styled.input<{ biggerMobileVersion: boolean }>`
+const ToggleInput = styled.input<{ $biggerMobileVersion: boolean }>`
   opacity: 0;
   width: 3.6rem;
   height: 1.8rem;
@@ -26,22 +27,22 @@ const ToggleInput = styled.input<{ biggerMobileVersion: boolean }>`
 
     @media ${media.mobile} {
       transform: ${(props) =>
-        props.biggerMobileVersion
+        props.$biggerMobileVersion
           ? "translateX(1.8rem)"
           : "translateX(1.2rem)"};
     }
   }
 
   @media ${media.mobile} {
-    width: ${(props) => (props.biggerMobileVersion ? "3.6rem" : "2.5rem")};
-    height: ${(props) => (props.biggerMobileVersion ? "1.8rem" : "1.3rem")};
+    width: ${(props) => (props.$biggerMobileVersion ? "3.6rem" : "2.5rem")};
+    height: ${(props) => (props.$biggerMobileVersion ? "1.8rem" : "1.3rem")};
   }
 `;
 
 const Slider = styled.span<{
   $isActive: boolean;
   $variant: string;
-  biggerMobileVersion: boolean;
+  $biggerMobileVersion: boolean;
 }>`
   position: absolute;
   cursor: pointer;
@@ -67,8 +68,8 @@ const Slider = styled.span<{
     border-radius: 50%;
 
     @media ${media.mobile} {
-      height: ${(props) => (props.biggerMobileVersion ? "1.4rem" : "0.9rem")};
-      width: ${(props) => (props.biggerMobileVersion ? "1.4rem" : "0.9rem")};
+      height: ${(props) => (props.$biggerMobileVersion ? "1.4rem" : "0.9rem")};
+      width: ${(props) => (props.$biggerMobileVersion ? "1.4rem" : "0.9rem")};
       left: 0.18rem;
       bottom: 0.18rem;
     }
