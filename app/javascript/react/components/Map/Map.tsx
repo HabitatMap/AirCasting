@@ -16,7 +16,6 @@ import mapLegend from "../../assets/icons/mapLegend.svg";
 import pinImage from "../../assets/icons/pinImage.svg";
 import { MIN_ZOOM } from "../../const/coordinates";
 import { RootState, selectIsLoading } from "../../store";
-import { selectFetchingCrowdMapData } from "../../store/crowdMapSlice";
 import {
   selectFixedSessionPointsBySessionId,
   selectFixedSessionsList,
@@ -122,7 +121,6 @@ const Map = () => {
   // Selectors
   const defaultThresholds = useAppSelector(selectDefaultThresholds);
   const fetchingData = useAppSelector(selectFetchingData);
-  const fetchingCrowdMapData = useAppSelector(selectFetchingCrowdMapData);
   const fixedPoints = sessionId
     ? useAppSelector(selectFixedSessionPointsBySessionId(sessionId))
     : useAppSelector(selectFixedSessionsPoints);
@@ -494,7 +492,7 @@ const Map = () => {
 
   return (
     <>
-      {(selectorsLoading || markersLoading || fetchingCrowdMapData) && (
+      {(selectorsLoading || markersLoading) && (
         <S.LoaderOverlay>
           <Loader />
         </S.LoaderOverlay>
