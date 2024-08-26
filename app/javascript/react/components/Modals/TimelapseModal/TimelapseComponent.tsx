@@ -11,7 +11,6 @@ import type { PopupProps } from "reactjs-popup/dist/types";
 import closeTimelapseButton from "../../../assets/icons/closeTimelapseButton.svg";
 import { useAppDispatch, useAppSelector } from "../../../store/hooks";
 import {
-  fetchTimelapseData,
   selectTimelapseData,
   selectTimelapseIsLoading,
   setCurrentTimestamp,
@@ -101,10 +100,6 @@ const TimelapseComponent: React.FC<
 
     return filtered;
   }, [timeRange, fullTimestamps]);
-
-  useEffect(() => {
-    dispatch(fetchTimelapseData({ filters: TimeRanges.DAYS_7 }));
-  }, [dispatch]);
 
   useEffect(() => {
     setCurrentStep(0);
