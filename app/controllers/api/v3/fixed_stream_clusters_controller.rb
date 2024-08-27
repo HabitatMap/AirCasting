@@ -25,7 +25,6 @@ module Api
         render json: result, status: :ok
       end
 
-
       private
 
       def form
