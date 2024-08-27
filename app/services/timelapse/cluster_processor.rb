@@ -9,7 +9,7 @@ module Timelapse
 
       clusters.each do |cluster|
         averages =
-          measurements_repository.streams_averages_from_period(
+          measurements_repository.streams_averages_hourly_last_7_days(
             stream_ids: cluster[:stream_ids],
           )
 
