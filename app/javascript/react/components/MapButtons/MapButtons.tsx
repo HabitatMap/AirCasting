@@ -21,17 +21,19 @@ enum ButtonTypes {
 }
 
 const MapButtons = () => {
-  const [activeButton, setActiveButton] = useState<ButtonTypes | null>(
-    ButtonTypes.FILTER
-  );
-  const [showFilters, setShowFilters] = useState(false);
-  const { t } = useTranslation();
   const {
     goToUserSettings,
     currentUserSettings,
     previousUserSettings,
     sessionType,
   } = useMapParams();
+  const [activeButton, setActiveButton] = useState<ButtonTypes | null>(
+    currentUserSettings === UserSettings.TimelapseView
+      ? null
+      : ButtonTypes.FILTER
+  );
+  const [showFilters, setShowFilters] = useState(false);
+  const { t } = useTranslation();
 
   const isModalView = currentUserSettings === UserSettings.ModalView;
 
@@ -50,8 +52,12 @@ const MapButtons = () => {
   };
 
   useEffect(() => {
-    setShowFilters(activeButton === ButtonTypes.FILTER);
-  }, [activeButton]);
+    if (currentUserSettings === UserSettings.TimelapseView) {
+      setShowFilters(false);
+    } else {
+      setShowFilters(activeButton === ButtonTypes.FILTER);
+    }
+  }, [activeButton, currentUserSettings]);
 
   const isTimelapseButtonVisible =
     !isModalView && sessionType === SessionTypes.FIXED;
