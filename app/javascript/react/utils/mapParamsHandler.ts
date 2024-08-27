@@ -51,7 +51,6 @@ export enum UrlParamsTypes {
   thresholdHigh = "thresholdHigh",
   thresholdMax = "thresholdMax",
   unitSymbol = "unitSymbol",
-  updateFetchedSessions = "updateFetchedSessions",
   usernames = "usernames",
   tags = "tags",
 }

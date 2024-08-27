@@ -55,6 +55,7 @@ interface SessionsState {
 
 interface SessionsData {
   filters: string;
+  isAdditional?: boolean;
 }
 
 const initialState: SessionsState = {
@@ -86,38 +87,7 @@ export const fetchMobileSessions = createAsyncThunk<
   {
     condition: (_, { getState }) => {
       const { mobileSessions } = getState() as RootState;
-      if (mobileSessions.status === StatusEnum.Pending) {
-        return false;
-      }
-    },
-  }
-);
-
-export const fetchAdditionalMobileSessions = createAsyncThunk<
-  SessionsResponse,
-  SessionsData,
-  { rejectValue: string }
->(
-  "sessions/fetchAdditionalMobileSessions",
-  async (sessionsData, { rejectWithValue }) => {
-    try {
-      const response: AxiosResponse<SessionsResponse, Error> =
-        await oldApiClient.get(
-          API_ENDPOINTS.fetchMobileSessions(sessionsData.filters)
-        );
-
-      return response.data;
-    } catch (error) {
-      const message = getErrorMessage(error);
-      return rejectWithValue(message);
-    }
-  },
-  {
-    condition: (_, { getState }) => {
-      const { mobileSessions } = getState() as RootState;
-      if (mobileSessions.status === StatusEnum.Pending) {
-        return false;
-      }
+      return mobileSessions.status !== StatusEnum.Pending;
     },
   }
 );
@@ -126,7 +96,7 @@ export const mobileSessionsSlice = createSlice({
   name: "mobileSessions",
   initialState,
   reducers: {
-    clearSessions: (state) => {
+    clearMobileSessions: (state) => {
       state.sessions = [];
       state.fetchableSessionsCount = 0;
       state.error = undefined;
@@ -137,28 +107,21 @@ export const mobileSessionsSlice = createSlice({
       .addCase(fetchMobileSessions.pending, (state) => {
         state.status = StatusEnum.Pending;
       })
-      .addCase(fetchAdditionalMobileSessions.pending, (state) => {
-        state.status = StatusEnum.Pending;
-      })
       .addCase(fetchMobileSessions.fulfilled, (state, action) => {
         state.status = StatusEnum.Fulfilled;
-        state.sessions = action.payload.sessions;
-        state.fetchableSessionsCount = action.payload.fetchableSessionsCount;
-      })
-      .addCase(fetchAdditionalMobileSessions.fulfilled, (state, action) => {
-        state.status = StatusEnum.Fulfilled;
-        state.sessions = [...state.sessions, ...action.payload.sessions];
+        if (action.meta.arg.isAdditional) {
+          state.sessions = [...state.sessions, ...action.payload.sessions];
+        } else {
+          state.sessions = action.payload.sessions;
+        }
         state.fetchableSessionsCount = action.payload.fetchableSessionsCount;
       })
       .addCase(fetchMobileSessions.rejected, (state, action) => {
-        state.status = StatusEnum.Rejected;
-        state.error = action.payload;
-      })
-      .addCase(fetchAdditionalMobileSessions.rejected, (state, action) => {
         state.status = StatusEnum.Rejected;
         state.error = action.payload;
       });
   },
 });
 
+export const { clearMobileSessions } = mobileSessionsSlice.actions;
 export default mobileSessionsSlice.reducer;

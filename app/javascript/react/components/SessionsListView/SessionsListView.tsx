@@ -4,6 +4,7 @@ import { useAutoDismissAlert } from "../../utils/useAutoDismissAlert";
 import { AlertPopup } from "../Popups/AlertComponent";
 import ExportButtonComponent from "./ExportButtonComponent";
 import { SessionsListTile } from "./SessionsListTile/SessionListTile";
+import { useScrollEndListener } from "../../hooks/useScrollEndListener";
 import * as S from "./SessionsListView.style";
 
 export interface SessionListEntity {
@@ -21,7 +22,7 @@ interface SessionsListViewProps {
   onCellClick?: (id: number, streamId: number) => void;
   onCellMouseEnter?: (id: number) => void;
   onCellMouseLeave?: () => void;
-  onScrollEnd?: () => void;
+  onScrollEnd: () => void;
   fetchableSessionsCount: number;
 }
 
@@ -71,26 +72,7 @@ const SessionsListView: React.FC<SessionsListViewProps> = ({
     };
   }, [rect?.top]);
 
-  useEffect(() => {
-    const listInnerElement = sessionListRef.current;
-
-    if (listInnerElement) {
-      const onScroll = () => {
-        const { scrollTop, scrollHeight, clientHeight } = listInnerElement;
-        const isNearBottom = scrollTop + clientHeight >= scrollHeight - 10;
-
-        if (isNearBottom && onScrollEnd) {
-          onScrollEnd();
-        }
-      };
-
-      listInnerElement.addEventListener("scroll", onScroll);
-
-      return () => {
-        listInnerElement.removeEventListener("scroll", onScroll);
-      };
-    }
-  }, [onScrollEnd]);
+  useScrollEndListener(sessionListRef, onScrollEnd);
 
   const calculatePopupLeftPosition = () => {
     return `${buttonPosition.left - 185}px`;

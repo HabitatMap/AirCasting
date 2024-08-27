@@ -1,16 +1,17 @@
-import React, { useEffect, useRef } from "react";
+import React, { useRef } from "react";
 import { useTranslation } from "react-i18next";
 
 import closeImage from "../../../assets/icons/closeButton.svg";
 import { SessionsListTile } from "../SessionsListTile/SessionListTile";
 import { SessionListEntity } from "../SessionsListView";
 import * as S from "./MobileSessionList.style";
+import { useScrollEndListener } from "../../../hooks/useScrollEndListener";
 
 interface MobileSessionListProps {
   sessions: SessionListEntity[];
   onCellClick?: (id: number, streamId: number) => void;
   onClose: () => void;
-  onScrollEnd?: () => void;
+  onScrollEnd: () => void;
   fetchableSessionsCount: number;
 }
 
@@ -32,26 +33,7 @@ const MobileSessionList: React.FC<MobileSessionListProps> = ({
     }
   };
 
-  useEffect(() => {
-    const listInnerElement = sessionListRef.current;
-
-    if (listInnerElement) {
-      const onScroll = () => {
-        const { scrollTop, scrollHeight, clientHeight } = listInnerElement;
-        const isNearBottom = scrollTop + clientHeight >= scrollHeight - 10;
-
-        if (isNearBottom && onScrollEnd) {
-          onScrollEnd();
-        }
-      };
-
-      listInnerElement.addEventListener("scroll", onScroll);
-
-      return () => {
-        listInnerElement.removeEventListener("scroll", onScroll);
-      };
-    }
-  }, [onScrollEnd]);
+  useScrollEndListener(sessionListRef, onScrollEnd);
 
   return (
     <S.Overlay>
@@ -65,8 +47,8 @@ const MobileSessionList: React.FC<MobileSessionListProps> = ({
           </S.Title>
         </S.HorizontalContainer>
         <S.SessionListStyled ref={sessionListRef}>
-          {sessions.map((session, index) => (
-            <div key={index}>
+          {sessions.map((session) => (
+            <div key={session.id}>
               <SessionsListTile
                 id={session.id}
                 sessionName={session.sessionName}
