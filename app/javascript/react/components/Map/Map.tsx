@@ -354,8 +354,7 @@ const Map = () => {
 
   useEffect(() => {
     if (streamId && currentUserSettings === UserSettings.ModalView) {
-      previousUserSettings !== UserSettings.IndoorView &&
-        dispatch(setMarkersLoading(true));
+      !isIndoorParameterInUrl && dispatch(setMarkersLoading(true));
       fixedSessionTypeSelected
         ? dispatch(fetchFixedStreamById(streamId))
         : dispatch(fetchMobileStreamById(streamId));
