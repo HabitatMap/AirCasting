@@ -129,7 +129,7 @@ const TimelapseComponent: React.FC<
     (event: MouseEvent) => {
       const targetElement = event.target as HTMLElement;
 
-      const isMapButton = targetElement.closest(".map-button");
+      const isMapButton = targetElement.closest(".active-overlay");
 
       if (
         overlayRef.current &&

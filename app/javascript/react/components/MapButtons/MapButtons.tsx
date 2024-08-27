@@ -52,6 +52,14 @@ const MapButtons = () => {
         goToUserSettings(UserSettings.TimelapseView);
         setActiveButton(ButtonTypes.TIMELAPSE);
       }
+    } else if (buttonType === ButtonTypes.FILTER) {
+      // Close timelapse if it's open when filter is clicked
+      if (currentUserSettings === UserSettings.TimelapseView) {
+        goToUserSettings(previousUserSettings); // This closes the timelapse
+      }
+      setActiveButton((prevState) =>
+        prevState === ButtonTypes.FILTER ? null : ButtonTypes.FILTER
+      );
     } else {
       setActiveButton((prevState) =>
         prevState === buttonType ? null : buttonType
@@ -63,7 +71,11 @@ const MapButtons = () => {
     if (currentUserSettings === UserSettings.TimelapseView) {
       setShowFilters(false);
     } else {
-      setShowFilters(activeButton === ButtonTypes.FILTER);
+      setShowFilters(
+        Array.isArray(activeButton)
+          ? activeButton.includes(ButtonTypes.FILTER)
+          : activeButton === ButtonTypes.FILTER
+      );
     }
   }, [activeButton, currentUserSettings]);
 
@@ -76,7 +88,7 @@ const MapButtons = () => {
           onClick={() => handleClick(ButtonTypes.FILTER)}
           alt={t("navbar.altFilter")}
           isActive={activeButton === ButtonTypes.FILTER}
-          className="map-button"
+          className="active-overlay"
         />
         {isTimelapseButtonVisible && (
           <MapButton
@@ -89,7 +101,7 @@ const MapButtons = () => {
               currentUserSettings === UserSettings.TimelapseView
             }
             isDisabled={isTimelapseDisabled}
-            className="map-button"
+            className="active-overlay"
           />
         )}
 
@@ -101,7 +113,7 @@ const MapButtons = () => {
               onClick={() => {}}
               alt={t("navbar.altCopyLink")}
               isActive={activeButton === ButtonTypes.COPY_LINK}
-              className="map-button"
+              className="active-overlay"
             />
           }
           isIconOnly={false}
