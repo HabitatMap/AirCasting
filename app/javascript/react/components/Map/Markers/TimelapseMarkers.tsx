@@ -20,7 +20,10 @@ const TimelapseMarkers = ({ sessions }: Props) => {
   const thresholds = useSelector(selectThresholds);
   const { unitSymbol } = useMapParams();
 
-  const memoizedSessions = useMemo(() => sessions, [sessions]);
+  const memoizedSessions = useMemo(
+    () => (Array.isArray(sessions) ? sessions : []),
+    [sessions]
+  );
 
   return (
     <>

@@ -33,7 +33,7 @@ const TimelapseModal = styled(Popup)`
     @media ${media.smallDesktop} {
       padding-bottom: 1.25rem;
       align-items: flex-end;
-      bottom: 20rem;
+      bottom: 10rem;
       top: auto;
     }
   }
