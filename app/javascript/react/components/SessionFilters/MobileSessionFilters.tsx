@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next";
 
 import { selectFixedSessionsState } from "../../store/fixedSessionsSelectors";
 import { useAppSelector } from "../../store/hooks";
+import { selectIndoorSessionsState } from "../../store/indoorSessionsSelectors";
 import { selectMobileSessionsState } from "../../store/mobileSessionsSelectors";
 import { selectParameters, selectSensors } from "../../store/sensorsSlice";
 import {
@@ -39,6 +40,8 @@ interface MobileSessionFiltersProps {
 
 const MobileSessionFilters = ({ onClose }: MobileSessionFiltersProps) => {
   const fixedSessionsState = useAppSelector(selectFixedSessionsState);
+  const indoorSessionsState = useAppSelector(selectIndoorSessionsState);
+
   const mobileSessionsState = useAppSelector(selectMobileSessionsState);
   const basicParametersModalOpen = useAppSelector(
     selectBasicParametersModalOpen
@@ -59,7 +62,7 @@ const MobileSessionFilters = ({ onClose }: MobileSessionFiltersProps) => {
   const [isCustomSensorsModalOpen, setIsCustomSensorsModalOpen] = useState(
     customParametersModalOpen
   );
-  const { sessionType, measurementType } = useMapParams();
+  const { sessionType, measurementType, isIndoor } = useMapParams();
   const { t } = useTranslation();
 
   const parameters = useAppSelector(selectParameters);
@@ -73,15 +76,23 @@ const MobileSessionFilters = ({ onClose }: MobileSessionFiltersProps) => {
   );
 
   const fixedSessionTypeSelected: boolean = sessionType === SessionTypes.FIXED;
+  const isIndoorParameterInUrl = isIndoor === "true";
 
   const sessionsCount = useMemo(() => {
     switch (sessionType) {
       case SessionTypes.FIXED:
-        return fixedSessionsState.sessions.length;
+        return isIndoorParameterInUrl
+          ? indoorSessionsState.sessions.length
+          : fixedSessionsState.sessions.length;
       case SessionTypes.MOBILE:
         return mobileSessionsState.sessions.length;
     }
-  }, [fixedSessionsState, mobileSessionsState, sessionType]);
+  }, [
+    fixedSessionsState,
+    mobileSessionsState,
+    sessionType,
+    indoorSessionsState,
+  ]);
 
   useEffect(() => {
     setIsBasicParametersModalOpen(basicParametersModalOpen);

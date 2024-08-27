@@ -19,6 +19,7 @@ interface ApiEndpoints {
   readonly fetchTags: (params: fetchTagsParamsType) => string;
   readonly fetchSensors: (sessionType: SessionType) => string;
   readonly fetchTimelapseData: (filters: string) => string;
+  readonly fetchIndoorSessions: (filters: string) => string;
 }
 
 export const API_ENDPOINTS: ApiEndpoints = {
@@ -71,4 +72,5 @@ export const API_ENDPOINTS: ApiEndpoints = {
   },
   fetchSensors: (sessionType) => `/sensors?session_type=${sessionType}Session`,
   fetchTimelapseData: (filters) => `/timelapse2.json?q=${filters}`,
+  fetchIndoorSessions: (filters) => `/fixed/active/sessions2.json?q=${filters}`,
 };

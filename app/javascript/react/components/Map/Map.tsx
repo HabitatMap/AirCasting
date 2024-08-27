@@ -28,6 +28,8 @@ import {
 } from "../../store/fixedSessionsSlice";
 import { fetchFixedStreamById } from "../../store/fixedStreamSlice";
 import { useAppDispatch, useAppSelector } from "../../store/hooks";
+import { selectIndoorSessionsList } from "../../store/indoorSessionsSelectors";
+import { fetchIndoorSessions } from "../../store/indoorSessionsSlice";
 import { selectFetchingData, setFetchingData } from "../../store/mapSlice";
 import {
   selectMarkersLoading,
@@ -115,6 +117,7 @@ const Map = () => {
   const isFirstRender = useRef(true);
   const isFirstRenderForThresholds = useRef(true);
   const { t } = useTranslation();
+  const isIndoorParameterInUrl = isIndoor === "true";
 
   // State
   const [mapInstance, setMapInstance] = useState<google.maps.Map | null>(null);
@@ -130,11 +133,21 @@ const Map = () => {
   const fetchableFixedSessionsCount = useAppSelector(
     (state: RootState) => state.fixedSessions.fetchableSessionsCount
   );
+  const fetchableIndoorSessionsCount = useAppSelector(
+    (state: RootState) => state.indoorSessions.fetchableSessionsCount
+  );
   const fetchableSessionsCount = useMemo(() => {
     return sessionType === SessionTypes.FIXED
-      ? fetchableFixedSessionsCount
+      ? isIndoorParameterInUrl
+        ? fetchableIndoorSessionsCount
+        : fetchableFixedSessionsCount
       : fetchableMobileSessionsCount;
-  }, [fetchableFixedSessionsCount, fetchableMobileSessionsCount, sessionType]);
+  }, [
+    fetchableFixedSessionsCount,
+    fetchableMobileSessionsCount,
+    sessionType,
+    fetchableIndoorSessionsCount,
+  ]);
 
   const fetchingData = useAppSelector(selectFetchingData);
   const fixedPoints = sessionId
@@ -157,7 +170,9 @@ const Map = () => {
   const fixedSessionTypeSelected: boolean = sessionType === SessionTypes.FIXED;
   const listSessions = useAppSelector(
     fixedSessionTypeSelected
-      ? selectFixedSessionsList
+      ? isIndoorParameterInUrl
+        ? selectIndoorSessionsList
+        : selectFixedSessionsList
       : selectMobileSessionsList
   );
   const sessionsPoints = fixedSessionTypeSelected ? fixedPoints : mobilePoints;
@@ -168,7 +183,6 @@ const Map = () => {
   const sensorNamedDecoded = decodeURIComponent(sensorName);
   const tagsDecoded = tags && decodeURIComponent(tags);
   const usernamesDecoded = usernames && decodeURIComponent(usernames);
-  const isIndoorParameterInUrl = isIndoor === "true";
 
   const isTimelapseView = currentUserSettings === UserSettings.TimelapseView;
 
@@ -212,6 +226,27 @@ const Map = () => {
     ]
   );
 
+  const indoorSessionsFilters = useMemo(
+    () =>
+      JSON.stringify({
+        time_from: "1693094400",
+        time_to: "1724803199",
+        tags: tagsDecoded,
+        usernames: usernamesDecoded,
+        is_indoor: true,
+        sensor_name: sensorNamedDecoded.toLowerCase(),
+        measurement_type: measurementType,
+        unit_symbol: encodedUnitSymbol,
+      }),
+    [
+      encodedUnitSymbol,
+      measurementType,
+      sensorNamedDecoded,
+      tagsDecoded,
+      usernamesDecoded,
+    ]
+  );
+
   const thresholdFilters = useMemo(() => {
     return `${sensorName}?unit_symbol=${encodedUnitSymbol}`;
   }, [sensorName, encodedUnitSymbol]);
@@ -242,7 +277,13 @@ const Map = () => {
     } else {
       if (fetchingData || isFirstLoad) {
         if (fixedSessionTypeSelected) {
-          dispatch(fetchFixedSessions({ filters })).unwrap();
+          if (isIndoorParameterInUrl) {
+            dispatch(
+              fetchIndoorSessions({ filters: indoorSessionsFilters })
+            ).unwrap();
+          } else {
+            dispatch(fetchFixedSessions({ filters })).unwrap();
+          }
         } else {
           dispatch(fetchMobileSessions({ filters }))
             .unwrap()
@@ -374,7 +415,7 @@ const Map = () => {
     dispatch,
     filters,
   ]);
-  
+
   const handleMapIdle = useCallback(
     (event: MapEvent) => {
       const map = event.map;

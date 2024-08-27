@@ -6,7 +6,6 @@ import { UserSettings } from "../../types/userStates";
 import { UrlParamsTypes, useMapParams } from "../../utils/mapParamsHandler";
 import useMobileDetection from "../../utils/useScreenSizeDetection";
 import { FilterInfoPopup } from "./FilterInfoPopup";
-
 import * as S from "./SessionFilters.style";
 
 const IndoorOutdoorSwitch = () => {

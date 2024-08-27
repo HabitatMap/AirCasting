@@ -42,7 +42,7 @@ interface SessionsState {
   error?: string;
 }
 
-interface SessionsData {
+export interface SessionsData {
   filters: string;
 }
 
