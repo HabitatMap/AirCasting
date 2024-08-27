@@ -22,6 +22,7 @@ interface SessionsListViewProps {
   onCellMouseEnter?: (id: number) => void;
   onCellMouseLeave?: () => void;
   onScrollEnd?: () => void;
+  fetchableSessionsCount: number;
 }
 
 const SESSIONS_LIMIT = 100;
@@ -32,6 +33,7 @@ const SessionsListView: React.FC<SessionsListViewProps> = ({
   onCellMouseEnter,
   onCellMouseLeave,
   onScrollEnd,
+  fetchableSessionsCount,
 }) => {
   const { t } = useTranslation();
   const results = sessions.length;
@@ -84,7 +86,6 @@ const SessionsListView: React.FC<SessionsListViewProps> = ({
 
       listInnerElement.addEventListener("scroll", onScroll);
 
-      // Clean-up
       return () => {
         listInnerElement.removeEventListener("scroll", onScroll);
       };
@@ -135,7 +136,7 @@ const SessionsListView: React.FC<SessionsListViewProps> = ({
         <S.SessionListInfoContainer>
           <S.SessionListTitle>{t("map.listSessions")}</S.SessionListTitle>
           <S.SessionListTitle>
-            {t("map.results", { results: results })}
+            {t("map.results", { results, fetchableSessionsCount })}
           </S.SessionListTitle>
         </S.SessionListInfoContainer>
         <ExportButtonComponent

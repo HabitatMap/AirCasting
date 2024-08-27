@@ -126,9 +126,18 @@ const Map = () => {
 
   // Selectors
   const defaultThresholds = useAppSelector(selectDefaultThresholds);
-  const fetchableSessionsCount = useAppSelector(
+  const fetchableMobileSessionsCount = useAppSelector(
     (state: RootState) => state.mobileSessions.fetchableSessionsCount
   );
+  const fetchableFixedSessionsCount = useAppSelector(
+    (state: RootState) => state.fixedSessions.fetchableSessionsCount
+  );
+  const fetchableSessionsCount = useMemo(() => {
+    return sessionType === SessionTypes.FIXED
+      ? fetchableFixedSessionsCount
+      : fetchableMobileSessionsCount;
+  }, [fetchableFixedSessionsCount, fetchableMobileSessionsCount, sessionType]);
+
   const fetchingData = useAppSelector(selectFetchingData);
   const fixedPoints = sessionId
     ? useAppSelector(selectFixedSessionPointsBySessionId(sessionId))
@@ -214,27 +223,36 @@ const Map = () => {
 
   useEffect(() => {
     const isFirstLoad = isFirstRender.current;
-
     if (isFirstLoad && fetchedSessions > 0 && !fixedSessionTypeSelected) {
-      // Temporarily set the limit to fetchedSessions for the first fetch
       const originalLimit = limit;
       updateLimit(fetchedSessions);
 
-      // Fetch sessions with the updated limit
-      dispatch(fetchMobileSessions({ filters }))
+      const updatedFilters = {
+        ...JSON.parse(filters),
+        limit: fetchedSessions,
+      };
+
+      dispatch(fetchMobileSessions({ filters: JSON.stringify(updatedFilters) }))
         .unwrap()
         .then(() => {
-          // Reset the limit back to the original value after the first fetch
           updateLimit(originalLimit);
+          updateFetchedSessions(fetchedSessions);
         });
 
       isFirstRender.current = false;
     } else {
-      // Proceed with normal fetching logic
       if (fetchingData || isFirstLoad) {
-        fixedSessionTypeSelected
-          ? dispatch(fetchFixedSessions({ filters }))
-          : dispatch(fetchMobileSessions({ filters }));
+        if (fixedSessionTypeSelected) {
+          dispatch(fetchFixedSessions({ filters })).unwrap();
+        } else {
+          dispatch(fetchMobileSessions({ filters }))
+            .unwrap()
+            .then((response) => {
+              updateFetchedSessions(response.sessions.length);
+            });
+        }
+
+        isFirstRender.current = false;
 
         isFirstRender.current = false;
       }
@@ -248,6 +266,7 @@ const Map = () => {
     limit,
     dispatch,
     fixedSessionTypeSelected,
+    updateFetchedSessions,
   ]);
 
   useEffect(() => {
@@ -319,10 +338,10 @@ const Map = () => {
   ]);
 
   const handleScrollEnd = useCallback(() => {
-    const hasMoreSessions = listSessions.length < fetchableSessionsCount;
+    const hasMoreSessions = listSessions.length < fetchableMobileSessionsCount;
 
     if (hasMoreSessions) {
-      const newOffset = offset + limit;
+      const newOffset = offset + listSessions.length;
       updateOffset(newOffset);
 
       const updatedFilters = {
@@ -345,7 +364,7 @@ const Map = () => {
   }, [
     offset,
     listSessions.length,
-    fetchableSessionsCount,
+    fetchableMobileSessionsCount,
     limit,
     updateOffset,
     dispatch,
@@ -702,6 +721,8 @@ const Map = () => {
                 ? goToUserSettings(UserSettings.CrowdMapView)
                 : goToUserSettings(UserSettings.MapView)
             }
+            onScrollEnd={handleScrollEnd}
+            fetchableSessionsCount={fetchableSessionsCount}
           />
         )}
         {currentUserSettings === UserSettings.FiltersView && (
@@ -739,6 +760,7 @@ const Map = () => {
               setPulsatingSessionId(null);
             }}
             onScrollEnd={handleScrollEnd}
+            fetchableSessionsCount={fetchableSessionsCount}
           />
         </S.DesktopContainer>
       )}

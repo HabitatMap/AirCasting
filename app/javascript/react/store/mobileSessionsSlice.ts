@@ -125,10 +125,19 @@ export const fetchAdditionalMobileSessions = createAsyncThunk<
 export const mobileSessionsSlice = createSlice({
   name: "mobileSessions",
   initialState,
-  reducers: {},
+  reducers: {
+    clearSessions: (state) => {
+      state.sessions = [];
+      state.fetchableSessionsCount = 0;
+      state.error = undefined;
+    },
+  },
   extraReducers: (builder) => {
     builder
       .addCase(fetchMobileSessions.pending, (state) => {
+        state.status = StatusEnum.Pending;
+      })
+      .addCase(fetchAdditionalMobileSessions.pending, (state) => {
         state.status = StatusEnum.Pending;
       })
       .addCase(fetchMobileSessions.fulfilled, (state, action) => {
