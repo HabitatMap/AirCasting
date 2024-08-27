@@ -51,6 +51,14 @@ const MapButtons = () => {
           goToUserSettings(UserSettings.TimelapseView);
           return [ButtonTypes.TIMELAPSE];
         }
+      } else if (buttonType === ButtonTypes.COPY_LINK) {
+        return prevState.includes(ButtonTypes.COPY_LINK)
+          ? prevState.filter((type) => type !== ButtonTypes.COPY_LINK)
+          : [...prevState, ButtonTypes.COPY_LINK];
+      } else if (buttonType === ButtonTypes.FILTER) {
+        // Close timelapse and make filter button active
+        goToUserSettings(previousUserSettings);
+        return [ButtonTypes.FILTER];
       } else if (prevState.includes(buttonType)) {
         return prevState.filter((type) => type !== buttonType);
       } else {
@@ -63,18 +71,21 @@ const MapButtons = () => {
       }
     });
   };
-
   useEffect(() => {
     if (currentUserSettings === UserSettings.TimelapseView) {
       setShowFilters(false);
-      setActiveButtons([ButtonTypes.TIMELAPSE]);
+      if (!activeButtons.includes(ButtonTypes.TIMELAPSE)) {
+        setActiveButtons([ButtonTypes.TIMELAPSE]);
+      }
     } else {
       setShowFilters(activeButtons.includes(ButtonTypes.FILTER));
-      setActiveButtons((prevState) =>
-        prevState.filter((type) => type !== ButtonTypes.TIMELAPSE)
-      );
+      if (activeButtons.includes(ButtonTypes.TIMELAPSE)) {
+        setActiveButtons((prevState) =>
+          prevState.filter((type) => type !== ButtonTypes.TIMELAPSE)
+        );
+      }
     }
-  }, [activeButtons, currentUserSettings]);
+  }, [currentUserSettings]);
 
   return (
     <S.MapButtonsWrapper>
