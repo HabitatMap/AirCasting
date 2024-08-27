@@ -2,16 +2,6 @@ module Api
   module V3
     class FixedStreamClustersController < BaseController
       def index
-        averages =
-          Timelapse::TimeSlicesTraverser.new.call(
-            time_period: params[:time_period],
-            clusters: params[:clusters]
-          )
-
-        render json: averages, status: :ok
-      end
-
-      def index2
         sessions = FixedSession.active_in_last_days(days: 7).filter_(data)
         zoom_level = data[:zoom_level] || 1
 
