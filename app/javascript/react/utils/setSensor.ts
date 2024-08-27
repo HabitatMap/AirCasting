@@ -15,7 +15,7 @@ const setSensor = (selectedParameter: ParameterType, sensors: Sensor[]) => {
   let sensorName = "";
   switch (selectedParameter) {
     case ParameterTypes.PARTICULATE_MATTER:
-      sensorName = SENSOR_NAMES.PARTICULATE_MATTER.AIRBEAM_PM25;
+      sensorName = SENSOR_NAMES.PARTICULATE_MATTER.GOVERNMENT_PM25;
       break;
     case ParameterTypes.HUMIDITY:
       sensorName = SENSOR_NAMES.HUMIDITY;

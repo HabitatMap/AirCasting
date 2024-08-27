@@ -51,7 +51,6 @@ const VerticalContainer = styled.div`
   align-items: center;
   width: 100%;
   margin-top: 1.25rem;
-  overflow-y: auto;
   max-height: 100%;
 `;
 

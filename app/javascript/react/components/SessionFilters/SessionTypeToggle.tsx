@@ -67,7 +67,10 @@ const SessionTypeToggle = () => {
         },
         {
           key: UrlParamsTypes.sensorName,
-          value: SENSOR_NAMES.PARTICULATE_MATTER.AIRBEAM_PM25,
+          value:
+            type === SessionTypes.FIXED
+              ? SENSOR_NAMES.PARTICULATE_MATTER.GOVERNMENT_PM25
+              : SENSOR_NAMES.PARTICULATE_MATTER.AIRBEAM_PM25,
         },
         {
           key: UrlParamsTypes.unitSymbol,

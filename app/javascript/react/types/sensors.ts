@@ -11,6 +11,8 @@ export const SENSOR_NAMES = {
     AIRBEAM_PM10: "AirBeam-PM10",
     AIRBEAM_PM1: "AirBeam-PM1",
     GOVERNMENT_PM25: "Government-PM2.5",
+    AIRBEAM_MINI_PM25: "AirBeamMini-PM2.5",
+    AIRBEAM_MINI_PM1: "AirBeamMini-PM1",
   },
   HUMIDITY: "AirBeam-RH",
   NITROGEN_DIOXIDE: "Government-NO2",
@@ -39,3 +41,8 @@ export const BasicSensorTypes = {
   SOUND_LEVEL: SENSOR_NAMES.SOUND_LEVEL,
   TEMPERATURE: SENSOR_NAMES.TEMPERATURE,
 };
+
+export const excludedMobileSensors = [
+  SENSOR_NAMES.PARTICULATE_MATTER.AIRBEAM_MINI_PM25,
+  SENSOR_NAMES.PARTICULATE_MATTER.AIRBEAM_MINI_PM1,
+];

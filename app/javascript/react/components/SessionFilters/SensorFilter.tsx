@@ -17,7 +17,11 @@ import {
   setCustomSensorsModalOpen,
 } from "../../store/sessionFiltersSlice";
 import { ParameterTypes, SessionType, SessionTypes } from "../../types/filters";
-import { BasicSensorTypes, Sensor } from "../../types/sensors";
+import {
+  BasicSensorTypes,
+  excludedMobileSensors,
+  Sensor,
+} from "../../types/sensors";
 import { UserSettings } from "../../types/userStates";
 import { UrlParamsTypes, useMapParams } from "../../utils/mapParamsHandler";
 import useMobileDetection from "../../utils/useScreenSizeDetection";
@@ -64,7 +68,9 @@ export const filterCustomSensors = (
   );
   const basicSensors = getBasicSensors(measurementType, sessionType);
   const sensorsFiltered = sensorsForMeasurementType.filter(
-    (sensor: Sensor) => !basicSensors?.includes(sensor.sensorName)
+    (sensor: Sensor) =>
+      !basicSensors?.includes(sensor.sensorName) &&
+      !excludedMobileSensors.includes(sensor.sensorName)
   );
   return sensorsFiltered.map((sensor: Sensor) => sensor.sensorName);
 };
