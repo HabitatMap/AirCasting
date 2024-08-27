@@ -28,12 +28,10 @@ const MapButtons = () => {
     previousUserSettings,
     sessionType,
   } = useMapParams();
-  const [activeButton, setActiveButton] = useState<ButtonTypes | null>(
-    currentUserSettings === UserSettings.TimelapseView
-      ? null
-      : ButtonTypes.FILTER
-  );
-  const [showFilters, setShowFilters] = useState(false);
+  const [activeButtons, setActiveButtons] = useState<ButtonTypes[]>([
+    ButtonTypes.FILTER,
+  ]);
+  const [showFilters, setShowFilters] = useState(true);
   const { t } = useTranslation();
 
   const listSessions = useAppSelector(selectFixedSessionsList);
@@ -47,23 +45,28 @@ const MapButtons = () => {
     if (buttonType === ButtonTypes.TIMELAPSE) {
       if (currentUserSettings === UserSettings.TimelapseView) {
         goToUserSettings(previousUserSettings);
-        setActiveButton(null);
+        setActiveButtons([ButtonTypes.FILTER]);
       } else {
         goToUserSettings(UserSettings.TimelapseView);
-        setActiveButton(ButtonTypes.TIMELAPSE);
+        setActiveButtons([ButtonTypes.TIMELAPSE]);
       }
+    } else if (buttonType === ButtonTypes.COPY_LINK) {
+      setActiveButtons((prevState) => {
+        if (prevState.includes(ButtonTypes.TIMELAPSE)) {
+          return prevState.includes(ButtonTypes.COPY_LINK)
+            ? prevState
+            : [...prevState, ButtonTypes.COPY_LINK];
+        } else {
+          return prevState.includes(ButtonTypes.COPY_LINK)
+            ? prevState.filter((type) => type !== ButtonTypes.COPY_LINK)
+            : [ButtonTypes.COPY_LINK];
+        }
+      });
     } else if (buttonType === ButtonTypes.FILTER) {
-      // Close timelapse if it's open when filter is clicked
       if (currentUserSettings === UserSettings.TimelapseView) {
-        goToUserSettings(previousUserSettings); // This closes the timelapse
+        goToUserSettings(previousUserSettings);
       }
-      setActiveButton((prevState) =>
-        prevState === ButtonTypes.FILTER ? null : ButtonTypes.FILTER
-      );
-    } else {
-      setActiveButton((prevState) =>
-        prevState === buttonType ? null : buttonType
-      );
+      setActiveButtons([ButtonTypes.FILTER]);
     }
   };
 
@@ -71,13 +74,9 @@ const MapButtons = () => {
     if (currentUserSettings === UserSettings.TimelapseView) {
       setShowFilters(false);
     } else {
-      setShowFilters(
-        Array.isArray(activeButton)
-          ? activeButton.includes(ButtonTypes.FILTER)
-          : activeButton === ButtonTypes.FILTER
-      );
+      setShowFilters(activeButtons.includes(ButtonTypes.FILTER));
     }
-  }, [activeButton, currentUserSettings]);
+  }, [activeButtons, currentUserSettings]);
 
   return (
     <S.MapButtonsWrapper>
@@ -87,7 +86,7 @@ const MapButtons = () => {
           image={filterIcon}
           onClick={() => handleClick(ButtonTypes.FILTER)}
           alt={t("navbar.altFilter")}
-          isActive={activeButton === ButtonTypes.FILTER}
+          isActive={activeButtons.includes(ButtonTypes.FILTER)}
           className="active-overlay"
         />
         {isTimelapseButtonVisible && (
@@ -96,10 +95,7 @@ const MapButtons = () => {
             image={clockIcon}
             onClick={() => handleClick(ButtonTypes.TIMELAPSE)}
             alt={t("navbar.altTimelapse")}
-            isActive={
-              activeButton === ButtonTypes.TIMELAPSE &&
-              currentUserSettings === UserSettings.TimelapseView
-            }
+            isActive={activeButtons.includes(ButtonTypes.TIMELAPSE)}
             isDisabled={isTimelapseDisabled}
             className="active-overlay"
           />
@@ -112,7 +108,7 @@ const MapButtons = () => {
               image={copyLinkIcon}
               onClick={() => {}}
               alt={t("navbar.altCopyLink")}
-              isActive={activeButton === ButtonTypes.COPY_LINK}
+              isActive={activeButtons.includes(ButtonTypes.COPY_LINK)}
               className="active-overlay"
             />
           }
@@ -122,7 +118,9 @@ const MapButtons = () => {
             handleClick(ButtonTypes.COPY_LINK);
           }}
           onClose={() => {
-            setActiveButton(null);
+            setActiveButtons((prevState) =>
+              prevState.filter((type) => type !== ButtonTypes.COPY_LINK)
+            );
           }}
         />
       </S.MapButtons>
