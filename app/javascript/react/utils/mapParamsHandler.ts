@@ -3,6 +3,7 @@ import { useCallback, useEffect, useMemo } from "react";
 import { useSearchParams } from "react-router-dom";
 
 import { MAP_CONFIGS } from "../components/Map/mapConfigs";
+import { defaultGridSize } from "../components/SessionFilters/CrowdMapGridSize";
 import {
   DEFAULT_MAP_BOUNDS,
   DEFAULT_MAP_CENTER,
@@ -19,7 +20,6 @@ import {
   SessionTypes,
   UnitSymbols,
 } from "../types/filters";
-
 import { SENSOR_NAMES } from "../types/sensors";
 import { UserSettings } from "../types/userStates";
 import useMobileDetection from "../utils/useScreenSizeDetection";
@@ -32,6 +32,7 @@ export enum UrlParamsTypes {
   currentCenter = "currentCenter",
   currentUserSettings = "currentUserSettings",
   currentZoom = "currentZoom",
+  gridSize = "gridSize",
   limit = "limit",
   mapType = "mapType",
   measurementType = "measurementType",
@@ -115,6 +116,9 @@ export const useMapParams = () => {
   ) as UserSettings;
   const currentZoom = parseFloat(
     getSearchParam(UrlParamsTypes.currentZoom, DEFAULT_ZOOM.toString())!
+  );
+  const gridSize = parseInt(
+    getSearchParam(UrlParamsTypes.gridSize, defaultGridSize.toString())!
   );
   const initialLimit = parseInt(getSearchParam(UrlParamsTypes.limit, "100")!);
   const mapTypeId =
@@ -287,7 +291,10 @@ export const useMapParams = () => {
           },
           {
             key: UrlParamsTypes.currentUserSettings,
-            value: UserSettings.MapView,
+            value:
+              currentUserSettings === UserSettings.CrowdMapView
+                ? UserSettings.CrowdMapView
+                : UserSettings.MapView,
           },
           {
             key: UrlParamsTypes.sessionId,
@@ -320,6 +327,7 @@ export const useMapParams = () => {
     currentZoom,
     debouncedUpdateURL,
     goToUserSettings,
+    gridSize,
     initialLimit,
     mapTypeId,
     measurementType,

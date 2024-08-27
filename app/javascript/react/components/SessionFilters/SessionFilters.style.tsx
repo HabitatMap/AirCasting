@@ -1,10 +1,9 @@
-import styled from "styled-components";
+import styled, { keyframes } from "styled-components";
 
 import {
   acBlue,
   acBlueTransparent,
   black,
-  blue,
   gray100,
   gray200,
   gray300,
@@ -20,6 +19,32 @@ import { SearchInput } from "../LocationSearch/LocationSearch.style";
 import { CloseButton } from "../Map/Legend/Legend.style";
 import { SmallPopup } from "../Popups/Popups.style";
 import { H4, H6 } from "../Typography";
+
+const fadeIn = keyframes`
+  from {
+    opacity: 0;
+    transform: translateY(-1.5rem);
+    max-height: 0;
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+    max-height: 33rem;
+  }
+`;
+
+const fadeOut = keyframes`
+  from {
+    opacity: 1;
+    transform: translateY(0);
+    max-height: 33rem;
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-1.5rem);
+    max-height: 0;
+  }
+`;
 
 const SessionFilters = styled.div`
   display: flex;
@@ -210,13 +235,53 @@ const InfoPopup = styled(SmallPopup)`
   }
 `;
 
-const CrowdMapButton = styled(Button)``;
-
-const CrowdMapSettingsContainer = styled.div`
+const CrowdMapGridSizeWrapper = styled.div<{ $isVisible: boolean }>`
   display: grid;
   grid-template-columns: 1fr;
   grid-template-rows: auto auto;
-  // grid-gap: 0.8rem; // unused until grid size selector is added
+  grid-gap: 0.4rem;
+  justify-content: center;
+  align-items: center;
+  text-transform: uppercase;
+  font-size: 1.4rem;
+  color: ${gray300};
+  letter-spacing: 0.01em;
+
+  overflow: hidden;
+  max-height: ${({ $isVisible }) =>
+    $isVisible ? "33rem" : "0"}; /* Match the value in animation */
+  animation: ${({ $isVisible }) => ($isVisible ? fadeIn : fadeOut)} 0.5s ease
+    forwards;
+  opacity: ${({ $isVisible }) => ($isVisible ? 1 : 0)};
+  transform: ${({ $isVisible }) =>
+    $isVisible ? "translateY(0)" : "translateY(-1.5rem)"};
+  transition: max-height 1s ease, opacity 0.5s ease, transform 0.5s ease;
+`;
+
+const CrowdMapGridButtonsContainer = styled.div`
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  justify-content: space-between;
+  grid-gap: 0.8rem;
+`;
+
+const CrowdGridSizeButton = styled(Button)<{ $isActive: boolean }>`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-transform: uppercase;
+  border: none;
+  background-color: ${(props) => (props.$isActive ? acBlue : gray100)};
+  color: ${(props) => (props.$isActive ? white : gray300)};
+  min-width: 3.8rem;
+  transition: background-color 0.4s ease, color 0.3s ease;
+`;
+
+const CrowdMapSettingsContainer = styled.div<{ $isCrowdMapActive: boolean }>`
+  display: grid;
+  grid-template-columns: 1fr;
+  grid-template-rows: auto auto;
+  grid-gap: ${({ $isCrowdMapActive }) => ($isCrowdMapActive ? "0.8rem" : "0")};
   justify-content: center;
   align-items: center;
   border: 1px solid ${gray200};
@@ -529,10 +594,12 @@ export {
   ChevronBackButton,
   ChevronIcon,
   CloseSelectedItemButton,
-  CrowdMapButton,
+  CrowdGridSizeButton,
+  CrowdMapGridButtonsContainer,
+  CrowdMapGridSizeWrapper,
   CrowdMapSettingsContainer,
-  CrowdMapToggleText,
   CrowdMapToggleOnOff,
+  CrowdMapToggleText,
   CrowdMapToggleWrapper,
   CustomParameter,
   CustomParameterItem,

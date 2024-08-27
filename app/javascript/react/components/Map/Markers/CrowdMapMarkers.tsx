@@ -3,10 +3,13 @@ import React, { useEffect, useMemo, useRef, useState } from "react";
 import { AdvancedMarker, useMap } from "@vis.gl/react-google-maps";
 
 import {
+  clearCrowdMap,
   fetchCrowdMapData,
   selectCrowdMapRectangles,
+  selectFetchingCrowdMapData,
 } from "../../../store/crowdMapSlice";
 import { useAppDispatch, useAppSelector } from "../../../store/hooks";
+import { selectMobileSessionsLoading } from "../../../store/loadingSelectors";
 import { setMarkersLoading } from "../../../store/markersLoadingSlice";
 import { selectMobileSessionsStreamIds } from "../../../store/mobileSessionsSelectors";
 import {
@@ -36,6 +39,8 @@ const CrowdMapMarkers = ({ pulsatingSessionId, sessions }: Props) => {
   const dispatch = useAppDispatch();
 
   const crowdMapRectangles = useAppSelector(selectCrowdMapRectangles);
+  const fetchingCrowdMapData = useAppSelector(selectFetchingCrowdMapData);
+  const mobileSessionsLoading = useAppSelector(selectMobileSessionsLoading);
   const mobileSessionsStreamIds = useAppSelector(selectMobileSessionsStreamIds);
   const rectangleData = useAppSelector(selectRectangleData);
   const rectangleLoading = useAppSelector(selectRectangleLoading);
@@ -47,20 +52,37 @@ const CrowdMapMarkers = ({ pulsatingSessionId, sessions }: Props) => {
     boundNorth,
     boundSouth,
     boundWest,
+    gridSize,
     measurementType,
+    sensorName,
     tags,
     unitSymbol,
     usernames,
   } = useMapParams();
+
+  const gridSizeX = (x: number) => {
+    const width =
+      window.innerWidth ||
+      document.documentElement.clientWidth ||
+      document.body.clientWidth;
+
+    const height =
+      window.innerHeight ||
+      document.documentElement.clientHeight ||
+      document.body.clientHeight;
+
+    return (Math.round(x) * width) / height;
+  };
+
   const filters = useMemo(
     () =>
       JSON.stringify({
         east: boundEast,
-        grid_size_x: 50, // TODO: temporary solution, ticket: Session Filter [Mobile]: Grid size
-        grid_size_y: 50, // TODO: temporary solution, ticket: Session Filter [Mobile]: Grid size
+        grid_size_x: gridSizeX(gridSize),
+        grid_size_y: gridSize,
         measurement_type: measurementType,
         north: boundNorth,
-        sensor_name: "AirBeam-PM2.5", // TODO: temporary solution, ticket: Session Filter [Both]: Sensor Picker
+        sensor_name: sensorName,
         south: boundSouth,
         stream_ids: mobileSessionsStreamIds,
         tags: tags,
@@ -75,8 +97,10 @@ const CrowdMapMarkers = ({ pulsatingSessionId, sessions }: Props) => {
       boundNorth,
       boundSouth,
       boundWest,
+      gridSize,
       measurementType,
       mobileSessionsStreamIds,
+      sensorName,
       tags,
       unitSymbol,
       usernames,
@@ -95,21 +119,25 @@ const CrowdMapMarkers = ({ pulsatingSessionId, sessions }: Props) => {
   );
 
   useEffect(() => {
-    dispatch(fetchCrowdMapData(filters));
-  }, [filters, dispatch]);
-
-  useEffect(() => {
     dispatch(setMarkersLoading(true));
-  }, [dispatch, crowdMapRectanglesLength]);
+  }, [crowdMapRectanglesLength, dispatch]);
 
   useEffect(() => {
     if (rectanglesRef.current.length >= crowdMapRectanglesLength) {
       dispatch(setMarkersLoading(false));
     }
-  }, [dispatch, rectanglesRef.current.length, crowdMapRectanglesLength]);
+  }, [crowdMapRectanglesLength, dispatch, rectanglesRef.current.length]);
 
   useEffect(() => {
-    if (crowdMapRectanglesLength > 0) {
+    if (!mobileSessionsLoading || fetchingCrowdMapData) {
+      setRectanglePoint(null);
+      dispatch(clearCrowdMap());
+      dispatch(fetchCrowdMapData(filters));
+    }
+  }, [dispatch, fetchingCrowdMapData, filters, mobileSessionsLoading]);
+
+  useEffect(() => {
+    if (!mobileSessionsLoading && crowdMapRectanglesLength > 0) {
       const newRectangles = crowdMapRectangles.map((rectangle) => {
         const newRectangle = new google.maps.Rectangle({
           bounds: new google.maps.LatLngBounds(
@@ -139,11 +167,11 @@ const CrowdMapMarkers = ({ pulsatingSessionId, sessions }: Props) => {
               north: rectangleBoundNorth.toString(),
               time_from: "1685318400",
               time_to: "1717027199",
-              grid_size_x: "50",
-              grid_size_y: "50",
+              grid_size_x: gridSizeX(gridSize).toString(),
+              grid_size_y: gridSize.toString(),
               tags: tags || "",
               usernames: usernames || "",
-              sensor_name: "airbeam-pm2.5",
+              sensor_name: sensorName,
               measurement_type: measurementType,
               unit_symbol: encodeURIComponent(unitSymbol),
               stream_ids: mobileSessionsStreamIds.join(","),
@@ -174,9 +202,12 @@ const CrowdMapMarkers = ({ pulsatingSessionId, sessions }: Props) => {
   }, [
     crowdMapRectangles,
     dispatch,
+    gridSize,
     map,
     measurementType,
+    mobileSessionsLoading,
     mobileSessionsStreamIds,
+    sensorName,
     tags,
     thresholds,
     unitSymbol,
@@ -185,7 +216,7 @@ const CrowdMapMarkers = ({ pulsatingSessionId, sessions }: Props) => {
 
   useEffect(() => {
     map && map.addListener("zoom_changed", () => dispatch(clearRectangles()));
-  }, [map, , dispatch]);
+  }, [dispatch, map]);
 
   useMapEventListeners(map, {
     click: () => dispatch(clearRectangles()),
