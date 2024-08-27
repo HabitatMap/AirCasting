@@ -13,6 +13,7 @@ module Api
 
       def index2
         sessions = FixedSession.active_in_last_days(days: 7).filter_(data)
+        zoom_level = data[:zoom_level] || 1
 
         result =
           ::Timelapse::ClustersCreator.new.call(
