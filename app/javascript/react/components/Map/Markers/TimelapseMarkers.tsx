@@ -16,6 +16,12 @@ type Props = {
   }[];
 };
 
+const calculateZIndex = (sessions: number): number => {
+  return sessions === 1
+    ? Number(google.maps.Marker.MAX_ZINDEX + 2)
+    : Number(google.maps.Marker.MAX_ZINDEX + 1);
+};
+
 const TimelapseMarkers = ({ sessions }: Props) => {
   const thresholds = useSelector(selectThresholds);
   const { unitSymbol } = useMapParams();
@@ -34,7 +40,7 @@ const TimelapseMarkers = ({ sessions }: Props) => {
             lng: session.longitude,
           }}
           key={index}
-          zIndex={Number(google.maps.Marker.MAX_ZINDEX + 1)}
+          zIndex={calculateZIndex(session.sessions)}
           title={session.value.toString()}
         >
           {session.sessions === 1 ? (
