@@ -14,20 +14,9 @@ module Api
       def index2
         sessions = FixedSession.active_in_last_days(days: 7).filter_(data)
 
-        Rails.logger.info("data: #{data}")
-
-        zoom_level = data[:zoom_level] || 1
-
-        Rails.logger.info("zoom_level: #{zoom_level}")
-
-        end_of_last_time_slice = Time.current.end_of_hour - 1.hour
-        begining_of_first_time_slice = end_of_last_time_slice.beginning_of_hour - 168.hours
-
         result =
           ::Timelapse::ClustersCreator.new.call(
             sessions: sessions,
-            begining_of_first_time_slice: begining_of_first_time_slice,
-            end_of_last_time_slice: end_of_last_time_slice,
             sensor_name: data[:sensor_name],
             zoom_level: zoom_level
           )

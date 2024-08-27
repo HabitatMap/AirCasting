@@ -5,17 +5,16 @@ module Timelapse
       @streams_repository = StreamsRepository.new
     end
 
-    def call(sessions:, begining_of_first_time_slice:, end_of_last_time_slice:, sensor_name:, zoom_level:)
+    def call(sessions:, sensor_name:, zoom_level:)
+      end_of_last_time_slice = Time.current.end_of_hour - 1.hour
+      begining_of_first_time_slice = end_of_last_time_slice.beginning_of_hour - 7.days
+
       streams = streams_repository.find_by_session_id(sessions.pluck(:id))
       selected_sensor_streams = streams.select { |stream| Sensor.sensor_name(sensor_name).include? stream.sensor_name.downcase }
 
       clusters = cluster_measurements(selected_sensor_streams, zoom_level)
-
       clusters = calculate_centroids_for_clusters(clusters)
-
-      clusters = process_clusters(clusters, begining_of_first_time_slice, end_of_last_time_slice)
-
-      clusters
+      process_clusters(clusters, begining_of_first_time_slice, end_of_last_time_slice)
     end
 
     private
