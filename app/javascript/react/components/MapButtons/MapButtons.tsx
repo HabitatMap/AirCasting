@@ -4,7 +4,6 @@ import { useTranslation } from "react-i18next";
 import clockIcon from "../../assets/icons/clockIcon.svg";
 import copyLinkIcon from "../../assets/icons/copyLinkIcon.svg";
 import filterIcon from "../../assets/icons/filterIcon.svg";
-import shareIcon from "../../assets/icons/shareIcon.svg";
 import { selectFixedSessionsList } from "../../store/fixedSessionsSelectors";
 import { useAppSelector } from "../../store/hooks";
 import { SessionTypes } from "../../types/filters";
@@ -45,16 +44,18 @@ const MapButtons = () => {
   const isTimelapseDisabled = listSessions.length === 0;
 
   const handleClick = (buttonType: ButtonTypes) => {
-    setActiveButton((prevState) =>
-      prevState === buttonType ? null : buttonType
-    );
-
     if (buttonType === ButtonTypes.TIMELAPSE) {
       if (currentUserSettings === UserSettings.TimelapseView) {
         goToUserSettings(previousUserSettings);
+        setActiveButton(null);
       } else {
         goToUserSettings(UserSettings.TimelapseView);
+        setActiveButton(ButtonTypes.TIMELAPSE);
       }
+    } else {
+      setActiveButton((prevState) =>
+        prevState === buttonType ? null : buttonType
+      );
     }
   };
 
@@ -75,6 +76,7 @@ const MapButtons = () => {
           onClick={() => handleClick(ButtonTypes.FILTER)}
           alt={t("navbar.altFilter")}
           isActive={activeButton === ButtonTypes.FILTER}
+          className="map-button"
         />
         {isTimelapseButtonVisible && (
           <MapButton
@@ -87,6 +89,7 @@ const MapButtons = () => {
               currentUserSettings === UserSettings.TimelapseView
             }
             isDisabled={isTimelapseDisabled}
+            className="map-button"
           />
         )}
 
@@ -98,6 +101,7 @@ const MapButtons = () => {
               onClick={() => {}}
               alt={t("navbar.altCopyLink")}
               isActive={activeButton === ButtonTypes.COPY_LINK}
+              className="map-button"
             />
           }
           isIconOnly={false}
@@ -108,13 +112,6 @@ const MapButtons = () => {
           onClose={() => {
             setActiveButton(null);
           }}
-        />
-        <MapButton
-          title={t("navbar.share")}
-          image={shareIcon}
-          onClick={() => handleClick(ButtonTypes.SHARE)}
-          alt={t("navbar.altShare")}
-          isActive={activeButton === ButtonTypes.SHARE}
         />
       </S.MapButtons>
       {showFilters && <DesktopSessionFilters />}

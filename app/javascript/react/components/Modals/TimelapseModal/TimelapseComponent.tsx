@@ -127,9 +127,14 @@ const TimelapseComponent: React.FC<
 
   const handleOverlayClick = useCallback(
     (event: MouseEvent) => {
+      const targetElement = event.target as HTMLElement;
+
+      const isMapButton = targetElement.closest(".map-button");
+
       if (
         overlayRef.current &&
-        !overlayRef.current.contains(event.target as Node)
+        !overlayRef.current.contains(event.target as Node) &&
+        !isMapButton
       ) {
         setShowReadOnlyPopup(true);
       }
@@ -148,11 +153,11 @@ const TimelapseComponent: React.FC<
 
   const currentTimestamp = filteredTimestamps[currentStep];
   const currentDate = moment
-    .utc(currentTimestamp, "YYYY-MM-DD HH:mm:ss UTC")
+    .utc(currentTimestamp, DateFormat.us_with_time_seconds_utc)
     .format(DateFormat.us_without_year);
   const currentTime = moment
-    .utc(currentTimestamp, "YYYY-MM-DD HH:mm:ss UTC")
-    .format("hh:mm A");
+    .utc(currentTimestamp, DateFormat.us_with_time_seconds_utc)
+    .format(DateFormat.time);
 
   return (
     <>

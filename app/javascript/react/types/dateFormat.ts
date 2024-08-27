@@ -8,7 +8,7 @@ enum DateFormat {
   time_with_seconds = "HH:mm:ss",
   time = "HH:mm A",
   us_timestamp = "YYYYMMDDHH:mm:ssZ",
-  us_with_time_seconds_utc = "MM/DD/YYYY HH:mm:ss UTC",
+  us_with_time_seconds_utc = "YYYY-MM-DD HH:mm:ss UTC",
 }
 
 export { DateFormat };

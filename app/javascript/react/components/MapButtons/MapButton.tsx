@@ -9,15 +9,17 @@ interface MapButtonProps {
   onClick: () => void;
   isActive: boolean;
   isDisabled?: boolean;
+  className?: string;
 }
 
 const MapButton = React.forwardRef<HTMLButtonElement, MapButtonProps>(
-  ({ image, title, alt, onClick, isActive, isDisabled }, ref) => {
+  ({ image, title, alt, onClick, isActive, isDisabled, className }, ref) => {
     return (
       <S.MapButton
         onClick={onClick}
         $isActive={isActive}
         $isDisabled={isDisabled}
+        className={className}
       >
         <S.Title $isActive={isActive}>{title}</S.Title>
         <S.IconWrapper $src={image} $isActive={isActive} title={alt} />
