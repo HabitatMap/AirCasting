@@ -26,6 +26,7 @@ const SectionButton: React.FC<SectionButtonProps> = ({
       $isNotTimelapseButton={isNotTimelapseButton}
       $isActive={isActive}
       $isDisabled={isDisabled}
+      className="active-overlay"
     >
       <S.Image src={image} alt={alt} $isActive={isActive} />
       <S.Title $isActive={isActive}>{title}</S.Title>
