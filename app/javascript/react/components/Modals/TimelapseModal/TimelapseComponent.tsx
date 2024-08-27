@@ -68,21 +68,21 @@ const TimelapseComponent: React.FC<
       .filter((timestamp) => {
         const parsedTimestamp = moment.utc(
           timestamp,
-          "YYYY-MM-DD HH:mm:ss UTC"
+          DateFormat.us_with_time_seconds_utc
         );
         return parsedTimestamp.isAfter(startTime);
       })
       .sort((a, b) =>
         moment
-          .utc(a, "YYYY-MM-DD HH:mm:ss UTC")
-          .diff(moment.utc(b, "YYYY-MM-DD HH:mm:ss UTC"))
+          .utc(a, DateFormat.us_with_time_seconds_utc)
+          .diff(moment.utc(b, DateFormat.us_with_time_seconds_utc))
       );
 
     if (filtered.length === 0) {
       return Object.keys(fullTimestamps).sort((a, b) =>
         moment
-          .utc(a, "YYYY-MM-DD HH:mm:ss UTC")
-          .diff(moment.utc(b, "YYYY-MM-DD HH:mm:ss UTC"))
+          .utc(a, DateFormat.us_with_time_seconds_utc)
+          .diff(moment.utc(b, DateFormat.us_with_time_seconds_utc))
       );
     }
 

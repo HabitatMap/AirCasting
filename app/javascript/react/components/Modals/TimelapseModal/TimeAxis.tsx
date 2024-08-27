@@ -22,34 +22,40 @@ const TimeAxis: React.FC<TimeAxisProps> = ({
 
   const currentDate = useMemo(() => {
     return moment
-      .utc(currentTimestamp, "YYYYMMDDHH:mm:ssZ")
+      .utc(currentTimestamp, DateFormat.us_timestamp)
       .format(DateFormat.us);
   }, [currentTimestamp]);
 
   const currentTime = useMemo(() => {
-    return moment.utc(currentTimestamp, "YYYYMMDDHH:mm:ssZ").format("hh:mm A");
+    return moment
+      .utc(currentTimestamp, DateFormat.us_timestamp)
+      .format(DateFormat.time);
   }, [currentTimestamp]);
 
   const firstTimestamp = timestamps[0];
   const lastTimestamp = timestamps[timestamps.length - 1];
 
   const firstFormattedTime = useMemo(() => {
-    return moment.utc(firstTimestamp, "YYYYMMDDHH:mm:ssZ").format("hh:mm A");
+    return moment
+      .utc(firstTimestamp, DateFormat.us_timestamp)
+      .format(DateFormat.time);
   }, [firstTimestamp]);
 
   const firstFormattedDate = useMemo(() => {
     return moment
-      .utc(firstTimestamp, "YYYYMMDDHH:mm:ssZ")
+      .utc(firstTimestamp, DateFormat.us_timestamp)
       .format(DateFormat.us_without_year);
   }, [firstTimestamp]);
 
   const lastFormattedTime = useMemo(() => {
-    return moment.utc(lastTimestamp, "YYYYMMDDHH:mm:ssZ").format("hh:mm A");
+    return moment
+      .utc(lastTimestamp, DateFormat.us_timestamp)
+      .format(DateFormat.time);
   }, [lastTimestamp]);
 
   const lastFormattedDate = useMemo(() => {
     return moment
-      .utc(lastTimestamp, "YYYYMMDDHH:mm:ssZ")
+      .utc(lastTimestamp, DateFormat.us_timestamp)
       .format(DateFormat.us_without_year);
   }, [lastTimestamp]);
 

@@ -4,7 +4,7 @@ import { useSelector } from "react-redux";
 import { selectThresholds } from "../../../store/thresholdSlice";
 import { useMapParams } from "../../../utils/mapParamsHandler";
 import { getColorForValue } from "../../../utils/thresholdColors";
-import { ClusterlMarker } from "./ClusterMarker/ClusterMarker";
+import { ClusterMarker } from "./ClusterMarker/ClusterMarker";
 import { SessionFullMarker } from "./SessionFullMarker/SessionFullMarker";
 
 type Props = {
@@ -49,7 +49,7 @@ const TimelapseMarkers = ({ sessions }: Props) => {
               value={`${Math.round(session.value)} ${unitSymbol}`}
             />
           ) : (
-            <ClusterlMarker
+            <ClusterMarker
               color={getColorForValue(thresholds, session.value)}
             />
           )}

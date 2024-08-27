@@ -5,8 +5,8 @@ interface MarkerProps {
   color: string;
 }
 
-const ClusterlMarker = ({ color }: MarkerProps) => {
+const ClusterMarker = ({ color }: MarkerProps) => {
   return <ClusterIcon color={color} />;
 };
 
-export { ClusterlMarker };
+export { ClusterMarker };
