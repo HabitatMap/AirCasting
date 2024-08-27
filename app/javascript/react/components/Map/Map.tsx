@@ -479,10 +479,7 @@ const Map = () => {
     }
 
     if (selectedStreamId) {
-      currentUserSettings !== UserSettings.IndoorView ||
-        (isMobile &&
-          !isIndoorParameterInUrl &&
-          dispatch(setMarkersLoading(true)));
+      isMobile && !isIndoorParameterInUrl && dispatch(setMarkersLoading(true));
       fixedSessionTypeSelected
         ? dispatch(fetchFixedStreamById(selectedStreamId))
         : dispatch(fetchMobileStreamById(selectedStreamId));
@@ -532,11 +529,9 @@ const Map = () => {
 
   const setPreviousZoomOnTheMap = () => {
     if (
-      [
-        UserSettings.MapView,
-        UserSettings.CrowdMapView,
-        UserSettings.IndoorView,
-      ].includes(currentUserSettings) &&
+      [UserSettings.MapView, UserSettings.CrowdMapView].includes(
+        currentUserSettings
+      ) &&
       ![
         UserSettings.MapView,
         UserSettings.MapLegendView,
@@ -784,11 +779,9 @@ const Map = () => {
           />
         )}
       </S.MobileContainer>
-      {[
-        UserSettings.MapView,
-        UserSettings.CrowdMapView,
-        UserSettings.IndoorView,
-      ].includes(currentUserSettings) && (
+      {[UserSettings.MapView, UserSettings.CrowdMapView].includes(
+        currentUserSettings
+      ) && (
         <S.DesktopContainer>
           <SessionsListView
             sessions={listSessions.map((session) => ({

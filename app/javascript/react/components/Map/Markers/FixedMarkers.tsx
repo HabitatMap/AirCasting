@@ -241,7 +241,7 @@ const FixedMarkers = ({
 
   useEffect(() => {
     dispatch(setMarkersLoading(true));
-  }, [dispatch, sessions.length, isIndoorParameterInUrl]);
+  }, [dispatch, sessions.length]);
 
   useEffect(() => {
     if (hoverStreamId) {
@@ -341,57 +341,47 @@ const FixedMarkers = ({
   });
 
   return (
-    !isIndoorParameterInUrl && (
-      <>
-        {memoizedSessions.map((session) => (
-          <AdvancedMarker
-            position={session.point}
-            key={session.point.streamId}
-            zIndex={Number(google.maps.Marker.MAX_ZINDEX + 1)}
-            title={session.lastMeasurementValue.toString()}
-            ref={(marker) => {
-              if (marker && clusterer.current) {
-                setMarkerRef(marker, session.point.streamId);
-                clusterer.current.addMarker(marker);
-              }
+    // !isIndoorParameterInUrl && (
+    <>
+      {memoizedSessions.map((session) => (
+        <AdvancedMarker
+          position={session.point}
+          key={session.point.streamId}
+          zIndex={Number(google.maps.Marker.MAX_ZINDEX + 1)}
+          title={session.lastMeasurementValue.toString()}
+          ref={(marker) => {
+            if (marker && clusterer.current) {
+              setMarkerRef(marker, session.point.streamId);
+              clusterer.current.addMarker(marker);
+            }
+          }}
+        >
+          <SessionFullMarker
+            color={getColorForValue(thresholds, session.lastMeasurementValue)}
+            value={`${Math.round(session.lastMeasurementValue)} ${unitSymbol}`}
+            isSelected={session.point.streamId === selectedStreamId?.toString()}
+            shouldPulse={session.id === pulsatingSessionId}
+            onClick={() => {
+              onMarkerClick(Number(session.point.streamId), Number(session.id));
+              centerMapOnMarker(session.point, session.point.streamId);
             }}
-          >
-            <SessionFullMarker
-              color={getColorForValue(thresholds, session.lastMeasurementValue)}
-              value={`${Math.round(
-                session.lastMeasurementValue
-              )} ${unitSymbol}`}
-              isSelected={
-                session.point.streamId === selectedStreamId?.toString()
-              }
-              shouldPulse={session.id === pulsatingSessionId}
-              onClick={() => {
-                onMarkerClick(
-                  Number(session.point.streamId),
-                  Number(session.id)
-                );
-                centerMapOnMarker(session.point, session.point.streamId);
-              }}
-            />
-          </AdvancedMarker>
-        ))}
-        {hoverPosition && <HoverMarker position={hoverPosition} />}
-        {selectedCluster &&
-          clusterPosition &&
-          !clusterLoading &&
-          clusterData && (
-            <ClusterInfo
-              color={getColorForValue(thresholds, clusterData.average)}
-              average={clusterData.average}
-              numberOfSessions={clusterData.numberOfInstruments}
-              handleZoomIn={handleZoomIn}
-              position={clusterPosition}
-              visible={clusterVisible}
-            />
-          )}
-      </>
-    )
+          />
+        </AdvancedMarker>
+      ))}
+      {hoverPosition && <HoverMarker position={hoverPosition} />}
+      {selectedCluster && clusterPosition && !clusterLoading && clusterData && (
+        <ClusterInfo
+          color={getColorForValue(thresholds, clusterData.average)}
+          average={clusterData.average}
+          numberOfSessions={clusterData.numberOfInstruments}
+          handleZoomIn={handleZoomIn}
+          position={clusterPosition}
+          visible={clusterVisible}
+        />
+      )}
+    </>
   );
+  // );
 };
 
 export { FixedMarkers };
