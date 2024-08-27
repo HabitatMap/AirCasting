@@ -7,7 +7,7 @@ import { H4 } from "../Typography";
 const MapButtonsWrapper = styled.div`
   position: absolute;
   top: 10rem;
-  z-index: 3;
+  z-index: 4;
   @media ${media.desktop} {
     left: 0;
     top: 8rem;
@@ -23,7 +23,7 @@ const MapButtons = styled.div`
   padding: 0rem 0rem 0rem 2rem;
 `;
 
-const MapButton = styled.button<{ $isActive?: boolean }>`
+const MapButton = styled.button<{ $isActive?: boolean; $isDisabled?: boolean }>`
   display: flex;
   align-items: center;
   justify-content: center;
@@ -33,6 +33,11 @@ const MapButton = styled.button<{ $isActive?: boolean }>`
   border: none;
   margin-right: 1rem;
   cursor: pointer;
+  ${(props) =>
+    props.$isDisabled &&
+    `opacity: 0.5;
+    cursor: not-allowed;
+    pointer-events: none;`}
 `;
 
 const Title = styled(H4)<{ $isActive?: boolean }>`

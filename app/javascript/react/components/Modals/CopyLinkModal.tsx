@@ -61,7 +61,7 @@ const CopyLinkModal: React.FC<CopyLinkModalProps> = ({ onSubmit, onError }) => {
 
   return (
     <form onSubmit={handleSubmit}>
-      <FormWrapper>
+      <FormWrapper className="active-overlay">
         <ModalInput
           focusInputRef={focusInputRef}
           value={formState.link}

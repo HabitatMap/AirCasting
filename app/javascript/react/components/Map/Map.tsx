@@ -48,6 +48,11 @@ import {
   selectDefaultThresholds,
   setUserThresholdValues,
 } from "../../store/thresholdSlice";
+import {
+  fetchTimelapseData,
+  selectCurrentTimestamp,
+  selectTimelapseData,
+} from "../../store/timelapseSlice";
 import { SessionTypes } from "../../types/filters";
 import { SessionList } from "../../types/sessionType";
 import { UserSettings } from "../../types/userStates";
@@ -68,6 +73,7 @@ import { CrowdMapMarkers } from "./Markers/CrowdMapMarkers";
 import { FixedMarkers } from "./Markers/FixedMarkers";
 import { MobileMarkers } from "./Markers/MobileMarkers";
 import { StreamMarkers } from "./Markers/StreamMarkers";
+import { TimelapseMarkers } from "./Markers/TimelapseMarkers";
 
 const Map = () => {
   // Hooks
@@ -149,6 +155,10 @@ const Map = () => {
 
   const isTimelapseView = currentUserSettings === UserSettings.TimelapseView;
 
+  const isTimelapseDisabled = listSessions.length === 0;
+
+  const zoomLevel = !Number.isNaN(currentZoom) ? Math.round(currentZoom) : 5;
+
   const filters = useMemo(
     () =>
       // Change timeFrom and timeTo also in TagsInput
@@ -166,6 +176,7 @@ const Map = () => {
         sensor_name: sensorNamedDecoded.toLowerCase(),
         measurement_type: measurementType,
         unit_symbol: encodedUnitSymbol,
+        zoom_level: zoomLevel,
       }),
     [
       boundEast,
@@ -179,6 +190,7 @@ const Map = () => {
       sensorNamedDecoded,
       tagsDecoded,
       usernamesDecoded,
+      zoomLevel,
     ]
   );
 
@@ -453,6 +465,31 @@ const Map = () => {
     );
   };
 
+  useEffect(() => {
+    if (currentUserSettings === UserSettings.TimelapseView) {
+      dispatch(fetchTimelapseData({ filters: filters }));
+    }
+  }, [currentUserSettings, sessionsPoints]);
+
+  const timelapseData = useAppSelector(selectTimelapseData);
+
+  const currentTimestamp = useAppSelector(selectCurrentTimestamp);
+
+  const memoizedTimelapseData = useMemo(() => timelapseData, [timelapseData]);
+
+  const renderTimelapseMarkers = () => {
+    if (
+      currentUserSettings === UserSettings.TimelapseView &&
+      currentTimestamp &&
+      memoizedTimelapseData[currentTimestamp]
+    ) {
+      return (
+        <TimelapseMarkers sessions={memoizedTimelapseData[currentTimestamp]} />
+      );
+    }
+    return null;
+  };
+
   return (
     <>
       {(selectorsLoading || markersLoading) && (
@@ -473,14 +510,17 @@ const Map = () => {
         minZoom={MIN_ZOOM}
         isFractionalZoomEnabled={true}
       >
-        {fixedSessionsStatusFulfilled && fixedSessionTypeSelected && (
-          <FixedMarkers
-            sessions={sessionsPoints}
-            onMarkerClick={handleMarkerClick}
-            selectedStreamId={streamId}
-            pulsatingSessionId={pulsatingSessionId}
-          />
-        )}
+        {isTimelapseView
+          ? renderTimelapseMarkers()
+          : fixedSessionsStatusFulfilled &&
+            fixedSessionTypeSelected && (
+              <FixedMarkers
+                sessions={sessionsPoints}
+                onMarkerClick={handleMarkerClick}
+                selectedStreamId={streamId}
+                pulsatingSessionId={pulsatingSessionId}
+              />
+            )}
         {!fixedSessionTypeSelected &&
           ([UserSettings.CrowdMapView].includes(currentUserSettings) ||
           ([UserSettings.CrowdMapView].includes(previousUserSettings) &&
@@ -558,6 +598,7 @@ const Map = () => {
               onClick={openTimelapse}
               isNotTimelapseButton={false}
               isActive={currentUserSettings === UserSettings.TimelapseView}
+              isDisabled={isTimelapseDisabled}
             />
           )}
           <SectionButton

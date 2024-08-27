@@ -4,7 +4,8 @@ import { useTranslation } from "react-i18next";
 import clockIcon from "../../assets/icons/clockIcon.svg";
 import copyLinkIcon from "../../assets/icons/copyLinkIcon.svg";
 import filterIcon from "../../assets/icons/filterIcon.svg";
-import shareIcon from "../../assets/icons/shareIcon.svg";
+import { selectFixedSessionsList } from "../../store/fixedSessionsSelectors";
+import { useAppSelector } from "../../store/hooks";
 import { SessionTypes } from "../../types/filters";
 import { UserSettings } from "../../types/userStates";
 import { useMapParams } from "../../utils/mapParamsHandler";
@@ -27,27 +28,45 @@ const MapButtons = () => {
     previousUserSettings,
     sessionType,
   } = useMapParams();
-  const [activeButton, setActiveButton] = useState<ButtonTypes | null>(
-    currentUserSettings === UserSettings.TimelapseView
-      ? null
-      : ButtonTypes.FILTER
-  );
-  const [showFilters, setShowFilters] = useState(false);
+  const [activeButtons, setActiveButtons] = useState<ButtonTypes[]>([
+    ButtonTypes.FILTER,
+  ]);
+  const [showFilters, setShowFilters] = useState(true);
   const { t } = useTranslation();
 
+  const listSessions = useAppSelector(selectFixedSessionsList);
+
   const isModalView = currentUserSettings === UserSettings.ModalView;
+  const isTimelapseButtonVisible =
+    !isModalView && sessionType === SessionTypes.FIXED;
+  const isTimelapseDisabled = listSessions.length === 0;
 
   const handleClick = (buttonType: ButtonTypes) => {
-    setActiveButton((prevState) =>
-      prevState === buttonType ? null : buttonType
-    );
-
     if (buttonType === ButtonTypes.TIMELAPSE) {
       if (currentUserSettings === UserSettings.TimelapseView) {
         goToUserSettings(previousUserSettings);
+        setActiveButtons([ButtonTypes.FILTER]);
       } else {
         goToUserSettings(UserSettings.TimelapseView);
+        setActiveButtons([ButtonTypes.TIMELAPSE]);
       }
+    } else if (buttonType === ButtonTypes.COPY_LINK) {
+      setActiveButtons((prevState) => {
+        if (prevState.includes(ButtonTypes.TIMELAPSE)) {
+          return prevState.includes(ButtonTypes.COPY_LINK)
+            ? prevState
+            : [...prevState, ButtonTypes.COPY_LINK];
+        } else {
+          return prevState.includes(ButtonTypes.COPY_LINK)
+            ? prevState.filter((type) => type !== ButtonTypes.COPY_LINK)
+            : [ButtonTypes.COPY_LINK];
+        }
+      });
+    } else if (buttonType === ButtonTypes.FILTER) {
+      if (currentUserSettings === UserSettings.TimelapseView) {
+        goToUserSettings(previousUserSettings);
+      }
+      setActiveButtons([ButtonTypes.FILTER]);
     }
   };
 
@@ -55,12 +74,9 @@ const MapButtons = () => {
     if (currentUserSettings === UserSettings.TimelapseView) {
       setShowFilters(false);
     } else {
-      setShowFilters(activeButton === ButtonTypes.FILTER);
+      setShowFilters(activeButtons.includes(ButtonTypes.FILTER));
     }
-  }, [activeButton, currentUserSettings]);
-
-  const isTimelapseButtonVisible =
-    !isModalView && sessionType === SessionTypes.FIXED;
+  }, [activeButtons, currentUserSettings]);
 
   return (
     <S.MapButtonsWrapper>
@@ -70,7 +86,8 @@ const MapButtons = () => {
           image={filterIcon}
           onClick={() => handleClick(ButtonTypes.FILTER)}
           alt={t("navbar.altFilter")}
-          isActive={activeButton === ButtonTypes.FILTER}
+          isActive={activeButtons.includes(ButtonTypes.FILTER)}
+          className="active-overlay"
         />
         {isTimelapseButtonVisible && (
           <MapButton
@@ -78,10 +95,9 @@ const MapButtons = () => {
             image={clockIcon}
             onClick={() => handleClick(ButtonTypes.TIMELAPSE)}
             alt={t("navbar.altTimelapse")}
-            isActive={
-              activeButton === ButtonTypes.TIMELAPSE &&
-              currentUserSettings === UserSettings.TimelapseView
-            }
+            isActive={activeButtons.includes(ButtonTypes.TIMELAPSE)}
+            isDisabled={isTimelapseDisabled}
+            className="active-overlay"
           />
         )}
 
@@ -92,7 +108,8 @@ const MapButtons = () => {
               image={copyLinkIcon}
               onClick={() => {}}
               alt={t("navbar.altCopyLink")}
-              isActive={activeButton === ButtonTypes.COPY_LINK}
+              isActive={activeButtons.includes(ButtonTypes.COPY_LINK)}
+              className="active-overlay"
             />
           }
           isIconOnly={false}
@@ -101,15 +118,10 @@ const MapButtons = () => {
             handleClick(ButtonTypes.COPY_LINK);
           }}
           onClose={() => {
-            setActiveButton(null);
+            setActiveButtons((prevState) =>
+              prevState.filter((type) => type !== ButtonTypes.COPY_LINK)
+            );
           }}
-        />
-        <MapButton
-          title={t("navbar.share")}
-          image={shareIcon}
-          onClick={() => handleClick(ButtonTypes.SHARE)}
-          alt={t("navbar.altShare")}
-          isActive={activeButton === ButtonTypes.SHARE}
         />
       </S.MapButtons>
       {showFilters && <DesktopSessionFilters />}

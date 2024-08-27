@@ -50,7 +50,7 @@ export const MobileHeader = ({
         </S.GoBack>
       ) : (
         <>
-          <S.MobileMenuContainer>
+          <S.MobileMenuContainer className="active-overlay">
             <a
               href={urls.habitatMap}
               aria-label={t("navbar.sections.aircastingPage")}

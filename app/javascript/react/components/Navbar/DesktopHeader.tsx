@@ -39,7 +39,7 @@ const DesktopHeader: React.FC<DesktopHeaderProps> = ({
   const isExtraTinyScreen = useScreenSizeDetection(screenSizes.mediocreDesktop);
 
   return (
-    <S.DesktopContainer>
+    <S.DesktopContainer className="active-overlay">
       {isMapPage ? (
         <>
           <S.Container>
@@ -96,7 +96,7 @@ const DesktopHeader: React.FC<DesktopHeaderProps> = ({
       )}
       <S.Container>
         {!isExtraTinyScreen && (
-          <S.BuyCTA href={urls.airbeamBuyNow}>
+          <S.BuyCTA href={urls.airbeamBuyNow} className="active-overlay">
             {isSmallScreen ? "" : t("navbar.sections.getAirbeam")}
             <img
               src={airbeamIcon}
@@ -107,7 +107,10 @@ const DesktopHeader: React.FC<DesktopHeaderProps> = ({
         )}
         {!isTinyScreen && (
           <nav>
-            <S.MenuButton onClick={toggleMenuVisibility}>
+            <S.MenuButton
+              onClick={toggleMenuVisibility}
+              className="active-overlay"
+            >
               <img
                 src={hamburger}
                 alt={t("navbar.altMenu")}

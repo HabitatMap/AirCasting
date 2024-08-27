@@ -16,6 +16,7 @@ import rectangleReducer from "./rectangleSlice";
 import sensorsReducer from "./sensorsSlice";
 import sessionFilterReducer from "./sessionFiltersSlice";
 import thresholdReducer from "./thresholdSlice";
+import timelapseReducer from "./timelapseSlice";
 
 const store = configureStore({
   reducer: {
@@ -34,6 +35,7 @@ const store = configureStore({
     sessionFilter: sessionFilterReducer,
     threshold: thresholdReducer,
     sensors: sensorsReducer,
+    timelapse: timelapseReducer,
   },
 });
 
