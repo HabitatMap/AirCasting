@@ -38,7 +38,10 @@ import {
   selectMobileSessionsList,
   selectMobileSessionsPoints,
 } from "../../store/mobileSessionsSelectors";
-import { fetchMobileSessions } from "../../store/mobileSessionsSlice";
+import {
+  fetchAdditionalMobileSessions,
+  fetchMobileSessions,
+} from "../../store/mobileSessionsSlice";
 import { selectMobileStreamPoints } from "../../store/mobileStreamSelectors";
 import { fetchMobileStreamById } from "../../store/mobileStreamSlice";
 import { fetchSensors } from "../../store/sensorsSlice";
@@ -76,7 +79,6 @@ import { StreamMarkers } from "./Markers/StreamMarkers";
 import { TimelapseMarkers } from "./Markers/TimelapseMarkers";
 
 const Map = () => {
-  // Hooks
   const dispatch = useAppDispatch();
   const {
     boundEast,
@@ -87,11 +89,14 @@ const Map = () => {
     currentUserSettings,
     currentZoom,
     debouncedUpdateURL,
+    fetchedSessions,
     goToUserSettings,
-    initialLimit,
+    limit,
+    updateLimit,
+    updateOffset,
     mapTypeId,
     measurementType,
-    initialOffset,
+    offset,
     previousCenter,
     previousUserSettings,
     previousZoom,
@@ -104,6 +109,7 @@ const Map = () => {
     tags,
     initialThresholds,
     unitSymbol,
+    updateFetchedSessions,
     usernames,
   } = useMapParams();
   const isMobile = useMobileDetection();
@@ -120,6 +126,9 @@ const Map = () => {
 
   // Selectors
   const defaultThresholds = useAppSelector(selectDefaultThresholds);
+  const fetchableSessionsCount = useAppSelector(
+    (state: RootState) => state.mobileSessions.fetchableSessionsCount
+  );
   const fetchingData = useAppSelector(selectFetchingData);
   const fixedPoints = sessionId
     ? useAppSelector(selectFixedSessionPointsBySessionId(sessionId))
@@ -161,7 +170,6 @@ const Map = () => {
 
   const filters = useMemo(
     () =>
-      // Change timeFrom and timeTo also in TagsInput
       JSON.stringify({
         time_from: "1685318400",
         time_to: "1717027199",
@@ -171,8 +179,8 @@ const Map = () => {
         east: boundEast,
         south: boundSouth,
         north: boundNorth,
-        limit: initialLimit,
-        offset: initialOffset,
+        limit: limit,
+        offset: offset,
         sensor_name: sensorNamedDecoded.toLowerCase(),
         measurement_type: measurementType,
         unit_symbol: encodedUnitSymbol,
@@ -184,9 +192,9 @@ const Map = () => {
       boundSouth,
       boundWest,
       encodedUnitSymbol,
-      initialLimit,
+      limit,
       measurementType,
-      initialOffset,
+      offset,
       sensorNamedDecoded,
       tagsDecoded,
       usernamesDecoded,
@@ -205,13 +213,42 @@ const Map = () => {
   }, [sessionType]);
 
   useEffect(() => {
-    if (fetchingData || isFirstRender.current) {
-      fixedSessionTypeSelected
-        ? dispatch(fetchFixedSessions({ filters }))
-        : dispatch(fetchMobileSessions({ filters }));
+    const isFirstLoad = isFirstRender.current;
+
+    if (isFirstLoad && fetchedSessions > 0 && !fixedSessionTypeSelected) {
+      // Temporarily set the limit to fetchedSessions for the first fetch
+      const originalLimit = limit;
+      updateLimit(fetchedSessions);
+
+      // Fetch sessions with the updated limit
+      dispatch(fetchMobileSessions({ filters }))
+        .unwrap()
+        .then(() => {
+          // Reset the limit back to the original value after the first fetch
+          updateLimit(originalLimit);
+        });
+
+      isFirstRender.current = false;
+    } else {
+      // Proceed with normal fetching logic
+      if (fetchingData || isFirstLoad) {
+        fixedSessionTypeSelected
+          ? dispatch(fetchFixedSessions({ filters }))
+          : dispatch(fetchMobileSessions({ filters }));
+
+        isFirstRender.current = false;
+      }
     }
+
     dispatch(setFetchingData(false));
-  }, [fetchingData, filters]);
+  }, [
+    fetchingData,
+    filters,
+    fetchedSessions,
+    limit,
+    dispatch,
+    fixedSessionTypeSelected,
+  ]);
 
   useEffect(() => {
     dispatch(fetchThresholds(thresholdFilters));
@@ -281,7 +318,41 @@ const Map = () => {
     dispatch,
   ]);
 
-  // Callbacks
+  const handleScrollEnd = useCallback(() => {
+    const hasMoreSessions = listSessions.length < fetchableSessionsCount;
+
+    if (hasMoreSessions) {
+      const newOffset = offset + limit;
+      updateOffset(newOffset);
+
+      const updatedFilters = {
+        ...JSON.parse(filters),
+        offset: newOffset,
+      };
+
+      dispatch(
+        fetchAdditionalMobileSessions({
+          filters: JSON.stringify(updatedFilters),
+        })
+      )
+        .unwrap()
+        .then((response) => {
+          const totalFetchedSessions =
+            listSessions.length + response.sessions.length;
+          updateFetchedSessions(totalFetchedSessions);
+        });
+    }
+  }, [
+    offset,
+    listSessions.length,
+    fetchableSessionsCount,
+    limit,
+    updateOffset,
+    dispatch,
+    filters,
+    updateFetchedSessions,
+  ]);
+
   const handleMapIdle = useCallback(
     (event: MapEvent) => {
       const map = event.map;
@@ -337,7 +408,6 @@ const Map = () => {
     ]
   );
 
-  // Handlers;
   const handleMarkerClick = (
     selectedStreamId: number | null,
     id: number | null
@@ -668,6 +738,7 @@ const Map = () => {
             onCellMouseLeave={() => {
               setPulsatingSessionId(null);
             }}
+            onScrollEnd={handleScrollEnd}
           />
         </S.DesktopContainer>
       )}

@@ -1,6 +1,5 @@
-import React, { useCallback, useEffect } from "react";
+import React, { useCallback, useEffect, useRef } from "react";
 import { useTranslation } from "react-i18next";
-
 import { useAutoDismissAlert } from "../../utils/useAutoDismissAlert";
 import { AlertPopup } from "../Popups/AlertComponent";
 import ExportButtonComponent from "./ExportButtonComponent";
@@ -22,6 +21,7 @@ interface SessionsListViewProps {
   onCellClick?: (id: number, streamId: number) => void;
   onCellMouseEnter?: (id: number) => void;
   onCellMouseLeave?: () => void;
+  onScrollEnd?: () => void;
 }
 
 const SESSIONS_LIMIT = 100;
@@ -31,11 +31,13 @@ const SessionsListView: React.FC<SessionsListViewProps> = ({
   onCellClick,
   onCellMouseEnter,
   onCellMouseLeave,
+  onScrollEnd,
 }) => {
   const { t } = useTranslation();
   const results = sessions.length;
   const sessionsIds = sessions.map((session) => session.id);
-  const exportButtonRef = React.useRef<HTMLDivElement>(null);
+  const exportButtonRef = useRef<HTMLDivElement>(null);
+  const sessionListRef = useRef<HTMLDivElement>(null);
   const [buttonPosition, setButtonPosition] = React.useState({
     top: 0,
     left: 0,
@@ -66,6 +68,28 @@ const SessionsListView: React.FC<SessionsListViewProps> = ({
       window.removeEventListener("resize", updateButtonPosition);
     };
   }, [rect?.top]);
+
+  useEffect(() => {
+    const listInnerElement = sessionListRef.current;
+
+    if (listInnerElement) {
+      const onScroll = () => {
+        const { scrollTop, scrollHeight, clientHeight } = listInnerElement;
+        const isNearBottom = scrollTop + clientHeight >= scrollHeight - 10;
+
+        if (isNearBottom && onScrollEnd) {
+          onScrollEnd();
+        }
+      };
+
+      listInnerElement.addEventListener("scroll", onScroll);
+
+      // Clean-up
+      return () => {
+        listInnerElement.removeEventListener("scroll", onScroll);
+      };
+    }
+  }, [onScrollEnd]);
 
   const calculatePopupLeftPosition = () => {
     return `${buttonPosition.left - 185}px`;
@@ -123,7 +147,7 @@ const SessionsListView: React.FC<SessionsListViewProps> = ({
           exportButtonRef={exportButtonRef}
         />
       </S.SessionInfoTile>
-      <S.SessionListContainer>
+      <S.SessionListContainer ref={sessionListRef}>
         {sessions.map((session) => (
           <div key={session.id}>
             <SessionsListTile

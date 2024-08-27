@@ -1,7 +1,5 @@
 import { AxiosResponse } from "axios";
-
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-
 import { oldApiClient } from "../api/apiClient";
 import { API_ENDPOINTS } from "../api/apiEndpoints";
 import { StatusEnum } from "../types/api";
@@ -95,6 +93,35 @@ export const fetchMobileSessions = createAsyncThunk<
   }
 );
 
+export const fetchAdditionalMobileSessions = createAsyncThunk<
+  SessionsResponse,
+  SessionsData,
+  { rejectValue: string }
+>(
+  "sessions/fetchAdditionalMobileSessions",
+  async (sessionsData, { rejectWithValue }) => {
+    try {
+      const response: AxiosResponse<SessionsResponse, Error> =
+        await oldApiClient.get(
+          API_ENDPOINTS.fetchMobileSessions(sessionsData.filters)
+        );
+
+      return response.data;
+    } catch (error) {
+      const message = getErrorMessage(error);
+      return rejectWithValue(message);
+    }
+  },
+  {
+    condition: (_, { getState }) => {
+      const { mobileSessions } = getState() as RootState;
+      if (mobileSessions.status === StatusEnum.Pending) {
+        return false;
+      }
+    },
+  }
+);
+
 export const mobileSessionsSlice = createSlice({
   name: "mobileSessions",
   initialState,
@@ -109,7 +136,16 @@ export const mobileSessionsSlice = createSlice({
         state.sessions = action.payload.sessions;
         state.fetchableSessionsCount = action.payload.fetchableSessionsCount;
       })
+      .addCase(fetchAdditionalMobileSessions.fulfilled, (state, action) => {
+        state.status = StatusEnum.Fulfilled;
+        state.sessions = [...state.sessions, ...action.payload.sessions];
+        state.fetchableSessionsCount = action.payload.fetchableSessionsCount;
+      })
       .addCase(fetchMobileSessions.rejected, (state, action) => {
+        state.status = StatusEnum.Rejected;
+        state.error = action.payload;
+      })
+      .addCase(fetchAdditionalMobileSessions.rejected, (state, action) => {
         state.status = StatusEnum.Rejected;
         state.error = action.payload;
       });

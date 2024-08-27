@@ -33,6 +33,7 @@ export enum UrlParamsTypes {
   currentUserSettings = "currentUserSettings",
   currentZoom = "currentZoom",
   gridSize = "gridSize",
+  fetchedSessions = "fetchedSessions",
   limit = "limit",
   mapType = "mapType",
   measurementType = "measurementType",
@@ -50,6 +51,7 @@ export enum UrlParamsTypes {
   thresholdHigh = "thresholdHigh",
   thresholdMax = "thresholdMax",
   unitSymbol = "unitSymbol",
+  updateFetchedSessions = "updateFetchedSessions",
   usernames = "usernames",
   tags = "tags",
 }
@@ -73,7 +75,7 @@ export const useMapParams = () => {
       });
       setSearchParams(`?${newSearchParams.toString()}`);
     },
-    [searchParams]
+    [searchParams, setSearchParams]
   );
 
   const boundEast = parseFloat(
@@ -117,10 +119,18 @@ export const useMapParams = () => {
   const currentZoom = parseFloat(
     getSearchParam(UrlParamsTypes.currentZoom, DEFAULT_ZOOM.toString())!
   );
+
   const gridSize = parseInt(
     getSearchParam(UrlParamsTypes.gridSize, defaultGridSize.toString())!
   );
-  const initialLimit = parseInt(getSearchParam(UrlParamsTypes.limit, "100")!);
+  const limit = parseInt(getSearchParam(UrlParamsTypes.limit, "100")!);
+  const updateLimit = useCallback(
+    (newLimit: number) => {
+      setUrlParams([{ key: UrlParamsTypes.limit, value: newLimit.toString() }]);
+    },
+    [setUrlParams]
+  );
+
   const mapTypeId =
     getSearchParam(UrlParamsTypes.mapType, MAP_CONFIGS[0].mapTypeId) ||
     MAP_CONFIGS[0].mapTypeId;
@@ -128,7 +138,31 @@ export const useMapParams = () => {
     UrlParamsTypes.measurementType,
     ParameterTypes.PARTICULATE_MATTER
   )!;
-  const initialOffset = parseInt(getSearchParam(UrlParamsTypes.offset, "0")!);
+
+  const offset = parseInt(getSearchParam(UrlParamsTypes.offset, "0")!);
+  const updateOffset = useCallback(
+    (newOffset: number) => {
+      setUrlParams([
+        { key: UrlParamsTypes.offset, value: newOffset.toString() },
+      ]);
+    },
+    [setUrlParams]
+  );
+
+  const fetchedSessions = parseInt(
+    getSearchParam(UrlParamsTypes.fetchedSessions, "0")!
+  );
+  const updateFetchedSessions = useCallback(
+    (newFetchedSessions: number) => {
+      setUrlParams([
+        {
+          key: UrlParamsTypes.fetchedSessions,
+          value: newFetchedSessions.toString(),
+        },
+      ]);
+    },
+    [setUrlParams]
+  );
   const previousCenter = useMemo(
     () =>
       JSON.parse(
@@ -326,12 +360,13 @@ export const useMapParams = () => {
     currentUserSettings,
     currentZoom,
     debouncedUpdateURL,
+    fetchedSessions,
     goToUserSettings,
     gridSize,
-    initialLimit,
+    limit,
     mapTypeId,
     measurementType,
-    initialOffset,
+    offset,
     previousCenter,
     previousUserSettings,
     previousZoom,
@@ -345,6 +380,9 @@ export const useMapParams = () => {
     initialThresholds,
     searchParams,
     unitSymbol,
+    updateFetchedSessions,
+    updateLimit,
+    updateOffset,
     usernames,
     tags,
   };

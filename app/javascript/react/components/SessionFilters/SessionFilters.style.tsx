@@ -378,7 +378,7 @@ const FiltersOptionButton = styled(Button)<{ $isSelected: boolean }>`
   border-color: ${(props) => props.$isSelected && lightBlue};
   font-size: 1.2rem;
   text-transform: capitalize;
-  text-wrap: nowrap;
+  white-space: nowrap;
 
   &:last-of-type {
     margin-bottom: 0;
@@ -559,7 +559,7 @@ const CustomParameter = styled.button<{ $isActive?: boolean }>`
   color: ${(props) => (props.$isActive ? acBlue : black)};
   font-size: 1.6rem;
   text-align: left;
-  text-wrap: nowrap;
+  white-space: nowrap;
   margin-bottom: 0.8rem;
   @media (${media.desktop}) {
     font-size: 1.2rem;
