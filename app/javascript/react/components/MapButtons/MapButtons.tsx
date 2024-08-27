@@ -42,39 +42,37 @@ const MapButtons = () => {
   const isTimelapseDisabled = listSessions.length === 0;
 
   const handleClick = (buttonType: ButtonTypes) => {
-    if (buttonType === ButtonTypes.TIMELAPSE) {
-      if (currentUserSettings === UserSettings.TimelapseView) {
-        goToUserSettings(previousUserSettings);
-        setActiveButtons([ButtonTypes.FILTER]);
-      } else {
-        goToUserSettings(UserSettings.TimelapseView);
-        setActiveButtons([ButtonTypes.TIMELAPSE]);
-      }
-    } else if (buttonType === ButtonTypes.COPY_LINK) {
-      setActiveButtons((prevState) => {
+    setActiveButtons((prevState) => {
+      if (buttonType === ButtonTypes.TIMELAPSE) {
         if (prevState.includes(ButtonTypes.TIMELAPSE)) {
-          return prevState.includes(ButtonTypes.COPY_LINK)
-            ? prevState
-            : [...prevState, ButtonTypes.COPY_LINK];
+          goToUserSettings(previousUserSettings);
+          return prevState.filter((type) => type !== ButtonTypes.TIMELAPSE);
         } else {
-          return prevState.includes(ButtonTypes.COPY_LINK)
-            ? prevState.filter((type) => type !== ButtonTypes.COPY_LINK)
-            : [ButtonTypes.COPY_LINK];
+          goToUserSettings(UserSettings.TimelapseView);
+          return [ButtonTypes.TIMELAPSE];
         }
-      });
-    } else if (buttonType === ButtonTypes.FILTER) {
-      if (currentUserSettings === UserSettings.TimelapseView) {
-        goToUserSettings(previousUserSettings);
+      } else if (prevState.includes(buttonType)) {
+        return prevState.filter((type) => type !== buttonType);
+      } else {
+        if (prevState.includes(ButtonTypes.TIMELAPSE)) {
+          return [ButtonTypes.TIMELAPSE, buttonType].filter(
+            (type) => type !== ButtonTypes.FILTER
+          );
+        }
+        return [...prevState, buttonType];
       }
-      setActiveButtons([ButtonTypes.FILTER]);
-    }
+    });
   };
 
   useEffect(() => {
     if (currentUserSettings === UserSettings.TimelapseView) {
       setShowFilters(false);
+      setActiveButtons([ButtonTypes.TIMELAPSE]);
     } else {
       setShowFilters(activeButtons.includes(ButtonTypes.FILTER));
+      setActiveButtons((prevState) =>
+        prevState.filter((type) => type !== ButtonTypes.TIMELAPSE)
+      );
     }
   }, [activeButtons, currentUserSettings]);
 
@@ -106,7 +104,7 @@ const MapButtons = () => {
             <MapButton
               title={t("navbar.copyLink")}
               image={copyLinkIcon}
-              onClick={() => {}}
+              onClick={() => handleClick(ButtonTypes.COPY_LINK)}
               alt={t("navbar.altCopyLink")}
               isActive={activeButtons.includes(ButtonTypes.COPY_LINK)}
               className="active-overlay"
@@ -115,7 +113,9 @@ const MapButtons = () => {
           isIconOnly={false}
           showBelowButton
           onOpen={() => {
-            handleClick(ButtonTypes.COPY_LINK);
+            if (!activeButtons.includes(ButtonTypes.COPY_LINK)) {
+              handleClick(ButtonTypes.COPY_LINK);
+            }
           }}
           onClose={() => {
             setActiveButtons((prevState) =>
