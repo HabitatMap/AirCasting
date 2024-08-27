@@ -1,6 +1,7 @@
 module Timelapse
   class ClustersCreator
     def initialize
+      @measurements_repository = MeasurementsRepository.new
       @streams_repository = StreamsRepository.new
       @cluster_processor = ClusterProcessor.new
     end
@@ -8,7 +9,7 @@ module Timelapse
     def call(sessions:, sensor_name:, zoom_level:)
       streams = streams_repository.find_by_session_id(sessions.pluck(:id))
       selected_sensor_streams = streams.select { |stream| Sensor.sensor_name(sensor_name).include? stream.sensor_name.downcase }
-      streams_with_coordinates = streams_repository.streams_coordinates(selected_sensor_streams.pluck(:id))
+      streams_with_coordinates = measurements_repository.streams_coordinates(selected_sensor_streams.pluck(:id))
 
       clusters = cluster_measurements(streams_with_coordinates, zoom_level)
       clusters = calculate_centroids_for_clusters(clusters)
@@ -17,7 +18,7 @@ module Timelapse
 
     private
 
-    attr_reader :streams_repository, :cluster_processor
+    attr_reader :measurements_repository, :streams_repository, :cluster_processor
 
     def cluster_measurements(streams_with_coordinates, zoom_level)
       grid_cell_size = determine_grid_cell_size(zoom_level)
