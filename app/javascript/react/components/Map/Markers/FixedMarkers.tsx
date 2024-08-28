@@ -341,7 +341,6 @@ const FixedMarkers = ({
   });
 
   return (
-    // !isIndoorParameterInUrl && (
     <>
       {memoizedSessions.map((session) => (
         <AdvancedMarker
@@ -381,7 +380,6 @@ const FixedMarkers = ({
       )}
     </>
   );
-  // );
 };
 
 export { FixedMarkers };

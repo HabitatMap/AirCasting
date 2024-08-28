@@ -31,10 +31,7 @@ import { useAppDispatch, useAppSelector } from "../../store/hooks";
 import { selectIndoorSessionsList } from "../../store/indoorSessionsSelectors";
 import { fetchIndoorSessions } from "../../store/indoorSessionsSlice";
 import { selectFetchingData, setFetchingData } from "../../store/mapSlice";
-import {
-  selectMarkersLoading,
-  setMarkersLoading,
-} from "../../store/markersLoadingSlice";
+import { selectMarkersLoading } from "../../store/markersLoadingSlice";
 import {
   selectMobileSessionPointsBySessionId,
   selectMobileSessionsList,
@@ -354,7 +351,6 @@ const Map = () => {
 
   useEffect(() => {
     if (streamId && currentUserSettings === UserSettings.ModalView) {
-      !isIndoorParameterInUrl && dispatch(setMarkersLoading(true));
       fixedSessionTypeSelected
         ? dispatch(fetchFixedStreamById(streamId))
         : dispatch(fetchMobileStreamById(streamId));
@@ -480,7 +476,6 @@ const Map = () => {
     }
 
     if (selectedStreamId) {
-      isMobile && !isIndoorParameterInUrl && dispatch(setMarkersLoading(true));
       fixedSessionTypeSelected
         ? dispatch(fetchFixedStreamById(selectedStreamId))
         : dispatch(fetchMobileStreamById(selectedStreamId));
