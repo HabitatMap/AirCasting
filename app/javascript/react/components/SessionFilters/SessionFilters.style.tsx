@@ -11,6 +11,7 @@ import {
   gray500,
   gray600,
   lightBlue,
+  lightBlueInfo,
   white,
 } from "../../assets/styles/colors";
 import { media } from "../../utils/media";
@@ -62,10 +63,10 @@ const Wrapper = styled.div`
   position: relative;
 `;
 
-const SingleFilterWrapper = styled.div`
+const SingleFilterWrapper = styled.div<{ $noMarginTop?: boolean }>`
   display: flex;
   align-items: center;
-  margin-top: 1.6rem;
+  margin-top: ${(props) => (props.$noMarginTop ? 0 : "1.6rem")};
   width: 100%;
 `;
 
@@ -584,6 +585,51 @@ const MobileCustomParameters = styled.div`
   }
 `;
 
+const IndoorToggleHeading = styled.span`
+  font-size: 1rem;
+  text-transform: uppercase;
+  color: ${gray600};
+  margin-top: 1.6rem;
+`;
+
+const IndoorFilterWrapper = styled.div`
+  width: 100%;
+`;
+
+const IndoorToggleWrapper = styled(SessionToggleWrapper)<{
+  $isIndoor: boolean;
+}>`
+  border-radius: ${(props) => props.$isIndoor && "10px 10px 0 0"};
+  margin-top: 0.5rem;
+`;
+
+const IndoorTab = styled(Tab)<{
+  $isIndoor: boolean;
+}>`
+  &:first-child {
+    border-radius: ${(props) => props.$isIndoor && "10px 0 0 0"};
+  }
+
+  &:nth-child(2) {
+    border-radius: ${(props) => props.$isIndoor && "0 10px 0px 0"};
+  }
+`;
+
+const IndoorToggleInfoWrapper = styled.div`
+  padding: 0.8rem 1rem;
+  border-radius: 0 0 10px 10px;
+  background-color: ${lightBlueInfo};
+`;
+
+const IndoorToggleInfoText = styled.span`
+  font-size: 1.2rem;
+  display: block;
+
+  &:nth-child(2) {
+    margin-top: 0.5rem;
+  }
+`;
+
 export {
   BackButton,
   BasicParameterButton,
@@ -618,6 +664,12 @@ export {
   HeaderTitle,
   Hr,
   IconWrapper,
+  IndoorFilterWrapper,
+  IndoorTab,
+  IndoorToggleHeading,
+  IndoorToggleInfoText,
+  IndoorToggleInfoWrapper,
+  IndoorToggleWrapper,
   Info,
   InfoButton,
   InfoIcon,

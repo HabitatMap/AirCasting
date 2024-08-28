@@ -5,6 +5,7 @@ import crowdMapReducer from "./crowdMapSlice";
 import sessionReducer from "./exportSessionSlice";
 import fixedSessionsReducer from "./fixedSessionsSlice";
 import fixedStreamReducer from "./fixedStreamSlice";
+import indoorSessionsReducer from "./indoorSessionsSlice";
 import { selectIsLoading } from "./loadingSelectors";
 import mapReducer from "./mapSlice";
 import markersLoadingReducer from "./markersLoadingSlice";
@@ -36,6 +37,7 @@ const store = configureStore({
     threshold: thresholdReducer,
     sensors: sensorsReducer,
     timelapse: timelapseReducer,
+    indoorSessions: indoorSessionsReducer,
   },
 });
 

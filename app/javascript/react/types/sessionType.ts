@@ -15,6 +15,8 @@ export type Session = {
   time?: number;
 };
 
+export type IndoorSession = Omit<Session, "point">;
+
 export type SessionList = {
   id: number;
   title: string;

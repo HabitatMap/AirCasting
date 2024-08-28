@@ -28,11 +28,10 @@ import {
 } from "../../store/fixedSessionsSlice";
 import { fetchFixedStreamById } from "../../store/fixedStreamSlice";
 import { useAppDispatch, useAppSelector } from "../../store/hooks";
+import { selectIndoorSessionsList } from "../../store/indoorSessionsSelectors";
+import { fetchIndoorSessions } from "../../store/indoorSessionsSlice";
 import { selectFetchingData, setFetchingData } from "../../store/mapSlice";
-import {
-  selectMarkersLoading,
-  setMarkersLoading,
-} from "../../store/markersLoadingSlice";
+import { selectMarkersLoading } from "../../store/markersLoadingSlice";
 import {
   selectMobileSessionPointsBySessionId,
   selectMobileSessionsList,
@@ -108,12 +107,14 @@ const Map = () => {
     unitSymbol,
     updateFetchedSessions,
     usernames,
+    isIndoor,
   } = useMapParams();
   const isMobile = useMobileDetection();
   const navigate = useNavigate();
   const isFirstRender = useRef(true);
   const isFirstRenderForThresholds = useRef(true);
   const { t } = useTranslation();
+  const isIndoorParameterInUrl = isIndoor === "true";
 
   // State
   const [mapInstance, setMapInstance] = useState<google.maps.Map | null>(null);
@@ -129,11 +130,21 @@ const Map = () => {
   const fetchableFixedSessionsCount = useAppSelector(
     (state: RootState) => state.fixedSessions.fetchableSessionsCount
   );
+  const fetchableIndoorSessionsCount = useAppSelector(
+    (state: RootState) => state.indoorSessions.fetchableSessionsCount
+  );
   const fetchableSessionsCount = useMemo(() => {
     return sessionType === SessionTypes.FIXED
-      ? fetchableFixedSessionsCount
+      ? isIndoorParameterInUrl
+        ? fetchableIndoorSessionsCount
+        : fetchableFixedSessionsCount
       : fetchableMobileSessionsCount;
-  }, [fetchableFixedSessionsCount, fetchableMobileSessionsCount, sessionType]);
+  }, [
+    fetchableFixedSessionsCount,
+    fetchableMobileSessionsCount,
+    sessionType,
+    fetchableIndoorSessionsCount,
+  ]);
 
   const fetchingData = useAppSelector(selectFetchingData);
   const fixedPoints = sessionId
@@ -156,7 +167,9 @@ const Map = () => {
   const fixedSessionTypeSelected: boolean = sessionType === SessionTypes.FIXED;
   const listSessions = useAppSelector(
     fixedSessionTypeSelected
-      ? selectFixedSessionsList
+      ? isIndoorParameterInUrl
+        ? selectIndoorSessionsList
+        : selectFixedSessionsList
       : selectMobileSessionsList
   );
   const sessionsPoints = fixedSessionTypeSelected ? fixedPoints : mobilePoints;
@@ -177,8 +190,8 @@ const Map = () => {
   const filters = useMemo(
     () =>
       JSON.stringify({
-        time_from: "1685318400",
-        time_to: "1717027199",
+        time_from: "1692662400",
+        time_to: "1724371199",
         tags: tagsDecoded,
         usernames: usernamesDecoded,
         west: boundWest,
@@ -191,6 +204,7 @@ const Map = () => {
         measurement_type: measurementType,
         unit_symbol: encodedUnitSymbol,
         zoom_level: zoomLevel,
+        is_indoor: isIndoorParameterInUrl,
       }),
     [
       boundEast,
@@ -205,6 +219,28 @@ const Map = () => {
       tagsDecoded,
       usernamesDecoded,
       zoomLevel,
+      isIndoorParameterInUrl,
+    ]
+  );
+
+  const indoorSessionsFilters = useMemo(
+    () =>
+      JSON.stringify({
+        time_from: "1693094400",
+        time_to: "1724803199",
+        tags: tagsDecoded,
+        usernames: usernamesDecoded,
+        is_indoor: true,
+        sensor_name: sensorNamedDecoded.toLowerCase(),
+        measurement_type: measurementType,
+        unit_symbol: encodedUnitSymbol,
+      }),
+    [
+      encodedUnitSymbol,
+      measurementType,
+      sensorNamedDecoded,
+      tagsDecoded,
+      usernamesDecoded,
     ]
   );
 
@@ -213,7 +249,6 @@ const Map = () => {
   }, [sensorName, encodedUnitSymbol]);
 
   // Effects
-
   useEffect(() => {
     dispatch(fetchSensors(sessionType));
   }, [sessionType]);
@@ -239,7 +274,13 @@ const Map = () => {
     } else {
       if (fetchingData || isFirstLoad) {
         if (fixedSessionTypeSelected) {
-          dispatch(fetchFixedSessions({ filters })).unwrap();
+          if (isIndoorParameterInUrl) {
+            dispatch(
+              fetchIndoorSessions({ filters: indoorSessionsFilters })
+            ).unwrap();
+          } else {
+            dispatch(fetchFixedSessions({ filters })).unwrap();
+          }
         } else {
           dispatch(fetchMobileSessions({ filters }))
             .unwrap()
@@ -310,12 +351,17 @@ const Map = () => {
 
   useEffect(() => {
     if (streamId && currentUserSettings === UserSettings.ModalView) {
-      dispatch(setMarkersLoading(true));
       fixedSessionTypeSelected
         ? dispatch(fetchFixedStreamById(streamId))
         : dispatch(fetchMobileStreamById(streamId));
     }
-  }, [streamId, currentUserSettings, fixedSessionTypeSelected]);
+  }, [
+    streamId,
+    currentUserSettings,
+    fixedSessionTypeSelected,
+    previousUserSettings,
+    isIndoorParameterInUrl,
+  ]);
 
   useEffect(() => {
     if (realtimeMapUpdates) {
@@ -365,7 +411,7 @@ const Map = () => {
     dispatch,
     filters,
   ]);
-  
+
   const handleMapIdle = useCallback(
     (event: MapEvent) => {
       const map = event.map;
@@ -430,7 +476,6 @@ const Map = () => {
     }
 
     if (selectedStreamId) {
-      dispatch(setMarkersLoading(true));
       fixedSessionTypeSelected
         ? dispatch(fetchFixedStreamById(selectedStreamId))
         : dispatch(fetchMobileStreamById(selectedStreamId));
@@ -596,7 +641,8 @@ const Map = () => {
         {isTimelapseView
           ? renderTimelapseMarkers()
           : fixedSessionsStatusFulfilled &&
-            fixedSessionTypeSelected && (
+            fixedSessionTypeSelected &&
+            !isIndoorParameterInUrl && (
               <FixedMarkers
                 sessions={sessionsPoints}
                 onMarkerClick={handleMarkerClick}

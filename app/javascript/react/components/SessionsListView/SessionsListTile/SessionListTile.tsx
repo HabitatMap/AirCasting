@@ -13,7 +13,7 @@ interface SessionListTile {
   id: number;
   sessionName: string;
   sensorName: string;
-  averageValue: number;
+  averageValue: number | string;
   startTime: string;
   endTime: string;
   streamId: number;
@@ -76,10 +76,12 @@ const SessionsListTile: React.FC<SessionListTile> = ({
       onMouseLeave={handleMouseLeave}
     >
       <S.HorizontalSpacingContainer>
-        <S.HorizontalGroup>
-          <S.ColorDot $color={getColorForValue(thresholds, averageValue)} />
-          <S.Subtitle>avg. {averageValue}</S.Subtitle>
-        </S.HorizontalGroup>
+        {typeof averageValue === "number" && (
+          <S.HorizontalGroup>
+            <S.ColorDot $color={getColorForValue(thresholds, averageValue)} />
+            <S.Subtitle>avg. {averageValue}</S.Subtitle>
+          </S.HorizontalGroup>
+        )}
         <S.ArrowImageContainer>
           <img src={rightVector} alt={t("map.altDirect")} />
         </S.ArrowImageContainer>

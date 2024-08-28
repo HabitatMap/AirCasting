@@ -3,6 +3,7 @@ import React from "react";
 import { SessionTypes } from "../../types/filters";
 import { useMapParams } from "../../utils/mapParamsHandler";
 import { CrowdMapToggle } from "./CrowdmapToggle";
+import { IndoorOutdoorSwitch } from "./IndoorOutdoorSwitch";
 import { DesktopParameterFilter } from "./ParameterFilter";
 import { ProfileNamesInput } from "./ProfileNamesInput";
 import { DesktopSensorFilter } from "./SensorFilter";
@@ -21,6 +22,7 @@ const DesktopSessionFilters = () => {
       <DesktopSensorFilter />
       <ProfileNamesInput />
       <TagsInput />
+      {fixedSessionTypeSelected && <IndoorOutdoorSwitch />}
       {!fixedSessionTypeSelected && <CrowdMapToggle />}
     </S.SessionFilters>
   );

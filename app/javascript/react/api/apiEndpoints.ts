@@ -19,6 +19,7 @@ interface ApiEndpoints {
   readonly fetchTags: (params: fetchTagsParamsType) => string;
   readonly fetchSensors: (sessionType: SessionType) => string;
   readonly fetchTimelapseData: (filters: string) => string;
+  readonly fetchIndoorSessions: (filters: string) => string;
 }
 
 export const API_ENDPOINTS: ApiEndpoints = {
@@ -57,15 +58,19 @@ export const API_ENDPOINTS: ApiEndpoints = {
       params.usernames
     }&q[sensor_name]=${encodeURIComponent(
       params.sensorName
-    )}&q[unit_symbol]=${encodeURIComponent(params.unitSymbol)}`;
+    )}&q[unit_symbol]=${encodeURIComponent(
+      params.unitSymbol
+    )}&q[is_indoor]=${encodeURIComponent(params.isIndoor)}
+      `;
 
     // TODO these fixed parameters are temporary and need to be passed from the component
     if (params.sessionType === "fixed") {
-      url += "&q[is_indoor]=false&q[is_active]=true";
+      url += "&q[is_active]=true";
     }
 
     return url;
   },
   fetchSensors: (sessionType) => `/sensors?session_type=${sessionType}Session`,
   fetchTimelapseData: (filters) => `/timelapse2.json?q=${filters}`,
+  fetchIndoorSessions: (filters) => `/fixed/active/sessions2.json?q=${filters}`,
 };

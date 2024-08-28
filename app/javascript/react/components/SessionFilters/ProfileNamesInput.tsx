@@ -18,9 +18,10 @@ const ProfileNamesInput = () => {
   const [selectedItem, setSelectedItem] = useState<string>("");
   const dispatch = useAppDispatch();
   const { t } = useTranslation();
-  const { setFilters, usernames } = useMapParams();
+  const { setFilters, usernames, isIndoor } = useMapParams();
 
   const profileNames = useAppSelector(selectUsernames);
+  const isIndoorParameterInUrl = isIndoor === "true";
 
   const { isOpen, getMenuProps, getInputProps, getItemProps, reset } =
     useCombobox({
@@ -84,6 +85,7 @@ const ProfileNamesInput = () => {
             value: inputValue,
             onClick: () => dispatch(fetchUsernames(inputValue)),
           })}
+          disabled={isIndoorParameterInUrl}
         />
         <FilterInfoPopup filterTranslationLabel="filters.profileNamesInfo" />
       </S.SingleFilterWrapper>

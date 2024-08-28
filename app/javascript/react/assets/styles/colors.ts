@@ -31,6 +31,7 @@ const mobileStreamPath = "#cee6f1";
 const disabledGraphButton = "#a3a0a4";
 const lightBlue = "#9BCDDE";
 const grayStroke = "#DFE7F2";
+const lightBlueInfo = "#00b2ef1a";
 
 export {
   acBlue,
@@ -54,6 +55,7 @@ export {
   green,
   grey,
   lightBlue,
+  lightBlueInfo,
   mapLabels,
   mapLandscape,
   mapStroke,

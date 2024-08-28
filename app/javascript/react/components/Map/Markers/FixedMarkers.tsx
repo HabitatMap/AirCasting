@@ -20,7 +20,6 @@ import { RootState } from "../../../store";
 import { fetchClusterData, setVisibility } from "../../../store/clusterSlice";
 import { useAppDispatch, useAppSelector } from "../../../store/hooks";
 import { selectHoverStreamId } from "../../../store/mapSlice";
-import { setMarkersLoading } from "../../../store/markersLoadingSlice"; // Import the action
 import { selectThresholds } from "../../../store/thresholdSlice";
 import { Session } from "../../../types/sessionType";
 import { getClusterPixelPosition } from "../../../utils/getClusterPixelPosition";
@@ -30,9 +29,10 @@ import { getColorForValue } from "../../../utils/thresholdColors";
 import { customRenderer, pulsatingRenderer } from "./ClusterConfiguration";
 import { ClusterInfo } from "./ClusterInfo/ClusterInfo";
 import HoverMarker from "./HoverMarker/HoverMarker";
-import { SessionFullMarker } from "./SessionFullMarker/SessionFullMarker";
 
+import { setMarkersLoading } from "../../../store/markersLoadingSlice";
 import type { LatLngLiteral } from "../../../types/googleMaps";
+import { SessionFullMarker } from "./SessionFullMarker/SessionFullMarker";
 type Props = {
   sessions: Session[];
   onMarkerClick: (streamId: number | null, id: number | null) => void;
@@ -64,7 +64,7 @@ const FixedMarkers = ({
   const thresholds = useAppSelector(selectThresholds);
 
   const map = useMap();
-  const { unitSymbol } = useMapParams();
+  const { unitSymbol, isIndoor } = useMapParams();
 
   const clusterer = useRef<CustomMarkerClusterer | null>(null);
   const markerRefs = useRef<{
@@ -90,6 +90,8 @@ const FixedMarkers = ({
   const markersCount = Object.values(markers).filter(
     (marker) => marker !== null
   ).length;
+
+  const isIndoorParameterInUrl = isIndoor === "true";
 
   const centerMapOnMarker = useCallback(
     (position: LatLngLiteral, streamId: string) => {
