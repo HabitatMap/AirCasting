@@ -57,33 +57,32 @@ const MapButtons = () => {
   const handleCopyLinkClick = () => {
     setActiveCopyLinkButton(true);
     if (activeButtons.includes(ButtonTypes.FILTER)) {
-      setActiveButtons((prevState) =>
-        prevState.filter((type) => type !== ButtonTypes.FILTER)
-      );
+      setActiveButtons([]);
     }
   };
 
   const handleTimelapseClick = () => {
-    setActiveButtons((prevState) => {
-      if (prevState.includes(ButtonTypes.TIMELAPSE)) {
-        goToUserSettings(previousUserSettings);
-        return [];
-      } else {
-        goToUserSettings(UserSettings.TimelapseView);
-        return [ButtonTypes.TIMELAPSE];
-      }
-    });
+    if (activeButtons.includes(ButtonTypes.TIMELAPSE)) {
+      setActiveButtons([]);
+      goToUserSettings(UserSettings.MapView);
+    } else {
+      setActiveButtons([ButtonTypes.TIMELAPSE]);
+      goToUserSettings(UserSettings.TimelapseView);
+    }
+    setActiveCopyLinkButton(false);
   };
 
   const handleFilterClick = () => {
-    setActiveButtons((prevState) => {
-      if (prevState.includes(ButtonTypes.FILTER)) {
-        return [];
-      } else {
-        goToUserSettings(previousUserSettings);
-        return [ButtonTypes.FILTER];
-      }
-    });
+    if (activeButtons.includes(ButtonTypes.FILTER)) {
+      setActiveButtons([]);
+    } else {
+      setActiveButtons([ButtonTypes.FILTER]);
+      goToUserSettings(
+        currentUserSettings === UserSettings.CrowdMapView
+          ? UserSettings.CrowdMapView
+          : UserSettings.MapView
+      );
+    }
     setActiveCopyLinkButton(false);
   };
 
