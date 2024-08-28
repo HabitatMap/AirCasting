@@ -144,6 +144,7 @@ const Map = () => {
     fetchableMobileSessionsCount,
     sessionType,
     fetchableIndoorSessionsCount,
+    isIndoorParameterInUrl,
   ]);
 
   const fetchingData = useAppSelector(selectFetchingData);
