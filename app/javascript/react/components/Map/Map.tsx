@@ -364,6 +364,7 @@ const Map = () => {
     currentUserSettings,
     fixedSessionTypeSelected,
     previousUserSettings,
+    isIndoorParameterInUrl,
   ]);
 
   useEffect(() => {
