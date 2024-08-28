@@ -63,7 +63,7 @@ const MapButtons = () => {
 
   const handleTimelapseClick = () => {
     if (activeButtons.includes(ButtonTypes.TIMELAPSE)) {
-      setActiveButtons([]);
+      setActiveButtons([ButtonTypes.FILTER]);
       goToUserSettings(UserSettings.MapView);
     } else {
       setActiveButtons([ButtonTypes.TIMELAPSE]);
