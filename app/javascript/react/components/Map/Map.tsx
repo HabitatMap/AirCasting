@@ -76,7 +76,6 @@ import { StreamMarkers } from "./Markers/StreamMarkers";
 import { TimelapseMarkers } from "./Markers/TimelapseMarkers";
 
 const Map = () => {
-  // Hooks
   const dispatch = useAppDispatch();
   const {
     boundEast,
@@ -87,11 +86,14 @@ const Map = () => {
     currentUserSettings,
     currentZoom,
     debouncedUpdateURL,
+    fetchedSessions,
     goToUserSettings,
-    initialLimit,
+    limit,
+    updateLimit,
+    updateOffset,
     mapTypeId,
     measurementType,
-    initialOffset,
+    offset,
     previousCenter,
     previousUserSettings,
     previousZoom,
@@ -104,6 +106,7 @@ const Map = () => {
     tags,
     initialThresholds,
     unitSymbol,
+    updateFetchedSessions,
     usernames,
   } = useMapParams();
   const isMobile = useMobileDetection();
@@ -120,6 +123,18 @@ const Map = () => {
 
   // Selectors
   const defaultThresholds = useAppSelector(selectDefaultThresholds);
+  const fetchableMobileSessionsCount = useAppSelector(
+    (state: RootState) => state.mobileSessions.fetchableSessionsCount
+  );
+  const fetchableFixedSessionsCount = useAppSelector(
+    (state: RootState) => state.fixedSessions.fetchableSessionsCount
+  );
+  const fetchableSessionsCount = useMemo(() => {
+    return sessionType === SessionTypes.FIXED
+      ? fetchableFixedSessionsCount
+      : fetchableMobileSessionsCount;
+  }, [fetchableFixedSessionsCount, fetchableMobileSessionsCount, sessionType]);
+
   const fetchingData = useAppSelector(selectFetchingData);
   const fixedPoints = sessionId
     ? useAppSelector(selectFixedSessionPointsBySessionId(sessionId))
@@ -161,7 +176,6 @@ const Map = () => {
 
   const filters = useMemo(
     () =>
-      // Change timeFrom and timeTo also in TagsInput
       JSON.stringify({
         time_from: "1685318400",
         time_to: "1717027199",
@@ -171,8 +185,8 @@ const Map = () => {
         east: boundEast,
         south: boundSouth,
         north: boundNorth,
-        limit: initialLimit,
-        offset: initialOffset,
+        limit: limit,
+        offset: offset,
         sensor_name: sensorNamedDecoded.toLowerCase(),
         measurement_type: measurementType,
         unit_symbol: encodedUnitSymbol,
@@ -184,9 +198,9 @@ const Map = () => {
       boundSouth,
       boundWest,
       encodedUnitSymbol,
-      initialLimit,
+      limit,
       measurementType,
-      initialOffset,
+      offset,
       sensorNamedDecoded,
       tagsDecoded,
       usernamesDecoded,
@@ -205,13 +219,49 @@ const Map = () => {
   }, [sessionType]);
 
   useEffect(() => {
-    if (fetchingData || isFirstRender.current) {
-      fixedSessionTypeSelected
-        ? dispatch(fetchFixedSessions({ filters }))
-        : dispatch(fetchMobileSessions({ filters }));
+    const isFirstLoad = isFirstRender.current;
+    if (isFirstLoad && fetchedSessions > 0 && !fixedSessionTypeSelected) {
+      const originalLimit = limit;
+      updateLimit(fetchedSessions);
+
+      const updatedFilters = {
+        ...JSON.parse(filters),
+        limit: fetchedSessions,
+      };
+
+      dispatch(fetchMobileSessions({ filters: JSON.stringify(updatedFilters) }))
+        .unwrap()
+        .then(() => {
+          updateLimit(originalLimit);
+          updateFetchedSessions(fetchedSessions);
+        });
+      isFirstRender.current = false;
+    } else {
+      if (fetchingData || isFirstLoad) {
+        if (fixedSessionTypeSelected) {
+          dispatch(fetchFixedSessions({ filters })).unwrap();
+        } else {
+          dispatch(fetchMobileSessions({ filters }))
+            .unwrap()
+            .then((response) => {
+              updateFetchedSessions(response.sessions.length);
+            });
+        }
+        isFirstRender.current = false;
+      }
     }
+
     dispatch(setFetchingData(false));
-  }, [fetchingData, filters]);
+  }, [
+    fetchingData,
+    filters,
+    fetchedSessions,
+    limit,
+    dispatch,
+    fixedSessionTypeSelected,
+    offset,
+    updateFetchedSessions,
+  ]);
 
   useEffect(() => {
     dispatch(fetchThresholds(thresholdFilters));
@@ -281,7 +331,41 @@ const Map = () => {
     dispatch,
   ]);
 
-  // Callbacks
+  const handleScrollEnd = useCallback(() => {
+    const hasMoreSessions = listSessions.length < fetchableMobileSessionsCount;
+
+    if (hasMoreSessions) {
+      const newOffset = offset + listSessions.length;
+      updateOffset(newOffset);
+
+      const updatedFilters = {
+        ...JSON.parse(filters),
+        offset: newOffset,
+      };
+
+      dispatch(
+        fetchMobileSessions({
+          filters: JSON.stringify(updatedFilters),
+          isAdditional: true,
+        })
+      )
+        .unwrap()
+        .then((response) => {
+          const totalFetchedSessions =
+            listSessions.length + response.sessions.length;
+          updateFetchedSessions(totalFetchedSessions);
+        });
+    }
+  }, [
+    offset,
+    listSessions.length,
+    fetchableMobileSessionsCount,
+    limit,
+    updateOffset,
+    dispatch,
+    filters,
+  ]);
+  
   const handleMapIdle = useCallback(
     (event: MapEvent) => {
       const map = event.map;
@@ -337,7 +421,6 @@ const Map = () => {
     ]
   );
 
-  // Handlers;
   const handleMarkerClick = (
     selectedStreamId: number | null,
     id: number | null
@@ -632,6 +715,8 @@ const Map = () => {
                 ? goToUserSettings(UserSettings.CrowdMapView)
                 : goToUserSettings(UserSettings.MapView)
             }
+            onScrollEnd={handleScrollEnd}
+            fetchableSessionsCount={fetchableSessionsCount}
           />
         )}
         {currentUserSettings === UserSettings.FiltersView && (
@@ -668,6 +753,8 @@ const Map = () => {
             onCellMouseLeave={() => {
               setPulsatingSessionId(null);
             }}
+            onScrollEnd={handleScrollEnd}
+            fetchableSessionsCount={fetchableSessionsCount}
           />
         </S.DesktopContainer>
       )}

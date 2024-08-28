@@ -15,7 +15,6 @@ const SessionListTile = styled.div`
   border: 1px solid ${gray100};
   box-shadow: 0 0.4rem 0.8rem rgba(0, 0, 0, 0.1);
   padding: 0.5rem 1rem 0.5rem 1rem;
-  margin-bottom: 0.9375rem;
   margin-right: 0.9375rem;
   margin-left: 0.9375rem;
   box-sizing: border-box;

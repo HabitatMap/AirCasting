@@ -1,10 +1,10 @@
-import React, { useCallback, useEffect } from "react";
+import React, { useCallback, useEffect, useRef } from "react";
 import { useTranslation } from "react-i18next";
-
 import { useAutoDismissAlert } from "../../utils/useAutoDismissAlert";
 import { AlertPopup } from "../Popups/AlertComponent";
 import ExportButtonComponent from "./ExportButtonComponent";
 import { SessionsListTile } from "./SessionsListTile/SessionListTile";
+import { useScrollEndListener } from "../../hooks/useScrollEndListener";
 import * as S from "./SessionsListView.style";
 
 export interface SessionListEntity {
@@ -22,6 +22,8 @@ interface SessionsListViewProps {
   onCellClick?: (id: number, streamId: number) => void;
   onCellMouseEnter?: (id: number) => void;
   onCellMouseLeave?: () => void;
+  onScrollEnd: () => void;
+  fetchableSessionsCount: number;
 }
 
 const SESSIONS_LIMIT = 100;
@@ -31,11 +33,14 @@ const SessionsListView: React.FC<SessionsListViewProps> = ({
   onCellClick,
   onCellMouseEnter,
   onCellMouseLeave,
+  onScrollEnd,
+  fetchableSessionsCount,
 }) => {
   const { t } = useTranslation();
   const results = sessions.length;
   const sessionsIds = sessions.map((session) => session.id);
-  const exportButtonRef = React.useRef<HTMLDivElement>(null);
+  const exportButtonRef = useRef<HTMLDivElement>(null);
+  const sessionListRef = useRef<HTMLDivElement>(null);
   const [buttonPosition, setButtonPosition] = React.useState({
     top: 0,
     left: 0,
@@ -66,6 +71,8 @@ const SessionsListView: React.FC<SessionsListViewProps> = ({
       window.removeEventListener("resize", updateButtonPosition);
     };
   }, [rect?.top]);
+
+  useScrollEndListener(sessionListRef, onScrollEnd);
 
   const calculatePopupLeftPosition = () => {
     return `${buttonPosition.left - 185}px`;
@@ -111,7 +118,7 @@ const SessionsListView: React.FC<SessionsListViewProps> = ({
         <S.SessionListInfoContainer>
           <S.SessionListTitle>{t("map.listSessions")}</S.SessionListTitle>
           <S.SessionListTitle>
-            {t("map.results", { results: results })}
+            {t("map.results", { results, fetchableSessionsCount })}
           </S.SessionListTitle>
         </S.SessionListInfoContainer>
         <ExportButtonComponent
@@ -123,7 +130,7 @@ const SessionsListView: React.FC<SessionsListViewProps> = ({
           exportButtonRef={exportButtonRef}
         />
       </S.SessionInfoTile>
-      <S.SessionListContainer>
+      <S.SessionListContainer ref={sessionListRef}>
         {sessions.map((session) => (
           <div key={session.id}>
             <SessionsListTile

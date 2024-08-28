@@ -128,7 +128,8 @@
       "resetRangesButton": "Reset ranges",
       "applyButton": "Apply"
     },
-    "results": "({{results}} Results)",
+    "results": "({{results}} of {{fetchableSessionsCount}})",
+    "mobileResults": "Sessions list ({{results}} of {{fetchableSessionsCount}})",
     "exportButton": "Export",
     "clusterInfo": {
       "average": "avg",

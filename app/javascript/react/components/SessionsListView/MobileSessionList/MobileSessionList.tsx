@@ -1,29 +1,39 @@
-import * as React from "react";
+import React, { useRef } from "react";
 import { useTranslation } from "react-i18next";
 
 import closeImage from "../../../assets/icons/closeButton.svg";
 import { SessionsListTile } from "../SessionsListTile/SessionListTile";
 import { SessionListEntity } from "../SessionsListView";
 import * as S from "./MobileSessionList.style";
+import { useScrollEndListener } from "../../../hooks/useScrollEndListener";
 
 interface MobileSessionListProps {
   sessions: SessionListEntity[];
   onCellClick?: (id: number, streamId: number) => void;
   onClose: () => void;
+  onScrollEnd: () => void;
+  fetchableSessionsCount: number;
 }
 
 const MobileSessionList: React.FC<MobileSessionListProps> = ({
   sessions,
   onCellClick,
   onClose,
+  onScrollEnd,
+  fetchableSessionsCount,
 }) => {
   const { t } = useTranslation();
+  const sessionListRef = useRef<HTMLDivElement>(null);
+
+  const results = sessions.length;
 
   const handleClick = (id: number, streamId: number) => {
     if (onCellClick) {
       onCellClick(id, streamId);
     }
   };
+
+  useScrollEndListener(sessionListRef, onScrollEnd);
 
   return (
     <S.Overlay>
@@ -32,11 +42,13 @@ const MobileSessionList: React.FC<MobileSessionListProps> = ({
           <S.ImageButton onClick={onClose}>
             <S.Image src={closeImage} alt={t("map.altClose")} />
           </S.ImageButton>
-          <S.Title>Sessions list ({sessions.length})</S.Title>
+          <S.Title>
+            {t("map.mobileResults", { results, fetchableSessionsCount })}
+          </S.Title>
         </S.HorizontalContainer>
-        <S.SessionListStyled>
-          {sessions.map((session, index) => (
-            <div key={index}>
+        <S.SessionListStyled ref={sessionListRef}>
+          {sessions.map((session) => (
+            <div key={session.id}>
               <SessionsListTile
                 id={session.id}
                 sessionName={session.sessionName}

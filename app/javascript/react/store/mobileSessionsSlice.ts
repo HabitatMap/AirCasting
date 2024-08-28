@@ -1,7 +1,5 @@
 import { AxiosResponse } from "axios";
-
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-
 import { oldApiClient } from "../api/apiClient";
 import { API_ENDPOINTS } from "../api/apiEndpoints";
 import { StatusEnum } from "../types/api";
@@ -57,6 +55,7 @@ interface SessionsState {
 
 interface SessionsData {
   filters: string;
+  isAdditional?: boolean;
 }
 
 const initialState: SessionsState = {
@@ -88,9 +87,7 @@ export const fetchMobileSessions = createAsyncThunk<
   {
     condition: (_, { getState }) => {
       const { mobileSessions } = getState() as RootState;
-      if (mobileSessions.status === StatusEnum.Pending) {
-        return false;
-      }
+      return mobileSessions.status !== StatusEnum.Pending;
     },
   }
 );
@@ -98,7 +95,13 @@ export const fetchMobileSessions = createAsyncThunk<
 export const mobileSessionsSlice = createSlice({
   name: "mobileSessions",
   initialState,
-  reducers: {},
+  reducers: {
+    clearMobileSessions: (state) => {
+      state.sessions = [];
+      state.fetchableSessionsCount = 0;
+      state.error = undefined;
+    },
+  },
   extraReducers: (builder) => {
     builder
       .addCase(fetchMobileSessions.pending, (state) => {
@@ -106,7 +109,11 @@ export const mobileSessionsSlice = createSlice({
       })
       .addCase(fetchMobileSessions.fulfilled, (state, action) => {
         state.status = StatusEnum.Fulfilled;
-        state.sessions = action.payload.sessions;
+        if (action.meta.arg.isAdditional) {
+          state.sessions = [...state.sessions, ...action.payload.sessions];
+        } else {
+          state.sessions = action.payload.sessions;
+        }
         state.fetchableSessionsCount = action.payload.fetchableSessionsCount;
       })
       .addCase(fetchMobileSessions.rejected, (state, action) => {
@@ -116,4 +123,5 @@ export const mobileSessionsSlice = createSlice({
   },
 });
 
+export const { clearMobileSessions } = mobileSessionsSlice.actions;
 export default mobileSessionsSlice.reducer;
