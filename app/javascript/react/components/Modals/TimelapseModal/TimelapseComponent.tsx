@@ -46,16 +46,12 @@ const TimelapseComponent: React.FC<
   }, [dispatch]);
 
   const filteredTimestamps = useMemo(() => {
-    const now = moment();
+    const now = moment.utc();
     let startTime: Moment;
 
     switch (timeRange) {
       case TimeRanges.HOURS_24:
-        // Set start time to 11 AM the previous day
-        startTime = now
-          .clone()
-          .subtract(1, "day")
-          .set({ hour: 11, minute: 0, second: 0 });
+        startTime = now.clone().subtract(24, "hours");
         break;
       case TimeRanges.DAYS_3:
         startTime = now.clone().subtract(3, "days");
@@ -70,23 +66,23 @@ const TimelapseComponent: React.FC<
 
     const filtered = Object.keys(fullTimestamps)
       .filter((timestamp) => {
-        const parsedTimestamp = moment(
+        const parsedTimestamp = moment.utc(
           timestamp,
           DateFormat.us_with_time_seconds_utc
         );
         return parsedTimestamp.isAfter(startTime);
       })
       .sort((a, b) =>
-        moment(a, DateFormat.us_with_time_seconds_utc).diff(
-          moment(b, DateFormat.us_with_time_seconds_utc)
-        )
+        moment
+          .utc(a, DateFormat.us_with_time_seconds_utc)
+          .diff(moment.utc(b, DateFormat.us_with_time_seconds_utc))
       );
 
     if (filtered.length === 0) {
       return Object.keys(fullTimestamps).sort((a, b) =>
-        moment(a, DateFormat.us_with_time_seconds_utc).diff(
-          moment(b, DateFormat.us_with_time_seconds_utc)
-        )
+        moment
+          .utc(a, DateFormat.us_with_time_seconds_utc)
+          .diff(moment.utc(b, DateFormat.us_with_time_seconds_utc))
       );
     }
 

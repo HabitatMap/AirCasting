@@ -6,7 +6,7 @@ enum DateFormat {
   us_with_time_seconds = "MM/DD/YYYY HH:mm:ss",
   us_without_year = "MM/DD",
   time_with_seconds = "HH:mm:ss",
-  time = "HH:mm A",
+  time = "hh:mm A",
   us_timestamp = "YYYYMMDDHH:mm:ssZ",
   us_with_time_seconds_utc = "YYYY-MM-DD HH:mm:ss UTC",
 }
