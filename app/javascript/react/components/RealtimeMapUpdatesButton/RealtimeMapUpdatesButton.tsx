@@ -21,8 +21,8 @@ const RealtimeMapUpdatesButton = () => {
   );
 
   useEffect(() => {
-    dispatch(clearMobileSessions());
-  }, [realtimeMapUpdates]);
+    realtimeMapUpdates && dispatch(clearMobileSessions());
+  }, [realtimeMapUpdates, dispatch]);
 
   const handleRealtimeMapUpdatesChange = (isChecked: boolean) => {
     dispatch(setRealtimeMapUpdates(isChecked));
