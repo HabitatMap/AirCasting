@@ -54,6 +54,7 @@ import {
 } from "../../store/timelapseSlice";
 import { SessionTypes } from "../../types/filters";
 import { SessionList } from "../../types/sessionType";
+import { TimeRanges } from "../../types/timelapse";
 import { UserSettings } from "../../types/userStates";
 import { UrlParamsTypes, useMapParams } from "../../utils/mapParamsHandler";
 import useMobileDetection from "../../utils/useScreenSizeDetection";
@@ -120,6 +121,9 @@ const Map = () => {
   const [mapInstance, setMapInstance] = useState<google.maps.Map | null>(null);
   const [pulsatingSessionId, setPulsatingSessionId] = useState<number | null>(
     null
+  );
+  const [timelapseTimeRange, setTimelapseTimeRange] = useState<TimeRanges>(
+    TimeRanges.HOURS_24
   );
 
   // Selectors
@@ -613,7 +617,10 @@ const Map = () => {
       memoizedTimelapseData[currentTimestamp]
     ) {
       return (
-        <TimelapseMarkers sessions={memoizedTimelapseData[currentTimestamp]} />
+        <TimelapseMarkers
+          sessions={memoizedTimelapseData[currentTimestamp]}
+          timeRange={timelapseTimeRange}
+        />
       );
     }
     return null;
@@ -700,6 +707,8 @@ const Map = () => {
           onClose={() => {
             goToUserSettings(previousUserSettings);
           }}
+          setTimeRange={setTimelapseTimeRange}
+          timeRange={timelapseTimeRange}
         />
       )}
       <S.MobileContainer>

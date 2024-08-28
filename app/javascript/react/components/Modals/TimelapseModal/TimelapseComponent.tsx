@@ -25,11 +25,13 @@ import TimeRangeButtons from "./TimeRangeButtons";
 
 interface TimelapseComponentProps {
   onClose: () => void;
+  timeRange: TimeRanges;
+  setTimeRange: (timeRange: TimeRanges) => void;
 }
 
 const TimelapseComponent: React.FC<
   TimelapseComponentProps & Omit<PopupProps, "children">
-> = React.memo(({ onClose }) => {
+> = React.memo(({ onClose, timeRange, setTimeRange }) => {
   const { t } = useTranslation();
   const dispatch = useAppDispatch();
   const [showReadOnlyPopup, setShowReadOnlyPopup] = useState(false);
@@ -37,7 +39,6 @@ const TimelapseComponent: React.FC<
 
   const isLoading = useAppSelector(selectTimelapseIsLoading);
   const fullTimestamps = useAppSelector(selectTimelapseData);
-  const [timeRange, setTimeRange] = useState<TimeRanges>(TimeRanges.HOURS_24);
   const [currentStep, setCurrentStep] = useState(0);
 
   const resetTimelapse = useCallback(() => {
