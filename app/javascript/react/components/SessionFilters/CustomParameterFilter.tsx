@@ -58,7 +58,7 @@ const CustomParameterFilter: React.FC<CustomParameterFilterProps> = ({
     },
     onSelectedItemChange: ({ selectedItem: newSelectedItem }) => {
       if (newSelectedItem) {
-        const sensorData = setSensor(newSelectedItem, sensors);
+        const sensorData = setSensor(newSelectedItem, sensors, sessionType);
         setUrlParams([
           {
             key: UrlParamsTypes.previousUserSettings,

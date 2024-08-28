@@ -131,11 +131,11 @@ export const DesktopParameterFilter = () => {
       },
       {
         key: UrlParamsTypes.sensorName,
-        value: setSensor(selectedParameter, sensors).sensorName,
+        value: setSensor(selectedParameter, sensors, sessionType).sensorName,
       },
       {
         key: UrlParamsTypes.unitSymbol,
-        value: setSensor(selectedParameter, sensors).unitSymbol,
+        value: setSensor(selectedParameter, sensors, sessionType).unitSymbol,
       },
       {
         key: UrlParamsTypes.currentZoom,
@@ -215,11 +215,11 @@ export const MobileDeviceParameterFilter = ({
       },
       {
         key: UrlParamsTypes.sensorName,
-        value: setSensor(selectedParameter, sensors).sensorName,
+        value: setSensor(selectedParameter, sensors, sessionType).sensorName,
       },
       {
         key: UrlParamsTypes.unitSymbol,
-        value: setSensor(selectedParameter, sensors).unitSymbol,
+        value: setSensor(selectedParameter, sensors, sessionType).unitSymbol,
       },
     ]);
   };

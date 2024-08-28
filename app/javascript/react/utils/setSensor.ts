@@ -1,7 +1,11 @@
-import { ParameterType, ParameterTypes } from "../types/filters";
+import { ParameterType, ParameterTypes, SessionTypes } from "../types/filters";
 import { Sensor, SENSOR_NAMES } from "../types/sensors";
 
-const setSensor = (selectedParameter: ParameterType, sensors: Sensor[]) => {
+const setSensor = (
+  selectedParameter: ParameterType,
+  sensors: Sensor[],
+  sessionType: string
+) => {
   const getSensor = (parameter: string, sensorName?: string) => {
     const matchingSensors = sensors.filter(
       (item) =>
@@ -15,7 +19,10 @@ const setSensor = (selectedParameter: ParameterType, sensors: Sensor[]) => {
   let sensorName = "";
   switch (selectedParameter) {
     case ParameterTypes.PARTICULATE_MATTER:
-      sensorName = SENSOR_NAMES.PARTICULATE_MATTER.GOVERNMENT_PM25;
+      sensorName =
+        sessionType === SessionTypes.FIXED
+          ? SENSOR_NAMES.PARTICULATE_MATTER.GOVERNMENT_PM25
+          : SENSOR_NAMES.PARTICULATE_MATTER.AIRBEAM_PM25;
       break;
     case ParameterTypes.HUMIDITY:
       sensorName = SENSOR_NAMES.HUMIDITY;
