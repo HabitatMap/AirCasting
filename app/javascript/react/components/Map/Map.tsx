@@ -235,7 +235,6 @@ const Map = () => {
           updateLimit(originalLimit);
           updateFetchedSessions(fetchedSessions);
         });
-      console.log("fetched sessions first if", fetchedSessions);
       isFirstRender.current = false;
     } else {
       if (fetchingData || isFirstLoad) {
@@ -248,7 +247,6 @@ const Map = () => {
               updateFetchedSessions(response.sessions.length);
             });
         }
-        console.log("fetched sessions second", fetchedSessions);
         isFirstRender.current = false;
       }
     }
@@ -334,13 +332,10 @@ const Map = () => {
   ]);
 
   const handleScrollEnd = useCallback(() => {
-    console.log("Handle Scroll End triggered with offset:", offset);
-
     const hasMoreSessions = listSessions.length < fetchableMobileSessionsCount;
 
     if (hasMoreSessions) {
       const newOffset = offset + listSessions.length;
-      console.log("New offset to be set:", newOffset);
       updateOffset(newOffset);
 
       const updatedFilters = {
@@ -358,7 +353,6 @@ const Map = () => {
         .then((response) => {
           const totalFetchedSessions =
             listSessions.length + response.sessions.length;
-          console.log("Updating fetched sessions:", totalFetchedSessions);
           updateFetchedSessions(totalFetchedSessions);
         });
     }
@@ -371,43 +365,7 @@ const Map = () => {
     dispatch,
     filters,
   ]);
-  // const handleScrollEnd = useCallback(() => {
-  //   const hasMoreSessions = listSessions.length < fetchableMobileSessionsCount;
-
-  //   if (hasMoreSessions) {
-  //     const newOffset = offset + listSessions.length;
-  //     updateOffset(newOffset);
-  //     console.log("setting newOffset", newOffset);
-
-  //     const updatedFilters = {
-  //       ...JSON.parse(filters),
-  //       offset: newOffset,
-  //     };
-
-  //     dispatch(
-  //       fetchMobileSessions({
-  //         filters: JSON.stringify(updatedFilters),
-  //         isAdditional: true,
-  //       })
-  //     )
-  //       .unwrap()
-  //       .then((response) => {
-  //         const totalFetchedSessions =
-  //           listSessions.length + response.sessions.length;
-  //         updateFetchedSessions(totalFetchedSessions);
-  //       });
-  //   }
-  // }, [
-  //   offset,
-  //   listSessions.length,
-  //   fetchableMobileSessionsCount,
-  //   limit,
-  //   updateOffset,
-  //   dispatch,
-  //   filters,
-  //   updateFetchedSessions,
-  // ]);
-
+  
   const handleMapIdle = useCallback(
     (event: MapEvent) => {
       const map = event.map;

@@ -15,6 +15,7 @@ const SessionListViewStyle = styled.div`
   z-index: 1;
   display: flex;
   flex-direction: column;
+  gap: 1rem;
 
   @media (${media.desktop}) {
     bottom: 6.4rem;
@@ -40,10 +41,17 @@ const SessionListContainer = styled.div`
   overflow-y: auto;
   overflow-x: hidden;
   width: calc(100% + 1rem);
+  display: grid;
+  gap: 1rem;
+  padding-bottom: 1rem;
 
   @-moz-document url-prefix() {
     width: calc(100% + 2rem);
   }
+
+
+  &::-webkit-scrollbar-button:end:decrement {
+  padding-bottom: 1rem;}
 `;
 
 const ExportSessionsButton = styled.button<{ $hasSessions: boolean }>`
