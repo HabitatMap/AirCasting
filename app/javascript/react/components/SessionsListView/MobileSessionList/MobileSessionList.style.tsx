@@ -52,6 +52,7 @@ const VerticalContainer = styled.div`
   width: 100%;
   margin-top: 1.25rem;
   max-height: 100%;
+  padding-bottom: 2rem;
 `;
 
 const SessionListStyled = styled.div`
@@ -59,6 +60,9 @@ const SessionListStyled = styled.div`
   overflow-y: auto;
   margin-left: 1.25rem;
   margin-right: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
 `;
 
 export {

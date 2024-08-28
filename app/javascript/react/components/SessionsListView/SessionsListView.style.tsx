@@ -41,7 +41,8 @@ const SessionListContainer = styled.div`
   overflow-y: auto;
   overflow-x: hidden;
   width: calc(100% + 1rem);
-  display: grid;
+  display: flex;
+  flex-direction: column;
   gap: 1rem;
   padding-bottom: 1rem;
 
