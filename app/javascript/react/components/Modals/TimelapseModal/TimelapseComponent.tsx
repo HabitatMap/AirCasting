@@ -51,7 +51,11 @@ const TimelapseComponent: React.FC<
 
     switch (timeRange) {
       case TimeRanges.HOURS_24:
-        startTime = now.clone().subtract(24, "hours");
+        // Set start time to 11 AM the previous day
+        startTime = now
+          .clone()
+          .subtract(1, "day")
+          .set({ hour: 11, minute: 0, second: 0 });
         break;
       case TimeRanges.DAYS_3:
         startTime = now.clone().subtract(3, "days");
