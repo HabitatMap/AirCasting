@@ -43,15 +43,19 @@ const TimelapseComponent: React.FC<
   const resetTimelapse = useCallback(() => {
     setCurrentStep(0);
     dispatch(setCurrentTimestamp(""));
-  }, []);
+  }, [dispatch]);
 
   const filteredTimestamps = useMemo(() => {
-    const now = moment.utc();
+    const now = moment();
     let startTime: Moment;
 
     switch (timeRange) {
       case TimeRanges.HOURS_24:
-        startTime = now.clone().subtract(24, "hours");
+        // Set start time to 11 AM the previous day
+        startTime = now
+          .clone()
+          .subtract(1, "day")
+          .set({ hour: 11, minute: 0, second: 0 });
         break;
       case TimeRanges.DAYS_3:
         startTime = now.clone().subtract(3, "days");
@@ -66,23 +70,23 @@ const TimelapseComponent: React.FC<
 
     const filtered = Object.keys(fullTimestamps)
       .filter((timestamp) => {
-        const parsedTimestamp = moment.utc(
+        const parsedTimestamp = moment(
           timestamp,
           DateFormat.us_with_time_seconds_utc
         );
         return parsedTimestamp.isAfter(startTime);
       })
       .sort((a, b) =>
-        moment
-          .utc(a, DateFormat.us_with_time_seconds_utc)
-          .diff(moment.utc(b, DateFormat.us_with_time_seconds_utc))
+        moment(a, DateFormat.us_with_time_seconds_utc).diff(
+          moment(b, DateFormat.us_with_time_seconds_utc)
+        )
       );
 
     if (filtered.length === 0) {
       return Object.keys(fullTimestamps).sort((a, b) =>
-        moment
-          .utc(a, DateFormat.us_with_time_seconds_utc)
-          .diff(moment.utc(b, DateFormat.us_with_time_seconds_utc))
+        moment(a, DateFormat.us_with_time_seconds_utc).diff(
+          moment(b, DateFormat.us_with_time_seconds_utc)
+        )
       );
     }
 
@@ -104,7 +108,7 @@ const TimelapseComponent: React.FC<
       setCurrentStep(nextStep);
       dispatch(setCurrentTimestamp(filteredTimestamps[nextStep]));
     }
-  }, [currentStep, filteredTimestamps]);
+  }, [currentStep, filteredTimestamps, dispatch]);
 
   const handlePreviousStep = useCallback(() => {
     if (currentStep > 0) {
@@ -112,7 +116,7 @@ const TimelapseComponent: React.FC<
       setCurrentStep(prevStep);
       dispatch(setCurrentTimestamp(filteredTimestamps[prevStep]));
     }
-  }, [currentStep, filteredTimestamps]);
+  }, [currentStep, filteredTimestamps, dispatch]);
 
   const handleGoToStart = useCallback(() => {
     setCurrentStep(0);
@@ -123,7 +127,7 @@ const TimelapseComponent: React.FC<
     const lastIndex = filteredTimestamps.length - 1;
     setCurrentStep(lastIndex);
     dispatch(setCurrentTimestamp(filteredTimestamps[lastIndex]));
-  }, [filteredTimestamps]);
+  }, [filteredTimestamps, dispatch]);
 
   const handleOverlayClick = useCallback(
     (event: MouseEvent) => {
@@ -152,12 +156,14 @@ const TimelapseComponent: React.FC<
   }, [handleOverlayClick]);
 
   const currentTimestamp = filteredTimestamps[currentStep];
-  const currentDate = moment
-    .utc(currentTimestamp, DateFormat.us_with_time_seconds_utc)
-    .format(DateFormat.us_without_year);
-  const currentTime = moment
-    .utc(currentTimestamp, DateFormat.us_with_time_seconds_utc)
-    .format(DateFormat.time);
+  const currentDate = moment(
+    currentTimestamp,
+    DateFormat.us_with_time_seconds_utc
+  ).format(DateFormat.us_without_year);
+  const currentTime = moment(
+    currentTimestamp,
+    DateFormat.us_with_time_seconds_utc
+  ).format(DateFormat.time);
 
   return (
     <>
