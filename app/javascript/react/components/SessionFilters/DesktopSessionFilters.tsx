@@ -12,6 +12,7 @@ import { DesktopSensorFilter } from "./SensorFilter";
 import * as S from "./SessionFilters.style";
 import { SessionTypeToggle } from "./SessionTypeToggle";
 import { TagsInput } from "./TagsInput";
+import { YearPicker } from "./YearPicker";
 
 const DesktopSessionFilters = () => {
   const { sessionType, sensorName } = useMapParams();
@@ -37,6 +38,7 @@ const DesktopSessionFilters = () => {
       )}
       {fixedSessionTypeSelected && <DormantToggle />}
       {!fixedSessionTypeSelected && <CrowdMapToggle />}
+      {!fixedSessionTypeSelected && <YearPicker />}
     </S.SessionFilters>
   );
 };
