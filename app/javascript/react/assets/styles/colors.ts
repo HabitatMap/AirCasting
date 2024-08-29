@@ -21,6 +21,9 @@ const red = "#E95F5F";
 const orange = "#FCA443";
 const yellow = "#FFD960";
 const green = "#96D788";
+const lightCrimson = '#ED6B86'
+const rose = '#FF38B5'
+const royalPurple = "#7D3EBE";
 const grey = "#a0a2ad";
 const black = "#000";
 const mapLabels = "#acacac";
@@ -38,6 +41,7 @@ export {
   acBlueTransparent,
   black,
   blue,
+  lightCrimson,
   cta,
   darkBlue,
   darkBlueTransparent,
@@ -63,7 +67,9 @@ export {
   mint,
   mobileStreamPath,
   orange,
+  royalPurple,
   red,
+  rose,
   theme,
   white,
   yellow,
