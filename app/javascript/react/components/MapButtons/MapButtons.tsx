@@ -22,12 +22,7 @@ enum ButtonTypes {
 }
 
 const MapButtons = () => {
-  const {
-    goToUserSettings,
-    currentUserSettings,
-    previousUserSettings,
-    sessionType,
-  } = useMapParams();
+  const { goToUserSettings, currentUserSettings, sessionType } = useMapParams();
   const [activeButtons, setActiveButtons] = useState<ButtonTypes[]>([]);
 
   const [activeCopyLinkButton, setActiveCopyLinkButton] = useState(false);
@@ -52,7 +47,7 @@ const MapButtons = () => {
     } else {
       setActiveButtons([ButtonTypes.FILTER]);
     }
-  }, []);
+  }, [currentUserSettings]);
 
   const handleCopyLinkClick = () => {
     setActiveCopyLinkButton(true);
