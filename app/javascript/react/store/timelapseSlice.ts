@@ -3,22 +3,17 @@ import { AxiosResponse } from "axios";
 import { apiClient } from "../api/apiClient";
 import { API_ENDPOINTS } from "../api/apiEndpoints";
 import { StatusEnum } from "../types/api";
+import { TimelapseData, TimeRanges } from "../types/timelapse";
 import { getErrorMessage } from "../utils/getErrorMessage";
 import { RootState } from "./index";
 
-interface SessionData {
-  value: number;
-  latitude: number;
-  longitude: number;
-  sessions: number;
-}
-
 interface TimelapseState {
-  data: { [timestamp: string]: SessionData[] };
+  data: TimelapseData;
   status: StatusEnum;
   error?: string;
   isLoading: boolean;
   currentTimestamp: string | null;
+  timelapseTimeRange: TimeRanges;
 }
 
 const initialState: TimelapseState = {
@@ -26,6 +21,7 @@ const initialState: TimelapseState = {
   status: StatusEnum.Idle,
   isLoading: false,
   currentTimestamp: null,
+  timelapseTimeRange: TimeRanges.HOURS_24,
 };
 
 interface TimelapseFilters {
@@ -33,17 +29,16 @@ interface TimelapseFilters {
 }
 
 export const fetchTimelapseData = createAsyncThunk<
-  { [timestamp: string]: SessionData[] },
+  TimelapseData,
   TimelapseFilters,
   { rejectValue: string }
 >(
   "timelapse/fetchData",
   async (sessionsData, { rejectWithValue }) => {
     try {
-      const response: AxiosResponse<{ [timestamp: string]: SessionData[] }> =
-        await apiClient.get(
-          API_ENDPOINTS.fetchTimelapseData(sessionsData.filters)
-        );
+      const response: AxiosResponse<TimelapseData> = await apiClient.get(
+        API_ENDPOINTS.fetchTimelapseData(sessionsData.filters)
+      );
 
       return response.data;
     } catch (error) {
@@ -67,6 +62,9 @@ const timelapseSlice = createSlice({
     setCurrentTimestamp(state, action: PayloadAction<string>) {
       state.currentTimestamp = action.payload;
     },
+    setTimelapseTimeRange(state, action: PayloadAction<TimeRanges>) {
+      state.timelapseTimeRange = action.payload;
+    },
   },
   extraReducers: (builder) => {
     builder.addCase(fetchTimelapseData.pending, (state) => {
@@ -76,10 +74,7 @@ const timelapseSlice = createSlice({
     });
     builder.addCase(
       fetchTimelapseData.fulfilled,
-      (
-        state,
-        action: PayloadAction<{ [timestamp: string]: SessionData[] }>
-      ) => {
+      (state, action: PayloadAction<TimelapseData>) => {
         state.status = StatusEnum.Fulfilled;
         state.data = action.payload;
         state.isLoading = false;
@@ -101,11 +96,6 @@ const timelapseSlice = createSlice({
   },
 });
 
-export const { setCurrentTimestamp } = timelapseSlice.actions;
+export const { setCurrentTimestamp, setTimelapseTimeRange } =
+  timelapseSlice.actions;
 export default timelapseSlice.reducer;
-
-export const selectTimelapseData = (state: RootState) => state.timelapse.data;
-export const selectCurrentTimestamp = (state: RootState) =>
-  state.timelapse.currentTimestamp;
-export const selectTimelapseIsLoading = (state: RootState) =>
-  state.timelapse.isLoading;

@@ -1,4 +1,4 @@
-import moment, { Moment } from "moment";
+import moment from "moment";
 import React, {
   useCallback,
   useEffect,
@@ -10,13 +10,15 @@ import { useTranslation } from "react-i18next";
 import type { PopupProps } from "reactjs-popup/dist/types";
 import closeTimelapseButton from "../../../assets/icons/closeTimelapseButton.svg";
 import { useAppDispatch, useAppSelector } from "../../../store/hooks";
+import { setCurrentTimestamp } from "../../../store/timelapseSlice";
+import { DateFormat } from "../../../types/dateFormat";
+
 import {
   selectTimelapseData,
   selectTimelapseIsLoading,
-  setCurrentTimestamp,
-} from "../../../store/timelapseSlice";
-import { DateFormat } from "../../../types/dateFormat";
-import { TimeRanges } from "../../../types/timelapse";
+  selectTimelapseTimeRange,
+} from "../../../store/timelapseSelectors";
+import { filterTimestamps } from "../../../utils/filterTimelapseData";
 import { useAutoDismissAlert } from "../../../utils/useAutoDismissAlert";
 import NavigationButtons from "./NavigationButtons";
 import TimeAxis from "./TimeAxis";
@@ -30,15 +32,16 @@ interface TimelapseComponentProps {
 const TimelapseComponent: React.FC<
   TimelapseComponentProps & Omit<PopupProps, "children">
 > = React.memo(({ onClose }) => {
-  const { t } = useTranslation();
-  const dispatch = useAppDispatch();
   const [showReadOnlyPopup, setShowReadOnlyPopup] = useState(false);
-  const overlayRef = useRef<HTMLDivElement>(null);
+  const [currentStep, setCurrentStep] = useState(0);
 
   const isLoading = useAppSelector(selectTimelapseIsLoading);
   const fullTimestamps = useAppSelector(selectTimelapseData);
-  const [timeRange, setTimeRange] = useState<TimeRanges>(TimeRanges.HOURS_24);
-  const [currentStep, setCurrentStep] = useState(0);
+  const timeRange = useAppSelector(selectTimelapseTimeRange);
+
+  const overlayRef = useRef<HTMLDivElement>(null);
+  const dispatch = useAppDispatch();
+  const { t } = useTranslation();
 
   const resetTimelapse = useCallback(() => {
     setCurrentStep(0);
@@ -46,52 +49,15 @@ const TimelapseComponent: React.FC<
   }, [dispatch]);
 
   const filteredTimestamps = useMemo(() => {
-    const now = moment.utc();
-    let startTime: Moment;
-
-    switch (timeRange) {
-      case TimeRanges.HOURS_24:
-        startTime = now.clone().subtract(24, "hours");
-        break;
-      case TimeRanges.DAYS_3:
-        startTime = now.clone().subtract(3, "days");
-        break;
-      case TimeRanges.DAYS_7:
-        startTime = now.clone().subtract(7, "days");
-        break;
-      default:
-        startTime = now.clone().subtract(24, "hours");
-        break;
-    }
-
-    const filtered = Object.keys(fullTimestamps)
-      .filter((timestamp) => {
-        const parsedTimestamp = moment.utc(
-          timestamp,
-          DateFormat.us_with_time_seconds_utc
-        );
-        return parsedTimestamp.isAfter(startTime);
-      })
-      .sort((a, b) =>
-        moment
-          .utc(a, DateFormat.us_with_time_seconds_utc)
-          .diff(moment.utc(b, DateFormat.us_with_time_seconds_utc))
-      );
-
-    if (filtered.length === 0) {
-      return Object.keys(fullTimestamps).sort((a, b) =>
-        moment
-          .utc(a, DateFormat.us_with_time_seconds_utc)
-          .diff(moment.utc(b, DateFormat.us_with_time_seconds_utc))
-      );
-    }
-
-    return filtered;
-  }, [timeRange, fullTimestamps]);
+    return filterTimestamps(fullTimestamps, timeRange);
+  }, [fullTimestamps, timeRange]);
 
   useEffect(() => {
     setCurrentStep(0);
-  }, [timeRange]);
+    if (filteredTimestamps.length > 0) {
+      dispatch(setCurrentTimestamp(filteredTimestamps[0]));
+    }
+  }, [timeRange, filteredTimestamps]);
 
   const closeHandler = useCallback(() => {
     resetTimelapse();
@@ -193,10 +159,7 @@ const TimelapseComponent: React.FC<
                 timestamps={filteredTimestamps}
               />
             </S.TimeAxisContainer>
-            <TimeRangeButtons
-              timeRange={timeRange}
-              onSelectTimeRange={setTimeRange}
-            />
+            <TimeRangeButtons timeRange={timeRange} />
             <S.CancelButtonX onClick={closeHandler}>
               <img src={closeTimelapseButton} alt={t("navbar.altClose")} />
             </S.CancelButtonX>

@@ -48,10 +48,10 @@ import {
   setUserThresholdValues,
 } from "../../store/thresholdSlice";
 import {
-  fetchTimelapseData,
   selectCurrentTimestamp,
-  selectTimelapseData,
-} from "../../store/timelapseSlice";
+  selectFilteredTimelapseData,
+} from "../../store/timelapseSelectors";
+import { fetchTimelapseData } from "../../store/timelapseSlice";
 import { SessionTypes } from "../../types/filters";
 import { SessionList } from "../../types/sessionType";
 import { UserSettings } from "../../types/userStates";
@@ -164,6 +164,8 @@ const Map = () => {
   const realtimeMapUpdates = useAppSelector(
     (state: RootState) => state.realtimeMapUpdates.realtimeMapUpdates
   );
+  const timelapseData = useAppSelector(selectFilteredTimelapseData);
+  const currentTimestamp = useAppSelector(selectCurrentTimestamp);
 
   const fixedSessionTypeSelected: boolean = sessionType === SessionTypes.FIXED;
   const listSessions = useAppSelector(
@@ -174,6 +176,8 @@ const Map = () => {
       : selectMobileSessionsList
   );
   const sessionsPoints = fixedSessionTypeSelected ? fixedPoints : mobilePoints;
+
+  const memoizedTimelapseData = useMemo(() => timelapseData, [timelapseData]);
 
   const newSearchParams = new URLSearchParams(searchParams.toString());
   const preparedUnitSymbol = unitSymbol.replace(/"/g, "");
@@ -377,6 +381,12 @@ const Map = () => {
     realtimeMapUpdates,
     dispatch,
   ]);
+
+  useEffect(() => {
+    if (currentUserSettings === UserSettings.TimelapseView) {
+      dispatch(fetchTimelapseData({ filters: filters }));
+    }
+  }, [currentUserSettings, sessionsPoints]);
 
   const handleScrollEnd = useCallback(() => {
     const hasMoreSessions = listSessions.length < fetchableMobileSessionsCount;
@@ -593,18 +603,6 @@ const Map = () => {
         : UserSettings.TimelapseView
     );
   };
-
-  useEffect(() => {
-    if (currentUserSettings === UserSettings.TimelapseView) {
-      dispatch(fetchTimelapseData({ filters: filters }));
-    }
-  }, [currentUserSettings, sessionsPoints]);
-
-  const timelapseData = useAppSelector(selectTimelapseData);
-
-  const currentTimestamp = useAppSelector(selectCurrentTimestamp);
-
-  const memoizedTimelapseData = useMemo(() => timelapseData, [timelapseData]);
 
   const renderTimelapseMarkers = () => {
     if (
