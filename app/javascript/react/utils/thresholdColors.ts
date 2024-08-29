@@ -1,5 +1,6 @@
 import * as colors from "../assets/styles/colors";
 import { Thresholds } from "../types/thresholds";
+import hexToRGBA from "./hexToRGB";
 
 const COLORS_FOR_RANGES = (thresholdValues: Thresholds) => [
   { max: thresholdValues.min - 1, color: colors.grey }, // grey color for values below min
@@ -27,4 +28,19 @@ const getColorForValue = (
   return defaultColor;
 };
 
-export { getColorForValue };
+const getColorForCalendarDataCard = (color: string) => {
+  switch (color) {
+    case colors.green:
+      return `linear-gradient(241deg, ${hexToRGBA(colors.blue, 0.48)} -2.4%, ${hexToRGBA(colors.blue, 0.15)} 94.94%), ${colors.green}`;
+    case colors.red:
+      return `linear-gradient(241deg, ${hexToRGBA(colors.royalPurple, 0.4)} -38.43%, ${hexToRGBA(colors.royalPurple, 0)} 94.94%), ${colors.red}`;
+    case colors.orange:
+      return `linear-gradient(241deg, ${hexToRGBA(colors.lightCrimson, 0.4)} -2.4%, ${hexToRGBA(colors.lightCrimson, 0)} 94.94%), ${colors.orange}`;
+    case colors.yellow:
+      return `linear-gradient(241deg, ${hexToRGBA(colors.rose, 0.2)} -43.4%, ${hexToRGBA(colors.white, 0)} 34.94%), ${colors.yellow}`;
+    default:
+      return `linear-gradient(241deg, ${hexToRGBA(colors.gray100, 0.4)} -2.4%, ${hexToRGBA(colors.gray100, 0)} 94.94%), ${colors.gray300}`;
+  }
+};
+
+export { getColorForValue,getColorForCalendarDataCard };

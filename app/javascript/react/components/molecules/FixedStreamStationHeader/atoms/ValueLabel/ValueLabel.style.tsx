@@ -1,7 +1,5 @@
 import styled from "styled-components";
 import {
-  blue,
-  green,
   gray100,
   gray300,
 } from "../../../../../assets/styles/colors";
@@ -10,21 +8,18 @@ import { media } from "../../../../../utils/media";
 
 interface ContainerProps {
   $isActive?: boolean;
+  $color?: string;
 }
 
 const Container = styled.div<ContainerProps>`
   background: ${(props) =>
     props.$isActive
-      ? `linear-gradient(
-      241deg,
-      ${hexToRGBA(blue, 0.4)} -2.4%,
-      ${hexToRGBA(blue, 0.0)} 94.94%
-    ), ${green}`
+      ? props.$color 
       : `linear-gradient(
-        241deg,
-        ${hexToRGBA(gray100, 0.4)} -2.4%,
-        ${hexToRGBA(gray100, 0.0)} 94.94%
-      ), ${gray300}`};
+          241deg,
+          ${hexToRGBA(gray100, 0.4)} -2.4%,
+          ${hexToRGBA(gray100, 0.0)} 94.94%
+        ), ${gray300}`};
   display: flex;
   flex-direction: column;
   align-self: stretch;
@@ -61,6 +56,7 @@ const TextContainer = styled.div`
 
   @media ${media.desktop} {
     text-align: right;
+    padding-top: 0;
   }
 `;
 
