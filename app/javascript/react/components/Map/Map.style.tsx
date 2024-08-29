@@ -33,7 +33,7 @@ const MobileButtons = styled.div<{ $isTimelapseView: boolean }>`
   bottom: 0.1rem;
   right: 1.4rem;
   direction: rtl;
-  ${(props) => props.$isTimelapseView && "z-index: 3;"}
+  z-index: ${(props) => (props.$isTimelapseView ? 3 : 2)};
 
   @media (min-width: 390px) {
     right: 3.5rem;
@@ -101,9 +101,14 @@ const LoaderOverlay = styled.div`
   z-index: 5;
 `;
 
+const IndoorOvelay = styled(LoaderOverlay)`
+  z-index: 1;
+`;
+
 export {
   ContainerStyle,
   DesktopContainer,
+  IndoorOvelay,
   LoaderOverlay,
   MobileButtons,
   MobileContainer,

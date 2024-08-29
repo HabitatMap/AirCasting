@@ -14,6 +14,7 @@ const LegendContainer = styled.div`
   width: 100%;
   background-color: white;
   padding: 1.6rem;
+  z-index: 2;
 `;
 
 const Header = styled.div`

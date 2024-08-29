@@ -8,7 +8,7 @@ import * as S from "./SessionFilters.style";
 
 const IndoorOutdoorSwitch = () => {
   const { t } = useTranslation();
-  const { isIndoor, setUrlParams, sensorName } = useMapParams();
+  const { isIndoor, setUrlParams } = useMapParams();
   const dispatch = useAppDispatch();
 
   const isIndoorParameterInUrl = isIndoor === "true";
@@ -61,11 +61,6 @@ const IndoorOutdoorSwitch = () => {
               <S.IndoorToggleInfoText>
                 {t("filters.indoorMapInfo")}
               </S.IndoorToggleInfoText>
-              {!sensorName.startsWith("Air") && (
-                <S.IndoorToggleInfoText>
-                  {t("filters.nonAirbeamIndoor")}
-                </S.IndoorToggleInfoText>
-              )}
             </S.IndoorToggleInfoWrapper>
           )}
         </S.IndoorFilterWrapper>
