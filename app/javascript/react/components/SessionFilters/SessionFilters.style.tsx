@@ -629,6 +629,20 @@ const IndoorToggleInfoText = styled.span`
   }
 `;
 
+const YearPickerSettingsContainer = styled.div`
+  display: grid;
+  grid-template-columns: 1fr;
+  grid-template-rows: auto auto;
+  grid-gap: "0.8rem";
+  justify-content: center;
+  align-items: center;
+  border: 1px solid ${gray200};
+  min-height: 4.2rem;
+  width: 100%;
+  padding: 1.1rem 1.6rem;
+  border-radius: 0.5rem;
+`;
+
 export {
   BackButton,
   BasicParameterButton,
@@ -695,4 +709,5 @@ export {
   SuggestionList,
   Tab,
   Wrapper,
+  YearPickerSettingsContainer,
 };

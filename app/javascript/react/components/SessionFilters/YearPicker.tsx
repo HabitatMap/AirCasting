@@ -50,17 +50,15 @@ const YearPicker = () => {
   }, [currentUserSettings, previousUserSettings, isMobile, isCrowdMapActive]);
 
   return (
-    <S.Wrapper>
-      <S.SingleFilterWrapper>
-        <S.CrowdMapSettingsContainer $isCrowdMapActive={true}>
-          <S.CrowdMapGridSizeWrapper $isVisible={true}>
-            {t("filters.crowdMapGridCellSizeHeader")}
-            <CrowdMapGridSize />
-          </S.CrowdMapGridSizeWrapper>
-        </S.CrowdMapSettingsContainer>
-        <FilterInfoPopup filterTranslationLabel="filters.crowdMapInfo" />
-      </S.SingleFilterWrapper>
-    </S.Wrapper>
+    <S.SingleFilterWrapper>
+      <S.YearPickerSettingsContainer>
+        <S.CrowdMapGridSizeWrapper $isVisible={true}>
+          {t("filters.crowdMapGridCellSizeHeader")}
+          <CrowdMapGridSize />
+        </S.CrowdMapGridSizeWrapper>
+      </S.YearPickerSettingsContainer>
+      <FilterInfoPopup filterTranslationLabel="filters.crowdMapInfo" />
+    </S.SingleFilterWrapper>
   );
 };
 
