@@ -52,10 +52,10 @@ const YearPicker = () => {
   return (
     <S.SingleFilterWrapper>
       <S.YearPickerSettingsContainer>
-        <S.CrowdMapGridSizeWrapper $isVisible={true}>
+        <S.YearPickerWrapper>
           {t("filters.crowdMapGridCellSizeHeader")}
           <CrowdMapGridSize />
-        </S.CrowdMapGridSizeWrapper>
+        </S.YearPickerWrapper>
       </S.YearPickerSettingsContainer>
       <FilterInfoPopup filterTranslationLabel="filters.crowdMapInfo" />
     </S.SingleFilterWrapper>

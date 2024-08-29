@@ -643,6 +643,21 @@ const YearPickerSettingsContainer = styled.div`
   border-radius: 0.5rem;
 `;
 
+const YearPickerWrapper = styled.div`
+  display: grid;
+  grid-template-columns: 1fr;
+  grid-template-rows: auto auto;
+  grid-gap: 0.4rem;
+  justify-content: center;
+  align-items: center;
+  text-transform: uppercase;
+  font-size: 1.4rem;
+  color: ${gray300};
+  letter-spacing: 0.01em;
+  overflow: hidden;
+  max-height: "33rem";
+`;
+
 export {
   BackButton,
   BasicParameterButton,
@@ -710,4 +725,5 @@ export {
   Tab,
   Wrapper,
   YearPickerSettingsContainer,
+  YearPickerWrapper,
 };
