@@ -4,9 +4,9 @@ import { useTranslation } from "react-i18next";
 
 import { UserSettings } from "../../types/userStates";
 import { useMapParams } from "../../utils/mapParamsHandler";
-import { CrowdMapGridSize } from "./CrowdMapGridSize";
 import { FilterInfoPopup } from "./FilterInfoPopup";
 import * as S from "./SessionFilters.style";
+import { YearPickerButtons } from "./YearPickerButtons";
 
 const YearPicker = () => {
   const { currentUserSettings, previousUserSettings } = useMapParams();
@@ -54,7 +54,7 @@ const YearPicker = () => {
       <S.YearPickerSettingsContainer>
         <S.YearPickerWrapper>
           {t("filters.yearPickerHeader")}
-          <CrowdMapGridSize />
+          <YearPickerButtons />
         </S.YearPickerWrapper>
       </S.YearPickerSettingsContainer>
       <FilterInfoPopup filterTranslationLabel="filters.crowdMapInfo" />
