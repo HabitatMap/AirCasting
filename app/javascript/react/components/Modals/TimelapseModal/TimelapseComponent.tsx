@@ -159,7 +159,7 @@ const TimelapseComponent: React.FC<
                 timestamps={filteredTimestamps}
               />
             </S.TimeAxisContainer>
-            <TimeRangeButtons timeRange={timeRange} />
+            <TimeRangeButtons />
             <S.CancelButtonX onClick={closeHandler}>
               <img src={closeTimelapseButton} alt={t("navbar.altClose")} />
             </S.CancelButtonX>
