@@ -734,7 +734,7 @@ const Map = () => {
             image={filterIcon}
             alt={t("filters.altFiltersIcon")}
             onClick={openFilters}
-            isNotTimelapseButton={isTimelapseView}
+            isNotTimelapseButton={false}
             isActive={currentUserSettings === UserSettings.FiltersView}
           />
         </S.MobileButtons>
