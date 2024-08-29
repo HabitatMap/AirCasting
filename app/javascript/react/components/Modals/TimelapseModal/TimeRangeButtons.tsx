@@ -1,18 +1,19 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
+import { useAppDispatch, useAppSelector } from "../../../store/hooks";
+import { selectTimelapseTimeRange } from "../../../store/timelapseSelectors";
+import { setTimelapseTimeRange } from "../../../store/timelapseSlice";
 import { TimeRanges } from "../../../types/timelapse";
 import * as S from "./TimelapseComponent.style";
 
-interface TimeRangeButtonsProps {
-  timeRange: TimeRanges;
-  onSelectTimeRange: (range: TimeRanges) => void;
-}
-
-const TimeRangeButtons: React.FC<TimeRangeButtonsProps> = ({
-  timeRange,
-  onSelectTimeRange,
-}) => {
+const TimeRangeButtons = () => {
+  const timeRange = useAppSelector(selectTimelapseTimeRange);
   const { t } = useTranslation();
+  const dispatch = useAppDispatch();
+
+  const onSelectTimeRange = (timeRange: TimeRanges) => {
+    dispatch(setTimelapseTimeRange(timeRange));
+  };
 
   return (
     <S.TimeRangeButtonsContainer>
