@@ -49,7 +49,7 @@ import {
 } from "../../store/thresholdSlice";
 import {
   selectCurrentTimestamp,
-  selectFilteredTimelapseData,
+  selectTimelapseData,
 } from "../../store/timelapseSelectors";
 import { fetchTimelapseData } from "../../store/timelapseSlice";
 import { SessionTypes } from "../../types/filters";
@@ -164,7 +164,7 @@ const Map = () => {
   const realtimeMapUpdates = useAppSelector(
     (state: RootState) => state.realtimeMapUpdates.realtimeMapUpdates
   );
-  const timelapseData = useAppSelector(selectFilteredTimelapseData);
+  const timelapseData = useAppSelector(selectTimelapseData);
   const currentTimestamp = useAppSelector(selectCurrentTimestamp);
 
   const fixedSessionTypeSelected: boolean = sessionType === SessionTypes.FIXED;
