@@ -220,7 +220,8 @@
     "nonAirbeamIndoor": "Switch to an AirBeam sensor to display results.",
     "indoorMapOverlay": "Indoor sessions aren't mapped.",
     "dormantToggleLabel": "dormant stations",
-    "dormantInfo": "Fixed sessions that have submitted a measurement in the past 24 hours are considered active. Fixed sessions that have not submitted measurements in the past 24 hours are considered dormant."
+    "dormantInfo": "Fixed sessions that have submitted a measurement in the past 24 hours are considered active. Fixed sessions that have not submitted measurements in the past 24 hours are considered dormant.",
+    "yearPickerHeader": "timeframe"
   },
   "timelapse": {
     "readOnly": "Close timelapse to interact with the map.",

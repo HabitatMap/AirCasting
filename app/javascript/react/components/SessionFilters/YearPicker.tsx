@@ -53,7 +53,7 @@ const YearPicker = () => {
     <S.SingleFilterWrapper>
       <S.YearPickerSettingsContainer>
         <S.YearPickerWrapper>
-          {t("filters.crowdMapGridCellSizeHeader")}
+          {t("filters.yearPickerHeader")}
           <CrowdMapGridSize />
         </S.YearPickerWrapper>
       </S.YearPickerSettingsContainer>
