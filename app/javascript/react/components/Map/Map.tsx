@@ -185,6 +185,7 @@ const Map = () => {
         : selectFixedSessionsList(fixedSessionsType)
       : selectMobileSessionsList
   );
+  console.log(listSessions, "listSessions");
   const sessionsPoints = fixedSessionTypeSelected ? fixedPoints : mobilePoints;
 
   const memoizedTimelapseData = useMemo(() => timelapseData, [timelapseData]);

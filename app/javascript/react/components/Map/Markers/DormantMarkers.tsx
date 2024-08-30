@@ -15,7 +15,7 @@ import { Session } from "../../../types/sessionType";
 import useMapEventListeners from "../../../utils/mapEventListeners";
 import HoverMarker from "./HoverMarker/HoverMarker";
 
-import { gray500 } from "../../../assets/styles/colors";
+import { gray300 } from "../../../assets/styles/colors";
 import { setMarkersLoading } from "../../../store/markersLoadingSlice";
 import { selectIsDormantSessionsType } from "../../../store/sessionFiltersSlice";
 import type { LatLngLiteral } from "../../../types/googleMaps";
@@ -164,7 +164,7 @@ const DormantMarkers = ({
           }}
         >
           <SessionDotMarker
-            color={gray500}
+            color={gray300}
             onClick={() => {
               onMarkerClick(Number(session.point.streamId), Number(session.id));
               centerMapOnMarker(session.point, session.point.streamId);

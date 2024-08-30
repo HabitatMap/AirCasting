@@ -4,6 +4,9 @@ import { useTranslation } from "react-i18next";
 import { useSelector } from "react-redux";
 
 import rightVector from "../../../assets/icons/rightVector.svg";
+import { gray300 } from "../../../assets/styles/colors";
+import { useAppSelector } from "../../../store/hooks";
+import { selectIsDormantSessionsType } from "../../../store/sessionFiltersSlice";
 import { selectThresholds } from "../../../store/thresholdSlice";
 import { DateFormat } from "../../../types/dateFormat";
 import { getColorForValue } from "../../../utils/thresholdColors";
@@ -69,6 +72,12 @@ const SessionsListTile: React.FC<SessionListTile> = ({
     }
   };
 
+  const isDormant = useAppSelector(selectIsDormantSessionsType);
+
+  const dotColor = isDormant
+    ? gray300
+    : getColorForValue(thresholds, averageValue);
+
   return (
     <S.SessionListTile
       onClick={handleClick}
@@ -76,12 +85,13 @@ const SessionsListTile: React.FC<SessionListTile> = ({
       onMouseLeave={handleMouseLeave}
     >
       <S.HorizontalSpacingContainer>
-        {typeof averageValue === "number" && (
-          <S.HorizontalGroup>
-            <S.ColorDot $color={getColorForValue(thresholds, averageValue)} />
+        <S.HorizontalGroup>
+          <S.ColorDot $color={dotColor} />
+          {typeof averageValue === "number" && (
             <S.Subtitle>avg. {averageValue}</S.Subtitle>
-          </S.HorizontalGroup>
-        )}
+          )}
+        </S.HorizontalGroup>
+        )
         <S.ArrowImageContainer>
           <img src={rightVector} alt={t("map.altDirect")} />
         </S.ArrowImageContainer>
