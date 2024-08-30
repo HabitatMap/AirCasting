@@ -1,5 +1,6 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
+
 import { useAppDispatch } from "../../store/hooks";
 import { setFetchingData } from "../../store/mapSlice";
 import { UrlParamsTypes, useMapParams } from "../../utils/mapParamsHandler";
@@ -8,7 +9,7 @@ import * as S from "./SessionFilters.style";
 
 const IndoorOutdoorSwitch = () => {
   const { t } = useTranslation();
-  const { isIndoor, setUrlParams } = useMapParams();
+  const { isIndoor, setFilter, setUrlParams } = useMapParams();
   const dispatch = useAppDispatch();
 
   const isIndoorParameterInUrl = isIndoor === "true";
@@ -25,13 +26,8 @@ const IndoorOutdoorSwitch = () => {
   };
 
   const handleOutdoorClick = () => {
+    setFilter(UrlParamsTypes.isIndoor, "false");
     dispatch(setFetchingData(true));
-    setUrlParams([
-      {
-        key: UrlParamsTypes.isIndoor,
-        value: "false",
-      },
-    ]);
   };
 
   return (
