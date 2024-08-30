@@ -1,36 +1,44 @@
 import React, { useCallback } from "react";
 
-import { setFetchingCrowdMapData } from "../../store/crowdMapSlice";
 import { useAppDispatch } from "../../store/hooks";
+import { setFetchingData } from "../../store/mapSlice";
 import { UrlParamsTypes, useMapParams } from "../../utils/mapParamsHandler";
 import * as S from "./SessionFilters.style";
 
-const gridSizes = [2024, 2023, 2022, 2021, 2020];
-export const defaultGridSize = 51 - gridSizes[2];
+const years = ["2024", "2023", "2022", "2021", "2020"];
 
 const YearPickerButtons = () => {
   const dispatch = useAppDispatch();
-  const { setFilters, gridSize } = useMapParams();
+  const { setUrlParams, timeFrom, timeTo } = useMapParams();
 
-  const handleGridSize = useCallback(
-    (size: number) => {
-      setFilters(UrlParamsTypes.gridSize, (51 - size).toString());
+  const handleYear = useCallback(
+    (year: string) => {
+      setUrlParams([
+        {
+          key: UrlParamsTypes.timeFrom,
+          value: "1692662400",
+        },
+        {
+          key: UrlParamsTypes.timeTo,
+          value: "1724371199",
+        },
+      ]);
       setTimeout(() => {
-        dispatch(setFetchingCrowdMapData(true));
+        dispatch(setFetchingData(true));
       }, 200);
     },
-    [dispatch, gridSize, setFilters]
+    [dispatch, setUrlParams, timeFrom, timeTo]
   );
 
   return (
     <S.CrowdMapGridButtonsContainer>
-      {gridSizes.map((size) => (
+      {years.map((year) => (
         <S.CrowdGridSizeButton
-          key={size}
-          onClick={() => handleGridSize(size)}
-          $isActive={gridSize === 51 - size}
+          key={year}
+          onClick={() => handleYear(year)}
+          $isActive={timeFrom === year}
         >
-          {size}
+          {year}
         </S.CrowdGridSizeButton>
       ))}
     </S.CrowdMapGridButtonsContainer>
