@@ -14,7 +14,7 @@ const YearPicker = () => {
         {t("filters.yearPickerHeader")}
         <YearPickerButtons />
       </S.YearPickerWrapper>
-      <FilterInfoPopup filterTranslationLabel="filters.crowdMapInfo" />
+      <FilterInfoPopup filterTranslationLabel="filters.yearPickerInfo" />
     </S.SingleFilterWrapper>
   );
 };

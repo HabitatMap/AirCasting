@@ -221,7 +221,8 @@
     "indoorMapOverlay": "Indoor sessions aren't mapped.",
     "dormantToggleLabel": "dormant stations",
     "dormantInfo": "Fixed sessions that have submitted a measurement in the past 24 hours are considered active. Fixed sessions that have not submitted measurements in the past 24 hours are considered dormant.",
-    "yearPickerHeader": "timeframe"
+    "yearPickerHeader": "timeframe",
+    "yearPickerInfo": "Enter a time frame to view sessions that include measurements with corresponding timestamps."
   },
   "timelapse": {
     "readOnly": "Close timelapse to interact with the map.",
