@@ -5,11 +5,20 @@ import { setFetchingData } from "../../store/mapSlice";
 import { UrlParamsTypes, useMapParams } from "../../utils/mapParamsHandler";
 import * as S from "./SessionFilters.style";
 
-const years = [2024, 2023, 2022, 2021, 2020];
-
 const YearPickerButtons = () => {
   const dispatch = useAppDispatch();
   const { setUrlParams, timeFrom, timeTo } = useMapParams();
+
+  const getDynamicYearsArray = (): number[] => {
+    const currentYear = new Date().getFullYear();
+    const years: number[] = [];
+
+    for (let i = 0; i < 5; i++) {
+      years.push(currentYear - i);
+    }
+
+    return years;
+  };
 
   const handleYear = useCallback(
     (year: number) => {
@@ -40,7 +49,7 @@ const YearPickerButtons = () => {
 
   return (
     <S.CrowdMapGridButtonsContainer>
-      {years.map((year) => (
+      {getDynamicYearsArray().map((year) => (
         <S.CrowdGridSizeButton
           key={year}
           onClick={() => handleYear(year)}
