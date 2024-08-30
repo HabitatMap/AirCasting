@@ -36,9 +36,13 @@ import { TagsInput } from "./TagsInput";
 
 interface MobileSessionFiltersProps {
   onClose: () => void;
+  fetchableSessionsCount: number;
 }
 
-const MobileSessionFilters = ({ onClose }: MobileSessionFiltersProps) => {
+const MobileSessionFilters = ({
+  onClose,
+  fetchableSessionsCount,
+}: MobileSessionFiltersProps) => {
   const fixedSessionsState = useAppSelector(selectFixedSessionsState);
   const indoorSessionsState = useAppSelector(selectIndoorSessionsState);
 
@@ -114,24 +118,28 @@ const MobileSessionFilters = ({ onClose }: MobileSessionFiltersProps) => {
           customParameters={customParameters}
           sessionsCount={sessionsCount}
           onClose={onClose}
+          fetchableSessionsCount={fetchableSessionsCount}
         />
       ) : isCustomParametersModalOpen ? (
         <CustomParameterFilter
           customParameters={customParameters}
           sessionsCount={sessionsCount}
           onClose={onClose}
+          fetchableSessionsCount={fetchableSessionsCount}
         />
       ) : isBasicSensorsModalOpen ? (
         <MobileDeviceSensorFilter
           customSensors={customSensors}
           sessionsCount={sessionsCount}
           onClose={onClose}
+          fetchableSessionsCount={fetchableSessionsCount}
         />
       ) : isCustomSensorsModalOpen ? (
         <CustomSensorFilter
           customSensors={customSensors}
           sessionsCount={sessionsCount}
           onClose={onClose}
+          fetchableSessionsCount={fetchableSessionsCount}
         />
       ) : (
         <>
@@ -151,7 +159,19 @@ const MobileSessionFilters = ({ onClose }: MobileSessionFiltersProps) => {
             {!fixedSessionTypeSelected && <CrowdMapToggle />}
           </S.ModalContent>
           <S.ShowSessionsButton onClick={onClose}>
-            {t("filters.showSessions")} ({sessionsCount})
+            {fixedSessionTypeSelected ? (
+              <>
+                {t("filters.showSessions")} ({sessionsCount})
+              </>
+            ) : (
+              <>
+                {t("filters.showSessions")}{" "}
+                {t("map.results", {
+                  results: sessionsCount,
+                  fetchableSessionsCount,
+                })}
+              </>
+            )}
           </S.ShowSessionsButton>
         </>
       )}

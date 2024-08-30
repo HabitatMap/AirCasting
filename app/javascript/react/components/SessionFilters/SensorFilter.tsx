@@ -213,12 +213,14 @@ interface MobileDeviceSensorFilterProps {
   customSensors: string[];
   sessionsCount: number | undefined;
   onClose: () => void;
+  fetchableSessionsCount: number;
 }
 
 export const MobileDeviceSensorFilter = ({
   customSensors,
   sessionsCount,
   onClose,
+  fetchableSessionsCount,
 }: MobileDeviceSensorFilterProps) => {
   const dispatch = useAppDispatch();
   const { t } = useTranslation();
@@ -226,6 +228,8 @@ export const MobileDeviceSensorFilter = ({
     useMapParams();
   const sensors = useAppSelector(selectSensors);
   const basicSensors = getBasicSensors(measurementType, sessionType);
+
+  const fixedSessionTypeSelected: boolean = sessionType === SessionTypes.FIXED;
 
   const handleSelectSensor = (selectedSensor: string) => {
     dispatch(setFetchingData(true));
@@ -282,7 +286,19 @@ export const MobileDeviceSensorFilter = ({
           {t("filters.back")}
         </S.BackButton>
         <S.MinorShowSessionsButton onClick={onClose}>
-          {t("filters.showSessions")} ({sessionsCount})
+          {fixedSessionTypeSelected ? (
+            <>
+              {t("filters.showSessions")} ({sessionsCount})
+            </>
+          ) : (
+            <>
+              {t("filters.showSessions")}{" "}
+              {t("map.results", {
+                results: sessionsCount,
+                fetchableSessionsCount,
+              })}
+            </>
+          )}
         </S.MinorShowSessionsButton>
       </S.ButtonsWrapper>
     </>
