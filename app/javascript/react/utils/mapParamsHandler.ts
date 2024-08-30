@@ -5,6 +5,11 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import { MAP_CONFIGS } from "../components/Map/mapConfigs";
 import { defaultGridSize } from "../components/SessionFilters/CrowdMapGridSize";
 import {
+  beginningOfTheYear,
+  endOfTheYear,
+  getLastFiveYears,
+} from "../components/SessionFilters/YearPickerButtons";
+import {
   DEFAULT_MAP_BOUNDS,
   DEFAULT_MAP_CENTER,
   DEFAULT_ZOOM,
@@ -242,8 +247,14 @@ export const useMapParams = () => {
     }),
     [defaultThresholds]
   );
-  const timeFrom = getSearchParam(UrlParamsTypes.timeFrom, "1692662400")!;
-  const timeTo = getSearchParam(UrlParamsTypes.timeTo, "1724371199")!;
+  const timeFrom = getSearchParam(
+    UrlParamsTypes.timeFrom,
+    beginningOfTheYear(getLastFiveYears()[0]).toString()
+  )!;
+  const timeTo = getSearchParam(
+    UrlParamsTypes.timeTo,
+    endOfTheYear(getLastFiveYears()[0]).toString()
+  )!;
   const unitSymbol = getSearchParam(
     UrlParamsTypes.unitSymbol,
     UnitSymbols.ParticulateMatter
