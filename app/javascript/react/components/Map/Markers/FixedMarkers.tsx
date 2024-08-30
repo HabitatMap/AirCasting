@@ -222,17 +222,36 @@ const FixedMarkers = ({
     };
   }, []);
 
-  useEffect(() => {
-    if (selectedStreamId) {
-      const s = sessions.find(
-        (session) => session?.point?.streamId === selectedStreamId?.toString()
-      );
-      if (s?.point) {
-        centerMapOnMarker(s.point, s.point.streamId);
-      }
-    }
-  }, [sessions]);
+  const currentCenter = map?.getCenter();
 
+useEffect(() => {
+  if (clusterer.current) {
+    clusterer.current.clearMarkers();
+    dispatch(fetchClusterData(sessions.map(session => session.point.streamId)));
+  }
+}, [map, sessions]);
+
+useEffect(() => {
+  if (selectedStreamId) {
+    const s = sessions.find(
+      (session) => session?.point?.streamId === selectedStreamId?.toString()
+    );
+    if (s?.point) {    
+      const urlCenter = currentCenter; 
+
+      if (
+        currentCenter &&
+        urlCenter &&
+        currentCenter.lat === urlCenter.lat &&
+        currentCenter.lng === urlCenter.lng
+      ) {
+        return;
+      }
+
+      centerMapOnMarker(s.point, s.point.streamId);
+    }
+  }
+}, [sessions, selectedStreamId, map, currentCenter]);
   useEffect(() => {
     updateClusterer();
   }, [updateClusterer]);

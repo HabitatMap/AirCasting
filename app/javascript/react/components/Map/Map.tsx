@@ -258,6 +258,8 @@ const Map = () => {
     dispatch(fetchSensors(sessionType));
   }, [sessionType]);
 
+  
+
   useEffect(() => {
     const isFirstLoad = isFirstRender.current;
     if (isFirstLoad && fetchedSessions > 0 && !fixedSessionTypeSelected) {

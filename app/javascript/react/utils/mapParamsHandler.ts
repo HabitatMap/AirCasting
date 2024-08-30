@@ -1,6 +1,6 @@
 import { debounce } from "lodash";
 import { useCallback, useEffect, useMemo } from "react";
-import { useSearchParams } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 
 import { MAP_CONFIGS } from "../components/Map/mapConfigs";
 import { defaultGridSize } from "../components/SessionFilters/CrowdMapGridSize";
@@ -77,6 +77,8 @@ export const useMapParams = () => {
     },
     [searchParams, setSearchParams]
   );
+
+  const navigate = useNavigate();
 
   const boundEast = parseFloat(
     getSearchParam(
@@ -305,6 +307,7 @@ export const useMapParams = () => {
     ]);
   }, [searchParams]);
 
+  
   const setFilters = useCallback(
     (key: UrlParamsTypes, value: string) => {
       if (isMobile) {
