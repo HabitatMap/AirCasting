@@ -631,24 +631,16 @@ const IndoorToggleInfoText = styled.span`
 `;
 
 const YearPickerWrapper = styled.div`
-  display: grid;
-  grid-template-columns: 1fr;
-  grid-template-rows: auto auto;
-  grid-gap: 0.4rem;
-  justify-content: center;
-  align-items: center;
-  text-transform: uppercase;
-  font-size: 1.4rem;
-  color: ${gray300};
-  letter-spacing: 0.01em;
-  overflow: hidden;
-  max-height: "33rem";
-  width: 100%;
-  padding: 1.1rem 1.6rem;
   border: 1px solid ${gray200};
   border-radius: 0.5rem;
-  grid-gap: "0.8rem";
-  min-height: 4.2rem;
+  color: ${gray300};
+  display: grid;
+  font-size: 1.4rem;
+  grid-gap: 0.4rem;
+  letter-spacing: 0.01em;
+  padding: 1.1rem 1.6rem;
+  text-transform: uppercase;
+  width: 100%;
 `;
 
 export {
@@ -717,6 +709,5 @@ export {
   SuggestionList,
   Tab,
   Wrapper,
-  YearPickerSettingsContainer,
   YearPickerWrapper,
 };
