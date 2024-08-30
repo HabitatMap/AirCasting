@@ -29,6 +29,7 @@ import { getColorForValue } from "../../../utils/thresholdColors";
 import { customRenderer, pulsatingRenderer } from "./ClusterConfiguration";
 import { ClusterInfo } from "./ClusterInfo/ClusterInfo";
 import HoverMarker from "./HoverMarker/HoverMarker";
+import useScreenSizeDetection from "../../../utils/useScreenSizeDetection";
 
 import { setMarkersLoading } from "../../../store/markersLoadingSlice";
 import type { LatLngLiteral } from "../../../types/googleMaps";
@@ -51,6 +52,7 @@ const FixedMarkers = ({
   pulsatingSessionId,
 }: Props) => {
   const ZOOM_FOR_SELECTED_SESSION = 15;
+  const isMobile = useScreenSizeDetection();
 
   const dispatch = useAppDispatch();
   const clusterData = useAppSelector((state: RootState) => state.cluster.data);
@@ -62,9 +64,10 @@ const FixedMarkers = ({
   );
   const hoverStreamId = useAppSelector(selectHoverStreamId);
   const thresholds = useAppSelector(selectThresholds);
+  const isInitialRender = useRef(true);
 
   const map = useMap();
-  const { unitSymbol } = useMapParams();
+  const { unitSymbol, currentCenter, currentZoom } = useMapParams();
 
   const clusterer = useRef<CustomMarkerClusterer | null>(null);
   const markerRefs = useRef<{
@@ -92,7 +95,7 @@ const FixedMarkers = ({
   ).length;
 
   const centerMapOnMarker = useCallback(
-    (position: LatLngLiteral, streamId: string) => {
+    (position: LatLngLiteral) => {
       if (map && selectedStreamId) {
         map.setCenter(position);
         map.setZoom(ZOOM_FOR_SELECTED_SESSION);
@@ -222,36 +225,28 @@ const FixedMarkers = ({
     };
   }, []);
 
-  const currentCenter = map?.getCenter();
+  useEffect(() => {
+    if (selectedStreamId && map) {
+      const s = sessions.find(
+        (session) => session?.point?.streamId === selectedStreamId?.toString()
+      );
+      if (s?.point) {
+        const urlCenter = map.getCenter();
 
-useEffect(() => {
-  if (clusterer.current) {
-    clusterer.current.clearMarkers();
-    dispatch(fetchClusterData(sessions.map(session => session.point.streamId)));
-  }
-}, [map, sessions]);
+        if (
+          currentCenter &&
+          urlCenter &&
+          currentCenter.lat === urlCenter.lat &&
+          currentCenter.lng === urlCenter.lng
+        ) {
+          return;
+        }
 
-useEffect(() => {
-  if (selectedStreamId) {
-    const s = sessions.find(
-      (session) => session?.point?.streamId === selectedStreamId?.toString()
-    );
-    if (s?.point) {    
-      const urlCenter = currentCenter; 
-
-      if (
-        currentCenter &&
-        urlCenter &&
-        currentCenter.lat === urlCenter.lat &&
-        currentCenter.lng === urlCenter.lng
-      ) {
-        return;
+        centerMapOnMarker(s.point);
       }
-
-      centerMapOnMarker(s.point, s.point.streamId);
     }
-  }
-}, [sessions, selectedStreamId, map, currentCenter]);
+  }, [sessions, selectedStreamId, map, currentCenter, centerMapOnMarker]);
+
   useEffect(() => {
     updateClusterer();
   }, [updateClusterer]);
@@ -379,7 +374,7 @@ useEffect(() => {
             shouldPulse={session.id === pulsatingSessionId}
             onClick={() => {
               onMarkerClick(Number(session.point.streamId), Number(session.id));
-              centerMapOnMarker(session.point, session.point.streamId);
+              centerMapOnMarker(session.point);
             }}
           />
         </AdvancedMarker>
