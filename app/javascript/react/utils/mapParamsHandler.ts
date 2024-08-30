@@ -32,8 +32,9 @@ export enum UrlParamsTypes {
   currentCenter = "currentCenter",
   currentUserSettings = "currentUserSettings",
   currentZoom = "currentZoom",
-  gridSize = "gridSize",
   fetchedSessions = "fetchedSessions",
+  gridSize = "gridSize",
+  isIndoor = "isIndoor",
   limit = "limit",
   mapType = "mapType",
   measurementType = "measurementType",
@@ -53,7 +54,8 @@ export enum UrlParamsTypes {
   unitSymbol = "unitSymbol",
   usernames = "usernames",
   tags = "tags",
-  isIndoor = "isIndoor",
+  timeFrom = "timeFrom",
+  timeTo = "timeFrom",
 }
 
 export const useMapParams = () => {
@@ -121,6 +123,8 @@ export const useMapParams = () => {
   const currentZoom = parseFloat(
     getSearchParam(UrlParamsTypes.currentZoom, DEFAULT_ZOOM.toString())!
   );
+
+  const isIndoor = getSearchParam(UrlParamsTypes.isIndoor, "false");
 
   const gridSize = parseInt(
     getSearchParam(UrlParamsTypes.gridSize, defaultGridSize.toString())!
@@ -203,7 +207,6 @@ export const useMapParams = () => {
       ? parseInt(getSearchParam(UrlParamsTypes.streamId, "0")!)
       : null;
   const tags = getSearchParam(UrlParamsTypes.tags, "");
-  const isIndoor = getSearchParam(UrlParamsTypes.isIndoor, "false");
   const initialThresholds = useMemo(
     () => ({
       min: parseFloat(
@@ -239,6 +242,8 @@ export const useMapParams = () => {
     }),
     [defaultThresholds]
   );
+  const timeFrom = getSearchParam(UrlParamsTypes.timeFrom, "1692662400")!;
+  const timeTo = getSearchParam(UrlParamsTypes.timeTo, "1724371199")!;
   const unitSymbol = getSearchParam(
     UrlParamsTypes.unitSymbol,
     UnitSymbols.ParticulateMatter
@@ -371,9 +376,9 @@ export const useMapParams = () => {
     fetchedSessions,
     goToUserSettings,
     gridSize,
+    isIndoor,
     limit,
     mapTypeId,
-    isIndoor,
     measurementType,
     offset,
     previousCenter,
@@ -388,11 +393,13 @@ export const useMapParams = () => {
     streamId,
     initialThresholds,
     searchParams,
+    tags,
+    timeFrom,
+    timeTo,
     unitSymbol,
     updateFetchedSessions,
     updateLimit,
     updateOffset,
     usernames,
-    tags,
   };
 };
