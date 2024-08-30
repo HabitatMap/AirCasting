@@ -194,17 +194,21 @@ interface MobileDeviceParameterFilterProps {
   customParameters: string[];
   sessionsCount: number | undefined;
   onClose: () => void;
+  fetchableSessionsCount: number;
 }
 
 export const MobileDeviceParameterFilter = ({
   customParameters,
   sessionsCount,
   onClose,
+  fetchableSessionsCount,
 }: MobileDeviceParameterFilterProps) => {
   const dispatch = useAppDispatch();
   const { t } = useTranslation();
   const { measurementType, setUrlParams, sessionType } = useMapParams();
   const sensors = useAppSelector(selectSensors);
+
+  const fixedSessionTypeSelected: boolean = sessionType === SessionTypes.FIXED;
 
   const handleSelectParameter = (selectedParameter: ParameterType) => {
     dispatch(setFetchingData(true));
@@ -267,7 +271,19 @@ export const MobileDeviceParameterFilter = ({
           {t("filters.back")}
         </S.BackButton>
         <S.MinorShowSessionsButton onClick={onClose}>
-          {t("filters.showSessions")} ({sessionsCount})
+          {fixedSessionTypeSelected ? (
+            <>
+              {t("filters.showSessions")} ({sessionsCount})
+            </>
+          ) : (
+            <>
+              {t("filters.showSessions")}{" "}
+              {t("map.results", {
+                results: sessionsCount,
+                fetchableSessionsCount,
+              })}
+            </>
+          )}
         </S.MinorShowSessionsButton>
       </S.ButtonsWrapper>
     </>

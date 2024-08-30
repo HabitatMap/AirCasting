@@ -11,6 +11,7 @@ import {
   setBasicParametersModalOpen,
   setCustomParametersModalOpen,
 } from "../../store/sessionFiltersSlice";
+import { SessionTypes } from "../../types/filters";
 import { UserSettings } from "../../types/userStates";
 import { UrlParamsTypes, useMapParams } from "../../utils/mapParamsHandler";
 import { setSensor } from "../../utils/setSensor";
@@ -27,12 +28,14 @@ interface CustomParameterFilterProps {
   customParameters: string[];
   sessionsCount?: number;
   onClose?: () => void;
+  fetchableSessionsCount?: number;
 }
 
 const CustomParameterFilter: React.FC<CustomParameterFilterProps> = ({
   customParameters,
   sessionsCount = 0,
   onClose = () => {},
+  fetchableSessionsCount,
 }) => {
   const [filteredParameters, setFilteredParameters] =
     useState<string[]>(customParameters);
@@ -45,6 +48,8 @@ const CustomParameterFilter: React.FC<CustomParameterFilterProps> = ({
   const sensors = useAppSelector(selectSensors);
   const dispatch = useAppDispatch();
   const { t } = useTranslation();
+
+  const fixedSessionTypeSelected: boolean = sessionType === SessionTypes.FIXED;
 
   const { getInputProps, getMenuProps, getItemProps } = useCombobox({
     items: filteredParameters,
@@ -156,7 +161,19 @@ const CustomParameterFilter: React.FC<CustomParameterFilterProps> = ({
         <S.ButtonsWrapper>
           <S.BackButton onClick={goBack}>{t("filters.back")}</S.BackButton>
           <S.MinorShowSessionsButton onClick={onClose}>
-            {t("filters.showSessions")} ({sessionsCount})
+            {fixedSessionTypeSelected ? (
+              <>
+                {t("filters.showSessions")} ({sessionsCount})
+              </>
+            ) : (
+              <>
+                {t("filters.showSessions")}{" "}
+                {t("map.results", {
+                  results: sessionsCount,
+                  fetchableSessionsCount,
+                })}
+              </>
+            )}
           </S.MinorShowSessionsButton>
         </S.ButtonsWrapper>
       </S.MobileCustomParameters>
