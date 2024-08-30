@@ -40,6 +40,7 @@ import {
 import * as S from "./SessionFilters.style";
 import { SessionTypeToggle } from "./SessionTypeToggle";
 import { TagsInput } from "./TagsInput";
+import { YearPicker } from "./YearPicker";
 
 interface MobileSessionFiltersProps {
   onClose: () => void;
@@ -185,6 +186,7 @@ const MobileSessionFilters = ({
               <IndoorOutdoorSwitch />
             )}
             {isFixedSessionTypeSelected && <DormantToggle />}
+            {!isFixedSessionTypeSelected && <YearPicker />}
             {!isFixedSessionTypeSelected && <CrowdMapToggle />}
           </S.ModalContent>
           <S.ShowSessionsButton onClick={onClose}>
