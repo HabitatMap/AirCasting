@@ -20,14 +20,16 @@ import {
   selectThresholds,
 } from "../store/thresholdSlice";
 import {
+  ParameterType,
   ParameterTypes,
   SessionType,
   SessionTypes,
   UnitSymbols,
 } from "../types/filters";
-import { SENSOR_NAMES } from "../types/sensors";
+import { Sensor, SENSOR_NAMES } from "../types/sensors";
 import { UserSettings } from "../types/userStates";
 import useMobileDetection from "../utils/useScreenSizeDetection";
+import { setSensor } from "./setSensor";
 
 export enum UrlParamsTypes {
   boundEast = "boundEast",
@@ -145,10 +147,50 @@ export const useMapParams = () => {
   const mapTypeId =
     getSearchParam(UrlParamsTypes.mapType, MAP_CONFIGS[0].mapTypeId) ||
     MAP_CONFIGS[0].mapTypeId;
+
   const measurementType = getSearchParam(
     UrlParamsTypes.measurementType,
     ParameterTypes.PARTICULATE_MATTER
   )!;
+  const updateMeasurementType = useCallback(
+    (measurementType: ParameterType, sensors: Sensor[]) => {
+      setUrlParams([
+        {
+          key: UrlParamsTypes.previousUserSettings,
+          value: currentUserSettings,
+        },
+        {
+          key: UrlParamsTypes.currentUserSettings,
+          value: isMobile
+            ? UserSettings.FiltersView
+            : currentUserSettings === UserSettings.CrowdMapView
+            ? UserSettings.CrowdMapView
+            : UserSettings.MapView,
+        },
+        {
+          key: UrlParamsTypes.sessionId,
+          value: "",
+        },
+        {
+          key: UrlParamsTypes.streamId,
+          value: "",
+        },
+        {
+          key: UrlParamsTypes.measurementType,
+          value: measurementType,
+        },
+        {
+          key: UrlParamsTypes.sensorName,
+          value: setSensor(measurementType, sensors, sessionType).sensorName,
+        },
+        {
+          key: UrlParamsTypes.unitSymbol,
+          value: setSensor(measurementType, sensors, sessionType).unitSymbol,
+        },
+      ]);
+    },
+    [currentUserSettings, setUrlParams]
+  );
 
   const offset = parseInt(getSearchParam(UrlParamsTypes.offset, "0")!);
   const updateOffset = useCallback(
@@ -441,6 +483,7 @@ export const useMapParams = () => {
     limit,
     mapTypeId,
     measurementType,
+    updateMeasurementType,
     offset,
     previousCenter,
     previousUserSettings,

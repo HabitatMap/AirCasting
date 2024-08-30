@@ -23,9 +23,7 @@ import {
   SessionType,
   SessionTypes,
 } from "../../types/filters";
-import { UserSettings } from "../../types/userStates";
-import { UrlParamsTypes, useMapParams } from "../../utils/mapParamsHandler";
-import { setSensor } from "../../utils/setSensor";
+import { useMapParams } from "../../utils/mapParamsHandler";
 import useMobileDetection from "../../utils/useScreenSizeDetection";
 import { CustomParameterFilter } from "./CustomParameterFilter";
 import { FilterInfoPopup } from "./FilterInfoPopup";
@@ -92,7 +90,7 @@ export const DesktopParameterFilter = () => {
   const [isBasicOpen, setIsBasicOpen] = useState(false);
   const [moreOpen, setMoreOpen] = useState(false);
   const { t } = useTranslation();
-  const { measurementType, setUrlParams, sessionType, currentUserSettings } =
+  const { measurementType, sessionType, updateMeasurementType } =
     useMapParams();
   const dispatch = useAppDispatch();
   const isMobile = useMobileDetection();
@@ -111,37 +109,8 @@ export const DesktopParameterFilter = () => {
   };
 
   const handleSelectParameter = (selectedParameter: ParameterType) => {
+    updateMeasurementType(selectedParameter, sensors);
     dispatch(setFetchingData(true));
-    setUrlParams([
-      {
-        key: UrlParamsTypes.previousUserSettings,
-        value: currentUserSettings,
-      },
-      {
-        key: UrlParamsTypes.currentUserSettings,
-        value: isMobile
-          ? UserSettings.FiltersView
-          : currentUserSettings === UserSettings.CrowdMapView
-          ? UserSettings.CrowdMapView
-          : UserSettings.MapView,
-      },
-      {
-        key: UrlParamsTypes.measurementType,
-        value: selectedParameter,
-      },
-      {
-        key: UrlParamsTypes.sensorName,
-        value: setSensor(selectedParameter, sensors, sessionType).sensorName,
-      },
-      {
-        key: UrlParamsTypes.unitSymbol,
-        value: setSensor(selectedParameter, sensors, sessionType).unitSymbol,
-      },
-      {
-        key: UrlParamsTypes.currentZoom,
-        value: UrlParamsTypes.previousZoom,
-      },
-    ]);
     dispatch(setBasicParametersModalOpen(false));
   };
 
@@ -204,28 +173,16 @@ export const MobileDeviceParameterFilter = ({
   fetchableSessionsCount,
 }: MobileDeviceParameterFilterProps) => {
   const dispatch = useAppDispatch();
-  const { t } = useTranslation();
-  const { measurementType, setUrlParams, sessionType } = useMapParams();
   const sensors = useAppSelector(selectSensors);
+  const { t } = useTranslation();
+  const { measurementType, updateMeasurementType, sessionType } =
+    useMapParams();
 
   const fixedSessionTypeSelected: boolean = sessionType === SessionTypes.FIXED;
 
   const handleSelectParameter = (selectedParameter: ParameterType) => {
+    updateMeasurementType(selectedParameter, sensors);
     dispatch(setFetchingData(true));
-    setUrlParams([
-      {
-        key: UrlParamsTypes.measurementType,
-        value: selectedParameter,
-      },
-      {
-        key: UrlParamsTypes.sensorName,
-        value: setSensor(selectedParameter, sensors, sessionType).sensorName,
-      },
-      {
-        key: UrlParamsTypes.unitSymbol,
-        value: setSensor(selectedParameter, sensors, sessionType).unitSymbol,
-      },
-    ]);
   };
 
   const handleShowMoreClick = () => {
