@@ -1,5 +1,5 @@
 import moment from "moment";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 
 import { Graph } from "../../components/Graph";
@@ -24,11 +24,13 @@ import {
 } from "../../store/movingCalendarStreamSlice";
 import { setDefaultThresholdsValues } from "../../store/thresholdSlice";
 import { SessionTypes } from "../../types/filters";
-import { useMapParams } from "../../utils/mapParamsHandler";
+import { UrlParamsTypes, useMapParams } from "../../utils/mapParamsHandler";
 import { formatTime } from "../../utils/measurementsCalc";
 import useMobileDetection from "../../utils/useScreenSizeDetection";
 import * as S from "./CalendarPage.style";
 import { UniformDistributionButton } from "../../components/ThresholdConfigurator/ThresholdButtons/UniformDistributionButton";
+import { urls } from "../../const/urls";
+import { useNavigate } from "react-router-dom";
 
 interface CalendarPageProps {
   children: React.ReactNode;
@@ -38,7 +40,15 @@ const CalendarPage: React.FC<CalendarPageProps> = ({ children }) => {
   const dispatch = useAppDispatch();
   const isMobile = useMobileDetection();
   const { t } = useTranslation();
-  const { unitSymbol } = useMapParams();
+  const navigate = useNavigate();
+
+  const {
+    unitSymbol,
+    revertUserSettingsAndResetIds,
+    searchParams,
+    currentUserSettings,
+    previousUserSettings,
+  } = useMapParams();
 
   const { streamId } = useMapParams();
 
@@ -65,6 +75,30 @@ const CalendarPage: React.FC<CalendarPageProps> = ({ children }) => {
   useEffect(() => {
     streamId && dispatch(fetchFixedStreamById(streamId));
   }, []);
+
+  const handleBackNavigation = useCallback(() => {
+    const newSearchParams = new URLSearchParams(searchParams.toString());
+    newSearchParams.set(
+      UrlParamsTypes.previousUserSettings,
+      currentUserSettings
+    );
+    newSearchParams.set(
+      UrlParamsTypes.currentUserSettings,
+      previousUserSettings
+    );
+
+    isMobile && newSearchParams.delete(UrlParamsTypes.streamId);
+    isMobile && newSearchParams.delete(UrlParamsTypes.sessionId);
+    navigate(`${urls.reactMap}?${newSearchParams.toString()}`);
+  }, [currentUserSettings, navigate, previousUserSettings, searchParams]);
+
+  useEffect(() => {
+    window.addEventListener("popstate", handleBackNavigation);
+
+    return () => {
+      window.removeEventListener("popstate", handleBackNavigation);
+    };
+  }, [handleBackNavigation]);
 
   useEffect(() => {
     const formattedEndMoment = moment(streamEndTime, "YYYY-MM-DD");

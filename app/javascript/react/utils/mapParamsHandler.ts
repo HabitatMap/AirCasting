@@ -293,6 +293,11 @@ export const useMapParams = () => {
   );
 
   const revertUserSettingsAndResetIds = useCallback(() => {
+    const finalPreviousUserSettings =
+      !isMobile && previousUserSettings === UserSettings.CalendarView
+        ? UserSettings.MapView
+        : previousUserSettings;
+
     setUrlParams([
       { key: UrlParamsTypes.sessionId, value: "" },
       { key: UrlParamsTypes.streamId, value: "" },
@@ -302,12 +307,11 @@ export const useMapParams = () => {
       },
       {
         key: UrlParamsTypes.currentUserSettings,
-        value: previousUserSettings,
+        value: finalPreviousUserSettings,
       },
     ]);
-  }, [searchParams]);
+  }, [searchParams, previousUserSettings, currentUserSettings, setUrlParams]);
 
-  
   const setFilters = useCallback(
     (key: UrlParamsTypes, value: string) => {
       if (isMobile) {
