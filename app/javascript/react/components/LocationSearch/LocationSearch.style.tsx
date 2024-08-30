@@ -1,7 +1,7 @@
 import styled from "styled-components";
 
 import searchIconGray from "../../assets/icons/searchIconGray.svg";
-import { gray500, white } from "../../assets/styles/colors";
+import { gray400, gray500, white } from "../../assets/styles/colors";
 import { media } from "../../utils/media";
 
 interface SuggestionProps {
@@ -40,6 +40,7 @@ const SuggestionsList = styled.ul<SuggestionsListProps>`
   padding: 30px 0 8px 8px;
   width: 26.9rem;
   z-index: 2;
+  color: ${gray400};
 
   @media ${media.mediumDesktop} {
     width: 100%;
@@ -66,6 +67,7 @@ const SearchInput = styled.input<SearchInputProps>`
   padding-left: 3.8rem;
   outline: none;
   z-index: 3;
+  color: ${gray400};
 
   @media ${media.smallDesktop} {
     width: 26.9rem;
