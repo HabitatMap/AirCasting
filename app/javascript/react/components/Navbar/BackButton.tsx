@@ -1,41 +1,23 @@
 import React, { useCallback } from "react";
 import * as S from "./Navbar.style";
 import { useTranslation } from "react-i18next";
-import { UrlParamsTypes, useMapParams } from "../../utils/mapParamsHandler";
-import { useNavigate } from "react-router-dom";
-import useMobileDetection from "../../utils/useScreenSizeDetection";
 
-import { urls } from "../../const/urls";
+import { useMapParams } from "../../utils/mapParamsHandler";
+import useMobileDetection from "../../utils/useScreenSizeDetection";
+import { useCalendarBackNavigation } from "../../hooks/useBackNavigation";
+
 import { UserSettings } from "../../types/userStates";
+
 import backArrowIcon from "../../assets/icons/backArrowIcon.svg";
 import backArrowIconDesktop from "../../assets/icons/backArrowIconDesktop.svg";
 
 const BackButton = () => {
   const { t } = useTranslation();
+  const handleCalendarGoBack = useCalendarBackNavigation();
 
-  const {
-    currentUserSettings,
-    previousUserSettings,
-    searchParams,
-    revertUserSettingsAndResetIds,
-  } = useMapParams();
-  const navigate = useNavigate();
+  const { previousUserSettings } = useMapParams();
+
   const isMobile = useMobileDetection();
-
-  const handleGoBackClick = useCallback(() => {
-    const newSearchParams = new URLSearchParams(searchParams.toString());
-    newSearchParams.set(
-      UrlParamsTypes.previousUserSettings,
-      currentUserSettings
-    );
-    newSearchParams.set(
-      UrlParamsTypes.currentUserSettings,
-      previousUserSettings
-    );
-    isMobile && newSearchParams.delete(UrlParamsTypes.streamId);
-    isMobile && newSearchParams.delete(UrlParamsTypes.sessionId);
-    navigate(`${urls.reactMap}?${newSearchParams.toString()}`);
-  }, [currentUserSettings, navigate, previousUserSettings, searchParams]);
 
   const icon = isMobile ? backArrowIcon : backArrowIconDesktop;
 
@@ -53,7 +35,7 @@ const BackButton = () => {
   }, [previousUserSettings, t]);
 
   return (
-    <S.GoBack onClick={handleGoBackClick} aria-label={t("navbar.mapPage")}>
+    <S.GoBack onClick={handleCalendarGoBack} aria-label={t("navbar.mapPage")}>
       <img
         src={icon}
         alt={t("navbar.altGoBackIcon")}
