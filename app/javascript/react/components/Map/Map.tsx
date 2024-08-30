@@ -91,7 +91,6 @@ const Map = () => {
     currentCenter,
     currentUserSettings,
     currentZoom,
-    debouncedUpdateURL,
     fetchedSessions,
     goToUserSettings,
     isIndoor,
@@ -496,13 +495,7 @@ const Map = () => {
         }
       }
     },
-    [
-      currentUserSettings,
-      debouncedUpdateURL,
-      mapInstance,
-      searchParams,
-      dispatch,
-    ]
+    [currentUserSettings, mapInstance, searchParams, dispatch]
   );
 
   const handleMarkerClick = (

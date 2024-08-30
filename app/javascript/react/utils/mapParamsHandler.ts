@@ -383,7 +383,6 @@ export const useMapParams = () => {
     currentCenter,
     currentUserSettings,
     currentZoom,
-    debouncedUpdateURL,
     fetchedSessions,
     goToUserSettings,
     gridSize,
