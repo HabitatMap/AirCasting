@@ -11,6 +11,7 @@ import {
   setBasicSensorsModalOpen,
   setCustomSensorsModalOpen,
 } from "../../store/sessionFiltersSlice";
+import { SessionTypes } from "../../types/filters";
 import { UserSettings } from "../../types/userStates";
 import { UrlParamsTypes, useMapParams } from "../../utils/mapParamsHandler";
 import useMobileDetection from "../../utils/useScreenSizeDetection";
@@ -27,22 +28,27 @@ interface CustomSensorFilterProps {
   customSensors: string[];
   sessionsCount?: number;
   onClose?: () => void;
+  fetchableSessionsCount: number;
 }
 
 const CustomSensorFilter: React.FC<CustomSensorFilterProps> = ({
   customSensors,
   sessionsCount = 0,
   onClose = () => {},
+  fetchableSessionsCount,
 }) => {
   const [filteredSensors, setFilteredSensors] =
     useState<string[]>(customSensors);
   const [inputValue, setInputValue] = useState<string>("");
   const [selectedItem, setSelectedItem] = useState<string>("");
   const sensors = useAppSelector(selectSensors);
-  const { setUrlParams, currentUserSettings, sensorName } = useMapParams();
+  const { setUrlParams, currentUserSettings, sensorName, sessionType } =
+    useMapParams();
   const isMobile = useMobileDetection();
   const dispatch = useAppDispatch();
   const { t } = useTranslation();
+
+  const fixedSessionTypeSelected: boolean = sessionType === SessionTypes.FIXED;
 
   const { getInputProps, getMenuProps, getItemProps } = useCombobox({
     items: filteredSensors,
@@ -147,7 +153,19 @@ const CustomSensorFilter: React.FC<CustomSensorFilterProps> = ({
         <S.ButtonsWrapper>
           <S.BackButton onClick={goBack}>{t("filters.back")}</S.BackButton>
           <S.MinorShowSessionsButton onClick={onClose}>
-            {t("filters.showSessions")} ({sessionsCount})
+            {fixedSessionTypeSelected ? (
+              <>
+                {t("filters.showSessions")} ({sessionsCount})
+              </>
+            ) : (
+              <>
+                {t("filters.showSessions")}{" "}
+                {t("map.results", {
+                  results: sessionsCount,
+                  fetchableSessionsCount,
+                })}
+              </>
+            )}
           </S.MinorShowSessionsButton>
         </S.ButtonsWrapper>
       </S.MobileCustomParameters>

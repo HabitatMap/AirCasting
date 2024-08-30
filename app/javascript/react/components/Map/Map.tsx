@@ -776,6 +776,7 @@ const Map = () => {
                 ? goToUserSettings(UserSettings.CrowdMapView)
                 : goToUserSettings(UserSettings.MapView)
             }
+            fetchableSessionsCount={fetchableSessionsCount}
           />
         )}
       </S.MobileContainer>
