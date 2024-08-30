@@ -207,6 +207,57 @@ export const useMapParams = () => {
       ) as SessionType,
     [searchParams]
   );
+  const updateSessionType = useCallback(
+    (sessionType: SessionType) => {
+      setUrlParams([
+        { key: UrlParamsTypes.sessionType, value: sessionType },
+        {
+          key: UrlParamsTypes.previousUserSettings,
+          value: currentUserSettings,
+        },
+        {
+          key: UrlParamsTypes.currentUserSettings,
+          value: isMobile ? UserSettings.FiltersView : UserSettings.MapView,
+        },
+        {
+          key: UrlParamsTypes.sessionId,
+          value: "",
+        },
+        {
+          key: UrlParamsTypes.streamId,
+          value: "",
+        },
+        {
+          key: UrlParamsTypes.measurementType,
+          value: ParameterTypes.PARTICULATE_MATTER,
+        },
+        {
+          key: UrlParamsTypes.sensorName,
+          value:
+            sessionType === SessionTypes.FIXED
+              ? SENSOR_NAMES.PARTICULATE_MATTER.GOVERNMENT_PM25
+              : SENSOR_NAMES.PARTICULATE_MATTER.AIRBEAM_PM25,
+        },
+        {
+          key: UrlParamsTypes.unitSymbol,
+          value: UnitSymbols.ParticulateMatter,
+        },
+        {
+          key: UrlParamsTypes.usernames,
+          value: "",
+        },
+        {
+          key: UrlParamsTypes.tags,
+          value: "",
+        },
+        {
+          key: UrlParamsTypes.isIndoor,
+          value: "false",
+        },
+      ]);
+    },
+    [currentUserSettings, setUrlParams]
+  );
   const streamId =
     getSearchParam(UrlParamsTypes.streamId, null) !== null
       ? parseInt(getSearchParam(UrlParamsTypes.streamId, "0")!)
@@ -398,6 +449,7 @@ export const useMapParams = () => {
     sensorName,
     sessionId,
     sessionType,
+    updateSessionType,
     setFilter,
     setUrlParams,
     streamId,

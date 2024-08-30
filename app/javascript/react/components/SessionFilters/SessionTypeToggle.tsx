@@ -14,24 +14,14 @@ import {
   setFixedSessionsType,
 } from "../../store/sessionFiltersSlice";
 import { resetUserThresholds } from "../../store/thresholdSlice";
-import {
-  ParameterTypes,
-  SessionType,
-  SessionTypes,
-  UnitSymbols,
-} from "../../types/filters";
-import { SENSOR_NAMES } from "../../types/sensors";
-import { UserSettings } from "../../types/userStates";
-import { UrlParamsTypes, useMapParams } from "../../utils/mapParamsHandler";
-import useMobileDetection from "../../utils/useScreenSizeDetection";
+import { SessionType, SessionTypes } from "../../types/filters";
+import { useMapParams } from "../../utils/mapParamsHandler";
 import { FilterInfoPopup } from "./FilterInfoPopup";
 import * as S from "./SessionFilters.style";
 
 const SessionTypeToggle = () => {
   const dispatch = useAppDispatch();
-  const isMobile = useMobileDetection();
-  const { currentUserSettings, searchParams, sessionType, setUrlParams } =
-    useMapParams();
+  const { searchParams, sessionType, updateSessionType } = useMapParams();
   const { t } = useTranslation();
 
   const handleClick = useCallback(
@@ -41,55 +31,11 @@ const SessionTypeToggle = () => {
       dispatch(setCustomParametersModalOpen(false));
       dispatch(setBasicSensorsModalOpen(false));
       dispatch(setCustomSensorsModalOpen(false));
+      updateSessionType(type);
       dispatch(setFetchingData(true));
       dispatch(setFixedSessionsType(FixedSessionsTypes.ACTIVE));
-      setUrlParams([
-        {
-          key: UrlParamsTypes.sessionType,
-          value: type,
-        },
-        {
-          key: UrlParamsTypes.previousUserSettings,
-          value: currentUserSettings,
-        },
-        {
-          key: UrlParamsTypes.currentUserSettings,
-          value: isMobile ? UserSettings.FiltersView : UserSettings.MapView,
-        },
-        {
-          key: UrlParamsTypes.sessionId,
-          value: "",
-        },
-        {
-          key: UrlParamsTypes.streamId,
-          value: "",
-        },
-        {
-          key: UrlParamsTypes.measurementType,
-          value: ParameterTypes.PARTICULATE_MATTER,
-        },
-        {
-          key: UrlParamsTypes.sensorName,
-          value:
-            type === SessionTypes.FIXED
-              ? SENSOR_NAMES.PARTICULATE_MATTER.GOVERNMENT_PM25
-              : SENSOR_NAMES.PARTICULATE_MATTER.AIRBEAM_PM25,
-        },
-        {
-          key: UrlParamsTypes.unitSymbol,
-          value: UnitSymbols.ParticulateMatter,
-        },
-        {
-          key: UrlParamsTypes.usernames,
-          value: "",
-        },
-        {
-          key: UrlParamsTypes.tags,
-          value: "",
-        },
-      ]);
     },
-    [searchParams]
+    [dispatch, searchParams, updateSessionType]
   );
 
   return (
