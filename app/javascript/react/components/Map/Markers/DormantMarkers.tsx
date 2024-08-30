@@ -169,6 +169,7 @@ const DormantMarkers = ({
               onMarkerClick(Number(session.point.streamId), Number(session.id));
               centerMapOnMarker(session.point, session.point.streamId);
             }}
+            shouldPulse={session.id === pulsatingSessionId}
           />
         </AdvancedMarker>
       ))}
