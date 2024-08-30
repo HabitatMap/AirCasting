@@ -13,14 +13,17 @@ const YearPickerButtons = () => {
 
   const handleYear = useCallback(
     (year: string) => {
+      const beginning = new Date(`${year}-01-01T00:00:00Z`).getTime() / 1000;
+      const end = new Date(`${year}-12-31T23:59:59Z`).getTime() / 1000;
+
       setUrlParams([
         {
           key: UrlParamsTypes.timeFrom,
-          value: "1692662400",
+          value: beginning.toString(),
         },
         {
           key: UrlParamsTypes.timeTo,
-          value: "1724371199",
+          value: end.toString(),
         },
       ]);
       setTimeout(() => {

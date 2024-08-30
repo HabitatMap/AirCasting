@@ -94,6 +94,7 @@ const Map = () => {
     debouncedUpdateURL,
     fetchedSessions,
     goToUserSettings,
+    isIndoor,
     limit,
     updateLimit,
     updateOffset,
@@ -110,11 +111,12 @@ const Map = () => {
     streamId,
     searchParams,
     tags,
+    timeFrom,
+    timeTo,
     initialThresholds,
     unitSymbol,
     updateFetchedSessions,
     usernames,
-    isIndoor,
   } = useMapParams();
   const isMobile = useMobileDetection();
   const navigate = useNavigate();
@@ -212,8 +214,8 @@ const Map = () => {
   const filters = useMemo(
     () =>
       JSON.stringify({
-        time_from: "1692662400",
-        time_to: "1725407999",
+        time_from: timeFrom,
+        time_to: timeTo,
         tags: tagsDecoded,
         usernames: usernamesDecoded,
         west: boundWest,
@@ -234,22 +236,24 @@ const Map = () => {
       boundSouth,
       boundWest,
       encodedUnitSymbol,
+      isIndoorParameterInUrl,
       limit,
       measurementType,
       offset,
       sensorNamedDecoded,
       tagsDecoded,
+      timeFrom,
+      timeTo,
       usernamesDecoded,
       zoomLevel,
-      isIndoorParameterInUrl,
     ]
   );
 
   const indoorSessionsFilters = useMemo(
     () =>
       JSON.stringify({
-        time_from: "1693094400",
-        time_to: "1724803199",
+        time_from: timeFrom,
+        time_to: timeTo,
         tags: tagsDecoded,
         usernames: usernamesDecoded,
         is_indoor: true,
@@ -262,6 +266,8 @@ const Map = () => {
       measurementType,
       sensorNamedDecoded,
       tagsDecoded,
+      timeFrom,
+      timeTo,
       usernamesDecoded,
     ]
   );

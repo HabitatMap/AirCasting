@@ -56,6 +56,8 @@ const CrowdMapMarkers = ({ pulsatingSessionId, sessions }: Props) => {
     measurementType,
     sensorName,
     tags,
+    timeFrom,
+    timeTo,
     unitSymbol,
     usernames,
   } = useMapParams();
@@ -86,8 +88,8 @@ const CrowdMapMarkers = ({ pulsatingSessionId, sessions }: Props) => {
         south: boundSouth,
         stream_ids: mobileSessionsStreamIds,
         tags: tags,
-        time_from: "1685318400", // TODO: temporary solution, ticket: Session Filter [Both]: Year Picker
-        time_to: "1717027199", // TODO: temporary solution, ticket: Session Filter [Both]: Year Picker
+        time_from: timeFrom,
+        time_to: timeTo,
         unit_symbol: unitSymbol,
         usernames: usernames,
         west: boundWest,
@@ -102,6 +104,8 @@ const CrowdMapMarkers = ({ pulsatingSessionId, sessions }: Props) => {
       mobileSessionsStreamIds,
       sensorName,
       tags,
+      timeFrom,
+      timeTo,
       unitSymbol,
       usernames,
     ]
@@ -165,8 +169,8 @@ const CrowdMapMarkers = ({ pulsatingSessionId, sessions }: Props) => {
               east: rectangleBoundEast.toString(),
               south: rectangleBoundSouth.toString(),
               north: rectangleBoundNorth.toString(),
-              time_from: "1685318400",
-              time_to: "1717027199",
+              time_from: timeFrom,
+              time_to: timeTo,
               grid_size_x: gridSizeX(gridSize).toString(),
               grid_size_y: gridSize.toString(),
               tags: tags || "",
@@ -210,6 +214,8 @@ const CrowdMapMarkers = ({ pulsatingSessionId, sessions }: Props) => {
     sensorName,
     tags,
     thresholds,
+    timeFrom,
+    timeTo,
     unitSymbol,
     usernames,
   ]);
