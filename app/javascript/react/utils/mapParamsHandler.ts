@@ -192,6 +192,18 @@ export const useMapParams = () => {
     UrlParamsTypes.previousUserSettings,
     UserSettings.MapView
   ) as UserSettings;
+
+  const updatePreviousUserSettings = useCallback(
+    (selectedPreviousUserSettings: UserSettings) => {
+      setUrlParams([
+        {
+          key: UrlParamsTypes.previousUserSettings,
+          value: selectedPreviousUserSettings,
+        },
+      ]);
+    },
+    [setUrlParams]
+  );
   const previousZoom = parseFloat(
     getSearchParam(UrlParamsTypes.previousZoom, DEFAULT_ZOOM.toString())!
   );
@@ -563,6 +575,7 @@ export const useMapParams = () => {
     offset,
     previousCenter,
     previousUserSettings,
+    updatePreviousUserSettings,
     previousZoom,
     revertUserSettingsAndResetIds,
     sensorName,
