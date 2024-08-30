@@ -638,6 +638,7 @@ const YearPickerWrapper = styled.div`
   font-size: 1.4rem;
   grid-gap: 0.4rem;
   letter-spacing: 0.01em;
+  overflow: hidden;
   padding: 1.1rem 1.6rem;
   text-transform: uppercase;
   width: 100%;
