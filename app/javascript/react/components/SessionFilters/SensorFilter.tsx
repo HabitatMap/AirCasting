@@ -18,8 +18,7 @@ import {
 } from "../../store/sessionFiltersSlice";
 import { ParameterTypes, SessionType, SessionTypes } from "../../types/filters";
 import { BasicSensorTypes, Sensor } from "../../types/sensors";
-import { UserSettings } from "../../types/userStates";
-import { UrlParamsTypes, useMapParams } from "../../utils/mapParamsHandler";
+import { useMapParams } from "../../utils/mapParamsHandler";
 import useMobileDetection from "../../utils/useScreenSizeDetection";
 import { CustomSensorFilter } from "./CustomSensorFilter";
 import { FilterInfoPopup } from "./FilterInfoPopup";
@@ -109,13 +108,8 @@ export const DesktopSensorFilter = () => {
   const [isBasicOpen, setIsBasicOpen] = useState(false);
   const [moreOpen, setMoreOpen] = useState(false);
   const { t } = useTranslation();
-  const {
-    measurementType,
-    setUrlParams,
-    sessionType,
-    currentUserSettings,
-    sensorName,
-  } = useMapParams();
+  const { measurementType, sessionType, sensorName, updateSensorName } =
+    useMapParams();
   const dispatch = useAppDispatch();
   const isMobile = useMobileDetection();
   const sensors = useAppSelector(selectSensors);
@@ -133,33 +127,8 @@ export const DesktopSensorFilter = () => {
   };
 
   const handleSelectSensor = (selectedSensor: string) => {
+    updateSensorName(selectedSensor, sensors);
     dispatch(setFetchingData(true));
-    setUrlParams([
-      {
-        key: UrlParamsTypes.previousUserSettings,
-        value: currentUserSettings,
-      },
-      {
-        key: UrlParamsTypes.currentUserSettings,
-        value: isMobile
-          ? UserSettings.FiltersView
-          : currentUserSettings === UserSettings.CrowdMapView
-          ? UserSettings.CrowdMapView
-          : UserSettings.MapView,
-      },
-      {
-        key: UrlParamsTypes.sensorName,
-        value: selectedSensor,
-      },
-      {
-        key: UrlParamsTypes.unitSymbol,
-        value: getSensorUnitSymbol(selectedSensor, sensors),
-      },
-      {
-        key: UrlParamsTypes.currentZoom,
-        value: UrlParamsTypes.previousZoom,
-      },
-    ]);
     dispatch(setBasicSensorsModalOpen(false));
   };
 
@@ -224,7 +193,7 @@ export const MobileDeviceSensorFilter = ({
 }: MobileDeviceSensorFilterProps) => {
   const dispatch = useAppDispatch();
   const { t } = useTranslation();
-  const { measurementType, setUrlParams, sessionType, sensorName } =
+  const { measurementType, updateSensorName, sessionType, sensorName } =
     useMapParams();
   const sensors = useAppSelector(selectSensors);
   const basicSensors = getBasicSensors(measurementType, sessionType);
@@ -232,17 +201,8 @@ export const MobileDeviceSensorFilter = ({
   const fixedSessionTypeSelected: boolean = sessionType === SessionTypes.FIXED;
 
   const handleSelectSensor = (selectedSensor: string) => {
+    updateSensorName(selectedSensor, sensors);
     dispatch(setFetchingData(true));
-    setUrlParams([
-      {
-        key: UrlParamsTypes.sensorName,
-        value: selectedSensor,
-      },
-      {
-        key: UrlParamsTypes.unitSymbol,
-        value: getSensorUnitSymbol(selectedSensor, sensors),
-      },
-    ]);
   };
 
   const handleShowMoreClick = () => {

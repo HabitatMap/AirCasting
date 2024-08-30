@@ -4,6 +4,7 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 
 import { MAP_CONFIGS } from "../components/Map/mapConfigs";
 import { defaultGridSize } from "../components/SessionFilters/CrowdMapGridSize";
+import { getSensorUnitSymbol } from "../components/SessionFilters/SensorFilter";
 import {
   beginningOfTheYear,
   endOfTheYear,
@@ -464,6 +465,42 @@ export const useMapParams = () => {
     [currentUserSettings, sessionType, setSensor, setUrlParams]
   );
 
+  const updateSensorName = useCallback(
+    (selectedSensorName: string, sensors: Sensor[]) => {
+      setUrlParams([
+        {
+          key: UrlParamsTypes.previousUserSettings,
+          value: currentUserSettings,
+        },
+        {
+          key: UrlParamsTypes.currentUserSettings,
+          value: isMobile
+            ? UserSettings.FiltersView
+            : currentUserSettings === UserSettings.CrowdMapView
+            ? UserSettings.CrowdMapView
+            : UserSettings.MapView,
+        },
+        {
+          key: UrlParamsTypes.sessionId,
+          value: "",
+        },
+        {
+          key: UrlParamsTypes.streamId,
+          value: "",
+        },
+        {
+          key: UrlParamsTypes.sensorName,
+          value: selectedSensorName,
+        },
+        {
+          key: UrlParamsTypes.unitSymbol,
+          value: getSensorUnitSymbol(selectedSensorName, sensors),
+        },
+      ]);
+    },
+    [currentUserSettings, setUrlParams]
+  );
+
   const debouncedUpdateURL = useCallback(
     debounce((params) => {
       setSearchParams(params);
@@ -493,6 +530,7 @@ export const useMapParams = () => {
     previousZoom,
     revertUserSettingsAndResetIds,
     sensorName,
+    updateSensorName,
     sessionId,
     sessionType,
     updateSessionType,
