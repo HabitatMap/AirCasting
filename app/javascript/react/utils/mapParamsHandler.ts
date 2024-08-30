@@ -55,7 +55,7 @@ export enum UrlParamsTypes {
   usernames = "usernames",
   tags = "tags",
   timeFrom = "timeFrom",
-  timeTo = "timeFrom",
+  timeTo = "timeTo",
 }
 
 export const useMapParams = () => {
