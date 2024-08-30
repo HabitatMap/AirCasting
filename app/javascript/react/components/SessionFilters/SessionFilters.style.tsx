@@ -630,20 +630,6 @@ const IndoorToggleInfoText = styled.span`
   }
 `;
 
-const YearPickerSettingsContainer = styled.div`
-  display: grid;
-  grid-template-columns: 1fr;
-  grid-template-rows: auto auto;
-  grid-gap: "0.8rem";
-  justify-content: center;
-  align-items: center;
-  border: 1px solid ${gray200};
-  min-height: 4.2rem;
-  width: 100%;
-  padding: 1.1rem 1.6rem;
-  border-radius: 0.5rem;
-`;
-
 const YearPickerWrapper = styled.div`
   display: grid;
   grid-template-columns: 1fr;
@@ -657,6 +643,12 @@ const YearPickerWrapper = styled.div`
   letter-spacing: 0.01em;
   overflow: hidden;
   max-height: "33rem";
+  width: 100%;
+  padding: 1.1rem 1.6rem;
+  border: 1px solid ${gray200};
+  border-radius: 0.5rem;
+  grid-gap: "0.8rem";
+  min-height: 4.2rem;
 `;
 
 export {

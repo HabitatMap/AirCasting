@@ -10,12 +10,10 @@ const YearPicker = () => {
 
   return (
     <S.SingleFilterWrapper>
-      <S.YearPickerSettingsContainer>
-        <S.YearPickerWrapper>
-          {t("filters.yearPickerHeader")}
-          <YearPickerButtons />
-        </S.YearPickerWrapper>
-      </S.YearPickerSettingsContainer>
+      <S.YearPickerWrapper>
+        {t("filters.yearPickerHeader")}
+        <YearPickerButtons />
+      </S.YearPickerWrapper>
       <FilterInfoPopup filterTranslationLabel="filters.crowdMapInfo" />
     </S.SingleFilterWrapper>
   );
