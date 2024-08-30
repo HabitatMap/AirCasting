@@ -187,6 +187,7 @@ const Map = () => {
         : selectFixedSessionsList(fixedSessionsType)
       : selectMobileSessionsList
   );
+
   const isDormant = useAppSelector(selectIsDormantSessionsType);
   const sessionsPoints = fixedSessionTypeSelected ? fixedPoints : mobilePoints;
 
@@ -201,7 +202,7 @@ const Map = () => {
 
   const isTimelapseView = currentUserSettings === UserSettings.TimelapseView;
 
-  const isTimelapseDisabled = listSessions.length === 0;
+  const isTimelapseDisabled = listSessions.length === 0 || isDormant;
 
   const zoomLevel = !Number.isNaN(currentZoom) ? Math.round(currentZoom) : 5;
 
@@ -240,6 +241,10 @@ const Map = () => {
       isIndoorParameterInUrl,
     ]
   );
+
+  useEffect(() => {
+    console.log("zmiana list sessions");
+  }, [listSessions]);
 
   const indoorSessionsFilters = useMemo(
     () =>
@@ -299,8 +304,9 @@ const Map = () => {
           } else {
             if (fixedSessionsType === FixedSessionsTypes.ACTIVE) {
               dispatch(fetchActiveFixedSessions({ filters })).unwrap();
+            } else {
+              dispatch(fetchDormantFixedSessions({ filters })).unwrap();
             }
-            dispatch(fetchDormantFixedSessions({ filters })).unwrap();
           }
         } else {
           dispatch(fetchMobileSessions({ filters }))
@@ -663,26 +669,30 @@ const Map = () => {
         minZoom={MIN_ZOOM}
         isFractionalZoomEnabled={true}
       >
+        {fixedSessionsStatusFulfilled &&
+          fixedSessionTypeSelected &&
+          isDormant && (
+            <DormantMarkers
+              sessions={sessionsPoints}
+              onMarkerClick={handleMarkerClick}
+              selectedStreamId={streamId}
+              pulsatingSessionId={pulsatingSessionId}
+            />
+          )}
+
         {isTimelapseView
           ? renderTimelapseMarkers()
           : fixedSessionsStatusFulfilled &&
             fixedSessionTypeSelected &&
             !isIndoorParameterInUrl &&
-            (isDormant ? (
-              <DormantMarkers
-                sessions={sessionsPoints}
-                onMarkerClick={handleMarkerClick}
-                selectedStreamId={streamId}
-                pulsatingSessionId={pulsatingSessionId}
-              />
-            ) : (
+            !isDormant && (
               <FixedMarkers
                 sessions={sessionsPoints}
                 onMarkerClick={handleMarkerClick}
                 selectedStreamId={streamId}
                 pulsatingSessionId={pulsatingSessionId}
               />
-            ))}
+            )}
 
         {!fixedSessionTypeSelected &&
           ([UserSettings.CrowdMapView].includes(currentUserSettings) ||

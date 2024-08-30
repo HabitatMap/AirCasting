@@ -58,11 +58,13 @@ const transformSessionData = (sessions: FixedSession[]) => {
   );
 };
 
-const selectSessionsByType = (type: "active" | "dormant") =>
+const selectSessionsByType = (type: FixedSessionsTypes) =>
   createSelector(
     [selectActiveFixedSessionsState, selectDormantFixedSessionsState],
     (activeSessions, dormantSessions) => {
-      return type === "active" ? activeSessions : dormantSessions;
+      return type === FixedSessionsTypes.ACTIVE
+        ? activeSessions
+        : dormantSessions;
     }
   );
 
@@ -166,26 +168,6 @@ const selectFixedSessionPointsBySessionId = (
         ]
       : [];
   });
-
-// const selectActiveFixedSessionsList = createSelector(
-//   [selectActiveFixedSessionsState],
-//   (activeFixedSessionsState): SessionList[] =>
-//     activeFixedSessionsState.sessions.map(
-//       ({ id, title, startTimeLocal, endTimeLocal, streams }) => {
-//         const firstStream = streams[Object.keys(streams)[0]];
-
-//         return {
-//           id,
-//           title,
-//           sensorName: firstStream.sensorName,
-//           averageValue: firstStream.streamDailyAverage,
-//           startTime: startTimeLocal,
-//           endTime: endTimeLocal,
-//           streamId: firstStream.id,
-//         };
-//       }
-//     )
-// );
 
 // const selectActiveFixedSessionPointsBySessionId = (sessionId: number | null) =>
 //   createSelector(

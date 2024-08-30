@@ -6,7 +6,10 @@ import copyLinkIcon from "../../assets/icons/copyLinkIcon.svg";
 import filterIcon from "../../assets/icons/filterIcon.svg";
 import { selectFixedSessionsList } from "../../store/fixedSessionsSelectors";
 import { useAppSelector } from "../../store/hooks";
-import { selectFixedSessionsType } from "../../store/sessionFiltersSlice";
+import {
+  selectFixedSessionsType,
+  selectIsDormantSessionsType,
+} from "../../store/sessionFiltersSlice";
 import { SessionTypes } from "../../types/filters";
 import { UserSettings } from "../../types/userStates";
 import { useMapParams } from "../../utils/mapParamsHandler";
@@ -36,11 +39,12 @@ const MapButtons = () => {
   const listSessions = useAppSelector(
     selectFixedSessionsList(fixedSessionsType)
   );
+  const isDormant = useAppSelector(selectIsDormantSessionsType);
 
   const isModalView = currentUserSettings === UserSettings.ModalView;
   const isTimelapseButtonVisible =
     !isModalView && sessionType === SessionTypes.FIXED;
-  const isTimelapseDisabled = listSessions.length === 0;
+  const isTimelapseDisabled = listSessions.length === 0 || isDormant;
   const isTimelapseButtonActive =
     activeButtons.includes(ButtonTypes.TIMELAPSE) &&
     currentUserSettings === UserSettings.TimelapseView;

@@ -24,6 +24,7 @@ import { CloseButton } from "../Map/Legend/Legend.style";
 import { CrowdMapToggle } from "./CrowdmapToggle";
 import { CustomParameterFilter } from "./CustomParameterFilter";
 import { CustomSensorFilter } from "./CustomSensorFilter";
+import { DormantToggle } from "./DormantToggle";
 import { IndoorOutdoorSwitch } from "./IndoorOutdoorSwitch";
 import {
   filterCustomParameters,
@@ -184,6 +185,8 @@ const MobileSessionFilters = ({
             {fixedSessionsType && airBeamSensorNameSelected && (
               <IndoorOutdoorSwitch />
             )}
+            {isFixedSessionTypeSelected && <IndoorOutdoorSwitch />}
+            {isFixedSessionTypeSelected && <DormantToggle />}
             {!fixedSessionsType && <CrowdMapToggle />}
           </S.ModalContent>
           <S.ShowSessionsButton onClick={onClose}>
