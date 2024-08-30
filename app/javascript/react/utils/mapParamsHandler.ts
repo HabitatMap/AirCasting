@@ -152,45 +152,6 @@ export const useMapParams = () => {
     UrlParamsTypes.measurementType,
     ParameterTypes.PARTICULATE_MATTER
   )!;
-  const updateMeasurementType = useCallback(
-    (measurementType: ParameterType, sensors: Sensor[]) => {
-      setUrlParams([
-        {
-          key: UrlParamsTypes.previousUserSettings,
-          value: currentUserSettings,
-        },
-        {
-          key: UrlParamsTypes.currentUserSettings,
-          value: isMobile
-            ? UserSettings.FiltersView
-            : currentUserSettings === UserSettings.CrowdMapView
-            ? UserSettings.CrowdMapView
-            : UserSettings.MapView,
-        },
-        {
-          key: UrlParamsTypes.sessionId,
-          value: "",
-        },
-        {
-          key: UrlParamsTypes.streamId,
-          value: "",
-        },
-        {
-          key: UrlParamsTypes.measurementType,
-          value: measurementType,
-        },
-        {
-          key: UrlParamsTypes.sensorName,
-          value: setSensor(measurementType, sensors, sessionType).sensorName,
-        },
-        {
-          key: UrlParamsTypes.unitSymbol,
-          value: setSensor(measurementType, sensors, sessionType).unitSymbol,
-        },
-      ]);
-    },
-    [currentUserSettings, setUrlParams]
-  );
 
   const offset = parseInt(getSearchParam(UrlParamsTypes.offset, "0")!);
   const updateOffset = useCallback(
@@ -250,9 +211,9 @@ export const useMapParams = () => {
     [searchParams]
   );
   const updateSessionType = useCallback(
-    (sessionType: SessionType) => {
+    (selectedSessionType: SessionType) => {
       setUrlParams([
-        { key: UrlParamsTypes.sessionType, value: sessionType },
+        { key: UrlParamsTypes.sessionType, value: selectedSessionType },
         {
           key: UrlParamsTypes.previousUserSettings,
           value: currentUserSettings,
@@ -459,6 +420,48 @@ export const useMapParams = () => {
       }
     },
     [searchParams]
+  );
+
+  const updateMeasurementType = useCallback(
+    (selectedMeasurementType: ParameterType, sensors: Sensor[]) => {
+      setUrlParams([
+        {
+          key: UrlParamsTypes.previousUserSettings,
+          value: currentUserSettings,
+        },
+        {
+          key: UrlParamsTypes.currentUserSettings,
+          value: isMobile
+            ? UserSettings.FiltersView
+            : currentUserSettings === UserSettings.CrowdMapView
+            ? UserSettings.CrowdMapView
+            : UserSettings.MapView,
+        },
+        {
+          key: UrlParamsTypes.sessionId,
+          value: "",
+        },
+        {
+          key: UrlParamsTypes.streamId,
+          value: "",
+        },
+        {
+          key: UrlParamsTypes.measurementType,
+          value: measurementType,
+        },
+        {
+          key: UrlParamsTypes.sensorName,
+          value: setSensor(selectedMeasurementType, sensors, sessionType)
+            .sensorName,
+        },
+        {
+          key: UrlParamsTypes.unitSymbol,
+          value: setSensor(selectedMeasurementType, sensors, sessionType)
+            .unitSymbol,
+        },
+      ]);
+    },
+    [currentUserSettings, sessionType, setSensor, setUrlParams]
   );
 
   const debouncedUpdateURL = useCallback(
