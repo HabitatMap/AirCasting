@@ -33,12 +33,6 @@ const DormantToggle = () => {
   const getInitialMobileState = () =>
     window.matchMedia("(max-width: 1023px)").matches;
 
-  const getInitialCrowdMapState = () => {
-    return getInitialMobileState()
-      ? previousUserSettings === UserSettings.CrowdMapView
-      : currentUserSettings === UserSettings.CrowdMapView;
-  };
-
   // const [isMobile, setIsMobile] = useState(getInitialMobileState);
   const [isDormant, setIsDormant] = useState(false);
   const fixedSessionType = useAppSelector(selectFixedSessionsType);

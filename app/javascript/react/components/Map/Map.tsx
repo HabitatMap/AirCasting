@@ -45,6 +45,7 @@ import { fetchSensors } from "../../store/sensorsSlice";
 import {
   FixedSessionsTypes,
   selectFixedSessionsType,
+  selectIsDormantSessionsType,
 } from "../../store/sessionFiltersSlice";
 import {
   fetchThresholds,
@@ -75,6 +76,7 @@ import { Legend } from "./Legend/Legend";
 import * as S from "./Map.style";
 import { CrowdMapMarkers } from "./Markers/CrowdMapMarkers";
 import { DormantMarkers } from "./Markers/DormantMarkers";
+import { FixedMarkers } from "./Markers/FixedMarkers";
 import { MobileMarkers } from "./Markers/MobileMarkers";
 import { StreamMarkers } from "./Markers/StreamMarkers";
 import { TimelapseMarkers } from "./Markers/TimelapseMarkers";
@@ -185,7 +187,7 @@ const Map = () => {
         : selectFixedSessionsList(fixedSessionsType)
       : selectMobileSessionsList
   );
-  console.log(listSessions, "listSessions");
+  const isDormant = useAppSelector(selectIsDormantSessionsType);
   const sessionsPoints = fixedSessionTypeSelected ? fixedPoints : mobilePoints;
 
   const memoizedTimelapseData = useMemo(() => timelapseData, [timelapseData]);
@@ -665,21 +667,23 @@ const Map = () => {
           ? renderTimelapseMarkers()
           : fixedSessionsStatusFulfilled &&
             fixedSessionTypeSelected &&
-            !isIndoorParameterInUrl && (
-              // <FixedMarkers
-              //   sessions={sessionsPoints}
-              //   onMarkerClick={handleMarkerClick}
-              //   selectedStreamId={streamId}
-              //   pulsatingSessionId={pulsatingSessionId}
-              // />
-
+            !isIndoorParameterInUrl &&
+            (isDormant ? (
               <DormantMarkers
                 sessions={sessionsPoints}
                 onMarkerClick={handleMarkerClick}
                 selectedStreamId={streamId}
                 pulsatingSessionId={pulsatingSessionId}
               />
-            )}
+            ) : (
+              <FixedMarkers
+                sessions={sessionsPoints}
+                onMarkerClick={handleMarkerClick}
+                selectedStreamId={streamId}
+                pulsatingSessionId={pulsatingSessionId}
+              />
+            ))}
+
         {!fixedSessionTypeSelected &&
           ([UserSettings.CrowdMapView].includes(currentUserSettings) ||
           ([UserSettings.CrowdMapView].includes(previousUserSettings) &&

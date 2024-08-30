@@ -1,10 +1,10 @@
 import React, { useCallback, useEffect, useRef } from "react";
 import { useTranslation } from "react-i18next";
+import { useScrollEndListener } from "../../hooks/useScrollEndListener";
 import { useAutoDismissAlert } from "../../utils/useAutoDismissAlert";
 import { AlertPopup } from "../Popups/AlertComponent";
 import ExportButtonComponent from "./ExportButtonComponent";
 import { SessionsListTile } from "./SessionsListTile/SessionListTile";
-import { useScrollEndListener } from "../../hooks/useScrollEndListener";
 import * as S from "./SessionsListView.style";
 
 export interface SessionListEntity {
