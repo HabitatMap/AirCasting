@@ -23,17 +23,17 @@ const CrowdMapGridSize = () => {
   );
 
   return (
-    <S.CrowdMapGridButtonsContainer>
+    <S.SectionButtonsContainer>
       {gridSizes.map((size) => (
-        <S.CrowdGridSizeButton
+        <S.SectionButton
           key={size}
           onClick={() => handleGridSize(size)}
           $isActive={gridSize === 51 - size}
         >
           {size}
-        </S.CrowdGridSizeButton>
+        </S.SectionButton>
       ))}
-    </S.CrowdMapGridButtonsContainer>
+    </S.SectionButtonsContainer>
   );
 };
 

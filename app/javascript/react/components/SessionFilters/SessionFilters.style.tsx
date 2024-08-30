@@ -258,14 +258,14 @@ const CrowdMapGridSizeWrapper = styled.div<{ $isVisible: boolean }>`
   transition: max-height 1s ease, opacity 0.5s ease, transform 0.5s ease;
 `;
 
-const CrowdMapGridButtonsContainer = styled.div`
+const SectionButtonsContainer = styled.div`
   display: grid;
   grid-template-columns: repeat(5, 1fr);
   justify-content: space-between;
   grid-gap: 0.8rem;
 `;
 
-const CrowdGridSizeButton = styled(Button)<{ $isActive: boolean }>`
+const SectionButton = styled(Button)<{ $isActive: boolean }>`
   display: flex;
   justify-content: center;
   align-items: center;
@@ -275,6 +275,7 @@ const CrowdGridSizeButton = styled(Button)<{ $isActive: boolean }>`
   color: ${(props) => (props.$isActive ? white : gray300)};
   min-width: 3.8rem;
   transition: background-color 0.4s ease, color 0.3s ease;
+  height: 25px;
 `;
 
 const CrowdMapSettingsContainer = styled.div<{ $isCrowdMapActive: boolean }>`
@@ -668,8 +669,6 @@ export {
   ChevronBackButton,
   ChevronIcon,
   CloseSelectedItemButton,
-  CrowdGridSizeButton,
-  CrowdMapGridButtonsContainer,
   CrowdMapGridSizeWrapper,
   CrowdMapSettingsContainer,
   CrowdMapToggleOnOff,
@@ -707,6 +706,8 @@ export {
   MobileCustomParameters,
   MobileSessionFilters,
   ModalContent,
+  SectionButton,
+  SectionButtonsContainer,
   SeeMoreButton,
   SeeMoreSpan,
   SelectedItem,

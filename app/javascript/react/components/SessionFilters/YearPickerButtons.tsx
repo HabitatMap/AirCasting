@@ -51,17 +51,17 @@ const YearPickerButtons = () => {
   };
 
   return (
-    <S.CrowdMapGridButtonsContainer>
+    <S.SectionButtonsContainer>
       {getLastFiveYears().map((year) => (
-        <S.CrowdGridSizeButton
+        <S.SectionButton
           key={year}
           onClick={() => handleYear(year)}
           $isActive={timestampToYear(timeFrom) === year}
         >
           {year}
-        </S.CrowdGridSizeButton>
+        </S.SectionButton>
       ))}
-    </S.CrowdMapGridButtonsContainer>
+    </S.SectionButtonsContainer>
   );
 };
 
