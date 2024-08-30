@@ -64,7 +64,7 @@ const FixedMarkers = ({
   const thresholds = useAppSelector(selectThresholds);
 
   const map = useMap();
-  const { unitSymbol, isIndoor } = useMapParams();
+  const { unitSymbol } = useMapParams();
 
   const clusterer = useRef<CustomMarkerClusterer | null>(null);
   const markerRefs = useRef<{
@@ -90,8 +90,6 @@ const FixedMarkers = ({
   const markersCount = Object.values(markers).filter(
     (marker) => marker !== null
   ).length;
-
-  const isIndoorParameterInUrl = isIndoor === "true";
 
   const centerMapOnMarker = useCallback(
     (position: LatLngLiteral, streamId: string) => {

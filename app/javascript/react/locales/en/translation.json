@@ -215,8 +215,9 @@
     "indoor": "indoor",
     "outdoor": "outdoor",
     "indoorInfo": "Outdoor sessions are recorded by instruments located outdoors. Indoor measurements are recorded by instruments located indoors. Indoor sessions do not include geocoordinates and are therefore not geolocated on the map.",
-    "indoorMapInfo": "Indoor sessions aren't mapped to maintain privacy.",
-    "nonAirbeamIndoor": "Switch to an AirBeam sensor to display results."
+    "indoorMapInfo": "For privacy, indoor sessions aren't mapped.",
+    "nonAirbeamIndoor": "Switch to an AirBeam sensor to display results.",
+    "indoorMapOverlay": "Indoor sessions aren't mapped."
   },
   "timelapse": {
     "readOnly": "This view is read-only. You can explore the map, but interaction is limited.",

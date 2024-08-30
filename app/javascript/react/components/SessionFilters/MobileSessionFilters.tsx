@@ -62,7 +62,7 @@ const MobileSessionFilters = ({ onClose }: MobileSessionFiltersProps) => {
   const [isCustomSensorsModalOpen, setIsCustomSensorsModalOpen] = useState(
     customParametersModalOpen
   );
-  const { sessionType, measurementType, isIndoor } = useMapParams();
+  const { sessionType, measurementType, isIndoor, sensorName } = useMapParams();
   const { t } = useTranslation();
 
   const parameters = useAppSelector(selectParameters);
@@ -77,6 +77,7 @@ const MobileSessionFilters = ({ onClose }: MobileSessionFiltersProps) => {
 
   const fixedSessionTypeSelected: boolean = sessionType === SessionTypes.FIXED;
   const isIndoorParameterInUrl = isIndoor === "true";
+  const airBeamSensorNameSelected = sensorName.startsWith("Air");
 
   const sessionsCount = useMemo(() => {
     switch (sessionType) {
@@ -144,7 +145,9 @@ const MobileSessionFilters = ({ onClose }: MobileSessionFiltersProps) => {
             <SensorFilter isBasicOpen={isBasicSensorsModalOpen} />
             <ProfileNamesInput />
             <TagsInput />
-            {fixedSessionTypeSelected && <IndoorOutdoorSwitch />}
+            {fixedSessionTypeSelected && airBeamSensorNameSelected && (
+              <IndoorOutdoorSwitch />
+            )}
             {!fixedSessionTypeSelected && <CrowdMapToggle />}
           </S.ModalContent>
           <S.ShowSessionsButton onClick={onClose}>

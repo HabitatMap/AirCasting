@@ -624,6 +624,11 @@ const Map = () => {
           <Loader />
         </S.LoaderOverlay>
       )}
+      {isIndoorParameterInUrl && (
+        <S.IndoorOvelay>
+          <h1>{t("filters.indoorMapOverlay")}</h1>
+        </S.IndoorOvelay>
+      )}
       <GoogleMap
         mapId={mapId}
         mapTypeId={mapTypeId}
