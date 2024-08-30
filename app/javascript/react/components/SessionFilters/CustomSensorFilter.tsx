@@ -28,7 +28,7 @@ interface CustomSensorFilterProps {
   customSensors: string[];
   sessionsCount?: number;
   onClose?: () => void;
-  fetchableSessionsCount: number;
+  fetchableSessionsCount?: number;
 }
 
 const CustomSensorFilter: React.FC<CustomSensorFilterProps> = ({
