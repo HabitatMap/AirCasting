@@ -508,7 +508,6 @@ const Map = () => {
           selectedStreamId?.toString() || ""
         );
 
-        // Use replace here to avoid adding multiple history entries
         navigate(`/fixed_stream?${newSearchParams.toString()}`, {
           replace: true,
         });
