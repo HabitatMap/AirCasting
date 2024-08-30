@@ -14,7 +14,7 @@ import { RealtimeMapUpdatesButton } from "../RealtimeMapUpdatesButton/RealtimeMa
 import { RefreshMapButton } from "../RefreshMapButton";
 import * as S from "./Navbar.style";
 import NavList from "./NavList/NavList";
-import { BackToMapButton } from "./BackToMapButton";
+import { BackButton } from "./BackButton";
 
 export const MobileHeader = ({
   isTimelapseView,
@@ -92,7 +92,7 @@ export const MobileHeader = ({
 export const MobileCalendarHeader = ({ t }: { t: Function }) => {
   return (
     <S.MobileContainer>
-      <BackToMapButton />
+      <BackButton />
     </S.MobileContainer>
   );
 };

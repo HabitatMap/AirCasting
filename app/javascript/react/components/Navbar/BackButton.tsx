@@ -10,7 +10,7 @@ import { UserSettings } from "../../types/userStates";
 import backArrowIcon from "../../assets/icons/backArrowIcon.svg";
 import backArrowIconDesktop from "../../assets/icons/backArrowIconDesktop.svg";
 
-const BackToMapButton = () => {
+const BackButton = () => {
   const { t } = useTranslation();
 
   const {
@@ -64,4 +64,4 @@ const BackToMapButton = () => {
   );
 };
 
-export { BackToMapButton };
+export { BackButton };

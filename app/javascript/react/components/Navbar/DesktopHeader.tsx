@@ -18,7 +18,7 @@ import { RealtimeMapUpdatesButton } from "../RealtimeMapUpdatesButton/RealtimeMa
 import { RefreshMapButton } from "../RefreshMapButton";
 import NavList from "./NavList/NavList";
 import * as S from "./Navbar.style";
-import { BackToMapButton } from "./BackToMapButton";
+import { BackButton } from "./BackButton";
 
 interface DesktopHeaderProps {
   isMapPage: boolean;
@@ -89,7 +89,7 @@ const DesktopHeader: React.FC<DesktopHeaderProps> = ({
         </>
       ) : (
         <>
-          <BackToMapButton />
+          <BackButton />
           <a
             href={urls.habitatMap}
             aria-label={t("navbar.sections.aircastingPage")}
