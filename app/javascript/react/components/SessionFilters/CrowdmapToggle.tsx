@@ -106,9 +106,7 @@ const CrowdMapToggle = () => {
             <S.CrowdMapToggleText>
               {t("filters.crowdMapLabel")}{" "}
               <S.CrowdMapToggleOnOff>
-                {isCrowdMapActive
-                  ? t("filters.crowdMapToggleOn")
-                  : t("filters.crowdMapToggleOff")}
+                {isCrowdMapActive ? t("filters.on") : t("filters.off")}
               </S.CrowdMapToggleOnOff>
             </S.CrowdMapToggleText>
           </S.CrowdMapToggleWrapper>

@@ -6,6 +6,7 @@ import copyLinkIcon from "../../assets/icons/copyLinkIcon.svg";
 import filterIcon from "../../assets/icons/filterIcon.svg";
 import { selectFixedSessionsList } from "../../store/fixedSessionsSelectors";
 import { useAppSelector } from "../../store/hooks";
+import { selectFixedSessionsType } from "../../store/sessionFiltersSlice";
 import { SessionTypes } from "../../types/filters";
 import { UserSettings } from "../../types/userStates";
 import { useMapParams } from "../../utils/mapParamsHandler";
@@ -31,7 +32,10 @@ const MapButtons = () => {
 
   const { t } = useTranslation();
 
-  const listSessions = useAppSelector(selectFixedSessionsList);
+  const fixedSessionsType = useAppSelector(selectFixedSessionsType);
+  const listSessions = useAppSelector(
+    selectFixedSessionsList(fixedSessionsType)
+  );
 
   const isModalView = currentUserSettings === UserSettings.ModalView;
   const isTimelapseButtonVisible =
