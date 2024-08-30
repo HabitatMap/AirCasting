@@ -3,7 +3,6 @@ import styled, { keyframes } from "styled-components";
 import {
   acBlue,
   acBlueTransparent,
-  black,
   gray100,
   gray200,
   gray300,
@@ -459,7 +458,7 @@ const BasicParameterButton = styled.button`
 `;
 
 const ButtonSpan = styled(HeaderTitle)<{ $isActive: boolean }>`
-  color: ${(props) => (props.$isActive ? acBlue : black)};
+  color: ${(props) => (props.$isActive ? acBlue : gray400)};
   margin: 0;
 `;
 
@@ -557,7 +556,7 @@ const CustomParameterItem = styled.li`
 const CustomParameter = styled.button<{ $isActive?: boolean }>`
   border: none;
   background-color: transparent;
-  color: ${(props) => (props.$isActive ? acBlue : black)};
+  color: ${(props) => (props.$isActive ? acBlue : gray400)};
   font-size: 1.6rem;
   text-align: left;
   white-space: nowrap;
