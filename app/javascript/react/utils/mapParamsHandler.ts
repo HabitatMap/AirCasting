@@ -534,7 +534,7 @@ export const useMapParams = () => {
         },
       ]);
     },
-    [currentUserSettings, setUrlParams]
+    [beginningOfTheYear, currentUserSettings, endOfTheYear, setUrlParams]
   );
 
   const debouncedUpdateURL = useCallback(
