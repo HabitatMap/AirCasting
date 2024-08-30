@@ -501,6 +501,42 @@ export const useMapParams = () => {
     [currentUserSettings, setUrlParams]
   );
 
+  const updateTime = useCallback(
+    (selectedYear: number) => {
+      setUrlParams([
+        {
+          key: UrlParamsTypes.previousUserSettings,
+          value: currentUserSettings,
+        },
+        {
+          key: UrlParamsTypes.currentUserSettings,
+          value: isMobile
+            ? UserSettings.FiltersView
+            : currentUserSettings === UserSettings.CrowdMapView
+            ? UserSettings.CrowdMapView
+            : UserSettings.MapView,
+        },
+        {
+          key: UrlParamsTypes.sessionId,
+          value: "",
+        },
+        {
+          key: UrlParamsTypes.streamId,
+          value: "",
+        },
+        {
+          key: UrlParamsTypes.timeFrom,
+          value: beginningOfTheYear(selectedYear).toString(),
+        },
+        {
+          key: UrlParamsTypes.timeTo,
+          value: endOfTheYear(selectedYear).toString(),
+        },
+      ]);
+    },
+    [currentUserSettings, setUrlParams]
+  );
+
   const debouncedUpdateURL = useCallback(
     debounce((params) => {
       setSearchParams(params);
@@ -542,6 +578,7 @@ export const useMapParams = () => {
     tags,
     timeFrom,
     timeTo,
+    updateTime,
     unitSymbol,
     updateFetchedSessions,
     updateLimit,

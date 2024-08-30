@@ -2,7 +2,7 @@ import React, { useCallback } from "react";
 
 import { useAppDispatch } from "../../store/hooks";
 import { setFetchingData } from "../../store/mapSlice";
-import { UrlParamsTypes, useMapParams } from "../../utils/mapParamsHandler";
+import { useMapParams } from "../../utils/mapParamsHandler";
 import * as S from "./SessionFilters.style";
 
 export const beginningOfTheYear = (year: number): number =>
@@ -24,25 +24,14 @@ export const getLastFiveYears = (): number[] => {
 
 const YearPickerButtons = () => {
   const dispatch = useAppDispatch();
-  const { setUrlParams, timeFrom, timeTo } = useMapParams();
+  const { timeFrom, updateTime } = useMapParams();
 
   const handleYear = useCallback(
     (year: number) => {
-      setUrlParams([
-        {
-          key: UrlParamsTypes.timeFrom,
-          value: beginningOfTheYear(year).toString(),
-        },
-        {
-          key: UrlParamsTypes.timeTo,
-          value: endOfTheYear(year).toString(),
-        },
-      ]);
-      setTimeout(() => {
-        dispatch(setFetchingData(true));
-      }, 200);
+      updateTime(year);
+      dispatch(setFetchingData(true));
     },
-    [dispatch, setUrlParams, timeFrom, timeTo]
+    [dispatch, updateTime]
   );
 
   const timestampToYear = (timestamp: string): number => {
