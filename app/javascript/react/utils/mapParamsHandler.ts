@@ -328,7 +328,7 @@ export const useMapParams = () => {
     ]);
   }, [searchParams, previousUserSettings, currentUserSettings, setUrlParams]);
 
-  const setFilters = useCallback(
+  const setFilter = useCallback(
     (key: UrlParamsTypes, value: string) => {
       if (isMobile) {
         setUrlParams([
@@ -398,7 +398,7 @@ export const useMapParams = () => {
     sensorName,
     sessionId,
     sessionType,
-    setFilters,
+    setFilter,
     setUrlParams,
     streamId,
     initialThresholds,

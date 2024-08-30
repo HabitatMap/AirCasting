@@ -10,16 +10,16 @@ export const defaultGridSize = 51 - gridSizes[2];
 
 const CrowdMapGridSize = () => {
   const dispatch = useAppDispatch();
-  const { setFilters, gridSize } = useMapParams();
+  const { setFilter, gridSize } = useMapParams();
 
   const handleGridSize = useCallback(
     (size: number) => {
-      setFilters(UrlParamsTypes.gridSize, (51 - size).toString());
+      setFilter(UrlParamsTypes.gridSize, (51 - size).toString());
       setTimeout(() => {
         dispatch(setFetchingCrowdMapData(true));
       }, 200);
     },
-    [dispatch, gridSize, setFilters]
+    [dispatch, gridSize, setFilter]
   );
 
   return (
