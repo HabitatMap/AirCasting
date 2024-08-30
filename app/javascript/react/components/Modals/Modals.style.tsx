@@ -1,5 +1,5 @@
 import styled from "styled-components";
-import { blue, gray100, white } from "../../assets/styles/colors";
+import { blue, gray100, gray400, white } from "../../assets/styles/colors";
 import { media } from "../../utils/media";
 import { Button } from "../Button/Button.style";
 
@@ -46,7 +46,7 @@ const ActionButton = styled(Button)`
 `;
 
 const CancelButtonX = styled(Button)`
-  color: black;
+  color: ${gray400};
   font-weight: 100;
   border: none;
 

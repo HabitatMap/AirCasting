@@ -1,6 +1,6 @@
 import styled from "styled-components";
 
-import { black, blue, cta, gray400, white } from "../../assets/styles/colors";
+import { blue, cta, gray400, white } from "../../assets/styles/colors";
 import { media } from "../../utils/media";
 
 const NAVBAR_HEIGHT = "7.8rem";
@@ -167,7 +167,7 @@ const GoBack = styled.a`
   text-decoration: none;
   font-weight: 400;
   font-size: 1.2rem;
-  color: ${black};
+  color: ${gray400};
   display: flex;
   align-items: center;
   gap: 7px;

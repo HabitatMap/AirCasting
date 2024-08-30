@@ -16,12 +16,12 @@ import { debounce } from "lodash";
 import { useTranslation } from "react-i18next";
 
 import {
-  black,
   blue,
   disabledGraphButton,
   gray100,
   gray200,
   gray300,
+  gray400,
   green,
   orange,
   red,
@@ -418,14 +418,14 @@ const getRangeSelectorOptions = (
         hover: {
           fill: white,
           style: {
-            color: black,
+            color: gray400,
             fontWeight: "regular",
           },
         },
         select: {
           fill: white,
           style: {
-            color: black,
+            color: gray400,
             fontWeight: "regular",
           },
         },
