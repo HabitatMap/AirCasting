@@ -250,7 +250,7 @@ export const useMapParams = () => {
         {
           key: UrlParamsTypes.sensorName,
           value:
-            sessionType === SessionTypes.FIXED
+            selectedSessionType === SessionTypes.FIXED
               ? SENSOR_NAMES.PARTICULATE_MATTER.GOVERNMENT_PM25
               : SENSOR_NAMES.PARTICULATE_MATTER.AIRBEAM_PM25,
         },
