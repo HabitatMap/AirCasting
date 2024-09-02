@@ -59,7 +59,7 @@ class FixedSession < Session
     sensor_name = stream.sensor_name
     unit_symbol = stream.unit_symbol
 
-    query_string = {
+    encoded_params = {
       sessionId: session_id,
       streamId: stream_id,
       thresholdMin: threshold_min,
@@ -70,16 +70,19 @@ class FixedSession < Session
       currentUserSettings: 'MODAL_VIEW',
       mapType: 'hybrid',
       sessionType: 'fixed',
-      measurementType: CGI.escape(measurement_type).gsub('%20', '+'),
-      sensorName: CGI.escape(sensor_name).gsub('%20', '+'),
+      measurementType: CGI.escape(measurement_type),
+      sensorName: CGI.escape(sensor_name),
       unitSymbol: CGI.escape(unit_symbol)
-    }.map { |k, v| "#{k}=#{v}" }.join("&")
+    }
+
+    query_string = encoded_params.map { |k, v| "#{k}=#{v}" }.join("&")
 
     "#{Rails.application.routes.url_helpers.root_path}?#{query_string}"
   end
 
+
   # http://172.104.20.165/?sessionId=1850290&streamId=2496390&thresholdMin=0&thresholdLow=9&thresholdMiddle=35&thresholdHigh=55&thresholdMax=150&currentUserSettings=MODAL_VIEW&mapType=hybrid&sessionType=fixed&measurementType=Particulate+Matter&sensorName=Government-PM2.5&unitSymbol=%C2%B5g%2Fm%C2%B3
-                          # /?currentUserSettings=MODAL_VIEW&mapType=hybrid&measurementType=Particulate%2BMatter&sensorName=AirBeam3-PM2.5&sessionId=1852929&sessionType=fixed&streamId=2499069&thresholdHigh=55&thresholdLow=12&thresholdMax=150&thresholdMiddle=35&thresholdMin=0&unitSymbol=%25C2%25B5g%252Fm%25C2%25B3
+                          # /?sessionId=1852929&streamId=2499069&thresholdMin=0&thresholdLow=12&thresholdMiddle=35&thresholdHigh=55&thresholdMax=150&currentUserSettings=MODAL_VIEW&mapType=hybrid&sessionType=fixed&measurementType=Particulate+Matter&sensorName=AirBeam3-PM2.5&unitSymbol=%C2%B5g%2Fm%C2%B3
   def is_active
     last_measurement_at > (Time.current - ACTIVE_FOR)
   end
