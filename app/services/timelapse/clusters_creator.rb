@@ -9,7 +9,14 @@ module Timelapse
     def call(sessions:, sensor_name:, zoom_level:)
       streams = streams_repository.find_by_session_id(sessions.pluck(:id))
       selected_sensor_streams = streams.select { |stream| Sensor.sensor_name(sensor_name).include? stream.sensor_name.downcase }
-      streams_with_coordinates = measurements_repository.streams_coordinates(selected_sensor_streams.pluck(:id))
+
+      streams_with_coordinates = selected_sensor_streams.map do |stream|
+        {
+          stream_id: stream.id,
+          latitude: stream.session.latitude,
+          longitude: stream.session.longitude
+        }
+      end
 
       clusters = cluster_measurements(streams_with_coordinates, zoom_level)
       clusters = calculate_centroids_for_clusters(clusters)
@@ -25,8 +32,13 @@ module Timelapse
 
       grid = Hash.new { |hash, key| hash[key] = [] }
 
-      streams_with_coordinates.rows.each do |row|
-        stream_id, latitude, longitude = row
+      streams_with_coordinates.each do |stream_with_coordinates|
+        stream_id, latitude, longitude =
+          stream_with_coordinates.values_at(
+            :stream_id,
+            :latitude,
+            :longitude
+          )
 
         cell_x = (longitude.to_f / grid_cell_size).floor
         cell_y = (latitude.to_f / grid_cell_size).floor
