@@ -38,7 +38,6 @@ const SessionInfo: React.FC<SessionInfoProps> = ({
       ? selectFixedStreamShortInfo
       : selectMobileStreamShortInfo
   );
-  console.log(streamShortInfo);
   const extremes = useSelector(
     fixedSessionTypeSelected ? selectFixedExtremes : selectMobileExtremes
   );

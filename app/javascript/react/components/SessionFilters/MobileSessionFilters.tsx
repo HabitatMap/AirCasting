@@ -181,10 +181,10 @@ const MobileSessionFilters = ({
                 <TagsInput />
               </>
             )}
-
-            {fixedSessionsType && airBeamSensorNameSelected && (
+            {/* UNCOMMENT THESE BEFORE DEPLOY */}
+            {/* {fixedSessionsType && airBeamSensorNameSelected && (
               <IndoorOutdoorSwitch />
-            )}
+            )} */}
             {isFixedSessionTypeSelected && <IndoorOutdoorSwitch />}
             {isFixedSessionTypeSelected && <DormantToggle />}
             {!fixedSessionsType && <CrowdMapToggle />}

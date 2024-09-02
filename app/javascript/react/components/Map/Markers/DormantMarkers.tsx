@@ -17,7 +17,6 @@ import HoverMarker from "./HoverMarker/HoverMarker";
 
 import { gray300 } from "../../../assets/styles/colors";
 import { setMarkersLoading } from "../../../store/markersLoadingSlice";
-import { selectIsDormantSessionsType } from "../../../store/sessionFiltersSlice";
 import type { LatLngLiteral } from "../../../types/googleMaps";
 import { SessionDotMarker } from "./SessionDotMarker/SessionDotMarker";
 
@@ -56,8 +55,6 @@ const DormantMarkers = ({
   const markerRefs = useRef<{
     [streamId: string]: google.maps.marker.AdvancedMarkerElement | null;
   }>({});
-
-  const isDormanSessionType = useAppSelector(selectIsDormantSessionsType);
 
   const centerMapOnMarker = useCallback(
     (position: LatLngLiteral, streamId: string) => {
@@ -124,15 +121,6 @@ const DormantMarkers = ({
       dispatch(setMarkersLoading(false));
     }
   }, [dispatch, markersCount, sessions.length]);
-
-  useEffect(() => {
-    if (pulsatingSessionId) {
-      const pulsatingSession = memoizedSessions.find(
-        (session) => session.id === pulsatingSessionId
-      );
-      const pulsatingSessionStreamId = pulsatingSession?.point.streamId;
-    }
-  }, [pulsatingSessionId, , memoizedSessions]);
 
   useEffect(() => {
     map && map.addListener("zoom_changed", handleMapInteraction);

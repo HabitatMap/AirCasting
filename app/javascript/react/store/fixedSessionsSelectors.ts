@@ -5,33 +5,27 @@ import { RootState } from "./";
 import { FixedSession } from "./fixedSessionsSlice";
 import { FixedSessionsTypes } from "./sessionFiltersSlice";
 
-// Base selectors to get active and dormant fixed sessions
 const selectActiveFixedSessionsState = (state: RootState) =>
   state.fixedSessions.activeSessions;
 
 const selectDormantFixedSessionsState = (state: RootState) =>
   state.fixedSessions.dormantSessions;
 
-// Selector to check if fixed sessions status is fulfilled
 const selectFixedSessionsStatusFulfilled = (state: RootState) =>
   state.fixedSessions.status === StatusEnum.Fulfilled;
 
-// Base selector to get the entire fixed sessions state
 const selectFixedSessionsState = (state: RootState) => state.fixedSessions;
 
-// Selector to check if active sessions have been fetched
 const selectIsActiveSessionsFetched = createSelector(
   [selectFixedSessionsState],
   (fixedSessionsState) => fixedSessionsState.isActiveSessionsFetched
 );
 
-// Selector to check if dormant sessions have been fetched
 const selectIsDormantSessionsFetched = createSelector(
   [selectFixedSessionsState],
   (fixedSessionsState) => fixedSessionsState.isDormantSessionsFetched
 );
 
-// Helper function to transform session data
 const transformSessionData = (sessions: FixedSession[]) =>
   sessions.map(
     ({
@@ -63,7 +57,6 @@ const transformSessionData = (sessions: FixedSession[]) =>
     }
   );
 
-// Selector factory to create a memoized selector for sessions by type
 const selectSessionsByType = createSelector(
   [
     selectActiveFixedSessionsState,
@@ -77,7 +70,6 @@ const selectSessionsByType = createSelector(
   }
 );
 
-// Selector to get fixed sessions points by type
 const selectFixedSessionsPoints = createSelector(
   [selectSessionsByType],
   (sessions): Session[] => {
@@ -104,7 +96,6 @@ const selectFixedSessionsPoints = createSelector(
   }
 );
 
-// Selector to get the fixed sessions list by type
 const selectFixedSessionsList = createSelector(
   [selectSessionsByType],
   (sessions): SessionList[] => {
@@ -131,7 +122,6 @@ const selectFixedSessionsList = createSelector(
   }
 );
 
-// Selector to get fixed session points by session ID and type
 const selectFixedSessionPointsBySessionId = createSelector(
   [
     selectSessionsByType,

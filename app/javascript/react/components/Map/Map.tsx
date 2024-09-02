@@ -168,14 +168,11 @@ const Map = () => {
   const listSessions = useAppSelector((state) => {
     if (fixedSessionTypeSelected) {
       if (isIndoorParameterInUrl) {
-        // Call the factory function with the `isDormant` parameter
         return selectIndoorSessionsList(isDormant)(state);
       } else {
-        // Call the factory function with the `fixedSessionsType` parameter
         return selectFixedSessionsList(state, fixedSessionsType);
       }
     } else {
-      // Directly use the selector for mobile sessions
       return selectMobileSessionsList(state);
     }
   });

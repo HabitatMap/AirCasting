@@ -1,9 +1,4 @@
-import {
-  PayloadAction,
-  createAsyncThunk,
-  createSelector,
-  createSlice,
-} from "@reduxjs/toolkit";
+import { PayloadAction, createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { AxiosResponse } from "axios";
 import { RootState } from ".";
 import { oldApiClient } from "../api/apiClient";
@@ -124,54 +119,29 @@ const sessionFilterSlice = createSlice({
   },
 });
 
-// Selector to get usernames from the session filter state
-export const selectUsernames = createSelector(
-  [(state: RootState) => state.sessionFilter.usernames],
-  (usernames): string[] => [...usernames] // Return a new array to ensure memoization
-);
+export const selectUsernames = (state: RootState): string[] =>
+  state.sessionFilter.usernames;
 
-// Selector to get tags from the session filter state
-export const selectTags = createSelector(
-  [(state: RootState) => state.sessionFilter.tags],
-  (tags): string[] => [...tags] // Return a new array to ensure memoization
-);
+export const selectTags = (state: RootState): string[] =>
+  state.sessionFilter.tags;
 
-// Selector to check if the basic parameters modal is open
-export const selectBasicParametersModalOpen = createSelector(
-  [(state: RootState) => state.sessionFilter.basicParametersModalOpen],
-  (basicParametersModalOpen): boolean => basicParametersModalOpen
-);
+export const selectBasicParametersModalOpen = (state: RootState): boolean =>
+  state.sessionFilter.basicParametersModalOpen;
 
-// Selector to check if the custom parameters modal is open
-export const selectCustomParametersModalOpen = createSelector(
-  [(state: RootState) => state.sessionFilter.customParametersModalOpen],
-  (customParametersModalOpen): boolean => customParametersModalOpen
-);
+export const selectCustomParametersModalOpen = (state: RootState): boolean =>
+  state.sessionFilter.customParametersModalOpen;
 
-// Selector to check if the basic sensors modal is open
-export const selectBasicSensorsModalOpen = createSelector(
-  [(state: RootState) => state.sessionFilter.basicSensorsModalOpen],
-  (basicSensorsModalOpen): boolean => basicSensorsModalOpen
-);
+export const selectBasicSensorsModalOpen = (state: RootState): boolean =>
+  state.sessionFilter.basicSensorsModalOpen;
 
-// Selector to check if the custom sensors modal is open
-export const selectCustomSensorsModalOpen = createSelector(
-  [(state: RootState) => state.sessionFilter.customSensorsModalOpen],
-  (customSensorsModalOpen): boolean => customSensorsModalOpen
-);
+export const selectCustomSensorsModalOpen = (state: RootState): boolean =>
+  state.sessionFilter.customSensorsModalOpen;
 
-// Selector to get the fixed sessions type from the session filter state
-export const selectFixedSessionsType = createSelector(
-  [(state: RootState) => state.sessionFilter.fixedSessionsType],
-  (fixedSessionsType): FixedSessionsTypes => fixedSessionsType
-);
+export const selectFixedSessionsType = (state: RootState): FixedSessionsTypes =>
+  state.sessionFilter.fixedSessionsType;
 
-// Selector to check if the session type is dormant
-export const selectIsDormantSessionsType = createSelector(
-  [(state: RootState) => state.sessionFilter.fixedSessionsType],
-  (fixedSessionsType): boolean =>
-    fixedSessionsType === FixedSessionsTypes.DORMANT
-);
+export const selectIsDormantSessionsType = (state: RootState): boolean =>
+  state.sessionFilter.fixedSessionsType === FixedSessionsTypes.DORMANT;
 
 export const {
   setBasicParametersModalOpen,
