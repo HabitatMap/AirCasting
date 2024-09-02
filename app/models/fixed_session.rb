@@ -70,10 +70,10 @@ class FixedSession < Session
       currentUserSettings: 'MODAL_VIEW',
       mapType: 'hybrid',
       sessionType: 'fixed',
-      measurementType: CGI.escape(measurement_type), # Properly encoded with %20 for space
-      sensorName: CGI.escape(sensor_name), # Properly encoded
-      unitSymbol: CGI.escape(unit_symbol) # Ensure no double encoding
-    }.to_query
+      measurementType: CGI.escape(measurement_type).gsub('%20', '+'),
+      sensorName: CGI.escape(sensor_name).gsub('%20', '+'),
+      unitSymbol: CGI.escape(unit_symbol)
+    }.map { |k, v| "#{k}=#{v}" }.join("&")
 
     "#{Rails.application.routes.url_helpers.root_path}?#{query_string}"
   end
