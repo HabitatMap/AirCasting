@@ -4,19 +4,16 @@ module Timelapse
       @measurements_repository = MeasurementsRepository.new
       @streams_repository = StreamsRepository.new
       @cluster_processor = ClusterProcessor.new
+      @sessions_repository = SessionsRepository.new
     end
 
-    def call(sessions:, sensor_name:, zoom_level:)
+    def call(params:)
+      sessions = filtered_sessions(params)
+      zoom_level = params[:zoom_level] || 1
+      sensor_name = params[:sensor_name]
       streams = streams_repository.find_by_session_id(sessions.pluck(:id))
       selected_sensor_streams = streams.select { |stream| Sensor.sensor_name(sensor_name).include? stream.sensor_name.downcase }
-
-      streams_with_coordinates = selected_sensor_streams.map do |stream|
-        {
-          stream_id: stream.id,
-          latitude: stream.session.latitude,
-          longitude: stream.session.longitude
-        }
-      end
+      streams_with_coordinates = streams_with_coordinates(selected_sensor_streams)
 
       clusters = cluster_measurements(streams_with_coordinates, zoom_level)
       clusters = calculate_centroids_for_clusters(clusters)
@@ -25,7 +22,22 @@ module Timelapse
 
     private
 
-    attr_reader :measurements_repository, :streams_repository, :cluster_processor
+    attr_reader :measurements_repository, :streams_repository, :cluster_processor, :sessions_repository
+
+    def filtered_sessions(params)
+      sessions_active_in_last_7_days = sessions_repository.active_in_last_7_days
+      sessions_active_in_last_7_days.filter_(params)
+    end
+
+    def streams_with_coordinates(streams)
+      streams.map do |stream|
+        {
+          stream_id: stream.id,
+          latitude: stream.session.latitude,
+          longitude: stream.session.longitude
+        }
+      end
+    end
 
     def cluster_measurements(streams_with_coordinates, zoom_level)
       grid_cell_size = determine_grid_cell_size(zoom_level)

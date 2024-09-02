@@ -2,14 +2,11 @@ module Api
   module V3
     class FixedStreamClustersController < BaseController
       def index
-        sessions = FixedSession.active_in_last_days(days: 7).filter_(data)
-        zoom_level = data[:zoom_level] || 1
+
 
         result =
           ::Timelapse::ClustersCreator.new.call(
-            sessions: sessions,
-            sensor_name: data[:sensor_name],
-            zoom_level: zoom_level
+            params: data,
           )
 
         render json: result, status: :ok

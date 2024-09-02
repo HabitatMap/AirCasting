@@ -12,10 +12,6 @@ class FixedSession < Session
     where('last_measurement_at <= ?', Time.current - ACTIVE_FOR)
   end
 
-  def self.active_in_last_days(days:)
-    where('last_measurement_at > ?', Time.current - days.days)
-  end
-
   def after_measurements_created
     update_end_time!
   end
