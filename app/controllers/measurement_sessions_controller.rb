@@ -9,6 +9,8 @@ class MeasurementSessionsController < ApplicationController
       )
     result = Api::ToLink.new(form: form).call
 
+    Rails.logger.info("MeasurementSessionsController#show: #{result}")
+
     if result.success?
       redirect_to result.value
     else
