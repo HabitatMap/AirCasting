@@ -1,14 +1,14 @@
 import { createSelector } from "@reduxjs/toolkit";
 import moment, { Moment } from "moment";
 
-import { lastItemFromArray } from "../utils/lastArrayItem";
+import { RootState } from ".";
 import {
   CalendarCellData,
   CalendarMonthlyData,
   StreamDailyAverage,
 } from "../types/movingStream";
 import { StreamDailyAverage as MovingStreamDailyAverage } from "../types/StreamDailyAverage";
-import { RootState } from ".";
+import { lastItemFromArray } from "../utils/lastArrayItem";
 
 const WEEKDAYS_COUNT = 7;
 
@@ -149,4 +149,4 @@ const selectMovingCalendarMinMax = createSelector(
   }
 );
 
-export { selectThreeMonthsDailyAverage, selectMovingCalendarMinMax };
+export { selectMovingCalendarMinMax, selectThreeMonthsDailyAverage };

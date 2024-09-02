@@ -14,12 +14,12 @@ import { ResetButton } from "../../components/ThresholdConfigurator/ThresholdBut
 import { ThresholdButtonVariant } from "../../components/ThresholdConfigurator/ThresholdButtons/ThresholdButton";
 import { UniformDistributionButton } from "../../components/ThresholdConfigurator/ThresholdButtons/UniformDistributionButton";
 
+import { selectFixedStreamShortInfo } from "../../store/fixedStreamSelectors";
 import {
   fetchFixedStreamById,
   selectFixedData,
 } from "../../store/fixedStreamSlice";
 import { useAppDispatch, useAppSelector } from "../../store/hooks";
-import { selectFixedStreamShortInfo } from "../../store/fixedStreamSelectors";
 import {
   fetchNewMovingStream,
   movingData,
@@ -28,10 +28,10 @@ import { setDefaultThresholdsValues } from "../../store/thresholdSlice";
 
 import { SessionTypes } from "../../types/filters";
 
+import { useCalendarBackNavigation } from "../../hooks/useBackNavigation";
 import { useMapParams } from "../../utils/mapParamsHandler";
 import { formatTime } from "../../utils/measurementsCalc";
 import useMobileDetection from "../../utils/useScreenSizeDetection";
-import { useCalendarBackNavigation } from "../../hooks/useBackNavigation";
 
 import * as S from "./CalendarPage.style";
 
@@ -89,12 +89,6 @@ const CalendarPage: React.FC<CalendarPageProps> = ({ children }) => {
       .date(1)
       .subtract(2, "months")
       .format("YYYY-MM-DD");
-
-    console.log(
-      "Downloading first time - moving stream data. Start - End: ",
-      newStartDate,
-      formattedEndDate
-    );
     if (streamId) {
       dispatch(
         fetchNewMovingStream({

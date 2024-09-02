@@ -1,17 +1,16 @@
+import moment, { Moment } from "moment";
+import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
-import { useState, useEffect } from "react";
-import { Moment } from "moment";
-import moment from "moment";
 
-import { MovesKeys } from "../../../types/movesKeys";
 import { useAppDispatch } from "../../../store/hooks";
-import { selectThreeMonthsDailyAverage } from "../../../store/movingStreamSelectors";
 import {
-  movingData,
   fetchNewMovingStream,
+  movingData,
 } from "../../../store/movingCalendarStreamSlice";
-import { CalendarMonthlyData } from "../../../types/movingStream";
+import { selectThreeMonthsDailyAverage } from "../../../store/movingStreamSelectors";
 import { DateFormat } from "../../../types/dateFormat";
+import { MovesKeys } from "../../../types/movesKeys";
+import { CalendarMonthlyData } from "../../../types/movingStream";
 
 interface MovableCalendarData {
   currentStartDate: string;
@@ -94,9 +93,10 @@ const useCalendarHook = ({
 
     const firstElementIdx = 0;
     const firstDataPoint = movingCalendarData.data[firstElementIdx].date;
-    const processedFirstDataPoint = moment(firstDataPoint, DateFormat.default).format(
-      DateFormat.us
-    );
+    const processedFirstDataPoint = moment(
+      firstDataPoint,
+      DateFormat.default
+    ).format(DateFormat.us);
 
     return {
       firstDate: processedFirstDataPoint,
@@ -106,7 +106,6 @@ const useCalendarHook = ({
   };
 
   useEffect(() => {
-    console.log("On appear, all data considered for calendar: ", movingCalendarData)
     const formattedDateRange = getFormattedDateRange();
     const processedMaxEndDate = formattedDateRange.lastDate;
     const processedFirstDataPoint = formattedDateRange.firstDate;
@@ -120,7 +119,6 @@ const useCalendarHook = ({
       .subtract(SEEN_MONTHS_NUMBER - 1, "months")
       .format(DateFormat.us);
 
-    console.log("On appear, first and last point of viewed calendar identified: ", processedFirstDataPoint, processedMaxEndDate)
     setDateReference((prevState) => ({
       ...prevState,
       currentStartDate: newStartDate,
@@ -155,10 +153,9 @@ const useCalendarHook = ({
       .format(DateFormat.us);
 
     const newStartDateMoment = moment(newStartDate, DateFormat.us).date(1);
-    const minCalendarMoment = moment(minCalendarDate, DateFormat.default).date(1);
-
-    console.log("Identify new min moment...", minCalendarMoment)
-    console.log("Proposed new start date", newStartDateMoment)
+    const minCalendarMoment = moment(minCalendarDate, DateFormat.default).date(
+      1
+    );
 
     if (newStartDateMoment.isBefore(minCalendarMoment)) {
       setIsLeftButtonDisabled(true);
