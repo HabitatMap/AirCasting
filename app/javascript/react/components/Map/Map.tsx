@@ -667,7 +667,8 @@ const Map = () => {
       >
         {fixedSessionsStatusFulfilled &&
           fixedSessionTypeSelected &&
-          isDormant && (
+          isDormant &&
+          !isIndoorParameterInUrl && (
             <DormantMarkers
               sessions={sessionsPoints}
               onMarkerClick={handleMarkerClick}
