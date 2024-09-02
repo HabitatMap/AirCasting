@@ -75,7 +75,7 @@ class FixedSession < Session
       unitSymbol: CGI.escape(unit_symbol)
     }.to_query
 
-    "#{Rails.application.routes.url_helpers.fixed_map_path}?#{query_string}"
+    "#{Rails.application.routes.url_helpers.root_path}?#{query_string}"
   end
 
   # http://172.104.20.165/?sessionId=1850290&streamId=2496390&thresholdMin=0&thresholdLow=9&thresholdMiddle=35&thresholdHigh=55&thresholdMax=150&currentUserSettings=MODAL_VIEW&mapType=hybrid&sessionType=fixed&measurementType=Particulate+Matter&sensorName=Government-PM2.5&unitSymbol=%C2%B5g%2Fm%C2%B3
