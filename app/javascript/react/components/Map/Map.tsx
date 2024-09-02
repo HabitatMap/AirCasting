@@ -137,22 +137,6 @@ const Map = () => {
   const fetchableFixedSessionsCount = useAppSelector(
     (state: RootState) => state.fixedSessions.fetchableSessionsCount
   );
-  const fetchableIndoorSessionsCount = useAppSelector(
-    (state: RootState) => state.indoorSessions.fetchableSessionsCount
-  );
-  const fetchableSessionsCount = useMemo(() => {
-    return sessionType === SessionTypes.FIXED
-      ? isIndoorParameterInUrl
-        ? fetchableIndoorSessionsCount
-        : fetchableFixedSessionsCount
-      : fetchableMobileSessionsCount;
-  }, [
-    fetchableFixedSessionsCount,
-    fetchableMobileSessionsCount,
-    sessionType,
-    fetchableIndoorSessionsCount,
-    isIndoorParameterInUrl,
-  ]);
 
   const fetchingData = useAppSelector(selectFetchingData);
   const fixedSessionsType = useAppSelector(selectFixedSessionsType);
@@ -178,10 +162,9 @@ const Map = () => {
   );
   const timelapseData = useAppSelector(selectTimelapseData);
   const currentTimestamp = useAppSelector(selectCurrentTimestamp);
-
-  const fixedSessionTypeSelected: boolean = sessionType === SessionTypes.FIXED;
   const isDormant = useAppSelector(selectIsDormantSessionsType);
 
+  const fixedSessionTypeSelected: boolean = sessionType === SessionTypes.FIXED;
   const listSessions = useAppSelector(
     fixedSessionTypeSelected
       ? isIndoorParameterInUrl
@@ -189,6 +172,22 @@ const Map = () => {
         : selectFixedSessionsList(fixedSessionsType)
       : selectMobileSessionsList
   );
+
+  const fetchableIndoorSessionsCount = listSessions.length;
+
+  const fetchableSessionsCount = useMemo(() => {
+    return sessionType === SessionTypes.FIXED
+      ? isIndoorParameterInUrl
+        ? fetchableIndoorSessionsCount
+        : fetchableFixedSessionsCount
+      : fetchableMobileSessionsCount;
+  }, [
+    fetchableFixedSessionsCount,
+    fetchableMobileSessionsCount,
+    sessionType,
+    fetchableIndoorSessionsCount,
+    isIndoorParameterInUrl,
+  ]);
 
   const sessionsPoints = fixedSessionTypeSelected ? fixedPoints : mobilePoints;
 

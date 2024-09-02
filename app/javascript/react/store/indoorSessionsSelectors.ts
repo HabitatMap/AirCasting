@@ -55,6 +55,7 @@ const selectIndoorSessionsList = (isDormant: boolean | null) =>
         });
     }
   );
+
 const selectIndoorSessionPointsBySessionId = (sessionId: number | null) =>
   createSelector(
     [selectIndoorSessionsState],
