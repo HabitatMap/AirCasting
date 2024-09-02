@@ -839,8 +839,7 @@ const Map = () => {
               handleMarkerClick(streamId, id);
             }}
             onCellMouseEnter={(id) => {
-              console.log(id);
-              // setPulsatingSessionId(id);
+              setPulsatingSessionId(id);
             }}
             onCellMouseLeave={() => {
               setPulsatingSessionId(null);
