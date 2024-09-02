@@ -16,7 +16,7 @@ class StreamsRepository
   end
 
   def find_by_session_id(session_id)
-    Stream.where(session_id: session_id)
+    Stream.where(session_id: session_id).includes(:session)
   end
 
   def calculate_bounding_box!(
