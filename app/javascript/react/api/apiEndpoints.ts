@@ -71,6 +71,6 @@ export const API_ENDPOINTS: ApiEndpoints = {
     return url;
   },
   fetchSensors: (sessionType) => `/sensors?session_type=${sessionType}Session`,
-  fetchTimelapseData: (filters) => `/timelapse2.json?q=${filters}`,
+  fetchTimelapseData: (filters) => `/timelapse.json?q=${filters}`,
   fetchIndoorSessions: (filters) => `/fixed/active/sessions2.json?q=${filters}`,
 };
