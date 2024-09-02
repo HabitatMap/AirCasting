@@ -1,6 +1,6 @@
 import { debounce } from "lodash";
 import { useCallback, useEffect, useMemo } from "react";
-import { useSearchParams } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 
 import { MAP_CONFIGS } from "../components/Map/mapConfigs";
 import { defaultGridSize } from "../components/SessionFilters/CrowdMapGridSize";
@@ -77,6 +77,8 @@ export const useMapParams = () => {
     },
     [searchParams, setSearchParams]
   );
+
+  const navigate = useNavigate();
 
   const boundEast = parseFloat(
     getSearchParam(
@@ -291,6 +293,11 @@ export const useMapParams = () => {
   );
 
   const revertUserSettingsAndResetIds = useCallback(() => {
+    const finalPreviousUserSettings =
+      !isMobile && previousUserSettings === UserSettings.CalendarView
+        ? UserSettings.MapView
+        : previousUserSettings;
+
     setUrlParams([
       { key: UrlParamsTypes.sessionId, value: "" },
       { key: UrlParamsTypes.streamId, value: "" },
@@ -300,10 +307,10 @@ export const useMapParams = () => {
       },
       {
         key: UrlParamsTypes.currentUserSettings,
-        value: previousUserSettings,
+        value: finalPreviousUserSettings,
       },
     ]);
-  }, [searchParams]);
+  }, [searchParams, previousUserSettings, currentUserSettings, setUrlParams]);
 
   const setFilters = useCallback(
     (key: UrlParamsTypes, value: string) => {

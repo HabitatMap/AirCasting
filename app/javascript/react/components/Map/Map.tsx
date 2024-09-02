@@ -507,7 +507,10 @@ const Map = () => {
           UrlParamsTypes.streamId,
           selectedStreamId?.toString() || ""
         );
-        navigate(`/fixed_stream?${newSearchParams.toString()}`);
+
+        navigate(`/fixed_stream?${newSearchParams.toString()}`, {
+          replace: true,
+        });
         return;
       }
     }
@@ -556,7 +559,9 @@ const Map = () => {
 
   const setPreviousZoomInTheURL = () => {
     const desktopCondition: boolean =
-      !isMobile && currentUserSettings !== UserSettings.ModalView;
+      !isMobile &&
+      currentUserSettings !== UserSettings.ModalView &&
+      previousUserSettings !== UserSettings.CalendarView;
     const mobileCondition: boolean =
       isMobile && currentUserSettings === UserSettings.MapView;
     const mobileConditionForSessionList: boolean =
@@ -693,7 +698,9 @@ const Map = () => {
 
       {currentUserSettings === UserSettings.ModalView && (
         <SessionDetailsModal
-          onClose={() => revertUserSettingsAndResetIds()}
+          onClose={() => {
+            revertUserSettingsAndResetIds();
+          }}
           sessionType={sessionType}
           streamId={streamId}
         />

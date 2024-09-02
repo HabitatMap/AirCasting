@@ -18,6 +18,7 @@ import { RealtimeMapUpdatesButton } from "../RealtimeMapUpdatesButton/RealtimeMa
 import { RefreshMapButton } from "../RefreshMapButton";
 import NavList from "./NavList/NavList";
 import * as S from "./Navbar.style";
+import { BackButton } from "./BackButton";
 
 interface DesktopHeaderProps {
   isMapPage: boolean;
@@ -87,12 +88,15 @@ const DesktopHeader: React.FC<DesktopHeaderProps> = ({
           </S.Container>
         </>
       ) : (
-        <a
-          href={urls.habitatMap}
-          aria-label={t("navbar.sections.aircastingPage")}
-        >
-          <S.AircastingLogo alt={t("navbar.altLogo")} src={logo} />
-        </a>
+        <>
+          <BackButton />
+          <a
+            href={urls.habitatMap}
+            aria-label={t("navbar.sections.aircastingPage")}
+          >
+            <S.AircastingLogo alt={t("navbar.altLogo")} src={logo} />
+          </a>
+        </>
       )}
       <S.Container>
         {!isExtraTinyScreen && (

@@ -14,6 +14,7 @@ import { RealtimeMapUpdatesButton } from "../RealtimeMapUpdatesButton/RealtimeMa
 import { RefreshMapButton } from "../RefreshMapButton";
 import * as S from "./Navbar.style";
 import NavList from "./NavList/NavList";
+import { BackButton } from "./BackButton";
 
 export const MobileHeader = ({
   isTimelapseView,
@@ -89,35 +90,9 @@ export const MobileHeader = ({
 };
 
 export const MobileCalendarHeader = ({ t }: { t: Function }) => {
-  const { currentUserSettings, previousUserSettings, searchParams } =
-    useMapParams();
-  const navigate = useNavigate();
-
-  const handleGoBackClick = useCallback(() => {
-    const newSearchParams = new URLSearchParams(searchParams.toString());
-    newSearchParams.set(
-      UrlParamsTypes.previousUserSettings,
-      currentUserSettings
-    );
-    newSearchParams.set(
-      UrlParamsTypes.currentUserSettings,
-      previousUserSettings
-    );
-    navigate(`${urls.reactMap}?${newSearchParams.toString()}`);
-  }, [currentUserSettings, navigate, previousUserSettings, searchParams]);
-
   return (
     <S.MobileContainer>
-      <S.GoBack onClick={handleGoBackClick} aria-label={t("navbar.mapPage")}>
-        <img
-          src={backArrowIcon}
-          alt={t("navbar.altGoBackIcon")}
-          aria-label={t("navbar.goBackToSessions")}
-        />
-        {previousUserSettings === UserSettings.SessionListView
-          ? t("navbar.goBackToSessions")
-          : t("navbar.goBackToMap")}
-      </S.GoBack>
+      <BackButton />
     </S.MobileContainer>
   );
 };

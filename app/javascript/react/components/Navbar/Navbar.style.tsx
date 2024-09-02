@@ -176,6 +176,30 @@ const GoBack = styled.a`
   background-color: ${white};
   padding: 0.5rem 1rem;
   border-radius: 5px;
+  cursor: pointer;
+
+  @media ${media.smallDesktop} {
+    padding: 1.6rem;
+    text-transform: uppercase;
+    font-size: 1.4rem;
+    height: 4.8rem;
+    box-shadow: 0px 4px 4px 0px rgba(76, 86, 96, 0.1);
+    justify-content: center;
+  }
+`;
+
+const GoBackButtonContainer = styled.div`
+  top: 8rem;
+  left: 2rem;
+  position: fixed;
+`;
+
+const DesktopHeaderContainer = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-direction: column;
+  gap: 1.2rem;
 `;
 
 const SmallDesktopContainer = styled.div`
@@ -238,7 +262,9 @@ export {
   BuyCTAWhite,
   Container,
   DesktopContainer,
+  DesktopHeaderContainer,
   GoBack,
+  GoBackButtonContainer,
   Header,
   MapControls,
   MenuButton,

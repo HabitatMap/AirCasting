@@ -16,6 +16,7 @@
     "altGoBack": "Go back icon",
     "goBackToMap": "Back to map",
     "goBackToSessions": "Back to sessions",
+    "goBackToSession": "Back to session",
     "mapPage": "Map page",
     "refreshMap": "Refresh map",
     "realtimeMapUpdates": "update when map moves",

@@ -12,23 +12,28 @@ import { FixedStreamStationHeader } from "../../components/molecules/FixedStream
 import { ThresholdsConfigurator } from "../../components/ThresholdConfigurator";
 import { ResetButton } from "../../components/ThresholdConfigurator/ThresholdButtons/ResetButton";
 import { ThresholdButtonVariant } from "../../components/ThresholdConfigurator/ThresholdButtons/ThresholdButton";
-import { selectFixedStreamShortInfo } from "../../store/fixedStreamSelectors";
+import { UniformDistributionButton } from "../../components/ThresholdConfigurator/ThresholdButtons/UniformDistributionButton";
+
 import {
   fetchFixedStreamById,
   selectFixedData,
 } from "../../store/fixedStreamSlice";
 import { useAppDispatch, useAppSelector } from "../../store/hooks";
+import { selectFixedStreamShortInfo } from "../../store/fixedStreamSelectors";
 import {
   fetchNewMovingStream,
   movingData,
 } from "../../store/movingCalendarStreamSlice";
 import { setDefaultThresholdsValues } from "../../store/thresholdSlice";
+
 import { SessionTypes } from "../../types/filters";
+
 import { useMapParams } from "../../utils/mapParamsHandler";
 import { formatTime } from "../../utils/measurementsCalc";
 import useMobileDetection from "../../utils/useScreenSizeDetection";
+import { useCalendarBackNavigation } from "../../hooks/useBackNavigation";
+
 import * as S from "./CalendarPage.style";
-import { UniformDistributionButton } from "../../components/ThresholdConfigurator/ThresholdButtons/UniformDistributionButton";
 
 interface CalendarPageProps {
   children: React.ReactNode;
@@ -38,6 +43,9 @@ const CalendarPage: React.FC<CalendarPageProps> = ({ children }) => {
   const dispatch = useAppDispatch();
   const isMobile = useMobileDetection();
   const { t } = useTranslation();
+
+  const handleCalendarGoBack = useCalendarBackNavigation();
+
   const { unitSymbol } = useMapParams();
 
   const { streamId } = useMapParams();
@@ -65,6 +73,14 @@ const CalendarPage: React.FC<CalendarPageProps> = ({ children }) => {
   useEffect(() => {
     streamId && dispatch(fetchFixedStreamById(streamId));
   }, []);
+
+  useEffect(() => {
+    window.addEventListener("popstate", handleCalendarGoBack);
+
+    return () => {
+      window.removeEventListener("popstate", handleCalendarGoBack);
+    };
+  }, [handleCalendarGoBack]);
 
   useEffect(() => {
     const formattedEndMoment = moment(streamEndTime, "YYYY-MM-DD");
