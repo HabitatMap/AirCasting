@@ -25,22 +25,20 @@ enum ButtonTypes {
   SHARE = "share",
 }
 
-const MapButtons = () => {
+const MapButtons: React.FC = () => {
   const { goToUserSettings, currentUserSettings, sessionType } = useMapParams();
   const [activeButtons, setActiveButtons] = useState<ButtonTypes[]>([]);
-
   const [activeCopyLinkButton, setActiveCopyLinkButton] = useState(false);
-
-  const showFilters = activeButtons.includes(ButtonTypes.FILTER);
 
   const { t } = useTranslation();
 
   const fixedSessionsType = useAppSelector(selectFixedSessionsType);
-  const listSessions = useAppSelector(
-    selectFixedSessionsList(fixedSessionsType)
+  const listSessions = useAppSelector((state) =>
+    selectFixedSessionsList(state, fixedSessionsType)
   );
   const isDormant = useAppSelector(selectIsDormantSessionsType);
 
+  const showFilters = activeButtons.includes(ButtonTypes.FILTER);
   const isModalView = currentUserSettings === UserSettings.ModalView;
   const isTimelapseButtonVisible =
     !isModalView && sessionType === SessionTypes.FIXED;
@@ -95,7 +93,7 @@ const MapButtons = () => {
         <MapButton
           title={t("navbar.filter")}
           image={filterIcon}
-          onClick={() => handleFilterClick()}
+          onClick={handleFilterClick}
           alt={t("navbar.altFilter")}
           isActive={activeButtons.includes(ButtonTypes.FILTER)}
           className="active-overlay"
@@ -104,7 +102,7 @@ const MapButtons = () => {
           <MapButton
             title={t("navbar.timelapse")}
             image={clockIcon}
-            onClick={() => handleTimelapseClick()}
+            onClick={handleTimelapseClick}
             alt={t("navbar.altTimelapse")}
             isActive={isTimelapseButtonActive}
             isDisabled={isTimelapseDisabled}
@@ -117,7 +115,7 @@ const MapButtons = () => {
             <MapButton
               title={t("navbar.copyLink")}
               image={copyLinkIcon}
-              onClick={() => handleCopyLinkClick()}
+              onClick={handleCopyLinkClick}
               alt={t("navbar.altCopyLink")}
               isActive={activeCopyLinkButton}
               className="active-overlay"
@@ -125,9 +123,7 @@ const MapButtons = () => {
           }
           isIconOnly={false}
           showBelowButton
-          onOpen={() => {
-            handleCopyLinkClick();
-          }}
+          onOpen={handleCopyLinkClick}
           onClose={() => {
             setActiveCopyLinkButton(false);
           }}

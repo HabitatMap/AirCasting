@@ -1,10 +1,10 @@
 import { createSelector } from "reselect";
-
 import { StatusEnum } from "../types/api";
 import { IndoorSession, SessionList } from "../types/sessionType";
 import { RootState } from "./";
 
 const selectIndoorSessionsState = (state: RootState) => state.indoorSessions;
+
 const selectIndoorSessionsStatusFulfilled = (state: RootState) =>
   state.indoorSessions.status === StatusEnum.Fulfilled;
 
@@ -24,7 +24,7 @@ const selectIndoorSessionsPoints = createSelector(
 
         return {
           id,
-          title: title,
+          title,
           sensorName: firstStream.sensorName,
           startTime: startTimeLocal,
           endTime: endTimeLocal,
@@ -56,26 +56,7 @@ const selectIndoorSessionsList = (isDormant: boolean | null) =>
     }
   );
 
-const selectIndoorSessionPointsBySessionId = (sessionId: number | null) =>
-  createSelector(
-    [selectIndoorSessionsState],
-    (indoorSessionsState): IndoorSession[] => {
-      const indoorSessionByStreamId = indoorSessionsState.sessions.find(
-        (session) => Number(session.id) === Number(sessionId)
-      );
-
-      return [
-        {
-          id: indoorSessionByStreamId?.id || 0,
-          lastMeasurementValue:
-            indoorSessionByStreamId?.lastMeasurementValue || 0,
-        },
-      ];
-    }
-  );
-
 export {
-  selectIndoorSessionPointsBySessionId,
   selectIndoorSessionsList,
   selectIndoorSessionsPoints,
   selectIndoorSessionsState,

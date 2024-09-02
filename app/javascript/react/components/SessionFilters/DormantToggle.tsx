@@ -2,8 +2,6 @@ import React, { useCallback, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 
 import {
-  selectActiveFixedSessionsState,
-  selectDormantFixedSessionsState,
   selectIsActiveSessionsFetched,
   selectIsDormantSessionsFetched,
 } from "../../store/fixedSessionsSelectors";
@@ -40,8 +38,8 @@ const DormantToggle = () => {
     selectIsDormantSessionsFetched
   );
   const isActiveSessionsFetched = useAppSelector(selectIsActiveSessionsFetched);
-  const dormatFixedSessions = useAppSelector(selectDormantFixedSessionsState);
-  const activeFixedSessions = useAppSelector(selectActiveFixedSessionsState);
+  // const dormatFixedSessions = useAppSelector(selectDormantFixedSessionsState);
+  // const activeFixedSessions = useAppSelector(selectActiveFixedSessionsState);
 
   const isFiltersViewActive = currentUserSettings === UserSettings.FiltersView;
 

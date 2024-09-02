@@ -140,11 +140,11 @@ const Map = () => {
 
   const fetchingData = useAppSelector(selectFetchingData);
   const fixedSessionsType = useAppSelector(selectFixedSessionsType);
-  const fixedPoints = sessionId
-    ? useAppSelector(
-        selectFixedSessionPointsBySessionId(fixedSessionsType, sessionId)
-      )
-    : useAppSelector(selectFixedSessionsPoints(fixedSessionsType));
+  const fixedPoints = useAppSelector((state) =>
+    sessionId
+      ? selectFixedSessionPointsBySessionId(state, fixedSessionsType, sessionId)
+      : selectFixedSessionsPoints(state, fixedSessionsType)
+  );
 
   const fixedSessionsStatusFulfilled = useAppSelector(
     selectFixedSessionsStatusFulfilled
@@ -165,14 +165,20 @@ const Map = () => {
   const isDormant = useAppSelector(selectIsDormantSessionsType);
 
   const fixedSessionTypeSelected: boolean = sessionType === SessionTypes.FIXED;
-  const listSessions = useAppSelector(
-    fixedSessionTypeSelected
-      ? isIndoorParameterInUrl
-        ? selectIndoorSessionsList(isDormant)
-        : selectFixedSessionsList(fixedSessionsType)
-      : selectMobileSessionsList
-  );
-
+  const listSessions = useAppSelector((state) => {
+    if (fixedSessionTypeSelected) {
+      if (isIndoorParameterInUrl) {
+        // Call the factory function with the `isDormant` parameter
+        return selectIndoorSessionsList(isDormant)(state);
+      } else {
+        // Call the factory function with the `fixedSessionsType` parameter
+        return selectFixedSessionsList(state, fixedSessionsType);
+      }
+    } else {
+      // Directly use the selector for mobile sessions
+      return selectMobileSessionsList(state);
+    }
+  });
   const fetchableIndoorSessionsCount = listSessions.length;
 
   const fetchableSessionsCount = useMemo(() => {
