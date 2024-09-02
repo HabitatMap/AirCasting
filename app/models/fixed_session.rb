@@ -47,11 +47,11 @@ class FixedSession < Session
   end
 
   def generate_link(stream)
-    threshold_min = stream.threshold_set.threshold_very_low
-    threshold_low = stream.threshold_set.threshold_low
-    threshold_middle = stream.threshold_set.threshold_medium
-    threshold_high = stream.threshold_set.threshold_high
-    threshold_max = stream.threshold_set.threshold_very_high
+    threshold_min = stream.threshold_set.threshold_very_low.to_i
+    threshold_low = stream.threshold_set.threshold_low.to_i
+    threshold_middle = stream.threshold_set.threshold_medium.to_i
+    threshold_high = stream.threshold_set.threshold_high.to_i
+    threshold_max = stream.threshold_set.threshold_very_high.to_i
 
     session_id = stream.session_id
     stream_id = stream.id
@@ -76,7 +76,7 @@ class FixedSession < Session
     )
   end
 
-
+                        /#?sessionId=1852929&streamId=2499069&thresholdMin=0.0&thresholdLow=12.0&thresholdMiddle=35.0&thresholdHigh=55.0&thresholdMax=150.0&currentUserSettings=MODAL_VIEW&mapType=hybrid&sessionType=fixed&measurementType=Particulate+Matter&sensorName=AirBeam3-PM2.5&unitSymbol=%25C2%25B5g%252Fm%25C2%25B3
   # http://172.104.20.165/?sessionId=1850290&streamId=2496390&thresholdMin=0&thresholdLow=9&thresholdMiddle=35&thresholdHigh=55&thresholdMax=150&currentUserSettings=MODAL_VIEW&mapType=hybrid&sessionType=fixed&measurementType=Particulate+Matter&sensorName=Government-PM2.5&unitSymbol=%C2%B5g%2Fm%C2%B3
 
   def is_active
