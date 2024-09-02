@@ -34,27 +34,27 @@ const selectIndoorSessionsPoints = createSelector(
     )
 );
 
-const selectIndoorSessionsList = createSelector(
-  [selectIndoorSessionsState],
-  (indoorSessionsState): SessionList[] => {
-    return indoorSessionsState.sessions.map(
-      ({ id, title, startTimeLocal, endTimeLocal, streams }) => {
-        const firstStream = streams[Object.keys(streams)[0]];
+const selectIndoorSessionsList = (isDormant: boolean | null) =>
+  createSelector(
+    [selectIndoorSessionsState],
+    (indoorSessionsState): SessionList[] => {
+      return indoorSessionsState.sessions
+        .filter((session) => session.isActive === !isDormant)
+        .map(({ id, title, startTimeLocal, endTimeLocal, streams }) => {
+          const firstStream = streams[Object.keys(streams)[0]];
 
-        return {
-          id,
-          title,
-          sensorName: firstStream.sensorName,
-          averageValue: firstStream.streamDailyAverage,
-          startTime: startTimeLocal,
-          endTime: endTimeLocal,
-          streamId: firstStream.id,
-        };
-      }
-    );
-  }
-);
-
+          return {
+            id,
+            title,
+            sensorName: firstStream.sensorName,
+            averageValue: firstStream.streamDailyAverage,
+            startTime: startTimeLocal,
+            endTime: endTimeLocal,
+            streamId: firstStream.id,
+          };
+        });
+    }
+  );
 const selectIndoorSessionPointsBySessionId = (sessionId: number | null) =>
   createSelector(
     [selectIndoorSessionsState],

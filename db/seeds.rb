@@ -29,19 +29,19 @@ unless session
       threshold_high: 55,
       threshold_very_high: 150,
       unit_symbol: 'µg/m³',
-      sensor_name: 'PurpleAir-PM2.5',
+      sensor_name: 'Government-PM2.5',
     )
 
   stream =
     Stream.create!(
       session: s,
-      sensor_name: 'PurpleAir-PM2.5',
+      sensor_name: 'Government-PM2.5',
       unit_name: 'microgram per cubic meter',
       measurement_type: 'Particulate Matter',
       measurement_short_type: 'PM',
       unit_symbol: 'µg/m³',
       threshold_set_id: threshold_set.id,
-      sensor_package_name: 'PurpleAir-PM2.5',
+      sensor_package_name: 'Government-PM2.5',
       measurements_count: 20,
       average_value: 10.5,
     )

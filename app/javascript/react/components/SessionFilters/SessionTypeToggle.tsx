@@ -76,6 +76,14 @@ const SessionTypeToggle = () => {
           key: UrlParamsTypes.unitSymbol,
           value: UnitSymbols.ParticulateMatter,
         },
+        {
+          key: UrlParamsTypes.usernames,
+          value: "",
+        },
+        {
+          key: UrlParamsTypes.tags,
+          value: "",
+        },
       ]);
     },
     [searchParams]

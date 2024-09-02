@@ -91,7 +91,6 @@ const SessionsListTile: React.FC<SessionListTile> = ({
             <S.Subtitle>avg. {averageValue}</S.Subtitle>
           )}
         </S.HorizontalGroup>
-        )
         <S.ArrowImageContainer>
           <img src={rightVector} alt={t("map.altDirect")} />
         </S.ArrowImageContainer>

@@ -180,15 +180,16 @@ const Map = () => {
   const currentTimestamp = useAppSelector(selectCurrentTimestamp);
 
   const fixedSessionTypeSelected: boolean = sessionType === SessionTypes.FIXED;
+  const isDormant = useAppSelector(selectIsDormantSessionsType);
+
   const listSessions = useAppSelector(
     fixedSessionTypeSelected
       ? isIndoorParameterInUrl
-        ? selectIndoorSessionsList
+        ? selectIndoorSessionsList(isDormant)
         : selectFixedSessionsList(fixedSessionsType)
       : selectMobileSessionsList
   );
 
-  const isDormant = useAppSelector(selectIsDormantSessionsType);
   const sessionsPoints = fixedSessionTypeSelected ? fixedPoints : mobilePoints;
 
   const memoizedTimelapseData = useMemo(() => timelapseData, [timelapseData]);
@@ -241,10 +242,6 @@ const Map = () => {
       isIndoorParameterInUrl,
     ]
   );
-
-  useEffect(() => {
-    console.log("zmiana list sessions");
-  }, [listSessions]);
 
   const indoorSessionsFilters = useMemo(
     () =>
@@ -843,7 +840,8 @@ const Map = () => {
               handleMarkerClick(streamId, id);
             }}
             onCellMouseEnter={(id) => {
-              setPulsatingSessionId(id);
+              console.log(id);
+              // setPulsatingSessionId(id);
             }}
             onCellMouseLeave={() => {
               setPulsatingSessionId(null);
