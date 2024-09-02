@@ -30,55 +30,72 @@ class Api::ToActiveSessionsJson
   def build_json_output(anonymous = false)
     sessions = formatted_sessions
     streams = Stream.where(session_id: sessions.pluck('sessions.id'))
-    selected_sensor_streams = streams.select { |stream| Sensor.sensor_name(data[:sensor_name]).include? stream.sensor_name.downcase }
+    selected_sensor_streams =
+      streams.select do |stream|
+        Sensor.sensor_name(data[:sensor_name]).include? stream.sensor_name
+                                       .downcase
+      end
 
-    sessions_array = sessions.map do |session|
-      related_stream = selected_sensor_streams.find { |stream| stream.session_id == session.id }
-      last_average_value = StreamDailyAveragesRepository.new.last_average_value(related_stream.id)
+    sessions_array =
+      sessions.map do |session|
+        related_stream =
+          selected_sensor_streams.find do |stream|
+            stream.session_id == session.id
+          end
+        last_average_value =
+          StreamDailyAveragesRepository.new.last_average_value(
+            related_stream.id,
+          )
 
-      {
-        'id' => session.id,
-        'uuid' => session.uuid,
-        'end_time_local' => session.end_time_local.strftime('%Y-%m-%dT%H:%M:%S.%LZ'),
-        'start_time_local' => session.start_time_local.strftime('%Y-%m-%dT%H:%M:%S.%LZ'),
-        'last_measurement_value' => related_stream&.average_value&.round,
-        'is_indoor' => session.is_indoor,
-        'latitude' => session.latitude,
-        'longitude' => session.longitude,
-        'title' => session.title,
-        'username' => anonymous ? 'anonymous' : session.user.username,
-        'streams' => {
-          related_stream.sensor_name => {
-            'measurement_short_type' => related_stream.measurement_short_type,
-            'sensor_name' => related_stream.sensor_name,
-            'unit_symbol' => related_stream.unit_symbol,
-            'id' => related_stream.id,
-            'stream_daily_average' => last_average_value&.round || 'no data',
-          }
+        {
+          'id' => session.id,
+          'uuid' => session.uuid,
+          'end_time_local' =>
+            session.end_time_local.strftime('%Y-%m-%dT%H:%M:%S.%LZ'),
+          'start_time_local' =>
+            session.start_time_local.strftime('%Y-%m-%dT%H:%M:%S.%LZ'),
+          'last_measurement_value' => related_stream&.average_value&.round,
+          'is_indoor' => session.is_indoor,
+          'latitude' => session.latitude,
+          'longitude' => session.longitude,
+          'title' => session.title,
+          'username' => anonymous ? 'anonymous' : session.user.username,
+          'is_active' => session.is_active,
+          'streams' => {
+            related_stream.sensor_name => {
+              'measurement_short_type' => related_stream.measurement_short_type,
+              'sensor_name' => related_stream.sensor_name,
+              'unit_symbol' => related_stream.unit_symbol,
+              'id' => related_stream.id,
+              'stream_daily_average' => last_average_value&.round || 'no data',
+            },
+          },
         }
-      }
-    end
+      end
 
     {
       'fetchableSessionsCount' => sessions.length,
-      'sessions' => sessions_array
+      'sessions' => sessions_array,
     }
   end
 
   def formatted_sessions
-    sessions.select([
-      'sessions.id',
-      'sessions.uuid',
-      'sessions.title',
-      'sessions.start_time_local',
-      'sessions.end_time_local',
-      '(SELECT average_value FROM streams WHERE streams.session_id = sessions.id LIMIT 1)',
-      'sessions.is_indoor',
-      'sessions.latitude',
-      'sessions.longitude',
-      'users.username',
-      'sessions.user_id',
-    ])
+    sessions.select(
+      [
+        'sessions.id',
+        'sessions.uuid',
+        'sessions.title',
+        'sessions.start_time_local',
+        'sessions.end_time_local',
+        '(SELECT average_value FROM streams WHERE streams.session_id = sessions.id LIMIT 1)',
+        'sessions.is_indoor',
+        'sessions.latitude',
+        'sessions.longitude',
+        'users.username',
+        'sessions.user_id',
+        'sessions.last_measurement_at',
+      ],
+    )
   end
 
   def sessions
