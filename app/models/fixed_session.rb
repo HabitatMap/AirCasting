@@ -59,21 +59,23 @@ class FixedSession < Session
     sensor_name = stream.sensor_name
     unit_symbol = stream.unit_symbol
 
-    Rails.application.routes.url_helpers.root_path(
-      anchor: "?sessionId=#{session_id}" \
-              "&streamId=#{stream_id}" \
-              "&thresholdMin=#{threshold_min}" \
-              "&thresholdLow=#{threshold_low}" \
-              "&thresholdMiddle=#{threshold_middle}" \
-              "&thresholdHigh=#{threshold_high}" \
-              "&thresholdMax=#{threshold_max}" \
-              "&currentUserSettings=MODAL_VIEW" \
-              "&mapType=hybrid" \
-              "&sessionType=fixed" \
-              "&measurementType=#{CGI.escape(measurement_type)}" \
-              "&sensorName=#{CGI.escape(sensor_name)}" \
-              "&unitSymbol=#{CGI.escape(unit_symbol)}"
-    )
+    query_string = {
+      sessionId: session_id,
+      streamId: stream_id,
+      thresholdMin: threshold_min,
+      thresholdLow: threshold_low,
+      thresholdMiddle: threshold_middle,
+      thresholdHigh: threshold_high,
+      thresholdMax: threshold_max,
+      currentUserSettings: 'MODAL_VIEW',
+      mapType: 'hybrid',
+      sessionType: 'fixed',
+      measurementType: CGI.escape(measurement_type),
+      sensorName: CGI.escape(sensor_name),
+      unitSymbol: CGI.escape(unit_symbol)
+    }.to_query
+
+    "#{Rails.application.routes.url_helpers.fixed_map_path}?#{query_string}"
   end
 
   # http://172.104.20.165/?sessionId=1850290&streamId=2496390&thresholdMin=0&thresholdLow=9&thresholdMiddle=35&thresholdHigh=55&thresholdMax=150&currentUserSettings=MODAL_VIEW&mapType=hybrid&sessionType=fixed&measurementType=Particulate+Matter&sensorName=Government-PM2.5&unitSymbol=%C2%B5g%2Fm%C2%B3
