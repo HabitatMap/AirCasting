@@ -71,8 +71,8 @@ class FixedSession < Session
       mapType: 'hybrid',
       sessionType: 'fixed',
       measurementType: CGI.escape(measurement_type),
-      sensorName: CGI.escape(sensor_name),
-      unitSymbol: CGI.escape(unit_symbol)
+      sensorName: sensor_name,
+      unitSymbol: URI.encode_www_form_component(unit_symbol),
     }
 
     query_string = encoded_params.map { |k, v| "#{k}=#{v}" }.join("&")
@@ -82,7 +82,7 @@ class FixedSession < Session
 
 
   # http://172.104.20.165/?sessionId=1850290&streamId=2496390&thresholdMin=0&thresholdLow=9&thresholdMiddle=35&thresholdHigh=55&thresholdMax=150&currentUserSettings=MODAL_VIEW&mapType=hybrid&sessionType=fixed&measurementType=Particulate+Matter&sensorName=Government-PM2.5&unitSymbol=%C2%B5g%2Fm%C2%B3
-                          # /?sessionId=1852929&streamId=2499069&thresholdMin=0&thresholdLow=12&thresholdMiddle=35&thresholdHigh=55&thresholdMax=150&currentUserSettings=MODAL_VIEW&mapType=hybrid&sessionType=fixed&measurementType=Particulate+Matter&sensorName=AirBeam3-PM2.5&unitSymbol=%C2%B5g%2Fm%C2%B3
+                       # /?sessionId=1852929&streamId=2499069&thresholdMin=0&thresholdLow=12&thresholdMiddle=35&thresholdHigh=55&thresholdMax=150&currentUserSettings=MODAL_VIEW&mapType=hybrid&sessionType=fixed&measurementType=Particulate+Matter&sensorName=AirBeam3-PM2.5&unitSymbol=%C2%B5g%2Fm%C2%B3
   def is_active
     last_measurement_at > (Time.current - ACTIVE_FOR)
   end
