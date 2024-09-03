@@ -1,6 +1,7 @@
 import styled, { keyframes } from "styled-components";
 import { blue, gray300, gray400, white } from "../../assets/styles/colors";
 import { Button } from "../../components/Button/Button.style";
+import { media } from "../../utils/media";
 
 const dotFlashing = keyframes`
   0% {
@@ -44,20 +45,31 @@ const ContentContainer = styled.div`
   align-items: center;
   gap: 1.5rem;
   color: ${gray300};
-  width: 50%;
+  width: 80%;
+
+  @media ${media.desktop} {
+    width: 50%;
+  }
 `;
 
 const Title = styled.h1`
-  font-size: 3rem;
+  font-size: 2rem;
   margin-bottom: 1.25rem;
   font-weight: 500;
   color: ${gray400};
+
+  @media ${media.desktop} {
+    font-size: 2.5rem;
+  }
 `;
 
 const Description = styled.p`
-  font-size: 1.6rem;
+  font-size: 1.4rem;
   line-height: 1.6;
   margin-bottom: 1.5rem;
+  @media ${media.desktop} {
+    font-size: 1.6rem;
+  }
 `;
 
 const BlueButton = styled(Button)`

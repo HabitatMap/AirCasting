@@ -16,7 +16,7 @@ const RedirectPage: React.FC<RedirectPageProps> = ({ children }) => {
 
   useEffect(() => {
     const timer = setTimeout(() => {
-      navigate(MAP_PAGE_PATH);
+      // navigate(MAP_PAGE_PATH);
     }, 10000);
 
     return () => clearTimeout(timer);
