@@ -181,16 +181,14 @@ const MobileSessionFilters = ({
                 <TagsInput />
               </>
             )}
-            {/* UNCOMMENT THESE BEFORE DEPLOY */}
-            {/* {fixedSessionsType && airBeamSensorNameSelected && (
+            {isFixedSessionTypeSelected && airBeamSensorNameSelected && (
               <IndoorOutdoorSwitch />
-            )} */}
-            {isFixedSessionTypeSelected && <IndoorOutdoorSwitch />}
+            )}
             {isFixedSessionTypeSelected && <DormantToggle />}
-            {!fixedSessionsType && <CrowdMapToggle />}
+            {!isFixedSessionTypeSelected && <CrowdMapToggle />}
           </S.ModalContent>
           <S.ShowSessionsButton onClick={onClose}>
-            {fixedSessionsType ? (
+            {isFixedSessionTypeSelected ? (
               <>
                 {t("filters.showSessions")} ({sessionsCount})
               </>
