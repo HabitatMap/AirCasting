@@ -4,7 +4,8 @@ interface ApiEndpoints {
   readonly exportSessionData: (sessionsIds: number[], email: string) => string;
   readonly fetchClusterData: (streamIds: string[]) => string;
   readonly fetchCrowdMap: (filters: string) => string;
-  readonly fetchFixedSessions: (filters: string) => string;
+  readonly fetchActiveFixedSessions: (filters: string) => string;
+  readonly fetchDormantFixedSessions: (filters: string) => string;
   readonly fetchFixedStreamById: (id: number) => string;
   readonly fetchMobileSessions: (filters: string) => string;
   readonly fetchMobileStreamById: (id: number) => string;
@@ -32,7 +33,10 @@ export const API_ENDPOINTS: ApiEndpoints = {
   fetchClusterData: (streamIds) =>
     `/fixed_region.json?stream_ids=${streamIds.join(",")}`,
   fetchCrowdMap: (filters) => `/averages2.json?q=${filters}`,
-  fetchFixedSessions: (filters) => `/fixed/active/sessions2.json?q=${filters}`,
+  fetchActiveFixedSessions: (filters) =>
+    `/fixed/active/sessions2.json?q=${filters}`,
+  fetchDormantFixedSessions: (filters) =>
+    `/fixed/dormant/sessions.json?q=${filters}`,
   fetchFixedStreamById: (id) => `/fixed_streams/${id}`,
   fetchMobileSessions: (filters) => `/mobile/sessions.json?q=${filters}`,
   fetchMobileStreamById: (id) => `/mobile/streams/${id}`,

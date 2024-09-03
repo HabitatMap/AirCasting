@@ -24,7 +24,8 @@ import {
 } from "../../store/fixedSessionsSelectors";
 import {
   cleanSessions,
-  fetchFixedSessions,
+  fetchActiveFixedSessions,
+  fetchDormantFixedSessions,
 } from "../../store/fixedSessionsSlice";
 import { fetchFixedStreamById } from "../../store/fixedStreamSlice";
 import { useAppDispatch, useAppSelector } from "../../store/hooks";
@@ -41,6 +42,11 @@ import { fetchMobileSessions } from "../../store/mobileSessionsSlice";
 import { selectMobileStreamPoints } from "../../store/mobileStreamSelectors";
 import { fetchMobileStreamById } from "../../store/mobileStreamSlice";
 import { fetchSensors } from "../../store/sensorsSlice";
+import {
+  FixedSessionsTypes,
+  selectFixedSessionsType,
+  selectIsDormantSessionsType,
+} from "../../store/sessionFiltersSlice";
 import {
   fetchThresholds,
   resetUserThresholds,
@@ -69,6 +75,7 @@ import { ThresholdsConfigurator } from "../ThresholdConfigurator/ThresholdConfig
 import { Legend } from "./Legend/Legend";
 import * as S from "./Map.style";
 import { CrowdMapMarkers } from "./Markers/CrowdMapMarkers";
+import { DormantMarkers } from "./Markers/DormantMarkers";
 import { FixedMarkers } from "./Markers/FixedMarkers";
 import { MobileMarkers } from "./Markers/MobileMarkers";
 import { StreamMarkers } from "./Markers/StreamMarkers";
@@ -130,9 +137,47 @@ const Map = () => {
   const fetchableFixedSessionsCount = useAppSelector(
     (state: RootState) => state.fixedSessions.fetchableSessionsCount
   );
-  const fetchableIndoorSessionsCount = useAppSelector(
-    (state: RootState) => state.indoorSessions.fetchableSessionsCount
+
+  const fetchingData = useAppSelector(selectFetchingData);
+  const fixedSessionsType = useAppSelector(selectFixedSessionsType);
+  const fixedPoints = useAppSelector((state) =>
+    sessionId
+      ? selectFixedSessionPointsBySessionId(state, fixedSessionsType, sessionId)
+      : selectFixedSessionsPoints(state, fixedSessionsType)
   );
+
+  const fixedSessionsStatusFulfilled = useAppSelector(
+    selectFixedSessionsStatusFulfilled
+  );
+
+  const selectorsLoading = useAppSelector(selectIsLoading);
+  const markersLoading = useAppSelector(selectMarkersLoading);
+  const mapId = useAppSelector((state: RootState) => state.map.mapId);
+  const mobilePoints = sessionId
+    ? useAppSelector(selectMobileSessionPointsBySessionId(sessionId))
+    : useAppSelector(selectMobileSessionsPoints);
+  const mobileStreamPoints = useAppSelector(selectMobileStreamPoints);
+  const realtimeMapUpdates = useAppSelector(
+    (state: RootState) => state.realtimeMapUpdates.realtimeMapUpdates
+  );
+  const timelapseData = useAppSelector(selectTimelapseData);
+  const currentTimestamp = useAppSelector(selectCurrentTimestamp);
+  const isDormant = useAppSelector(selectIsDormantSessionsType);
+
+  const fixedSessionTypeSelected: boolean = sessionType === SessionTypes.FIXED;
+  const listSessions = useAppSelector((state) => {
+    if (fixedSessionTypeSelected) {
+      if (isIndoorParameterInUrl) {
+        return selectIndoorSessionsList(isDormant)(state);
+      } else {
+        return selectFixedSessionsList(state, fixedSessionsType);
+      }
+    } else {
+      return selectMobileSessionsList(state);
+    }
+  });
+  const fetchableIndoorSessionsCount = listSessions.length;
+
   const fetchableSessionsCount = useMemo(() => {
     return sessionType === SessionTypes.FIXED
       ? isIndoorParameterInUrl
@@ -147,34 +192,6 @@ const Map = () => {
     isIndoorParameterInUrl,
   ]);
 
-  const fetchingData = useAppSelector(selectFetchingData);
-  const fixedPoints = sessionId
-    ? useAppSelector(selectFixedSessionPointsBySessionId(sessionId))
-    : useAppSelector(selectFixedSessionsPoints);
-  const fixedSessionsStatusFulfilled = useAppSelector(
-    selectFixedSessionsStatusFulfilled
-  );
-  const selectorsLoading = useAppSelector(selectIsLoading);
-  const markersLoading = useAppSelector(selectMarkersLoading);
-  const mapId = useAppSelector((state: RootState) => state.map.mapId);
-  const mobilePoints = sessionId
-    ? useAppSelector(selectMobileSessionPointsBySessionId(sessionId))
-    : useAppSelector(selectMobileSessionsPoints);
-  const mobileStreamPoints = useAppSelector(selectMobileStreamPoints);
-  const realtimeMapUpdates = useAppSelector(
-    (state: RootState) => state.realtimeMapUpdates.realtimeMapUpdates
-  );
-  const timelapseData = useAppSelector(selectTimelapseData);
-  const currentTimestamp = useAppSelector(selectCurrentTimestamp);
-
-  const fixedSessionTypeSelected: boolean = sessionType === SessionTypes.FIXED;
-  const listSessions = useAppSelector(
-    fixedSessionTypeSelected
-      ? isIndoorParameterInUrl
-        ? selectIndoorSessionsList
-        : selectFixedSessionsList
-      : selectMobileSessionsList
-  );
   const sessionsPoints = fixedSessionTypeSelected ? fixedPoints : mobilePoints;
 
   const memoizedTimelapseData = useMemo(() => timelapseData, [timelapseData]);
@@ -188,7 +205,7 @@ const Map = () => {
 
   const isTimelapseView = currentUserSettings === UserSettings.TimelapseView;
 
-  const isTimelapseDisabled = listSessions.length === 0;
+  const isTimelapseDisabled = listSessions.length === 0 || isDormant;
 
   const zoomLevel = !Number.isNaN(currentZoom) ? Math.round(currentZoom) : 5;
 
@@ -284,7 +301,11 @@ const Map = () => {
               fetchIndoorSessions({ filters: indoorSessionsFilters })
             ).unwrap();
           } else {
-            dispatch(fetchFixedSessions({ filters })).unwrap();
+            if (fixedSessionsType === FixedSessionsTypes.ACTIVE) {
+              dispatch(fetchActiveFixedSessions({ filters })).unwrap();
+            } else {
+              dispatch(fetchDormantFixedSessions({ filters })).unwrap();
+            }
           }
         } else {
           dispatch(fetchMobileSessions({ filters }))
@@ -596,7 +617,7 @@ const Map = () => {
 
   const openFilters = () => {
     fixedSessionTypeSelected
-      ? dispatch(fetchFixedSessions({ filters }))
+      ? dispatch(fetchActiveFixedSessions({ filters }))
       : dispatch(fetchMobileSessions({ filters }));
     goToUserSettings(UserSettings.FiltersView);
   };
@@ -647,11 +668,24 @@ const Map = () => {
         minZoom={MIN_ZOOM}
         isFractionalZoomEnabled={true}
       >
+        {fixedSessionsStatusFulfilled &&
+          fixedSessionTypeSelected &&
+          isDormant &&
+          !isIndoorParameterInUrl && (
+            <DormantMarkers
+              sessions={sessionsPoints}
+              onMarkerClick={handleMarkerClick}
+              selectedStreamId={streamId}
+              pulsatingSessionId={pulsatingSessionId}
+            />
+          )}
+
         {isTimelapseView
           ? renderTimelapseMarkers()
           : fixedSessionsStatusFulfilled &&
             fixedSessionTypeSelected &&
-            !isIndoorParameterInUrl && (
+            !isIndoorParameterInUrl &&
+            !isDormant && (
               <FixedMarkers
                 sessions={sessionsPoints}
                 onMarkerClick={handleMarkerClick}
@@ -659,6 +693,7 @@ const Map = () => {
                 pulsatingSessionId={pulsatingSessionId}
               />
             )}
+
         {!fixedSessionTypeSelected &&
           ([UserSettings.CrowdMapView].includes(currentUserSettings) ||
           ([UserSettings.CrowdMapView].includes(previousUserSettings) &&

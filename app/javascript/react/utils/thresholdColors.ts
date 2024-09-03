@@ -13,7 +13,7 @@ const COLORS_FOR_RANGES = (thresholdValues: Thresholds) => [
 
 const getColorForValue = (
   thresholdValues: Thresholds,
-  value: number | null
+  value: string | number | null
 ) => {
   const defaultColor = "transparent";
 

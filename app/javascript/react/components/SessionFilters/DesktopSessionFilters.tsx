@@ -4,6 +4,7 @@ import { SessionTypes } from "../../types/filters";
 import { SensorPrefix } from "../../types/sensors";
 import { useMapParams } from "../../utils/mapParamsHandler";
 import { CrowdMapToggle } from "./CrowdmapToggle";
+import { DormantToggle } from "./DormantToggle";
 import { IndoorOutdoorSwitch } from "./IndoorOutdoorSwitch";
 import { DesktopParameterFilter } from "./ParameterFilter";
 import { ProfileNamesInput } from "./ProfileNamesInput";
@@ -34,6 +35,7 @@ const DesktopSessionFilters = () => {
       {fixedSessionTypeSelected && airBeamSensorNameSelected && (
         <IndoorOutdoorSwitch />
       )}
+      {fixedSessionTypeSelected && <DormantToggle />}
       {!fixedSessionTypeSelected && <CrowdMapToggle />}
     </S.SessionFilters>
   );

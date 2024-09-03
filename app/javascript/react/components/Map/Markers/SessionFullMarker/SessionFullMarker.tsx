@@ -1,5 +1,7 @@
 import React from "react";
 
+import { useAppSelector } from "../../../../store/hooks";
+import { selectIsDormantSessionsType } from "../../../../store/sessionFiltersSlice";
 import {
   SelectedDataContainer,
   SelectedShadowCircle,
@@ -14,7 +16,7 @@ import {
 
 interface MarkerProps {
   color: string;
-  value: string;
+  value?: string;
   isSelected?: boolean;
   shouldPulse?: boolean;
   onClick?: () => void;
@@ -27,6 +29,8 @@ const SessionFullMarker = ({
   shouldPulse = false,
   onClick,
 }: MarkerProps) => {
+  const isDormant = useAppSelector(selectIsDormantSessionsType);
+
   if (isSelected) {
     return (
       <MarkerContainer onClick={onClick}>
@@ -43,7 +47,7 @@ const SessionFullMarker = ({
         <ShadowCircle color={color} $shouldPulse={shouldPulse} />
         <DataContainer>
           <MarkerCircle color={color} />
-          <MarkerText> {value}</MarkerText>
+          {!isDormant && <MarkerText> {value}</MarkerText>}
         </DataContainer>
       </MarkerContainer>
     );

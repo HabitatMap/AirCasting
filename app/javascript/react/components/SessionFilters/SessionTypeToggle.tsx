@@ -6,10 +6,12 @@ import pinIcon from "../../assets/icons/pin.svg";
 import { useAppDispatch } from "../../store/hooks";
 import { setFetchingData } from "../../store/mapSlice";
 import {
+  FixedSessionsTypes,
   setBasicParametersModalOpen,
   setBasicSensorsModalOpen,
   setCustomParametersModalOpen,
   setCustomSensorsModalOpen,
+  setFixedSessionsType,
 } from "../../store/sessionFiltersSlice";
 import { resetUserThresholds } from "../../store/thresholdSlice";
 import {
@@ -40,6 +42,7 @@ const SessionTypeToggle = () => {
       dispatch(setBasicSensorsModalOpen(false));
       dispatch(setCustomSensorsModalOpen(false));
       dispatch(setFetchingData(true));
+      dispatch(setFixedSessionsType(FixedSessionsTypes.ACTIVE));
       setUrlParams([
         {
           key: UrlParamsTypes.sessionType,
@@ -75,6 +78,14 @@ const SessionTypeToggle = () => {
         {
           key: UrlParamsTypes.unitSymbol,
           value: UnitSymbols.ParticulateMatter,
+        },
+        {
+          key: UrlParamsTypes.usernames,
+          value: "",
+        },
+        {
+          key: UrlParamsTypes.tags,
+          value: "",
         },
       ]);
     },

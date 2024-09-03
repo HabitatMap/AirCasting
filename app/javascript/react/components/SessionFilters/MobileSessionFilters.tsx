@@ -1,7 +1,10 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 
-import { selectFixedSessionsState } from "../../store/fixedSessionsSelectors";
+import {
+  selectActiveFixedSessionsState,
+  selectDormantFixedSessionsState,
+} from "../../store/fixedSessionsSelectors";
 import { useAppSelector } from "../../store/hooks";
 import { selectIndoorSessionsState } from "../../store/indoorSessionsSelectors";
 import { selectMobileSessionsState } from "../../store/mobileSessionsSelectors";
@@ -11,6 +14,8 @@ import {
   selectBasicSensorsModalOpen,
   selectCustomParametersModalOpen,
   selectCustomSensorsModalOpen,
+  selectFixedSessionsType,
+  selectIsDormantSessionsType,
 } from "../../store/sessionFiltersSlice";
 import { SessionTypes } from "../../types/filters";
 import { SensorPrefix } from "../../types/sensors";
@@ -19,6 +24,7 @@ import { CloseButton } from "../Map/Legend/Legend.style";
 import { CrowdMapToggle } from "./CrowdmapToggle";
 import { CustomParameterFilter } from "./CustomParameterFilter";
 import { CustomSensorFilter } from "./CustomSensorFilter";
+import { DormantToggle } from "./DormantToggle";
 import { IndoorOutdoorSwitch } from "./IndoorOutdoorSwitch";
 import {
   filterCustomParameters,
@@ -44,9 +50,15 @@ const MobileSessionFilters = ({
   onClose,
   fetchableSessionsCount,
 }: MobileSessionFiltersProps) => {
-  const fixedSessionsState = useAppSelector(selectFixedSessionsState);
   const indoorSessionsState = useAppSelector(selectIndoorSessionsState);
 
+  const dormantFixedSessionsState = useAppSelector(
+    selectDormantFixedSessionsState
+  );
+  const activeFixedSessionsState = useAppSelector(
+    selectActiveFixedSessionsState
+  );
+  const fixedSessionsType = useAppSelector(selectFixedSessionsType);
   const mobileSessionsState = useAppSelector(selectMobileSessionsState);
   const basicParametersModalOpen = useAppSelector(
     selectBasicParametersModalOpen
@@ -80,27 +92,35 @@ const MobileSessionFilters = ({
     sessionType
   );
 
-  const fixedSessionTypeSelected: boolean = sessionType === SessionTypes.FIXED;
   const isIndoorParameterInUrl = isIndoor === "true";
   const airBeamSensorNameSelected = sensorName.startsWith(SensorPrefix.AIR);
   const govermentSensorNameSelected = sensorName.startsWith(
     SensorPrefix.GOVERNMENT
   );
+  const isFixedSessionTypeSelected: boolean =
+    sessionType === SessionTypes.FIXED;
+  const isDormant = useAppSelector(selectIsDormantSessionsType);
 
   const sessionsCount = useMemo(() => {
     switch (sessionType) {
       case SessionTypes.FIXED:
         return isIndoorParameterInUrl
           ? indoorSessionsState.sessions.length
-          : fixedSessionsState.sessions.length;
+          : isDormant
+          ? dormantFixedSessionsState.length
+          : activeFixedSessionsState.length;
+
       case SessionTypes.MOBILE:
         return mobileSessionsState.sessions.length;
     }
   }, [
-    fixedSessionsState,
     mobileSessionsState,
     sessionType,
     indoorSessionsState,
+    dormantFixedSessionsState,
+    activeFixedSessionsState,
+    mobileSessionsState,
+    sessionType,
   ]);
 
   useEffect(() => {
@@ -161,13 +181,14 @@ const MobileSessionFilters = ({
                 <TagsInput />
               </>
             )}
-            {fixedSessionTypeSelected && airBeamSensorNameSelected && (
+            {isFixedSessionTypeSelected && airBeamSensorNameSelected && (
               <IndoorOutdoorSwitch />
             )}
-            {!fixedSessionTypeSelected && <CrowdMapToggle />}
+            {isFixedSessionTypeSelected && <DormantToggle />}
+            {!isFixedSessionTypeSelected && <CrowdMapToggle />}
           </S.ModalContent>
           <S.ShowSessionsButton onClick={onClose}>
-            {fixedSessionTypeSelected ? (
+            {isFixedSessionTypeSelected ? (
               <>
                 {t("filters.showSessions")} ({sessionsCount})
               </>

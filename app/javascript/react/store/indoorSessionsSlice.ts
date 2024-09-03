@@ -13,6 +13,7 @@ interface IndoorSession {
   startTimeLocal: string;
   lastMeasurementValue: number;
   isIndoor: boolean;
+  isActive: boolean;
   title: string;
   streams: {
     [key: string]: {

@@ -20,6 +20,7 @@ const IndoorOutdoorSwitch = () => {
         key: UrlParamsTypes.isIndoor,
         value: "true",
       },
+      { key: UrlParamsTypes.usernames, value: "" },
     ]);
   };
 

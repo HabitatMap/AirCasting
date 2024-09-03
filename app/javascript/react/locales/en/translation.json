@@ -189,9 +189,9 @@
 
     "crowdMapLabel": "crowd map",
     "crowdMapInfo": "The CrowdMap averages together all the measurements from all the sessions listed on the sessions list and displays these averages as colored grid cells. The color of each grid cell corresponds to the average intensity of all the measurements recorded in that area. Click on a grid cell to view the underlying data.",
-    "crowdMapToggleOn": "on",
-    "crowdMapToggleOff": "off",
     "crowdMapGridCellSizeHeader": "grid cell size",
+    "on": "on",
+    "off": "off",
 
     "parameterInfo": "The parameter field describes the broad category of environmental or physiological measurements being recorded. The AirCasting platform is device agnostic i.e. it will ingest and display data from any instrument that formats and communicates data according to our formatting and communications protocol.",
     "parameter": "parameter",
@@ -218,7 +218,9 @@
     "indoorInfo": "Outdoor sessions are recorded by instruments located outdoors. Indoor measurements are recorded by instruments located indoors. Indoor sessions do not include geocoordinates and are therefore not geolocated on the map.",
     "indoorMapInfo": "For privacy, indoor sessions aren't mapped.",
     "nonAirbeamIndoor": "Switch to an AirBeam sensor to display results.",
-    "indoorMapOverlay": "Indoor sessions aren't mapped."
+    "indoorMapOverlay": "Indoor sessions aren't mapped.",
+    "dormantToggleLabel": "dormant stations",
+    "dormantInfo": "Fixed sessions that have submitted a measurement in the past 24 hours are considered active. Fixed sessions that have not submitted measurements in the past 24 hours are considered dormant."
   },
   "timelapse": {
     "readOnly": "Close timelapse to interact with the map.",
