@@ -548,6 +548,10 @@ export const useMapParams = () => {
           key: UrlParamsTypes.unitSymbol,
           value: getSensorUnitSymbol(selectedSensorName, sensors),
         },
+        {
+          key: UrlParamsTypes.isIndoor,
+          value: "false",
+        },
       ]);
     },
     [currentUserSettings, setUrlParams]

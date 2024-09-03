@@ -90,8 +90,8 @@ const CrowdMapToggle = () => {
   return (
     <S.Wrapper>
       <S.SingleFilterWrapper>
-        <S.CrowdMapSettingsContainer $isCrowdMapActive={isCrowdMapActive}>
-          <S.CrowdMapToggleWrapper onClick={handleToggleClick}>
+        <S.ToggleSettingsContainer $isActive={isCrowdMapActive}>
+          <S.ToggleWrapper onClick={handleToggleClick}>
             <Toggle
               isChecked={isCrowdMapActive}
               onChange={handleToggleClick}
@@ -105,14 +105,14 @@ const CrowdMapToggle = () => {
                 {isCrowdMapActive ? t("filters.on") : t("filters.off")}
               </S.CrowdMapToggleOnOff>
             </S.CrowdMapToggleText>
-          </S.CrowdMapToggleWrapper>
+          </S.ToggleWrapper>
           {renderGridSize && (
             <S.CrowdMapGridSizeWrapper $isVisible={isCrowdMapActive}>
               {t("filters.crowdMapGridCellSizeHeader")}
               <CrowdMapGridSize />
             </S.CrowdMapGridSizeWrapper>
           )}
-        </S.CrowdMapSettingsContainer>
+        </S.ToggleSettingsContainer>
         <FilterInfoPopup filterTranslationLabel="filters.crowdMapInfo" />
       </S.SingleFilterWrapper>
     </S.Wrapper>

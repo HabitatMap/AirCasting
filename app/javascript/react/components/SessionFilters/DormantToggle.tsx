@@ -12,13 +12,16 @@ import {
   selectFixedSessionsType,
   setFixedSessionsType,
 } from "../../store/sessionFiltersSlice";
+import { useMapParams } from "../../utils/mapParamsHandler";
 import { Toggle } from "../Toggle/Toggle";
 import { FilterInfoPopup } from "./FilterInfoPopup";
 import * as S from "./SessionFilters.style";
+import { YearPickerButtons } from "./YearPickerButtons";
 
 const DormantToggle = () => {
   const { t } = useTranslation();
   const dispatch = useAppDispatch();
+  const { updateTime } = useMapParams();
 
   const [isDormant, setIsDormant] = useState(false);
   const fixedSessionType = useAppSelector(selectFixedSessionsType);
@@ -30,11 +33,18 @@ const DormantToggle = () => {
   const handleToggleClick = useCallback(() => {
     const newDormantState = !isDormant;
     setIsDormant(newDormantState);
-    newDormantState === true
-      ? dispatch(setFixedSessionsType(FixedSessionsTypes.DORMANT))
-      : dispatch(setFixedSessionsType(FixedSessionsTypes.ACTIVE));
-    (!isDormantSessionsFetched || !isActiveSessionsFetched) &&
+    const currentYear = new Date().getFullYear();
+
+    if (newDormantState === true) {
+      dispatch(setFixedSessionsType(FixedSessionsTypes.DORMANT));
+    } else {
+      updateTime(currentYear);
+      dispatch(setFixedSessionsType(FixedSessionsTypes.ACTIVE));
+    }
+
+    if (!isDormantSessionsFetched || !isActiveSessionsFetched) {
       dispatch(setFetchingData(true));
+    }
   }, [isDormant, isDormantSessionsFetched, isActiveSessionsFetched]);
 
   useEffect(() => {
@@ -44,8 +54,8 @@ const DormantToggle = () => {
   return (
     <S.Wrapper>
       <S.SingleFilterWrapper>
-        <S.CrowdMapSettingsContainer $isCrowdMapActive={false}>
-          <S.CrowdMapToggleWrapper onClick={handleToggleClick}>
+        <S.ToggleSettingsContainer $isActive={isDormant}>
+          <S.ToggleWrapper onClick={handleToggleClick}>
             <Toggle
               isChecked={isDormant}
               onChange={handleToggleClick}
@@ -59,8 +69,16 @@ const DormantToggle = () => {
                 {isDormant ? t("filters.on") : t("filters.off")}
               </S.CrowdMapToggleOnOff>
             </S.CrowdMapToggleText>
-          </S.CrowdMapToggleWrapper>
-        </S.CrowdMapSettingsContainer>
+          </S.ToggleWrapper>
+          {isDormant && (
+            <S.CrowdMapGridSizeWrapper $isVisible={isDormant}>
+              <S.DormantYearPickerWrapper>
+                {t("filters.yearPickerHeader")}
+                <YearPickerButtons />
+              </S.DormantYearPickerWrapper>
+            </S.CrowdMapGridSizeWrapper>
+          )}
+        </S.ToggleSettingsContainer>
         <FilterInfoPopup filterTranslationLabel="filters.dormantInfo" />
       </S.SingleFilterWrapper>
     </S.Wrapper>

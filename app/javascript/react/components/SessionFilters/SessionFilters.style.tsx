@@ -278,11 +278,11 @@ const SectionButton = styled(Button)<{ $isActive: boolean }>`
   height: 25px;
 `;
 
-const CrowdMapSettingsContainer = styled.div<{ $isCrowdMapActive: boolean }>`
+const ToggleSettingsContainer = styled.div<{ $isActive: boolean }>`
   display: grid;
   grid-template-columns: 1fr;
   grid-template-rows: auto auto;
-  grid-gap: ${({ $isCrowdMapActive }) => ($isCrowdMapActive ? "0.8rem" : "0")};
+  grid-gap: ${({ $isActive }) => ($isActive ? "0.8rem" : "0")};
   justify-content: center;
   align-items: center;
   border: 1px solid ${gray200};
@@ -292,7 +292,7 @@ const CrowdMapSettingsContainer = styled.div<{ $isCrowdMapActive: boolean }>`
   border-radius: 0.5rem;
 `;
 
-const CrowdMapToggleWrapper = styled.div`
+const ToggleWrapper = styled.div`
   display: grid;
   grid-template-columns: auto 1fr;
   grid-gap: 0.8rem;
@@ -633,15 +633,25 @@ const IndoorToggleInfoText = styled.span`
 const YearPickerWrapper = styled.div`
   border: 1px solid ${gray200};
   border-radius: 0.5rem;
-  color: ${gray300};
+  color: ${gray600};
   display: grid;
-  font-size: 1.4rem;
+  font-size: 1rem;
   grid-gap: 0.4rem;
   letter-spacing: 0.01em;
   overflow: hidden;
   padding: 1.1rem 1.6rem;
   text-transform: uppercase;
   width: 100%;
+`;
+
+const DormantYearPickerWrapper = styled(YearPickerWrapper)`
+  border-top: 1px solid ${gray200};
+  border-bottom: none;
+  border-left: none;
+  border-right: none;
+  border-radius: 0;
+  padding: 0.8rem 0 0 0;
+  font-size: 1rem;
 `;
 
 export {
@@ -655,10 +665,8 @@ export {
   ChevronIcon,
   CloseSelectedItemButton,
   CrowdMapGridSizeWrapper,
-  CrowdMapSettingsContainer,
   CrowdMapToggleOnOff,
   CrowdMapToggleText,
-  CrowdMapToggleWrapper,
   CustomParameter,
   CustomParameterItem,
   CustomParameterList,
@@ -668,6 +676,7 @@ export {
   CustomParameterWrapper,
   Description,
   DesktopCustomParameters,
+  DormantYearPickerWrapper,
   FiltersOptionButton,
   FiltersOptionHeading,
   FiltersOptionsWrapper,
@@ -709,6 +718,8 @@ export {
   Suggestion,
   SuggestionList,
   Tab,
+  ToggleSettingsContainer,
+  ToggleWrapper,
   Wrapper,
   YearPickerWrapper,
 };
