@@ -337,7 +337,7 @@ class Session < ApplicationRecord
       currentUserSettings: 'MODAL_VIEW',
       measurementType: CGI.escape(measurement_type),
       sensorName: 'AirBeam-PM2.5',
-      unitSymbol: 'µg%2Fm³&',
+      unitSymbol: 'µg%2Fm³',
       previousUserSettings: 'MAP_VIEW',
     }
 
@@ -350,7 +350,7 @@ class Session < ApplicationRecord
   # http://172.104.20.165/?sessionId=1852927&streamId=2499059&thresholdMin=0&thresholdLow=9&thresholdMiddle=35&thresholdHigh=55&thresholdMax=150&mapType=hybrid&sessionType=mobile&currentUserSettings=MODAL_VIEW&measurementType=Particulate+Matter&sensorName=AirBeamMini-PM2.5&unitSymbol=%C2%B5g%2Fm%C2%B3&previousUserSettings=MAP_VIEW&boundEast=19.926286943&     boundWest=19.92628832&        boundNorth=50.058210236&     boundSouth=50.058211089
 
 
-  # http://172.104.20.165/?sessionId=1849182&streamId=2495168&thresholdMin=0&thresholdLow=9 &thresholdMiddle=35&thresholdHigh=55&thresholdMax=150&currentUserSettings=MODAL_VIEW&sessionType=mobile&measurementType=Particulate+Matter&sensorName=AirBeam-PM2.5&unitSymbol=µg%2Fm³&          previousUserSettings=MAP_VIEW
-                      #  /?sessionId=1852928&streamId=2499063&thresholdMin=0&thresholdLow=12&thresholdMiddle=35&thresholdHigh=55&thresholdMax=150&sessionType=mobile&currentUserSettings=MODAL_VIEW&measurementType=Particulate+Matter&sensorName=AirBeam-PM2.5&unitSymbol=%C2%B5g%2Fm%C2%B3&previousUserSettings=MAP_VIEW
+  # http://172.104.20.165/?sessionId=1849182&streamId=2495168&thresholdMin=0&thresholdLow=9 &thresholdMiddle=35&thresholdHigh=55&thresholdMax=150&currentUserSettings=MODAL_VIEW&sessionType=mobile&measurementType=Particulate+Matter&sensorName=AirBeam-PM2.5&unitSymbol=µg%2Fm³&previousUserSettings=MAP_VIEW
+                      #  /?sessionId=1852928&streamId=2499063&thresholdMin=0&thresholdLow=12&thresholdMiddle=35&thresholdHigh=55&thresholdMax=150&sessionType=mobile&currentUserSettings=MODAL_VIEW&measurementType=Particulate+Matter&sensorName=AirBeam-PM2.5&unitSymbol=µg%2Fm³&&previousUserSettings=MAP_VIEW
 
 end
