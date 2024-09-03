@@ -333,17 +333,12 @@ class Session < ApplicationRecord
       thresholdMiddle: threshold_middle,
       thresholdHigh: threshold_high,
       thresholdMax: threshold_max,
-      mapType: 'hybrid',
       sessionType: session_type,
       currentUserSettings: 'MODAL_VIEW',
       measurementType: CGI.escape(measurement_type),
-      sensorName: sensor_name,
+      sensorName: 'AirBeam-PM2.5',
       unitSymbol: URI.encode_www_form_component(unit_symbol),
       previousUserSettings: 'MAP_VIEW',
-      boundEast: stream.min_longitude,
-      boundWest: stream.max_longitude,
-      boundNorth: stream.min_latitude,
-      boundSouth: stream.max_latitude,
     }
 
     query_string = encoded_params.map { |k, v| "#{k}=#{v}" }.join("&")
@@ -351,6 +346,9 @@ class Session < ApplicationRecord
     "#{Rails.application.routes.url_helpers.root_path}?#{query_string}"
   end
 
-  # http://172.104.20.165/?sessionId=1852927&streamId=2499059&thresholdMin=0&thresholdLow=9&thresholdMiddle=35&thresholdHigh=55&thresholdMax=150&mapType=hybrid&sessionType=mobile&currentUserSettings=MODAL_VIEW&measurementType=Particulate+Matter&sensorName=AirBeamMini-PM2.5&unitSymbol=%C2%B5g%2Fm%C2%B3&previousUserSettings=MAP_VIEW&boundEast=55.568060492875674&boundNorth=61.456797776580416&boundSouth=32.83744464634837&boundWest=-28.806933151241683&currentCenter=%7B%22lat%22%3A49.16326969802269%2C%22lng%22%3A13.380563670816986%7D&currentZoom=5&fetchedSessions=8&previousCenter=%7B%22lat%22%3A49.16326969802269%2C%22lng%22%3A13.380563670816986%7D
-  # http://172.104.20.165/?sessionId=1852927&streamId=2499059&thresholdMin=0&thresholdLow=9&thresholdMiddle=35&thresholdHigh=55&thresholdMax=150&mapType=hybrid&sessionType=mobile&currentUserSettings=MODAL_VIEW&measurementType=Particulate+Matter&sensorName=AirBeamMini-PM2.5&unitSymbol=%C2%B5g%2Fm%C2%B3&fetchedSessions=8
+  # http://172.104.20.165/?sessionId=1852927&streamId=2499059&thresholdMin=0&thresholdLow=9&thresholdMiddle=35&thresholdHigh=55&thresholdMax=150&mapType=hybrid&sessionType=mobile&currentUserSettings=MODAL_VIEW&measurementType=Particulate+Matter&sensorName=AirBeamMini-PM2.5&unitSymbol=%C2%B5g%2Fm%C2%B3&previousUserSettings=MAP_VIEW&boundEast=62.65529757975303&boundWest=-18.549665664866804&boundNorth=63.50758877911437&boundSouth=37.79560187903995&currentCenter=%7B%22lat%22%3A52.48445841177986%2C%22lng%22%3A22.052815957443116%7D&currentZoom=5.055247580796485&fetchedSessions=8&previousCenter=%7B%22lat%22%3A52.48445841177986%2C%22lng%22%3A22.052815957443116%7D&previousZoom=5.055247580796485
+  # http://172.104.20.165/?sessionId=1852927&streamId=2499059&thresholdMin=0&thresholdLow=9&thresholdMiddle=35&thresholdHigh=55&thresholdMax=150&mapType=hybrid&sessionType=mobile&currentUserSettings=MODAL_VIEW&measurementType=Particulate+Matter&sensorName=AirBeamMini-PM2.5&unitSymbol=%C2%B5g%2Fm%C2%B3&previousUserSettings=MAP_VIEW&boundEast=19.926286943&     boundWest=19.92628832&        boundNorth=50.058210236&     boundSouth=50.058211089
+
+
+  # http://172.104.20.165/?sessionId=1849182&streamId=2495168&thresholdMin=0&thresholdLow=9&thresholdMiddle=35&thresholdHigh=55&thresholdMax=150&previousUserSettings=MAP_VIEW&currentUserSettings=MODAL_VIEW&sessionType=mobile&measurementType=Particulate+Matter&unitSymbol=µg%2Fm³
 end
