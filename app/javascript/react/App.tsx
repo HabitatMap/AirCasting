@@ -14,7 +14,11 @@ import { Navbar } from "./components/Navbar";
 import { CalendarPage } from "./pages/CalendarPage/CalendarPage";
 import { MapPage } from "./pages/MapPage";
 import { NotFoundPage } from "./pages/NotFoundPage";
+import { RedirectPage } from "./pages/RedirectPage";
 import store from "./store/index";
+
+const MOBILE_MAP_PATH = "/mobile_map";
+const FIXED_MAP_PATH = "/fixed_map";
 
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -41,6 +45,14 @@ const router = createBrowserRouter(
           <NotFoundPage>
             <Navbar isMapPage={false} />
           </NotFoundPage>
+        }
+      />
+      <Route
+        path={`${MOBILE_MAP_PATH}|${FIXED_MAP_PATH}`}
+        element={
+          <RedirectPage>
+            <Navbar isMapPage={false} />
+          </RedirectPage>
         }
       />
     </>

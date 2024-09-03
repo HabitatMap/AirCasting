@@ -236,5 +236,9 @@
       "3days": "3 days",
       "24hours": "24 hours"
     }
+  },
+  "redirectPage": {
+    "header": "New Page",
+    "message": "The page you are looking for does not exist."
   }
 }
