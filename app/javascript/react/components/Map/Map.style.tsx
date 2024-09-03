@@ -23,25 +23,21 @@ const MobileContainer = styled.div`
   }
 `;
 
-const MobileButtons = styled.div<{ $isTimelapseView: boolean }>`
+const MobileButtons = styled.div<{
+  $isTimelapseView: boolean;
+}>`
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(0, 1fr));
   justify-items: center;
   align-items: center;
-  gap: 1rem;
+  gap: 0.4rem;
   position: fixed;
-  bottom: 0.1rem;
-  right: 1.4rem;
+  right: 0.3rem;
+  left: 0;
+  bottom: 0;
+  padding: 1rem 0.4rem;
   direction: rtl;
   z-index: ${(props) => (props.$isTimelapseView ? 3 : 2)};
-
-  @media (min-width: 390px) {
-    right: 3.5rem;
-  }
-
-  @media (${media.smallDesktop}) {
-    right: 0.4rem;
-  }
 `;
 
 const ThresholdContainer = styled.div`
@@ -54,7 +50,6 @@ const ThresholdContainer = styled.div`
   width: 100%;
   bottom: 0;
 
-  z-index: 1;
   background-color: ${colors.white};
   box-shadow: 2px 2px 4px 0px ${colors.gray900};
 
@@ -62,6 +57,7 @@ const ThresholdContainer = styled.div`
     height: 4.7rem;
     margin-bottom: 0;
     grid-template-columns: 1fr;
+    z-index: 1;
   }
 
   @media (min-width: 769px) and (max-width: 1023px) {
@@ -71,6 +67,7 @@ const ThresholdContainer = styled.div`
     margin-bottom: 0;
     align-items: center;
     grid-gap: 0.5rem;
+    z-index: 1;
   }
 
   @media (${media.desktop}) {

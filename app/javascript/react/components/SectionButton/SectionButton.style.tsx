@@ -10,7 +10,6 @@ const StyledSectionButton = styled.button<{
   background-color: ${(props) => (props.$isActive ? blue : white)};
   border-radius: 1rem;
   box-shadow: 0 0.4rem 0.8rem rgba(0, 0, 0, 0.1);
-  margin-bottom: 0.4rem;
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
@@ -33,7 +32,6 @@ const StyledSectionButton = styled.button<{
     pointer-events: none;`}
 
   @media (min-width: 390px) {
-    width: 8.5rem;
     padding: 0;
   }
 `;

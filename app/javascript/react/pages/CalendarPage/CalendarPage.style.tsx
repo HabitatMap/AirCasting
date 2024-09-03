@@ -1,6 +1,6 @@
 import styled from "styled-components";
 
-import { gray100, gray400, white, red } from "../../assets/styles/colors";
+import { gray100, gray400, red, white } from "../../assets/styles/colors";
 import { NAVBAR_HEIGHT } from "../../components/Navbar/Navbar.style";
 import { H3 } from "../../components/Typography";
 import { media } from "../../utils/media";
