@@ -49,4 +49,8 @@ class FixedSession < Session
   def is_active
     last_measurement_at > (Time.current - ACTIVE_FOR)
   end
+
+  def generate_link(stream)
+    super
+  end
 end

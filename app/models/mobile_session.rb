@@ -10,4 +10,8 @@ class MobileSession < Session
   def fixed?
     false
   end
+
+  def generate_link(stream)
+    super
+  end
 end
