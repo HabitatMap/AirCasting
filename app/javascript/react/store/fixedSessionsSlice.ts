@@ -75,9 +75,7 @@ const createSessionFetchThunk = (
     async (sessionsData, { rejectWithValue }) => {
       try {
         const response: AxiosResponse<SessionsResponse, Error> =
-          await oldApiClient.get(
-            API_ENDPOINTS.fetchActiveFixedSessions(sessionsData.filters)
-          );
+          await oldApiClient.get(endpoint(sessionsData.filters));
 
         return response.data;
       } catch (error) {
