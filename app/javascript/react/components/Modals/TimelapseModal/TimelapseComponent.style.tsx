@@ -93,6 +93,8 @@ const AlertInfo = styled.span`
   padding: 0;
   text-align: center;
   line-height: 1.8rem;
+  align-items: center;
+  display: flex;
   @media ${media.smallDesktop} {
     font-size: 1.4rem;
   }

@@ -221,7 +221,7 @@
     "indoorMapOverlay": "Indoor sessions aren't mapped."
   },
   "timelapse": {
-    "readOnly": "This view is read-only. You can explore the map, but interaction is limited.",
+    "readOnly": "Close timelapse to interact with the map.",
     "altRewind": "Rewind icon",
     "altFastForward": "Fast forward icon",
     "altPlay": "Play icon",

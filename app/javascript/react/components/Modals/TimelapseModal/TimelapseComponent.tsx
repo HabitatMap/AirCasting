@@ -19,7 +19,6 @@ import {
   selectTimelapseTimeRange,
 } from "../../../store/timelapseSelectors";
 import { filterTimestamps } from "../../../utils/filterTimelapseData";
-import { useAutoDismissAlert } from "../../../utils/useAutoDismissAlert";
 import NavigationButtons from "./NavigationButtons";
 import TimeAxis from "./TimeAxis";
 import * as S from "./TimelapseComponent.style";
@@ -108,7 +107,7 @@ const TimelapseComponent: React.FC<
     [overlayRef]
   );
 
-  useAutoDismissAlert(showReadOnlyPopup, setShowReadOnlyPopup);
+  // useAutoDismissAlert(showReadOnlyPopup, setShowReadOnlyPopup);
 
   useEffect(() => {
     document.addEventListener("mousedown", handleOverlayClick);
