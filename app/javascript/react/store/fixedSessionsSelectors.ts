@@ -38,21 +38,21 @@ const transformSessionData = (sessions: FixedSession[]) =>
       longitude,
       streams,
     }) => {
-      const firstStream = streams[Object.keys(streams)[0]];
+      const firstStream = streams[Object.keys(streams)[0]] || {};
       return {
         id,
         title,
-        sensorName: firstStream.sensorName,
+        sensorName: firstStream?.sensorName || "",
         lastMeasurementValue,
         startTime: startTimeLocal,
         endTime: endTimeLocal,
-        averageValue: firstStream.streamDailyAverage,
+        averageValue: firstStream.streamDailyAverage || 0,
         point: {
           lat: latitude,
           lng: longitude,
-          streamId: firstStream.id.toString(),
+          streamId: firstStream.id.toString() || "0",
         },
-        streamId: firstStream.id,
+        streamId: firstStream.id || 0,
       };
     }
   );
@@ -70,10 +70,14 @@ const selectSessionsByType = createSelector(
   }
 );
 
-const selectFixedSessionsPoints = createSelector(
+const selectTransformedSessionsByType = createSelector(
   [selectSessionsByType],
-  (sessions): Session[] => {
-    const transformedSessions = transformSessionData(sessions);
+  (sessions) => transformSessionData(sessions)
+);
+
+const selectFixedSessionsPoints = createSelector(
+  [selectTransformedSessionsByType],
+  (transformedSessions): Session[] => {
     return transformedSessions.map(
       ({
         id,
@@ -97,9 +101,8 @@ const selectFixedSessionsPoints = createSelector(
 );
 
 const selectFixedSessionsList = createSelector(
-  [selectSessionsByType],
-  (sessions): SessionList[] => {
-    const transformedSessions = transformSessionData(sessions);
+  [selectTransformedSessionsByType],
+  (transformedSessions): SessionList[] => {
     return transformedSessions.map(
       ({
         id,

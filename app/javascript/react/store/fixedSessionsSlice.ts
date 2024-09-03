@@ -7,6 +7,7 @@ import { oldApiClient } from "../api/apiClient";
 import { API_ENDPOINTS } from "../api/apiEndpoints";
 import { StatusEnum } from "../types/api";
 import { getErrorMessage } from "../utils/getErrorMessage";
+import { FixedSessionsTypes } from "./sessionFiltersSlice";
 
 export interface FixedSession {
   id: number;
@@ -59,62 +60,49 @@ const initialState: SessionsState = {
   error: undefined,
 };
 
-export const fetchActiveFixedSessions = createAsyncThunk<
-  SessionsResponse,
-  SessionsData,
-  { rejectValue: string }
->(
-  "sessions/fetchActiveFixedSessions",
-  async (sessionsData, { rejectWithValue }) => {
-    try {
-      const response: AxiosResponse<SessionsResponse, Error> =
-        await oldApiClient.get(
-          API_ENDPOINTS.fetchActiveFixedSessions(sessionsData.filters)
-        );
+const createSessionFetchThunk = (
+  type: FixedSessionsTypes,
+  endpoint: (filters: string) => string
+) => {
+  return createAsyncThunk<
+    SessionsResponse,
+    SessionsData,
+    { rejectValue: string }
+  >(
+    `sessions/fetch${
+      type.charAt(0).toUpperCase() + type.slice(1)
+    }FixedSessions`,
+    async (sessionsData, { rejectWithValue }) => {
+      try {
+        const response: AxiosResponse<SessionsResponse, Error> =
+          await oldApiClient.get(
+            API_ENDPOINTS.fetchActiveFixedSessions(sessionsData.filters)
+          );
 
-      return response.data;
-    } catch (error) {
-      const message = getErrorMessage(error);
-      return rejectWithValue(message);
-    }
-  },
-  {
-    condition: (_, { getState }) => {
-      const { fixedSessions } = getState() as RootState;
-      if (fixedSessions.status === StatusEnum.Pending) {
-        return false;
+        return response.data;
+      } catch (error) {
+        const message = getErrorMessage(error);
+        return rejectWithValue(message);
       }
     },
-  }
+    {
+      condition: (_, { getState }) => {
+        const { fixedSessions } = getState() as RootState;
+        if (fixedSessions.status === StatusEnum.Pending) {
+          return false;
+        }
+      },
+    }
+  );
+};
+
+export const fetchActiveFixedSessions = createSessionFetchThunk(
+  FixedSessionsTypes.ACTIVE,
+  API_ENDPOINTS.fetchActiveFixedSessions
 );
-
-export const fetchDormantFixedSessions = createAsyncThunk<
-  SessionsResponse,
-  SessionsData,
-  { rejectValue: string }
->(
-  "sessions/fetchDormantFixedSessions",
-  async (sessionsData, { rejectWithValue }) => {
-    try {
-      const response: AxiosResponse<SessionsResponse, Error> =
-        await oldApiClient.get(
-          API_ENDPOINTS.fetchDormantFixedSessions(sessionsData.filters)
-        );
-
-      return response.data;
-    } catch (error) {
-      const message = getErrorMessage(error);
-      return rejectWithValue(message);
-    }
-  },
-  {
-    condition: (_, { getState }) => {
-      const { fixedSessions } = getState() as RootState;
-      if (fixedSessions.status === StatusEnum.Pending) {
-        return false;
-      }
-    },
-  }
+export const fetchDormantFixedSessions = createSessionFetchThunk(
+  FixedSessionsTypes.DORMANT,
+  API_ENDPOINTS.fetchDormantFixedSessions
 );
 
 const fixedSessionsSlice = createSlice({

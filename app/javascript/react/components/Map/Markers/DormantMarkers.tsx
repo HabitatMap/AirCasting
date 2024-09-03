@@ -97,7 +97,7 @@ const DormantMarkers = ({
         centerMapOnMarker(s.point, s.point.streamId);
       }
     }
-  }, [sessions]);
+  }, [sessions, selectedStreamId]);
 
   useEffect(() => {
     dispatch(setMarkersLoading(true));
@@ -122,10 +122,6 @@ const DormantMarkers = ({
     }
   }, [dispatch, markersCount, sessions.length]);
 
-  useEffect(() => {
-    map && map.addListener("zoom_changed", handleMapInteraction);
-  }, [map, dispatch]);
-
   useMapEventListeners(map, {
     click: () => {
       handleMapInteraction();
@@ -134,6 +130,9 @@ const DormantMarkers = ({
       handleMapInteraction();
     },
     dragstart: () => {
+      handleMapInteraction();
+    },
+    zoom_changed: () => {
       handleMapInteraction();
     },
   });

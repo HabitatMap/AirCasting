@@ -6,7 +6,7 @@ import { RootState } from "./";
 // Add selectors for each relevant slice
 const selectFixedStreamLoading = (state: RootState) =>
   state.fixedStream.status === StatusEnum.Pending;
-const selectfixedSessionsLoading = (state: RootState) =>
+const selectFixedSessionsLoading = (state: RootState) =>
   state.fixedSessions.status === StatusEnum.Pending;
 export const selectMobileSessionsLoading = (state: RootState) =>
   state.mobileSessions.status === StatusEnum.Pending;
@@ -21,7 +21,7 @@ const selectCrowdMapLoading = (state: RootState) =>
 export const selectIsLoading = createSelector(
   [
     selectFixedStreamLoading,
-    selectfixedSessionsLoading,
+    selectFixedSessionsLoading,
     selectMobileSessionsLoading,
     selectMobileStreamLoading,
     selectTimelapseLoading,
