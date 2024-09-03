@@ -219,7 +219,8 @@
     "indoorMapInfo": "For privacy, indoor sessions aren't mapped.",
     "nonAirbeamIndoor": "Switch to an AirBeam sensor to display results.",
     "indoorMapOverlay": "Indoor sessions aren't mapped.",
-    "dormantToggleLabel": "dormant stations"
+    "dormantToggleLabel": "dormant stations",
+    "dormantInfo": "Fixed sessions that have submitted a measurement in the past 24 hours are considered active. Fixed sessions that have not submitted measurements in the past 24 hours are considered dormant."
   },
   "timelapse": {
     "readOnly": "Close timelapse to interact with the map.",

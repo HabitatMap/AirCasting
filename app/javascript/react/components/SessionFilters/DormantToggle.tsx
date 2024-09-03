@@ -61,7 +61,7 @@ const DormantToggle = () => {
             </S.CrowdMapToggleText>
           </S.CrowdMapToggleWrapper>
         </S.CrowdMapSettingsContainer>
-        <FilterInfoPopup filterTranslationLabel="filters.crowdMapInfo" />
+        <FilterInfoPopup filterTranslationLabel="filters.dormantInfo" />
       </S.SingleFilterWrapper>
     </S.Wrapper>
   );
