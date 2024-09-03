@@ -44,7 +44,7 @@ const TagsInput = () => {
       south: boundSouth.toString(),
       north: boundNorth.toString(),
       timeFrom: "1685318400",
-      timeTo: "1717027199",
+      timeTo: "1725407999",
       usernames: usernames,
       sensorName: sensorName,
       unitSymbol: preparedUnitSymbol,
