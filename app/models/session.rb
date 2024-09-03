@@ -339,10 +339,18 @@ class Session < ApplicationRecord
       measurementType: CGI.escape(measurement_type),
       sensorName: sensor_name,
       unitSymbol: URI.encode_www_form_component(unit_symbol),
+      previousUserSettings: 'MAP_VIEW',
+      boundEast: stream.min_longitude,
+      boundWest: stream.max_longitude,
+      boundNorth: stream.min_latitude,
+      boundSouth: stream.max_latitude,
     }
 
     query_string = encoded_params.map { |k, v| "#{k}=#{v}" }.join("&")
 
     "#{Rails.application.routes.url_helpers.root_path}?#{query_string}"
   end
+
+  # http://172.104.20.165/?sessionId=1852927&streamId=2499059&thresholdMin=0&thresholdLow=9&thresholdMiddle=35&thresholdHigh=55&thresholdMax=150&mapType=hybrid&sessionType=mobile&currentUserSettings=MODAL_VIEW&measurementType=Particulate+Matter&sensorName=AirBeamMini-PM2.5&unitSymbol=%C2%B5g%2Fm%C2%B3&previousUserSettings=MAP_VIEW&boundEast=55.568060492875674&boundNorth=61.456797776580416&boundSouth=32.83744464634837&boundWest=-28.806933151241683&currentCenter=%7B%22lat%22%3A49.16326969802269%2C%22lng%22%3A13.380563670816986%7D&currentZoom=5&fetchedSessions=8&previousCenter=%7B%22lat%22%3A49.16326969802269%2C%22lng%22%3A13.380563670816986%7D
+  # http://172.104.20.165/?sessionId=1852927&streamId=2499059&thresholdMin=0&thresholdLow=9&thresholdMiddle=35&thresholdHigh=55&thresholdMax=150&mapType=hybrid&sessionType=mobile&currentUserSettings=MODAL_VIEW&measurementType=Particulate+Matter&sensorName=AirBeamMini-PM2.5&unitSymbol=%C2%B5g%2Fm%C2%B3&fetchedSessions=8
 end
