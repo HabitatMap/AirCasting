@@ -316,7 +316,14 @@ class Session < ApplicationRecord
     stream_id = stream.id
     measurement_type = stream.measurement_type
     sensor_name = stream.sensor_name
-    unit_symbol = stream.unit_symbol
+    unit_symbol = stream.unit_symbo
+    session_type =
+      case stream.session.type
+      when 'MobileSession'
+        'mobile'
+      when 'FixedSession'
+        'fixed'
+      end
 
     encoded_params = {
       sessionId: session_id,
@@ -327,7 +334,7 @@ class Session < ApplicationRecord
       thresholdHigh: threshold_high,
       thresholdMax: threshold_max,
       mapType: 'hybrid',
-      sessionType: 'mobile',
+      sessionType: session_type,
       currentUserSettings: 'MODAL_VIEW',
       measurementType: CGI.escape(measurement_type),
       sensorName: sensor_name,
