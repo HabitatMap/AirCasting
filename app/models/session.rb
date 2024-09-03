@@ -336,8 +336,7 @@ class Session < ApplicationRecord
       currentUserSettings: 'MODAL_VIEW',
       sessionType: session_type,
       measurementType: CGI.escape(measurement_type),
-      sensorName: 'AirBeam-PM2.5',
-      unitSymbol: 'µg%2Fm³',
+      sensorName: stream.sensor_name,
       previousUserSettings: 'MAP_VIEW',
     }
 
