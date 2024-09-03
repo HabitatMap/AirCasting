@@ -4,19 +4,28 @@ module Timelapse
       @measurements_repository = MeasurementsRepository.new
     end
 
-    def call (cluster:, beginning_of_time_slice:, end_of_time_slice:)
-      cluster_id, stream_ids = cluster
+    def call (clusters:)
+      result = {}
 
-      return { cluster_id => { time: end_of_time_slice, value: nil } } if stream_ids.nil? || stream_ids.empty?
+      clusters.each do |cluster|
+        averages =
+          measurements_repository.streams_averages_hourly_last_7_days(
+            stream_ids: cluster[:stream_ids],
+          )
 
-      averages =
-        measurements_repository.streams_averages_from_period(
-          stream_ids: stream_ids,
-          start_date: beginning_of_time_slice,
-          end_date: end_of_time_slice
-        )
+        averages.each do |average|
+          result[average[:time]] ||= []
+          result[average[:time]] <<
+            {
+              "value" => average[:value],
+              "latitude" => cluster[:latitude],
+              "longitude" => cluster[:longitude],
+              "sessions" => cluster[:session_count]
+            }
+        end
+      end
 
-      { cluster_id => averages }
+      result
     end
 
     private

@@ -28,6 +28,7 @@ module Api::FixedSessions
       optional(:north).filled(:number?)
       optional(:limit).filled(:int?)
       optional(:offset).filled(:int?)
+      optional(:zoom_level).filled(:int?)
     end
 
   class Struct < Dry::Struct
@@ -47,5 +48,6 @@ module Api::FixedSessions
     attribute :north, Types::Coercible::Float.meta(omittable: true)
     attribute :limit, Types::Coercible::Integer.meta(omittable: true)
     attribute :offset, Types::Coercible::Integer.meta(omittable: true)
+    attribute :zoom_level, Types::Coercible::Integer.meta(omittable: true)
   end
 end

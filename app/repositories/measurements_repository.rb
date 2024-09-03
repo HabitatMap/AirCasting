@@ -14,7 +14,10 @@ class MeasurementsRepository
       .average(:value)
   end
 
-  def streams_averages_from_period(stream_ids:, start_date:, end_date:)
+  def streams_averages_hourly_last_7_days(stream_ids:)
+    end_date = Time.current.end_of_hour - 1.hour
+    start_date = end_date.beginning_of_hour - 7.days
+
     ActiveRecord::Base.connection.execute(
       "
         SELECT (DATE_TRUNC('hour', time_with_time_zone) + INTERVAL '1 hour') AS hour, AVG(value) AS average_value
