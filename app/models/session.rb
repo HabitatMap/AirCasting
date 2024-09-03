@@ -316,7 +316,7 @@ class Session < ApplicationRecord
     stream_id = stream.id
     measurement_type = stream.measurement_type
     sensor_name = stream.sensor_name
-    unit_symbol = stream.unit_symbo
+    unit_symbol = stream.unit_symbol
     session_type =
       case stream.session.type
       when 'MobileSession'
