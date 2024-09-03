@@ -1,13 +1,8 @@
 import React, { useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
-
-import {
-  ContentContainer,
-  Description,
-  PageContainer,
-  Title,
-} from "./RedirectPage.style";
+import * as S from "./RedirectPage.style";
+import Title from "./Title";
 
 interface RedirectPageProps {
   children: React.ReactNode;
@@ -22,7 +17,7 @@ const RedirectPage: React.FC<RedirectPageProps> = ({ children }) => {
   useEffect(() => {
     const timer = setTimeout(() => {
       navigate(MAP_PAGE_PATH);
-    }, 5000);
+    }, 10000);
 
     return () => clearTimeout(timer);
   }, [navigate]);
@@ -31,12 +26,15 @@ const RedirectPage: React.FC<RedirectPageProps> = ({ children }) => {
     <>
       {children}
 
-      <PageContainer>
-        <ContentContainer>
-          <Title>{t("redirectPage.header")}</Title>
-          <Description>{t("redirectPage.message")} </Description>
-        </ContentContainer>
-      </PageContainer>
+      <S.PageContainer>
+        <S.ContentContainer>
+          <Title />
+          <S.Description>{t("redirectPage.message")} </S.Description>
+          <S.BlueButton onClick={() => navigate(MAP_PAGE_PATH)}>
+            {t("redirectPage.button")}
+          </S.BlueButton>
+        </S.ContentContainer>
+      </S.PageContainer>
     </>
   );
 };

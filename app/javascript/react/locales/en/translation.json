@@ -238,7 +238,8 @@
     }
   },
   "redirectPage": {
-    "header": "New Page",
-    "message": "The page you are looking for does not exist."
+    "header": "Redirecting to the new AirCasting map",
+    "message": "We have launched a brand-new version of our map with improved features and a better user experience! You will be automatically redirected to the new site in a few seconds. If the redirection does not happen, please click button to go to the new version. Thank you for your understanding and enjoy exploring our updated map!",
+    "button": "Go to the new map"
   }
 }
