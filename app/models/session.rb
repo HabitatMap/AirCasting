@@ -333,8 +333,8 @@ class Session < ApplicationRecord
       thresholdMiddle: threshold_middle,
       thresholdHigh: threshold_high,
       thresholdMax: threshold_max,
-      sessionType: session_type,
       currentUserSettings: 'MODAL_VIEW',
+      sessionType: session_type,
       measurementType: CGI.escape(measurement_type),
       sensorName: 'AirBeam-PM2.5',
       unitSymbol: 'µg%2Fm³',
@@ -351,6 +351,6 @@ class Session < ApplicationRecord
 
 
   # http://172.104.20.165/?sessionId=1849182&streamId=2495168&thresholdMin=0&thresholdLow=9 &thresholdMiddle=35&thresholdHigh=55&thresholdMax=150&currentUserSettings=MODAL_VIEW&sessionType=mobile&measurementType=Particulate+Matter&sensorName=AirBeam-PM2.5&unitSymbol=µg%2Fm³&previousUserSettings=MAP_VIEW
-                      #  /?sessionId=1852928&streamId=2499063&thresholdMin=0&thresholdLow=12&thresholdMiddle=35&thresholdHigh=55&thresholdMax=150&sessionType=mobile&currentUserSettings=MODAL_VIEW&measurementType=Particulate+Matter&sensorName=AirBeam-PM2.5&unitSymbol=µg%2Fm³&&previousUserSettings=MAP_VIEW
+                      #  /?sessionId=1852928&streamId=2499063&thresholdMin=0&thresholdLow=12&thresholdMiddle=35&thresholdHigh=55&thresholdMax=150&sessionType=mobile&currentUserSettings=MODAL_VIEW&measurementType=Particulate+Matter&sensorName=AirBeam-PM2.5&unitSymbol=µg%2Fm³&previousUserSettings=MAP_VIEW
 
 end
