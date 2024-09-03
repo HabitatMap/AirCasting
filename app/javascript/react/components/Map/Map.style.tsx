@@ -32,7 +32,7 @@ const MobileButtons = styled.div<{
   align-items: center;
   gap: 0.4rem;
   position: fixed;
-  right: 0.3rem;
+  right: 0;
   left: 0;
   bottom: 0;
   padding: 1rem 0.4rem;
