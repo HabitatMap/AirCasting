@@ -342,7 +342,7 @@ class Session < ApplicationRecord
       sensorName: 'AirBeam-PM2.5',
       unitSymbol: 'µg%2Fm³',
       previousUserSettings: 'MAP_VIEW',
-      currentZoom: 5.055247580796485,
+      currentZoom: 12,
       currentCenter: encoded_current_center,  # Use the encoded JSON string here
     }
 
