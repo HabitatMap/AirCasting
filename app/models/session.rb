@@ -339,6 +339,8 @@ class Session < ApplicationRecord
       sensorName: 'AirBeam-PM2.5',
       unitSymbol: 'µg%2Fm³',
       previousUserSettings: 'MAP_VIEW',
+      currentZoom: 5.055247580796485,
+      currentCenter: { lat: 52.48445841177986, lng: 22.052815957443116 },
     }
 
     query_string = encoded_params.map { |k, v| "#{k}=#{v}" }.join("&")
@@ -351,6 +353,6 @@ class Session < ApplicationRecord
 
 
   # http://172.104.20.165/?sessionId=1849182&streamId=2495168&thresholdMin=0&thresholdLow=9 &thresholdMiddle=35&thresholdHigh=55&thresholdMax=150&currentUserSettings=MODAL_VIEW&sessionType=mobile&measurementType=Particulate+Matter&sensorName=AirBeam-PM2.5&unitSymbol=µg%2Fm³&previousUserSettings=MAP_VIEW
-                      #  /?sessionId=1852928&streamId=2499063&thresholdMin=0&thresholdLow=12&thresholdMiddle=35&thresholdHigh=55&thresholdMax=150&sessionType=mobile&currentUserSettings=MODAL_VIEW&measurementType=Particulate+Matter&sensorName=AirBeam-PM2.5&unitSymbol=µg%2Fm³&previousUserSettings=MAP_VIEW
+ #  http://172.104.20.165/?sessionId=1852928&streamId=2499063&thresholdMin=0&thresholdLow=12&thresholdMiddle=35&thresholdHigh=55&thresholdMax=150&currentUserSettings=MODAL_VIEW&sessionType=mobile&measurementType=Particulate+Matter&sensorName=AirBeam-PM2.5&unitSymbol=µg%2Fm³&previousUserSettings=MAP_VIEW
 
 end
