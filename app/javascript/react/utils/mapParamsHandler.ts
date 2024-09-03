@@ -1,6 +1,6 @@
 import { debounce } from "lodash";
 import { useCallback, useEffect, useMemo } from "react";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { useSearchParams } from "react-router-dom";
 
 import { MAP_CONFIGS } from "../components/Map/mapConfigs";
 import { defaultGridSize } from "../components/SessionFilters/CrowdMapGridSize";
@@ -87,8 +87,6 @@ export const useMapParams = () => {
     },
     [searchParams, setSearchParams]
   );
-
-  const navigate = useNavigate();
 
   const boundEast = parseFloat(
     getSearchParam(
@@ -435,6 +433,48 @@ export const useMapParams = () => {
     [searchParams]
   );
 
+  const updateIndoorFilters = useCallback(
+    (isIndoor: string) => {
+      if (isMobile) {
+        setUrlParams([
+          {
+            key: UrlParamsTypes.isIndoor,
+            value: isIndoor,
+          },
+          { key: UrlParamsTypes.usernames, value: "" },
+        ]);
+      } else {
+        setUrlParams([
+          {
+            key: UrlParamsTypes.isIndoor,
+            value: isIndoor,
+          },
+          { key: UrlParamsTypes.usernames, value: "" },
+          {
+            key: UrlParamsTypes.previousUserSettings,
+            value: currentUserSettings,
+          },
+          {
+            key: UrlParamsTypes.currentUserSettings,
+            value:
+              currentUserSettings === UserSettings.CrowdMapView
+                ? UserSettings.CrowdMapView
+                : UserSettings.MapView,
+          },
+          {
+            key: UrlParamsTypes.sessionId,
+            value: "",
+          },
+          {
+            key: UrlParamsTypes.streamId,
+            value: "",
+          },
+        ]);
+      }
+    },
+    [searchParams]
+  );
+
   const updateMeasurementType = useCallback(
     (selectedMeasurementType: ParameterType, sensors: Sensor[]) => {
       setUrlParams([
@@ -596,6 +636,7 @@ export const useMapParams = () => {
     updateFetchedSessions,
     updateLimit,
     updateOffset,
+    updateIndoorFilters,
     usernames,
   };
 };

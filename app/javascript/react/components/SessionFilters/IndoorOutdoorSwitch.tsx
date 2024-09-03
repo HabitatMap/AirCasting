@@ -3,30 +3,25 @@ import { useTranslation } from "react-i18next";
 
 import { useAppDispatch } from "../../store/hooks";
 import { setFetchingData } from "../../store/mapSlice";
-import { UrlParamsTypes, useMapParams } from "../../utils/mapParamsHandler";
+import { useMapParams } from "../../utils/mapParamsHandler";
 import { FilterInfoPopup } from "./FilterInfoPopup";
 import * as S from "./SessionFilters.style";
 
 const IndoorOutdoorSwitch = () => {
   const { t } = useTranslation();
-  const { isIndoor, setFilter, setUrlParams } = useMapParams();
+  const { isIndoor, setFilter, setUrlParams, updateIndoorFilters } =
+    useMapParams();
   const dispatch = useAppDispatch();
 
   const isIndoorParameterInUrl = isIndoor === "true";
 
   const handleIndoorClick = () => {
+    updateIndoorFilters("true");
     dispatch(setFetchingData(true));
-    setUrlParams([
-      {
-        key: UrlParamsTypes.isIndoor,
-        value: "true",
-      },
-      { key: UrlParamsTypes.usernames, value: "" },
-    ]);
   };
 
   const handleOutdoorClick = () => {
-    setFilter(UrlParamsTypes.isIndoor, "false");
+    updateIndoorFilters("false");
     dispatch(setFetchingData(true));
   };
 

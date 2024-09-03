@@ -62,6 +62,7 @@ import { SessionTypes } from "../../types/filters";
 import { SessionList } from "../../types/sessionType";
 import { UserSettings } from "../../types/userStates";
 import { UrlParamsTypes, useMapParams } from "../../utils/mapParamsHandler";
+import { useHandleScrollEnd } from "../../utils/scrollEnd";
 import useMobileDetection from "../../utils/useScreenSizeDetection";
 import { Loader } from "../Loader/Loader";
 import { SessionDetailsModal } from "../Modals/SessionDetailsModal";
@@ -414,40 +415,16 @@ const Map = () => {
     }
   }, [currentUserSettings, sessionsPoints]);
 
-  const handleScrollEnd = useCallback(() => {
-    const hasMoreSessions = listSessions.length < fetchableMobileSessionsCount;
-
-    if (hasMoreSessions) {
-      const newOffset = offset + listSessions.length;
-      updateOffset(newOffset);
-
-      const updatedFilters = {
-        ...JSON.parse(filters),
-        offset: newOffset,
-      };
-
-      dispatch(
-        fetchMobileSessions({
-          filters: JSON.stringify(updatedFilters),
-          isAdditional: true,
-        })
-      )
-        .unwrap()
-        .then((response) => {
-          const totalFetchedSessions =
-            listSessions.length + response.sessions.length;
-          updateFetchedSessions(totalFetchedSessions);
-        });
-    }
-  }, [
+  const handleScrollEnd = useHandleScrollEnd(
     offset,
-    listSessions.length,
-    fetchableMobileSessionsCount,
-    limit,
+    listSessions,
     updateOffset,
-    dispatch,
+    updateFetchedSessions,
     filters,
-  ]);
+    fetchableMobileSessionsCount,
+    fetchableFixedSessionsCount,
+    isDormant
+  );
 
   const handleMapIdle = useCallback(
     (event: MapEvent) => {
