@@ -325,6 +325,9 @@ class Session < ApplicationRecord
         'fixed'
       end
 
+    current_center_json = { lat: 52.48445841177986, lng: 22.052815957443116 }.to_json
+    encoded_current_center = CGI.escape(current_center_json)
+
     encoded_params = {
       sessionId: session_id,
       streamId: stream_id,
@@ -340,7 +343,7 @@ class Session < ApplicationRecord
       unitSymbol: 'µg%2Fm³',
       previousUserSettings: 'MAP_VIEW',
       currentZoom: 5.055247580796485,
-      currentCenter: { lat: 52.48445841177986, lng: 22.052815957443116 },
+      currentCenter: encoded_current_center,  # Use the encoded JSON string here
     }
 
     query_string = encoded_params.map { |k, v| "#{k}=#{v}" }.join("&")
