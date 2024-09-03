@@ -13,6 +13,7 @@ import {
   selectCustomSensorsModalOpen,
 } from "../../store/sessionFiltersSlice";
 import { SessionTypes } from "../../types/filters";
+import { SensorPrefix } from "../../types/sensors";
 import { useMapParams } from "../../utils/mapParamsHandler";
 import { CloseButton } from "../Map/Legend/Legend.style";
 import { CrowdMapToggle } from "./CrowdmapToggle";
@@ -81,7 +82,10 @@ const MobileSessionFilters = ({
 
   const fixedSessionTypeSelected: boolean = sessionType === SessionTypes.FIXED;
   const isIndoorParameterInUrl = isIndoor === "true";
-  const airBeamSensorNameSelected = sensorName.startsWith("Air");
+  const airBeamSensorNameSelected = sensorName.startsWith(SensorPrefix.AIR);
+  const govermentSensorNameSelected = sensorName.startsWith(
+    SensorPrefix.GOVERNMENT
+  );
 
   const sessionsCount = useMemo(() => {
     switch (sessionType) {
@@ -151,8 +155,12 @@ const MobileSessionFilters = ({
             <SessionTypeToggle />
             <ParameterFilter isBasicOpen={isBasicParametersModalOpen} />
             <SensorFilter isBasicOpen={isBasicSensorsModalOpen} />
-            <ProfileNamesInput />
-            <TagsInput />
+            {!govermentSensorNameSelected && (
+              <>
+                <ProfileNamesInput />
+                <TagsInput />
+              </>
+            )}
             {fixedSessionTypeSelected && airBeamSensorNameSelected && (
               <IndoorOutdoorSwitch />
             )}
