@@ -1,6 +1,7 @@
 import React from "react";
 
 import { SessionTypes } from "../../types/filters";
+import { SensorPrefix } from "../../types/sensors";
 import { useMapParams } from "../../utils/mapParamsHandler";
 import { CrowdMapToggle } from "./CrowdmapToggle";
 import { IndoorOutdoorSwitch } from "./IndoorOutdoorSwitch";
@@ -14,15 +15,22 @@ import { TagsInput } from "./TagsInput";
 const DesktopSessionFilters = () => {
   const { sessionType, sensorName } = useMapParams();
   const fixedSessionTypeSelected: boolean = sessionType === SessionTypes.FIXED;
-  const airBeamSensorNameSelected = sensorName.startsWith("Air");
+  const airBeamSensorNameSelected = sensorName.startsWith(SensorPrefix.AIR);
+  const govermentSensorNameSelected = sensorName.startsWith(
+    SensorPrefix.GOVERNMENT
+  );
 
   return (
     <S.SessionFilters>
       <SessionTypeToggle />
       <DesktopParameterFilter />
       <DesktopSensorFilter />
-      <ProfileNamesInput />
-      <TagsInput />
+      {!govermentSensorNameSelected && (
+        <>
+          <ProfileNamesInput />
+          <TagsInput />
+        </>
+      )}
       {fixedSessionTypeSelected && airBeamSensorNameSelected && (
         <IndoorOutdoorSwitch />
       )}

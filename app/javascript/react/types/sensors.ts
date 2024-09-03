@@ -41,3 +41,8 @@ export const BasicSensorTypes = {
   SOUND_LEVEL: SENSOR_NAMES.SOUND_LEVEL,
   TEMPERATURE: SENSOR_NAMES.TEMPERATURE,
 };
+
+export const SensorPrefix = {
+  AIR: "Air",
+  GOVERNMENT: "Government",
+};
