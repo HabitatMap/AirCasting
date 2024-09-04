@@ -16,7 +16,12 @@ import useMapEventListeners from "../../../utils/mapEventListeners";
 import HoverMarker from "./HoverMarker/HoverMarker";
 
 import { gray300 } from "../../../assets/styles/colors";
+import {
+  selectFixedStreamData,
+  selectFixedStreamStatus,
+} from "../../../store/fixedStreamSelectors";
 import { setMarkersLoading } from "../../../store/markersLoadingSlice";
+import { StatusEnum } from "../../../types/api";
 import type { LatLngLiteral } from "../../../types/googleMaps";
 import { SessionDotMarker } from "./SessionDotMarker/SessionDotMarker";
 
@@ -37,6 +42,8 @@ const DormantMarkers = ({
 
   const dispatch = useAppDispatch();
   const hoverStreamId = useAppSelector(selectHoverStreamId);
+  const fixedStreamStatus = useAppSelector(selectFixedStreamStatus);
+  const fixedStreamData = useAppSelector(selectFixedStreamData);
 
   const map = useMap();
 
@@ -57,7 +64,7 @@ const DormantMarkers = ({
   }>({});
 
   const centerMapOnMarker = useCallback(
-    (position: LatLngLiteral, streamId: string) => {
+    (position: LatLngLiteral) => {
       if (map && selectedStreamId) {
         map.setCenter(position);
         map.setZoom(ZOOM_FOR_SELECTED_SESSION);
@@ -89,15 +96,22 @@ const DormantMarkers = ({
   }, [dispatch]);
 
   useEffect(() => {
-    if (selectedStreamId) {
-      const s = sessions.find(
-        (session) => session?.point?.streamId === selectedStreamId?.toString()
-      );
-      if (s?.point) {
-        centerMapOnMarker(s.point, s.point.streamId);
+    const handleSelectedStreamId = (streamId: number | null) => {
+      if (!streamId || fixedStreamStatus === StatusEnum.Pending) return;
+      const { latitude, longitude } = fixedStreamData.stream;
+
+      if (latitude && longitude) {
+        const fixedStreamPosition = { lat: latitude, lng: longitude };
+        centerMapOnMarker(fixedStreamPosition);
+      } else {
+        console.error(
+          `Stream ID ${streamId} not found or missing latitude/longitude in fixedStream data.`
+        );
       }
-    }
-  }, [sessions, selectedStreamId]);
+    };
+
+    handleSelectedStreamId(selectedStreamId);
+  }, [selectedStreamId, fixedStreamData, fixedStreamStatus, centerMapOnMarker]);
 
   useEffect(() => {
     dispatch(setMarkersLoading(true));
@@ -154,7 +168,7 @@ const DormantMarkers = ({
             color={gray300}
             onClick={() => {
               onMarkerClick(Number(session.point.streamId), Number(session.id));
-              centerMapOnMarker(session.point, session.point.streamId);
+              centerMapOnMarker(session.point);
             }}
             shouldPulse={session.id === pulsatingSessionId}
           />

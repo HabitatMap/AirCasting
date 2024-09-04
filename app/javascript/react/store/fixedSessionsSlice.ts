@@ -1,7 +1,5 @@
-import { AxiosResponse } from "axios";
-
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-
+import { AxiosResponse } from "axios";
 import { RootState } from ".";
 import { oldApiClient } from "../api/apiClient";
 import { API_ENDPOINTS } from "../api/apiEndpoints";
@@ -48,6 +46,7 @@ interface SessionsState {
 
 export interface SessionsData {
   filters: string;
+  isAdditional?: boolean;
 }
 
 const initialState: SessionsState = {
@@ -86,9 +85,7 @@ const createSessionFetchThunk = (
     {
       condition: (_, { getState }) => {
         const { fixedSessions } = getState() as RootState;
-        if (fixedSessions.status === StatusEnum.Pending) {
-          return false;
-        }
+        return fixedSessions.status !== StatusEnum.Pending;
       },
     }
   );
@@ -98,9 +95,48 @@ export const fetchActiveFixedSessions = createSessionFetchThunk(
   FixedSessionsTypes.ACTIVE,
   API_ENDPOINTS.fetchActiveFixedSessions
 );
-export const fetchDormantFixedSessions = createSessionFetchThunk(
-  FixedSessionsTypes.DORMANT,
-  API_ENDPOINTS.fetchDormantFixedSessions
+
+export const fetchDormantFixedSessions = createAsyncThunk<
+  SessionsResponse,
+  SessionsData,
+  { rejectValue: string }
+>(
+  "sessions/fetchDormantFixedSessions",
+  async (sessionsData, { rejectWithValue, getState, dispatch }) => {
+    try {
+      const { filters, isAdditional } = sessionsData;
+      const response: AxiosResponse<SessionsResponse, Error> =
+        await oldApiClient.get(
+          API_ENDPOINTS.fetchDormantFixedSessions(filters)
+        );
+
+      const data = response.data;
+
+      if (isAdditional) {
+        // If more sessions are available, continue fetching
+        const state = getState() as RootState;
+        const currentDormantSessions = state.fixedSessions.dormantSessions;
+
+        if (
+          currentDormantSessions.length + data.sessions.length <
+          data.fetchableSessionsCount
+        ) {
+          dispatch(fetchDormantFixedSessions({ filters, isAdditional: true }));
+        }
+      }
+
+      return data;
+    } catch (error) {
+      const message = getErrorMessage(error);
+      return rejectWithValue(message);
+    }
+  },
+  {
+    condition: (_, { getState }) => {
+      const { fixedSessions } = getState() as RootState;
+      return fixedSessions.status !== StatusEnum.Pending;
+    },
+  }
 );
 
 const fixedSessionsSlice = createSlice({
@@ -138,7 +174,14 @@ const fixedSessionsSlice = createSlice({
       })
       .addCase(fetchDormantFixedSessions.fulfilled, (state, action) => {
         state.status = StatusEnum.Fulfilled;
-        state.dormantSessions = action.payload.sessions;
+        if (action.meta.arg.isAdditional) {
+          state.dormantSessions = [
+            ...state.dormantSessions,
+            ...action.payload.sessions,
+          ];
+        } else {
+          state.dormantSessions = action.payload.sessions;
+        }
         state.fetchableSessionsCount = action.payload.fetchableSessionsCount;
         state.isDormantSessionsFetched = true;
       })
@@ -150,5 +193,4 @@ const fixedSessionsSlice = createSlice({
 });
 
 export const { cleanSessions } = fixedSessionsSlice.actions;
-
 export default fixedSessionsSlice.reducer;

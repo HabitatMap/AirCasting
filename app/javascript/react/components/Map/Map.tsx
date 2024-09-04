@@ -62,6 +62,7 @@ import { SessionTypes } from "../../types/filters";
 import { SessionList } from "../../types/sessionType";
 import { UserSettings } from "../../types/userStates";
 import { UrlParamsTypes, useMapParams } from "../../utils/mapParamsHandler";
+import { useHandleScrollEnd } from "../../utils/scrollEnd";
 import useMobileDetection from "../../utils/useScreenSizeDetection";
 import { Loader } from "../Loader/Loader";
 import { SessionDetailsModal } from "../Modals/SessionDetailsModal";
@@ -91,9 +92,9 @@ const Map = () => {
     currentCenter,
     currentUserSettings,
     currentZoom,
-    debouncedUpdateURL,
     fetchedSessions,
     goToUserSettings,
+    isIndoor,
     limit,
     updateLimit,
     updateOffset,
@@ -110,11 +111,12 @@ const Map = () => {
     streamId,
     searchParams,
     tags,
+    timeFrom,
+    timeTo,
     initialThresholds,
     unitSymbol,
     updateFetchedSessions,
     usernames,
-    isIndoor,
   } = useMapParams();
   const isMobile = useMobileDetection();
   const navigate = useNavigate();
@@ -176,6 +178,7 @@ const Map = () => {
       return selectMobileSessionsList(state);
     }
   });
+
   const fetchableIndoorSessionsCount = listSessions.length;
 
   const fetchableSessionsCount = useMemo(() => {
@@ -212,8 +215,8 @@ const Map = () => {
   const filters = useMemo(
     () =>
       JSON.stringify({
-        time_from: "1692662400",
-        time_to: "1725407999",
+        time_from: timeFrom,
+        time_to: timeTo,
         tags: tagsDecoded,
         usernames: usernamesDecoded,
         west: boundWest,
@@ -234,22 +237,24 @@ const Map = () => {
       boundSouth,
       boundWest,
       encodedUnitSymbol,
+      isIndoorParameterInUrl,
       limit,
       measurementType,
       offset,
       sensorNamedDecoded,
       tagsDecoded,
+      timeFrom,
+      timeTo,
       usernamesDecoded,
       zoomLevel,
-      isIndoorParameterInUrl,
     ]
   );
 
   const indoorSessionsFilters = useMemo(
     () =>
       JSON.stringify({
-        time_from: "1693094400",
-        time_to: "1724803199",
+        time_from: timeFrom,
+        time_to: timeTo,
         tags: tagsDecoded,
         usernames: usernamesDecoded,
         is_indoor: true,
@@ -262,6 +267,8 @@ const Map = () => {
       measurementType,
       sensorNamedDecoded,
       tagsDecoded,
+      timeFrom,
+      timeTo,
       usernamesDecoded,
     ]
   );
@@ -409,40 +416,16 @@ const Map = () => {
     }
   }, [currentUserSettings, sessionsPoints]);
 
-  const handleScrollEnd = useCallback(() => {
-    const hasMoreSessions = listSessions.length < fetchableMobileSessionsCount;
-
-    if (hasMoreSessions) {
-      const newOffset = offset + listSessions.length;
-      updateOffset(newOffset);
-
-      const updatedFilters = {
-        ...JSON.parse(filters),
-        offset: newOffset,
-      };
-
-      dispatch(
-        fetchMobileSessions({
-          filters: JSON.stringify(updatedFilters),
-          isAdditional: true,
-        })
-      )
-        .unwrap()
-        .then((response) => {
-          const totalFetchedSessions =
-            listSessions.length + response.sessions.length;
-          updateFetchedSessions(totalFetchedSessions);
-        });
-    }
-  }, [
+  const handleScrollEnd = useHandleScrollEnd(
     offset,
-    listSessions.length,
-    fetchableMobileSessionsCount,
-    limit,
+    listSessions,
     updateOffset,
-    dispatch,
+    updateFetchedSessions,
     filters,
-  ]);
+    fetchableMobileSessionsCount,
+    fetchableFixedSessionsCount,
+    isDormant
+  );
 
   const handleMapIdle = useCallback(
     (event: MapEvent) => {
@@ -490,13 +473,7 @@ const Map = () => {
         }
       }
     },
-    [
-      currentUserSettings,
-      debouncedUpdateURL,
-      mapInstance,
-      searchParams,
-      dispatch,
-    ]
+    [currentUserSettings, mapInstance, searchParams, dispatch]
   );
 
   const handleMarkerClick = (

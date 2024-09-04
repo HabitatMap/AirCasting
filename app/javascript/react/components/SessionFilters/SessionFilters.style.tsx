@@ -248,8 +248,7 @@ const CrowdMapGridSizeWrapper = styled.div<{ $isVisible: boolean }>`
   letter-spacing: 0.01em;
 
   overflow: hidden;
-  max-height: ${({ $isVisible }) =>
-    $isVisible ? "33rem" : "0"}; /* Match the value in animation */
+  max-height: ${({ $isVisible }) => ($isVisible ? "33rem" : "0")};
   animation: ${({ $isVisible }) => ($isVisible ? fadeIn : fadeOut)} 0.5s ease
     forwards;
   opacity: ${({ $isVisible }) => ($isVisible ? 1 : 0)};
@@ -258,14 +257,14 @@ const CrowdMapGridSizeWrapper = styled.div<{ $isVisible: boolean }>`
   transition: max-height 1s ease, opacity 0.5s ease, transform 0.5s ease;
 `;
 
-const CrowdMapGridButtonsContainer = styled.div`
+const SectionButtonsContainer = styled.div`
   display: grid;
   grid-template-columns: repeat(5, 1fr);
   justify-content: space-between;
   grid-gap: 0.8rem;
 `;
 
-const CrowdGridSizeButton = styled(Button)<{ $isActive: boolean }>`
+const SectionButton = styled(Button)<{ $isActive: boolean }>`
   display: flex;
   justify-content: center;
   align-items: center;
@@ -275,13 +274,14 @@ const CrowdGridSizeButton = styled(Button)<{ $isActive: boolean }>`
   color: ${(props) => (props.$isActive ? white : gray300)};
   min-width: 3.8rem;
   transition: background-color 0.4s ease, color 0.3s ease;
+  height: 25px;
 `;
 
-const CrowdMapSettingsContainer = styled.div<{ $isCrowdMapActive: boolean }>`
+const ToggleSettingsContainer = styled.div<{ $isActive: boolean }>`
   display: grid;
   grid-template-columns: 1fr;
   grid-template-rows: auto auto;
-  grid-gap: ${({ $isCrowdMapActive }) => ($isCrowdMapActive ? "0.8rem" : "0")};
+  grid-gap: ${({ $isActive }) => ($isActive ? "0.8rem" : "0")};
   justify-content: center;
   align-items: center;
   border: 1px solid ${gray200};
@@ -291,7 +291,7 @@ const CrowdMapSettingsContainer = styled.div<{ $isCrowdMapActive: boolean }>`
   border-radius: 0.5rem;
 `;
 
-const CrowdMapToggleWrapper = styled.div`
+const ToggleWrapper = styled.div`
   display: grid;
   grid-template-columns: auto 1fr;
   grid-gap: 0.8rem;
@@ -629,6 +629,32 @@ const IndoorToggleInfoText = styled.span`
   }
 `;
 
+const YearPickerWrapper = styled.div`
+  border: 1px solid ${gray200};
+  border-radius: 0.5rem;
+  color: ${gray600};
+  display: grid;
+  font-size: 1rem;
+  grid-gap: 0.4rem;
+  letter-spacing: 0.01em;
+  overflow: hidden;
+  padding: 1.1rem 1.6rem;
+  text-transform: uppercase;
+  width: 100%;
+`;
+
+const DormantYearPickerWrapper = styled.div`
+  border-top: 1px solid ${gray200};
+  border-bottom: none;
+  border-left: none;
+  border-right: none;
+  border-radius: 0;
+  padding: 0.8rem 0 0 0;
+  font-size: 1rem;
+  display: grid;
+  grid-gap: 0.4rem;
+`;
+
 export {
   BackButton,
   BasicParameterButton,
@@ -639,13 +665,9 @@ export {
   ChevronBackButton,
   ChevronIcon,
   CloseSelectedItemButton,
-  CrowdGridSizeButton,
-  CrowdMapGridButtonsContainer,
   CrowdMapGridSizeWrapper,
-  CrowdMapSettingsContainer,
   CrowdMapToggleOnOff,
   CrowdMapToggleText,
-  CrowdMapToggleWrapper,
   CustomParameter,
   CustomParameterItem,
   CustomParameterList,
@@ -655,6 +677,7 @@ export {
   CustomParameterWrapper,
   Description,
   DesktopCustomParameters,
+  DormantYearPickerWrapper,
   FiltersOptionButton,
   FiltersOptionHeading,
   FiltersOptionsWrapper,
@@ -678,6 +701,8 @@ export {
   MobileCustomParameters,
   MobileSessionFilters,
   ModalContent,
+  SectionButton,
+  SectionButtonsContainer,
   SeeMoreButton,
   SeeMoreSpan,
   SelectedItem,
@@ -694,5 +719,8 @@ export {
   Suggestion,
   SuggestionList,
   Tab,
+  ToggleSettingsContainer,
+  ToggleWrapper,
   Wrapper,
+  YearPickerWrapper,
 };

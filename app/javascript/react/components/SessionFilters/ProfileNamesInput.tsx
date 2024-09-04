@@ -18,7 +18,7 @@ const ProfileNamesInput = () => {
   const [selectedItem, setSelectedItem] = useState<string>("");
   const dispatch = useAppDispatch();
   const { t } = useTranslation();
-  const { setFilters, usernames, isIndoor } = useMapParams();
+  const { setFilter, usernames, isIndoor } = useMapParams();
 
   const profileNames = useAppSelector(selectUsernames);
   const isIndoorParameterInUrl = isIndoor === "true";
@@ -41,7 +41,7 @@ const ProfileNamesInput = () => {
           const selectedUsernames = decodedUsernames + ", " + newSelectedItem;
 
           const urlEncodedString = encodeURIComponent(selectedUsernames);
-          setFilters(UrlParamsTypes.usernames, urlEncodedString.toString());
+          setFilter(UrlParamsTypes.usernames, urlEncodedString.toString());
           setTimeout(() => {
             dispatch(setFetchingData(true));
           }, 200);
@@ -66,7 +66,7 @@ const ProfileNamesInput = () => {
     const decodedUsernamesString = usernamesUpdated
       ? usernamesUpdated.join(", ")
       : "";
-    setFilters(UrlParamsTypes.usernames, decodedUsernamesString.toString());
+    setFilter(UrlParamsTypes.usernames, decodedUsernamesString.toString());
     setTimeout(() => {
       dispatch(setFetchingData(true));
     }, 200);

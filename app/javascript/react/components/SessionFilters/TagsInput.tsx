@@ -23,8 +23,10 @@ const TagsInput = () => {
     boundSouth,
     sensorName,
     sessionType,
-    setFilters,
+    setFilter,
     tags,
+    timeFrom,
+    timeTo,
     unitSymbol,
     usernames,
     isIndoor,
@@ -43,8 +45,8 @@ const TagsInput = () => {
       east: boundEast.toString(),
       south: boundSouth.toString(),
       north: boundNorth.toString(),
-      timeFrom: "1685318400",
-      timeTo: "1725407999",
+      timeFrom: timeFrom,
+      timeTo: timeTo,
       usernames: usernames,
       sensorName: sensorName,
       unitSymbol: preparedUnitSymbol,
@@ -73,7 +75,7 @@ const TagsInput = () => {
           const selectedTags = decodedTags + ", " + newSelectedItem;
 
           const urlEncodedString = encodeURIComponent(selectedTags);
-          setFilters(UrlParamsTypes.tags, urlEncodedString.toString());
+          setFilter(UrlParamsTypes.tags, urlEncodedString.toString());
           setTimeout(() => {
             dispatch(setFetchingData(true));
           }, 200);
@@ -101,7 +103,7 @@ const TagsInput = () => {
     const tagsUpdated =
       decodedTagsArray && decodedTagsArray.filter((el) => el !== itemToRemove);
     const decodedTagsString = tagsUpdated ? tagsUpdated.join(", ") : "";
-    setFilters(UrlParamsTypes.tags, decodedTagsString.toString());
+    setFilter(UrlParamsTypes.tags, decodedTagsString.toString());
     setTimeout(() => {
       dispatch(setFetchingData(true));
     }, 200);

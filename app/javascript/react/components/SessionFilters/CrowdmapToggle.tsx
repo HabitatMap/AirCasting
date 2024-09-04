@@ -3,7 +3,7 @@ import React, { useCallback, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 
 import { UserSettings } from "../../types/userStates";
-import { UrlParamsTypes, useMapParams } from "../../utils/mapParamsHandler";
+import { useMapParams } from "../../utils/mapParamsHandler";
 import { Toggle } from "../Toggle/Toggle";
 import { CrowdMapGridSize } from "./CrowdMapGridSize";
 import { FilterInfoPopup } from "./FilterInfoPopup";
@@ -15,6 +15,7 @@ const CrowdMapToggle = () => {
     goToUserSettings,
     previousUserSettings,
     setUrlParams,
+    updatePreviousUserSettings,
   } = useMapParams();
   const { t } = useTranslation();
 
@@ -62,14 +63,9 @@ const CrowdMapToggle = () => {
     const newCheckedState = !isCrowdMapActive;
 
     if (isMobile && isFiltersViewActive) {
-      setUrlParams([
-        {
-          key: UrlParamsTypes.previousUserSettings,
-          value: newCheckedState
-            ? UserSettings.CrowdMapView
-            : UserSettings.MapView,
-        },
-      ]);
+      updatePreviousUserSettings(
+        newCheckedState ? UserSettings.CrowdMapView : UserSettings.MapView
+      );
     } else {
       goToUserSettings(
         newCheckedState ? UserSettings.CrowdMapView : UserSettings.MapView
@@ -94,8 +90,8 @@ const CrowdMapToggle = () => {
   return (
     <S.Wrapper>
       <S.SingleFilterWrapper>
-        <S.CrowdMapSettingsContainer $isCrowdMapActive={isCrowdMapActive}>
-          <S.CrowdMapToggleWrapper onClick={handleToggleClick}>
+        <S.ToggleSettingsContainer $isActive={isCrowdMapActive}>
+          <S.ToggleWrapper onClick={handleToggleClick}>
             <Toggle
               isChecked={isCrowdMapActive}
               onChange={handleToggleClick}
@@ -109,14 +105,14 @@ const CrowdMapToggle = () => {
                 {isCrowdMapActive ? t("filters.on") : t("filters.off")}
               </S.CrowdMapToggleOnOff>
             </S.CrowdMapToggleText>
-          </S.CrowdMapToggleWrapper>
+          </S.ToggleWrapper>
           {renderGridSize && (
             <S.CrowdMapGridSizeWrapper $isVisible={isCrowdMapActive}>
               {t("filters.crowdMapGridCellSizeHeader")}
               <CrowdMapGridSize />
             </S.CrowdMapGridSizeWrapper>
           )}
-        </S.CrowdMapSettingsContainer>
+        </S.ToggleSettingsContainer>
         <FilterInfoPopup filterTranslationLabel="filters.crowdMapInfo" />
       </S.SingleFilterWrapper>
     </S.Wrapper>
