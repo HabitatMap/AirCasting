@@ -64,6 +64,7 @@ export enum UrlParamsTypes {
   tags = "tags",
   timeFrom = "timeFrom",
   timeTo = "timeTo",
+  isActive = "isActive",
 }
 
 export const useMapParams = () => {
@@ -129,8 +130,6 @@ export const useMapParams = () => {
   const currentZoom = parseFloat(
     getSearchParam(UrlParamsTypes.currentZoom, DEFAULT_ZOOM.toString())!
   );
-
-  const isIndoor = getSearchParam(UrlParamsTypes.isIndoor, "false");
 
   const gridSize = parseInt(
     getSearchParam(UrlParamsTypes.gridSize, defaultGridSize.toString())!
@@ -285,6 +284,9 @@ export const useMapParams = () => {
       ? parseInt(getSearchParam(UrlParamsTypes.streamId, "0")!)
       : null;
   const tags = getSearchParam(UrlParamsTypes.tags, "");
+  const isIndoor = getSearchParam(UrlParamsTypes.isIndoor, "false");
+  const isActive = getSearchParam(UrlParamsTypes.isActive, "true");
+
   const initialThresholds = useMemo(
     () => ({
       min: parseFloat(
@@ -653,5 +655,6 @@ export const useMapParams = () => {
     updateOffset,
     updateIndoorFilters,
     usernames,
+    isActive,
   };
 };

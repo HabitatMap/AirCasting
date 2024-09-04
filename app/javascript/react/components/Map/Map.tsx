@@ -45,7 +45,6 @@ import { fetchSensors } from "../../store/sensorsSlice";
 import {
   FixedSessionsTypes,
   selectFixedSessionsType,
-  selectIsDormantSessionsType,
 } from "../../store/sessionFiltersSlice";
 import {
   fetchThresholds,
@@ -117,6 +116,7 @@ const Map = () => {
     unitSymbol,
     updateFetchedSessions,
     usernames,
+    isActive,
   } = useMapParams();
   const isMobile = useMobileDetection();
   const navigate = useNavigate();
@@ -164,13 +164,13 @@ const Map = () => {
   );
   const timelapseData = useAppSelector(selectTimelapseData);
   const currentTimestamp = useAppSelector(selectCurrentTimestamp);
-  const isDormant = useAppSelector(selectIsDormantSessionsType);
+  const isDormantParameterInUrl = isActive === "false";
 
   const fixedSessionTypeSelected: boolean = sessionType === SessionTypes.FIXED;
   const listSessions = useAppSelector((state) => {
     if (fixedSessionTypeSelected) {
       if (isIndoorParameterInUrl) {
-        return selectIndoorSessionsList(isDormant)(state);
+        return selectIndoorSessionsList(isDormantParameterInUrl)(state);
       } else {
         return selectFixedSessionsList(state, fixedSessionsType);
       }
@@ -208,7 +208,8 @@ const Map = () => {
 
   const isTimelapseView = currentUserSettings === UserSettings.TimelapseView;
 
-  const isTimelapseDisabled = listSessions.length === 0 || isDormant;
+  const isTimelapseDisabled =
+    listSessions.length === 0 || isDormantParameterInUrl;
 
   const zoomLevel = !Number.isNaN(currentZoom) ? Math.round(currentZoom) : 5;
 
@@ -424,7 +425,7 @@ const Map = () => {
     filters,
     fetchableMobileSessionsCount,
     fetchableFixedSessionsCount,
-    isDormant
+    isDormantParameterInUrl
   );
 
   const handleMapIdle = useCallback(
@@ -647,7 +648,7 @@ const Map = () => {
       >
         {fixedSessionsStatusFulfilled &&
           fixedSessionTypeSelected &&
-          isDormant &&
+          isDormantParameterInUrl &&
           !isIndoorParameterInUrl && (
             <DormantMarkers
               sessions={sessionsPoints}
@@ -662,7 +663,7 @@ const Map = () => {
           : fixedSessionsStatusFulfilled &&
             fixedSessionTypeSelected &&
             !isIndoorParameterInUrl &&
-            !isDormant && (
+            !isDormantParameterInUrl && (
               <FixedMarkers
                 sessions={sessionsPoints}
                 onMarkerClick={handleMarkerClick}

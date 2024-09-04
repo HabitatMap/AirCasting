@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React from "react";
 import { useTranslation } from "react-i18next";
 
 import {
@@ -9,10 +9,9 @@ import { useAppDispatch, useAppSelector } from "../../store/hooks";
 import { setFetchingData } from "../../store/mapSlice";
 import {
   FixedSessionsTypes,
-  selectFixedSessionsType,
   setFixedSessionsType,
 } from "../../store/sessionFiltersSlice";
-import { useMapParams } from "../../utils/mapParamsHandler";
+import { UrlParamsTypes, useMapParams } from "../../utils/mapParamsHandler";
 import { Toggle } from "../Toggle/Toggle";
 import { FilterInfoPopup } from "./FilterInfoPopup";
 import * as S from "./SessionFilters.style";
@@ -22,42 +21,48 @@ const DormantToggle = () => {
   const { t } = useTranslation();
   const dispatch = useAppDispatch();
   const { updateTime } = useMapParams();
+  const { isActive, setUrlParams } = useMapParams();
 
-  const [isDormant, setIsDormant] = useState(false);
-  const fixedSessionType = useAppSelector(selectFixedSessionsType);
+  const isDormantParameterInUrl = isActive === "false";
   const isDormantSessionsFetched = useAppSelector(
     selectIsDormantSessionsFetched
   );
   const isActiveSessionsFetched = useAppSelector(selectIsActiveSessionsFetched);
 
-  const handleToggleClick = useCallback(() => {
-    const newDormantState = !isDormant;
-    setIsDormant(newDormantState);
+  const handleToggleClick = () => {
+    dispatch(setFetchingData(true));
     const currentYear = new Date().getFullYear();
 
-    if (newDormantState === true) {
+    if (!isDormantParameterInUrl) {
       dispatch(setFixedSessionsType(FixedSessionsTypes.DORMANT));
+      setUrlParams([
+        {
+          key: UrlParamsTypes.isActive,
+          value: "false",
+        },
+      ]);
     } else {
       updateTime(currentYear);
+
       dispatch(setFixedSessionsType(FixedSessionsTypes.ACTIVE));
+      setUrlParams([
+        {
+          key: UrlParamsTypes.isActive,
+          value: "true",
+        },
+      ]);
     }
-
-    if (!isDormantSessionsFetched || !isActiveSessionsFetched) {
+    (!isDormantSessionsFetched || !isActiveSessionsFetched) &&
       dispatch(setFetchingData(true));
-    }
-  }, [isDormant, isDormantSessionsFetched, isActiveSessionsFetched]);
-
-  useEffect(() => {
-    setIsDormant(fixedSessionType === FixedSessionsTypes.DORMANT);
-  }, [fixedSessionType]);
+  };
 
   return (
     <S.Wrapper>
       <S.SingleFilterWrapper>
-        <S.ToggleSettingsContainer $isActive={isDormant}>
+        <S.ToggleSettingsContainer $isActive={isDormantParameterInUrl}>
           <S.ToggleWrapper onClick={handleToggleClick}>
             <Toggle
-              isChecked={isDormant}
+              isChecked={isDormantParameterInUrl}
               onChange={handleToggleClick}
               variant="toggle"
               noLabel
@@ -66,12 +71,12 @@ const DormantToggle = () => {
             <S.CrowdMapToggleText>
               {t("filters.dormantToggleLabel")}{" "}
               <S.CrowdMapToggleOnOff>
-                {isDormant ? t("filters.on") : t("filters.off")}
+                {isDormantParameterInUrl ? t("filters.on") : t("filters.off")}
               </S.CrowdMapToggleOnOff>
             </S.CrowdMapToggleText>
           </S.ToggleWrapper>
-          {isDormant && (
-            <S.CrowdMapGridSizeWrapper $isVisible={isDormant}>
+          {isDormantParameterInUrl && (
+            <S.CrowdMapGridSizeWrapper $isVisible={isDormantParameterInUrl}>
               <S.DormantYearPickerWrapper>
                 {t("filters.yearPickerHeader")}
                 <YearPickerButtons />
