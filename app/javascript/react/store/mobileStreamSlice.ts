@@ -1,7 +1,5 @@
 import { AxiosResponse } from "axios";
-
 import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
-
 import { oldApiClient } from "../api/apiClient";
 import { API_ENDPOINTS } from "../api/apiEndpoints";
 import { Error, StatusEnum } from "../types/api";
@@ -15,6 +13,7 @@ export interface MobileStreamState {
   minMeasurementValue: number | null;
   maxMeasurementValue: number | null;
   averageMeasurementValue: number | null;
+  isLoading: boolean;
 }
 
 export const initialState: MobileStreamState = {
@@ -41,6 +40,7 @@ export const initialState: MobileStreamState = {
   minMeasurementValue: 0,
   maxMeasurementValue: 0,
   averageMeasurementValue: 0,
+  isLoading: false,
 };
 
 export const fetchMobileStreamById = createAsyncThunk<
@@ -87,18 +87,21 @@ export const mobileStreamSlice = createSlice({
     },
   },
   extraReducers: (builder) => {
+    builder.addCase(fetchMobileStreamById.pending, (state) => {
+      state.status = StatusEnum.Pending;
+      state.isLoading = true;
+    });
     builder.addCase(fetchMobileStreamById.fulfilled, (state, action) => {
       state.status = StatusEnum.Fulfilled;
       state.data = action.payload;
+      state.isLoading = false;
     });
-    builder.addCase(
-      fetchMobileStreamById.rejected,
-      (state, { error: { message } }) => {
-        state.status = StatusEnum.Rejected;
-        state.error = { message };
-        state.data = initialState.data;
-      }
-    );
+    builder.addCase(fetchMobileStreamById.rejected, (state, action) => {
+      state.status = StatusEnum.Rejected;
+      state.error = action.payload || { message: "Failed to fetch data" };
+      state.data = initialState.data;
+      state.isLoading = false;
+    });
   },
 });
 

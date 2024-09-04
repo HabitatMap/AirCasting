@@ -9,6 +9,7 @@ import {
 import { lastItemFromArray } from "../utils/lastArrayItem";
 import { isValidValue } from "../utils/measurementsCalc";
 import { RootState } from "./index";
+import { Session } from "../types/sessionType";
 
 const selectFixedStreamData = (state: RootState): FixedStream => {
   return state.fixedStream.data;
@@ -117,8 +118,11 @@ const selectFixedStreamShortInfo = createSelector(
   }
 );
 
+const selectFixedStreamStatus = (state: RootState) => state.fixedStream.status;
+
 export {
   selectFixedExtremes,
   selectFixedStreamData,
   selectFixedStreamShortInfo,
+  selectFixedStreamStatus,
 };

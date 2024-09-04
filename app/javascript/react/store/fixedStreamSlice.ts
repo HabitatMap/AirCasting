@@ -37,6 +37,8 @@ const initialState: FixedStreamState = {
       middle: 0,
       high: 0,
       max: 0,
+      latitude: 0,
+      longitude: 0,
     },
     measurements: [],
     streamDailyAverages: [],
