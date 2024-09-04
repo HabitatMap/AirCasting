@@ -316,7 +316,6 @@ class Session < ApplicationRecord
     stream_id = stream.id
     measurement_type = stream.measurement_type
     sensor_name = stream.sensor_name
-    unit_symbol = stream.unit_symbol
     session_type =
       case stream.session.type
       when 'MobileSession'
@@ -344,12 +343,4 @@ class Session < ApplicationRecord
 
     "#{Rails.application.routes.url_helpers.root_path}?#{query_string}"
   end
-
-  # http://172.104.20.165/?sessionId=1852927&streamId=2499059&thresholdMin=0&thresholdLow=9&thresholdMiddle=35&thresholdHigh=55&thresholdMax=150&mapType=hybrid&sessionType=mobile&currentUserSettings=MODAL_VIEW&measurementType=Particulate+Matter&sensorName=AirBeamMini-PM2.5&unitSymbol=%C2%B5g%2Fm%C2%B3&previousUserSettings=MAP_VIEW&boundEast=62.65529757975303&boundWest=-18.549665664866804&boundNorth=63.50758877911437&boundSouth=37.79560187903995&currentCenter=%7B%22lat%22%3A52.48445841177986%2C%22lng%22%3A22.052815957443116%7D&currentZoom=5.055247580796485&fetchedSessions=8&previousCenter=%7B%22lat%22%3A52.48445841177986%2C%22lng%22%3A22.052815957443116%7D&previousZoom=5.055247580796485
-  # http://172.104.20.165/?sessionId=1852927&streamId=2499059&thresholdMin=0&thresholdLow=9&thresholdMiddle=35&thresholdHigh=55&thresholdMax=150&mapType=hybrid&sessionType=mobile&currentUserSettings=MODAL_VIEW&measurementType=Particulate+Matter&sensorName=AirBeamMini-PM2.5&unitSymbol=%C2%B5g%2Fm%C2%B3&previousUserSettings=MAP_VIEW&boundEast=19.926286943&     boundWest=19.92628832&        boundNorth=50.058210236&     boundSouth=50.058211089
-
-
-  # http://172.104.20.165/?sessionId=1849182&streamId=2495168&thresholdMin=0&thresholdLow=9&thresholdMiddle=35&thresholdHigh=55&thresholdMax=150&currentUserSettings=MODAL_VIEW&sessionType=mobile&measurementType=Particulate+Matter&sensorName=AirBeam-PM2.5&unitSymbol=µg%2Fm³&previousUserSettings=MAP_VIEW
-  # http://172.104.20.165/?sessionId=1852928&streamId=2499063&thresholdMin=0&thresholdLow=12&thresholdMiddle=35&thresholdHigh=55&thresholdMax=150&currentUserSettings=MODAL_VIEW&sessionType=mobile&measurementType=Particulate+Matter&sensorName=AirBeam-PM2.5&unitSymbol=µg%2Fm³&previousUserSettings=MAP_VIEW
-
 end
