@@ -56,6 +56,7 @@ export const useHandleScrollEnd = (
       dispatch(
         fetchDormantFixedSessions({
           filters: JSON.stringify(updatedFilters),
+          isAdditional: true,
         })
       )
         .unwrap()

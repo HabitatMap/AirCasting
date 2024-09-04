@@ -178,6 +178,7 @@ const Map = () => {
       return selectMobileSessionsList(state);
     }
   });
+
   const fetchableIndoorSessionsCount = listSessions.length;
 
   const fetchableSessionsCount = useMemo(() => {
