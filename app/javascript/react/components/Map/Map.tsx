@@ -285,6 +285,7 @@ const Map = () => {
   }, [sessionType]);
 
   useEffect(() => {
+    console.log("fixedSessionsType", fixedSessionsType);
     isDormantParameterInUrl &&
       dispatch(setFixedSessionsType(FixedSessionsTypes.DORMANT));
     const isFirstLoad = isFirstRender.current;
@@ -373,6 +374,10 @@ const Map = () => {
     }
     !isFirstRender.current && setPreviousZoomOnTheMap();
     isMobile && setPreviousZoomInTheURL();
+
+    setPreviousZoomOnTheMap();
+    setPreviousZoomInTheURL();
+
     isFirstRender.current = false;
   }, [currentUserSettings]);
 

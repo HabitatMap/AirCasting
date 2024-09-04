@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 
 import checkmark from "../../assets/icons/checkmarkBlue.svg";
@@ -23,6 +23,7 @@ import {
   SessionType,
   SessionTypes,
 } from "../../types/filters";
+import { Sensor } from "../../types/sensors";
 import { UserSettings } from "../../types/userStates";
 import { UrlParamsTypes, useMapParams } from "../../utils/mapParamsHandler";
 import { setSensor } from "../../utils/setSensor";
@@ -31,28 +32,81 @@ import { CustomParameterFilter } from "./CustomParameterFilter";
 import { FilterInfoPopup } from "./FilterInfoPopup";
 import * as S from "./SessionFilters.style";
 
-const basicMeasurementTypes = (sessionType: SessionType) =>
+// Utility functions
+const getBasicMeasurementTypes = (sessionType: SessionType) =>
   sessionType === SessionTypes.FIXED
     ? FixedBasicParameterTypes
     : MobileBasicParameterTypes;
 
-interface ParameterFilterProps {
-  isBasicOpen: boolean;
-}
-
 export const filterCustomParameters = (
   parameters: string[],
-  sessionType: string
+  sessionType: SessionType
 ) => {
-  const basicParameters =
-    sessionType === SessionTypes.FIXED
-      ? FixedBasicParameterTypes
-      : MobileBasicParameterTypes;
-
-  return parameters.filter((param: string) => !basicParameters.includes(param));
+  const basicParameters = getBasicMeasurementTypes(sessionType);
+  return parameters.filter((param) => !basicParameters.includes(param));
 };
 
-export const ParameterFilter: React.FC<ParameterFilterProps> = ({
+// Reusable function to set parameters and URL parameters
+const setParameterParams = (
+  selectedParameter: ParameterType,
+  sensors: Sensor[],
+  sessionType: SessionType,
+  isMobile: boolean,
+  currentUserSettings: UserSettings,
+  isIndoor: string | null,
+  setUrlParams: (params: { key: UrlParamsTypes; value: string }[]) => void,
+  dispatch: (action: any) => void
+) => {
+  const sensorData = setSensor(selectedParameter, sensors, sessionType);
+  const commonParams = [
+    {
+      key: UrlParamsTypes.previousUserSettings,
+      value: currentUserSettings,
+    },
+    {
+      key: UrlParamsTypes.currentUserSettings,
+      value: isMobile
+        ? UserSettings.FiltersView
+        : currentUserSettings === UserSettings.CrowdMapView
+        ? UserSettings.CrowdMapView
+        : UserSettings.MapView,
+    },
+    {
+      key: UrlParamsTypes.measurementType,
+      value: selectedParameter,
+    },
+    {
+      key: UrlParamsTypes.sensorName,
+      value: sensorData.sensorName,
+    },
+    {
+      key: UrlParamsTypes.unitSymbol,
+      value: sensorData.unitSymbol,
+    },
+    {
+      key: UrlParamsTypes.currentZoom,
+      value: UrlParamsTypes.previousZoom,
+    },
+  ];
+
+  setUrlParams(commonParams);
+
+  if (isIndoor === "true" && sensorData.sensorName.startsWith("Gov")) {
+    setUrlParams([
+      ...commonParams,
+      {
+        key: UrlParamsTypes.isIndoor,
+        value: "false",
+      },
+    ]);
+  }
+
+  dispatch(setBasicParametersModalOpen(false));
+  dispatch(setFetchingData(true));
+};
+
+// ParameterFilter Component
+export const ParameterFilter: React.FC<{ isBasicOpen: boolean }> = ({
   isBasicOpen,
 }) => {
   const { t } = useTranslation();
@@ -88,6 +142,7 @@ export const ParameterFilter: React.FC<ParameterFilterProps> = ({
   );
 };
 
+// DesktopParameterFilter Component
 export const DesktopParameterFilter = () => {
   const [isBasicOpen, setIsBasicOpen] = useState(false);
   const [moreOpen, setMoreOpen] = useState(false);
@@ -102,84 +157,32 @@ export const DesktopParameterFilter = () => {
   const dispatch = useAppDispatch();
   const isMobile = useMobileDetection();
   const sensors = useAppSelector(selectSensors);
+  const parameters = useAppSelector(selectParameters);
+  const customParameters = filterCustomParameters(parameters, sessionType);
   const basicParametersModalOpen = useAppSelector(
     selectBasicParametersModalOpen
   );
   const customParametersModalOpen = useAppSelector(
     selectCustomParametersModalOpen
   );
-  const parameters = useAppSelector(selectParameters);
-  const customParameters = filterCustomParameters(parameters, sessionType);
-
-  const handleOnMoreClick = () => {
-    setMoreOpen(!moreOpen);
-  };
 
   const handleSelectParameter = (selectedParameter: ParameterType) => {
-    const commonParams = [
-      {
-        key: UrlParamsTypes.previousUserSettings,
-        value: currentUserSettings,
-      },
-      {
-        key: UrlParamsTypes.currentUserSettings,
-        value: isMobile
-          ? UserSettings.FiltersView
-          : currentUserSettings === UserSettings.CrowdMapView
-          ? UserSettings.CrowdMapView
-          : UserSettings.MapView,
-      },
-      {
-        key: UrlParamsTypes.sessionId,
-        value: "",
-      },
-      {
-        key: UrlParamsTypes.streamId,
-        value: "",
-      },
-      {
-        key: UrlParamsTypes.measurementType,
-        value: selectedParameter,
-      },
-      {
-        key: UrlParamsTypes.sensorName,
-        value: setSensor(selectedParameter, sensors, sessionType).sensorName,
-      },
-      {
-        key: UrlParamsTypes.unitSymbol,
-        value: setSensor(selectedParameter, sensors, sessionType).unitSymbol,
-      },
-      {
-        key: UrlParamsTypes.currentZoom,
-        value: UrlParamsTypes.previousZoom,
-      },
-    ];
-
-    setUrlParams(commonParams);
-
-    const sensorName = setSensor(
+    setParameterParams(
       selectedParameter,
       sensors,
-      sessionType
-    ).sensorName;
-    if (isIndoor && sensorName.startsWith("Gov")) {
-      setUrlParams([
-        ...commonParams,
-        {
-          key: UrlParamsTypes.isIndoor,
-          value: "false",
-        },
-      ]);
-    }
-
-    dispatch(setBasicParametersModalOpen(false));
-    dispatch(setFetchingData(true));
+      sessionType,
+      isMobile,
+      currentUserSettings,
+      isIndoor,
+      setUrlParams,
+      dispatch
+    );
   };
 
   useEffect(() => {
     setIsBasicOpen(basicParametersModalOpen);
     setMoreOpen(customParametersModalOpen);
-  }, [basicParametersModalOpen]);
+  }, [basicParametersModalOpen, customParametersModalOpen]);
 
   return (
     <S.Wrapper>
@@ -190,7 +193,7 @@ export const DesktopParameterFilter = () => {
             <S.FiltersOptionHeading>
               {t("filters.parameter")}
             </S.FiltersOptionHeading>
-            {basicMeasurementTypes(sessionType).map((item, id) => (
+            {getBasicMeasurementTypes(sessionType).map((item, id) => (
               <S.FiltersOptionButton
                 $isSelected={item === measurementType}
                 key={id}
@@ -199,18 +202,14 @@ export const DesktopParameterFilter = () => {
                 {item}
               </S.FiltersOptionButton>
             ))}
-            {customParameters.length > 0 &&
-              (moreOpen ? (
-                <S.SeeMoreButton onClick={handleOnMoreClick}>
-                  <S.SeeMoreSpan>{t("filters.seeLess")}</S.SeeMoreSpan>
-                  <img src={minus} />
-                </S.SeeMoreButton>
-              ) : (
-                <S.SeeMoreButton onClick={handleOnMoreClick}>
-                  <S.SeeMoreSpan>{t("filters.seeMore")}</S.SeeMoreSpan>
-                  <img src={plus} />
-                </S.SeeMoreButton>
-              ))}
+            {customParameters.length > 0 && (
+              <S.SeeMoreButton onClick={() => setMoreOpen(!moreOpen)}>
+                <S.SeeMoreSpan>
+                  {t(`filters.${moreOpen ? "seeLess" : "seeMore"}`)}
+                </S.SeeMoreSpan>
+                <img src={moreOpen ? minus : plus} />
+              </S.SeeMoreButton>
+            )}
           </S.BasicParameterWrapper>
           {moreOpen && (
             <CustomParameterFilter customParameters={customParameters} />
@@ -228,24 +227,46 @@ interface MobileDeviceParameterFilterProps {
   fetchableSessionsCount: number;
 }
 
-export const MobileDeviceParameterFilter = ({
-  customParameters,
-  sessionsCount,
-  onClose,
-  fetchableSessionsCount,
-}: MobileDeviceParameterFilterProps) => {
+// MobileDeviceParameterFilter Component
+export const MobileDeviceParameterFilter: React.FC<
+  MobileDeviceParameterFilterProps
+> = ({ customParameters, sessionsCount, onClose, fetchableSessionsCount }) => {
   const dispatch = useAppDispatch();
-  const sensors = useAppSelector(selectSensors);
   const { t } = useTranslation();
-  const { measurementType, updateMeasurementType, sessionType } =
-    useMapParams();
+  const {
+    measurementType,
+    setUrlParams,
+    sessionType,
+    currentUserSettings,
+    isIndoor,
+  } = useMapParams();
+  const sensors = useAppSelector(selectSensors);
+  const isMobile = useMobileDetection();
+  const fixedSessionTypeSelected = sessionType === SessionTypes.FIXED;
 
-  const fixedSessionTypeSelected: boolean = sessionType === SessionTypes.FIXED;
-
-  const handleSelectParameter = (selectedParameter: ParameterType) => {
-    updateMeasurementType(selectedParameter, sensors);
-    dispatch(setFetchingData(true));
-  };
+  const handleSelectParameter = useCallback(
+    (selectedParameter: ParameterType) => {
+      setParameterParams(
+        selectedParameter,
+        sensors,
+        sessionType,
+        isMobile,
+        currentUserSettings,
+        isIndoor,
+        setUrlParams,
+        dispatch
+      );
+    },
+    [
+      sensors,
+      sessionType,
+      isMobile,
+      currentUserSettings,
+      isIndoor,
+      setUrlParams,
+      dispatch,
+    ]
+  );
 
   const handleShowMoreClick = () => {
     dispatch(setBasicParametersModalOpen(false));
@@ -265,7 +286,7 @@ export const MobileDeviceParameterFilter = ({
         </S.Header>
         <S.Description>{t("filters.selectParameterDescription")}</S.Description>
         <S.BasicParameterButtonsWrapper>
-          {basicMeasurementTypes(sessionType).map((item, id) => (
+          {getBasicMeasurementTypes(sessionType).map((item, id) => (
             <S.BasicParameterButton
               key={id}
               onClick={() => handleSelectParameter(item)}
@@ -277,7 +298,7 @@ export const MobileDeviceParameterFilter = ({
             </S.BasicParameterButton>
           ))}
         </S.BasicParameterButtonsWrapper>
-        {customParameters?.length > 0 && (
+        {customParameters.length > 0 && (
           <S.GrayButton onClick={handleShowMoreClick}>
             {t("filters.showCustomParameters")}
           </S.GrayButton>

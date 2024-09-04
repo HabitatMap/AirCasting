@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 
 import checkmark from "../../assets/icons/checkmarkBlue.svg";
@@ -49,31 +49,80 @@ export const getBasicSensors = (
 export const getSensorUnitSymbol = (
   selectedSensor: string,
   sensors: Sensor[]
-) => {
-  const sensor = sensors.filter((el) => el.sensorName === selectedSensor);
-  return sensor[0].unitSymbol;
+): string => {
+  const sensor = sensors.find((el) => el.sensorName === selectedSensor);
+  return sensor?.unitSymbol || "";
 };
 
 export const filterCustomSensors = (
   sensors: Sensor[],
   measurementType: string,
   sessionType: SessionType
-) => {
+): string[] => {
   const sensorsForMeasurementType = sensors.filter(
-    (sensor: Sensor) => sensor.measurementType === measurementType
+    (sensor) => sensor.measurementType === measurementType
   );
   const basicSensors = getBasicSensors(measurementType, sessionType);
-  const sensorsFiltered = sensorsForMeasurementType.filter(
-    (sensor: Sensor) => !basicSensors?.includes(sensor.sensorName)
-  );
-  return sensorsFiltered.map((sensor: Sensor) => sensor.sensorName);
+  return sensorsForMeasurementType
+    .filter((sensor) => !basicSensors?.includes(sensor.sensorName))
+    .map((sensor) => sensor.sensorName);
 };
 
-interface SensorFilterProps {
-  isBasicOpen: boolean;
-}
+const setSensorParams = (
+  selectedSensor: string,
+  sensors: Sensor[],
+  isMobile: boolean,
+  currentUserSettings: UserSettings,
+  isIndoor: string | null,
+  setUrlParams: (params: { key: UrlParamsTypes; value: string }[]) => void,
+  dispatch: (action: any) => void
+) => {
+  const commonParams = [
+    {
+      key: UrlParamsTypes.previousUserSettings,
+      value: currentUserSettings,
+    },
+    {
+      key: UrlParamsTypes.currentUserSettings,
+      value: isMobile
+        ? UserSettings.FiltersView
+        : currentUserSettings === UserSettings.CrowdMapView
+        ? UserSettings.CrowdMapView
+        : UserSettings.MapView,
+    },
+    {
+      key: UrlParamsTypes.sensorName,
+      value: selectedSensor,
+    },
+    {
+      key: UrlParamsTypes.unitSymbol,
+      value: getSensorUnitSymbol(selectedSensor, sensors),
+    },
+    {
+      key: UrlParamsTypes.currentZoom,
+      value: UrlParamsTypes.previousZoom,
+    },
+  ];
 
-export const SensorFilter: React.FC<SensorFilterProps> = ({ isBasicOpen }) => {
+  setUrlParams(commonParams);
+
+  if (isIndoor === "true" && selectedSensor.startsWith("Gov")) {
+    setUrlParams([
+      ...commonParams,
+      {
+        key: UrlParamsTypes.isIndoor,
+        value: "false",
+      },
+    ]);
+  }
+
+  dispatch(setBasicSensorsModalOpen(false));
+  dispatch(setFetchingData(true));
+};
+
+export const SensorFilter: React.FC<{ isBasicOpen: boolean }> = ({
+  isBasicOpen,
+}) => {
   const { t } = useTranslation();
   const { sensorName } = useMapParams();
   const dispatch = useAppDispatch();
@@ -128,64 +177,19 @@ export const DesktopSensorFilter = () => {
     measurementType,
     sessionType
   );
-
-  const handleOnMoreClick = () => {
-    setMoreOpen(!moreOpen);
-  };
+  const basicSensors = getBasicSensors(measurementType, sessionType);
 
   const handleSelectSensor = (selectedSensor: string) => {
-    const commonParams = [
-      {
-        key: UrlParamsTypes.previousUserSettings,
-        value: currentUserSettings,
-      },
-      {
-        key: UrlParamsTypes.currentUserSettings,
-        value: isMobile
-          ? UserSettings.FiltersView
-          : currentUserSettings === UserSettings.CrowdMapView
-          ? UserSettings.CrowdMapView
-          : UserSettings.MapView,
-      },
-      {
-        key: UrlParamsTypes.sessionId,
-        value: "",
-      },
-      {
-        key: UrlParamsTypes.streamId,
-        value: "",
-      },
-      {
-        key: UrlParamsTypes.sensorName,
-        value: selectedSensor,
-      },
-      {
-        key: UrlParamsTypes.unitSymbol,
-        value: getSensorUnitSymbol(selectedSensor, sensors),
-      },
-      {
-        key: UrlParamsTypes.currentZoom,
-        value: UrlParamsTypes.previousZoom,
-      },
-    ];
-
-    setUrlParams(commonParams);
-
-    if (isIndoor && selectedSensor.startsWith("Gov")) {
-      setUrlParams([
-        ...commonParams,
-        {
-          key: UrlParamsTypes.isIndoor,
-          value: "false",
-        },
-      ]);
-    }
-
-    dispatch(setBasicSensorsModalOpen(false));
-    dispatch(setFetchingData(true));
+    setSensorParams(
+      selectedSensor,
+      sensors,
+      isMobile,
+      currentUserSettings,
+      isIndoor,
+      setUrlParams,
+      dispatch
+    );
   };
-
-  const basicSensors = getBasicSensors(measurementType, sessionType);
 
   useEffect(() => {
     setIsBasicOpen(basicSensorsModalOpen);
@@ -210,19 +214,14 @@ export const DesktopSensorFilter = () => {
                 {item}
               </S.FiltersOptionButton>
             ))}
-
-            {customSensors.length > 0 &&
-              (moreOpen ? (
-                <S.SeeMoreButton onClick={handleOnMoreClick}>
-                  <S.SeeMoreSpan>{t("filters.seeLess")}</S.SeeMoreSpan>
-                  <img src={minus} />
-                </S.SeeMoreButton>
-              ) : (
-                <S.SeeMoreButton onClick={handleOnMoreClick}>
-                  <S.SeeMoreSpan>{t("filters.seeMore")}</S.SeeMoreSpan>
-                  <img src={plus} />
-                </S.SeeMoreButton>
-              ))}
+            {customSensors.length > 0 && (
+              <S.SeeMoreButton onClick={() => setMoreOpen(!moreOpen)}>
+                <S.SeeMoreSpan>
+                  {t(`filters.${moreOpen ? "seeLess" : "seeMore"}`)}
+                </S.SeeMoreSpan>
+                <img src={moreOpen ? minus : plus} />
+              </S.SeeMoreButton>
+            )}
           </S.BasicParameterWrapper>
           {moreOpen && <CustomSensorFilter customSensors={customSensors} />}
         </S.FiltersOptionsWrapper>
@@ -237,26 +236,37 @@ interface MobileDeviceSensorFilterProps {
   onClose: () => void;
   fetchableSessionsCount: number;
 }
-
-export const MobileDeviceSensorFilter = ({
-  customSensors,
-  sessionsCount,
-  onClose,
-  fetchableSessionsCount,
-}: MobileDeviceSensorFilterProps) => {
+export const MobileDeviceSensorFilter: React.FC<
+  MobileDeviceSensorFilterProps
+> = ({ customSensors, sessionsCount, onClose, fetchableSessionsCount }) => {
   const dispatch = useAppDispatch();
   const { t } = useTranslation();
-  const { measurementType, updateSensorName, sessionType, sensorName } =
-    useMapParams();
+  const {
+    measurementType,
+    setUrlParams,
+    sessionType,
+    sensorName,
+    currentUserSettings,
+    isIndoor,
+  } = useMapParams();
   const sensors = useAppSelector(selectSensors);
   const basicSensors = getBasicSensors(measurementType, sessionType);
+  const isMobile = useMobileDetection();
 
-  const fixedSessionTypeSelected: boolean = sessionType === SessionTypes.FIXED;
-
-  const handleSelectSensor = (selectedSensor: string) => {
-    updateSensorName(selectedSensor, sensors);
-    dispatch(setFetchingData(true));
-  };
+  const handleSelectSensor = useCallback(
+    (selectedSensor: string) => {
+      setSensorParams(
+        selectedSensor,
+        sensors,
+        isMobile,
+        currentUserSettings,
+        isIndoor,
+        setUrlParams,
+        dispatch
+      );
+    },
+    [sensors, isMobile, currentUserSettings, isIndoor, setUrlParams, dispatch]
+  );
 
   const handleShowMoreClick = () => {
     dispatch(setBasicSensorsModalOpen(false));
@@ -299,7 +309,7 @@ export const MobileDeviceSensorFilter = ({
           {t("filters.back")}
         </S.BackButton>
         <S.MinorShowSessionsButton onClick={onClose}>
-          {fixedSessionTypeSelected ? (
+          {sessionType === SessionTypes.FIXED ? (
             <>
               {t("filters.showSessions")} ({sessionsCount})
             </>
