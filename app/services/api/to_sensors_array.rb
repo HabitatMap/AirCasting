@@ -40,6 +40,7 @@ class Api::ToSensorsArray
       .joins(:session)
       .where('sessions.contribute' => true)
       .where('sessions.type' => session_type)
+      .where.not(sensor_name: excluded_sensors)
       .select(
         :sensor_name,
         :measurement_type,
