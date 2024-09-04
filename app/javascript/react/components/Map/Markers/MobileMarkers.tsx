@@ -120,7 +120,6 @@ const MobileMarkers = ({
   };
 
   const calculateBounds = (
-    minLatitude: number,
     maxLatitude: number,
     minLongitude: number,
     maxLongitude: number,
@@ -142,9 +141,7 @@ const MobileMarkers = ({
       const latDiff = calculateLatitudeDiff(minLatitude, maxLatitude);
       const lngDiff = maxLongitude - minLongitude;
 
-      // Check for small differences and force centering if necessary
       if (latDiff < LAT_DIFF_SMALL && lngDiff < LAT_DIFF_SMALL) {
-        // Center on the average of the latitudes and longitudes
         const centerLat = (maxLatitude + minLatitude) / 2;
         const centerLng = (maxLongitude + minLongitude) / 2;
         map.setCenter({ lat: centerLat, lng: centerLng });
@@ -152,7 +149,6 @@ const MobileMarkers = ({
       } else {
         const adjustedLat = adjustLatitude(minLatitude, maxLatitude);
         const bounds = calculateBounds(
-          minLatitude,
           maxLatitude,
           minLongitude,
           maxLongitude,
