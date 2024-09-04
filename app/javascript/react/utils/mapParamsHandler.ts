@@ -268,6 +268,14 @@ export const useMapParams = () => {
           key: UrlParamsTypes.isIndoor,
           value: "false",
         },
+        {
+          key: UrlParamsTypes.timeFrom,
+          value: beginningOfTheYear(getLastFiveYears()[0]).toString(),
+        },
+        {
+          key: UrlParamsTypes.timeTo,
+          value: endOfTheYear(getLastFiveYears()[0]).toString(),
+        },
       ]);
     },
     [currentUserSettings, setUrlParams]
@@ -477,14 +485,11 @@ export const useMapParams = () => {
 
   const updateMeasurementType = useCallback(
     (selectedMeasurementType: ParameterType, sensors: Sensor[]) => {
-      // Get the corresponding sensor information
       const selectedSensor = setSensor(
         selectedMeasurementType,
         sensors,
         sessionType
       );
-
-      // Update URL parameters with the selected measurement type and sensor information
       setUrlParams([
         {
           key: UrlParamsTypes.previousUserSettings,
@@ -508,15 +513,15 @@ export const useMapParams = () => {
         },
         {
           key: UrlParamsTypes.measurementType,
-          value: selectedMeasurementType, // Use the newly selected measurement type
+          value: selectedMeasurementType,
         },
         {
           key: UrlParamsTypes.sensorName,
-          value: selectedSensor.sensorName, // Use the sensor information based on the selection
+          value: selectedSensor.sensorName,
         },
         {
           key: UrlParamsTypes.unitSymbol,
-          value: selectedSensor.unitSymbol, // Use the sensor unit symbol
+          value: selectedSensor.unitSymbol,
         },
       ]);
     },
