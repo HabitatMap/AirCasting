@@ -6,6 +6,8 @@ class StreamSerializer
     {
       active: stream.session.is_active,
       title: stream.session.title,
+      latitude: stream.session.latitude,
+      longitude: stream.session.longitude,
       profile: stream.session.username,
       sensor_name: stream.sensor_name,
       unit_symbol: stream.unit_symbol,
