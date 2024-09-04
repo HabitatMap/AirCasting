@@ -34,6 +34,13 @@ import useScreenSizeDetection from "../../../utils/useScreenSizeDetection";
 import { setMarkersLoading } from "../../../store/markersLoadingSlice";
 import type { LatLngLiteral } from "../../../types/googleMaps";
 import { SessionFullMarker } from "./SessionFullMarker/SessionFullMarker";
+import {
+  selectFixedStreamData,
+  selectFixedStreamShortInfo,
+  selectFixedStreamStatus,
+} from "../../../store/fixedStreamSelectors";
+import { selectIsLoading } from "../../../store/fixedStreamSlice";
+import { StatusEnum } from "../../../types/api";
 type Props = {
   sessions: Session[];
   onMarkerClick: (streamId: number | null, id: number | null) => void;
@@ -56,6 +63,9 @@ const FixedMarkers = ({
 
   const dispatch = useAppDispatch();
   const clusterData = useAppSelector((state: RootState) => state.cluster.data);
+  const fixedStreamData = useAppSelector(selectFixedStreamData);
+  const isLoading = useAppSelector(selectIsLoading);
+  const { lastMeasurementValue } = useAppSelector(selectFixedStreamShortInfo);
   const clusterLoading = useAppSelector(
     (state: RootState) => state.cluster.loading
   );
@@ -64,7 +74,7 @@ const FixedMarkers = ({
   );
   const hoverStreamId = useAppSelector(selectHoverStreamId);
   const thresholds = useAppSelector(selectThresholds);
-  const isInitialRender = useRef(true);
+  const fixedStreamStatus = useAppSelector(selectFixedStreamStatus);
 
   const map = useMap();
   const { unitSymbol, currentCenter, currentZoom } = useMapParams();
@@ -89,6 +99,16 @@ const FixedMarkers = ({
 
   const memoizedSessions = useMemo(() => sessions, [sessions]);
   const memoizedMarkers = useMemo(() => markers, [markers]);
+
+  const shouldRenderSingularFixedStreamMarker =
+    selectedStreamId &&
+    !memoizedSessions.some(
+      (session) => session.point.streamId === selectedStreamId.toString()
+    ) &&
+    fixedStreamData.stream.latitude &&
+    fixedStreamData.stream.longitude;
+
+  const streamLastMeasurementValue = lastMeasurementValue ?? 0;
 
   const markersCount = Object.values(markers).filter(
     (marker) => marker !== null
@@ -226,26 +246,22 @@ const FixedMarkers = ({
   }, []);
 
   useEffect(() => {
-    if (selectedStreamId && map) {
-      const s = sessions.find(
-        (session) => session?.point?.streamId === selectedStreamId?.toString()
-      );
-      if (s?.point) {
-        const urlCenter = map.getCenter();
+    const handleSelectedStreamId = (streamId: number | null) => {
+      if (!streamId || fixedStreamStatus === StatusEnum.Pending) return;
+      const { latitude, longitude } = fixedStreamData.stream;
 
-        if (
-          currentCenter &&
-          urlCenter &&
-          currentCenter.lat === urlCenter.lat &&
-          currentCenter.lng === urlCenter.lng
-        ) {
-          return;
-        }
-
-        centerMapOnMarker(s.point);
+      if (latitude && longitude) {
+        const fixedStreamPosition = { lat: latitude, lng: longitude };
+        centerMapOnMarker(fixedStreamPosition);
+      } else {
+        console.error(
+          `Stream ID ${streamId} not found or missing latitude/longitude in fixedStream data.`
+        );
       }
-    }
-  }, [sessions, selectedStreamId, map, currentCenter, centerMapOnMarker]);
+    };
+
+    handleSelectedStreamId(selectedStreamId);
+  }, [selectedStreamId, fixedStreamData, fixedStreamStatus, centerMapOnMarker]);
 
   useEffect(() => {
     updateClusterer();
@@ -379,6 +395,22 @@ const FixedMarkers = ({
           />
         </AdvancedMarker>
       ))}
+      {shouldRenderSingularFixedStreamMarker && (
+        <AdvancedMarker
+          position={{
+            lat: fixedStreamData.stream.latitude,
+            lng: fixedStreamData.stream.longitude,
+          }}
+          key={selectedStreamId.toString()}
+          zIndex={Number(google.maps.Marker.MAX_ZINDEX + 1)}
+        >
+          <SessionFullMarker
+            color={getColorForValue(thresholds, streamLastMeasurementValue)}
+            value={`${Math.round(streamLastMeasurementValue)} ${unitSymbol}`}
+            isSelected={true}
+          />
+        </AdvancedMarker>
+      )}
       {hoverPosition && <HoverMarker position={hoverPosition} />}
       {selectedCluster && clusterPosition && !clusterLoading && clusterData && (
         <ClusterInfo

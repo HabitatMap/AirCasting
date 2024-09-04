@@ -99,9 +99,13 @@ const selectMobileExtremes = createSelector(
   }
 );
 
+const selectMobileStreamStatus = (state: RootState) =>
+  state.mobileStream.status;
+
 export {
   selectMobileExtremes,
   selectMobileStreamData,
   selectMobileStreamPoints,
   selectMobileStreamShortInfo,
+  selectMobileStreamStatus,
 };

@@ -213,7 +213,7 @@ const Map = () => {
     () =>
       JSON.stringify({
         time_from: "1692662400",
-        time_to: "1724371199",
+        time_to: "1725407999",
         tags: tagsDecoded,
         usernames: usernamesDecoded,
         west: boundWest,

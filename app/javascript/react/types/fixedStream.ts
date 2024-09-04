@@ -20,6 +20,8 @@ interface FixedStreamStationInfo extends StreamUpdate, DataSource {
   middle: number;
   high: number;
   max: number;
+  latitude: number;
+  longitude: number;
 }
 
 interface Measurement {
