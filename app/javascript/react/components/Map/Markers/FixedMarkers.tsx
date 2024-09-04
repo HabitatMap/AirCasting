@@ -29,18 +29,16 @@ import { getColorForValue } from "../../../utils/thresholdColors";
 import { customRenderer, pulsatingRenderer } from "./ClusterConfiguration";
 import { ClusterInfo } from "./ClusterInfo/ClusterInfo";
 import HoverMarker from "./HoverMarker/HoverMarker";
-import useScreenSizeDetection from "../../../utils/useScreenSizeDetection";
 
-import { setMarkersLoading } from "../../../store/markersLoadingSlice";
-import type { LatLngLiteral } from "../../../types/googleMaps";
-import { SessionFullMarker } from "./SessionFullMarker/SessionFullMarker";
 import {
   selectFixedStreamData,
   selectFixedStreamShortInfo,
   selectFixedStreamStatus,
 } from "../../../store/fixedStreamSelectors";
-import { selectIsLoading } from "../../../store/fixedStreamSlice";
+import { setMarkersLoading } from "../../../store/markersLoadingSlice";
 import { StatusEnum } from "../../../types/api";
+import type { LatLngLiteral } from "../../../types/googleMaps";
+import { SessionFullMarker } from "./SessionFullMarker/SessionFullMarker";
 type Props = {
   sessions: Session[];
   onMarkerClick: (streamId: number | null, id: number | null) => void;
@@ -59,12 +57,10 @@ const FixedMarkers = ({
   pulsatingSessionId,
 }: Props) => {
   const ZOOM_FOR_SELECTED_SESSION = 15;
-  const isMobile = useScreenSizeDetection();
 
   const dispatch = useAppDispatch();
   const clusterData = useAppSelector((state: RootState) => state.cluster.data);
   const fixedStreamData = useAppSelector(selectFixedStreamData);
-  const isLoading = useAppSelector(selectIsLoading);
   const { lastMeasurementValue } = useAppSelector(selectFixedStreamShortInfo);
   const clusterLoading = useAppSelector(
     (state: RootState) => state.cluster.loading
@@ -77,7 +73,7 @@ const FixedMarkers = ({
   const fixedStreamStatus = useAppSelector(selectFixedStreamStatus);
 
   const map = useMap();
-  const { unitSymbol, currentCenter, currentZoom } = useMapParams();
+  const { unitSymbol } = useMapParams();
 
   const clusterer = useRef<CustomMarkerClusterer | null>(null);
   const markerRefs = useRef<{
