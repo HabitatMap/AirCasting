@@ -22,6 +22,7 @@ export const getLastFiveYears = (): number[] => {
   return years;
 };
 
+console.log("YearPickerButtons");
 const YearPickerButtons = () => {
   const dispatch = useAppDispatch();
   const { timeFrom, updateTime } = useMapParams();

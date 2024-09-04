@@ -248,8 +248,7 @@ const CrowdMapGridSizeWrapper = styled.div<{ $isVisible: boolean }>`
   letter-spacing: 0.01em;
 
   overflow: hidden;
-  max-height: ${({ $isVisible }) =>
-    $isVisible ? "33rem" : "0"}; /* Match the value in animation */
+  max-height: ${({ $isVisible }) => ($isVisible ? "33rem" : "0")};
   animation: ${({ $isVisible }) => ($isVisible ? fadeIn : fadeOut)} 0.5s ease
     forwards;
   opacity: ${({ $isVisible }) => ($isVisible ? 1 : 0)};
@@ -644,7 +643,7 @@ const YearPickerWrapper = styled.div`
   width: 100%;
 `;
 
-const DormantYearPickerWrapper = styled(YearPickerWrapper)`
+const DormantYearPickerWrapper = styled.div`
   border-top: 1px solid ${gray200};
   border-bottom: none;
   border-left: none;
@@ -652,6 +651,8 @@ const DormantYearPickerWrapper = styled(YearPickerWrapper)`
   border-radius: 0;
   padding: 0.8rem 0 0 0;
   font-size: 1rem;
+  display: grid;
+  grid-gap: 0.4rem;
 `;
 
 export {
