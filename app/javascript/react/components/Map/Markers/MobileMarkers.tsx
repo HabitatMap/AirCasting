@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { AdvancedMarker, useMap } from "@vis.gl/react-google-maps";
-
 import { useAppDispatch } from "../../../store/hooks";
 import { setMarkersLoading } from "../../../store/markersLoadingSlice";
 import { selectThresholds } from "../../../store/thresholdSlice";
@@ -15,8 +14,8 @@ import {
   selectMobileStreamData,
   selectMobileStreamStatus,
 } from "../../../store/mobileStreamSelectors";
-
 import { StatusEnum } from "../../../types/api";
+
 import type { Marker } from "@googlemaps/markerclusterer";
 
 type Props = {
@@ -33,7 +32,7 @@ const MobileMarkers = ({
   pulsatingSessionId,
 }: Props) => {
   const DISTANCE_THRESHOLD = 21;
-  const ZOOM_FOR_SELECTED_SESSION = 15;
+  const ZOOM_FOR_SELECTED_SESSION = 16;
 
   // Latitude adjustment constants
   const LAT_DIFF_SMALL = 0.00001;
@@ -121,6 +120,7 @@ const MobileMarkers = ({
   };
 
   const calculateBounds = (
+    minLatitude: number,
     maxLatitude: number,
     minLongitude: number,
     maxLongitude: number,
@@ -140,23 +140,34 @@ const MobileMarkers = ({
   ) => {
     if (map && !selectedMarkerKey) {
       const latDiff = calculateLatitudeDiff(minLatitude, maxLatitude);
-      const adjustedLat = adjustLatitude(minLatitude, maxLatitude);
-      const bounds = calculateBounds(
-        maxLatitude,
-        minLongitude,
-        maxLongitude,
-        adjustedLat
-      );
-      const googleBounds = new google.maps.LatLngBounds();
+      const lngDiff = maxLongitude - minLongitude;
 
-      bounds.forEach((coord) =>
-        googleBounds.extend(new google.maps.LatLng(coord.lat, coord.lng))
-      );
-
-      map.fitBounds(googleBounds);
-
-      if (latDiff === 0) {
+      // Check for small differences and force centering if necessary
+      if (latDiff < LAT_DIFF_SMALL && lngDiff < LAT_DIFF_SMALL) {
+        // Center on the average of the latitudes and longitudes
+        const centerLat = (maxLatitude + minLatitude) / 2;
+        const centerLng = (maxLongitude + minLongitude) / 2;
+        map.setCenter({ lat: centerLat, lng: centerLng });
         map.setZoom(ZOOM_FOR_SELECTED_SESSION);
+      } else {
+        const adjustedLat = adjustLatitude(minLatitude, maxLatitude);
+        const bounds = calculateBounds(
+          minLatitude,
+          maxLatitude,
+          minLongitude,
+          maxLongitude,
+          adjustedLat
+        );
+        const googleBounds = new google.maps.LatLngBounds();
+
+        bounds.forEach((coord) =>
+          googleBounds.extend(new google.maps.LatLng(coord.lat, coord.lng))
+        );
+        map.fitBounds(googleBounds);
+
+        if (latDiff === 0) {
+          map.setZoom(ZOOM_FOR_SELECTED_SESSION);
+        }
       }
 
       setSelectedMarkerKey(null);
