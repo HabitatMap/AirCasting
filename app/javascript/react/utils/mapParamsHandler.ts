@@ -275,6 +275,10 @@ export const useMapParams = () => {
           key: UrlParamsTypes.timeTo,
           value: endOfTheYear(getLastFiveYears()[0]).toString(),
         },
+        {
+          key: UrlParamsTypes.isActive,
+          value: "false",
+        },
       ]);
     },
     [currentUserSettings, setUrlParams]

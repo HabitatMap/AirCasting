@@ -45,6 +45,7 @@ import { fetchSensors } from "../../store/sensorsSlice";
 import {
   FixedSessionsTypes,
   selectFixedSessionsType,
+  setFixedSessionsType,
 } from "../../store/sessionFiltersSlice";
 import {
   fetchThresholds,
@@ -284,6 +285,8 @@ const Map = () => {
   }, [sessionType]);
 
   useEffect(() => {
+    isDormantParameterInUrl &&
+      dispatch(setFixedSessionsType(FixedSessionsTypes.DORMANT));
     const isFirstLoad = isFirstRender.current;
     if (isFirstLoad && fetchedSessions > 0 && !fixedSessionTypeSelected) {
       const originalLimit = limit;

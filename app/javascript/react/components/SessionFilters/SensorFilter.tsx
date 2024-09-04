@@ -18,7 +18,8 @@ import {
 } from "../../store/sessionFiltersSlice";
 import { ParameterTypes, SessionType, SessionTypes } from "../../types/filters";
 import { BasicSensorTypes, Sensor } from "../../types/sensors";
-import { useMapParams } from "../../utils/mapParamsHandler";
+import { UserSettings } from "../../types/userStates";
+import { UrlParamsTypes, useMapParams } from "../../utils/mapParamsHandler";
 import useMobileDetection from "../../utils/useScreenSizeDetection";
 import { CustomSensorFilter } from "./CustomSensorFilter";
 import { FilterInfoPopup } from "./FilterInfoPopup";
@@ -108,8 +109,14 @@ export const DesktopSensorFilter = () => {
   const [isBasicOpen, setIsBasicOpen] = useState(false);
   const [moreOpen, setMoreOpen] = useState(false);
   const { t } = useTranslation();
-  const { measurementType, sessionType, sensorName, updateSensorName } =
-    useMapParams();
+  const {
+    measurementType,
+    setUrlParams,
+    sessionType,
+    currentUserSettings,
+    sensorName,
+    isIndoor,
+  } = useMapParams();
   const dispatch = useAppDispatch();
   const isMobile = useMobileDetection();
   const sensors = useAppSelector(selectSensors);
@@ -127,9 +134,55 @@ export const DesktopSensorFilter = () => {
   };
 
   const handleSelectSensor = (selectedSensor: string) => {
-    updateSensorName(selectedSensor, sensors);
-    dispatch(setFetchingData(true));
+    const commonParams = [
+      {
+        key: UrlParamsTypes.previousUserSettings,
+        value: currentUserSettings,
+      },
+      {
+        key: UrlParamsTypes.currentUserSettings,
+        value: isMobile
+          ? UserSettings.FiltersView
+          : currentUserSettings === UserSettings.CrowdMapView
+          ? UserSettings.CrowdMapView
+          : UserSettings.MapView,
+      },
+      {
+        key: UrlParamsTypes.sessionId,
+        value: "",
+      },
+      {
+        key: UrlParamsTypes.streamId,
+        value: "",
+      },
+      {
+        key: UrlParamsTypes.sensorName,
+        value: selectedSensor,
+      },
+      {
+        key: UrlParamsTypes.unitSymbol,
+        value: getSensorUnitSymbol(selectedSensor, sensors),
+      },
+      {
+        key: UrlParamsTypes.currentZoom,
+        value: UrlParamsTypes.previousZoom,
+      },
+    ];
+
+    setUrlParams(commonParams);
+
+    if (isIndoor && selectedSensor.startsWith("Gov")) {
+      setUrlParams([
+        ...commonParams,
+        {
+          key: UrlParamsTypes.isIndoor,
+          value: "false",
+        },
+      ]);
+    }
+
     dispatch(setBasicSensorsModalOpen(false));
+    dispatch(setFetchingData(true));
   };
 
   const basicSensors = getBasicSensors(measurementType, sessionType);
