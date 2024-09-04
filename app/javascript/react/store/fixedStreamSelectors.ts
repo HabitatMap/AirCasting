@@ -1,5 +1,6 @@
 import { createSelector } from "@reduxjs/toolkit";
 import moment from "moment";
+
 import { DateFormat } from "../types/dateFormat";
 import {
   FixedStream,
@@ -9,7 +10,6 @@ import {
 import { lastItemFromArray } from "../utils/lastArrayItem";
 import { isValidValue } from "../utils/measurementsCalc";
 import { RootState } from "./index";
-import { Session } from "../types/sessionType";
 
 const selectFixedStreamData = (state: RootState): FixedStream => {
   return state.fixedStream.data;
@@ -57,18 +57,19 @@ const selectFixedStreamShortInfo = createSelector(
     const { value: lastMeasurementValue, date } = lastDailyAverage || {};
 
     const lastMeasurementDateLabel = moment(date).format("MMM D");
-
+    console.log(lastMeasurementDateLabel, "lastMeasurementDateLabel");
+    console.log(date, "date");
     const lastUpdate = moment
       .utc(fixedStreamData.stream.lastUpdate)
-      .local()
-      .format("HH:mm MMM D YYYY");
 
-    const startTime = moment(fixedStreamData.stream.startTime)
-      .local()
-      .format(DateFormat.us_with_time);
-    const endTime = moment(fixedStreamData.stream.endTime)
-      .local()
-      .format(DateFormat.us_with_time);
+      .format("HH:mm MMM D YYYY");
+    console.log(lastUpdate, "lastUpdate");
+    const startTime = moment(fixedStreamData.stream.startTime).format(
+      DateFormat.us_with_time
+    );
+    const endTime = moment(fixedStreamData.stream.endTime).format(
+      DateFormat.us_with_time
+    );
 
     const active = fixedStreamData.stream.active;
     const { min, low, middle, high, max } = fixedStreamData.stream;
