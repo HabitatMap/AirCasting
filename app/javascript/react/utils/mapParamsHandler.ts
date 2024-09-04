@@ -477,6 +477,14 @@ export const useMapParams = () => {
 
   const updateMeasurementType = useCallback(
     (selectedMeasurementType: ParameterType, sensors: Sensor[]) => {
+      // Get the corresponding sensor information
+      const selectedSensor = setSensor(
+        selectedMeasurementType,
+        sensors,
+        sessionType
+      );
+
+      // Update URL parameters with the selected measurement type and sensor information
       setUrlParams([
         {
           key: UrlParamsTypes.previousUserSettings,
@@ -500,21 +508,19 @@ export const useMapParams = () => {
         },
         {
           key: UrlParamsTypes.measurementType,
-          value: measurementType,
+          value: selectedMeasurementType, // Use the newly selected measurement type
         },
         {
           key: UrlParamsTypes.sensorName,
-          value: setSensor(selectedMeasurementType, sensors, sessionType)
-            .sensorName,
+          value: selectedSensor.sensorName, // Use the sensor information based on the selection
         },
         {
           key: UrlParamsTypes.unitSymbol,
-          value: setSensor(selectedMeasurementType, sensors, sessionType)
-            .unitSymbol,
+          value: selectedSensor.unitSymbol, // Use the sensor unit symbol
         },
       ]);
     },
-    [currentUserSettings, sessionType, setSensor, setUrlParams]
+    [currentUserSettings, sessionType, setSensor, setUrlParams, isMobile]
   );
 
   const updateSensorName = useCallback(
