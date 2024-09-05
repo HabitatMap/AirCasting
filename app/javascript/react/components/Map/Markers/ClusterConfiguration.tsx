@@ -60,7 +60,28 @@ const calculateClusterStyleIndex = (
   return styleIndex;
 };
 
-export const customRenderer = (thresholds: Thresholds) => ({
+export const updateClusterStyle = (
+  clusterElement: google.maps.marker.AdvancedMarkerElement,
+  markers: google.maps.marker.AdvancedMarkerElement[],
+  thresholds: Thresholds
+) => {
+  const styleIndex = calculateClusterStyleIndex(markers, thresholds);
+
+  const { url, height, width, textSize } = clusterStyles[styleIndex];
+  const div = clusterElement.content as HTMLDivElement;
+
+  div.style.backgroundImage = `url(${url})`;
+  div.style.width = `${width}px`;
+  div.style.height = `${height}px`;
+  div.style.fontSize = `${textSize}px`;
+};
+
+export const customRenderer = (
+  thresholds: Thresholds,
+  clusterElementsRef: React.MutableRefObject<
+    Map<Cluster, google.maps.marker.AdvancedMarkerElement>
+  >
+) => ({
   render: (cluster: Cluster) => {
     const { markers, count, position } = cluster;
 
@@ -84,11 +105,15 @@ export const customRenderer = (thresholds: Thresholds) => ({
     span.textContent = `${count}`;
     div.appendChild(span);
 
-    return new google.maps.marker.AdvancedMarkerElement({
+    const clusterElement = new google.maps.marker.AdvancedMarkerElement({
       position,
       content: div,
       title: `${count}`,
-    }) as Marker;
+    });
+
+    clusterElementsRef.current.set(cluster, clusterElement);
+
+    return clusterElement;
   },
 });
 
