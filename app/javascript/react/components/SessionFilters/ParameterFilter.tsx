@@ -72,6 +72,14 @@ const setParameterParams = (
         : UserSettings.MapView,
     },
     {
+      key: UrlParamsTypes.sessionId,
+      value: "",
+    },
+    {
+      key: UrlParamsTypes.streamId,
+      value: "",
+    },
+    {
       key: UrlParamsTypes.measurementType,
       value: selectedParameter,
     },
