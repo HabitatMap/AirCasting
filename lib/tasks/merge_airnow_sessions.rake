@@ -7,12 +7,12 @@ namespace :sessions do
 
       grouped_sessions = sessions_with_coordinates.group_by(&:title).select { |_, v| v.size > 1 }
 
-      lat_lon_tolerance = 0.0002
+      lat_lon_tolerance = 0.0005
 
       grouped_sessions.each do |title, sessions|
         sessions.combination(2).any? do |s1, s2|
           if (s1.latitude - s2.latitude).abs > lat_lon_tolerance || (s1.longitude - s2.longitude).abs > lat_lon_tolerance
-            puts "Title: '#{title}' has sessions with latitude or longitude differences exceeding 0.0002"
+            puts "Title: '#{title}' has sessions with latitude or longitude differences exceeding 0.0005"
             break
           end
         end
