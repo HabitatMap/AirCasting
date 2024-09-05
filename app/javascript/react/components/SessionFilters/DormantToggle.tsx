@@ -1,4 +1,4 @@
-import React, { useCallback } from "react";
+import React, { useCallback, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import {
   selectIsActiveSessionsFetched,
@@ -93,6 +93,30 @@ const DormantToggle = () => {
     isDormantSessionsFetched,
     isActiveSessionsFetched,
     setFilter,
+  ]);
+
+  useEffect(() => {
+    const initializeFromUrl = () => {
+      if (isDormantParameterInUrl) {
+        dispatch(setFixedSessionsType(FixedSessionsTypes.DORMANT));
+
+        if (!isDormantSessionsFetched) {
+          dispatch(setFetchingData(true));
+        }
+      } else {
+        dispatch(setFixedSessionsType(FixedSessionsTypes.ACTIVE));
+        if (!isActiveSessionsFetched) {
+          dispatch(setFetchingData(true));
+        }
+      }
+    };
+
+    initializeFromUrl();
+  }, [
+    isDormantParameterInUrl,
+    dispatch,
+    isDormantSessionsFetched,
+    isActiveSessionsFetched,
   ]);
 
   return (
