@@ -541,46 +541,6 @@ export const useMapParams = () => {
     [currentUserSettings, sessionType, setSensor, setUrlParams, isMobile]
   );
 
-  const updateSensorName = useCallback(
-    (selectedSensorName: string, sensors: Sensor[]) => {
-      setUrlParams([
-        {
-          key: UrlParamsTypes.previousUserSettings,
-          value: currentUserSettings,
-        },
-        {
-          key: UrlParamsTypes.currentUserSettings,
-          value: isMobile
-            ? UserSettings.FiltersView
-            : currentUserSettings === UserSettings.CrowdMapView
-            ? UserSettings.CrowdMapView
-            : UserSettings.MapView,
-        },
-        {
-          key: UrlParamsTypes.sessionId,
-          value: "",
-        },
-        {
-          key: UrlParamsTypes.streamId,
-          value: "",
-        },
-        {
-          key: UrlParamsTypes.sensorName,
-          value: selectedSensorName,
-        },
-        {
-          key: UrlParamsTypes.unitSymbol,
-          value: getSensorUnitSymbol(selectedSensorName, sensors),
-        },
-        {
-          key: UrlParamsTypes.isIndoor,
-          value: FALSE,
-        },
-      ]);
-    },
-    [currentUserSettings, setUrlParams]
-  );
-
   const updateTime = useCallback(
     (selectedYear: number) => {
       setUrlParams([
@@ -681,6 +641,14 @@ export const useMapParams = () => {
             : UserSettings.MapView,
         },
         {
+          key: UrlParamsTypes.sessionId,
+          value: "",
+        },
+        {
+          key: UrlParamsTypes.streamId,
+          value: "",
+        },
+        {
           key: UrlParamsTypes.measurementType,
           value: selectedParameter,
         },
@@ -733,6 +701,14 @@ export const useMapParams = () => {
             : currentUserSettings === UserSettings.CrowdMapView
             ? UserSettings.CrowdMapView
             : UserSettings.MapView,
+        },
+        {
+          key: UrlParamsTypes.sessionId,
+          value: "",
+        },
+        {
+          key: UrlParamsTypes.streamId,
+          value: "",
         },
         {
           key: UrlParamsTypes.sensorName,
@@ -797,7 +773,6 @@ export const useMapParams = () => {
     previousZoom,
     revertUserSettingsAndResetIds,
     sensorName,
-    updateSensorName,
     sessionId,
     sessionType,
     updateSessionType,
