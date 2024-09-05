@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect } from "react";
 import { useTranslation } from "react-i18next";
+import { FALSE, TRUE } from "../../const/booleans";
 import {
   selectIsActiveSessionsFetched,
   selectIsDormantSessionsFetched,
@@ -7,77 +8,35 @@ import {
 import { useAppDispatch, useAppSelector } from "../../store/hooks";
 import { setFetchingData } from "../../store/mapSlice";
 import { FixedSessionsTypes } from "../../store/sessionFiltersSlice";
-import { UserSettings } from "../../types/userStates";
 import { UrlParamsTypes, useMapParams } from "../../utils/mapParamsHandler";
-import useMobileDetection from "../../utils/useScreenSizeDetection";
 import { Toggle } from "../Toggle/Toggle";
 import { FilterInfoPopup } from "./FilterInfoPopup";
 import * as S from "./SessionFilters.style";
-import {
-  beginningOfTheYear,
-  endOfTheYear,
-  YearPickerButtons,
-} from "./YearPickerButtons";
+import { YearPickerButtons } from "./YearPickerButtons";
 
 const DormantToggle = () => {
   const { t } = useTranslation();
   const dispatch = useAppDispatch();
-  const { isActive, setFilter, setUrlParams, currentUserSettings } =
-    useMapParams();
+  const { isActive, setFilter, updateActiveFixedSessions } = useMapParams();
 
-  const isDormantParameterInUrl = isActive === "false";
+  const isDormantParameterInUrl = isActive === FALSE;
   const isDormantSessionsFetched = useAppSelector(
     selectIsDormantSessionsFetched
   );
   const isActiveSessionsFetched = useAppSelector(selectIsActiveSessionsFetched);
-
-  const isMobile: boolean = useMobileDetection();
 
   const handleToggleClick = useCallback(() => {
     const isSettingDormant = !isDormantParameterInUrl;
     const fixedSessionsTypeToBeSet = isSettingDormant
       ? FixedSessionsTypes.DORMANT
       : FixedSessionsTypes.ACTIVE;
-    const urlParamValue = isSettingDormant ? "false" : "true";
+    const urlParamValue = isSettingDormant ? FALSE : TRUE;
     dispatch(setFetchingData(true));
     setFilter(UrlParamsTypes.isActive, urlParamValue);
 
     const currentYear = new Date().getFullYear();
     if (fixedSessionsTypeToBeSet === FixedSessionsTypes.ACTIVE) {
-      setUrlParams([
-        {
-          key: UrlParamsTypes.previousUserSettings,
-          value: currentUserSettings,
-        },
-        {
-          key: UrlParamsTypes.currentUserSettings,
-          value: isMobile
-            ? UserSettings.FiltersView
-            : currentUserSettings === UserSettings.CrowdMapView
-            ? UserSettings.CrowdMapView
-            : UserSettings.MapView,
-        },
-        {
-          key: UrlParamsTypes.sessionId,
-          value: "",
-        },
-        {
-          key: UrlParamsTypes.streamId,
-          value: "",
-        },
-        {
-          key: UrlParamsTypes.timeFrom,
-          value: beginningOfTheYear(currentYear).toString(),
-        },
-        {
-          key: UrlParamsTypes.timeTo,
-          value: endOfTheYear(currentYear).toString(),
-        },
-        {
-          key: UrlParamsTypes.isActive,
-          value: "true",
-        },
-      ]);
+      updateActiveFixedSessions(currentYear);
     }
 
     if (!isDormantSessionsFetched || !isActiveSessionsFetched) {

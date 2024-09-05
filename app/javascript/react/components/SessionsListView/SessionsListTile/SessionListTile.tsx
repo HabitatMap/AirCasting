@@ -5,6 +5,7 @@ import { useSelector } from "react-redux";
 
 import rightVector from "../../../assets/icons/rightVector.svg";
 import { gray300 } from "../../../assets/styles/colors";
+import { FALSE } from "../../../const/booleans";
 import { selectThresholds } from "../../../store/thresholdSlice";
 import { DateFormat } from "../../../types/dateFormat";
 import { useMapParams } from "../../../utils/mapParamsHandler";
@@ -72,7 +73,7 @@ const SessionsListTile: React.FC<SessionListTile> = ({
     }
   };
 
-  const isDormant = isActive === "false";
+  const isDormant = isActive === FALSE;
 
   const dotColor = isDormant
     ? gray300

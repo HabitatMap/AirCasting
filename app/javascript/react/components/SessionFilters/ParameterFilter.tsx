@@ -7,7 +7,6 @@ import chevron from "../../assets/icons/chevronRight.svg";
 import minus from "../../assets/icons/minus.svg";
 import plus from "../../assets/icons/plus.svg";
 import { useAppDispatch, useAppSelector } from "../../store/hooks";
-import { setFetchingData } from "../../store/mapSlice";
 import { selectParameters, selectSensors } from "../../store/sensorsSlice";
 import {
   selectBasicParametersModalOpen,
@@ -23,16 +22,12 @@ import {
   SessionType,
   SessionTypes,
 } from "../../types/filters";
-import { Sensor } from "../../types/sensors";
-import { UserSettings } from "../../types/userStates";
-import { UrlParamsTypes, useMapParams } from "../../utils/mapParamsHandler";
-import { setSensor } from "../../utils/setSensor";
+import { useMapParams } from "../../utils/mapParamsHandler";
 import useMobileDetection from "../../utils/useScreenSizeDetection";
 import { CustomParameterFilter } from "./CustomParameterFilter";
 import { FilterInfoPopup } from "./FilterInfoPopup";
 import * as S from "./SessionFilters.style";
 
-// Utility functions
 const getBasicMeasurementTypes = (sessionType: SessionType) =>
   sessionType === SessionTypes.FIXED
     ? FixedBasicParameterTypes
@@ -46,66 +41,6 @@ export const filterCustomParameters = (
   return parameters.filter((param) => !basicParameters.includes(param));
 };
 
-// Reusable function to set parameters and URL parameters
-const setParameterParams = (
-  selectedParameter: ParameterType,
-  sensors: Sensor[],
-  sessionType: SessionType,
-  isMobile: boolean,
-  currentUserSettings: UserSettings,
-  isIndoor: string | null,
-  setUrlParams: (params: { key: UrlParamsTypes; value: string }[]) => void,
-  dispatch: (action: any) => void
-) => {
-  const sensorData = setSensor(selectedParameter, sensors, sessionType);
-  const commonParams = [
-    {
-      key: UrlParamsTypes.previousUserSettings,
-      value: currentUserSettings,
-    },
-    {
-      key: UrlParamsTypes.currentUserSettings,
-      value: isMobile
-        ? UserSettings.FiltersView
-        : currentUserSettings === UserSettings.CrowdMapView
-        ? UserSettings.CrowdMapView
-        : UserSettings.MapView,
-    },
-    {
-      key: UrlParamsTypes.measurementType,
-      value: selectedParameter,
-    },
-    {
-      key: UrlParamsTypes.sensorName,
-      value: sensorData.sensorName,
-    },
-    {
-      key: UrlParamsTypes.unitSymbol,
-      value: sensorData.unitSymbol,
-    },
-    {
-      key: UrlParamsTypes.currentZoom,
-      value: UrlParamsTypes.previousZoom,
-    },
-  ];
-
-  setUrlParams(commonParams);
-
-  if (isIndoor === "true" && sensorData.sensorName.startsWith("Gov")) {
-    setUrlParams([
-      ...commonParams,
-      {
-        key: UrlParamsTypes.isIndoor,
-        value: "false",
-      },
-    ]);
-  }
-
-  dispatch(setBasicParametersModalOpen(false));
-  dispatch(setFetchingData(true));
-};
-
-// ParameterFilter Component
 export const ParameterFilter: React.FC<{ isBasicOpen: boolean }> = ({
   isBasicOpen,
 }) => {
@@ -142,18 +77,11 @@ export const ParameterFilter: React.FC<{ isBasicOpen: boolean }> = ({
   );
 };
 
-// DesktopParameterFilter Component
 export const DesktopParameterFilter = () => {
   const [isBasicOpen, setIsBasicOpen] = useState(false);
   const [moreOpen, setMoreOpen] = useState(false);
   const { t } = useTranslation();
-  const {
-    measurementType,
-    setUrlParams,
-    sessionType,
-    currentUserSettings,
-    isIndoor,
-  } = useMapParams();
+  const { measurementType, sessionType, setParameterParams } = useMapParams();
   const dispatch = useAppDispatch();
   const isMobile = useMobileDetection();
   const sensors = useAppSelector(selectSensors);
@@ -167,16 +95,7 @@ export const DesktopParameterFilter = () => {
   );
 
   const handleSelectParameter = (selectedParameter: ParameterType) => {
-    setParameterParams(
-      selectedParameter,
-      sensors,
-      sessionType,
-      isMobile,
-      currentUserSettings,
-      isIndoor,
-      setUrlParams,
-      dispatch
-    );
+    setParameterParams(selectedParameter, sensors, dispatch);
   };
 
   useEffect(() => {
@@ -227,7 +146,6 @@ interface MobileDeviceParameterFilterProps {
   fetchableSessionsCount: number;
 }
 
-// MobileDeviceParameterFilter Component
 export const MobileDeviceParameterFilter: React.FC<
   MobileDeviceParameterFilterProps
 > = ({ customParameters, sessionsCount, onClose, fetchableSessionsCount }) => {
@@ -239,6 +157,7 @@ export const MobileDeviceParameterFilter: React.FC<
     sessionType,
     currentUserSettings,
     isIndoor,
+    setParameterParams,
   } = useMapParams();
   const sensors = useAppSelector(selectSensors);
   const isMobile = useMobileDetection();
@@ -246,16 +165,7 @@ export const MobileDeviceParameterFilter: React.FC<
 
   const handleSelectParameter = useCallback(
     (selectedParameter: ParameterType) => {
-      setParameterParams(
-        selectedParameter,
-        sensors,
-        sessionType,
-        isMobile,
-        currentUserSettings,
-        isIndoor,
-        setUrlParams,
-        dispatch
-      );
+      setParameterParams(selectedParameter, sensors, dispatch);
     },
     [
       sensors,

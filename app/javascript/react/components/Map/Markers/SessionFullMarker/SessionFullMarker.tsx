@@ -1,5 +1,6 @@
 import React from "react";
 
+import { FALSE } from "../../../../const/booleans";
 import { useMapParams } from "../../../../utils/mapParamsHandler";
 import {
   SelectedDataContainer,
@@ -29,7 +30,7 @@ const SessionFullMarker = ({
   onClick,
 }: MarkerProps) => {
   const { isActive } = useMapParams();
-  const isDormant = isActive === "false";
+  const isDormant = isActive === FALSE;
 
   if (isSelected) {
     return (

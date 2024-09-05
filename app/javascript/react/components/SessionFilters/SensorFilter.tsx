@@ -7,7 +7,6 @@ import chevron from "../../assets/icons/chevronRight.svg";
 import minus from "../../assets/icons/minus.svg";
 import plus from "../../assets/icons/plus.svg";
 import { useAppDispatch, useAppSelector } from "../../store/hooks";
-import { setFetchingData } from "../../store/mapSlice";
 import { selectSensors } from "../../store/sensorsSlice";
 import {
   selectBasicSensorsModalOpen,
@@ -18,8 +17,7 @@ import {
 } from "../../store/sessionFiltersSlice";
 import { ParameterTypes, SessionType, SessionTypes } from "../../types/filters";
 import { BasicSensorTypes, Sensor } from "../../types/sensors";
-import { UserSettings } from "../../types/userStates";
-import { UrlParamsTypes, useMapParams } from "../../utils/mapParamsHandler";
+import { useMapParams } from "../../utils/mapParamsHandler";
 import useMobileDetection from "../../utils/useScreenSizeDetection";
 import { CustomSensorFilter } from "./CustomSensorFilter";
 import { FilterInfoPopup } from "./FilterInfoPopup";
@@ -68,58 +66,6 @@ export const filterCustomSensors = (
     .map((sensor) => sensor.sensorName);
 };
 
-const setSensorParams = (
-  selectedSensor: string,
-  sensors: Sensor[],
-  isMobile: boolean,
-  currentUserSettings: UserSettings,
-  isIndoor: string | null,
-  setUrlParams: (params: { key: UrlParamsTypes; value: string }[]) => void,
-  dispatch: (action: any) => void
-) => {
-  const commonParams = [
-    {
-      key: UrlParamsTypes.previousUserSettings,
-      value: currentUserSettings,
-    },
-    {
-      key: UrlParamsTypes.currentUserSettings,
-      value: isMobile
-        ? UserSettings.FiltersView
-        : currentUserSettings === UserSettings.CrowdMapView
-        ? UserSettings.CrowdMapView
-        : UserSettings.MapView,
-    },
-    {
-      key: UrlParamsTypes.sensorName,
-      value: selectedSensor,
-    },
-    {
-      key: UrlParamsTypes.unitSymbol,
-      value: getSensorUnitSymbol(selectedSensor, sensors),
-    },
-    {
-      key: UrlParamsTypes.currentZoom,
-      value: UrlParamsTypes.previousZoom,
-    },
-  ];
-
-  setUrlParams(commonParams);
-
-  if (isIndoor === "true" && selectedSensor.startsWith("Gov")) {
-    setUrlParams([
-      ...commonParams,
-      {
-        key: UrlParamsTypes.isIndoor,
-        value: "false",
-      },
-    ]);
-  }
-
-  dispatch(setBasicSensorsModalOpen(false));
-  dispatch(setFetchingData(true));
-};
-
 export const SensorFilter: React.FC<{ isBasicOpen: boolean }> = ({
   isBasicOpen,
 }) => {
@@ -158,14 +104,8 @@ export const DesktopSensorFilter = () => {
   const [isBasicOpen, setIsBasicOpen] = useState(false);
   const [moreOpen, setMoreOpen] = useState(false);
   const { t } = useTranslation();
-  const {
-    measurementType,
-    setUrlParams,
-    sessionType,
-    currentUserSettings,
-    sensorName,
-    isIndoor,
-  } = useMapParams();
+  const { measurementType, sessionType, sensorName, setSensorParams } =
+    useMapParams();
   const dispatch = useAppDispatch();
   const isMobile = useMobileDetection();
   const sensors = useAppSelector(selectSensors);
@@ -180,15 +120,7 @@ export const DesktopSensorFilter = () => {
   const basicSensors = getBasicSensors(measurementType, sessionType);
 
   const handleSelectSensor = (selectedSensor: string) => {
-    setSensorParams(
-      selectedSensor,
-      sensors,
-      isMobile,
-      currentUserSettings,
-      isIndoor,
-      setUrlParams,
-      dispatch
-    );
+    setSensorParams(selectedSensor, sensors, dispatch);
   };
 
   useEffect(() => {
@@ -248,6 +180,7 @@ export const MobileDeviceSensorFilter: React.FC<
     sensorName,
     currentUserSettings,
     isIndoor,
+    setSensorParams,
   } = useMapParams();
   const sensors = useAppSelector(selectSensors);
   const basicSensors = getBasicSensors(measurementType, sessionType);
@@ -255,15 +188,7 @@ export const MobileDeviceSensorFilter: React.FC<
 
   const handleSelectSensor = useCallback(
     (selectedSensor: string) => {
-      setSensorParams(
-        selectedSensor,
-        sensors,
-        isMobile,
-        currentUserSettings,
-        isIndoor,
-        setUrlParams,
-        dispatch
-      );
+      setSensorParams(selectedSensor, sensors, dispatch);
     },
     [sensors, isMobile, currentUserSettings, isIndoor, setUrlParams, dispatch]
   );

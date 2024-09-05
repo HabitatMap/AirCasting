@@ -14,6 +14,7 @@ import clockIcon from "../../assets/icons/clockIcon.svg";
 import filterIcon from "../../assets/icons/filterIcon.svg";
 import mapLegend from "../../assets/icons/mapLegend.svg";
 import pinImage from "../../assets/icons/pinImage.svg";
+import { FALSE, TRUE } from "../../const/booleans";
 import { MIN_ZOOM } from "../../const/coordinates";
 import { RootState, selectIsLoading } from "../../store";
 import {
@@ -120,8 +121,8 @@ const Map = () => {
   const isFirstRender = useRef(true);
   const isFirstRenderForThresholds = useRef(true);
   const { t } = useTranslation();
-  const isIndoorParameterInUrl = isIndoor === "true";
-  const isDormantParameterInUrl = isActive === "false";
+  const isIndoorParameterInUrl = isIndoor === TRUE;
+  const isDormantParameterInUrl = isActive === FALSE;
 
   // State
   const [mapInstance, setMapInstance] = useState<google.maps.Map | null>(null);

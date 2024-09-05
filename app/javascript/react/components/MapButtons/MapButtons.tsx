@@ -4,6 +4,7 @@ import { useTranslation } from "react-i18next";
 import clockIcon from "../../assets/icons/clockIcon.svg";
 import copyLinkIcon from "../../assets/icons/copyLinkIcon.svg";
 import filterIcon from "../../assets/icons/filterIcon.svg";
+import { FALSE, TRUE } from "../../const/booleans";
 import { selectFixedSessionsList } from "../../store/fixedSessionsSelectors";
 import { useAppSelector } from "../../store/hooks";
 import { FixedSessionsTypes } from "../../store/sessionFiltersSlice";
@@ -31,13 +32,11 @@ const MapButtons: React.FC = () => {
   const { t } = useTranslation();
 
   const fixedSessionsType =
-    isActive === "true"
-      ? FixedSessionsTypes.ACTIVE
-      : FixedSessionsTypes.DORMANT;
+    isActive === TRUE ? FixedSessionsTypes.ACTIVE : FixedSessionsTypes.DORMANT;
   const listSessions = useAppSelector((state) =>
     selectFixedSessionsList(state, fixedSessionsType)
   );
-  const isDormant = isActive === "false";
+  const isDormant = isActive === FALSE;
 
   const showFilters = activeButtons.includes(ButtonTypes.FILTER);
   const isModalView = currentUserSettings === UserSettings.ModalView;
