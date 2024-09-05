@@ -6,10 +6,7 @@ import {
 } from "../../store/fixedSessionsSelectors";
 import { useAppDispatch, useAppSelector } from "../../store/hooks";
 import { setFetchingData } from "../../store/mapSlice";
-import {
-  FixedSessionsTypes,
-  setFixedSessionsType,
-} from "../../store/sessionFiltersSlice";
+import { FixedSessionsTypes } from "../../store/sessionFiltersSlice";
 import { UserSettings } from "../../types/userStates";
 import { UrlParamsTypes, useMapParams } from "../../utils/mapParamsHandler";
 import useMobileDetection from "../../utils/useScreenSizeDetection";
@@ -43,7 +40,6 @@ const DormantToggle = () => {
       : FixedSessionsTypes.ACTIVE;
     const urlParamValue = isSettingDormant ? "false" : "true";
     dispatch(setFetchingData(true));
-    dispatch(setFixedSessionsType(fixedSessionsTypeToBeSet));
     setFilter(UrlParamsTypes.isActive, urlParamValue);
 
     const currentYear = new Date().getFullYear();
@@ -96,22 +92,12 @@ const DormantToggle = () => {
   ]);
 
   useEffect(() => {
-    const initializeFromUrl = () => {
-      if (isDormantParameterInUrl) {
-        dispatch(setFixedSessionsType(FixedSessionsTypes.DORMANT));
-
-        if (!isDormantSessionsFetched) {
-          dispatch(setFetchingData(true));
-        }
-      } else {
-        dispatch(setFixedSessionsType(FixedSessionsTypes.ACTIVE));
-        if (!isActiveSessionsFetched) {
-          dispatch(setFetchingData(true));
-        }
-      }
-    };
-
-    initializeFromUrl();
+    if (
+      (isDormantParameterInUrl && !isDormantSessionsFetched) ||
+      (!isDormantParameterInUrl && !isActiveSessionsFetched)
+    ) {
+      dispatch(setFetchingData(true));
+    }
   }, [
     isDormantParameterInUrl,
     dispatch,

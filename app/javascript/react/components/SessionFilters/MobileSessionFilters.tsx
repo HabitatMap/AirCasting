@@ -14,8 +14,6 @@ import {
   selectBasicSensorsModalOpen,
   selectCustomParametersModalOpen,
   selectCustomSensorsModalOpen,
-  selectFixedSessionsType,
-  selectIsDormantSessionsType,
 } from "../../store/sessionFiltersSlice";
 import { SessionTypes } from "../../types/filters";
 import { SensorPrefix } from "../../types/sensors";
@@ -59,7 +57,6 @@ const MobileSessionFilters = ({
   const activeFixedSessionsState = useAppSelector(
     selectActiveFixedSessionsState
   );
-  const fixedSessionsType = useAppSelector(selectFixedSessionsType);
   const mobileSessionsState = useAppSelector(selectMobileSessionsState);
   const basicParametersModalOpen = useAppSelector(
     selectBasicParametersModalOpen
@@ -80,7 +77,8 @@ const MobileSessionFilters = ({
   const [isCustomSensorsModalOpen, setIsCustomSensorsModalOpen] = useState(
     customParametersModalOpen
   );
-  const { sessionType, measurementType, isIndoor, sensorName } = useMapParams();
+  const { sessionType, measurementType, isIndoor, sensorName, isActive } =
+    useMapParams();
   const { t } = useTranslation();
 
   const parameters = useAppSelector(selectParameters);
@@ -100,7 +98,7 @@ const MobileSessionFilters = ({
   );
   const isFixedSessionTypeSelected: boolean =
     sessionType === SessionTypes.FIXED;
-  const isDormant = useAppSelector(selectIsDormantSessionsType);
+  const isDormant = isActive === "false";
 
   const sessionsCount = useMemo(() => {
     switch (sessionType) {

@@ -20,7 +20,6 @@ interface SessionFilterState {
   customParametersModalOpen: boolean;
   basicSensorsModalOpen: boolean;
   customSensorsModalOpen: boolean;
-  fixedSessionsType: FixedSessionsTypes;
 }
 
 const initialState: SessionFilterState = {
@@ -32,7 +31,6 @@ const initialState: SessionFilterState = {
   customParametersModalOpen: false,
   basicSensorsModalOpen: false,
   customSensorsModalOpen: false,
-  fixedSessionsType: FixedSessionsTypes.ACTIVE,
 };
 
 export const fetchUsernames = createAsyncThunk(
@@ -80,12 +78,6 @@ const sessionFilterSlice = createSlice({
     },
     setCustomSensorsModalOpen: (state, action: PayloadAction<boolean>) => {
       state.customSensorsModalOpen = action.payload;
-    },
-    setFixedSessionsType: (
-      state,
-      action: PayloadAction<FixedSessionsTypes>
-    ) => {
-      state.fixedSessionsType = action.payload;
     },
   },
   extraReducers: (builder) => {
@@ -137,17 +129,10 @@ export const selectBasicSensorsModalOpen = (state: RootState): boolean =>
 export const selectCustomSensorsModalOpen = (state: RootState): boolean =>
   state.sessionFilter.customSensorsModalOpen;
 
-export const selectFixedSessionsType = (state: RootState): FixedSessionsTypes =>
-  state.sessionFilter.fixedSessionsType;
-
-export const selectIsDormantSessionsType = (state: RootState): boolean =>
-  state.sessionFilter.fixedSessionsType === FixedSessionsTypes.DORMANT;
-
 export const {
   setBasicParametersModalOpen,
   setCustomParametersModalOpen,
   setBasicSensorsModalOpen,
   setCustomSensorsModalOpen,
-  setFixedSessionsType,
 } = sessionFilterSlice.actions;
 export default sessionFilterSlice.reducer;

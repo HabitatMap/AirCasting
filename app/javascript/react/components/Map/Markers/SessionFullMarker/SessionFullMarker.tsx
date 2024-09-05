@@ -1,7 +1,6 @@
 import React from "react";
 
-import { useAppSelector } from "../../../../store/hooks";
-import { selectIsDormantSessionsType } from "../../../../store/sessionFiltersSlice";
+import { useMapParams } from "../../../../utils/mapParamsHandler";
 import {
   SelectedDataContainer,
   SelectedShadowCircle,
@@ -29,7 +28,8 @@ const SessionFullMarker = ({
   shouldPulse = false,
   onClick,
 }: MarkerProps) => {
-  const isDormant = useAppSelector(selectIsDormantSessionsType);
+  const { isActive } = useMapParams();
+  const isDormant = isActive === "false";
 
   if (isSelected) {
     return (

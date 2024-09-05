@@ -5,10 +5,9 @@ import { useSelector } from "react-redux";
 
 import rightVector from "../../../assets/icons/rightVector.svg";
 import { gray300 } from "../../../assets/styles/colors";
-import { useAppSelector } from "../../../store/hooks";
-import { selectIsDormantSessionsType } from "../../../store/sessionFiltersSlice";
 import { selectThresholds } from "../../../store/thresholdSlice";
 import { DateFormat } from "../../../types/dateFormat";
+import { useMapParams } from "../../../utils/mapParamsHandler";
 import { getColorForValue } from "../../../utils/thresholdColors";
 import * as S from "./SessionListTile.style";
 
@@ -38,6 +37,7 @@ const SessionsListTile: React.FC<SessionListTile> = ({
   onMouseLeave,
 }) => {
   const thresholds = useSelector(selectThresholds);
+  const { isActive } = useMapParams();
 
   const { t } = useTranslation();
 
@@ -72,7 +72,7 @@ const SessionsListTile: React.FC<SessionListTile> = ({
     }
   };
 
-  const isDormant = useAppSelector(selectIsDormantSessionsType);
+  const isDormant = isActive === "false";
 
   const dotColor = isDormant
     ? gray300

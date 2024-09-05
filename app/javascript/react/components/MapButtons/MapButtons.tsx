@@ -6,10 +6,7 @@ import copyLinkIcon from "../../assets/icons/copyLinkIcon.svg";
 import filterIcon from "../../assets/icons/filterIcon.svg";
 import { selectFixedSessionsList } from "../../store/fixedSessionsSelectors";
 import { useAppSelector } from "../../store/hooks";
-import {
-  selectFixedSessionsType,
-  selectIsDormantSessionsType,
-} from "../../store/sessionFiltersSlice";
+import { FixedSessionsTypes } from "../../store/sessionFiltersSlice";
 import { SessionTypes } from "../../types/filters";
 import { UserSettings } from "../../types/userStates";
 import { useMapParams } from "../../utils/mapParamsHandler";
@@ -26,17 +23,21 @@ enum ButtonTypes {
 }
 
 const MapButtons: React.FC = () => {
-  const { goToUserSettings, currentUserSettings, sessionType } = useMapParams();
+  const { goToUserSettings, currentUserSettings, sessionType, isActive } =
+    useMapParams();
   const [activeButtons, setActiveButtons] = useState<ButtonTypes[]>([]);
   const [activeCopyLinkButton, setActiveCopyLinkButton] = useState(false);
 
   const { t } = useTranslation();
 
-  const fixedSessionsType = useAppSelector(selectFixedSessionsType);
+  const fixedSessionsType =
+    isActive === "true"
+      ? FixedSessionsTypes.ACTIVE
+      : FixedSessionsTypes.DORMANT;
   const listSessions = useAppSelector((state) =>
     selectFixedSessionsList(state, fixedSessionsType)
   );
-  const isDormant = useAppSelector(selectIsDormantSessionsType);
+  const isDormant = isActive === "false";
 
   const showFilters = activeButtons.includes(ButtonTypes.FILTER);
   const isModalView = currentUserSettings === UserSettings.ModalView;

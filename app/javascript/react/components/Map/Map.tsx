@@ -42,11 +42,7 @@ import { fetchMobileSessions } from "../../store/mobileSessionsSlice";
 import { selectMobileStreamPoints } from "../../store/mobileStreamSelectors";
 import { fetchMobileStreamById } from "../../store/mobileStreamSlice";
 import { fetchSensors } from "../../store/sensorsSlice";
-import {
-  FixedSessionsTypes,
-  selectFixedSessionsType,
-  setFixedSessionsType,
-} from "../../store/sessionFiltersSlice";
+import { FixedSessionsTypes } from "../../store/sessionFiltersSlice";
 import {
   fetchThresholds,
   resetUserThresholds,
@@ -125,6 +121,7 @@ const Map = () => {
   const isFirstRenderForThresholds = useRef(true);
   const { t } = useTranslation();
   const isIndoorParameterInUrl = isIndoor === "true";
+  const isDormantParameterInUrl = isActive === "false";
 
   // State
   const [mapInstance, setMapInstance] = useState<google.maps.Map | null>(null);
@@ -142,7 +139,9 @@ const Map = () => {
   );
 
   const fetchingData = useAppSelector(selectFetchingData);
-  const fixedSessionsType = useAppSelector(selectFixedSessionsType);
+  const fixedSessionsType = isDormantParameterInUrl
+    ? FixedSessionsTypes.DORMANT
+    : FixedSessionsTypes.ACTIVE;
   const fixedPoints = useAppSelector((state) =>
     sessionId
       ? selectFixedSessionPointsBySessionId(state, fixedSessionsType, sessionId)
@@ -165,7 +164,6 @@ const Map = () => {
   );
   const timelapseData = useAppSelector(selectTimelapseData);
   const currentTimestamp = useAppSelector(selectCurrentTimestamp);
-  const isDormantParameterInUrl = isActive === "false";
 
   const fixedSessionTypeSelected: boolean = sessionType === SessionTypes.FIXED;
   const listSessions = useAppSelector((state) => {
@@ -285,8 +283,6 @@ const Map = () => {
   }, [sessionType]);
 
   useEffect(() => {
-    isDormantParameterInUrl &&
-      dispatch(setFixedSessionsType(FixedSessionsTypes.DORMANT));
     const isFirstLoad = isFirstRender.current;
     if (isFirstLoad && fetchedSessions > 0 && !fixedSessionTypeSelected) {
       const originalLimit = limit;
@@ -312,7 +308,7 @@ const Map = () => {
               fetchIndoorSessions({ filters: indoorSessionsFilters })
             ).unwrap();
           } else {
-            if (fixedSessionsType === FixedSessionsTypes.ACTIVE) {
+            if (!isDormantParameterInUrl) {
               dispatch(fetchActiveFixedSessions({ filters })).unwrap();
             } else {
               dispatch(fetchDormantFixedSessions({ filters })).unwrap();
