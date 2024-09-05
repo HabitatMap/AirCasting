@@ -368,11 +368,11 @@ const Map = () => {
       newSearchParams.set(UrlParamsTypes.streamId, "");
       navigate(`?${newSearchParams.toString()}`);
     }
-    !isFirstRender.current && setPreviousZoomOnTheMap();
-    isMobile && setPreviousZoomInTheURL();
 
-    setPreviousZoomOnTheMap();
-    setPreviousZoomInTheURL();
+    if (!isFirstRender.current) {
+      setPreviousZoomOnTheMap();
+      setPreviousZoomInTheURL();
+    }
 
     isFirstRender.current = false;
   }, [currentUserSettings]);

@@ -284,7 +284,7 @@ export const useMapParams = () => {
         },
         {
           key: UrlParamsTypes.isActive,
-          value: FALSE,
+          value: TRUE,
         },
       ]);
     },
