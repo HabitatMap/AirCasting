@@ -336,6 +336,8 @@ const Map = () => {
     fixedSessionTypeSelected,
     offset,
     updateFetchedSessions,
+    isIndoorParameterInUrl,
+    isDormantParameterInUrl,
   ]);
 
   useEffect(() => {
