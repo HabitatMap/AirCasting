@@ -25,7 +25,6 @@ import {
 const DormantToggle = () => {
   const { t } = useTranslation();
   const dispatch = useAppDispatch();
-  const { updateTime } = useMapParams();
   const { isActive, setFilter, setUrlParams, currentUserSettings } =
     useMapParams();
 
@@ -39,15 +38,16 @@ const DormantToggle = () => {
 
   const handleToggleClick = useCallback(() => {
     const isSettingDormant = !isDormantParameterInUrl;
-    const fixedSessionsType = isSettingDormant
+    const fixedSessionsTypeToBeSet = isSettingDormant
       ? FixedSessionsTypes.DORMANT
       : FixedSessionsTypes.ACTIVE;
     const urlParamValue = isSettingDormant ? "false" : "true";
     dispatch(setFetchingData(true));
-    const currentYear = new Date().getFullYear();
-    dispatch(setFixedSessionsType(fixedSessionsType));
+    dispatch(setFixedSessionsType(fixedSessionsTypeToBeSet));
     setFilter(UrlParamsTypes.isActive, urlParamValue);
-    if (fixedSessionsType === FixedSessionsTypes.DORMANT) {
+
+    const currentYear = new Date().getFullYear();
+    if (fixedSessionsTypeToBeSet === FixedSessionsTypes.ACTIVE) {
       setUrlParams([
         {
           key: UrlParamsTypes.previousUserSettings,
@@ -79,7 +79,7 @@ const DormantToggle = () => {
         },
         {
           key: UrlParamsTypes.isActive,
-          value: "false",
+          value: "true",
         },
       ]);
     }

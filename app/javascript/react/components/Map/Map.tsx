@@ -285,7 +285,6 @@ const Map = () => {
   }, [sessionType]);
 
   useEffect(() => {
-    console.log("fixedSessionsType", fixedSessionsType);
     isDormantParameterInUrl &&
       dispatch(setFixedSessionsType(FixedSessionsTypes.DORMANT));
     const isFirstLoad = isFirstRender.current;
