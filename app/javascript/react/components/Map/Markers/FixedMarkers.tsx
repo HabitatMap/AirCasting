@@ -358,7 +358,7 @@ const FixedMarkers = ({
       if (!clusterer.current) {
         clusterer.current = new MarkerClusterer({
           map,
-          renderer: customRenderer(thresholds, clusterElementsRef), // Ensure thresholds are passed only once here
+          renderer: customRenderer(thresholds, clusterElementsRef),
           algorithm: new SuperClusterAlgorithm({
             maxZoom: 21,
             radius: 40,
