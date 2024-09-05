@@ -82,7 +82,6 @@ export const DesktopParameterFilter = () => {
   const [moreOpen, setMoreOpen] = useState(false);
   const { t } = useTranslation();
   const { measurementType, sessionType, setParameterParams } = useMapParams();
-  const dispatch = useAppDispatch();
   const isMobile = useMobileDetection();
   const sensors = useAppSelector(selectSensors);
   const parameters = useAppSelector(selectParameters);
@@ -151,31 +150,15 @@ export const MobileDeviceParameterFilter: React.FC<
 > = ({ customParameters, sessionsCount, onClose, fetchableSessionsCount }) => {
   const dispatch = useAppDispatch();
   const { t } = useTranslation();
-  const {
-    measurementType,
-    setUrlParams,
-    sessionType,
-    currentUserSettings,
-    isIndoor,
-    setParameterParams,
-  } = useMapParams();
+  const { measurementType, sessionType, setParameterParams } = useMapParams();
   const sensors = useAppSelector(selectSensors);
-  const isMobile = useMobileDetection();
   const fixedSessionTypeSelected = sessionType === SessionTypes.FIXED;
 
   const handleSelectParameter = useCallback(
     (selectedParameter: ParameterType) => {
       setParameterParams(selectedParameter, sensors);
     },
-    [
-      sensors,
-      sessionType,
-      isMobile,
-      currentUserSettings,
-      isIndoor,
-      setUrlParams,
-      dispatch,
-    ]
+    [sensors]
   );
 
   const handleShowMoreClick = () => {
