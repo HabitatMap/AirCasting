@@ -109,7 +109,6 @@ export const DesktopParameterFilter = () => {
   };
 
   const handleSelectParameter = (selectedParameter: ParameterType) => {
-    console.log(selectedParameter, "selectedParameter");
     updateMeasurementType(selectedParameter, sensors);
     dispatch(setFetchingData(true));
     dispatch(setBasicParametersModalOpen(false));

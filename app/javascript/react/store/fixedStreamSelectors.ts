@@ -57,19 +57,16 @@ const selectFixedStreamShortInfo = createSelector(
     const { value: lastMeasurementValue, date } = lastDailyAverage || {};
 
     const lastMeasurementDateLabel = moment(date).format("MMM D");
-    console.log(lastMeasurementDateLabel, "lastMeasurementDateLabel");
-    console.log(date, "date");
     const lastUpdate = moment
       .utc(fixedStreamData.stream.lastUpdate)
 
       .format("HH:mm MMM D YYYY");
-    console.log(lastUpdate, "lastUpdate");
-    const startTime = moment(fixedStreamData.stream.startTime).format(
-      DateFormat.us_with_time
-    );
-    const endTime = moment(fixedStreamData.stream.endTime).format(
-      DateFormat.us_with_time
-    );
+    const startTime = moment
+      .utc(fixedStreamData.stream.startTime)
+      .format(DateFormat.us_with_time);
+    const endTime = moment
+      .utc(fixedStreamData.stream.endTime)
+      .format(DateFormat.us_with_time);
 
     const active = fixedStreamData.stream.active;
     const { min, low, middle, high, max } = fixedStreamData.stream;
