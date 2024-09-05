@@ -95,7 +95,7 @@ export const DesktopParameterFilter = () => {
   );
 
   const handleSelectParameter = (selectedParameter: ParameterType) => {
-    setParameterParams(selectedParameter, sensors, dispatch);
+    setParameterParams(selectedParameter, sensors);
   };
 
   useEffect(() => {
@@ -165,7 +165,7 @@ export const MobileDeviceParameterFilter: React.FC<
 
   const handleSelectParameter = useCallback(
     (selectedParameter: ParameterType) => {
-      setParameterParams(selectedParameter, sensors, dispatch);
+      setParameterParams(selectedParameter, sensors);
     },
     [
       sensors,

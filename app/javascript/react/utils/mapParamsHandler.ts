@@ -16,7 +16,7 @@ import {
   DEFAULT_MAP_CENTER,
   DEFAULT_ZOOM,
 } from "../const/coordinates";
-import { useAppSelector } from "../store/hooks";
+import { useAppDispatch, useAppSelector } from "../store/hooks";
 import { setFetchingData } from "../store/mapSlice";
 import {
   setBasicParametersModalOpen,
@@ -78,6 +78,7 @@ export const useMapParams = () => {
   const thresholdValues = useAppSelector(selectThresholds);
   const isMobile: boolean = useMobileDetection();
   const [searchParams, setSearchParams] = useSearchParams();
+  const dispatch = useAppDispatch();
 
   const getSearchParam = (
     param: UrlParamsTypes,
@@ -664,11 +665,7 @@ export const useMapParams = () => {
   );
 
   const setParameterParams = useCallback(
-    (
-      selectedParameter: ParameterType,
-      sensors: Sensor[],
-      dispatch: (action: any) => void
-    ) => {
+    (selectedParameter: ParameterType, sensors: Sensor[]) => {
       const sensorData = setSensor(selectedParameter, sensors, sessionType);
       const commonParams = [
         {
@@ -711,7 +708,7 @@ export const useMapParams = () => {
           ...commonParams,
           {
             key: UrlParamsTypes.isIndoor,
-            value: "false",
+            value: FALSE,
           },
         ]);
       }
@@ -723,11 +720,7 @@ export const useMapParams = () => {
   );
 
   const setSensorParams = useCallback(
-    (
-      selectedSensor: string,
-      sensors: Sensor[],
-      dispatch: (action: any) => void
-    ) => {
+    (selectedSensor: string, sensors: Sensor[]) => {
       const commonParams = [
         {
           key: UrlParamsTypes.previousUserSettings,
@@ -765,7 +758,7 @@ export const useMapParams = () => {
           ...commonParams,
           {
             key: UrlParamsTypes.isIndoor,
-            value: "false",
+            value: FALSE,
           },
         ]);
       }

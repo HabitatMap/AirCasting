@@ -120,7 +120,7 @@ export const DesktopSensorFilter = () => {
   const basicSensors = getBasicSensors(measurementType, sessionType);
 
   const handleSelectSensor = (selectedSensor: string) => {
-    setSensorParams(selectedSensor, sensors, dispatch);
+    setSensorParams(selectedSensor, sensors);
   };
 
   useEffect(() => {
@@ -188,7 +188,7 @@ export const MobileDeviceSensorFilter: React.FC<
 
   const handleSelectSensor = useCallback(
     (selectedSensor: string) => {
-      setSensorParams(selectedSensor, sensors, dispatch);
+      setSensorParams(selectedSensor, sensors);
     },
     [sensors, isMobile, currentUserSettings, isIndoor, setUrlParams, dispatch]
   );
