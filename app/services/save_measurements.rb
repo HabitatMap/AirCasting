@@ -21,27 +21,21 @@ class SaveMeasurements
 
     persisted_streams_hash =
       persisted_streams.each_with_object({}) do |stream, acc|
-        acc[stream.sensor_name] ||= []
-        acc[stream.sensor_name] << {
-          coords: [stream.min_latitude.to_f, stream.min_longitude.to_f],
-          session_id: stream.session_id,
-          id: stream.id
-        }
+        rounded_latitude = stream.min_latitude.to_f.round(3)
+        rounded_longitude = stream.min_longitude.to_f.round(3)
+        acc[[rounded_latitude, rounded_longitude, stream.sensor_name]] = [
+          stream.session_id,
+          stream.id,
+        ]
       end
-
-    # tolerance applied not to duplicate sessions from the same location with slightly different coordinates (AirNow)
-    lat_lon_tolerance = 0.00009
 
     pairs_to_append, pairs_to_create =
       streams.to_a.partition do |stream, _measurements|
-        next false unless persisted_streams_hash.key?(stream.sensor_name)
-
-        persisted_streams_hash[stream.sensor_name].any? do |entry|
-          lat1, lon1 = entry[:coords]
-          lat2, lon2 = stream.latitude.to_f, stream.longitude.to_f
-
-          (lat1 - lat2).abs <= lat_lon_tolerance && (lon1 - lon2).abs <= lat_lon_tolerance
-        end
+        rounded_latitude = stream.latitude.round(3)
+        rounded_longitude = stream.longitude.round(3)
+        persisted_streams_hash.key?(
+          [rounded_latitude, rounded_longitude, stream.sensor_name],
+        )
       end
 
     sessions_to_create =
