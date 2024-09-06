@@ -16,7 +16,7 @@ import {
   DEFAULT_MAP_CENTER,
   DEFAULT_ZOOM,
 } from "../const/coordinates";
-import { useAppDispatch, useAppSelector } from "../store/hooks";
+import { useAppSelector } from "../store/hooks";
 import { setFetchingData } from "../store/mapSlice";
 import {
   setBasicParametersModalOpen,
@@ -78,7 +78,6 @@ export const useMapParams = () => {
   const thresholdValues = useAppSelector(selectThresholds);
   const isMobile: boolean = useMobileDetection();
   const [searchParams, setSearchParams] = useSearchParams();
-  const dispatch = useAppDispatch();
 
   const getSearchParam = (
     param: UrlParamsTypes,
