@@ -21,9 +21,7 @@ class SaveMeasurements
 
     persisted_streams_hash =
       persisted_streams.each_with_object({}) do |stream, acc|
-        rounded_latitude = stream.min_latitude.to_f.round(3)
-        rounded_longitude = stream.min_longitude.to_f.round(3)
-        acc[[rounded_latitude, rounded_longitude, stream.sensor_name]] = [
+        acc[[stream.min_latitude.to_f, stream.min_longitude.to_f, stream.sensor_name]] = [
           stream.session_id,
           stream.id,
         ]
@@ -33,9 +31,14 @@ class SaveMeasurements
       streams.to_a.partition do |stream, _measurements|
         rounded_latitude = stream.latitude.round(3)
         rounded_longitude = stream.longitude.round(3)
-        persisted_streams_hash.key?(
-          [rounded_latitude, rounded_longitude, stream.sensor_name],
-        )
+        stream_sensor_name = stream.sensor_name
+
+        persisted_streams_hash.any? do |key, _|
+          persisted_latitude, persisted_longitude, persisted_sensor_name = key
+          persisted_sensor_name == stream_sensor_name &&
+            persisted_latitude.round(3) == rounded_latitude &&
+            persisted_longitude.round(3) == rounded_longitude
+        end
       end
 
     sessions_to_create =
