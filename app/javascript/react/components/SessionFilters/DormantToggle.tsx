@@ -1,11 +1,7 @@
-import React, { useCallback, useEffect } from "react";
+import React, { useCallback } from "react";
 import { useTranslation } from "react-i18next";
 import { FALSE, TRUE } from "../../const/booleans";
-import {
-  selectIsActiveSessionsFetched,
-  selectIsDormantSessionsFetched,
-} from "../../store/fixedSessionsSelectors";
-import { useAppDispatch, useAppSelector } from "../../store/hooks";
+import { useAppDispatch } from "../../store/hooks";
 import { setFetchingData } from "../../store/mapSlice";
 import { FixedSessionsTypes } from "../../store/sessionFiltersSlice";
 import { UrlParamsTypes, useMapParams } from "../../utils/mapParamsHandler";
@@ -20,10 +16,6 @@ const DormantToggle = () => {
   const { isActive, setFilter, updateActiveFixedSessions } = useMapParams();
 
   const isDormantParameterInUrl = isActive === FALSE;
-  const isDormantSessionsFetched = useAppSelector(
-    selectIsDormantSessionsFetched
-  );
-  const isActiveSessionsFetched = useAppSelector(selectIsActiveSessionsFetched);
 
   const handleToggleClick = useCallback(() => {
     const isSettingDormant = !isDormantParameterInUrl;
@@ -31,38 +23,14 @@ const DormantToggle = () => {
       ? FixedSessionsTypes.DORMANT
       : FixedSessionsTypes.ACTIVE;
     const urlParamValue = isSettingDormant ? FALSE : TRUE;
-    dispatch(setFetchingData(true));
     setFilter(UrlParamsTypes.isActive, urlParamValue);
+    dispatch(setFetchingData(true));
 
     const currentYear = new Date().getFullYear();
     if (fixedSessionsTypeToBeSet === FixedSessionsTypes.ACTIVE) {
       updateActiveFixedSessions(currentYear);
     }
-
-    if (!isDormantSessionsFetched || !isActiveSessionsFetched) {
-      dispatch(setFetchingData(true));
-    }
-  }, [
-    dispatch,
-    isDormantParameterInUrl,
-    isDormantSessionsFetched,
-    isActiveSessionsFetched,
-    setFilter,
-  ]);
-
-  useEffect(() => {
-    if (
-      (isDormantParameterInUrl && !isDormantSessionsFetched) ||
-      (!isDormantParameterInUrl && !isActiveSessionsFetched)
-    ) {
-      dispatch(setFetchingData(true));
-    }
-  }, [
-    isDormantParameterInUrl,
-    dispatch,
-    isDormantSessionsFetched,
-    isActiveSessionsFetched,
-  ]);
+  }, [dispatch, isDormantParameterInUrl, setFilter]);
 
   return (
     <S.Wrapper>
