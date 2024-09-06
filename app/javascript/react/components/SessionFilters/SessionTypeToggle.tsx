@@ -19,7 +19,13 @@ import * as S from "./SessionFilters.style";
 
 const SessionTypeToggle = () => {
   const dispatch = useAppDispatch();
-  const { searchParams, sessionType, updateSessionType } = useMapParams();
+  const {
+    searchParams,
+    sessionType,
+    updateSessionType,
+    updateSessionTypeOnly,
+    updateSessionType2,
+  } = useMapParams();
   const { t } = useTranslation();
 
   const handleClick = useCallback(
@@ -29,10 +35,11 @@ const SessionTypeToggle = () => {
       dispatch(setCustomParametersModalOpen(false));
       dispatch(setBasicSensorsModalOpen(false));
       dispatch(setCustomSensorsModalOpen(false));
-      updateSessionType(type);
+      updateSessionType2(type);
+
       dispatch(setFetchingData(true));
     },
-    [dispatch, searchParams, updateSessionType]
+    [dispatch, searchParams, updateSessionTypeOnly]
   );
 
   return (

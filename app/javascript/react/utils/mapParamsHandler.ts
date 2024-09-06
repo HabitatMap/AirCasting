@@ -87,14 +87,16 @@ export const useMapParams = () => {
   const setUrlParams = useCallback(
     (params: Array<{ key: UrlParamsTypes; value: string }>) => {
       const newSearchParams = new URLSearchParams(searchParams.toString());
+
       params.forEach(({ key, value }) => {
         newSearchParams.set(key, value);
       });
-      setSearchParams(`?${newSearchParams.toString()}`);
+
+      // Replace the current URL without triggering a new history entry
+      setSearchParams(newSearchParams, { replace: true });
     },
     [searchParams, setSearchParams]
   );
-
   const boundEast = parseFloat(
     getSearchParam(
       UrlParamsTypes.boundEast,
@@ -226,7 +228,51 @@ export const useMapParams = () => {
       ) as SessionType,
     [searchParams]
   );
+
+  const updateSessionTypeOnly = useCallback(
+    (selectedSessionType: SessionType) => {
+      setUrlParams([
+        { key: UrlParamsTypes.sessionType, value: selectedSessionType },
+      ]);
+    },
+    [searchParams, setUrlParams]
+  );
+
   const updateSessionType = useCallback(
+    (selectedSessionType: SessionType) => {
+      const currentSearchParams = new URLSearchParams(searchParams.toString());
+      const currentSessionType = currentSearchParams.get(
+        UrlParamsTypes.sessionType
+      ) as SessionType;
+
+      const sensorName =
+        selectedSessionType === SessionTypes.FIXED
+          ? SENSOR_NAMES.PARTICULATE_MATTER.GOVERNMENT_PM25
+          : SENSOR_NAMES.PARTICULATE_MATTER.AIRBEAM_PM25;
+
+      if (currentSessionType !== selectedSessionType) {
+        setUrlParams([
+          { key: UrlParamsTypes.sessionType, value: selectedSessionType },
+          { key: UrlParamsTypes.sensorName, value: sensorName },
+          {
+            key: UrlParamsTypes.measurementType,
+            value:
+              currentSearchParams.get(UrlParamsTypes.measurementType) ||
+              ParameterTypes.PARTICULATE_MATTER,
+          },
+          {
+            key: UrlParamsTypes.unitSymbol,
+            value:
+              currentSearchParams.get(UrlParamsTypes.unitSymbol) ||
+              UnitSymbols.ParticulateMatter,
+          },
+        ]);
+      }
+    },
+    [searchParams, setUrlParams]
+  );
+
+  const updateSessionType2 = useCallback(
     (selectedSessionType: SessionType) => {
       setUrlParams([
         { key: UrlParamsTypes.sessionType, value: selectedSessionType },
@@ -289,6 +335,7 @@ export const useMapParams = () => {
     },
     [currentUserSettings, setUrlParams]
   );
+
   const streamId =
     getSearchParam(UrlParamsTypes.streamId, null) !== null
       ? parseInt(getSearchParam(UrlParamsTypes.streamId, "0")!)
@@ -761,6 +808,8 @@ export const useMapParams = () => {
     sessionId,
     sessionType,
     updateSessionType,
+    updateSessionTypeOnly,
+    updateSessionType2,
     setFilter,
     setUrlParams,
     streamId,

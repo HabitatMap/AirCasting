@@ -122,7 +122,9 @@ const Map = () => {
   const isFirstRenderForThresholds = useRef(true);
   const { t } = useTranslation();
   const isIndoorParameterInUrl = isIndoor === TRUE;
-  const isDormantParameterInUrl = isActive === FALSE;
+  const isDormantParameterInUrl = useMemo(() => {
+    return isActive === FALSE;
+  }, [isActive]);
 
   // State
   const [mapInstance, setMapInstance] = useState<google.maps.Map | null>(null);
@@ -284,61 +286,149 @@ const Map = () => {
   }, [sessionType]);
 
   useEffect(() => {
-    const isFirstLoad = isFirstRender.current;
-    if (isFirstLoad && fetchedSessions > 0 && !fixedSessionTypeSelected) {
-      const originalLimit = limit;
-      updateLimit(fetchedSessions);
+    if (isFirstRender.current) {
+      if (fetchedSessions > 0 && !fixedSessionTypeSelected) {
+        const originalLimit = limit;
+        updateLimit(fetchedSessions);
 
-      const updatedFilters = {
-        ...JSON.parse(filters),
-        limit: fetchedSessions,
-      };
+        const updatedFilters = {
+          ...JSON.parse(filters),
+          limit: fetchedSessions,
+        };
 
-      dispatch(fetchMobileSessions({ filters: JSON.stringify(updatedFilters) }))
-        .unwrap()
-        .then(() => {
-          updateLimit(originalLimit);
-          updateFetchedSessions(fetchedSessions);
-        });
-      isFirstRender.current = false;
-    } else {
-      if (fetchingData || isFirstLoad) {
-        if (fixedSessionTypeSelected) {
-          if (isIndoorParameterInUrl) {
-            dispatch(
-              fetchIndoorSessions({ filters: indoorSessionsFilters })
-            ).unwrap();
-          } else {
-            if (!isDormantParameterInUrl) {
-              dispatch(fetchActiveFixedSessions({ filters })).unwrap();
-            } else {
-              dispatch(fetchDormantFixedSessions({ filters })).unwrap();
-            }
-          }
+        dispatch(
+          fetchMobileSessions({ filters: JSON.stringify(updatedFilters) })
+        )
+          .unwrap()
+          .then(() => {
+            updateLimit(originalLimit);
+            updateFetchedSessions(fetchedSessions);
+          });
+      } else if (fixedSessionTypeSelected) {
+        if (isIndoorParameterInUrl) {
+          dispatch(
+            fetchIndoorSessions({ filters: indoorSessionsFilters })
+          ).unwrap();
+        } else if (!isDormantParameterInUrl) {
+          dispatch(fetchActiveFixedSessions({ filters })).unwrap();
         } else {
-          dispatch(fetchMobileSessions({ filters }))
-            .unwrap()
-            .then((response) => {
-              updateFetchedSessions(response.sessions.length);
-            });
+          dispatch(fetchDormantFixedSessions({ filters })).unwrap();
         }
-        isFirstRender.current = false;
       }
-    }
 
-    dispatch(setFetchingData(false));
+      isFirstRender.current = false;
+    }
   }, [
-    fetchingData,
     filters,
     fetchedSessions,
     limit,
     dispatch,
     fixedSessionTypeSelected,
-    offset,
-    updateFetchedSessions,
-    isIndoorParameterInUrl,
     isDormantParameterInUrl,
+    isIndoorParameterInUrl,
   ]);
+
+  // useEffect(() => {
+  //   const isFirstLoad = isFirstRender.current;
+
+  //   // Only fetch mobile sessions on first load if needed
+  //   if (isFirstLoad && fetchedSessions > 0 && !fixedSessionTypeSelected) {
+  //     const originalLimit = limit;
+  //     updateLimit(fetchedSessions);
+
+  //     const updatedFilters = {
+  //       ...JSON.parse(filters),
+  //       limit: fetchedSessions,
+  //     };
+
+  //     dispatch(fetchMobileSessions({ filters: JSON.stringify(updatedFilters) }))
+  //       .unwrap()
+  //       .then(() => {
+  //         updateLimit(originalLimit);
+  //         updateFetchedSessions(fetchedSessions);
+  //       });
+
+  //     isFirstRender.current = false;
+  //   } else {
+  //     if (fetchingData || isFirstLoad) {
+  //       if (!fixedSessionTypeSelected) {
+  //         // Fetch mobile sessions
+  //         dispatch(fetchMobileSessions({ filters }))
+  //           .unwrap()
+  //           .then((response) => {
+  //             updateFetchedSessions(response.sessions.length);
+  //           });
+  //       }
+  //       isFirstRender.current = false;
+  //     }
+  //   }
+
+  //   dispatch(setFetchingData(false));
+  // }, [
+  //   fetchingData,
+  //   filters,
+  //   fetchedSessions,
+  //   limit,
+  //   dispatch,
+  //   fixedSessionTypeSelected,
+  //   offset,
+  //   updateFetchedSessions,
+  //   sessionType,
+  // ]);
+
+  // useEffect(() => {
+  //   if (isFirstRender.current && fixedSessionTypeSelected) {
+  //     if (
+  //       fixedSessionTypeSelected &&
+  //       !isDormantParameterInUrl &&
+  //       sessionTypeRef.current === SessionTypes.FIXED
+  //     ) {
+  //       console.log("filters:", filters);
+  //       dispatch(fetchActiveFixedSessions({ filters })).unwrap();
+  //     }
+
+  //     if (fixedSessionTypeSelected && isDormantParameterInUrl) {
+  //       dispatch(fetchDormantFixedSessions({ filters })).unwrap();
+  //     }
+
+  //     if (fixedSessionTypeSelected && isIndoorParameterInUrl) {
+  //       dispatch(
+  //         fetchIndoorSessions({ filters: indoorSessionsFilters })
+  //       ).unwrap();
+  //     }
+
+  //     isFirstRender.current = false;
+  //   }
+  // }, [filters, dispatch]);
+
+  // useEffect(() => {
+  //   if (isFirstRender.current && fixedSessionTypeSelected) {
+  //     // Fetch active fixed sessions
+  //     if (!isDormantParameterInUrl) {
+  //       dispatch(fetchActiveFixedSessions({ filters })).unwrap();
+  //     }
+
+  //     // Fetch dormant fixed sessions
+  //     if (isDormantParameterInUrl) {
+  //       dispatch(fetchDormantFixedSessions({ filters })).unwrap();
+  //     }
+
+  //     // Fetch indoor sessions if applicable
+  //     if (isIndoorParameterInUrl) {
+  //       dispatch(
+  //         fetchIndoorSessions({ filters: indoorSessionsFilters })
+  //       ).unwrap();
+  //     }
+
+  //     isFirstRender.current = false;
+  //   }
+  // }, [
+  //   filters,
+  //   dispatch,
+  //   fixedSessionTypeSelected,
+  //   isDormantParameterInUrl,
+  //   isIndoorParameterInUrl,
+  // ]);
 
   useEffect(() => {
     dispatch(fetchThresholds(thresholdFilters));
@@ -366,8 +456,10 @@ const Map = () => {
 
   useEffect(() => {
     if (currentUserSettings !== UserSettings.ModalView) {
+      newSearchParams.set(UrlParamsTypes.sessionType, sessionType);
       newSearchParams.set(UrlParamsTypes.sessionId, "");
       newSearchParams.set(UrlParamsTypes.streamId, "");
+      console.log("Updating URL with sessionType:", sessionType);
       navigate(`?${newSearchParams.toString()}`);
     }
     !isFirstRender.current && setPreviousZoomOnTheMap();
@@ -601,6 +693,17 @@ const Map = () => {
       : dispatch(fetchMobileSessions({ filters }));
     goToUserSettings(UserSettings.FiltersView);
   };
+
+  useEffect(() => {
+    console.log("isDormantParameterInUrl:", isDormantParameterInUrl);
+    console.log("Current sessionType:", sessionType);
+  }, [isDormantParameterInUrl, sessionType]);
+
+  // Ensure that isDormantParameterInUrl is stable
+  useEffect(() => {
+    const isDormant = isActive === FALSE; // Check how you're deriving this
+    console.log("isDormant derived:", isDormant);
+  }, [isActive]);
 
   const openTimelapse = () => {
     goToUserSettings(
