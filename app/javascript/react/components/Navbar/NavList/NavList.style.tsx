@@ -72,7 +72,7 @@ const NavHeader = styled.li`
 `;
 
 const ListItem = styled.li<{ $isActive?: boolean }>`
-  border-bottom: "none";
+  border-bottom: none;
   opacity: ${(p) => (p.$isActive ? "0.5" : "1")};
 `;
 
