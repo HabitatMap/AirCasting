@@ -98,9 +98,7 @@ export const DesktopParameterFilter = () => {
   const handleSelectParameter = (selectedParameter: ParameterType) => {
     setParameterParams(selectedParameter, sensors);
     dispatch(setBasicParametersModalOpen(false));
-    setTimeout(() => {
-      dispatch(setFetchingData(true));
-    }, 200);
+    dispatch(setFetchingData(true));
   };
 
   useEffect(() => {
@@ -164,9 +162,7 @@ export const MobileDeviceParameterFilter: React.FC<
     (selectedParameter: ParameterType) => {
       setParameterParams(selectedParameter, sensors);
       dispatch(setBasicParametersModalOpen(false));
-      setTimeout(() => {
-        dispatch(setFetchingData(true));
-      }, 200);
+      dispatch(setFetchingData(true));
     },
     [sensors]
   );

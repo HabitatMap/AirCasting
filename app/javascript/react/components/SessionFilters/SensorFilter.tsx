@@ -123,9 +123,7 @@ export const DesktopSensorFilter = () => {
   const handleSelectSensor = (selectedSensor: string) => {
     setSensorParams(selectedSensor, sensors);
     dispatch(setBasicSensorsModalOpen(false));
-    setTimeout(() => {
-      dispatch(setFetchingData(true));
-    }, 200);
+    dispatch(setFetchingData(true));
   };
 
   useEffect(() => {
@@ -196,9 +194,7 @@ export const MobileDeviceSensorFilter: React.FC<
       setSensorParams(selectedSensor, sensors);
 
       dispatch(setBasicSensorsModalOpen(false));
-      setTimeout(() => {
-        dispatch(setFetchingData(true));
-      }, 200);
+      dispatch(setFetchingData(true));
     },
     [sensors, isMobile, currentUserSettings, isIndoor, setUrlParams, dispatch]
   );
