@@ -660,10 +660,6 @@ export const useMapParams = () => {
           key: UrlParamsTypes.unitSymbol,
           value: sensorData.unitSymbol,
         },
-        {
-          key: UrlParamsTypes.currentZoom,
-          value: UrlParamsTypes.previousZoom,
-        },
       ];
 
       setUrlParams(commonParams);
@@ -717,10 +713,6 @@ export const useMapParams = () => {
         {
           key: UrlParamsTypes.unitSymbol,
           value: getSensorUnitSymbol(selectedSensor, sensors),
-        },
-        {
-          key: UrlParamsTypes.currentZoom,
-          value: UrlParamsTypes.previousZoom,
         },
       ];
 

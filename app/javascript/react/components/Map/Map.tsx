@@ -370,12 +370,8 @@ const Map = () => {
       newSearchParams.set(UrlParamsTypes.streamId, "");
       navigate(`?${newSearchParams.toString()}`);
     }
-
-    if (!isFirstRender.current) {
-      setPreviousZoomOnTheMap();
-      setPreviousZoomInTheURL();
-    }
-
+    !isFirstRender.current && setPreviousZoomOnTheMap();
+    isMobile && setPreviousZoomInTheURL();
     isFirstRender.current = false;
   }, [currentUserSettings]);
 
