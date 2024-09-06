@@ -33,12 +33,19 @@ class SaveMeasurements
         rounded_longitude = stream.longitude.round(3)
         stream_sensor_name = stream.sensor_name
 
-        persisted_streams_hash.any? do |key, _|
+        match_found = persisted_streams_hash.detect do |key, _|
           persisted_latitude, persisted_longitude, persisted_sensor_name = key
-          persisted_sensor_name == stream_sensor_name &&
-            persisted_latitude.round(3) == rounded_latitude &&
-            persisted_longitude.round(3) == rounded_longitude
+          match_condition = persisted_sensor_name == stream_sensor_name &&
+                            persisted_latitude.round(3) == rounded_latitude &&
+                            persisted_longitude.round(3) == rounded_longitude
+          if match_condition
+            stream.latitude = persisted_latitude
+            stream.longitude = persisted_longitude
+          end
+          match_condition
         end
+
+        match_found.present?
       end
 
     sessions_to_create =
