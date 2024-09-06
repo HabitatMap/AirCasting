@@ -40,7 +40,6 @@ const NavList: React.FC<NavListProps> = ({
         key={item.href}
         href={item.href}
         isNavTitle={item.isNavTitle}
-        isUnderline={item.isUnderline}
         isActive={window.location.pathname === item.href}
         subNav={item.subNav?.map((subItem) => ({
           ...subItem,
