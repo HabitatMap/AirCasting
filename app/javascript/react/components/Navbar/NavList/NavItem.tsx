@@ -9,7 +9,6 @@ interface SubNavItem {
 interface NavItemProps {
   href: string;
   isNavTitle?: boolean;
-  isUnderline?: boolean;
   isActive?: boolean;
   children?: ReactNode;
   subNav?: SubNavItem[];
@@ -18,12 +17,11 @@ interface NavItemProps {
 const NavItem: React.FC<NavItemProps> = ({
   href,
   isNavTitle,
-  isUnderline,
   isActive,
   children,
   subNav,
 }) => (
-  <S.ListItem $isUnderline={isUnderline} $isActive={isActive}>
+  <S.ListItem $isActive={isActive}>
     {isNavTitle ? (
       <S.SubNavTitleLink href={href}>{children}</S.SubNavTitleLink>
     ) : (
