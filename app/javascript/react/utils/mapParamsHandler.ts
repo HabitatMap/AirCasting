@@ -676,9 +676,6 @@ export const useMapParams = () => {
           },
         ]);
       }
-
-      dispatch(setBasicParametersModalOpen(false));
-      dispatch(setFetchingData(true));
     },
     [setUrlParams, setSensor, setBasicParametersModalOpen, setFetchingData]
   );
@@ -730,9 +727,6 @@ export const useMapParams = () => {
           },
         ]);
       }
-
-      dispatch(setBasicSensorsModalOpen(false));
-      dispatch(setFetchingData(true));
     },
     [
       setUrlParams,

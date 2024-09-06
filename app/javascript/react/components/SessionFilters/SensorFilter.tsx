@@ -7,6 +7,7 @@ import chevron from "../../assets/icons/chevronRight.svg";
 import minus from "../../assets/icons/minus.svg";
 import plus from "../../assets/icons/plus.svg";
 import { useAppDispatch, useAppSelector } from "../../store/hooks";
+import { setFetchingData } from "../../store/mapSlice";
 import { selectSensors } from "../../store/sensorsSlice";
 import {
   selectBasicSensorsModalOpen,
@@ -121,6 +122,10 @@ export const DesktopSensorFilter = () => {
 
   const handleSelectSensor = (selectedSensor: string) => {
     setSensorParams(selectedSensor, sensors);
+    dispatch(setBasicSensorsModalOpen(false));
+    setTimeout(() => {
+      dispatch(setFetchingData(true));
+    }, 200);
   };
 
   useEffect(() => {
@@ -189,6 +194,11 @@ export const MobileDeviceSensorFilter: React.FC<
   const handleSelectSensor = useCallback(
     (selectedSensor: string) => {
       setSensorParams(selectedSensor, sensors);
+
+      dispatch(setBasicSensorsModalOpen(false));
+      setTimeout(() => {
+        dispatch(setFetchingData(true));
+      }, 200);
     },
     [sensors, isMobile, currentUserSettings, isIndoor, setUrlParams, dispatch]
   );

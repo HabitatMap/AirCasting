@@ -7,6 +7,7 @@ import chevron from "../../assets/icons/chevronRight.svg";
 import minus from "../../assets/icons/minus.svg";
 import plus from "../../assets/icons/plus.svg";
 import { useAppDispatch, useAppSelector } from "../../store/hooks";
+import { setFetchingData } from "../../store/mapSlice";
 import { selectParameters, selectSensors } from "../../store/sensorsSlice";
 import {
   selectBasicParametersModalOpen,
@@ -81,6 +82,7 @@ export const DesktopParameterFilter = () => {
   const [isBasicOpen, setIsBasicOpen] = useState(false);
   const [moreOpen, setMoreOpen] = useState(false);
   const { t } = useTranslation();
+  const dispatch = useAppDispatch();
   const { measurementType, sessionType, setParameterParams } = useMapParams();
   const isMobile = useMobileDetection();
   const sensors = useAppSelector(selectSensors);
@@ -95,6 +97,10 @@ export const DesktopParameterFilter = () => {
 
   const handleSelectParameter = (selectedParameter: ParameterType) => {
     setParameterParams(selectedParameter, sensors);
+    dispatch(setBasicParametersModalOpen(false));
+    setTimeout(() => {
+      dispatch(setFetchingData(true));
+    }, 200);
   };
 
   useEffect(() => {
@@ -157,6 +163,10 @@ export const MobileDeviceParameterFilter: React.FC<
   const handleSelectParameter = useCallback(
     (selectedParameter: ParameterType) => {
       setParameterParams(selectedParameter, sensors);
+      dispatch(setBasicParametersModalOpen(false));
+      setTimeout(() => {
+        dispatch(setFetchingData(true));
+      }, 200);
     },
     [sensors]
   );
