@@ -25,8 +25,8 @@ const MarkerContainer = styled.div`
   display: flex;
   position: absolute;
   // To match the position of the marker with the center of the shadow circle
-  top: -2rem;
-  left: -2rem;
+  top: -1rem;
+  left: -1rem;
   width: 2rem;
   height: 2rem;
   cursor: pointer;

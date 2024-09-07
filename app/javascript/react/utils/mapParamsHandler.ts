@@ -10,6 +10,7 @@ import {
   endOfTheYear,
   getLastFiveYears,
 } from "../components/SessionFilters/YearPickerButtons";
+import { FALSE, TRUE } from "../const/booleans";
 import {
   DEFAULT_MAP_BOUNDS,
   DEFAULT_MAP_CENTER,
@@ -27,7 +28,7 @@ import {
   SessionTypes,
   UnitSymbols,
 } from "../types/filters";
-import { Sensor, SENSOR_NAMES } from "../types/sensors";
+import { Sensor, SENSOR_NAMES, SensorPrefix } from "../types/sensors";
 import { UserSettings } from "../types/userStates";
 import useMobileDetection from "../utils/useScreenSizeDetection";
 import { setSensor } from "./setSensor";
@@ -42,6 +43,7 @@ export enum UrlParamsTypes {
   currentZoom = "currentZoom",
   fetchedSessions = "fetchedSessions",
   gridSize = "gridSize",
+  isActive = "isActive",
   isIndoor = "isIndoor",
   limit = "limit",
   mapType = "mapType",
@@ -130,7 +132,8 @@ export const useMapParams = () => {
     getSearchParam(UrlParamsTypes.currentZoom, DEFAULT_ZOOM.toString())!
   );
 
-  const isIndoor = getSearchParam(UrlParamsTypes.isIndoor, "false");
+  const isIndoor = getSearchParam(UrlParamsTypes.isIndoor, FALSE);
+  const currentYear = new Date().getFullYear();
 
   const gridSize = parseInt(
     getSearchParam(UrlParamsTypes.gridSize, defaultGridSize.toString())!
@@ -266,8 +269,9 @@ export const useMapParams = () => {
         },
         {
           key: UrlParamsTypes.isIndoor,
-          value: "false",
+          value: FALSE,
         },
+        { key: UrlParamsTypes.isActive, value: TRUE },
         {
           key: UrlParamsTypes.timeFrom,
           value: beginningOfTheYear(getLastFiveYears()[0]).toString(),
@@ -280,6 +284,57 @@ export const useMapParams = () => {
     },
     [currentUserSettings, setUrlParams]
   );
+
+  const isActive = useMemo(() => {
+    const activeParam = getSearchParam(UrlParamsTypes.isActive, TRUE);
+
+    if (sessionType === SessionTypes.MOBILE) {
+      return true;
+    }
+
+    return activeParam === TRUE;
+  }, [searchParams, sessionType]);
+
+  const updateIsActive = useCallback(
+    (newIsActive: boolean) => {
+      if (sessionType === SessionTypes.MOBILE) {
+        newIsActive = true;
+      }
+      setUrlParams([
+        {
+          key: UrlParamsTypes.previousUserSettings,
+          value: currentUserSettings,
+        },
+        {
+          key: UrlParamsTypes.currentUserSettings,
+          value: isMobile
+            ? UserSettings.FiltersView
+            : currentUserSettings === UserSettings.CrowdMapView
+            ? UserSettings.CrowdMapView
+            : UserSettings.MapView,
+        },
+        {
+          key: UrlParamsTypes.sessionId,
+          value: "",
+        },
+        {
+          key: UrlParamsTypes.streamId,
+          value: "",
+        },
+        {
+          key: UrlParamsTypes.timeFrom,
+          value: beginningOfTheYear(currentYear).toString(),
+        },
+        {
+          key: UrlParamsTypes.timeTo,
+          value: endOfTheYear(currentYear).toString(),
+        },
+        { key: UrlParamsTypes.isActive, value: newIsActive.toString() },
+      ]);
+    },
+    [sessionType, setUrlParams, currentYear]
+  );
+
   const streamId =
     getSearchParam(UrlParamsTypes.streamId, null) !== null
       ? parseInt(getSearchParam(UrlParamsTypes.streamId, "0")!)
@@ -483,91 +538,6 @@ export const useMapParams = () => {
     [searchParams]
   );
 
-  const updateMeasurementType = useCallback(
-    (selectedMeasurementType: ParameterType, sensors: Sensor[]) => {
-      const selectedSensor = setSensor(
-        selectedMeasurementType,
-        sensors,
-        sessionType
-      );
-      setUrlParams([
-        {
-          key: UrlParamsTypes.previousUserSettings,
-          value: currentUserSettings,
-        },
-        {
-          key: UrlParamsTypes.currentUserSettings,
-          value: isMobile
-            ? UserSettings.FiltersView
-            : currentUserSettings === UserSettings.CrowdMapView
-            ? UserSettings.CrowdMapView
-            : UserSettings.MapView,
-        },
-        {
-          key: UrlParamsTypes.sessionId,
-          value: "",
-        },
-        {
-          key: UrlParamsTypes.streamId,
-          value: "",
-        },
-        {
-          key: UrlParamsTypes.measurementType,
-          value: selectedMeasurementType,
-        },
-        {
-          key: UrlParamsTypes.sensorName,
-          value: selectedSensor.sensorName,
-        },
-        {
-          key: UrlParamsTypes.unitSymbol,
-          value: selectedSensor.unitSymbol,
-        },
-      ]);
-    },
-    [currentUserSettings, sessionType, setSensor, setUrlParams, isMobile]
-  );
-
-  const updateSensorName = useCallback(
-    (selectedSensorName: string, sensors: Sensor[]) => {
-      setUrlParams([
-        {
-          key: UrlParamsTypes.previousUserSettings,
-          value: currentUserSettings,
-        },
-        {
-          key: UrlParamsTypes.currentUserSettings,
-          value: isMobile
-            ? UserSettings.FiltersView
-            : currentUserSettings === UserSettings.CrowdMapView
-            ? UserSettings.CrowdMapView
-            : UserSettings.MapView,
-        },
-        {
-          key: UrlParamsTypes.sessionId,
-          value: "",
-        },
-        {
-          key: UrlParamsTypes.streamId,
-          value: "",
-        },
-        {
-          key: UrlParamsTypes.sensorName,
-          value: selectedSensorName,
-        },
-        {
-          key: UrlParamsTypes.unitSymbol,
-          value: getSensorUnitSymbol(selectedSensorName, sensors),
-        },
-        {
-          key: UrlParamsTypes.isIndoor,
-          value: "false",
-        },
-      ]);
-    },
-    [currentUserSettings, setUrlParams]
-  );
-
   const updateTime = useCallback(
     (selectedYear: number) => {
       setUrlParams([
@@ -611,6 +581,113 @@ export const useMapParams = () => {
     [setSearchParams]
   );
 
+  const setParameterParams = useCallback(
+    (selectedParameter: ParameterType, sensors: Sensor[]) => {
+      const sensorData = setSensor(selectedParameter, sensors, sessionType);
+      const commonParams = [
+        {
+          key: UrlParamsTypes.previousUserSettings,
+          value: currentUserSettings,
+        },
+        {
+          key: UrlParamsTypes.currentUserSettings,
+          value: isMobile
+            ? UserSettings.FiltersView
+            : currentUserSettings === UserSettings.CrowdMapView
+            ? UserSettings.CrowdMapView
+            : UserSettings.MapView,
+        },
+        {
+          key: UrlParamsTypes.sessionId,
+          value: "",
+        },
+        {
+          key: UrlParamsTypes.streamId,
+          value: "",
+        },
+        {
+          key: UrlParamsTypes.measurementType,
+          value: selectedParameter,
+        },
+        {
+          key: UrlParamsTypes.sensorName,
+          value: sensorData.sensorName,
+        },
+        {
+          key: UrlParamsTypes.unitSymbol,
+          value: sensorData.unitSymbol,
+        },
+      ];
+
+      setUrlParams(commonParams);
+
+      if (
+        isIndoor === TRUE &&
+        sensorData.sensorName.startsWith(SensorPrefix.GOVERNMENT)
+      ) {
+        setUrlParams([
+          ...commonParams,
+          {
+            key: UrlParamsTypes.isIndoor,
+            value: FALSE,
+          },
+        ]);
+      }
+    },
+    [setUrlParams, setSensor]
+  );
+
+  const setSensorParams = useCallback(
+    (selectedSensor: string, sensors: Sensor[]) => {
+      const commonParams = [
+        {
+          key: UrlParamsTypes.previousUserSettings,
+          value: currentUserSettings,
+        },
+        {
+          key: UrlParamsTypes.currentUserSettings,
+          value: isMobile
+            ? UserSettings.FiltersView
+            : currentUserSettings === UserSettings.CrowdMapView
+            ? UserSettings.CrowdMapView
+            : UserSettings.MapView,
+        },
+        {
+          key: UrlParamsTypes.sessionId,
+          value: "",
+        },
+        {
+          key: UrlParamsTypes.streamId,
+          value: "",
+        },
+        {
+          key: UrlParamsTypes.sensorName,
+          value: selectedSensor,
+        },
+        {
+          key: UrlParamsTypes.unitSymbol,
+          value: getSensorUnitSymbol(selectedSensor, sensors),
+        },
+      ];
+
+      setUrlParams(commonParams);
+
+      if (
+        isIndoor === TRUE &&
+        selectedSensor.startsWith(SensorPrefix.GOVERNMENT)
+      ) {
+        setUrlParams([
+          ...commonParams,
+          {
+            key: UrlParamsTypes.isIndoor,
+            value: FALSE,
+          },
+        ]);
+      }
+    },
+    [setUrlParams, getSensorUnitSymbol]
+  );
+
   return {
     boundEast,
     boundNorth,
@@ -622,11 +699,11 @@ export const useMapParams = () => {
     fetchedSessions,
     goToUserSettings,
     gridSize,
+    isActive,
     isIndoor,
     limit,
     mapTypeId,
     measurementType,
-    updateMeasurementType,
     offset,
     previousCenter,
     previousUserSettings,
@@ -634,7 +711,6 @@ export const useMapParams = () => {
     previousZoom,
     revertUserSettingsAndResetIds,
     sensorName,
-    updateSensorName,
     sessionId,
     sessionType,
     updateSessionType,
@@ -651,7 +727,10 @@ export const useMapParams = () => {
     updateFetchedSessions,
     updateLimit,
     updateOffset,
+    updateIsActive,
     updateIndoorFilters,
+    setSensorParams,
     usernames,
+    setParameterParams,
   };
 };

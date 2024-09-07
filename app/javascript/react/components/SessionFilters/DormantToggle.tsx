@@ -9,7 +9,6 @@ import { useAppDispatch, useAppSelector } from "../../store/hooks";
 import { setFetchingData } from "../../store/mapSlice";
 import {
   FixedSessionsTypes,
-  selectFixedSessionsType,
   setFixedSessionsType,
 } from "../../store/sessionFiltersSlice";
 import { useMapParams } from "../../utils/mapParamsHandler";
@@ -21,10 +20,9 @@ import { YearPickerButtons } from "./YearPickerButtons";
 const DormantToggle = () => {
   const { t } = useTranslation();
   const dispatch = useAppDispatch();
-  const { updateTime } = useMapParams();
+  const { isActive, updateIsActive, updateTime } = useMapParams();
 
   const [isDormant, setIsDormant] = useState(false);
-  const fixedSessionType = useAppSelector(selectFixedSessionsType);
   const isDormantSessionsFetched = useAppSelector(
     selectIsDormantSessionsFetched
   );
@@ -36,20 +34,32 @@ const DormantToggle = () => {
     const currentYear = new Date().getFullYear();
 
     if (newDormantState === true) {
+      updateIsActive(false);
       dispatch(setFixedSessionsType(FixedSessionsTypes.DORMANT));
     } else {
       updateTime(currentYear);
+      updateIsActive(true);
       dispatch(setFixedSessionsType(FixedSessionsTypes.ACTIVE));
     }
 
     if (!isDormantSessionsFetched || !isActiveSessionsFetched) {
       dispatch(setFetchingData(true));
     }
-  }, [isDormant, isDormantSessionsFetched, isActiveSessionsFetched]);
+  }, [
+    isDormant,
+    isDormantSessionsFetched,
+    isActiveSessionsFetched,
+    dispatch,
+    updateIsActive,
+    updateTime,
+  ]);
 
   useEffect(() => {
-    setIsDormant(fixedSessionType === FixedSessionsTypes.DORMANT);
-  }, [fixedSessionType]);
+    setIsDormant(!isActive);
+    if (!isActive) {
+      dispatch(setFixedSessionsType(FixedSessionsTypes.DORMANT));
+    }
+  }, [isActive]);
 
   return (
     <S.Wrapper>

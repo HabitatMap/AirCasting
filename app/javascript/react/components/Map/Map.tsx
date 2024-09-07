@@ -14,6 +14,7 @@ import clockIcon from "../../assets/icons/clockIcon.svg";
 import filterIcon from "../../assets/icons/filterIcon.svg";
 import mapLegend from "../../assets/icons/mapLegend.svg";
 import pinImage from "../../assets/icons/pinImage.svg";
+import { TRUE } from "../../const/booleans";
 import { MIN_ZOOM } from "../../const/coordinates";
 import { RootState, selectIsLoading } from "../../store";
 import {
@@ -46,6 +47,7 @@ import {
   FixedSessionsTypes,
   selectFixedSessionsType,
   selectIsDormantSessionsType,
+  setFixedSessionsType,
 } from "../../store/sessionFiltersSlice";
 import {
   fetchThresholds,
@@ -94,6 +96,7 @@ const Map = () => {
     currentZoom,
     fetchedSessions,
     goToUserSettings,
+    isActive,
     isIndoor,
     limit,
     updateLimit,
@@ -123,7 +126,7 @@ const Map = () => {
   const isFirstRender = useRef(true);
   const isFirstRenderForThresholds = useRef(true);
   const { t } = useTranslation();
-  const isIndoorParameterInUrl = isIndoor === "true";
+  const isIndoorParameterInUrl = isIndoor === TRUE;
 
   // State
   const [mapInstance, setMapInstance] = useState<google.maps.Map | null>(null);
@@ -178,6 +181,19 @@ const Map = () => {
       return selectMobileSessionsList(state);
     }
   });
+
+  // update fixed session type based on the URL)
+  useEffect(() => {
+    if (isActive) {
+      if (fixedSessionsType !== FixedSessionsTypes.ACTIVE) {
+        dispatch(setFixedSessionsType(FixedSessionsTypes.ACTIVE));
+      }
+    } else {
+      if (fixedSessionsType !== FixedSessionsTypes.DORMANT) {
+        dispatch(setFixedSessionsType(FixedSessionsTypes.DORMANT));
+      }
+    }
+  }, [isActive, fixedSessionsType, dispatch]);
 
   const fetchableIndoorSessionsCount = listSessions.length;
 
@@ -308,7 +324,7 @@ const Map = () => {
               fetchIndoorSessions({ filters: indoorSessionsFilters })
             ).unwrap();
           } else {
-            if (fixedSessionsType === FixedSessionsTypes.ACTIVE) {
+            if (isActive) {
               dispatch(fetchActiveFixedSessions({ filters })).unwrap();
             } else {
               dispatch(fetchDormantFixedSessions({ filters })).unwrap();
@@ -365,6 +381,8 @@ const Map = () => {
     if (currentUserSettings !== UserSettings.ModalView) {
       newSearchParams.set(UrlParamsTypes.sessionId, "");
       newSearchParams.set(UrlParamsTypes.streamId, "");
+      newSearchParams.set(UrlParamsTypes.isActive, isActive.toString());
+      newSearchParams.set(UrlParamsTypes.sessionType, sessionType);
       navigate(`?${newSearchParams.toString()}`);
     }
     !isFirstRender.current && setPreviousZoomOnTheMap();
@@ -440,6 +458,7 @@ const Map = () => {
       if (isFirstRender.current) {
         if (currentUserSettings === UserSettings.MapView) {
           newSearchParams.set(UrlParamsTypes.sessionType, sessionType);
+          newSearchParams.set(UrlParamsTypes.isActive, TRUE);
           map.setCenter(currentCenter);
           map.setZoom(currentZoom);
         }
@@ -647,7 +666,7 @@ const Map = () => {
       >
         {fixedSessionsStatusFulfilled &&
           fixedSessionTypeSelected &&
-          isDormant &&
+          !isActive &&
           !isIndoorParameterInUrl && (
             <DormantMarkers
               sessions={sessionsPoints}
@@ -662,7 +681,7 @@ const Map = () => {
           : fixedSessionsStatusFulfilled &&
             fixedSessionTypeSelected &&
             !isIndoorParameterInUrl &&
-            !isDormant && (
+            isActive && (
               <FixedMarkers
                 sessions={sessionsPoints}
                 onMarkerClick={handleMarkerClick}

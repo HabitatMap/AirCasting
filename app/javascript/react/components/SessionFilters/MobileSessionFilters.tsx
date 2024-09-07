@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 
+import { TRUE } from "../../const/booleans";
 import {
   selectActiveFixedSessionsState,
   selectDormantFixedSessionsState,
@@ -93,7 +94,7 @@ const MobileSessionFilters = ({
     sessionType
   );
 
-  const isIndoorParameterInUrl = isIndoor === "true";
+  const isIndoorParameterInUrl = isIndoor === TRUE;
   const airBeamSensorNameSelected = sensorName.startsWith(SensorPrefix.AIR);
   const govermentSensorNameSelected = sensorName.startsWith(
     SensorPrefix.GOVERNMENT

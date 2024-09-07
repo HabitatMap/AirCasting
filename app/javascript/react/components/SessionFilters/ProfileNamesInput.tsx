@@ -2,6 +2,7 @@ import { useCombobox } from "downshift";
 import React, { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 
+import { TRUE } from "../../const/booleans";
 import { useAppDispatch, useAppSelector } from "../../store/hooks";
 import { setFetchingData } from "../../store/mapSlice";
 import {
@@ -21,7 +22,7 @@ const ProfileNamesInput = () => {
   const { setFilter, usernames, isIndoor } = useMapParams();
 
   const profileNames = useAppSelector(selectUsernames);
-  const isIndoorParameterInUrl = isIndoor === "true";
+  const isIndoorParameterInUrl = isIndoor === TRUE;
 
   const { isOpen, getMenuProps, getInputProps, getItemProps, reset } =
     useCombobox({
