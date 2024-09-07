@@ -8,7 +8,7 @@ class StreamSerializer
       title: stream.session.title,
       latitude: stream.session.latitude,
       longitude: stream.session.longitude,
-      profile: stream.session.username,
+      profile: stream.session.is_indoor ? 'anonymous' : stream.session.user.username,
       sensor_name: stream.sensor_name,
       unit_symbol: stream.unit_symbol,
       update_frequency: update_frequency,
