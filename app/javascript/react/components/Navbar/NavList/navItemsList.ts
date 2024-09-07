@@ -68,7 +68,6 @@ export const navItems = [
   },
   {
     isNavTitle: true,
-    isUnderline: true,
     href: urls.blog,
     label: "navbar.sections.blog",
   },

@@ -71,8 +71,8 @@ const NavHeader = styled.li`
   border-bottom: 1px solid ${white};
 `;
 
-const ListItem = styled.li<{ $isUnderline?: boolean; $isActive?: boolean }>`
-  border-bottom: ${(p) => (p.$isUnderline ? "1px solid white" : "none")};
+const ListItem = styled.li<{ $isActive?: boolean }>`
+  border-bottom: none;
   opacity: ${(p) => (p.$isActive ? "0.5" : "1")};
 `;
 
@@ -82,7 +82,6 @@ const SubNavTitleLink = styled.a`
   display: inline-block;
   padding: 0.5rem 0;
   text-decoration: none;
-  letter-spacing: 0.5rem;
 
   &:hover {
     opacity: 0.5;
