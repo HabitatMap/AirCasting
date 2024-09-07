@@ -36,9 +36,11 @@ const DormantToggle = () => {
     const currentYear = new Date().getFullYear();
 
     if (newDormantState === true) {
+      updateIsActive(false);
       dispatch(setFixedSessionsType(FixedSessionsTypes.DORMANT));
     } else {
       updateTime(currentYear);
+      updateIsActive(true);
       dispatch(setFixedSessionsType(FixedSessionsTypes.ACTIVE));
     }
 
@@ -56,6 +58,9 @@ const DormantToggle = () => {
 
   useEffect(() => {
     setIsDormant(!isActive);
+    if (!isActive) {
+      dispatch(setFixedSessionsType(FixedSessionsTypes.DORMANT));
+    }
   }, [isActive]);
 
   return (

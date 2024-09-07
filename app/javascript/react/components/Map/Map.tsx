@@ -381,6 +381,8 @@ const Map = () => {
     if (currentUserSettings !== UserSettings.ModalView) {
       newSearchParams.set(UrlParamsTypes.sessionId, "");
       newSearchParams.set(UrlParamsTypes.streamId, "");
+      newSearchParams.set(UrlParamsTypes.isActive, isActive.toString());
+      newSearchParams.set(UrlParamsTypes.sessionType, sessionType);
       navigate(`?${newSearchParams.toString()}`);
     }
     !isFirstRender.current && setPreviousZoomOnTheMap();
