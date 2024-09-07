@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 
 import checkmark from "../../assets/icons/checkmarkBlue.svg";
@@ -29,7 +29,7 @@ import { CustomParameterFilter } from "./CustomParameterFilter";
 import { FilterInfoPopup } from "./FilterInfoPopup";
 import * as S from "./SessionFilters.style";
 
-const basicMeasurementTypes = (sessionType: SessionType) =>
+const getBasicMeasurementTypes = (sessionType: SessionType) =>
   sessionType === SessionTypes.FIXED
     ? FixedBasicParameterTypes
     : MobileBasicParameterTypes;
@@ -40,14 +40,10 @@ interface ParameterFilterProps {
 
 export const filterCustomParameters = (
   parameters: string[],
-  sessionType: string
+  sessionType: SessionType
 ) => {
-  const basicParameters =
-    sessionType === SessionTypes.FIXED
-      ? FixedBasicParameterTypes
-      : MobileBasicParameterTypes;
-
-  return parameters.filter((param: string) => !basicParameters.includes(param));
+  const basicParameters = getBasicMeasurementTypes(sessionType);
+  return parameters.filter((param) => !basicParameters.includes(param));
 };
 
 export const ParameterFilter: React.FC<ParameterFilterProps> = ({
@@ -90,34 +86,33 @@ export const DesktopParameterFilter = () => {
   const [isBasicOpen, setIsBasicOpen] = useState(false);
   const [moreOpen, setMoreOpen] = useState(false);
   const { t } = useTranslation();
-  const { measurementType, sessionType, updateMeasurementType } =
-    useMapParams();
+  const { measurementType, sessionType, setParameterParams } = useMapParams();
   const dispatch = useAppDispatch();
   const isMobile = useMobileDetection();
   const sensors = useAppSelector(selectSensors);
+  const parameters = useAppSelector(selectParameters);
+  const customParameters = filterCustomParameters(parameters, sessionType);
   const basicParametersModalOpen = useAppSelector(
     selectBasicParametersModalOpen
   );
   const customParametersModalOpen = useAppSelector(
     selectCustomParametersModalOpen
   );
-  const parameters = useAppSelector(selectParameters);
-  const customParameters = filterCustomParameters(parameters, sessionType);
 
   const handleOnMoreClick = () => {
     setMoreOpen(!moreOpen);
   };
 
   const handleSelectParameter = (selectedParameter: ParameterType) => {
-    updateMeasurementType(selectedParameter, sensors);
-    dispatch(setFetchingData(true));
+    setParameterParams(selectedParameter, sensors);
     dispatch(setBasicParametersModalOpen(false));
+    dispatch(setFetchingData(true));
   };
 
   useEffect(() => {
     setIsBasicOpen(basicParametersModalOpen);
     setMoreOpen(customParametersModalOpen);
-  }, [basicParametersModalOpen]);
+  }, [basicParametersModalOpen, customParametersModalOpen]);
 
   return (
     <S.Wrapper>
@@ -128,7 +123,7 @@ export const DesktopParameterFilter = () => {
             <S.FiltersOptionHeading>
               {t("filters.parameter")}
             </S.FiltersOptionHeading>
-            {basicMeasurementTypes(sessionType).map((item, id) => (
+            {getBasicMeasurementTypes(sessionType).map((item, id) => (
               <S.FiltersOptionButton
                 $isSelected={item === measurementType}
                 key={id}
@@ -137,18 +132,14 @@ export const DesktopParameterFilter = () => {
                 {item}
               </S.FiltersOptionButton>
             ))}
-            {customParameters.length > 0 &&
-              (moreOpen ? (
-                <S.SeeMoreButton onClick={handleOnMoreClick}>
-                  <S.SeeMoreSpan>{t("filters.seeLess")}</S.SeeMoreSpan>
-                  <img src={minus} />
-                </S.SeeMoreButton>
-              ) : (
-                <S.SeeMoreButton onClick={handleOnMoreClick}>
-                  <S.SeeMoreSpan>{t("filters.seeMore")}</S.SeeMoreSpan>
-                  <img src={plus} />
-                </S.SeeMoreButton>
-              ))}
+            {customParameters.length > 0 && (
+              <S.SeeMoreButton onClick={() => setMoreOpen(!moreOpen)}>
+                <S.SeeMoreSpan>
+                  {t(`filters.${moreOpen ? "seeLess" : "seeMore"}`)}
+                </S.SeeMoreSpan>
+                <img src={moreOpen ? minus : plus} />
+              </S.SeeMoreButton>
+            )}
           </S.BasicParameterWrapper>
           {moreOpen && (
             <CustomParameterFilter customParameters={customParameters} />
@@ -175,15 +166,18 @@ export const MobileDeviceParameterFilter = ({
   const dispatch = useAppDispatch();
   const sensors = useAppSelector(selectSensors);
   const { t } = useTranslation();
-  const { measurementType, updateMeasurementType, sessionType } =
-    useMapParams();
+  const { measurementType, setParameterParams, sessionType } = useMapParams();
 
-  const fixedSessionTypeSelected: boolean = sessionType === SessionTypes.FIXED;
+  const fixedSessionTypeSelected = sessionType === SessionTypes.FIXED;
 
-  const handleSelectParameter = (selectedParameter: ParameterType) => {
-    updateMeasurementType(selectedParameter, sensors);
-    dispatch(setFetchingData(true));
-  };
+  const handleSelectParameter = useCallback(
+    (selectedParameter: ParameterType) => {
+      setParameterParams(selectedParameter, sensors);
+      dispatch(setBasicParametersModalOpen(false));
+      dispatch(setFetchingData(true));
+    },
+    [sensors]
+  );
 
   const handleShowMoreClick = () => {
     dispatch(setBasicParametersModalOpen(false));
@@ -203,7 +197,7 @@ export const MobileDeviceParameterFilter = ({
         </S.Header>
         <S.Description>{t("filters.selectParameterDescription")}</S.Description>
         <S.BasicParameterButtonsWrapper>
-          {basicMeasurementTypes(sessionType).map((item, id) => (
+          {getBasicMeasurementTypes(sessionType).map((item, id) => (
             <S.BasicParameterButton
               key={id}
               onClick={() => handleSelectParameter(item)}
@@ -215,7 +209,7 @@ export const MobileDeviceParameterFilter = ({
             </S.BasicParameterButton>
           ))}
         </S.BasicParameterButtonsWrapper>
-        {customParameters?.length > 0 && (
+        {customParameters.length > 0 && (
           <S.GrayButton onClick={handleShowMoreClick}>
             {t("filters.showCustomParameters")}
           </S.GrayButton>

@@ -14,6 +14,7 @@ import clockIcon from "../../assets/icons/clockIcon.svg";
 import filterIcon from "../../assets/icons/filterIcon.svg";
 import mapLegend from "../../assets/icons/mapLegend.svg";
 import pinImage from "../../assets/icons/pinImage.svg";
+import { TRUE } from "../../const/booleans";
 import { MIN_ZOOM } from "../../const/coordinates";
 import { RootState, selectIsLoading } from "../../store";
 import {
@@ -125,7 +126,7 @@ const Map = () => {
   const isFirstRender = useRef(true);
   const isFirstRenderForThresholds = useRef(true);
   const { t } = useTranslation();
-  const isIndoorParameterInUrl = isIndoor === "true";
+  const isIndoorParameterInUrl = isIndoor === TRUE;
 
   // State
   const [mapInstance, setMapInstance] = useState<google.maps.Map | null>(null);
@@ -174,7 +175,6 @@ const Map = () => {
       if (isIndoorParameterInUrl) {
         return selectIndoorSessionsList(isDormant)(state);
       } else {
-        console.log("fixedSessionsType", fixedSessionsType);
         return selectFixedSessionsList(state, fixedSessionsType);
       }
     } else {
@@ -458,7 +458,7 @@ const Map = () => {
       if (isFirstRender.current) {
         if (currentUserSettings === UserSettings.MapView) {
           newSearchParams.set(UrlParamsTypes.sessionType, sessionType);
-          newSearchParams.set(UrlParamsTypes.isActive, "true");
+          newSearchParams.set(UrlParamsTypes.isActive, TRUE);
           map.setCenter(currentCenter);
           map.setZoom(currentZoom);
         }

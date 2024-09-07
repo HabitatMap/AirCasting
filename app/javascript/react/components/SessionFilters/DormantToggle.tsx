@@ -9,7 +9,6 @@ import { useAppDispatch, useAppSelector } from "../../store/hooks";
 import { setFetchingData } from "../../store/mapSlice";
 import {
   FixedSessionsTypes,
-  selectFixedSessionsType,
   setFixedSessionsType,
 } from "../../store/sessionFiltersSlice";
 import { useMapParams } from "../../utils/mapParamsHandler";
@@ -24,7 +23,6 @@ const DormantToggle = () => {
   const { isActive, updateIsActive, updateTime } = useMapParams();
 
   const [isDormant, setIsDormant] = useState(false);
-  const fixedSessionType = useAppSelector(selectFixedSessionsType);
   const isDormantSessionsFetched = useAppSelector(
     selectIsDormantSessionsFetched
   );

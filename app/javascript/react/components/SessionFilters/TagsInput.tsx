@@ -2,6 +2,7 @@ import { useCombobox } from "downshift";
 import React, { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 
+import { TRUE } from "../../const/booleans";
 import { useAppDispatch, useAppSelector } from "../../store/hooks";
 import { setFetchingData } from "../../store/mapSlice";
 import { fetchTags, selectTags } from "../../store/sessionFiltersSlice";
@@ -51,7 +52,7 @@ const TagsInput = () => {
       sensorName: sensorName,
       unitSymbol: preparedUnitSymbol,
       sessionType: selectedSessionType,
-      isIndoor: isIndoor === "true",
+      isIndoor: isIndoor === TRUE,
     };
   };
 
