@@ -136,6 +136,11 @@ const DormantMarkers = ({
     }
   }, [dispatch, markersCount, sessions.length]);
 
+
+  useEffect(() => {
+    map && map.addListener("zoom_changed", () => handleMapInteraction());
+  }, [map]);
+
   useMapEventListeners(map, {
     click: () => {
       handleMapInteraction();
@@ -144,9 +149,6 @@ const DormantMarkers = ({
       handleMapInteraction();
     },
     dragstart: () => {
-      handleMapInteraction();
-    },
-    zoom_changed: () => {
       handleMapInteraction();
     },
   });

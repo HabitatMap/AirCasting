@@ -21,7 +21,7 @@ import { YearPickerButtons } from "./YearPickerButtons";
 const DormantToggle = () => {
   const { t } = useTranslation();
   const dispatch = useAppDispatch();
-  const { updateTime } = useMapParams();
+  const { isActive, updateIsActive, updateTime } = useMapParams();
 
   const [isDormant, setIsDormant] = useState(false);
   const fixedSessionType = useAppSelector(selectFixedSessionsType);
@@ -45,11 +45,18 @@ const DormantToggle = () => {
     if (!isDormantSessionsFetched || !isActiveSessionsFetched) {
       dispatch(setFetchingData(true));
     }
-  }, [isDormant, isDormantSessionsFetched, isActiveSessionsFetched]);
+  }, [
+    isDormant,
+    isDormantSessionsFetched,
+    isActiveSessionsFetched,
+    dispatch,
+    updateIsActive,
+    updateTime,
+  ]);
 
   useEffect(() => {
-    setIsDormant(fixedSessionType === FixedSessionsTypes.DORMANT);
-  }, [fixedSessionType]);
+    setIsDormant(!isActive);
+  }, [isActive]);
 
   return (
     <S.Wrapper>

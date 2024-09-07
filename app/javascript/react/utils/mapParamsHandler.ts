@@ -1,4 +1,4 @@
-import { debounce } from "lodash";
+import { debounce, update } from "lodash";
 import { useCallback, useEffect, useMemo } from "react";
 import { useSearchParams } from "react-router-dom";
 
@@ -42,6 +42,7 @@ export enum UrlParamsTypes {
   currentZoom = "currentZoom",
   fetchedSessions = "fetchedSessions",
   gridSize = "gridSize",
+  isActive = "isActive",
   isIndoor = "isIndoor",
   limit = "limit",
   mapType = "mapType",
@@ -268,6 +269,7 @@ export const useMapParams = () => {
           key: UrlParamsTypes.isIndoor,
           value: "false",
         },
+        { key: UrlParamsTypes.isActive, value: "true" },
         {
           key: UrlParamsTypes.timeFrom,
           value: beginningOfTheYear(getLastFiveYears()[0]).toString(),
@@ -280,6 +282,30 @@ export const useMapParams = () => {
     },
     [currentUserSettings, setUrlParams]
   );
+
+  const isActive = useMemo(() => {
+    const activeParam = getSearchParam(UrlParamsTypes.isActive, "true");
+
+
+    if (sessionType === SessionTypes.MOBILE) {
+      return true;
+    }
+
+    return activeParam === "true";
+  }, [searchParams, sessionType]);
+
+  const updateIsActive = useCallback(
+    (newIsActive: boolean) => {
+      if (sessionType === SessionTypes.MOBILE) {
+        newIsActive = true;
+      }
+      setUrlParams([
+        { key: UrlParamsTypes.isActive, value: newIsActive.toString() },
+      ]);
+    },
+    [sessionType, setUrlParams]
+  );
+
   const streamId =
     getSearchParam(UrlParamsTypes.streamId, null) !== null
       ? parseInt(getSearchParam(UrlParamsTypes.streamId, "0")!)
@@ -622,6 +648,7 @@ export const useMapParams = () => {
     fetchedSessions,
     goToUserSettings,
     gridSize,
+    isActive,
     isIndoor,
     limit,
     mapTypeId,
@@ -651,6 +678,7 @@ export const useMapParams = () => {
     updateFetchedSessions,
     updateLimit,
     updateOffset,
+    updateIsActive,
     updateIndoorFilters,
     usernames,
   };

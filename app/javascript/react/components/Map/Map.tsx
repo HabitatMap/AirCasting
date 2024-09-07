@@ -46,6 +46,7 @@ import {
   FixedSessionsTypes,
   selectFixedSessionsType,
   selectIsDormantSessionsType,
+  setFixedSessionsType,
 } from "../../store/sessionFiltersSlice";
 import {
   fetchThresholds,
@@ -94,6 +95,7 @@ const Map = () => {
     currentZoom,
     fetchedSessions,
     goToUserSettings,
+    isActive,
     isIndoor,
     limit,
     updateLimit,
@@ -172,12 +174,26 @@ const Map = () => {
       if (isIndoorParameterInUrl) {
         return selectIndoorSessionsList(isDormant)(state);
       } else {
+        console.log("fixedSessionsType", fixedSessionsType);
         return selectFixedSessionsList(state, fixedSessionsType);
       }
     } else {
       return selectMobileSessionsList(state);
     }
   });
+
+  // update fixed session type based on the URL)
+  useEffect(() => {
+    if (isActive) {
+      if (fixedSessionsType !== FixedSessionsTypes.ACTIVE) {
+        dispatch(setFixedSessionsType(FixedSessionsTypes.ACTIVE));
+      }
+    } else {
+      if (fixedSessionsType !== FixedSessionsTypes.DORMANT) {
+        dispatch(setFixedSessionsType(FixedSessionsTypes.DORMANT));
+      }
+    }
+  }, [isActive, fixedSessionsType, dispatch]);
 
   const fetchableIndoorSessionsCount = listSessions.length;
 
@@ -308,7 +324,7 @@ const Map = () => {
               fetchIndoorSessions({ filters: indoorSessionsFilters })
             ).unwrap();
           } else {
-            if (fixedSessionsType === FixedSessionsTypes.ACTIVE) {
+            if (isActive) {
               dispatch(fetchActiveFixedSessions({ filters })).unwrap();
             } else {
               dispatch(fetchDormantFixedSessions({ filters })).unwrap();
@@ -440,6 +456,7 @@ const Map = () => {
       if (isFirstRender.current) {
         if (currentUserSettings === UserSettings.MapView) {
           newSearchParams.set(UrlParamsTypes.sessionType, sessionType);
+          newSearchParams.set(UrlParamsTypes.isActive, "true");
           map.setCenter(currentCenter);
           map.setZoom(currentZoom);
         }
@@ -647,7 +664,7 @@ const Map = () => {
       >
         {fixedSessionsStatusFulfilled &&
           fixedSessionTypeSelected &&
-          isDormant &&
+          !isActive &&
           !isIndoorParameterInUrl && (
             <DormantMarkers
               sessions={sessionsPoints}
@@ -662,7 +679,7 @@ const Map = () => {
           : fixedSessionsStatusFulfilled &&
             fixedSessionTypeSelected &&
             !isIndoorParameterInUrl &&
-            !isDormant && (
+            isActive && (
               <FixedMarkers
                 sessions={sessionsPoints}
                 onMarkerClick={handleMarkerClick}
