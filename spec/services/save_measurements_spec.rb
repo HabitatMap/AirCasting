@@ -78,5 +78,26 @@ describe SaveMeasurements do
 
       expect { subject.call(streams: streams) }.to_not change { Stream.count }
     end
+
+    it 'does not create a new session when coordinates are within tolerance' do
+      stream = build_air_now_stream(sensor_name: 'PM2.5')
+      persisted_session =
+        create_session!(latitude: stream.latitude, longitude: stream.longitude, type: 'FixedSession', user: user)
+      persisted_stream =
+        create_stream!(
+          min_latitude: stream.latitude,
+          max_latitude: stream.latitude,
+          min_longitude: stream.longitude + 0.0001,
+          max_longitude: stream.longitude + 0.0001,
+          start_latitude: stream.latitude,
+          start_longitude: stream.longitude,
+          sensor_name: stream.sensor_name,
+          session: persisted_session
+        )
+      measurement = build_air_now_measurement
+      streams = { stream => [measurement] }
+
+      expect { subject.call(streams: streams) }.to_not change { Session.count }
+    end
   end
 end
