@@ -48,7 +48,6 @@ const Graph: React.FC<GraphProps> = ({
     fixedSessionTypeSelected ? 0 : 2
   );
   const [chartDataLoaded, setChartDataLoaded] = useState(false);
-  const [extremesChanged, setExtremesChanged] = useState(false);
 
   const thresholdsState = useSelector(selectThresholds);
   const isLoading = useSelector(selectIsLoading);
@@ -115,10 +114,6 @@ const Graph: React.FC<GraphProps> = ({
   }, [seriesData, isLoading]);
 
   useEffect(() => {
-    setExtremesChanged(false);
-  }, []);
-
-  useEffect(() => {
     const graphElement = graphRef.current;
 
     if (graphElement) {
@@ -166,7 +161,6 @@ const Graph: React.FC<GraphProps> = ({
           events: {
             click: () => {
               setSelectedRange(i);
-              setExtremesChanged(true);
             },
           },
         })) ?? [],
