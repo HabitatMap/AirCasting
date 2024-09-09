@@ -5,6 +5,7 @@ import { API_ENDPOINTS } from "../api/apiEndpoints";
 import { StatusEnum } from "../types/api";
 import { Thresholds } from "../types/thresholds";
 import { getErrorMessage } from "../utils/getErrorMessage";
+import { logError } from "../utils/logController";
 import type { RootState } from "./index";
 
 interface ThumbPositions {
@@ -15,7 +16,7 @@ interface ThumbPositions {
 
 export interface ThresholdState {
   defaultValues: Thresholds;
-  error?: string;
+  error: string | null;
   status: StatusEnum;
   userValues?: Thresholds;
   sliderWidth: number;
@@ -39,6 +40,7 @@ export const initialState: ThresholdState = {
     high: 0,
   },
   errorMessage: "",
+  error: null,
 };
 
 export const fetchThresholds = createAsyncThunk<
@@ -47,12 +49,17 @@ export const fetchThresholds = createAsyncThunk<
   { rejectValue: string }
 >("thresholds/getData", async (filters: string, { rejectWithValue }) => {
   try {
-    const response: AxiosResponse<string[], Error> = await oldApiClient.get(
+    const response: AxiosResponse<string[]> = await oldApiClient.get(
       API_ENDPOINTS.fetchThresholds(filters)
     );
     return response.data;
   } catch (error) {
     const message = getErrorMessage(error);
+    logError(error, {
+      action: "fetchThresholds",
+      endpoint: API_ENDPOINTS.fetchThresholds(filters),
+      message,
+    });
     return rejectWithValue(message);
   }
 });
@@ -64,9 +71,11 @@ export const thresholdSlice = createSlice({
     builder
       .addCase(fetchThresholds.pending, (state) => {
         state.status = StatusEnum.Pending;
+        state.error = null;
       })
       .addCase(fetchThresholds.fulfilled, (state, action) => {
         state.status = StatusEnum.Fulfilled;
+        state.error = null;
         state.defaultValues.min = Number(action.payload[0]);
         state.defaultValues.low = Number(action.payload[1]);
         state.defaultValues.middle = Number(action.payload[2]);
@@ -78,7 +87,7 @@ export const thresholdSlice = createSlice({
       })
       .addCase(fetchThresholds.rejected, (state, action) => {
         state.status = StatusEnum.Rejected;
-        state.error = action.payload;
+        state.error = action.payload || "An unknown error occurred";
       });
   },
   reducers: {

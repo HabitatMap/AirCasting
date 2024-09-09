@@ -2,7 +2,9 @@ import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { AxiosResponse } from "axios";
 import { oldApiClient } from "../api/apiClient";
 import { API_ENDPOINTS } from "../api/apiEndpoints";
-import { Error, StatusEnum } from "../types/api";
+import { StatusEnum } from "../types/api";
+import { getErrorMessage } from "../utils/getErrorMessage";
+import { logError } from "../utils/logController";
 
 interface ExportSessionState {
   data: {
@@ -10,7 +12,7 @@ interface ExportSessionState {
     email: string;
   };
   status: StatusEnum;
-  error?: Error;
+  error: string | null;
 }
 
 export interface SessionData {
@@ -24,25 +26,35 @@ const initialState: ExportSessionState = {
     email: "",
   },
   status: StatusEnum.Idle,
+  error: null,
 };
 
 export const exportSession = createAsyncThunk<
   SessionData,
   { sessionsIds: number[]; email: string },
-  { rejectValue: { message: string } }
+  { rejectValue: string }
 >("session/exportSession", async (sessionData, { rejectWithValue }) => {
   try {
-    const response: AxiosResponse<SessionData, Error> = await oldApiClient.get(
+    const response: AxiosResponse<SessionData> = await oldApiClient.get(
       API_ENDPOINTS.exportSessionData(
         sessionData.sessionsIds,
         sessionData.email
       )
     );
-
     return response.data;
-  } catch (error: Error | any) {
-    const message = error.response?.data?.message || error.message;
-    return rejectWithValue({ message });
+  } catch (error) {
+    const message = getErrorMessage(error);
+
+    logError(error, {
+      action: "exportSession",
+      endpoint: API_ENDPOINTS.exportSessionData(
+        sessionData.sessionsIds,
+        sessionData.email
+      ),
+      message,
+    });
+
+    return rejectWithValue(message);
   }
 });
 
@@ -54,11 +66,11 @@ export const exportSessionSlice = createSlice({
     builder.addCase(exportSession.fulfilled, (state, action) => {
       state.status = StatusEnum.Fulfilled;
       state.data = action.payload;
+      state.error = null;
     });
     builder.addCase(exportSession.rejected, (state, action) => {
       state.status = StatusEnum.Rejected;
-      const errorMessage = action.payload?.message;
-      state.error = { message: errorMessage || "Unknown error" };
+      state.error = action.payload || "Unknown error occurred";
       state.data = initialState.data;
     });
   },

@@ -1,23 +1,24 @@
 import { AxiosResponse } from "axios";
-import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
-
+import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { StreamDailyAverage } from "../types/StreamDailyAverage";
 import { getErrorMessage } from "../utils/getErrorMessage";
 import { API_ENDPOINTS } from "../api/apiEndpoints";
 import { apiClient } from "../api/apiClient";
-import { Error, StatusEnum } from "../types/api";
+import { logError } from "../utils/logController";
+import { StatusEnum } from "../types/api";
 
 import type { RootState } from "./index";
 
 interface CalendarStreamState {
   data: StreamDailyAverage[];
   status: StatusEnum;
-  error?: Error;
+  error: string | null;
 }
 
 const initialState: CalendarStreamState = {
   data: [],
   status: StatusEnum.Idle,
+  error: null,
 };
 
 interface MovingStreamParams {
@@ -29,19 +30,27 @@ interface MovingStreamParams {
 export const fetchNewMovingStream = createAsyncThunk<
   StreamDailyAverage[],
   MovingStreamParams,
-  { rejectValue: { message: string } }
+  { rejectValue: string }
 >(
   "movingCalendarStream/getData",
   async ({ id, startDate, endDate }, { rejectWithValue }) => {
     try {
-      const response: AxiosResponse<StreamDailyAverage[], Error> =
-        await apiClient.get(
-          API_ENDPOINTS.fetchSelectedDataRangeOfStream(id, startDate, endDate)
-        );
+      const response: AxiosResponse<StreamDailyAverage[]> = await apiClient.get(
+        API_ENDPOINTS.fetchSelectedDataRangeOfStream(id, startDate, endDate)
+      );
       return response.data;
     } catch (error) {
       const message = getErrorMessage(error);
-      return rejectWithValue({ message });
+      logError(error, {
+        action: "fetchNewMovingStream",
+        endpoint: API_ENDPOINTS.fetchSelectedDataRangeOfStream(
+          id,
+          startDate,
+          endDate
+        ),
+        message,
+      });
+      return rejectWithValue(message);
     }
   }
 );
@@ -55,11 +64,14 @@ export const movingStreamSlice = createSlice({
       .addCase(fetchNewMovingStream.fulfilled, (state, { payload }) => {
         state.status = StatusEnum.Fulfilled;
         state.data = payload;
-        state.data.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+        state.data.sort(
+          (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
+        );
+        state.error = null;
       })
-      .addCase(fetchNewMovingStream.rejected, (state, { error }) => {
+      .addCase(fetchNewMovingStream.rejected, (state, { payload }) => {
         state.status = StatusEnum.Rejected;
-        state.error = { message: error.message };
+        state.error = payload || "Unknown error occurred";
         state.data = [];
       });
   },

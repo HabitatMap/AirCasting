@@ -2,6 +2,8 @@ import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
 import { AxiosError, AxiosResponse } from "axios";
 import { API_ENDPOINTS } from "../api/apiEndpoints";
 import { oldApiClient } from "../api/apiClient";
+import { logError } from "../utils/logController";
+import { getErrorMessage } from "../utils/getErrorMessage"; // Assuming this is where the utility is located
 
 interface ClusterData {
   average: number;
@@ -35,11 +37,15 @@ export const fetchClusterData = createAsyncThunk<
     );
     return response.data;
   } catch (error) {
-    if (error instanceof AxiosError) {
-      return rejectWithValue(error.message);
-    } else {
-      return rejectWithValue("An unknown error occurred");
-    }
+    const errorMessage = getErrorMessage(error);
+
+    logError(error, {
+      action: "fetchClusterData",
+      endpoint: API_ENDPOINTS.fetchClusterData(streamIds),
+      message: errorMessage,
+    });
+
+    return rejectWithValue(errorMessage);
   }
 });
 
@@ -69,7 +75,7 @@ const clusterSlice = createSlice({
       .addCase(
         fetchClusterData.rejected,
         (state, action: PayloadAction<string | undefined>) => {
-          state.error = action.payload ?? "An unknown error occurred";
+          state.error = action.payload || "An unknown error occurred";
           state.loading = false;
           state.visible = false;
         }

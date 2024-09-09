@@ -5,6 +5,7 @@ import { oldApiClient } from "../api/apiClient";
 import { API_ENDPOINTS } from "../api/apiEndpoints";
 import { StatusEnum } from "../types/api";
 import { getErrorMessage } from "../utils/getErrorMessage";
+import { logError } from "../utils/logController";
 import { FixedSessionsTypes } from "./sessionFiltersSlice";
 
 export interface FixedSession {
@@ -41,7 +42,7 @@ interface SessionsState {
   isActiveSessionsFetched: boolean;
   isDormantSessionsFetched: boolean;
   status: StatusEnum;
-  error?: string;
+  error: string | null;
 }
 
 export interface SessionsData {
@@ -56,7 +57,7 @@ const initialState: SessionsState = {
   isActiveSessionsFetched: false,
   isDormantSessionsFetched: false,
   status: StatusEnum.Idle,
-  error: undefined,
+  error: null,
 };
 
 const createSessionFetchThunk = (
@@ -73,12 +74,21 @@ const createSessionFetchThunk = (
     }FixedSessions`,
     async (sessionsData, { rejectWithValue }) => {
       try {
-        const response: AxiosResponse<SessionsResponse, Error> =
+        const response: AxiosResponse<SessionsResponse> =
           await oldApiClient.get(endpoint(sessionsData.filters));
 
         return response.data;
       } catch (error) {
         const message = getErrorMessage(error);
+
+        logError(error, {
+          action: `fetch${
+            type.charAt(0).toUpperCase() + type.slice(1)
+          }FixedSessions`,
+          endpoint: endpoint(sessionsData.filters),
+          message,
+        });
+
         return rejectWithValue(message);
       }
     },
@@ -96,47 +106,9 @@ export const fetchActiveFixedSessions = createSessionFetchThunk(
   API_ENDPOINTS.fetchActiveFixedSessions
 );
 
-export const fetchDormantFixedSessions = createAsyncThunk<
-  SessionsResponse,
-  SessionsData,
-  { rejectValue: string }
->(
-  "sessions/fetchDormantFixedSessions",
-  async (sessionsData, { rejectWithValue, getState, dispatch }) => {
-    try {
-      const { filters, isAdditional } = sessionsData;
-      const response: AxiosResponse<SessionsResponse, Error> =
-        await oldApiClient.get(
-          API_ENDPOINTS.fetchDormantFixedSessions(filters)
-        );
-
-      const data = response.data;
-
-      if (isAdditional) {
-        // If more sessions are available, continue fetching
-        const state = getState() as RootState;
-        const currentDormantSessions = state.fixedSessions.dormantSessions;
-
-        if (
-          currentDormantSessions.length + data.sessions.length <
-          data.fetchableSessionsCount
-        ) {
-          dispatch(fetchDormantFixedSessions({ filters, isAdditional: true }));
-        }
-      }
-
-      return data;
-    } catch (error) {
-      const message = getErrorMessage(error);
-      return rejectWithValue(message);
-    }
-  },
-  {
-    condition: (_, { getState }) => {
-      const { fixedSessions } = getState() as RootState;
-      return fixedSessions.status !== StatusEnum.Pending;
-    },
-  }
+export const fetchDormantFixedSessions = createSessionFetchThunk(
+  FixedSessionsTypes.DORMANT,
+  API_ENDPOINTS.fetchDormantFixedSessions
 );
 
 const fixedSessionsSlice = createSlice({
@@ -150,44 +122,43 @@ const fixedSessionsSlice = createSlice({
       state.isActiveSessionsFetched = false;
       state.isDormantSessionsFetched = false;
       state.status = StatusEnum.Idle;
-      state.error = undefined;
+      state.error = null;
     },
   },
   extraReducers: (builder) => {
     builder
       .addCase(fetchActiveFixedSessions.pending, (state) => {
         state.status = StatusEnum.Pending;
+        state.error = null;
       })
       .addCase(fetchActiveFixedSessions.fulfilled, (state, action) => {
         state.status = StatusEnum.Fulfilled;
         state.activeSessions = action.payload.sessions;
         state.fetchableSessionsCount = action.payload.fetchableSessionsCount;
         state.isActiveSessionsFetched = true;
+        state.error = null;
       })
       .addCase(fetchActiveFixedSessions.rejected, (state, action) => {
         state.status = StatusEnum.Rejected;
-        state.error = action.payload;
+        state.error = action.payload || "Unknown error occurred";
       });
     builder
       .addCase(fetchDormantFixedSessions.pending, (state) => {
         state.status = StatusEnum.Pending;
+        state.error = null;
       })
       .addCase(fetchDormantFixedSessions.fulfilled, (state, action) => {
         state.status = StatusEnum.Fulfilled;
-        if (action.meta.arg.isAdditional) {
-          state.dormantSessions = [
-            ...state.dormantSessions,
-            ...action.payload.sessions,
-          ];
-        } else {
-          state.dormantSessions = action.payload.sessions;
-        }
+        state.dormantSessions = action.meta.arg.isAdditional
+          ? [...state.dormantSessions, ...action.payload.sessions]
+          : action.payload.sessions;
         state.fetchableSessionsCount = action.payload.fetchableSessionsCount;
         state.isDormantSessionsFetched = true;
+        state.error = null;
       })
       .addCase(fetchDormantFixedSessions.rejected, (state, action) => {
         state.status = StatusEnum.Rejected;
-        state.error = action.payload;
+        state.error = action.payload || "Unknown error occurred";
       });
   },
 });

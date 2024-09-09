@@ -6,11 +6,12 @@ import { StatusEnum } from "../types/api";
 import { TimelapseData, TimeRanges } from "../types/timelapse";
 import { getErrorMessage } from "../utils/getErrorMessage";
 import { RootState } from "./index";
+import { logError } from "../utils/logController";
 
 interface TimelapseState {
   data: TimelapseData;
   status: StatusEnum;
-  error?: string;
+  error: string | null;
   isLoading: boolean;
   currentTimestamp: string | null;
   timelapseTimeRange: TimeRanges;
@@ -19,6 +20,7 @@ interface TimelapseState {
 const initialState: TimelapseState = {
   data: {},
   status: StatusEnum.Idle,
+  error: null,
   isLoading: false,
   currentTimestamp: null,
   timelapseTimeRange: TimeRanges.HOURS_24,
@@ -39,10 +41,15 @@ export const fetchTimelapseData = createAsyncThunk<
       const response: AxiosResponse<TimelapseData> = await apiClient.get(
         API_ENDPOINTS.fetchTimelapseData(sessionsData.filters)
       );
-
       return response.data;
     } catch (error) {
-      return rejectWithValue(getErrorMessage(error));
+      const message = getErrorMessage(error);
+      logError(error, {
+        action: "fetchTimelapseData",
+        endpoint: API_ENDPOINTS.fetchTimelapseData(sessionsData.filters),
+        message,
+      });
+      return rejectWithValue(message);
     }
   },
   {
@@ -70,7 +77,7 @@ const timelapseSlice = createSlice({
     builder.addCase(fetchTimelapseData.pending, (state) => {
       state.status = StatusEnum.Pending;
       state.isLoading = true;
-      state.error = undefined;
+      state.error = null;
     });
     builder.addCase(
       fetchTimelapseData.fulfilled,
@@ -89,7 +96,7 @@ const timelapseSlice = createSlice({
       fetchTimelapseData.rejected,
       (state, action: PayloadAction<string | undefined>) => {
         state.status = StatusEnum.Rejected;
-        state.error = action.payload;
+        state.error = action.payload || "An unknown error occurred";
         state.isLoading = false;
       }
     );

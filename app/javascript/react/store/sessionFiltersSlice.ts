@@ -6,11 +6,13 @@ import { API_ENDPOINTS } from "../api/apiEndpoints";
 import { StatusEnum } from "../types/api";
 import { fetchTagsParamsType } from "../types/filters";
 import { getErrorMessage } from "../utils/getErrorMessage";
+import { logError } from "../utils/logController";
 
 export enum FixedSessionsTypes {
   ACTIVE = "active",
   DORMANT = "dormant",
 }
+
 interface SessionFilterState {
   usernames: string[];
   tags: string[];
@@ -35,35 +37,47 @@ const initialState: SessionFilterState = {
   fixedSessionsType: FixedSessionsTypes.ACTIVE,
 };
 
-export const fetchUsernames = createAsyncThunk(
-  "autocomplete/usernames",
-  async (username: string, { rejectWithValue }) => {
-    try {
-      const response: AxiosResponse<string[]> = await oldApiClient.get(
-        API_ENDPOINTS.fetchUsernames(username)
-      );
-      return response.data;
-    } catch (error) {
-      const message = getErrorMessage(error);
-      return rejectWithValue(message);
-    }
+export const fetchUsernames = createAsyncThunk<
+  string[],
+  string,
+  { rejectValue: string }
+>("autocomplete/usernames", async (username, { rejectWithValue }) => {
+  try {
+    const response: AxiosResponse<string[]> = await oldApiClient.get(
+      API_ENDPOINTS.fetchUsernames(username)
+    );
+    return response.data;
+  } catch (error) {
+    const message = getErrorMessage(error);
+    logError(error, {
+      action: "fetchUsernames",
+      endpoint: API_ENDPOINTS.fetchUsernames(username),
+      message,
+    });
+    return rejectWithValue(message);
   }
-);
+});
 
-export const fetchTags = createAsyncThunk(
-  "autocomplete/tags",
-  async (params: fetchTagsParamsType, { rejectWithValue }) => {
-    try {
-      const response: AxiosResponse<string[]> = await oldApiClient.get(
-        API_ENDPOINTS.fetchTags(params)
-      );
-      return response.data;
-    } catch (error) {
-      const message = getErrorMessage(error);
-      return rejectWithValue(message);
-    }
+export const fetchTags = createAsyncThunk<
+  string[],
+  fetchTagsParamsType,
+  { rejectValue: string }
+>("autocomplete/tags", async (params, { rejectWithValue }) => {
+  try {
+    const response: AxiosResponse<string[]> = await oldApiClient.get(
+      API_ENDPOINTS.fetchTags(params)
+    );
+    return response.data;
+  } catch (error) {
+    const message = getErrorMessage(error);
+    logError(error, {
+      action: "fetchTags",
+      endpoint: API_ENDPOINTS.fetchTags(params),
+      message,
+    });
+    return rejectWithValue(message);
   }
-);
+});
 
 const sessionFilterSlice = createSlice({
   name: "sessionFilter",
@@ -100,8 +114,9 @@ const sessionFilterSlice = createSlice({
           state.usernames = action.payload;
         }
       )
-      .addCase(fetchUsernames.rejected, (state) => {
+      .addCase(fetchUsernames.rejected, (state, action) => {
         state.fetchUsernamesStatus = StatusEnum.Rejected;
+        state.usernames = [];
       })
       .addCase(fetchTags.pending, (state) => {
         state.fetchTagsStatus = StatusEnum.Pending;
@@ -113,8 +128,9 @@ const sessionFilterSlice = createSlice({
           state.tags = action.payload;
         }
       )
-      .addCase(fetchTags.rejected, (state) => {
+      .addCase(fetchTags.rejected, (state, action) => {
         state.fetchTagsStatus = StatusEnum.Rejected;
+        state.tags = [];
       });
   },
 });

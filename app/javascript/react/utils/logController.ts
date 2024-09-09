@@ -1,4 +1,5 @@
 import * as Sentry from "@sentry/react";
+import { getErrorMessage } from "../utils/getErrorMessage";
 
 export enum LogLevel {
   Info = "info",
@@ -25,17 +26,29 @@ const convertToSeverityLevel = (level: LogLevel): Sentry.SeverityLevel => {
       return "debug";
     case LogLevel.Fatal:
       return "fatal";
+    default:
+      return "info";
   }
-}
+};
 
 export const logEvent = ({
   message,
   level = LogLevel.Info,
 }: LogOptions): void => {
-  const severityLevel = convertToSeverityLevel(level)
+  const severityLevel = convertToSeverityLevel(level);
   Sentry.captureMessage(message, severityLevel);
 };
 
-export const logError = (error: Error): void => {
-  Sentry.captureException(error);
+export const logError = (
+  error: unknown,
+  context: Record<string, any> = {}
+): void => {
+  const errorMessage = getErrorMessage(error);
+  const errorToLog = new Error(errorMessage);
+
+  Sentry.captureException(errorToLog, {
+    extra: {
+      ...context,
+    },
+  });
 };

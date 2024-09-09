@@ -1,9 +1,9 @@
-import { AxiosError, AxiosResponse } from "axios";
-
 import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
-
+import { AxiosResponse } from "axios";
 import { oldApiClient } from "../api/apiClient";
 import { API_ENDPOINTS } from "../api/apiEndpoints";
+import { getErrorMessage } from "../utils/getErrorMessage";
+import { logError } from "../utils/logController";
 import { RootState } from "./";
 
 export interface RectangleData {
@@ -14,12 +14,13 @@ export interface RectangleData {
 
 interface RectangleState {
   data?: RectangleData;
-  error?: string;
+  error?: string | null;
   loading: boolean;
 }
 
 const initialState: RectangleState = {
   loading: false,
+  error: null,
 };
 
 export const fetchRectangleData = createAsyncThunk<
@@ -33,11 +34,13 @@ export const fetchRectangleData = createAsyncThunk<
     );
     return response.data;
   } catch (error) {
-    if (error instanceof AxiosError) {
-      return rejectWithValue(error.message);
-    } else {
-      return rejectWithValue("An unknown error occurred");
-    }
+    const message = getErrorMessage(error);
+    logError(error, {
+      action: "fetchRectangleData",
+      endpoint: API_ENDPOINTS.fetchRectangleData(params),
+      message,
+    });
+    return rejectWithValue(message);
   }
 });
 
@@ -53,13 +56,14 @@ const rectangleSlice = createSlice({
     builder
       .addCase(fetchRectangleData.pending, (state) => {
         state.loading = true;
-        state.error = undefined;
+        state.error = null;
       })
       .addCase(
         fetchRectangleData.fulfilled,
         (state, action: PayloadAction<RectangleData>) => {
           state.data = action.payload;
           state.loading = false;
+          state.error = null;
         }
       )
       .addCase(
