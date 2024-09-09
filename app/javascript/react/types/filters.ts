@@ -18,6 +18,7 @@ type fetchTagsParamsType = {
   unitSymbol: string;
   sessionType: string;
   isIndoor: boolean;
+  isActive: boolean;
 };
 
 const ParameterTypes = {
