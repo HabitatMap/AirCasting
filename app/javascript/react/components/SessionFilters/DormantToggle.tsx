@@ -42,9 +42,7 @@ const DormantToggle = () => {
       dispatch(setFixedSessionsType(FixedSessionsTypes.ACTIVE));
     }
 
-    if (!isDormantSessionsFetched || !isActiveSessionsFetched) {
-      dispatch(setFetchingData(true));
-    }
+    dispatch(setFetchingData(true));
   }, [
     isDormant,
     isDormantSessionsFetched,
