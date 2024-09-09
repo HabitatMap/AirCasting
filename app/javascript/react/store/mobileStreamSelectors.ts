@@ -1,5 +1,6 @@
 import { createSelector } from "@reduxjs/toolkit";
 
+import moment from "moment";
 import { MobileStream, MobileStreamShortInfo } from "../types/mobileStream";
 import { Session } from "../types/sessionType";
 import { RootState } from "./";
@@ -25,8 +26,6 @@ const selectMobileStreamPoints = createSelector(
       })
     )
 );
-
-import moment from "moment";
 
 const selectMobileStreamShortInfo = createSelector(
   [selectMobileStreamData, selectMobileSessionsState],
@@ -68,8 +67,6 @@ const selectMobileStreamShortInfo = createSelector(
     };
   }
 );
-
-const selectExtremesValues = (state: RootState) => state.mobileStream;
 
 const selectMobileStreamStatus = (state: RootState) =>
   state.mobileStream.status;

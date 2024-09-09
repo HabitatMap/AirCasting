@@ -14,8 +14,6 @@ const selectFixedStreamData = (state: RootState): FixedStream => {
   return state.fixedStream.data;
 };
 
-const selectFixedStream = (state: RootState) => state.fixedStream;
-
 const selectLastDailyAverage = (
   state: RootState
 ): StreamDailyAverage | undefined => {
