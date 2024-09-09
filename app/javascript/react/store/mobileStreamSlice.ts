@@ -11,9 +11,6 @@ export interface MobileStreamState {
   data: MobileStream;
   status: StatusEnum;
   error: ApiError | null;
-  minMeasurementValue: number | null;
-  maxMeasurementValue: number | null;
-  averageMeasurementValue: number | null;
   isLoading: boolean;
 }
 
@@ -39,9 +36,6 @@ export const initialState: MobileStreamState = {
   },
   status: StatusEnum.Idle,
   error: null,
-  minMeasurementValue: 0,
-  maxMeasurementValue: 0,
-  averageMeasurementValue: 0,
   isLoading: false,
 };
 

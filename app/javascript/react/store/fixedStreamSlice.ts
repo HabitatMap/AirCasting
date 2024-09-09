@@ -12,9 +12,6 @@ export interface FixedStreamState {
   data: FixedStream;
   status: StatusEnum;
   error: ApiError | null;
-  minMeasurementValue: number | null;
-  maxMeasurementValue: number | null;
-  averageMeasurementValue: number | null;
   isLoading: boolean;
 }
 
@@ -44,9 +41,6 @@ const initialState: FixedStreamState = {
   },
   status: StatusEnum.Idle,
   error: null,
-  minMeasurementValue: 0,
-  maxMeasurementValue: 0,
-  averageMeasurementValue: 0,
   isLoading: false,
 };
 
