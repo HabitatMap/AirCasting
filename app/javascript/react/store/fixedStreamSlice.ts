@@ -1,5 +1,5 @@
-import { AxiosError, AxiosResponse } from "axios";
 import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { AxiosResponse } from "axios";
 import { apiClient } from "../api/apiClient";
 import { API_ENDPOINTS } from "../api/apiEndpoints";
 import { ApiError, StatusEnum } from "../types/api";
@@ -80,29 +80,7 @@ export const fetchFixedStreamById = createAsyncThunk<
 const fixedStreamSlice = createSlice({
   name: "fixedStream",
   initialState,
-  reducers: {
-    updateFixedMeasurementExtremes(
-      state,
-      action: PayloadAction<{ min: number; max: number }>
-    ) {
-      const { min, max } = action.payload;
-      const measurementsInRange = state.data.measurements.filter(
-        (measurement) => {
-          const time = measurement.time;
-          return time >= min && time <= max;
-        }
-      );
-      const values = measurementsInRange.map((m) => m.value);
-      const newMin = Math.min(...values);
-      const newMax = Math.max(...values);
-      const newAvg =
-        values.reduce((sum, value) => sum + value, 0) / values.length;
-
-      state.minMeasurementValue = newMin;
-      state.maxMeasurementValue = newMax;
-      state.averageMeasurementValue = newAvg;
-    },
-  },
+  reducers: {},
   extraReducers: (builder) => {
     builder.addCase(fetchFixedStreamById.pending, (state) => {
       state.status = StatusEnum.Pending;
