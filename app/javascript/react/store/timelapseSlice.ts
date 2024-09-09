@@ -2,7 +2,7 @@ import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { AxiosResponse } from "axios";
 import { apiClient } from "../api/apiClient";
 import { API_ENDPOINTS } from "../api/apiEndpoints";
-import { StatusEnum } from "../types/api";
+import { ApiError, StatusEnum } from "../types/api";
 import { TimelapseData, TimeRanges } from "../types/timelapse";
 import { getErrorMessage } from "../utils/getErrorMessage";
 import { RootState } from "./index";
@@ -11,7 +11,7 @@ import { logError } from "../utils/logController";
 interface TimelapseState {
   data: TimelapseData;
   status: StatusEnum;
-  error: string | null;
+  error: ApiError | null;
   isLoading: boolean;
   currentTimestamp: string | null;
   timelapseTimeRange: TimeRanges;
@@ -33,7 +33,7 @@ interface TimelapseFilters {
 export const fetchTimelapseData = createAsyncThunk<
   TimelapseData,
   TimelapseFilters,
-  { rejectValue: string }
+  { rejectValue: ApiError }
 >(
   "timelapse/fetchData",
   async (sessionsData, { rejectWithValue }) => {
@@ -44,12 +44,18 @@ export const fetchTimelapseData = createAsyncThunk<
       return response.data;
     } catch (error) {
       const message = getErrorMessage(error);
-      logError(error, {
-        action: "fetchTimelapseData",
-        endpoint: API_ENDPOINTS.fetchTimelapseData(sessionsData.filters),
+
+      const apiError: ApiError = {
         message,
-      });
-      return rejectWithValue(message);
+        additionalInfo: {
+          action: "fetchTimelapseData",
+          endpoint: API_ENDPOINTS.fetchTimelapseData(sessionsData.filters),
+        },
+      };
+
+      logError(error, apiError);
+
+      return rejectWithValue(apiError);
     }
   },
   {
@@ -94,9 +100,11 @@ const timelapseSlice = createSlice({
     );
     builder.addCase(
       fetchTimelapseData.rejected,
-      (state, action: PayloadAction<string | undefined>) => {
+      (state, action: PayloadAction<ApiError | undefined>) => {
         state.status = StatusEnum.Rejected;
-        state.error = action.payload || "An unknown error occurred";
+        state.error = action.payload || {
+          message: "An unknown error occurred",
+        };
         state.isLoading = false;
       }
     );

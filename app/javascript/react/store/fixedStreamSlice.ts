@@ -2,7 +2,7 @@ import { AxiosError, AxiosResponse } from "axios";
 import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { apiClient } from "../api/apiClient";
 import { API_ENDPOINTS } from "../api/apiEndpoints";
-import { StatusEnum } from "../types/api";
+import { ApiError, StatusEnum } from "../types/api";
 import { FixedStream } from "../types/fixedStream";
 import { getErrorMessage } from "../utils/getErrorMessage";
 import { logError } from "../utils/logController";
@@ -11,7 +11,7 @@ import { RootState } from "./index";
 export interface FixedStreamState {
   data: FixedStream;
   status: StatusEnum;
-  error: string | null;
+  error: ApiError | null;
   minMeasurementValue: number | null;
   maxMeasurementValue: number | null;
   averageMeasurementValue: number | null;
@@ -53,7 +53,7 @@ const initialState: FixedStreamState = {
 export const fetchFixedStreamById = createAsyncThunk<
   FixedStream,
   number,
-  { rejectValue: string }
+  { rejectValue: ApiError }
 >("fixedStream/getData", async (id: number, { rejectWithValue }) => {
   try {
     const response: AxiosResponse<FixedStream> = await apiClient.get(
@@ -62,12 +62,18 @@ export const fetchFixedStreamById = createAsyncThunk<
     return response.data;
   } catch (error) {
     const message = getErrorMessage(error);
-    logError(error, {
-      action: "fetchFixedStreamById",
-      endpoint: API_ENDPOINTS.fetchFixedStreamById(id),
+
+    const apiError: ApiError = {
       message,
-    });
-    return rejectWithValue(message);
+      additionalInfo: {
+        action: "fetchFixedStreamById",
+        endpoint: API_ENDPOINTS.fetchFixedStreamById(id),
+      },
+    };
+
+    logError(error, apiError);
+
+    return rejectWithValue(apiError);
   }
 });
 
@@ -103,23 +109,30 @@ const fixedStreamSlice = createSlice({
       state.error = null;
       state.isLoading = true;
     });
-    builder.addCase(fetchFixedStreamById.fulfilled, (state, { payload }) => {
-      state.status = StatusEnum.Fulfilled;
-      state.data = payload;
-      state.isLoading = false;
-      state.error = null;
-    });
-    builder.addCase(fetchFixedStreamById.rejected, (state, { payload }) => {
-      state.status = StatusEnum.Rejected;
-      state.error = payload || "Unknown error occurred";
-      state.data = initialState.data;
-      state.isLoading = false;
-    });
+    builder.addCase(
+      fetchFixedStreamById.fulfilled,
+      (state, action: PayloadAction<FixedStream>) => {
+        state.status = StatusEnum.Fulfilled;
+        state.data = action.payload;
+        state.isLoading = false;
+        state.error = null;
+      }
+    );
+    builder.addCase(
+      fetchFixedStreamById.rejected,
+      (state, action: PayloadAction<ApiError | undefined>) => {
+        state.status = StatusEnum.Rejected;
+        state.error = action.payload || { message: "Unknown error occurred" };
+        state.data = initialState.data;
+        state.isLoading = false;
+      }
+    );
   },
 });
 
 export const { updateFixedMeasurementExtremes } = fixedStreamSlice.actions;
 export default fixedStreamSlice.reducer;
+
 export const selectFixedData = (state: RootState) => state.fixedStream.data;
 export const selectIsLoading = (state: RootState) =>
   state.fixedStream.isLoading;

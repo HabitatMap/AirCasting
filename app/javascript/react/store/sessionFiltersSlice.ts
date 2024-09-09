@@ -3,7 +3,7 @@ import { AxiosResponse } from "axios";
 import { RootState } from ".";
 import { oldApiClient } from "../api/apiClient";
 import { API_ENDPOINTS } from "../api/apiEndpoints";
-import { StatusEnum } from "../types/api";
+import { ApiError, StatusEnum } from "../types/api";
 import { fetchTagsParamsType } from "../types/filters";
 import { getErrorMessage } from "../utils/getErrorMessage";
 import { logError } from "../utils/logController";
@@ -18,6 +18,8 @@ interface SessionFilterState {
   tags: string[];
   fetchUsernamesStatus: StatusEnum;
   fetchTagsStatus: StatusEnum;
+  usernamesError: ApiError | null;
+  tagsError: ApiError | null;
   basicParametersModalOpen: boolean;
   customParametersModalOpen: boolean;
   basicSensorsModalOpen: boolean;
@@ -30,6 +32,8 @@ const initialState: SessionFilterState = {
   tags: [],
   fetchUsernamesStatus: StatusEnum.Idle,
   fetchTagsStatus: StatusEnum.Idle,
+  usernamesError: null,
+  tagsError: null,
   basicParametersModalOpen: false,
   customParametersModalOpen: false,
   basicSensorsModalOpen: false,
@@ -40,7 +44,7 @@ const initialState: SessionFilterState = {
 export const fetchUsernames = createAsyncThunk<
   string[],
   string,
-  { rejectValue: string }
+  { rejectValue: ApiError }
 >("autocomplete/usernames", async (username, { rejectWithValue }) => {
   try {
     const response: AxiosResponse<string[]> = await oldApiClient.get(
@@ -49,19 +53,25 @@ export const fetchUsernames = createAsyncThunk<
     return response.data;
   } catch (error) {
     const message = getErrorMessage(error);
-    logError(error, {
-      action: "fetchUsernames",
-      endpoint: API_ENDPOINTS.fetchUsernames(username),
+
+    const apiError: ApiError = {
       message,
-    });
-    return rejectWithValue(message);
+      additionalInfo: {
+        action: "fetchUsernames",
+        endpoint: API_ENDPOINTS.fetchUsernames(username),
+      },
+    };
+
+    logError(error, apiError);
+
+    return rejectWithValue(apiError);
   }
 });
 
 export const fetchTags = createAsyncThunk<
   string[],
   fetchTagsParamsType,
-  { rejectValue: string }
+  { rejectValue: ApiError }
 >("autocomplete/tags", async (params, { rejectWithValue }) => {
   try {
     const response: AxiosResponse<string[]> = await oldApiClient.get(
@@ -70,12 +80,18 @@ export const fetchTags = createAsyncThunk<
     return response.data;
   } catch (error) {
     const message = getErrorMessage(error);
-    logError(error, {
-      action: "fetchTags",
-      endpoint: API_ENDPOINTS.fetchTags(params),
+
+    const apiError: ApiError = {
       message,
-    });
-    return rejectWithValue(message);
+      additionalInfo: {
+        action: "fetchTags",
+        endpoint: API_ENDPOINTS.fetchTags(params),
+      },
+    };
+
+    logError(error, apiError);
+
+    return rejectWithValue(apiError);
   }
 });
 
@@ -106,32 +122,48 @@ const sessionFilterSlice = createSlice({
     builder
       .addCase(fetchUsernames.pending, (state) => {
         state.fetchUsernamesStatus = StatusEnum.Pending;
+        state.usernamesError = null;
       })
       .addCase(
         fetchUsernames.fulfilled,
         (state, action: PayloadAction<string[]>) => {
           state.fetchUsernamesStatus = StatusEnum.Fulfilled;
           state.usernames = action.payload;
+          state.usernamesError = null;
         }
       )
-      .addCase(fetchUsernames.rejected, (state, action) => {
-        state.fetchUsernamesStatus = StatusEnum.Rejected;
-        state.usernames = [];
-      })
+      .addCase(
+        fetchUsernames.rejected,
+        (state, action: PayloadAction<ApiError | undefined>) => {
+          state.fetchUsernamesStatus = StatusEnum.Rejected;
+          state.usernames = [];
+          state.usernamesError = action.payload || {
+            message: "Unknown error occurred",
+          };
+        }
+      )
       .addCase(fetchTags.pending, (state) => {
         state.fetchTagsStatus = StatusEnum.Pending;
+        state.tagsError = null;
       })
       .addCase(
         fetchTags.fulfilled,
         (state, action: PayloadAction<string[]>) => {
           state.fetchTagsStatus = StatusEnum.Fulfilled;
           state.tags = action.payload;
+          state.tagsError = null;
         }
       )
-      .addCase(fetchTags.rejected, (state, action) => {
-        state.fetchTagsStatus = StatusEnum.Rejected;
-        state.tags = [];
-      });
+      .addCase(
+        fetchTags.rejected,
+        (state, action: PayloadAction<ApiError | undefined>) => {
+          state.fetchTagsStatus = StatusEnum.Rejected;
+          state.tags = [];
+          state.tagsError = action.payload || {
+            message: "Unknown error occurred",
+          };
+        }
+      );
   },
 });
 

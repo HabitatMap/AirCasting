@@ -8,7 +8,7 @@ import { AxiosResponse } from "axios";
 import { RootState } from ".";
 import { oldApiClient } from "../api/apiClient";
 import { API_ENDPOINTS } from "../api/apiEndpoints";
-import { StatusEnum } from "../types/api";
+import { ApiError, StatusEnum } from "../types/api";
 import { SessionType } from "../types/filters";
 import { Sensor } from "../types/sensors";
 import { getErrorMessage } from "../utils/getErrorMessage";
@@ -17,7 +17,7 @@ import { logError } from "../utils/logController";
 interface SensorsState {
   sensors: Sensor[];
   fetchSensorsStatus: StatusEnum;
-  error: string | null;
+  error: ApiError | null;
 }
 
 const initialState: SensorsState = {
@@ -29,7 +29,7 @@ const initialState: SensorsState = {
 export const fetchSensors = createAsyncThunk<
   Sensor[],
   SessionType,
-  { rejectValue: string }
+  { rejectValue: ApiError }
 >("sensors", async (sessionType, { rejectWithValue }) => {
   const sessionTypeCapitalized =
     sessionType[0].toUpperCase() + sessionType.slice(1);
@@ -40,12 +40,18 @@ export const fetchSensors = createAsyncThunk<
     return response.data;
   } catch (error) {
     const message = getErrorMessage(error);
-    logError(error, {
-      action: "fetchSensors",
-      endpoint: API_ENDPOINTS.fetchSensors(sessionTypeCapitalized),
+
+    const apiError: ApiError = {
       message,
-    });
-    return rejectWithValue(message);
+      additionalInfo: {
+        action: "fetchSensors",
+        endpoint: API_ENDPOINTS.fetchSensors(sessionTypeCapitalized),
+      },
+    };
+
+    logError(error, apiError);
+
+    return rejectWithValue(apiError);
   }
 });
 
@@ -67,10 +73,15 @@ const sensorsSlice = createSlice({
           state.error = null;
         }
       )
-      .addCase(fetchSensors.rejected, (state, action) => {
-        state.fetchSensorsStatus = StatusEnum.Rejected;
-        state.error = action.payload || "An unknown error occurred";
-      });
+      .addCase(
+        fetchSensors.rejected,
+        (state, action: PayloadAction<ApiError | undefined>) => {
+          state.fetchSensorsStatus = StatusEnum.Rejected;
+          state.error = action.payload || {
+            message: "Unknown error occurred",
+          };
+        }
+      );
   },
 });
 

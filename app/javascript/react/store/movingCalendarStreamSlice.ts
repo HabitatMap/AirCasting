@@ -1,18 +1,18 @@
 import { AxiosResponse } from "axios";
-import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
+import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { StreamDailyAverage } from "../types/StreamDailyAverage";
 import { getErrorMessage } from "../utils/getErrorMessage";
 import { API_ENDPOINTS } from "../api/apiEndpoints";
 import { apiClient } from "../api/apiClient";
 import { logError } from "../utils/logController";
-import { StatusEnum } from "../types/api";
+import { ApiError, StatusEnum } from "../types/api";
 
 import type { RootState } from "./index";
 
 interface CalendarStreamState {
   data: StreamDailyAverage[];
   status: StatusEnum;
-  error: string | null;
+  error: ApiError | null;
 }
 
 const initialState: CalendarStreamState = {
@@ -30,7 +30,7 @@ interface MovingStreamParams {
 export const fetchNewMovingStream = createAsyncThunk<
   StreamDailyAverage[],
   MovingStreamParams,
-  { rejectValue: string }
+  { rejectValue: ApiError }
 >(
   "movingCalendarStream/getData",
   async ({ id, startDate, endDate }, { rejectWithValue }) => {
@@ -41,16 +41,22 @@ export const fetchNewMovingStream = createAsyncThunk<
       return response.data;
     } catch (error) {
       const message = getErrorMessage(error);
-      logError(error, {
-        action: "fetchNewMovingStream",
-        endpoint: API_ENDPOINTS.fetchSelectedDataRangeOfStream(
-          id,
-          startDate,
-          endDate
-        ),
+
+      const apiError: ApiError = {
         message,
-      });
-      return rejectWithValue(message);
+        additionalInfo: {
+          action: "fetchNewMovingStream",
+          endpoint: API_ENDPOINTS.fetchSelectedDataRangeOfStream(
+            id,
+            startDate,
+            endDate
+          ),
+        },
+      };
+
+      logError(error, apiError);
+
+      return rejectWithValue(apiError);
     }
   }
 );
@@ -61,19 +67,25 @@ export const movingStreamSlice = createSlice({
   reducers: {},
   extraReducers: (builder) => {
     builder
-      .addCase(fetchNewMovingStream.fulfilled, (state, { payload }) => {
-        state.status = StatusEnum.Fulfilled;
-        state.data = payload;
-        state.data.sort(
-          (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
-        );
-        state.error = null;
-      })
-      .addCase(fetchNewMovingStream.rejected, (state, { payload }) => {
-        state.status = StatusEnum.Rejected;
-        state.error = payload || "Unknown error occurred";
-        state.data = [];
-      });
+      .addCase(
+        fetchNewMovingStream.fulfilled,
+        (state, action: PayloadAction<StreamDailyAverage[]>) => {
+          state.status = StatusEnum.Fulfilled;
+          state.data = action.payload;
+          state.data.sort(
+            (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
+          );
+          state.error = null;
+        }
+      )
+      .addCase(
+        fetchNewMovingStream.rejected,
+        (state, action: PayloadAction<ApiError | undefined>) => {
+          state.status = StatusEnum.Rejected;
+          state.error = action.payload || { message: "Unknown error occurred" };
+          state.data = [];
+        }
+      );
   },
 });
 

@@ -2,7 +2,7 @@ import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { AxiosResponse } from "axios";
 import { oldApiClient } from "../api/apiClient";
 import { API_ENDPOINTS } from "../api/apiEndpoints";
-import { StatusEnum } from "../types/api";
+import { ApiError, StatusEnum } from "../types/api";
 import { Thresholds } from "../types/thresholds";
 import { getErrorMessage } from "../utils/getErrorMessage";
 import { logError } from "../utils/logController";
@@ -16,7 +16,7 @@ interface ThumbPositions {
 
 export interface ThresholdState {
   defaultValues: Thresholds;
-  error: string | null;
+  error: ApiError | null;
   status: StatusEnum;
   userValues?: Thresholds;
   sliderWidth: number;
@@ -46,7 +46,7 @@ export const initialState: ThresholdState = {
 export const fetchThresholds = createAsyncThunk<
   string[],
   string,
-  { rejectValue: string }
+  { rejectValue: ApiError }
 >("thresholds/getData", async (filters: string, { rejectWithValue }) => {
   try {
     const response: AxiosResponse<string[]> = await oldApiClient.get(
@@ -55,12 +55,18 @@ export const fetchThresholds = createAsyncThunk<
     return response.data;
   } catch (error) {
     const message = getErrorMessage(error);
-    logError(error, {
-      action: "fetchThresholds",
-      endpoint: API_ENDPOINTS.fetchThresholds(filters),
+
+    const apiError: ApiError = {
       message,
-    });
-    return rejectWithValue(message);
+      additionalInfo: {
+        action: "fetchThresholds",
+        endpoint: API_ENDPOINTS.fetchThresholds(filters),
+      },
+    };
+
+    logError(error, apiError);
+
+    return rejectWithValue(apiError);
   }
 });
 
@@ -73,22 +79,30 @@ export const thresholdSlice = createSlice({
         state.status = StatusEnum.Pending;
         state.error = null;
       })
-      .addCase(fetchThresholds.fulfilled, (state, action) => {
-        state.status = StatusEnum.Fulfilled;
-        state.error = null;
-        state.defaultValues.min = Number(action.payload[0]);
-        state.defaultValues.low = Number(action.payload[1]);
-        state.defaultValues.middle = Number(action.payload[2]);
-        state.defaultValues.high = Number(action.payload[3]);
-        state.defaultValues.max = Number(action.payload[4]);
-        if (!state.userValues) {
-          state.userValues = { ...state.defaultValues };
+      .addCase(
+        fetchThresholds.fulfilled,
+        (state, action: PayloadAction<string[]>) => {
+          state.status = StatusEnum.Fulfilled;
+          state.error = null;
+          state.defaultValues.min = Number(action.payload[0]);
+          state.defaultValues.low = Number(action.payload[1]);
+          state.defaultValues.middle = Number(action.payload[2]);
+          state.defaultValues.high = Number(action.payload[3]);
+          state.defaultValues.max = Number(action.payload[4]);
+          if (!state.userValues) {
+            state.userValues = { ...state.defaultValues };
+          }
         }
-      })
-      .addCase(fetchThresholds.rejected, (state, action) => {
-        state.status = StatusEnum.Rejected;
-        state.error = action.payload || "An unknown error occurred";
-      });
+      )
+      .addCase(
+        fetchThresholds.rejected,
+        (state, action: PayloadAction<ApiError | undefined>) => {
+          state.status = StatusEnum.Rejected;
+          state.error = action.payload || {
+            message: "An unknown error occurred",
+          };
+        }
+      );
   },
   reducers: {
     resetUserThresholds: (state) => {

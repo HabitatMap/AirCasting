@@ -5,6 +5,7 @@ import { API_ENDPOINTS } from "../api/apiEndpoints";
 import { getErrorMessage } from "../utils/getErrorMessage";
 import { logError } from "../utils/logController";
 import { RootState } from "./";
+import { ApiError } from "../types/api";
 
 export interface RectangleData {
   average: number;
@@ -14,7 +15,7 @@ export interface RectangleData {
 
 interface RectangleState {
   data?: RectangleData;
-  error?: string | null;
+  error: ApiError | null;
   loading: boolean;
 }
 
@@ -26,7 +27,7 @@ const initialState: RectangleState = {
 export const fetchRectangleData = createAsyncThunk<
   RectangleData,
   string,
-  { rejectValue: string }
+  { rejectValue: ApiError }
 >("rectangle/fetchRectangleData", async (params, { rejectWithValue }) => {
   try {
     const response: AxiosResponse<RectangleData> = await oldApiClient.get(
@@ -35,12 +36,18 @@ export const fetchRectangleData = createAsyncThunk<
     return response.data;
   } catch (error) {
     const message = getErrorMessage(error);
-    logError(error, {
-      action: "fetchRectangleData",
-      endpoint: API_ENDPOINTS.fetchRectangleData(params),
+
+    const apiError: ApiError = {
       message,
-    });
-    return rejectWithValue(message);
+      additionalInfo: {
+        action: "fetchRectangleData",
+        endpoint: API_ENDPOINTS.fetchRectangleData(params),
+      },
+    };
+
+    logError(error, apiError);
+
+    return rejectWithValue(apiError);
   }
 });
 
@@ -68,8 +75,10 @@ const rectangleSlice = createSlice({
       )
       .addCase(
         fetchRectangleData.rejected,
-        (state, action: PayloadAction<string | undefined>) => {
-          state.error = action.payload ?? "An unknown error occurred";
+        (state, action: PayloadAction<ApiError | undefined>) => {
+          state.error = action.payload || {
+            message: "An unknown error occurred",
+          };
           state.loading = false;
         }
       );

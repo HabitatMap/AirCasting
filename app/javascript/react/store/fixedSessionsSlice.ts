@@ -1,9 +1,9 @@
-import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
+import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { AxiosResponse } from "axios";
 import { RootState } from ".";
 import { oldApiClient } from "../api/apiClient";
 import { API_ENDPOINTS } from "../api/apiEndpoints";
-import { StatusEnum } from "../types/api";
+import { ApiError, StatusEnum } from "../types/api";
 import { getErrorMessage } from "../utils/getErrorMessage";
 import { logError } from "../utils/logController";
 import { FixedSessionsTypes } from "./sessionFiltersSlice";
@@ -42,7 +42,7 @@ interface SessionsState {
   isActiveSessionsFetched: boolean;
   isDormantSessionsFetched: boolean;
   status: StatusEnum;
-  error: string | null;
+  error: ApiError | null;
 }
 
 export interface SessionsData {
@@ -67,7 +67,7 @@ const createSessionFetchThunk = (
   return createAsyncThunk<
     SessionsResponse,
     SessionsData,
-    { rejectValue: string }
+    { rejectValue: ApiError }
   >(
     `sessions/fetch${
       type.charAt(0).toUpperCase() + type.slice(1)
@@ -81,15 +81,19 @@ const createSessionFetchThunk = (
       } catch (error) {
         const message = getErrorMessage(error);
 
-        logError(error, {
-          action: `fetch${
-            type.charAt(0).toUpperCase() + type.slice(1)
-          }FixedSessions`,
-          endpoint: endpoint(sessionsData.filters),
+        const apiError: ApiError = {
           message,
-        });
+          additionalInfo: {
+            action: `fetch${
+              type.charAt(0).toUpperCase() + type.slice(1)
+            }FixedSessions`,
+            endpoint: endpoint(sessionsData.filters),
+          },
+        };
 
-        return rejectWithValue(message);
+        logError(error, apiError);
+
+        return rejectWithValue(apiError);
       }
     },
     {
@@ -131,17 +135,23 @@ const fixedSessionsSlice = createSlice({
         state.status = StatusEnum.Pending;
         state.error = null;
       })
-      .addCase(fetchActiveFixedSessions.fulfilled, (state, action) => {
-        state.status = StatusEnum.Fulfilled;
-        state.activeSessions = action.payload.sessions;
-        state.fetchableSessionsCount = action.payload.fetchableSessionsCount;
-        state.isActiveSessionsFetched = true;
-        state.error = null;
-      })
-      .addCase(fetchActiveFixedSessions.rejected, (state, action) => {
-        state.status = StatusEnum.Rejected;
-        state.error = action.payload || "Unknown error occurred";
-      });
+      .addCase(
+        fetchActiveFixedSessions.fulfilled,
+        (state, action: PayloadAction<SessionsResponse>) => {
+          state.status = StatusEnum.Fulfilled;
+          state.activeSessions = action.payload.sessions;
+          state.fetchableSessionsCount = action.payload.fetchableSessionsCount;
+          state.isActiveSessionsFetched = true;
+          state.error = null;
+        }
+      )
+      .addCase(
+        fetchActiveFixedSessions.rejected,
+        (state, action: PayloadAction<ApiError | undefined>) => {
+          state.status = StatusEnum.Rejected;
+          state.error = action.payload || { message: "Unknown error occurred" };
+        }
+      );
     builder
       .addCase(fetchDormantFixedSessions.pending, (state) => {
         state.status = StatusEnum.Pending;
@@ -149,17 +159,20 @@ const fixedSessionsSlice = createSlice({
       })
       .addCase(fetchDormantFixedSessions.fulfilled, (state, action) => {
         state.status = StatusEnum.Fulfilled;
-        state.dormantSessions = action.meta.arg.isAdditional
+        state.dormantSessions = action.meta?.arg.isAdditional
           ? [...state.dormantSessions, ...action.payload.sessions]
           : action.payload.sessions;
         state.fetchableSessionsCount = action.payload.fetchableSessionsCount;
         state.isDormantSessionsFetched = true;
         state.error = null;
       })
-      .addCase(fetchDormantFixedSessions.rejected, (state, action) => {
-        state.status = StatusEnum.Rejected;
-        state.error = action.payload || "Unknown error occurred";
-      });
+      .addCase(
+        fetchDormantFixedSessions.rejected,
+        (state, action: PayloadAction<ApiError | undefined>) => {
+          state.status = StatusEnum.Rejected;
+          state.error = action.payload || { message: "Unknown error occurred" };
+        }
+      );
   },
 });
 
