@@ -1,14 +1,9 @@
 import React from "react";
 import { useSelector } from "react-redux";
 
-import {
-  selectFixedExtremes,
-  selectFixedStreamShortInfo,
-} from "../../../../store/fixedStreamSelectors";
-import {
-  selectMobileExtremes,
-  selectMobileStreamShortInfo,
-} from "../../../../store/mobileStreamSelectors";
+import { selectFixedStreamShortInfo } from "../../../../store/fixedStreamSelectors";
+import { selectMeasurementsExtremes } from "../../../../store/measurementsSelectors";
+import { selectMobileStreamShortInfo } from "../../../../store/mobileStreamSelectors";
 import { selectThresholds } from "../../../../store/thresholdSlice";
 import { SessionType, SessionTypes } from "../../../../types/filters";
 import { MobileStreamShortInfo as StreamShortInfo } from "../../../../types/mobileStream";
@@ -38,9 +33,7 @@ const SessionInfo: React.FC<SessionInfoProps> = ({
       ? selectFixedStreamShortInfo
       : selectMobileStreamShortInfo
   );
-  const extremes = useSelector(
-    fixedSessionTypeSelected ? selectFixedExtremes : selectMobileExtremes
-  );
+  const extremes = useSelector(selectMeasurementsExtremes);
   const thresholds = useSelector(selectThresholds);
 
   const toggleVisibility = () => {

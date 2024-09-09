@@ -1,10 +1,8 @@
 import React, { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { useSelector } from "react-redux";
-import {
-  selectFixedExtremes,
-  selectFixedStreamShortInfo,
-} from "../../store/fixedStreamSelectors";
+import { selectFixedStreamShortInfo } from "../../store/fixedStreamSelectors";
+import { selectMeasurementsExtremes } from "../../store/measurementsSelectors";
 import { selectThresholds } from "../../store/thresholdSlice";
 import { isNoData } from "../../utils/measurementsCalc";
 import { getColorForValue } from "../../utils/thresholdColors";
@@ -14,7 +12,7 @@ import { MeasurementContainer } from "./Graph.style";
 const MeasurementComponent: React.FC = () => {
   const { t } = useTranslation();
 
-  const extremes = useSelector(selectFixedExtremes);
+  const extremes = useSelector(selectMeasurementsExtremes);
   const thresholds = useSelector(selectThresholds);
   const { unitSymbol } = useSelector(selectFixedStreamShortInfo);
 

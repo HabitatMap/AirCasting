@@ -130,7 +130,6 @@ const fixedStreamSlice = createSlice({
   },
 });
 
-export const { updateFixedMeasurementExtremes } = fixedStreamSlice.actions;
 export default fixedStreamSlice.reducer;
 
 export const selectFixedData = (state: RootState) => state.fixedStream.data;

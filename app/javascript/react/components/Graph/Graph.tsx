@@ -4,6 +4,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { useSelector } from "react-redux";
 import { selectFixedStreamShortInfo } from "../../store/fixedStreamSelectors";
 import { selectFixedData, selectIsLoading } from "../../store/fixedStreamSlice";
+import { selectMeasurementsData } from "../../store/measurementsSelectors";
 import {
   selectMobileStreamPoints,
   selectMobileStreamShortInfo,
@@ -52,6 +53,7 @@ const Graph: React.FC<GraphProps> = ({
   const thresholdsState = useSelector(selectThresholds);
   const isLoading = useSelector(selectIsLoading);
   const fixedGraphData = useSelector(selectFixedData);
+  const measurementsData = useSelector(selectMeasurementsData);
   const mobileGraphData = useSelector(selectMobileStreamPoints);
   const streamShortInfo: StreamShortInfo = useSelector(
     fixedSessionTypeSelected
@@ -93,11 +95,7 @@ const Graph: React.FC<GraphProps> = ({
         (seriesData[0] as number[])[0]
       : 0;
 
-  const xAxisOptions = getXAxisOptions(
-    fixedSessionTypeSelected,
-    isMobile,
-    rangeDisplayRef
-  );
+  const xAxisOptions = getXAxisOptions(isMobile, rangeDisplayRef, streamId);
   const yAxisOption = getYAxisOptions(thresholdsState, isMobile);
   const tooltipOptions = getTooltipOptions(measurementType, unitSymbol);
   const rangeSelectorOptions = getRangeSelectorOptions(

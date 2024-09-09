@@ -2,7 +2,6 @@ import { createSelector } from "@reduxjs/toolkit";
 
 import { MobileStream, MobileStreamShortInfo } from "../types/mobileStream";
 import { Session } from "../types/sessionType";
-import { isValidValue } from "../utils/measurementsCalc";
 import { RootState } from "./";
 import { selectMobileSessionsState } from "./mobileSessionsSelectors";
 import { initialState as mobileStreamInitialState } from "./mobileStreamSlice";
@@ -72,38 +71,10 @@ const selectMobileStreamShortInfo = createSelector(
 
 const selectExtremesValues = (state: RootState) => state.mobileStream;
 
-const selectMobileExtremes = createSelector(
-  [selectExtremesValues],
-  (mobileStreamData) => {
-    const {
-      averageMeasurementValue,
-      minMeasurementValue,
-      maxMeasurementValue,
-    } = mobileStreamData;
-
-    const min = isValidValue(minMeasurementValue)
-      ? Math.round(minMeasurementValue!)
-      : null;
-    const max = isValidValue(maxMeasurementValue)
-      ? Math.round(maxMeasurementValue!)
-      : null;
-    const avg = isValidValue(averageMeasurementValue)
-      ? Math.round(averageMeasurementValue!)
-      : null;
-
-    return {
-      minMeasurementValue: min,
-      maxMeasurementValue: max,
-      averageValue: avg,
-    };
-  }
-);
-
 const selectMobileStreamStatus = (state: RootState) =>
   state.mobileStream.status;
 
 export {
-  selectMobileExtremes,
   selectMobileStreamData,
   selectMobileStreamPoints,
   selectMobileStreamShortInfo,
