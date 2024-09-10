@@ -17,8 +17,7 @@ import { NotFoundPage } from "./pages/NotFoundPage";
 import { RedirectPage } from "./pages/RedirectPage";
 import store from "./store/index";
 
-const MOBILE_MAP_PATH = "/mobile_map";
-const FIXED_MAP_PATH = "/fixed_map";
+const NEW_MAP = "/new_map";
 
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -48,7 +47,7 @@ const router = createBrowserRouter(
         }
       />
       <Route
-        path={MOBILE_MAP_PATH || FIXED_MAP_PATH}
+        path={NEW_MAP}
         element={
           <RedirectPage>
             <Navbar isMapPage={false} />
