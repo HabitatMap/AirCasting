@@ -1,18 +1,17 @@
-import { AxiosResponse } from "axios";
-
+import { AxiosError, AxiosResponse } from "axios";
 import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
-
 import { apiClient } from "../api/apiClient";
 import { API_ENDPOINTS } from "../api/apiEndpoints";
-import { Error, StatusEnum } from "../types/api";
+import { ApiError, StatusEnum } from "../types/api";
 import { FixedStream } from "../types/fixedStream";
 import { getErrorMessage } from "../utils/getErrorMessage";
+import { logError } from "../utils/logController";
 import { RootState } from "./index";
 
 export interface FixedStreamState {
   data: FixedStream;
   status: StatusEnum;
-  error?: Error;
+  error: ApiError | null;
   minMeasurementValue: number | null;
   maxMeasurementValue: number | null;
   averageMeasurementValue: number | null;
@@ -44,6 +43,7 @@ const initialState: FixedStreamState = {
     streamDailyAverages: [],
   },
   status: StatusEnum.Idle,
+  error: null,
   minMeasurementValue: 0,
   maxMeasurementValue: 0,
   averageMeasurementValue: 0,
@@ -53,16 +53,27 @@ const initialState: FixedStreamState = {
 export const fetchFixedStreamById = createAsyncThunk<
   FixedStream,
   number,
-  { rejectValue: { message: string } }
+  { rejectValue: ApiError }
 >("fixedStream/getData", async (id: number, { rejectWithValue }) => {
   try {
-    const response: AxiosResponse<FixedStream, Error> = await apiClient.get(
+    const response: AxiosResponse<FixedStream> = await apiClient.get(
       API_ENDPOINTS.fetchFixedStreamById(id)
     );
     return response.data;
   } catch (error) {
     const message = getErrorMessage(error);
-    return rejectWithValue({ message });
+
+    const apiError: ApiError = {
+      message,
+      additionalInfo: {
+        action: "fetchFixedStreamById",
+        endpoint: API_ENDPOINTS.fetchFixedStreamById(id),
+      },
+    };
+
+    logError(error, apiError);
+
+    return rejectWithValue(apiError);
   }
 });
 
@@ -75,14 +86,12 @@ const fixedStreamSlice = createSlice({
       action: PayloadAction<{ min: number; max: number }>
     ) {
       const { min, max } = action.payload;
-
       const measurementsInRange = state.data.measurements.filter(
         (measurement) => {
           const time = measurement.time;
           return time >= min && time <= max;
         }
       );
-
       const values = measurementsInRange.map((m) => m.value);
       const newMin = Math.min(...values);
       const newMax = Math.max(...values);
@@ -91,31 +100,39 @@ const fixedStreamSlice = createSlice({
 
       state.minMeasurementValue = newMin;
       state.maxMeasurementValue = newMax;
-
       state.averageMeasurementValue = newAvg;
     },
   },
   extraReducers: (builder) => {
     builder.addCase(fetchFixedStreamById.pending, (state) => {
       state.status = StatusEnum.Pending;
+      state.error = null;
       state.isLoading = true;
     });
-    builder.addCase(fetchFixedStreamById.fulfilled, (state, { payload }) => {
-      state.status = StatusEnum.Fulfilled;
-      state.data = payload;
-      state.isLoading = false;
-    });
-    builder.addCase(fetchFixedStreamById.rejected, (state, { payload }) => {
-      state.status = StatusEnum.Rejected;
-      state.error = payload;
-      state.data = initialState.data;
-      state.isLoading = false;
-    });
+    builder.addCase(
+      fetchFixedStreamById.fulfilled,
+      (state, action: PayloadAction<FixedStream>) => {
+        state.status = StatusEnum.Fulfilled;
+        state.data = action.payload;
+        state.isLoading = false;
+        state.error = null;
+      }
+    );
+    builder.addCase(
+      fetchFixedStreamById.rejected,
+      (state, action: PayloadAction<ApiError | undefined>) => {
+        state.status = StatusEnum.Rejected;
+        state.error = action.payload || { message: "Unknown error occurred" };
+        state.data = initialState.data;
+        state.isLoading = false;
+      }
+    );
   },
 });
 
 export const { updateFixedMeasurementExtremes } = fixedStreamSlice.actions;
 export default fixedStreamSlice.reducer;
+
 export const selectFixedData = (state: RootState) => state.fixedStream.data;
 export const selectIsLoading = (state: RootState) =>
   state.fixedStream.isLoading;

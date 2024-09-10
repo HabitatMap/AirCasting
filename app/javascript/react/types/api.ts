@@ -5,8 +5,9 @@ const enum StatusEnum {
   Rejected = "REJECTED",
 }
 
-interface Error {
-  message?: string;
+interface ApiError {
+  message: string;
+  additionalInfo?: Record<string, any>;
 }
 
-export { StatusEnum, Error };
+export { StatusEnum, ApiError };

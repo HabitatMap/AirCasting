@@ -1,15 +1,16 @@
-import { AxiosResponse } from "axios";
 import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { AxiosResponse } from "axios";
 import { oldApiClient } from "../api/apiClient";
 import { API_ENDPOINTS } from "../api/apiEndpoints";
-import { Error, StatusEnum } from "../types/api";
+import { ApiError, StatusEnum } from "../types/api";
 import { MobileStream } from "../types/mobileStream";
 import { getErrorMessage } from "../utils/getErrorMessage";
+import { logError } from "../utils/logController";
 
 export interface MobileStreamState {
   data: MobileStream;
   status: StatusEnum;
-  error?: Error;
+  error: ApiError | null;
   minMeasurementValue: number | null;
   maxMeasurementValue: number | null;
   averageMeasurementValue: number | null;
@@ -37,6 +38,7 @@ export const initialState: MobileStreamState = {
     username: "",
   },
   status: StatusEnum.Idle,
+  error: null,
   minMeasurementValue: 0,
   maxMeasurementValue: 0,
   averageMeasurementValue: 0,
@@ -46,7 +48,7 @@ export const initialState: MobileStreamState = {
 export const fetchMobileStreamById = createAsyncThunk<
   MobileStream,
   number,
-  { rejectValue: { message: string } }
+  { rejectValue: ApiError }
 >("mobileStream/getData", async (id: number, { rejectWithValue }) => {
   try {
     const response: AxiosResponse<MobileStream, Error> = await oldApiClient.get(
@@ -55,7 +57,18 @@ export const fetchMobileStreamById = createAsyncThunk<
     return response.data;
   } catch (error) {
     const message = getErrorMessage(error);
-    return rejectWithValue({ message });
+
+    const apiError: ApiError = {
+      message,
+      additionalInfo: {
+        action: "fetchMobileStreamById",
+        endpoint: API_ENDPOINTS.fetchMobileStreamById(id),
+      },
+    };
+
+    logError(error, apiError);
+
+    return rejectWithValue(apiError);
   }
 });
 
@@ -89,19 +102,27 @@ export const mobileStreamSlice = createSlice({
   extraReducers: (builder) => {
     builder.addCase(fetchMobileStreamById.pending, (state) => {
       state.status = StatusEnum.Pending;
+      state.error = null;
       state.isLoading = true;
     });
-    builder.addCase(fetchMobileStreamById.fulfilled, (state, action) => {
-      state.status = StatusEnum.Fulfilled;
-      state.data = action.payload;
-      state.isLoading = false;
-    });
-    builder.addCase(fetchMobileStreamById.rejected, (state, action) => {
-      state.status = StatusEnum.Rejected;
-      state.error = action.payload || { message: "Failed to fetch data" };
-      state.data = initialState.data;
-      state.isLoading = false;
-    });
+    builder.addCase(
+      fetchMobileStreamById.fulfilled,
+      (state, action: PayloadAction<MobileStream>) => {
+        state.status = StatusEnum.Fulfilled;
+        state.data = action.payload;
+        state.error = null;
+        state.isLoading = false;
+      }
+    );
+    builder.addCase(
+      fetchMobileStreamById.rejected,
+      (state, action: PayloadAction<ApiError | undefined>) => {
+        state.status = StatusEnum.Rejected;
+        state.error = action.payload || { message: "Unknown error occurred" };
+        state.data = initialState.data;
+        state.isLoading = false;
+      }
+    );
   },
 });
 

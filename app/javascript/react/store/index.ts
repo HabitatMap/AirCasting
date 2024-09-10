@@ -25,6 +25,7 @@ const store = configureStore({
     crowdMap: crowdMapReducer,
     fixedSessions: fixedSessionsReducer,
     fixedStream: fixedStreamReducer,
+    indoorSessions: indoorSessionsReducer,
     map: mapReducer,
     markersLoading: markersLoadingReducer,
     mobileSessions: mobileSessionsReducer,
@@ -32,12 +33,11 @@ const store = configureStore({
     movingCalendarStream: movingStreamReducer,
     realtimeMapUpdates: realtimeMapUpdatesReducer,
     rectangle: rectangleReducer,
+    sensors: sensorsReducer,
     session: sessionReducer,
     sessionFilter: sessionFilterReducer,
     threshold: thresholdReducer,
-    sensors: sensorsReducer,
     timelapse: timelapseReducer,
-    indoorSessions: indoorSessionsReducer,
   },
 });
 

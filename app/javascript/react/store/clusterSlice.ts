@@ -1,7 +1,10 @@
 import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
-import { AxiosError, AxiosResponse } from "axios";
+import { AxiosResponse } from "axios";
 import { API_ENDPOINTS } from "../api/apiEndpoints";
 import { oldApiClient } from "../api/apiClient";
+import { logError } from "../utils/logController";
+import { getErrorMessage } from "../utils/getErrorMessage";
+import { ApiError } from "../types/api";
 
 interface ClusterData {
   average: number;
@@ -13,7 +16,7 @@ interface ClusterData {
 interface ClusterState {
   data: ClusterData | null;
   loading: boolean;
-  error: string | null;
+  error: ApiError | null;
   visible: boolean;
 }
 
@@ -27,7 +30,7 @@ const initialState: ClusterState = {
 export const fetchClusterData = createAsyncThunk<
   ClusterData,
   string[],
-  { rejectValue: string }
+  { rejectValue: ApiError }
 >("cluster/fetchClusterData", async (streamIds, { rejectWithValue }) => {
   try {
     const response: AxiosResponse<ClusterData> = await oldApiClient.get(
@@ -35,11 +38,19 @@ export const fetchClusterData = createAsyncThunk<
     );
     return response.data;
   } catch (error) {
-    if (error instanceof AxiosError) {
-      return rejectWithValue(error.message);
-    } else {
-      return rejectWithValue("An unknown error occurred");
-    }
+    const errorMessage = getErrorMessage(error);
+
+    const apiError: ApiError = {
+      message: errorMessage,
+      additionalInfo: {
+        action: "fetchClusterData",
+        endpoint: API_ENDPOINTS.fetchClusterData(streamIds),
+      },
+    };
+
+    logError(error, apiError);
+
+    return rejectWithValue(apiError);
   }
 });
 
@@ -68,8 +79,10 @@ const clusterSlice = createSlice({
       )
       .addCase(
         fetchClusterData.rejected,
-        (state, action: PayloadAction<string | undefined>) => {
-          state.error = action.payload ?? "An unknown error occurred";
+        (state, action: PayloadAction<ApiError | undefined>) => {
+          state.error = action.payload || {
+            message: "An unknown error occurred",
+          };
           state.loading = false;
           state.visible = false;
         }

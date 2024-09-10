@@ -1,9 +1,10 @@
+import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { AxiosResponse } from "axios";
-import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { oldApiClient } from "../api/apiClient";
 import { API_ENDPOINTS } from "../api/apiEndpoints";
-import { StatusEnum } from "../types/api";
+import { StatusEnum, ApiError } from "../types/api"; // Use ApiError
 import { getErrorMessage } from "../utils/getErrorMessage";
+import { logError } from "../utils/logController";
 import { RootState } from "./";
 
 export interface Session {
@@ -50,7 +51,7 @@ interface SessionsState {
   fetchableSessionsCount: number;
   sessions: Session[];
   status: StatusEnum;
-  error?: string;
+  error: ApiError | null;
 }
 
 interface SessionsData {
@@ -62,26 +63,35 @@ const initialState: SessionsState = {
   fetchableSessionsCount: 0,
   sessions: [],
   status: StatusEnum.Idle,
-  error: undefined,
+  error: null,
 };
 
 export const fetchMobileSessions = createAsyncThunk<
   SessionsResponse,
   SessionsData,
-  { rejectValue: string }
+  { rejectValue: ApiError }
 >(
   "sessions/fetchMobileSessions",
   async (sessionsData, { rejectWithValue }) => {
     try {
-      const response: AxiosResponse<SessionsResponse, Error> =
-        await oldApiClient.get(
-          API_ENDPOINTS.fetchMobileSessions(sessionsData.filters)
-        );
-
+      const response: AxiosResponse<SessionsResponse> = await oldApiClient.get(
+        API_ENDPOINTS.fetchMobileSessions(sessionsData.filters)
+      );
       return response.data;
     } catch (error) {
       const message = getErrorMessage(error);
-      return rejectWithValue(message);
+
+      const apiError: ApiError = {
+        message,
+        additionalInfo: {
+          action: "fetchMobileSessions",
+          endpoint: API_ENDPOINTS.fetchMobileSessions(sessionsData.filters),
+        },
+      };
+
+      logError(error, apiError);
+
+      return rejectWithValue(apiError);
     }
   },
   {
@@ -92,34 +102,43 @@ export const fetchMobileSessions = createAsyncThunk<
   }
 );
 
-export const mobileSessionsSlice = createSlice({
+const mobileSessionsSlice = createSlice({
   name: "mobileSessions",
   initialState,
   reducers: {
     clearMobileSessions: (state) => {
       state.sessions = [];
       state.fetchableSessionsCount = 0;
-      state.error = undefined;
+      state.error = null;
     },
   },
   extraReducers: (builder) => {
     builder
       .addCase(fetchMobileSessions.pending, (state) => {
         state.status = StatusEnum.Pending;
+        state.error = null;
       })
       .addCase(fetchMobileSessions.fulfilled, (state, action) => {
         state.status = StatusEnum.Fulfilled;
-        if (action.meta.arg.isAdditional) {
+        state.error = null;
+
+        if (action.meta?.arg.isAdditional) {
           state.sessions = [...state.sessions, ...action.payload.sessions];
         } else {
           state.sessions = action.payload.sessions;
         }
+
         state.fetchableSessionsCount = action.payload.fetchableSessionsCount;
       })
-      .addCase(fetchMobileSessions.rejected, (state, action) => {
-        state.status = StatusEnum.Rejected;
-        state.error = action.payload;
-      });
+      .addCase(
+        fetchMobileSessions.rejected,
+        (state, action: PayloadAction<ApiError | undefined>) => {
+          state.status = StatusEnum.Rejected;
+          state.error = action.payload || {
+            message: "An unknown error occurred",
+          };
+        }
+      );
   },
 });
 

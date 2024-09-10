@@ -1,11 +1,10 @@
-import { AxiosResponse } from "axios";
-
 import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
-
+import { AxiosResponse } from "axios";
 import { oldApiClient } from "../api/apiClient";
 import { API_ENDPOINTS } from "../api/apiEndpoints";
-import { Error, StatusEnum } from "../types/api";
+import { ApiError, StatusEnum } from "../types/api";
 import { getErrorMessage } from "../utils/getErrorMessage";
+import { logError } from "../utils/logController";
 import { RootState } from "./";
 
 interface RectangleData {
@@ -17,7 +16,7 @@ interface RectangleData {
 }
 
 interface CrowdMapState {
-  error?: Error;
+  error: ApiError | null;
   fetchingData: boolean;
   rectangles: RectangleData[];
   status: StatusEnum;
@@ -27,24 +26,37 @@ const initialState: CrowdMapState = {
   fetchingData: true,
   rectangles: [],
   status: StatusEnum.Idle,
+  error: null,
 };
 
 export const fetchCrowdMapData = createAsyncThunk<
   RectangleData[],
   string,
-  { rejectValue: { message: string } }
+  { rejectValue: ApiError }
 >("crowdMap/getCrowdMapData", async (filters: string, { rejectWithValue }) => {
   try {
-    const response: AxiosResponse<RectangleData[], Error> =
-      await oldApiClient.get(API_ENDPOINTS.fetchCrowdMap(filters));
+    const response: AxiosResponse<RectangleData[]> = await oldApiClient.get(
+      API_ENDPOINTS.fetchCrowdMap(filters)
+    );
     return response.data;
   } catch (error) {
     const message = getErrorMessage(error);
-    return rejectWithValue({ message });
+
+    const apiError: ApiError = {
+      message,
+      additionalInfo: {
+        action: "fetchCrowdMapData",
+        endpoint: API_ENDPOINTS.fetchCrowdMap(filters),
+      },
+    };
+
+    logError(error, apiError);
+
+    return rejectWithValue(apiError);
   }
 });
 
-export const crowdMapSlice = createSlice({
+const crowdMapSlice = createSlice({
   name: "crowdMap",
   initialState,
   reducers: {
@@ -59,17 +71,25 @@ export const crowdMapSlice = createSlice({
     builder
       .addCase(fetchCrowdMapData.pending, (state) => {
         state.status = StatusEnum.Pending;
+        state.error = null;
       })
-      .addCase(fetchCrowdMapData.fulfilled, (state, { payload }) => {
-        state.status = StatusEnum.Fulfilled;
-        state.rectangles = payload;
-        state.fetchingData = false;
-      })
-      .addCase(fetchCrowdMapData.rejected, (state, { payload }) => {
-        state.status = StatusEnum.Rejected;
-        state.error = payload;
-        state.fetchingData = false;
-      });
+      .addCase(
+        fetchCrowdMapData.fulfilled,
+        (state, action: PayloadAction<RectangleData[]>) => {
+          state.status = StatusEnum.Fulfilled;
+          state.rectangles = action.payload;
+          state.fetchingData = false;
+          state.error = null;
+        }
+      )
+      .addCase(
+        fetchCrowdMapData.rejected,
+        (state, action: PayloadAction<ApiError | undefined>) => {
+          state.status = StatusEnum.Rejected;
+          state.error = action.payload || { message: "Unknown error occurred" };
+          state.fetchingData = false;
+        }
+      );
   },
 });
 
