@@ -1,6 +1,7 @@
 import { createSelector } from "@reduxjs/toolkit";
 
 import moment from "moment";
+import { Frequency } from "../types/graph";
 import { MobileStream, MobileStreamShortInfo } from "../types/mobileStream";
 import { Session } from "../types/sessionType";
 import { RootState } from "./";
@@ -64,6 +65,7 @@ const selectMobileStreamShortInfo = createSelector(
       startTime: formattedStartTime,
       title: mobileStreamData.title,
       unitSymbol: mobileStreamData.sensorUnit,
+      updateFrequency: Frequency.OneMinute,
     };
   }
 );

@@ -82,6 +82,7 @@ const selectFixedStreamShortInfo = createSelector(
       averageValue: newestAverageValue,
       startTime,
       endTime,
+      updateFrequency: fixedStreamData.stream.updateFrequency,
     };
   }
 );

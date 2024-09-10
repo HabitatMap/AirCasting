@@ -8,3 +8,8 @@ export type GraphData =
 export type GraphPoint = {
   position: LatLngLiteral;
 } & Highcharts.Point;
+
+export enum Frequency {
+  OneHour = "1 hour",
+  OneMinute = "1 minute",
+}
