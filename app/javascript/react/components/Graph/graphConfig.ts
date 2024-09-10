@@ -28,10 +28,7 @@ import {
   white,
   yellow,
 } from "../../assets/styles/colors";
-import {
-  selectIsLoading,
-  updateFixedMeasurementExtremes,
-} from "../../store/fixedStreamSlice";
+import { selectIsLoading } from "../../store/fixedStreamSlice";
 import { useAppDispatch, useAppSelector } from "../../store/hooks";
 import { setHoverPosition, setHoverStreamId } from "../../store/mapSlice";
 import { LatLngLiteral } from "../../types/googleMaps";
@@ -45,7 +42,10 @@ import {
 } from "../../utils/timeRanges";
 
 import { RefObject } from "react";
-import { updateMobileMeasurementExtremes } from "../../store/mobileStreamSlice";
+import {
+  fetchMeasurements,
+  updateMeasurementExtremes,
+} from "../../store/measurementsSlice";
 import { formatTimeExtremes } from "../../utils/measurementsCalc";
 import useMobileDetection from "../../utils/useScreenSizeDetection";
 
@@ -69,9 +69,9 @@ const getScrollbarOptions = (isCalendarPage: boolean) => {
 };
 
 const getXAxisOptions = (
-  fixedSessionTypeSelected: boolean,
   isMobile: boolean = false,
-  rangeDisplayRef: RefObject<HTMLDivElement> | undefined
+  rangeDisplayRef: RefObject<HTMLDivElement> | undefined,
+  streamId: number | null
 ): XAxisOptions => {
   const dispatch = useAppDispatch();
   const isLoading = useAppSelector(selectIsLoading);
@@ -80,10 +80,13 @@ const getXAxisOptions = (
     (e: Highcharts.AxisSetExtremesEventObject) => {
       if (!isLoading && e.min && e.max) {
         dispatch(
-          fixedSessionTypeSelected
-            ? updateFixedMeasurementExtremes({ min: e.min, max: e.max })
-            : updateMobileMeasurementExtremes({ min: e.min, max: e.max })
+          fetchMeasurements({
+            streamId: streamId ?? 0,
+            startTime: e.min.toString(),
+            endTime: e.max.toString(),
+          })
         );
+        dispatch(updateMeasurementExtremes({ min: e.min, max: e.max }));
 
         const { formattedMinTime, formattedMaxTime } = formatTimeExtremes(
           e.min,

@@ -24,7 +24,7 @@ interface FixedStreamStationInfo extends StreamUpdate, DataSource {
   longitude: number;
 }
 
-interface Measurement {
+interface FixedMeasurement {
   time: number;
   value: number;
 }
@@ -36,7 +36,7 @@ interface StreamDailyAverage {
 
 interface FixedStream {
   stream: FixedStreamStationInfo;
-  measurements: Measurement[];
+  measurements: FixedMeasurement[];
   streamDailyAverages: StreamDailyAverage[];
 }
 
@@ -48,18 +48,12 @@ interface FixedStreamShortInfo extends FixedStreamStationInfo {
   minMeasurementValue: number;
 }
 
-interface FixedGraphData {
-  measurements: Measurement[];
-  unitSymbol: string;
-  measurementType: string;
-}
-
 export type {
-  StreamUpdate,
   DataSource,
-  FixedStreamStationInfo,
-  StreamDailyAverage,
+  FixedMeasurement,
   FixedStream,
   FixedStreamShortInfo,
-  Measurement,
+  FixedStreamStationInfo,
+  StreamDailyAverage,
+  StreamUpdate,
 };

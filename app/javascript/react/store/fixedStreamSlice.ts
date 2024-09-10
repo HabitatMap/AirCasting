@@ -1,5 +1,5 @@
-import { AxiosError, AxiosResponse } from "axios";
 import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { AxiosResponse } from "axios";
 import { apiClient } from "../api/apiClient";
 import { API_ENDPOINTS } from "../api/apiEndpoints";
 import { ApiError, StatusEnum } from "../types/api";
@@ -12,9 +12,6 @@ export interface FixedStreamState {
   data: FixedStream;
   status: StatusEnum;
   error: ApiError | null;
-  minMeasurementValue: number | null;
-  maxMeasurementValue: number | null;
-  averageMeasurementValue: number | null;
   isLoading: boolean;
 }
 
@@ -44,9 +41,6 @@ const initialState: FixedStreamState = {
   },
   status: StatusEnum.Idle,
   error: null,
-  minMeasurementValue: 0,
-  maxMeasurementValue: 0,
-  averageMeasurementValue: 0,
   isLoading: false,
 };
 
@@ -80,29 +74,7 @@ export const fetchFixedStreamById = createAsyncThunk<
 const fixedStreamSlice = createSlice({
   name: "fixedStream",
   initialState,
-  reducers: {
-    updateFixedMeasurementExtremes(
-      state,
-      action: PayloadAction<{ min: number; max: number }>
-    ) {
-      const { min, max } = action.payload;
-      const measurementsInRange = state.data.measurements.filter(
-        (measurement) => {
-          const time = measurement.time;
-          return time >= min && time <= max;
-        }
-      );
-      const values = measurementsInRange.map((m) => m.value);
-      const newMin = Math.min(...values);
-      const newMax = Math.max(...values);
-      const newAvg =
-        values.reduce((sum, value) => sum + value, 0) / values.length;
-
-      state.minMeasurementValue = newMin;
-      state.maxMeasurementValue = newMax;
-      state.averageMeasurementValue = newAvg;
-    },
-  },
+  reducers: {},
   extraReducers: (builder) => {
     builder.addCase(fetchFixedStreamById.pending, (state) => {
       state.status = StatusEnum.Pending;
@@ -130,7 +102,6 @@ const fixedStreamSlice = createSlice({
   },
 });
 
-export const { updateFixedMeasurementExtremes } = fixedStreamSlice.actions;
 export default fixedStreamSlice.reducer;
 
 export const selectFixedData = (state: RootState) => state.fixedStream.data;

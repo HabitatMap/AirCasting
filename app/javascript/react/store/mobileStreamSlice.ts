@@ -11,9 +11,6 @@ export interface MobileStreamState {
   data: MobileStream;
   status: StatusEnum;
   error: ApiError | null;
-  minMeasurementValue: number | null;
-  maxMeasurementValue: number | null;
-  averageMeasurementValue: number | null;
   isLoading: boolean;
 }
 
@@ -39,9 +36,6 @@ export const initialState: MobileStreamState = {
   },
   status: StatusEnum.Idle,
   error: null,
-  minMeasurementValue: 0,
-  maxMeasurementValue: 0,
-  averageMeasurementValue: 0,
   isLoading: false,
 };
 
@@ -75,30 +69,7 @@ export const fetchMobileStreamById = createAsyncThunk<
 export const mobileStreamSlice = createSlice({
   name: "mobileStream",
   initialState,
-  reducers: {
-    updateMobileMeasurementExtremes(
-      state,
-      action: PayloadAction<{ min: number; max: number }>
-    ) {
-      const { min, max } = action.payload;
-      const measurementsInRange = state.data.measurements.filter(
-        (measurement) => {
-          const time = measurement.time;
-          return time >= min && time <= max;
-        }
-      );
-
-      const values = measurementsInRange.map((m) => m.value);
-      const newMin = Math.min(...values);
-      const newMax = Math.max(...values);
-      const newAvg =
-        values.reduce((sum, value) => sum + value, 0) / values.length;
-
-      state.minMeasurementValue = newMin;
-      state.maxMeasurementValue = newMax;
-      state.averageMeasurementValue = newAvg;
-    },
-  },
+  reducers: {},
   extraReducers: (builder) => {
     builder.addCase(fetchMobileStreamById.pending, (state) => {
       state.status = StatusEnum.Pending;
@@ -125,7 +96,5 @@ export const mobileStreamSlice = createSlice({
     );
   },
 });
-
-export const { updateMobileMeasurementExtremes } = mobileStreamSlice.actions;
 
 export default mobileStreamSlice.reducer;

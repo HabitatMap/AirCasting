@@ -1,17 +1,17 @@
 import HighchartsReact from "highcharts-react-official";
 import Highcharts from "highcharts/highstock";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useSelector } from "react-redux";
-import { selectFixedStreamShortInfo } from "../../store/fixedStreamSelectors";
 import { selectFixedData, selectIsLoading } from "../../store/fixedStreamSlice";
-import {
-  selectMobileStreamPoints,
-  selectMobileStreamShortInfo,
-} from "../../store/mobileStreamSelectors";
+import { selectMeasurementsData } from "../../store/measurementsSelectors";
+import { selectMobileStreamPoints } from "../../store/mobileStreamSelectors";
 import { selectThresholds } from "../../store/thresholdSlice";
 import { SessionType, SessionTypes } from "../../types/filters";
-import { LatLngLiteral } from "../../types/googleMaps";
-import { MobileStreamShortInfo as StreamShortInfo } from "../../types/mobileStream";
+import {
+  createFixedSeriesData,
+  createMobileSeriesData,
+} from "../../utils/createGraphData";
+import { useMapParams } from "../../utils/mapParamsHandler";
 import useMobileDetection from "../../utils/useScreenSizeDetection";
 import { handleLoad } from "./chartEvents";
 import * as S from "./Graph.style";
@@ -52,52 +52,48 @@ const Graph: React.FC<GraphProps> = ({
   const thresholdsState = useSelector(selectThresholds);
   const isLoading = useSelector(selectIsLoading);
   const fixedGraphData = useSelector(selectFixedData);
+  const measurementsData = useSelector(selectMeasurementsData);
   const mobileGraphData = useSelector(selectMobileStreamPoints);
-  const streamShortInfo: StreamShortInfo = useSelector(
-    fixedSessionTypeSelected
-      ? selectFixedStreamShortInfo
-      : selectMobileStreamShortInfo
-  );
 
-  const unitSymbol = streamShortInfo?.unitSymbol ?? "";
-  const measurementType = "Particulate Matter";
+  const { unitSymbol, measurementType } = useMapParams();
 
   const isMobile = useMobileDetection();
 
-  const fixedSeriesData = (fixedGraphData?.measurements || [])
-    .map((measurement: { time: number; value: number }) => [
-      measurement.time,
-      measurement.value,
-    ])
-    .sort((a, b) => a[0] - b[0]);
-
-  const mobileSeriesData = mobileGraphData
-    .map((measurement) => ({
-      x: measurement.time,
-      y: measurement.lastMeasurementValue,
-      position: {
-        lat: measurement.point.lat,
-        lng: measurement.point.lng,
-      } as LatLngLiteral,
-    }))
-    .filter((point) => point.x !== undefined)
-    .sort((a, b) => (a.x as number) - (b.x as number));
-
-  const seriesData = fixedSessionTypeSelected
-    ? fixedSeriesData
-    : mobileSeriesData;
-
-  const totalDuration =
-    seriesData.length > 0
-      ? (seriesData[seriesData.length - 1] as number[])[0] -
-        (seriesData[0] as number[])[0]
-      : 0;
-
-  const xAxisOptions = getXAxisOptions(
-    fixedSessionTypeSelected,
-    isMobile,
-    rangeDisplayRef
+  const fixedSeriesData = createFixedSeriesData(fixedGraphData?.measurements);
+  const fixedMeasurementsSeriesData = createFixedSeriesData(measurementsData);
+  const mobileSeriesData = createMobileSeriesData(mobileGraphData, true);
+  const mobileMeasurementsSeriesData = createMobileSeriesData(
+    measurementsData,
+    false
   );
+
+  const isInitialRender = useRef(true);
+
+  const seriesData = useMemo(() => {
+    if (isInitialRender.current) {
+      isInitialRender.current = false;
+      return fixedSessionTypeSelected
+        ? fixedMeasurementsSeriesData
+        : mobileMeasurementsSeriesData;
+    }
+    return fixedSessionTypeSelected ? fixedSeriesData : mobileSeriesData;
+  }, [
+    fixedSessionTypeSelected,
+    fixedMeasurementsSeriesData,
+    mobileMeasurementsSeriesData,
+    fixedSeriesData,
+    mobileSeriesData,
+  ]);
+
+  const totalDuration = useMemo(() => {
+    if (seriesData.length === 0) return 0;
+    const [first, last] = [seriesData[0], seriesData[seriesData.length - 1]];
+    return fixedSessionTypeSelected
+      ? (last as number[])[0] - (first as number[])[0]
+      : (last as { x: number }).x - (first as { x: number }).x;
+  }, [seriesData, fixedSessionTypeSelected]);
+
+  const xAxisOptions = getXAxisOptions(isMobile, rangeDisplayRef, streamId);
   const yAxisOption = getYAxisOptions(thresholdsState, isMobile);
   const tooltipOptions = getTooltipOptions(measurementType, unitSymbol);
   const rangeSelectorOptions = getRangeSelectorOptions(
@@ -163,7 +159,9 @@ const Graph: React.FC<GraphProps> = ({
         rangeSelectorOptions.buttons?.map((button, i) => ({
           ...button,
           events: {
-            click: () => setSelectedRange(i),
+            click: () => {
+              setSelectedRange(i);
+            },
           },
         })) ?? [],
     },
