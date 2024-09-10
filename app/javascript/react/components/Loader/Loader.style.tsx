@@ -39,4 +39,24 @@ const Logo = styled.svg`
   }
 `;
 
-export { Container, Loader, Logo };
+const SpinnerWrapper = styled.div`
+  position: absolute;
+  right: 1rem;
+  display: inline-block;
+  width: 2rem;
+  height: 2rem;
+`;
+
+const SpinnerSvg = styled.svg`
+  animation: spin 1s linear infinite;
+  @keyframes spin {
+    0% {
+      transform: rotate(0deg);
+    }
+    100% {
+      transform: rotate(360deg);
+    }
+  }
+`;
+
+export { Container, Loader, Logo, SpinnerSvg, SpinnerWrapper };

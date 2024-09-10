@@ -191,6 +191,12 @@ export const selectFixedSessionsType = (state: RootState): FixedSessionsTypes =>
 export const selectIsDormantSessionsType = (state: RootState): boolean =>
   state.sessionFilter.fixedSessionsType === FixedSessionsTypes.DORMANT;
 
+export const selectIsTagsInputFetching = (state: RootState): boolean =>
+  state.sessionFilter.fetchTagsStatus === StatusEnum.Pending;
+
+export const selectIsUsernamesInputFetching = (state: RootState): boolean =>
+  state.sessionFilter.fetchUsernamesStatus === StatusEnum.Pending;
+
 export const {
   setBasicParametersModalOpen,
   setCustomParametersModalOpen,

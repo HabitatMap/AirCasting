@@ -124,7 +124,7 @@ const CrowdMapMarkers = ({ pulsatingSessionId, sessions }: Props) => {
 
   useEffect(() => {
     dispatch(setMarkersLoading(true));
-  }, [crowdMapRectanglesLength, dispatch]);
+  }, [crowdMapRectanglesLength, tags, usernames, dispatch]);
 
   useEffect(() => {
     if (rectanglesRef.current.length >= crowdMapRectanglesLength) {
