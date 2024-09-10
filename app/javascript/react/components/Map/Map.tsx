@@ -648,7 +648,9 @@ const Map = () => {
       )}
       {isIndoorParameterInUrl && (
         <S.IndoorOvelay>
-          <h1>{t("filters.indoorMapOverlay")}</h1>
+          <S.IndoorOverlayInfo $isMobile={isMobile}>
+            <h1>{t("filters.indoorMapOverlay")}</h1>
+          </S.IndoorOverlayInfo>
         </S.IndoorOvelay>
       )}
       <GoogleMap
