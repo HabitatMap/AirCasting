@@ -33,6 +33,7 @@ export const initialState: MobileStreamState = {
     streamId: 0,
     title: "",
     username: "",
+    updateFrequency: "",
   },
   status: StatusEnum.Idle,
   error: null,
@@ -48,6 +49,7 @@ export const fetchMobileStreamById = createAsyncThunk<
     const response: AxiosResponse<MobileStream, Error> = await oldApiClient.get(
       API_ENDPOINTS.fetchMobileStreamById(id)
     );
+
     return response.data;
   } catch (error) {
     const message = getErrorMessage(error);
