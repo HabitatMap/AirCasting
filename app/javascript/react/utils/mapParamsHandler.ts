@@ -543,7 +543,7 @@ export const useMapParams = () => {
       setUrlParams([
         {
           key: UrlParamsTypes.previousUserSettings,
-          value: currentUserSettings,
+          value: isMobile ? previousUserSettings : currentUserSettings,
         },
         {
           key: UrlParamsTypes.currentUserSettings,

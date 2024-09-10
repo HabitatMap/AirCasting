@@ -5,9 +5,14 @@ import { useTranslation } from "react-i18next";
 import { TRUE } from "../../const/booleans";
 import { useAppDispatch, useAppSelector } from "../../store/hooks";
 import { setFetchingData } from "../../store/mapSlice";
-import { fetchTags, selectTags } from "../../store/sessionFiltersSlice";
+import {
+  fetchTags,
+  selectIsTagsInputFetching,
+  selectTags,
+} from "../../store/sessionFiltersSlice";
 import { fetchTagsParamsType, SessionTypes } from "../../types/filters";
 import { UrlParamsTypes, useMapParams } from "../../utils/mapParamsHandler";
+import { Spinner } from "../Loader/Spinner";
 import { FilterInfoPopup } from "./FilterInfoPopup";
 import * as S from "./SessionFilters.style";
 
@@ -37,6 +42,7 @@ const TagsInput = () => {
   const tagsToSelect = useAppSelector(selectTags);
 
   const selectedSessionType = sessionType || SessionTypes.FIXED;
+  const isTagsInputFetching = useAppSelector(selectIsTagsInputFetching);
 
   const preparedUnitSymbol = unitSymbol.replace(/"/g, "");
 
@@ -119,10 +125,16 @@ const TagsInput = () => {
   return (
     <S.Wrapper>
       <S.SingleFilterWrapper>
-        <S.Input
-          placeholder={t("filters.tagsNames")}
-          {...getInputProps({ value: inputValue, onClick: handleOnInputClick })}
-        />
+        <S.InputWrapper>
+          <S.Input
+            placeholder={t("filters.tagsNames")}
+            {...getInputProps({
+              value: inputValue,
+              onClick: handleOnInputClick,
+            })}
+          />
+          {isTagsInputFetching && <Spinner />}
+        </S.InputWrapper>
         <FilterInfoPopup filterTranslationLabel="filters.tagNamesInfo" />
       </S.SingleFilterWrapper>
 

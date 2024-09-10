@@ -7,9 +7,11 @@ import { useAppDispatch, useAppSelector } from "../../store/hooks";
 import { setFetchingData } from "../../store/mapSlice";
 import {
   fetchUsernames,
+  selectIsUsernamesInputFetching,
   selectUsernames,
 } from "../../store/sessionFiltersSlice";
 import { UrlParamsTypes, useMapParams } from "../../utils/mapParamsHandler";
+import { Spinner } from "../Loader/Spinner";
 import { FilterInfoPopup } from "./FilterInfoPopup";
 import * as S from "./SessionFilters.style";
 
@@ -23,6 +25,9 @@ const ProfileNamesInput = () => {
 
   const profileNames = useAppSelector(selectUsernames);
   const isIndoorParameterInUrl = isIndoor === TRUE;
+  const isUsernamesInputFetching = useAppSelector(
+    selectIsUsernamesInputFetching
+  );
 
   const { isOpen, getMenuProps, getInputProps, getItemProps, reset } =
     useCombobox({
@@ -80,14 +85,17 @@ const ProfileNamesInput = () => {
   return (
     <S.Wrapper>
       <S.SingleFilterWrapper>
-        <S.Input
-          placeholder={t("filters.profileNames")}
-          {...getInputProps({
-            value: inputValue,
-            onClick: () => dispatch(fetchUsernames(inputValue)),
-          })}
-          disabled={isIndoorParameterInUrl}
-        />
+        <S.InputWrapper>
+          <S.Input
+            placeholder={t("filters.profileNames")}
+            {...getInputProps({
+              value: inputValue,
+              onClick: () => dispatch(fetchUsernames(inputValue)),
+            })}
+            disabled={isIndoorParameterInUrl}
+          />
+          {isUsernamesInputFetching && <Spinner />}
+        </S.InputWrapper>
         <FilterInfoPopup filterTranslationLabel="filters.profileNamesInfo" />
       </S.SingleFilterWrapper>
 

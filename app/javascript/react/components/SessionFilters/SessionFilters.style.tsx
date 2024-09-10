@@ -148,6 +148,13 @@ const ShowSessionsButton = styled(Button)`
   text-transform: uppercase;
 `;
 
+const InputWrapper = styled.div`
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+`;
+
 const Input = styled.input`
   border: 1px solid ${gray200};
   border-radius: 5px;
@@ -697,6 +704,7 @@ export {
   InfoIcon,
   InfoPopup,
   Input,
+  InputWrapper,
   MinorShowSessionsButton,
   MobileCustomParameters,
   MobileSessionFilters,
