@@ -187,7 +187,7 @@
     "profileNames": "profile names",
     "tagsNames": "tags names",
 
-    "crowdMapLabel": "crowd map",
+    "crowdMapLabel": "crowdMap",
     "crowdMapInfo": "The CrowdMap averages together all the measurements from all the sessions listed on the sessions list and displays these averages as colored grid cells. The color of each grid cell corresponds to the average intensity of all the measurements recorded in that area. Click on a grid cell to view the underlying data.",
     "crowdMapGridCellSizeHeader": "grid cell size",
     "on": "on",
@@ -218,7 +218,7 @@
     "indoorInfo": "Outdoor sessions are recorded by instruments located outdoors. Indoor measurements are recorded by instruments located indoors. Indoor sessions do not include geocoordinates and are therefore not geolocated on the map.",
     "indoorMapInfo": "For privacy, indoor sessions aren't mapped.",
     "nonAirbeamIndoor": "Switch to an AirBeam sensor to display results.",
-    "indoorMapOverlay": "Indoor sessions aren't mapped.",
+    "indoorMapOverlay": "Indoor sessions aren't mapped. To graph indoor sessions, select from the session's list.",
     "dormantToggleLabel": "dormant stations",
     "dormantInfo": "Fixed sessions that have submitted a measurement in the past 24 hours are considered active. Fixed sessions that have not submitted measurements in the past 24 hours are considered dormant.",
     "yearPickerHeader": "timeframe",
