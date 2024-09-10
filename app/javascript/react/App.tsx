@@ -48,9 +48,7 @@ const router = createBrowserRouter(
         }
       />
       <Route
-        // path={MOBILE_MAP_PATH || FIXED_MAP_PATH}
-        // TODO change the path before deploying
-        path="/l"
+        path={MOBILE_MAP_PATH || FIXED_MAP_PATH}
         element={
           <RedirectPage>
             <Navbar isMapPage={false} />
