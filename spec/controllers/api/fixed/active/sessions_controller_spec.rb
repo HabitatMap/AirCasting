@@ -196,8 +196,6 @@ describe Api::Fixed::Active::SessionsController do
       expect(json_response).to eq(expected)
     end
 
-    # ////////////////////////////////////////
-
     it 'returns government data' do
       session_time = DateTime.new(2_000, 10, 1, 2, 3, 4)
       active_session =
@@ -288,8 +286,6 @@ describe Api::Fixed::Active::SessionsController do
 
       expect(json_response).to eq(expected)
     end
-
-    # ////////////////////////////////////////
 
     it 'with multiple streams it picks the correct stream' do
       session_time = DateTime.new(2_000, 10, 1, 2, 3, 4)
