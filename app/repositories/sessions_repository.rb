@@ -8,14 +8,11 @@ class SessionsRepository
   end
 
   def fixed_active_government_sessions(data)
-    # filter sessions by sensor_name, coordinates box, active in last 24h,
     sensor_name = ActiveRecord::Base.connection.quote(data[:sensor_name])
     west = data[:west]
     east = data[:east]
     north = data[:north]
     south = data[:south]
-    # Sessions have latitude, longitude, and last_measurement_at, and streams have sensor_name, streams have session_id
-    # one session with this sensor_name can only have one stream attached to it
 
     sql = <<-SQL
       SELECT s.*, st.*, sdavalue.value AS last_daily_average
