@@ -5,7 +5,7 @@ import { API_ENDPOINTS } from "../api/apiEndpoints";
 import { Error, StatusEnum } from "../types/api";
 import { getErrorMessage } from "../utils/getErrorMessage";
 
-interface Measurement {
+export interface Measurement {
   time: number;
   value: number;
   latitude: number;

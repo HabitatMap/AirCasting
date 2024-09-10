@@ -1,7 +1,6 @@
+import { RootState } from "../store";
+import { selectMeasurementsExtremes } from "../store/measurementsSelectors";
 import { Thresholds } from "../types/thresholds";
-import { StatusEnum } from "../types/api";
-import { MobileStreamState } from "../store/mobileStreamSlice";
-import { FixedStreamState } from "../store/fixedStreamSlice";
 
 export const calculateUniformThresholds = (
   min: number,
@@ -24,26 +23,18 @@ export const calculateUniformThresholds = (
 };
 
 export const calculateMinMaxValues = (
-  mobileStream: MobileStreamState,
-  fixedStream: FixedStreamState,
-  sessionId: number | null
+  state: RootState
 ): { min: number; max: number } | null => {
-  if (
-    mobileStream.status === StatusEnum.Fulfilled &&
-    mobileStream.data.id === sessionId
-  ) {
-    const min = Math.floor(mobileStream.minMeasurementValue!);
-    const max = Math.ceil(mobileStream.maxMeasurementValue!);
-    return { min, max };
-  } else if (
-    fixedStream.status === StatusEnum.Fulfilled &&
-    fixedStream.data.stream.sessionId === sessionId
-  ) {
-    const min = Math.floor(fixedStream.minMeasurementValue!);
-    const max = Math.ceil(fixedStream.maxMeasurementValue!);
-    return { min, max };
+  const { minMeasurementValue, maxMeasurementValue } =
+    selectMeasurementsExtremes(state);
+
+  if (minMeasurementValue !== null && maxMeasurementValue !== null) {
+    return {
+      min: Math.floor(minMeasurementValue),
+      max: Math.ceil(maxMeasurementValue),
+    };
   } else {
-    console.warn("No stream data available or session mismatch");
+    console.warn("No measurement data available");
     return null;
   }
 };
