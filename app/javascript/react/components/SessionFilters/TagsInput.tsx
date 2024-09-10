@@ -31,6 +31,7 @@ const TagsInput = () => {
     unitSymbol,
     usernames,
     isIndoor,
+    isActive,
   } = useMapParams();
 
   const tagsToSelect = useAppSelector(selectTags);
@@ -53,6 +54,7 @@ const TagsInput = () => {
       unitSymbol: preparedUnitSymbol,
       sessionType: selectedSessionType,
       isIndoor: isIndoor === TRUE,
+      isActive: isActive,
     };
   };
 

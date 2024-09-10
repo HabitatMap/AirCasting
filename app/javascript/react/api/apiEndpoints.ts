@@ -67,9 +67,8 @@ export const API_ENDPOINTS: ApiEndpoints = {
     )}&q[is_indoor]=${encodeURIComponent(params.isIndoor)}
       `;
 
-    // TODO these fixed parameters are temporary and need to be passed from the component
     if (params.sessionType === "fixed") {
-      url += "&q[is_active]=true";
+      url += `&q[is_active]=${encodeURIComponent(params.isActive)}`;
     }
 
     return url;
