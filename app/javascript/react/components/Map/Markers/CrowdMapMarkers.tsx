@@ -62,6 +62,9 @@ const CrowdMapMarkers = ({ pulsatingSessionId, sessions }: Props) => {
     usernames,
   } = useMapParams();
 
+  const preparedUnitSymbol = unitSymbol.replace(/"/g, "");
+  const encodedUnitSymbol = encodeURIComponent(preparedUnitSymbol);
+
   const gridSizeX = (x: number) => {
     const width =
       window.innerWidth ||
@@ -90,7 +93,7 @@ const CrowdMapMarkers = ({ pulsatingSessionId, sessions }: Props) => {
         tags: tags,
         time_from: timeFrom,
         time_to: timeTo,
-        unit_symbol: unitSymbol,
+        unit_symbol: encodedUnitSymbol,
         usernames: usernames,
         west: boundWest,
       }),
