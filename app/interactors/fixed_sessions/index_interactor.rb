@@ -12,6 +12,7 @@ module FixedSessions
 
     def call
       return Failure.new(form.errors) if form.invalid?
+      time_current = Time.current
       sessions = sessions_repository
         .fixed_active_government_sessions(
           sensor_name: data[:sensor_name],
@@ -20,7 +21,11 @@ module FixedSessions
           north: data[:north],
           south: data[:south]
         )
+
+      Rails.logger.info("sessions fetching took: #{Time.current - time_current}")
+      time_current = Time.current
       serialized_sessions = fixed_sessions_serializer.call(sessions)
+      Rails.logger.info("sessions serialization took: #{Time.current - time_current}")
       Success.new(serialized_sessions)
     end
 
