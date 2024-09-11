@@ -91,7 +91,7 @@ const DesktopHeader: React.FC<DesktopHeaderProps> = ({
         <>
           <BackButton />
           <a
-            href={urls.habitatMap}
+            href={urls.aircasting}
             aria-label={t("navbar.sections.aircastingPage")}
           >
             <S.AircastingLogo alt={t("navbar.altLogo")} src={logo} />

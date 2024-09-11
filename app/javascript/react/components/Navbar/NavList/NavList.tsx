@@ -21,7 +21,7 @@ const NavList: React.FC<NavListProps> = ({
   <S.NavList $isVisible={navMenuVisible}>
     <S.NavHeader>
       <a
-        href={urls.habitatMap}
+        href={urls.aircasting}
         aria-label={t("navbar.sections.habitatMapPage")}
         style={{ display: "flex", alignItems: "center" }}
       >
