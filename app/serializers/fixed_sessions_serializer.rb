@@ -7,8 +7,8 @@ class FixedSessionsSerializer
         {
           'id' => session["session_id"],
           'uuid' => session["uuid"],
-          'end_time_local' => session["end_time_local"]&.strftime('%Y-%m-%dT%H:%M:%S.%LZ'),
-          'start_time_local' => session["start_time_local"]&.strftime('%Y-%m-%dT%H:%M:%S.%LZ'),
+          'end_time_local' => formatted_time(session["end_time_local"]),
+          'start_time_local' => formatted_time(session["start_time_local"]),
           'last_measurement_value' => session["average_value"]&.round,
           'is_indoor' => session["is_indoor"],
           'latitude' => session["latitude"],
@@ -32,5 +32,11 @@ class FixedSessionsSerializer
       'fetchableSessionsCount' => sessions.count,
       'sessions' => sessions_array,
     }
+  end
+
+  private
+
+  def formatted_time(timestamp)
+    timestamp ? timestamp.strftime('%Y-%m-%dT%H:%M:%S.%LZ') : nil
   end
 end
