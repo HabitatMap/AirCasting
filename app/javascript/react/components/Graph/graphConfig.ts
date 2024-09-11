@@ -32,7 +32,7 @@ import { selectIsLoading } from "../../store/fixedStreamSlice";
 import { useAppDispatch, useAppSelector } from "../../store/hooks";
 import { setHoverPosition, setHoverStreamId } from "../../store/mapSlice";
 import { LatLngLiteral } from "../../types/googleMaps";
-import { Frequency, GraphData, GraphPoint } from "../../types/graph";
+import { GraphData, GraphPoint } from "../../types/graph";
 import { Thresholds } from "../../types/thresholds";
 import {
   MILLISECONDS_IN_AN_HOUR,
@@ -345,8 +345,7 @@ const getRangeSelectorOptions = (
   fixedSessionTypeSelected: boolean,
   totalDuration: number,
   selectedRange?: number,
-  isCalendarPage: boolean = false,
-  updateFrequency: Frequency = Frequency.OneHour
+  isCalendarPage: boolean = false
 ): RangeSelectorOptions => {
   const { t } = useTranslation();
   const isMobile = useMobileDetection();
@@ -370,6 +369,7 @@ const getRangeSelectorOptions = (
         color: gray300,
         fontWeight: "regular",
       },
+
       states: {
         hover: {
           fill: blue,
@@ -377,6 +377,7 @@ const getRangeSelectorOptions = (
             color: white,
           },
         },
+
         select: {
           fill: blue,
           style: {
@@ -384,6 +385,7 @@ const getRangeSelectorOptions = (
             fontWeight: "bold",
           },
         },
+
         disabled: {
           style: {
             color: disabledGraphButton,
@@ -398,9 +400,8 @@ const getRangeSelectorOptions = (
     buttonSpacing: 10,
     inputEnabled: false,
   };
-
   const baseOptions: RangeSelectorOptions = {
-    enabled: !isMobile,
+    enabled: isMobile ? false : true,
     buttonPosition: {
       align: "right" as AlignValue,
       x: -32,
@@ -455,41 +456,39 @@ const getRangeSelectorOptions = (
       allButtonsEnabled: true,
       selected: selectedRange,
     };
+  } else {
+    if (fixedSessionTypeSelected) {
+      return {
+        ...baseOptions,
+        buttons: [
+          { type: "hour", count: 24, text: t("graph.24Hours") },
+          totalDuration > MILLISECONDS_IN_A_WEEK
+            ? { type: "day", count: 7, text: t("graph.oneWeek") }
+            : { type: "all", text: t("graph.oneWeek") },
+          totalDuration > MILLISECONDS_IN_A_MONTH
+            ? { type: "week", count: 4, text: t("graph.oneMonth") }
+            : { type: "all", text: t("graph.oneMonth") },
+        ],
+        allButtonsEnabled: true,
+        selected: selectedRange,
+      };
+    } else {
+      return {
+        ...baseOptions,
+        buttons: [
+          totalDuration < MILLISECONDS_IN_A_5_MINUTES
+            ? { type: "all", text: t("graph.fiveMinutes") }
+            : { type: "minute", count: 5, text: t("graph.fiveMinutes") },
+          totalDuration < MILLISECONDS_IN_AN_HOUR
+            ? { type: "all", text: t("graph.oneHour") }
+            : { type: "minute", count: 60, text: t("graph.oneHour") },
+          { type: "all", text: t("graph.all") },
+        ],
+        allButtonsEnabled: true,
+        selected: selectedRange,
+      };
+    }
   }
-
-  if (updateFrequency === Frequency.OneHour) {
-    return {
-      ...baseOptions,
-      buttons: [
-        { type: "hour", count: 24, text: t("graph.24Hours") },
-        totalDuration > MILLISECONDS_IN_A_WEEK
-          ? { type: "day", count: 7, text: t("graph.oneWeek") }
-          : { type: "all", text: t("graph.oneWeek") },
-        totalDuration > MILLISECONDS_IN_A_MONTH
-          ? { type: "week", count: 4, text: t("graph.oneMonth") }
-          : { type: "all", text: t("graph.oneMonth") },
-      ],
-      allButtonsEnabled: true,
-      selected: selectedRange,
-    };
-  } else if (updateFrequency === Frequency.OneMinute) {
-    return {
-      ...baseOptions,
-      buttons: [
-        totalDuration < MILLISECONDS_IN_A_5_MINUTES
-          ? { type: "all", text: t("graph.fiveMinutes") }
-          : { type: "minute", count: 5, text: t("graph.fiveMinutes") },
-        totalDuration < MILLISECONDS_IN_AN_HOUR
-          ? { type: "all", text: t("graph.oneHour") }
-          : { type: "minute", count: 60, text: t("graph.oneHour") },
-        { type: "all", text: t("graph.all") },
-      ],
-      allButtonsEnabled: true,
-      selected: selectedRange,
-    };
-  }
-
-  return baseOptions;
 };
 
 const getChartOptions = (isCalendarPage: boolean): Highcharts.ChartOptions => {

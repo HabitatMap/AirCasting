@@ -23,7 +23,6 @@ interface MobileStream {
   streamId: number;
   title: string;
   username: string;
-  updateFrequency: string;
 }
 
 interface MobileStreamShortInfo {
@@ -37,7 +36,6 @@ interface MobileStreamShortInfo {
   startTime: string;
   title: string;
   unitSymbol: string;
-  updateFrequency: string;
 }
 
 interface MobileGraphData {
@@ -46,4 +44,4 @@ interface MobileGraphData {
   measurementType: string;
 }
 
-export type { MobileGraphData, MobileStream, MobileStreamShortInfo };
+export type { MobileStream, MobileStreamShortInfo, MobileGraphData };
