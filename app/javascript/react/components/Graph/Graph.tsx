@@ -1,16 +1,12 @@
 import HighchartsReact from "highcharts-react-official";
 import Highcharts from "highcharts/highstock";
 import React, { useEffect, useMemo, useRef, useState } from "react";
+import { useSelector } from "react-redux";
 import { selectFixedData, selectIsLoading } from "../../store/fixedStreamSlice";
-import { useAppSelector } from "../../store/hooks";
 import { selectMeasurementsData } from "../../store/measurementsSelectors";
-import {
-  selectMobileStreamPoints,
-  selectMobileStreamShortInfo,
-} from "../../store/mobileStreamSelectors";
+import { selectMobileStreamPoints } from "../../store/mobileStreamSelectors";
 import { selectThresholds } from "../../store/thresholdSlice";
 import { SessionType, SessionTypes } from "../../types/filters";
-import { Frequency } from "../../types/graph";
 import {
   createFixedSeriesData,
   createMobileSeriesData,
@@ -53,12 +49,11 @@ const Graph: React.FC<GraphProps> = ({
   );
   const [chartDataLoaded, setChartDataLoaded] = useState(false);
 
-  const thresholdsState = useAppSelector(selectThresholds);
-  const isLoading = useAppSelector(selectIsLoading);
-  const fixedGraphData = useAppSelector(selectFixedData);
-  const measurementsData = useAppSelector(selectMeasurementsData);
-  const mobileGraphData = useAppSelector(selectMobileStreamPoints);
-  const mobileShortInfo = useAppSelector(selectMobileStreamShortInfo);
+  const thresholdsState = useSelector(selectThresholds);
+  const isLoading = useSelector(selectIsLoading);
+  const fixedGraphData = useSelector(selectFixedData);
+  const measurementsData = useSelector(selectMeasurementsData);
+  const mobileGraphData = useSelector(selectMobileStreamPoints);
 
   const { unitSymbol, measurementType } = useMapParams();
 
@@ -71,12 +66,6 @@ const Graph: React.FC<GraphProps> = ({
     measurementsData,
     false
   );
-  const fixedStreamUpdateFrequency = fixedGraphData?.stream?.updateFrequency;
-  const mobileStreamUpdateFrequency = mobileShortInfo.updateFrequency;
-
-  const updateFrequency = fixedSessionTypeSelected
-    ? fixedStreamUpdateFrequency
-    : mobileStreamUpdateFrequency;
 
   const isInitialRender = useRef(true);
 
@@ -111,8 +100,7 @@ const Graph: React.FC<GraphProps> = ({
     fixedSessionTypeSelected,
     totalDuration,
     selectedRange,
-    isCalendarPage,
-    updateFrequency as Frequency
+    isCalendarPage
   );
   const plotOptions = getPlotOptions(fixedSessionTypeSelected, streamId);
   const responsive = getResponsiveOptions(thresholdsState);
