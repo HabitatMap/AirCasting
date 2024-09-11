@@ -12,7 +12,14 @@ module FixedSessions
 
     def call
       return Failure.new(form.errors) if form.invalid?
-      sessions = sessions_repository.fixed_active_government_sessions(data)
+      sessions = sessions_repository
+        .fixed_active_government_sessions(
+          sensor_name: data[:sensor_name],
+          east: data[:east],
+          west: data[:west],
+          north: data[:north],
+          south: data[:south]
+        )
       serialized_sessions = fixed_sessions_serializer.call(sessions)
       Success.new(serialized_sessions)
     end

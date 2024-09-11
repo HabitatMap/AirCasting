@@ -7,12 +7,8 @@ class SessionsRepository
     Session.where('last_measurement_at > ?', Time.current - 7.days)
   end
 
-  def fixed_active_government_sessions(data)
-    sensor_name = ActiveRecord::Base.connection.quote(data[:sensor_name])
-    west = data[:west]
-    east = data[:east]
-    north = data[:north]
-    south = data[:south]
+  def fixed_active_government_sessions(sensor_name:, west:, east:, north:, south:)
+    sensor_name = ActiveRecord::Base.connection.quote(sensor_name)
 
     sql = <<-SQL
       SELECT s.*, st.*, sdavalue.value AS last_daily_average
