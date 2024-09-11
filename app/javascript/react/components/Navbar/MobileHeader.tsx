@@ -1,5 +1,4 @@
-import React, { useCallback } from "react";
-import { useNavigate } from "react-router-dom";
+import React from "react";
 
 import airCastingLogoMobile from "../../assets/icons/airCastingLogoMobile.svg";
 import backArrowIcon from "../../assets/icons/backArrowIcon.svg";
@@ -7,14 +6,14 @@ import hamburgerMobile from "../../assets/icons/hamburgerMobile.svg";
 
 import { urls } from "../../const/urls";
 import { UserSettings } from "../../types/userStates";
-import { UrlParamsTypes, useMapParams } from "../../utils/mapParamsHandler";
+import { useMapParams } from "../../utils/mapParamsHandler";
 import { LocationSearch } from "../LocationSearch";
 import { ControlPanel } from "../Map/ControlPanel/ControlPanel";
 import { RealtimeMapUpdatesButton } from "../RealtimeMapUpdatesButton/RealtimeMapUpdatesButton";
 import { RefreshMapButton } from "../RefreshMapButton";
+import { BackButton } from "./BackButton";
 import * as S from "./Navbar.style";
 import NavList from "./NavList/NavList";
-import { BackButton } from "./BackButton";
 
 export const MobileHeader = ({
   isTimelapseView,
@@ -53,7 +52,7 @@ export const MobileHeader = ({
         <>
           <S.MobileMenuContainer className="active-overlay">
             <a
-              href={urls.habitatMap}
+              href={urls.aircasting}
               aria-label={t("navbar.sections.aircastingPage")}
             >
               <img alt={t("navbar.altLogo")} src={airCastingLogoMobile} />

@@ -215,7 +215,7 @@
     "placementOfStations": "placement of stations",
     "indoor": "indoor",
     "outdoor": "outdoor",
-    "indoorInfo": "Outdoor sessions are recorded by instruments located outdoors. Indoor measurements are recorded by instruments located indoors. Indoor sessions do not include geocoordinates and are therefore not geolocated on the map.",
+    "indoorInfo": "Outdoor sessions are recorded by instruments located outdoors. Indoor sessions are recorded by instruments located indoors. Indoor sessions do not include geocoordinates and are therefore not geolocated on the map.",
     "indoorMapInfo": "For privacy, indoor sessions aren't mapped.",
     "nonAirbeamIndoor": "Switch to an AirBeam sensor to display results.",
     "indoorMapOverlay": "Indoor sessions aren't mapped. To graph indoor sessions, select from the session's list.",
