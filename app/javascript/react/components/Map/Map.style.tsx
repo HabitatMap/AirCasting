@@ -102,10 +102,21 @@ const IndoorOvelay = styled(LoaderOverlay)`
   z-index: 1;
 `;
 
+const IndoorOverlayInfo = styled.div<{ $isMobile: boolean }>`
+  position: fixed;
+  top: 50%;
+  left: ${(props) => (props.$isMobile ? 0 : "30%")};
+  right: ${(props) => (props.$isMobile ? 0 : "30%")};
+  padding: 0 1rem;
+  transform: "translate(-50%, -50%)";
+  text-align: center;
+`;
+
 export {
   ContainerStyle,
   DesktopContainer,
   IndoorOvelay,
+  IndoorOverlayInfo,
   LoaderOverlay,
   MobileButtons,
   MobileContainer,

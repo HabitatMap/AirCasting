@@ -16,9 +16,9 @@ import { LocationSearch } from "../LocationSearch";
 import { ControlPanel } from "../Map/ControlPanel/ControlPanel";
 import { RealtimeMapUpdatesButton } from "../RealtimeMapUpdatesButton/RealtimeMapUpdatesButton";
 import { RefreshMapButton } from "../RefreshMapButton";
+import { BackButton } from "./BackButton";
 import NavList from "./NavList/NavList";
 import * as S from "./Navbar.style";
-import { BackButton } from "./BackButton";
 
 interface DesktopHeaderProps {
   isMapPage: boolean;
@@ -48,7 +48,7 @@ const DesktopHeader: React.FC<DesktopHeaderProps> = ({
               <S.SmallDesktopContainer>
                 <S.SmallDesktopMenuContainer>
                   <a
-                    href={urls.habitatMap}
+                    href={urls.aircasting}
                     aria-label={t("navbar.sections.aircastingPage")}
                   >
                     <img alt={t("navbar.altLogo")} src={airCastingLogoMobile} />
@@ -68,7 +68,7 @@ const DesktopHeader: React.FC<DesktopHeaderProps> = ({
             ) : (
               <S.SearchContainer>
                 <a
-                  href={urls.habitatMap}
+                  href={urls.aircasting}
                   aria-label={t("navbar.sections.aircastingPage")}
                 >
                   <S.AircastingLogo
@@ -91,7 +91,7 @@ const DesktopHeader: React.FC<DesktopHeaderProps> = ({
         <>
           <BackButton />
           <a
-            href={urls.habitatMap}
+            href={urls.aircasting}
             aria-label={t("navbar.sections.aircastingPage")}
           >
             <S.AircastingLogo alt={t("navbar.altLogo")} src={logo} />
