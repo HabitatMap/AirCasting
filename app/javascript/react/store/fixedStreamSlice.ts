@@ -10,6 +10,9 @@ import { RootState } from "./index";
 
 export interface FixedStreamState {
   data: FixedStream;
+  minMeasurementValue: number | null;
+  maxMeasurementValue: number | null;
+  averageMeasurementValue: number | null;
   status: StatusEnum;
   error: ApiError | null;
   isLoading: boolean;
@@ -39,6 +42,9 @@ const initialState: FixedStreamState = {
     measurements: [],
     streamDailyAverages: [],
   },
+  minMeasurementValue: 0,
+  maxMeasurementValue: 0,
+  averageMeasurementValue: 0,
   status: StatusEnum.Idle,
   error: null,
   isLoading: false,
@@ -116,7 +122,29 @@ export const fetchMeasurements = createAsyncThunk<
 const fixedStreamSlice = createSlice({
   name: "fixedStream",
   initialState,
-  reducers: {},
+  reducers: {
+    updateFixedMeasurementExtremes(
+      state,
+      action: PayloadAction<{ min: number; max: number }>
+    ) {
+      const { min, max } = action.payload;
+      const measurementsInRange = state.data.measurements.filter(
+        (measurement) => {
+          const time = measurement.time;
+          return time >= min && time <= max;
+        }
+      );
+      const values = measurementsInRange.map((m) => m.value);
+      const newMin = Math.min(...values);
+      const newMax = Math.max(...values);
+      const newAvg =
+        values.reduce((sum, value) => sum + value, 0) / values.length;
+
+      state.minMeasurementValue = newMin;
+      state.maxMeasurementValue = newMax;
+      state.averageMeasurementValue = newAvg;
+    },
+  },
   extraReducers: (builder) => {
     builder.addCase(fetchFixedStreamById.pending, (state) => {
       state.status = StatusEnum.Pending;
@@ -156,14 +184,14 @@ const fixedStreamSlice = createSlice({
 
         if (action.payload.length > 0) {
           const values = action.payload.map((m) => m.value);
-          // state.minMeasurementValue = Math.min(...values);
-          // state.maxMeasurementValue = Math.max(...values);
-          // state.averageMeasurementValue =
-          //   values.reduce((sum, value) => sum + value, 0) / values.length;
+          state.minMeasurementValue = Math.min(...values);
+          state.maxMeasurementValue = Math.max(...values);
+          state.averageMeasurementValue =
+            values.reduce((sum, value) => sum + value, 0) / values.length;
         } else {
-          // state.minMeasurementValue = 0;
-          // state.maxMeasurementValue = 0;
-          // state.averageMeasurementValue = 0;
+          state.minMeasurementValue = 0;
+          state.maxMeasurementValue = 0;
+          state.averageMeasurementValue = 0;
         }
       }
     );
@@ -181,6 +209,7 @@ const fixedStreamSlice = createSlice({
 
 export default fixedStreamSlice.reducer;
 
+export const { updateFixedMeasurementExtremes } = fixedStreamSlice.actions;
 export const selectFixedData = (state: RootState) => state.fixedStream.data;
 export const selectIsLoading = (state: RootState) =>
   state.fixedStream.isLoading;

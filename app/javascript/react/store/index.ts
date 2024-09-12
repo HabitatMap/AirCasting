@@ -9,7 +9,6 @@ import indoorSessionsReducer from "./indoorSessionsSlice";
 import { selectIsLoading } from "./loadingSelectors";
 import mapReducer from "./mapSlice";
 import markersLoadingReducer from "./markersLoadingSlice";
-import measurementsReducer from "./measurementsSlice";
 import mobileSessionsReducer from "./mobileSessionsSlice";
 import mobileStreamReducer from "./mobileStreamSlice";
 import movingStreamReducer from "./movingCalendarStreamSlice";
@@ -39,7 +38,6 @@ const store = configureStore({
     sessionFilter: sessionFilterReducer,
     threshold: thresholdReducer,
     timelapse: timelapseReducer,
-    measurements: measurementsReducer,
   },
 });
 

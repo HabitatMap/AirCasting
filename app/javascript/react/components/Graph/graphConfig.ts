@@ -28,7 +28,10 @@ import {
   white,
   yellow,
 } from "../../assets/styles/colors";
-import { selectIsLoading } from "../../store/fixedStreamSlice";
+import {
+  selectIsLoading,
+  updateFixedMeasurementExtremes,
+} from "../../store/fixedStreamSlice";
 import { useAppDispatch, useAppSelector } from "../../store/hooks";
 import { setHoverPosition, setHoverStreamId } from "../../store/mapSlice";
 import { LatLngLiteral } from "../../types/googleMaps";
@@ -42,7 +45,7 @@ import {
 } from "../../utils/timeRanges";
 
 import { RefObject } from "react";
-import { updateMeasurementExtremes } from "../../store/measurementsSlice";
+import { updateMobileMeasurementExtremes } from "../../store/mobileStreamSlice";
 import { formatTimeExtremes } from "../../utils/measurementsCalc";
 import useMobileDetection from "../../utils/useScreenSizeDetection";
 
@@ -68,7 +71,7 @@ const getScrollbarOptions = (isCalendarPage: boolean) => {
 const getXAxisOptions = (
   isMobile: boolean = false,
   rangeDisplayRef: RefObject<HTMLDivElement> | undefined,
-  streamId: number | null
+  fixedSessionTypeSelected: boolean
 ): XAxisOptions => {
   const dispatch = useAppDispatch();
   const isLoading = useAppSelector(selectIsLoading);
@@ -76,7 +79,11 @@ const getXAxisOptions = (
   const handleSetExtremes = debounce(
     (e: Highcharts.AxisSetExtremesEventObject) => {
       if (!isLoading && e.min && e.max) {
-        dispatch(updateMeasurementExtremes({ min: e.min, max: e.max }));
+        dispatch(
+          fixedSessionTypeSelected
+            ? updateFixedMeasurementExtremes({ min: e.min, max: e.max })
+            : updateMobileMeasurementExtremes({ min: e.min, max: e.max })
+        );
 
         const { formattedMinTime, formattedMaxTime } = formatTimeExtremes(
           e.min,

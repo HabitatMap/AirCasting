@@ -153,7 +153,11 @@ const Graph: React.FC<GraphProps> = ({
     setIsMaxRangeFetched(false);
   }, [streamId]);
 
-  const xAxisOptions = getXAxisOptions(isMobile, rangeDisplayRef, streamId);
+  const xAxisOptions = getXAxisOptions(
+    isMobile,
+    rangeDisplayRef,
+    fixedSessionTypeSelected
+  );
   const yAxisOption = getYAxisOptions(thresholdsState, isMobile);
   const tooltipOptions = getTooltipOptions(measurementType, unitSymbol);
   const rangeSelectorOptions = getRangeSelectorOptions(

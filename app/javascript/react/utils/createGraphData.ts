@@ -2,7 +2,7 @@ import { FixedMeasurement } from "../types/fixedStream";
 import { LatLngLiteral } from "../types/googleMaps";
 import { Session } from "../types/sessionType";
 
-import { Measurement } from "../store/measurementsSlice";
+import { Measurement } from "../store/fixedStreamSlice";
 
 export const createFixedSeriesData = (data: FixedMeasurement[]) =>
   (data || [])
