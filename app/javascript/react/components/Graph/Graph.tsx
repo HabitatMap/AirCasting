@@ -223,7 +223,6 @@ const Graph: React.FC<GraphProps> = ({
           ...button,
           events: {
             click: () => {
-              console.log("clicked", i);
               setSelectedRange(i);
               fetchDataForRange(i);
             },
