@@ -16,7 +16,11 @@ class SessionsRepository
         FROM sessions
         WHERE last_measurement_at > CURRENT_TIMESTAMP - INTERVAL '24 hours'
           AND latitude BETWEEN #{south} AND #{north}
-          AND longitude BETWEEN #{west} AND #{east}
+          AND (
+            (#{west} <= #{east} AND longitude BETWEEN #{west} AND #{east})
+            OR
+            (#{west} > #{east} AND (longitude >= #{west} OR longitude <= #{east}))
+          )
       ),
       relevant_streams AS (
         SELECT id, session_id, sensor_name, unit_symbol, measurement_short_type, average_value
