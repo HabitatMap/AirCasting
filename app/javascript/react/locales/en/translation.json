@@ -218,7 +218,7 @@
     "indoorInfo": "Outdoor sessions are recorded by instruments located outdoors. Indoor sessions are recorded by instruments located indoors. Indoor sessions do not include geocoordinates and are therefore not geolocated on the map.",
     "indoorMapInfo": "For privacy, indoor sessions aren't mapped.",
     "nonAirbeamIndoor": "Switch to an AirBeam sensor to display results.",
-    "indoorMapOverlay": "Indoor sessions aren't mapped. To graph indoor sessions, select from the session's list.",
+    "indoorMapOverlay": "Indoor sessions aren't mapped. To graph indoor sessions, select from the sessions list.",
     "dormantToggleLabel": "dormant stations",
     "dormantInfo": "Fixed sessions that have submitted a measurement in the past 24 hours are considered active. Fixed sessions that have not submitted measurements in the past 24 hours are considered dormant.",
     "yearPickerHeader": "timeframe",
