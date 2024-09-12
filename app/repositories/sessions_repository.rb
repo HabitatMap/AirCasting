@@ -12,14 +12,21 @@ class SessionsRepository
 
     sql = <<-SQL
       WITH recent_sessions AS (
-        SELECT id, latitude, longitude, last_measurement_at, end_time_local, start_time_local, is_indoor, title, uuid
-        FROM sessions
-        WHERE last_measurement_at > CURRENT_TIMESTAMP - INTERVAL '24 hours'
-          AND latitude BETWEEN #{south} AND #{north}
+        SELECT s.id, m.location, s.last_measurement_at, s.end_time_local, s.start_time_local, s.is_indoor, s.title, s.uuid
+        FROM sessions s
+        JOIN streams st ON s.id = st.session_id
+        JOIN measurements m ON st.id = m.stream_id
+        WHERE s.last_measurement_at > CURRENT_TIMESTAMP - INTERVAL '24 hours'
+          AND m.time = s.last_measurement_at
           AND (
-            (#{west} <= #{east} AND longitude BETWEEN #{west} AND #{east})
-            OR
-            (#{west} > #{east} AND (longitude >= #{west} OR longitude <= #{east}))
+            CASE
+              WHEN #{west} <= #{east} THEN
+                ST_Intersects(m.location, ST_MakeEnvelope(#{west}, #{south}, #{east}, #{north}, 4326))
+              ELSE
+                ST_Intersects(m.location, ST_MakeEnvelope(#{west}, #{south}, 180, #{north}, 4326))
+                OR
+                ST_Intersects(m.location, ST_MakeEnvelope(-180, #{south}, #{east}, #{north}, 4326))
+            END
           )
       ),
       relevant_streams AS (
