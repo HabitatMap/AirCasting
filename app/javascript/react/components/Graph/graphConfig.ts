@@ -42,10 +42,7 @@ import {
 } from "../../utils/timeRanges";
 
 import { RefObject } from "react";
-import {
-  fetchMeasurements,
-  updateMeasurementExtremes,
-} from "../../store/measurementsSlice";
+import { updateMeasurementExtremes } from "../../store/measurementsSlice";
 import { formatTimeExtremes } from "../../utils/measurementsCalc";
 import useMobileDetection from "../../utils/useScreenSizeDetection";
 
@@ -79,13 +76,6 @@ const getXAxisOptions = (
   const handleSetExtremes = debounce(
     (e: Highcharts.AxisSetExtremesEventObject) => {
       if (!isLoading && e.min && e.max) {
-        dispatch(
-          fetchMeasurements({
-            streamId: streamId ?? 0,
-            startTime: e.min.toString(),
-            endTime: e.max.toString(),
-          })
-        );
         dispatch(updateMeasurementExtremes({ min: e.min, max: e.max }));
 
         const { formattedMinTime, formattedMaxTime } = formatTimeExtremes(

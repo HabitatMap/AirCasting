@@ -1,9 +1,19 @@
 import HighchartsReact from "highcharts-react-official";
 import Highcharts from "highcharts/highstock";
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { useSelector } from "react-redux";
-import { selectFixedData, selectIsLoading } from "../../store/fixedStreamSlice";
-import { selectMeasurementsData } from "../../store/measurementsSelectors";
+import {
+  fetchMeasurements,
+  selectFixedData,
+  selectIsLoading,
+} from "../../store/fixedStreamSlice";
+import { useAppDispatch } from "../../store/hooks";
 import { selectMobileStreamPoints } from "../../store/mobileStreamSelectors";
 import { selectThresholds } from "../../store/thresholdSlice";
 import { SessionType, SessionTypes } from "../../types/filters";
@@ -48,50 +58,100 @@ const Graph: React.FC<GraphProps> = ({
     fixedSessionTypeSelected ? 0 : 2
   );
   const [chartDataLoaded, setChartDataLoaded] = useState(false);
+  const [isMaxRangeFetched, setIsMaxRangeFetched] = useState(false);
 
   const thresholdsState = useSelector(selectThresholds);
   const isLoading = useSelector(selectIsLoading);
   const fixedGraphData = useSelector(selectFixedData);
-  const measurementsData = useSelector(selectMeasurementsData);
   const mobileGraphData = useSelector(selectMobileStreamPoints);
 
   const { unitSymbol, measurementType } = useMapParams();
 
   const isMobile = useMobileDetection();
 
+  const dispatch = useAppDispatch();
+
   const fixedSeriesData = createFixedSeriesData(fixedGraphData?.measurements);
-  const fixedMeasurementsSeriesData = createFixedSeriesData(measurementsData);
   const mobileSeriesData = createMobileSeriesData(mobileGraphData, true);
-  const mobileMeasurementsSeriesData = createMobileSeriesData(
-    measurementsData,
-    false
-  );
 
-  const isInitialRender = useRef(true);
+  const seriesData = fixedSessionTypeSelected
+    ? fixedSeriesData
+    : mobileSeriesData;
 
-  const seriesData = useMemo(() => {
-    if (isInitialRender.current) {
-      isInitialRender.current = false;
-      return fixedSessionTypeSelected
-        ? fixedMeasurementsSeriesData
-        : mobileMeasurementsSeriesData;
+  const getTimeRangeFromSelectedRange = (range: number) => {
+    const now = new Date();
+    let startTime = new Date();
+    switch (range) {
+      case 0: // Last 24 hours
+        startTime.setHours(now.getHours() - 24);
+        break;
+      case 1: // Last 7 days
+        startTime.setDate(now.getDate() - 7);
+        break;
+      case 2: // Last 30 days
+        startTime.setDate(now.getDate() - 30);
+        break;
+      default:
+        startTime = new Date(0); // All data
     }
-    return fixedSessionTypeSelected ? fixedSeriesData : mobileSeriesData;
-  }, [
-    fixedSessionTypeSelected,
-    fixedMeasurementsSeriesData,
-    mobileMeasurementsSeriesData,
-    fixedSeriesData,
-    mobileSeriesData,
-  ]);
+    const endTime = now;
+    return {
+      startTime: startTime.getTime(),
+      endTime: endTime.getTime(),
+    };
+  };
 
   const totalDuration = useMemo(() => {
-    if (seriesData.length === 0) return 0;
-    const [first, last] = [seriesData[0], seriesData[seriesData.length - 1]];
+    const data = seriesData;
+    if (data.length === 0) return 0;
+    const [first, last] = [data[0], data[data.length - 1]];
     return fixedSessionTypeSelected
       ? (last as number[])[0] - (first as number[])[0]
       : (last as { x: number }).x - (first as { x: number }).x;
   }, [seriesData, fixedSessionTypeSelected]);
+
+  console.log("totalDuration", totalDuration);
+
+  const fetchDataForRange = useCallback(
+    (range: number) => {
+      if (streamId && !isMaxRangeFetched) {
+        if (range === 2) {
+          // If range 2 is clicked, set isMaxRangeFetched to true immediately
+          setIsMaxRangeFetched(true);
+        }
+
+        const { startTime, endTime } = getTimeRangeFromSelectedRange(range);
+        const requiredDuration = endTime - startTime;
+
+        if (totalDuration < requiredDuration) {
+          const newStartTime = Math.min(startTime, Date.now() - totalDuration);
+          console.log(
+            "Fetching measurements for new range",
+            newStartTime,
+            endTime
+          );
+          dispatch(
+            fetchMeasurements({
+              streamId,
+              startTime: newStartTime.toString(),
+              endTime: endTime.toString(),
+            })
+          );
+        } else {
+          console.log(
+            "No need to fetch, current data covers the selected range."
+          );
+        }
+      } else if (isMaxRangeFetched) {
+        console.log("Max range already fetched, no further fetches needed.");
+      }
+    },
+    [streamId, isMaxRangeFetched, totalDuration, dispatch]
+  );
+
+  useEffect(() => {
+    setIsMaxRangeFetched(false);
+  }, [streamId]);
 
   const xAxisOptions = getXAxisOptions(isMobile, rangeDisplayRef, streamId);
   const yAxisOption = getYAxisOptions(thresholdsState, isMobile);
@@ -160,7 +220,9 @@ const Graph: React.FC<GraphProps> = ({
           ...button,
           events: {
             click: () => {
+              console.log("clicked", i);
               setSelectedRange(i);
+              fetchDataForRange(i);
             },
           },
         })) ?? [],
