@@ -19,7 +19,7 @@ class SessionsRepository
           AND longitude BETWEEN #{west} AND #{east}
       ),
       relevant_streams AS (
-        SELECT id, session_id, sensor_name, unit_symbol, measurement_short_type
+        SELECT id, session_id, sensor_name, unit_symbol, measurement_short_type, average_value
         FROM streams
         WHERE LOWER(sensor_name) = #{sensor_name}
       ),
