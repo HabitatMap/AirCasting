@@ -145,7 +145,7 @@ const Graph: React.FC<GraphProps> = ({
         console.log("Max range already fetched, no further fetches needed.");
       }
     },
-    [streamId, isMaxRangeFetched, totalDuration, dispatch]
+    [streamId, isMaxRangeFetched, totalDuration]
   );
 
   useEffect(() => {

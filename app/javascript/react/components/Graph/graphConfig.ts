@@ -40,6 +40,7 @@ import { Thresholds } from "../../types/thresholds";
 import {
   MILLISECONDS_IN_AN_HOUR,
   MILLISECONDS_IN_A_5_MINUTES,
+  MILLISECONDS_IN_A_DAY,
   MILLISECONDS_IN_A_MONTH,
   MILLISECONDS_IN_A_WEEK,
 } from "../../utils/timeRanges";
@@ -458,7 +459,10 @@ const getRangeSelectorOptions = (
       return {
         ...baseOptions,
         buttons: [
-          { type: "hour", count: 24, text: t("graph.24Hours") },
+          // { type: "hour", count: 24, text: t("graph.24Hours") },
+          totalDuration < MILLISECONDS_IN_A_DAY
+            ? { type: "all", text: t("graph.24Hours") }
+            : { type: "hour", count: 24, text: t("graph.24Hours") },
           totalDuration > MILLISECONDS_IN_A_WEEK
             ? { type: "day", count: 7, text: t("graph.oneWeek") }
             : { type: "all", text: t("graph.oneWeek") },
