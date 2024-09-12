@@ -17,13 +17,7 @@ module Api
 
         def index2
           GoogleAnalyticsWorker::RegisterEvent.async_call('Fixed active sessions#index2')
-          # splitting the logic for governemnt data, to improve performance
-          sensor_name = form.to_h.to_h[:sensor_name]
-          if sensor_name == 'government-pm2.5' || sensor_name == 'government-no2' || sensor_name == 'government-o3'
-            result = ::FixedSessions::IndexInteractor.new(form: form).call
-          else
-            result = Api::ToActiveSessionsJson.new(form: form).call
-          end
+          result = Api::ToActiveSessionsJson.new(form: form).call
 
           if result.success?
             # Gzip the response since we are sending a ton of data.

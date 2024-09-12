@@ -177,98 +177,6 @@ describe Api::Fixed::Active::SessionsController do
             'latitude' => active_session.latitude,
             'longitude' => active_session.longitude,
             'title' => active_session.title,
-            'is_active' => active_session.is_active,
-            'username' => active_session.user.username,
-            'streams' => {
-              active_stream.sensor_name => {
-                'measurement_short_type' =>
-                  active_stream.measurement_short_type,
-                'sensor_name' => active_stream.sensor_name,
-                'unit_symbol' => active_stream.unit_symbol,
-                'id' => active_stream.id,
-                'stream_daily_average' => daily_stream_average.value.round,
-              },
-            },
-          },
-        ],
-      }
-
-      expect(json_response).to eq(expected)
-    end
-
-    it 'returns government data' do
-      session_time = DateTime.new(2_000, 10, 1, 2, 3, 4)
-      active_session =
-        create_fixed_session!(
-          contribute: true,
-          time: session_time,
-          last_measurement_at: DateTime.current,
-        )
-      active_stream =
-        create_stream!(
-          session: active_session,
-          latitude: active_session.latitude,
-          longitude: active_session.longitude,
-          sensor_name: 'Government-PM2.5',
-        )
-      create_measurement!(stream: active_stream)
-      dormant_session =
-        create_fixed_session!(
-          user: active_session.user,
-          contribute: true,
-          time: session_time,
-          last_measurement_at:
-            DateTime.current - (FixedSession::ACTIVE_FOR + 1.second),
-          latitude: active_session.latitude,
-          longitude: active_session.longitude,
-        )
-      dormant_stream =
-        create_stream!(
-          session: dormant_session,
-          latitude: active_session.latitude,
-          longitude: active_session.longitude,
-          sensor_name: 'Government-PM2.5',
-        )
-      daily_stream_average =
-        create_stream_daily_average!(stream: active_stream)
-
-      create_measurement!(stream: dormant_stream)
-
-      get :index2,
-          params: {
-            q: {
-              time_from:
-                session_time.to_datetime.strftime('%Q').to_i / 1_000 - 1,
-              time_to: session_time.to_datetime.strftime('%Q').to_i / 1_000 + 1,
-              tags: '',
-              usernames: '',
-              session_ids: [],
-              west: active_session.longitude - 1,
-              east: active_session.longitude + 1,
-              south: active_session.latitude - 1,
-              north: active_session.latitude + 1,
-              limit: 2,
-              offset: 0,
-              sensor_name: active_stream.sensor_name.downcase,
-              measurement_type: active_stream.measurement_type,
-              unit_symbol: active_stream.unit_symbol,
-            }.to_json,
-          }
-
-      expected = {
-        'fetchableSessionsCount' => 1,
-        'sessions' => [
-          {
-            'id' => active_session.id,
-            'uuid' => active_session.uuid,
-            'end_time_local' => '2000-10-01T02:03:04.000Z',
-            'start_time_local' => '2000-10-01T02:03:04.000Z',
-            'last_measurement_value' => active_stream.average_value,
-            'is_indoor' => active_session.is_indoor,
-            'latitude' => active_session.latitude,
-            'longitude' => active_session.longitude,
-            'title' => active_session.title,
-            'is_active' => active_session.is_active,
             'username' => active_session.user.username,
             'streams' => {
               active_stream.sensor_name => {
@@ -351,7 +259,6 @@ describe Api::Fixed::Active::SessionsController do
             'longitude' => session.longitude,
             'title' => session.title,
             'username' => session.user.username,
-            'is_active' => session.is_active,
             'streams' => {
               queried_stream.sensor_name => {
                 'measurement_short_type' =>
