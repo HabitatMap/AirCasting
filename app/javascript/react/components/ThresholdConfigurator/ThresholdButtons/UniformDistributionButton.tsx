@@ -1,12 +1,15 @@
 import React, { useMemo } from "react";
 import { useTranslation } from "react-i18next";
+import { RootState } from "../../../store";
 import { useAppDispatch, useAppSelector } from "../../../store/hooks";
-import { selectMeasurementsExtremes } from "../../../store/measurementsSelectors";
 import { selectMovingCalendarMinMax } from "../../../store/movingStreamSelectors";
 import { setUserThresholdValues } from "../../../store/thresholdSlice";
 import { UserSettings } from "../../../types/userStates";
 import { useMapParams } from "../../../utils/mapParamsHandler";
-import { calculateUniformThresholds } from "../../../utils/uniformDistributionThresholdCalc";
+import {
+  calculateMinMaxValues,
+  calculateUniformThresholds,
+} from "../../../utils/uniformDistributionThresholdCalc";
 import { UniformDistributionIcon } from "./Icons/UniformDistributionIcon";
 import { ThresholdButton, ThresholdButtonVariant } from "./ThresholdButton";
 
@@ -26,10 +29,11 @@ const UniformDistributionButton: React.FC<UniformDistributionButtonProps> = ({
   hasErrorMessage,
 }) => {
   const dispatch = useAppDispatch();
-  const { currentUserSettings } = useMapParams();
+  const { sessionId, currentUserSettings } = useMapParams();
   const { t } = useTranslation();
 
-  const measurementExtremes = useAppSelector(selectMeasurementsExtremes);
+  const mobileStream = useAppSelector((state: RootState) => state.mobileStream);
+  const fixedStream = useAppSelector((state: RootState) => state.fixedStream);
   const calendarMinMaxValues = useAppSelector(selectMovingCalendarMinMax);
 
   const defaultButtonText = t(
@@ -37,16 +41,16 @@ const UniformDistributionButton: React.FC<UniformDistributionButtonProps> = ({
   );
   const isCalendarView = currentUserSettings === UserSettings.CalendarView;
 
+  const streamMinMaxValues = useMemo(() => {
+    return calculateMinMaxValues(mobileStream, fixedStream, sessionId);
+  }, [mobileStream, fixedStream, sessionId]);
+
   const minMaxValues = useMemo(() => {
-    if (isCalendarView) {
-      return calendarMinMaxValues;
-    } else {
-      const { minMeasurementValue, maxMeasurementValue } = measurementExtremes;
-      return minMeasurementValue !== null && maxMeasurementValue !== null
-        ? { min: minMeasurementValue, max: maxMeasurementValue }
-        : null;
-    }
-  }, [isCalendarView, measurementExtremes, calendarMinMaxValues]);
+    const minMax = isCalendarView ? calendarMinMaxValues : streamMinMaxValues;
+    const min = minMax?.min ?? null;
+    const max = minMax?.max ?? null;
+    return min !== null && max !== null ? { min, max } : null;
+  }, [isCalendarView, streamMinMaxValues, calendarMinMaxValues]);
 
   const distributeThresholds = () => {
     if (!minMaxValues) {
@@ -67,7 +71,7 @@ const UniformDistributionButton: React.FC<UniformDistributionButtonProps> = ({
       return;
     }
 
-    const thresholds = calculateUniformThresholds(min as number, max as number);
+    const thresholds = calculateUniformThresholds(min, max);
     dispatch(setUserThresholdValues(thresholds));
   };
 

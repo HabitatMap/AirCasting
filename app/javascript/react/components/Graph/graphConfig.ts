@@ -28,7 +28,10 @@ import {
   white,
   yellow,
 } from "../../assets/styles/colors";
-import { selectIsLoading } from "../../store/fixedStreamSlice";
+import {
+  selectIsLoading,
+  updateFixedMeasurementExtremes,
+} from "../../store/fixedStreamSlice";
 import { useAppDispatch, useAppSelector } from "../../store/hooks";
 import { setHoverPosition, setHoverStreamId } from "../../store/mapSlice";
 import { LatLngLiteral } from "../../types/googleMaps";
@@ -37,15 +40,13 @@ import { Thresholds } from "../../types/thresholds";
 import {
   MILLISECONDS_IN_AN_HOUR,
   MILLISECONDS_IN_A_5_MINUTES,
+  MILLISECONDS_IN_A_DAY,
   MILLISECONDS_IN_A_MONTH,
   MILLISECONDS_IN_A_WEEK,
 } from "../../utils/timeRanges";
 
 import { RefObject } from "react";
-import {
-  fetchMeasurements,
-  updateMeasurementExtremes,
-} from "../../store/measurementsSlice";
+import { updateMobileMeasurementExtremes } from "../../store/mobileStreamSlice";
 import { formatTimeExtremes } from "../../utils/measurementsCalc";
 import useMobileDetection from "../../utils/useScreenSizeDetection";
 
@@ -71,7 +72,7 @@ const getScrollbarOptions = (isCalendarPage: boolean) => {
 const getXAxisOptions = (
   isMobile: boolean = false,
   rangeDisplayRef: RefObject<HTMLDivElement> | undefined,
-  streamId: number | null
+  fixedSessionTypeSelected: boolean
 ): XAxisOptions => {
   const dispatch = useAppDispatch();
   const isLoading = useAppSelector(selectIsLoading);
@@ -80,13 +81,10 @@ const getXAxisOptions = (
     (e: Highcharts.AxisSetExtremesEventObject) => {
       if (!isLoading && e.min && e.max) {
         dispatch(
-          fetchMeasurements({
-            streamId: streamId ?? 0,
-            startTime: e.min.toString(),
-            endTime: e.max.toString(),
-          })
+          fixedSessionTypeSelected
+            ? updateFixedMeasurementExtremes({ min: e.min, max: e.max })
+            : updateMobileMeasurementExtremes({ min: e.min, max: e.max })
         );
-        dispatch(updateMeasurementExtremes({ min: e.min, max: e.max }));
 
         const { formattedMinTime, formattedMaxTime } = formatTimeExtremes(
           e.min,
@@ -461,7 +459,10 @@ const getRangeSelectorOptions = (
       return {
         ...baseOptions,
         buttons: [
-          { type: "hour", count: 24, text: t("graph.24Hours") },
+          // { type: "hour", count: 24, text: t("graph.24Hours") },
+          totalDuration < MILLISECONDS_IN_A_DAY
+            ? { type: "all", text: t("graph.24Hours") }
+            : { type: "hour", count: 24, text: t("graph.24Hours") },
           totalDuration > MILLISECONDS_IN_A_WEEK
             ? { type: "day", count: 7, text: t("graph.oneWeek") }
             : { type: "all", text: t("graph.oneWeek") },
