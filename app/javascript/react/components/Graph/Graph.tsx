@@ -79,25 +79,31 @@ const Graph: React.FC<GraphProps> = ({
     : mobileSeriesData;
 
   const getTimeRangeFromSelectedRange = (range: number) => {
-    const now = new Date();
-    let startTime = new Date();
+    const lastTimestamp =
+      seriesData.length > 0
+        ? fixedSessionTypeSelected
+          ? (seriesData[seriesData.length - 1] as number[])[0]
+          : (seriesData[seriesData.length - 1] as { x: number }).x
+        : Date.now();
+
+    let startTime = new Date(lastTimestamp);
     switch (range) {
-      case 0: // Last 24 hours
-        startTime.setHours(now.getHours() - 24);
+      case 0:
+        startTime.setHours(startTime.getHours() - 24);
         break;
-      case 1: // Last 7 days
-        startTime.setDate(now.getDate() - 7);
+      case 1:
+        startTime.setDate(startTime.getDate() - 7);
         break;
-      case 2: // Last 30 days
-        startTime.setDate(now.getDate() - 30);
+      case 2:
+        startTime.setDate(startTime.getDate() - 30);
         break;
       default:
-        startTime = new Date(0); // All data
+        startTime = new Date(0);
     }
-    const endTime = now;
+
     return {
       startTime: startTime.getTime(),
-      endTime: endTime.getTime(),
+      endTime: lastTimestamp,
     };
   };
 
@@ -110,13 +116,10 @@ const Graph: React.FC<GraphProps> = ({
       : (last as { x: number }).x - (first as { x: number }).x;
   }, [seriesData, fixedSessionTypeSelected]);
 
-  console.log("totalDuration", totalDuration);
-
   const fetchDataForRange = useCallback(
     (range: number) => {
       if (streamId && !isMaxRangeFetched) {
         if (range === 2) {
-          // If range 2 is clicked, set isMaxRangeFetched to true immediately
           setIsMaxRangeFetched(true);
         }
 
@@ -125,11 +128,7 @@ const Graph: React.FC<GraphProps> = ({
 
         if (totalDuration < requiredDuration) {
           const newStartTime = Math.min(startTime, Date.now() - totalDuration);
-          console.log(
-            "Fetching measurements for new range",
-            newStartTime,
-            endTime
-          );
+
           dispatch(
             fetchMeasurements({
               streamId,
