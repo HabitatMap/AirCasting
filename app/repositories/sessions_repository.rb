@@ -26,10 +26,12 @@ class SessionsRepository
         SELECT id, session_id, sensor_name, unit_symbol, measurement_short_type, average_value
         FROM streams
         WHERE LOWER(sensor_name) = #{sensor_name}
+          AND session_id IN (SELECT id FROM recent_sessions)
       ),
       latest_daily_averages AS (
         SELECT DISTINCT ON (stream_id) stream_id, value
         FROM stream_daily_averages
+        WHERE stream_id IN (SELECT id FROM relevant_streams)
         ORDER BY stream_id, date DESC
       )
       SELECT s.*, st.*, lda.value AS last_daily_average
