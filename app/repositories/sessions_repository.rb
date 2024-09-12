@@ -11,18 +11,27 @@ class SessionsRepository
     sensor_name = ActiveRecord::Base.connection.quote(sensor_name)
 
     sql = <<-SQL
-      SELECT s.*, st.*, sdavalue.value AS last_daily_average
-      FROM sessions AS s
-      JOIN streams AS st ON s.id = st.session_id
-      LEFT JOIN (
-          SELECT stream_id, value,
-                 ROW_NUMBER() OVER (PARTITION BY stream_id ORDER BY date DESC) as rn
-          FROM stream_daily_averages
-      ) AS sdavalue ON st.id = sdavalue.stream_id AND sdavalue.rn = 1
-      WHERE LOWER(st.sensor_name) = #{sensor_name}
-        AND s.latitude BETWEEN #{south} AND #{north}
-        AND s.longitude BETWEEN #{west} AND #{east}
-        AND s.last_measurement_at > CURRENT_TIMESTAMP - INTERVAL '24 hours';
+      WITH recent_sessions AS (
+        SELECT id, latitude, longitude, last_measurement_at, end_time_local, start_time_local, is_indoor, title, uuid
+        FROM sessions
+        WHERE last_measurement_at > CURRENT_TIMESTAMP - INTERVAL '24 hours'
+          AND latitude BETWEEN #{south} AND #{north}
+          AND longitude BETWEEN #{west} AND #{east}
+      ),
+      relevant_streams AS (
+        SELECT id, session_id, sensor_name, unit_symbol, measurement_short_type
+        FROM streams
+        WHERE LOWER(sensor_name) = #{sensor_name}
+      ),
+      latest_daily_averages AS (
+        SELECT DISTINCT ON (stream_id) stream_id, value
+        FROM stream_daily_averages
+        ORDER BY stream_id, date DESC
+      )
+      SELECT s.*, st.*, lda.value AS last_daily_average
+      FROM recent_sessions s
+      JOIN relevant_streams st ON s.id = st.session_id
+      LEFT JOIN latest_daily_averages lda ON st.id = lda.stream_id;
     SQL
 
     ActiveRecord::Base.connection.execute(sql)
