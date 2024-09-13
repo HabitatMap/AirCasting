@@ -45,7 +45,6 @@ import {
   MILLISECONDS_IN_A_WEEK,
 } from "../../utils/timeRanges";
 
-import { RangeSelectorButtonsOptions } from "highcharts";
 import { RefObject } from "react";
 import { TRUE } from "../../const/booleans";
 import { updateMobileMeasurementExtremes } from "../../store/mobileStreamSlice";
@@ -450,58 +449,66 @@ const getRangeSelectorOptions = (
     buttonSpacing: 10,
     inputEnabled: false,
   };
-
-  const getCommonButtons = (
+  const getButtons = (
     totalDuration: number,
-    t: (key: string) => string
-  ): RangeSelectorButtonsOptions[] => [
-    {
-      type: totalDuration < MILLISECONDS_IN_A_DAY ? "all" : "hour",
-      count: totalDuration < MILLISECONDS_IN_A_DAY ? undefined : 24,
-      text: t("graph.24Hours"),
-    },
-    {
-      type: totalDuration > MILLISECONDS_IN_A_WEEK ? "day" : "all",
-      count: totalDuration > MILLISECONDS_IN_A_WEEK ? 7 : undefined,
-      text: t("graph.oneWeek"),
-    },
-    {
-      type: totalDuration > MILLISECONDS_IN_A_MONTH ? "week" : "all",
-      count: totalDuration > MILLISECONDS_IN_A_MONTH ? 4 : undefined,
-      text: t("graph.oneMonth"),
-    },
-  ];
+    t: (key: string) => string,
+    isFixed: boolean
+  ): Highcharts.RangeSelectorButtonsOptions[] => {
+    if (isFixed) {
+      return [
+        {
+          type: totalDuration < MILLISECONDS_IN_A_DAY ? "all" : "hour",
+          count: totalDuration < MILLISECONDS_IN_A_DAY ? undefined : 24,
+          text: t("graph.24Hours"),
+        },
+        {
+          type: totalDuration > MILLISECONDS_IN_A_WEEK ? "day" : "all",
+          count: totalDuration > MILLISECONDS_IN_A_WEEK ? 7 : undefined,
+          text: t("graph.oneWeek"),
+        },
+        {
+          type: totalDuration > MILLISECONDS_IN_A_MONTH ? "week" : "all",
+          count: totalDuration > MILLISECONDS_IN_A_MONTH ? 4 : undefined,
+          text: t("graph.oneMonth"),
+        },
+      ];
+    } else {
+      return [
+        {
+          type: totalDuration < MILLISECONDS_IN_A_5_MINUTES ? "all" : "minute",
+          count: totalDuration < MILLISECONDS_IN_A_5_MINUTES ? undefined : 5,
+          text: t("graph.fiveMinutes"),
+        },
+        {
+          type: totalDuration < MILLISECONDS_IN_AN_HOUR ? "all" : "minute",
+          count: totalDuration < MILLISECONDS_IN_AN_HOUR ? undefined : 60,
+          text: t("graph.oneHour"),
+        },
+        { type: "all", text: t("graph.all") },
+      ];
+    }
+  };
 
-  const commonOptions = {
-    buttons: getCommonButtons(totalDuration, t),
+  const commonOptions = (isFixed: boolean) => ({
+    buttons: getButtons(totalDuration, t, isFixed),
     allButtonsEnabled: true,
     selected: selectedRange,
-  };
+  });
 
   if (isCalendarPage && isMobile) {
     return {
       ...baseMobileCalendarOptions,
-      ...commonOptions,
+      ...commonOptions(true),
     };
   } else if (fixedSessionTypeSelected) {
     return {
       ...baseOptions,
-      ...commonOptions,
+      ...commonOptions(true),
     };
   } else {
     return {
       ...baseOptions,
-      buttons: [
-        totalDuration < MILLISECONDS_IN_A_5_MINUTES
-          ? { type: "all", text: t("graph.fiveMinutes") }
-          : { type: "minute" as const, count: 5, text: t("graph.fiveMinutes") },
-        totalDuration < MILLISECONDS_IN_AN_HOUR
-          ? { type: "all", text: t("graph.oneHour") }
-          : { type: "minute" as const, count: 60, text: t("graph.oneHour") },
-        { type: "all", text: t("graph.all") },
-      ],
-      allButtonsEnabled: true,
-      selected: selectedRange,
+      ...commonOptions(false),
     };
   }
 };
