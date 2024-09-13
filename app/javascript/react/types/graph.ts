@@ -8,3 +8,5 @@ export type GraphData =
 export type GraphPoint = {
   position: LatLngLiteral;
 } & Highcharts.Point;
+
+export type SeriesDataPoint = number[] | { x: number };

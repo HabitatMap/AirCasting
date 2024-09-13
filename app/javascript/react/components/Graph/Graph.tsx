@@ -17,10 +17,15 @@ import { useAppDispatch } from "../../store/hooks";
 import { selectMobileStreamPoints } from "../../store/mobileStreamSelectors";
 import { selectThresholds } from "../../store/thresholdSlice";
 import { SessionType, SessionTypes } from "../../types/filters";
+import { SeriesDataPoint } from "../../types/graph";
 import {
   createFixedSeriesData,
   createMobileSeriesData,
 } from "../../utils/createGraphData";
+import {
+  calculateTotalDuration,
+  getTimeRangeFromSelectedRange,
+} from "../../utils/graphDataUtils";
 import { useMapParams } from "../../utils/mapParamsHandler";
 import useMobileDetection from "../../utils/useScreenSizeDetection";
 import { handleLoad } from "./chartEvents";
@@ -78,43 +83,10 @@ const Graph: React.FC<GraphProps> = ({
     ? fixedSeriesData
     : mobileSeriesData;
 
-  const getTimeRangeFromSelectedRange = (range: number) => {
-    const lastTimestamp =
-      seriesData.length > 0
-        ? fixedSessionTypeSelected
-          ? (seriesData[seriesData.length - 1] as number[])[0]
-          : (seriesData[seriesData.length - 1] as { x: number }).x
-        : Date.now();
-
-    let startTime = new Date(lastTimestamp);
-    switch (range) {
-      case 0:
-        startTime.setHours(startTime.getHours() - 24);
-        break;
-      case 1:
-        startTime.setDate(startTime.getDate() - 7);
-        break;
-      case 2:
-        startTime.setDate(startTime.getDate() - 30);
-        break;
-      default:
-        startTime = new Date(0);
-    }
-
-    return {
-      startTime: startTime.getTime(),
-      endTime: lastTimestamp,
-    };
-  };
-
-  const totalDuration = useMemo(() => {
-    const data = seriesData;
-    if (data.length === 0) return 0;
-    const [first, last] = [data[0], data[data.length - 1]];
-    return fixedSessionTypeSelected
-      ? (last as number[])[0] - (first as number[])[0]
-      : (last as { x: number }).x - (first as { x: number }).x;
-  }, [seriesData, fixedSessionTypeSelected]);
+  const totalDuration = useMemo(
+    () => calculateTotalDuration(seriesData, fixedSessionTypeSelected),
+    [seriesData, fixedSessionTypeSelected]
+  );
 
   const fetchDataForRange = useCallback(
     (range: number) => {
@@ -123,7 +95,11 @@ const Graph: React.FC<GraphProps> = ({
           setIsMaxRangeFetched(true);
         }
 
-        const { startTime, endTime } = getTimeRangeFromSelectedRange(range);
+        const { startTime, endTime } = getTimeRangeFromSelectedRange(
+          range,
+          seriesData as SeriesDataPoint[],
+          fixedSessionTypeSelected
+        );
         const requiredDuration = endTime - startTime;
 
         if (totalDuration < requiredDuration) {
