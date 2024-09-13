@@ -1,7 +1,6 @@
 import moment from "moment";
 import * as React from "react";
 import { useTranslation } from "react-i18next";
-import { useSelector } from "react-redux";
 
 import rightVector from "../../../assets/icons/rightVector.svg";
 import { gray300 } from "../../../assets/styles/colors";
@@ -37,7 +36,7 @@ const SessionsListTile: React.FC<SessionListTile> = ({
   onMouseEnter,
   onMouseLeave,
 }) => {
-  const thresholds = useSelector(selectThresholds);
+  const thresholds = useAppSelector(selectThresholds);
 
   const { t } = useTranslation();
 

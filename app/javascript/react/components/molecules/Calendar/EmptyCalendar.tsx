@@ -1,14 +1,14 @@
 import React from "react";
-import { useSelector } from "react-redux";
 
-import { Month } from "./atoms/Month";
 import { useTranslation } from "react-i18next";
-import HeaderToggle from "./HeaderToggle/HeaderToggle";
+import { useAppSelector } from "../../../store/hooks";
 import { selectThreeMonthsDailyAverage } from "../../../store/movingStreamSelectors";
+import { Month } from "./atoms/Month";
 import * as S from "./Calendar.style";
+import HeaderToggle from "./HeaderToggle/HeaderToggle";
 
 const EmptyCalendar = () => {
-  const threeMonthsData = useSelector(selectThreeMonthsDailyAverage);
+  const threeMonthsData = useAppSelector(selectThreeMonthsDailyAverage);
   const { t } = useTranslation();
 
   return (

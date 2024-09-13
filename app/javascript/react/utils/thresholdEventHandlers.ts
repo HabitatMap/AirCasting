@@ -1,7 +1,7 @@
 import { debounce } from "lodash";
 import { useEffect } from "react";
 import { useTranslation } from "react-i18next";
-import { useSelector } from "react-redux";
+import { useAppSelector } from "../store/hooks";
 import { selectDefaultThresholds } from "../store/thresholdSlice";
 import { KeyboardKeys } from "../types/keyboardKeys";
 import { Thresholds } from "../types/thresholds";
@@ -19,7 +19,7 @@ export const useThresholdHandlers = (
 ) => {
   const inputDebounceTime = 300;
   const { t } = useTranslation();
-  const defaultThresholds = useSelector(selectDefaultThresholds);
+  const defaultThresholds = useAppSelector(selectDefaultThresholds);
 
   const isValueValid = (
     newValue: number,

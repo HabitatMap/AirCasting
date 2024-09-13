@@ -1,8 +1,7 @@
 import moment, { Moment } from "moment";
 import { useEffect, useState } from "react";
-import { useSelector } from "react-redux";
 
-import { useAppDispatch } from "../../../store/hooks";
+import { useAppDispatch, useAppSelector } from "../../../store/hooks";
 import {
   fetchNewMovingStream,
   movingData,
@@ -44,8 +43,8 @@ const useCalendarHook = ({
   const SEEN_MONTHS_NUMBER = 3;
 
   const dispatch = useAppDispatch();
-  const threeMonthsData = useSelector(selectThreeMonthsDailyAverage);
-  const movingCalendarData = useSelector(movingData);
+  const threeMonthsData = useAppSelector(selectThreeMonthsDailyAverage);
+  const movingCalendarData = useAppSelector(movingData);
   const [isRightButtonDisabled, setIsRightButtonDisabled] =
     useState<boolean>(false);
   const [isLeftButtonDisabled, setIsLeftButtonDisabled] =

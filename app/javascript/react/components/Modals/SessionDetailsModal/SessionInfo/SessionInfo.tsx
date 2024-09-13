@@ -1,10 +1,10 @@
 import React from "react";
-import { useSelector } from "react-redux";
 
 import {
   selectFixedExtremes,
   selectFixedStreamShortInfo,
 } from "../../../../store/fixedStreamSelectors";
+import { useAppSelector } from "../../../../store/hooks";
 import {
   selectMobileExtremes,
   selectMobileStreamShortInfo,
@@ -33,15 +33,15 @@ const SessionInfo: React.FC<SessionInfoProps> = ({
   const fixedSessionTypeSelected: boolean = sessionType === SessionTypes.FIXED;
   const isMobile = useMobileDetection();
 
-  const streamShortInfo: StreamShortInfo = useSelector(
+  const streamShortInfo: StreamShortInfo = useAppSelector(
     fixedSessionTypeSelected
       ? selectFixedStreamShortInfo
       : selectMobileStreamShortInfo
   );
-  const extremes = useSelector(
+  const extremes = useAppSelector(
     fixedSessionTypeSelected ? selectFixedExtremes : selectMobileExtremes
   );
-  const thresholds = useSelector(selectThresholds);
+  const thresholds = useAppSelector(selectThresholds);
 
   const toggleVisibility = () => {
     setIsVisible(!isVisible);

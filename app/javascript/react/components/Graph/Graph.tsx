@@ -7,23 +7,21 @@ import React, {
   useRef,
   useState,
 } from "react";
-import { useSelector } from "react-redux";
 import {
   fetchMeasurements,
   selectFixedData,
   selectIsLoading,
 } from "../../store/fixedStreamSlice";
-import { useAppDispatch } from "../../store/hooks";
+import { useAppDispatch, useAppSelector } from "../../store/hooks";
 import { selectMobileStreamPoints } from "../../store/mobileStreamSelectors";
 import { selectThresholds } from "../../store/thresholdSlice";
 import { SessionType, SessionTypes } from "../../types/filters";
 import { SeriesDataPoint } from "../../types/graph";
-import {
-  createFixedSeriesData,
-  createMobileSeriesData,
-} from "../../utils/createGraphData";
+
 import {
   calculateTotalDuration,
+  createFixedSeriesData,
+  createMobileSeriesData,
   getTimeRangeFromSelectedRange,
 } from "../../utils/graphDataUtils";
 import { useMapParams } from "../../utils/mapParamsHandler";
@@ -65,10 +63,10 @@ const Graph: React.FC<GraphProps> = ({
   const [chartDataLoaded, setChartDataLoaded] = useState(false);
   const [isMaxRangeFetched, setIsMaxRangeFetched] = useState(false);
 
-  const thresholdsState = useSelector(selectThresholds);
-  const isLoading = useSelector(selectIsLoading);
-  const fixedGraphData = useSelector(selectFixedData);
-  const mobileGraphData = useSelector(selectMobileStreamPoints);
+  const thresholdsState = useAppSelector(selectThresholds);
+  const isLoading = useAppSelector(selectIsLoading);
+  const fixedGraphData = useAppSelector(selectFixedData);
+  const mobileGraphData = useAppSelector(selectMobileStreamPoints);
 
   const { unitSymbol, measurementType } = useMapParams();
 

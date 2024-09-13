@@ -1,20 +1,19 @@
-import React, { useEffect, useState } from "react";
-import { useSelector } from "react-redux";
 import { AdvancedMarker, useMap } from "@vis.gl/react-google-maps";
-import { useAppDispatch } from "../../../store/hooks";
+import React, { useEffect, useState } from "react";
+import { useAppDispatch, useAppSelector } from "../../../store/hooks";
 import { setMarkersLoading } from "../../../store/markersLoadingSlice";
+import {
+  selectMobileStreamData,
+  selectMobileStreamStatus,
+} from "../../../store/mobileStreamSelectors";
 import { selectThresholds } from "../../../store/thresholdSlice";
+import { StatusEnum } from "../../../types/api";
 import { LatLngLiteral } from "../../../types/googleMaps";
 import { Point, Session } from "../../../types/sessionType";
 import { useMapParams } from "../../../utils/mapParamsHandler";
 import { getColorForValue } from "../../../utils/thresholdColors";
 import { SessionDotMarker } from "./SessionDotMarker/SessionDotMarker";
 import { SessionFullMarker } from "./SessionFullMarker/SessionFullMarker";
-import {
-  selectMobileStreamData,
-  selectMobileStreamStatus,
-} from "../../../store/mobileStreamSelectors";
-import { StatusEnum } from "../../../types/api";
 
 import type { Marker } from "@googlemaps/markerclusterer";
 
@@ -41,11 +40,11 @@ const MobileMarkers = ({
 
   const map = useMap();
   const dispatch = useAppDispatch();
-  const thresholds = useSelector(selectThresholds);
+  const thresholds = useAppSelector(selectThresholds);
   const { unitSymbol } = useMapParams();
 
-  const mobileStreamData = useSelector(selectMobileStreamData);
-  const mobileStreamStatus = useSelector(selectMobileStreamStatus);
+  const mobileStreamData = useAppSelector(selectMobileStreamData);
+  const mobileStreamStatus = useAppSelector(selectMobileStreamStatus);
 
   const [markers, setMarkers] = useState<{ [streamId: string]: Marker | null }>(
     {}

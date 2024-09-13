@@ -1,6 +1,6 @@
 import { AdvancedMarker } from "@vis.gl/react-google-maps";
 import React, { useMemo } from "react";
-import { useSelector } from "react-redux";
+import { useAppSelector } from "../../../store/hooks";
 import { selectThresholds } from "../../../store/thresholdSlice";
 import { useMapParams } from "../../../utils/mapParamsHandler";
 import { getColorForValue } from "../../../utils/thresholdColors";
@@ -23,7 +23,7 @@ const calculateZIndex = (sessions: number): number => {
 };
 
 const TimelapseMarkers = ({ sessions }: Props) => {
-  const thresholds = useSelector(selectThresholds);
+  const thresholds = useAppSelector(selectThresholds);
   const { unitSymbol } = useMapParams();
 
   const memoizedSessions = useMemo(

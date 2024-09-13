@@ -1,11 +1,10 @@
 import React, { useEffect, useRef, useState } from "react";
-import { useSelector } from "react-redux";
 
 import { Marker } from "@googlemaps/markerclusterer";
 import { AdvancedMarker, useMap } from "@vis.gl/react-google-maps";
 
 import { mobileStreamPath } from "../../../assets/styles/colors";
-import { useAppDispatch } from "../../../store/hooks";
+import { useAppDispatch, useAppSelector } from "../../../store/hooks";
 import { selectHoverPosition } from "../../../store/mapSlice";
 import {
   setMarkersLoading,
@@ -28,9 +27,9 @@ const StreamMarkers = ({ sessions, unitSymbol }: Props) => {
   const [markers, setMarkers] = useState<{ [streamId: string]: Marker | null }>(
     {}
   );
-  const thresholds = useSelector(selectThresholds);
+  const thresholds = useAppSelector(selectThresholds);
   const polylineRef = useRef<google.maps.Polyline | null>(null);
-  const hoverPosition = useSelector(selectHoverPosition);
+  const hoverPosition = useAppSelector(selectHoverPosition);
 
   // Sort sessions by time
   const sortedSessions = sessions.sort((a, b) => {
