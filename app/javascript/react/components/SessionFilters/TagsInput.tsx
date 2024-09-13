@@ -127,7 +127,7 @@ const TagsInput = () => {
       <S.SingleFilterWrapper>
         <S.InputWrapper>
           <S.Input
-            placeholder={t("filters.tagsNames")}
+            placeholder={t("filters.tags")}
             {...getInputProps({
               value: inputValue,
               onClick: handleOnInputClick,

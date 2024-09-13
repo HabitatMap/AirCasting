@@ -185,7 +185,7 @@
     "profileNamesInfo": "Enter a profile name or names to filter the sessions by profile name.",
     "tagNamesInfo": "Enter a tag or tags to filter the sessions by tags. Tags are keywords assigned to sessions.",
     "profileNames": "profile names",
-    "tagsNames": "tags names",
+    "tags": "tags",
 
     "crowdMapLabel": "crowdMap",
     "crowdMapInfo": "The CrowdMap averages together all the measurements from all the sessions listed on the sessions list and displays these averages as colored grid cells. The color of each grid cell corresponds to the average intensity of all the measurements recorded in that area. Click on a grid cell to view the underlying data.",
