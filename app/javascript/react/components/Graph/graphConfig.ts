@@ -45,6 +45,7 @@ import {
   MILLISECONDS_IN_A_WEEK,
 } from "../../utils/timeRanges";
 
+import { RangeSelectorButtonsOptions } from "highcharts";
 import { RefObject } from "react";
 import { TRUE } from "../../const/booleans";
 import { updateMobileMeasurementExtremes } from "../../store/mobileStreamSlice";
@@ -450,56 +451,58 @@ const getRangeSelectorOptions = (
     inputEnabled: false,
   };
 
+  const getCommonButtons = (
+    totalDuration: number,
+    t: (key: string) => string
+  ): RangeSelectorButtonsOptions[] => [
+    {
+      type: totalDuration < MILLISECONDS_IN_A_DAY ? "all" : "hour",
+      count: totalDuration < MILLISECONDS_IN_A_DAY ? undefined : 24,
+      text: t("graph.24Hours"),
+    },
+    {
+      type: totalDuration > MILLISECONDS_IN_A_WEEK ? "day" : "all",
+      count: totalDuration > MILLISECONDS_IN_A_WEEK ? 7 : undefined,
+      text: t("graph.oneWeek"),
+    },
+    {
+      type: totalDuration > MILLISECONDS_IN_A_MONTH ? "week" : "all",
+      count: totalDuration > MILLISECONDS_IN_A_MONTH ? 4 : undefined,
+      text: t("graph.oneMonth"),
+    },
+  ];
+
+  const commonOptions = {
+    buttons: getCommonButtons(totalDuration, t),
+    allButtonsEnabled: true,
+    selected: selectedRange,
+  };
+
   if (isCalendarPage && isMobile) {
     return {
       ...baseMobileCalendarOptions,
+      ...commonOptions,
+    };
+  } else if (fixedSessionTypeSelected) {
+    return {
+      ...baseOptions,
+      ...commonOptions,
+    };
+  } else {
+    return {
+      ...baseOptions,
       buttons: [
-        { type: "hour", count: 24, text: t("graph.24Hours") },
-        totalDuration > MILLISECONDS_IN_A_WEEK
-          ? { type: "day", count: 7, text: t("graph.oneWeek") }
-          : { type: "all", text: t("graph.oneWeek") },
-        totalDuration > MILLISECONDS_IN_A_MONTH
-          ? { type: "week", count: 4, text: t("graph.oneMonth") }
-          : { type: "all", text: t("graph.oneMonth") },
+        totalDuration < MILLISECONDS_IN_A_5_MINUTES
+          ? { type: "all", text: t("graph.fiveMinutes") }
+          : { type: "minute" as const, count: 5, text: t("graph.fiveMinutes") },
+        totalDuration < MILLISECONDS_IN_AN_HOUR
+          ? { type: "all", text: t("graph.oneHour") }
+          : { type: "minute" as const, count: 60, text: t("graph.oneHour") },
+        { type: "all", text: t("graph.all") },
       ],
       allButtonsEnabled: true,
       selected: selectedRange,
     };
-  } else {
-    if (fixedSessionTypeSelected) {
-      return {
-        ...baseOptions,
-        buttons: [
-          // { type: "hour", count: 24, text: t("graph.24Hours") },
-          totalDuration < MILLISECONDS_IN_A_DAY
-            ? { type: "all", text: t("graph.24Hours") }
-            : { type: "hour", count: 24, text: t("graph.24Hours") },
-          totalDuration > MILLISECONDS_IN_A_WEEK
-            ? { type: "day", count: 7, text: t("graph.oneWeek") }
-            : { type: "all", text: t("graph.oneWeek") },
-          totalDuration > MILLISECONDS_IN_A_MONTH
-            ? { type: "week", count: 4, text: t("graph.oneMonth") }
-            : { type: "all", text: t("graph.oneMonth") },
-        ],
-        allButtonsEnabled: true,
-        selected: selectedRange,
-      };
-    } else {
-      return {
-        ...baseOptions,
-        buttons: [
-          totalDuration < MILLISECONDS_IN_A_5_MINUTES
-            ? { type: "all", text: t("graph.fiveMinutes") }
-            : { type: "minute", count: 5, text: t("graph.fiveMinutes") },
-          totalDuration < MILLISECONDS_IN_AN_HOUR
-            ? { type: "all", text: t("graph.oneHour") }
-            : { type: "minute", count: 60, text: t("graph.oneHour") },
-          { type: "all", text: t("graph.all") },
-        ],
-        allButtonsEnabled: true,
-        selected: selectedRange,
-      };
-    }
   }
 };
 
