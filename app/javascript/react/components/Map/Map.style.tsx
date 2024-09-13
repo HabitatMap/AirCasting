@@ -49,15 +49,17 @@ const ThresholdContainer = styled.div`
   grid-gap: 5rem;
   width: 100%;
   bottom: 0;
+  z-index: 4;
 
   background-color: ${colors.white};
   box-shadow: 2px 2px 4px 0px ${colors.gray900};
+  z-index: 4;
 
   @media (${media.mobile}) {
     height: 4.7rem;
     margin-bottom: 0;
     grid-template-columns: 1fr;
-    z-index: 1;
+    z-index: 4;
   }
 
   @media (min-width: 769px) and (max-width: 1023px) {
@@ -67,7 +69,7 @@ const ThresholdContainer = styled.div`
     margin-bottom: 0;
     align-items: center;
     grid-gap: 0.5rem;
-    z-index: 1;
+    z-index: 4;
   }
 
   @media (${media.desktop}) {
