@@ -130,12 +130,6 @@ const CrowdMapMarkers = ({ pulsatingSessionId, sessions }: Props) => {
   }, [crowdMapRectanglesLength, tags, usernames, dispatch]);
 
   useEffect(() => {
-    if (rectanglesRef.current.length >= crowdMapRectanglesLength) {
-      dispatch(setMarkersLoading(false));
-    }
-  }, [crowdMapRectanglesLength, dispatch, rectanglesRef.current.length]);
-
-  useEffect(() => {
     if (!mobileSessionsLoading || fetchingCrowdMapData) {
       setRectanglePoint(null);
       dispatch(clearCrowdMap());
@@ -232,6 +226,12 @@ const CrowdMapMarkers = ({ pulsatingSessionId, sessions }: Props) => {
     touchend: () => dispatch(clearRectangles()),
     dragstart: () => dispatch(clearRectangles()),
   });
+
+  useEffect(() => {
+    if (rectanglesRef.current.length >= crowdMapRectanglesLength) {
+      dispatch(setMarkersLoading(false));
+    }
+  }, [crowdMapRectanglesLength, dispatch, rectanglesRef.current.length]);
 
   const renderMarker = (displayedSession: Session) => {
     return (
