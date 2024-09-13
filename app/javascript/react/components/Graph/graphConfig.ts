@@ -46,7 +46,9 @@ import {
 } from "../../utils/timeRanges";
 
 import { RefObject } from "react";
+import { TRUE } from "../../const/booleans";
 import { updateMobileMeasurementExtremes } from "../../store/mobileStreamSlice";
+import { useMapParams } from "../../utils/mapParamsHandler";
 import { formatTimeExtremes } from "../../utils/measurementsCalc";
 import useMobileDetection from "../../utils/useScreenSizeDetection";
 
@@ -218,6 +220,9 @@ const getPlotOptions = (
   streamId: number | null
 ): PlotOptions => {
   const dispatch = useAppDispatch();
+  const { isIndoor } = useMapParams();
+
+  const isIndoorParameterInUrl = isIndoor === TRUE;
   return {
     series: {
       lineWidth: 2,
@@ -253,14 +258,20 @@ const getPlotOptions = (
       point: {
         events: {
           mouseOver: function (this: Highcharts.Point) {
-            const position: LatLngLiteral = (this as GraphPoint).position;
-            return fixedSessionTypeSelected
-              ? dispatch(setHoverStreamId(streamId))
-              : dispatch(setHoverPosition(position));
+            if (!isIndoorParameterInUrl) {
+              const position: LatLngLiteral = (this as GraphPoint).position;
+              if (fixedSessionTypeSelected) {
+                dispatch(setHoverStreamId(streamId));
+              } else {
+                dispatch(setHoverPosition(position));
+              }
+            }
           },
           mouseOut: function () {
-            dispatch(setHoverStreamId(null));
-            dispatch(setHoverPosition({ lat: 0, lng: 0 }));
+            if (!isIndoorParameterInUrl) {
+              dispatch(setHoverStreamId(null));
+              dispatch(setHoverPosition({ lat: 0, lng: 0 }));
+            }
           },
         },
       },
