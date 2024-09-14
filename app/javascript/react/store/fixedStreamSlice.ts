@@ -69,7 +69,6 @@ export const fetchFixedStreamById = createAsyncThunk<
     return response.data;
   } catch (error) {
     const message = getErrorMessage(error);
-
     const apiError: ApiError = {
       message,
       additionalInfo: {
@@ -79,7 +78,6 @@ export const fetchFixedStreamById = createAsyncThunk<
     };
 
     logError(error, apiError);
-
     return rejectWithValue(apiError);
   }
 });
@@ -99,11 +97,10 @@ export const fetchMeasurements = createAsyncThunk<
       return response.data;
     } catch (error) {
       const message = getErrorMessage(error);
-
       const apiError: ApiError = {
         message,
         additionalInfo: {
-          action: "fetchFixedStreamById",
+          action: "fetchMeasurements",
           endpoint: API_ENDPOINTS.fetchMeasurements(
             streamId,
             startTime,
@@ -113,7 +110,6 @@ export const fetchMeasurements = createAsyncThunk<
       };
 
       logError(error, apiError);
-
       return rejectWithValue(apiError);
     }
   }
@@ -129,81 +125,78 @@ const fixedStreamSlice = createSlice({
     ) {
       const { min, max } = action.payload;
       const measurementsInRange = state.data.measurements.filter(
-        (measurement) => {
-          const time = measurement.time;
-          return time >= min && time <= max;
-        }
+        (measurement) => measurement.time >= min && measurement.time <= max
       );
       const values = measurementsInRange.map((m) => m.value);
-      const newMin = Math.min(...values);
-      const newMax = Math.max(...values);
-      const newAvg =
-        values.reduce((sum, value) => sum + value, 0) / values.length;
 
-      state.minMeasurementValue = newMin;
-      state.maxMeasurementValue = newMax;
-      state.averageMeasurementValue = newAvg;
+      state.minMeasurementValue = values.length ? Math.min(...values) : 0;
+      state.maxMeasurementValue = values.length ? Math.max(...values) : 0;
+      state.averageMeasurementValue =
+        values.length > 0
+          ? values.reduce((sum, value) => sum + value, 0) / values.length
+          : 0;
     },
   },
   extraReducers: (builder) => {
-    builder.addCase(fetchFixedStreamById.pending, (state) => {
-      state.status = StatusEnum.Pending;
-      state.error = null;
-      state.isLoading = true;
-    });
-    builder.addCase(
-      fetchFixedStreamById.fulfilled,
-      (state, action: PayloadAction<FixedStream>) => {
-        state.status = StatusEnum.Fulfilled;
-        state.data = action.payload;
-        state.isLoading = false;
+    builder
+      .addCase(fetchFixedStreamById.pending, (state) => {
+        state.status = StatusEnum.Pending;
         state.error = null;
-      }
-    );
-    builder.addCase(
-      fetchFixedStreamById.rejected,
-      (state, action: PayloadAction<ApiError | undefined>) => {
-        state.status = StatusEnum.Rejected;
-        state.error = action.payload || { message: "Unknown error occurred" };
-        state.data = initialState.data;
-        state.isLoading = false;
-      }
-    );
-    builder.addCase(fetchMeasurements.pending, (state) => {
-      state.status = StatusEnum.Pending;
-      state.error = null;
-      state.isLoading = true;
-    });
-    builder.addCase(
-      fetchMeasurements.fulfilled,
-      (state, action: PayloadAction<Measurement[]>) => {
-        state.status = StatusEnum.Fulfilled;
-        state.data.measurements = action.payload;
-        state.isLoading = false;
-        state.error = null;
-
-        if (action.payload.length > 0) {
-          const values = action.payload.map((m) => m.value);
-          state.minMeasurementValue = Math.min(...values);
-          state.maxMeasurementValue = Math.max(...values);
-          state.averageMeasurementValue =
-            values.reduce((sum, value) => sum + value, 0) / values.length;
-        } else {
-          state.minMeasurementValue = 0;
-          state.maxMeasurementValue = 0;
-          state.averageMeasurementValue = 0;
+        state.isLoading = true;
+      })
+      .addCase(
+        fetchFixedStreamById.fulfilled,
+        (state, action: PayloadAction<FixedStream>) => {
+          state.status = StatusEnum.Fulfilled;
+          state.data = action.payload;
+          state.isLoading = false;
+          state.error = null;
         }
-      }
-    );
-    builder.addCase(
-      fetchMeasurements.rejected,
-      (state, action: PayloadAction<ApiError | undefined>) => {
-        state.status = StatusEnum.Rejected;
-        state.error = action.payload || { message: "Unknown error occurred" };
-        state.data = initialState.data;
-        state.isLoading = false;
-      }
-    );
+      )
+      .addCase(
+        fetchFixedStreamById.rejected,
+        (state, action: PayloadAction<ApiError | undefined>) => {
+          state.status = StatusEnum.Rejected;
+          state.error = action.payload || { message: "Unknown error occurred" };
+          state.data = initialState.data;
+          state.isLoading = false;
+        }
+      )
+      .addCase(fetchMeasurements.pending, (state) => {
+        state.status = StatusEnum.Pending;
+        state.error = null;
+        state.isLoading = true;
+      })
+      .addCase(
+        fetchMeasurements.fulfilled,
+        (state, action: PayloadAction<Measurement[]>) => {
+          state.status = StatusEnum.Fulfilled;
+          state.data.measurements = action.payload;
+          state.isLoading = false;
+          state.error = null;
+
+          if (action.payload.length > 0) {
+            const values = action.payload.map((m) => m.value);
+            state.minMeasurementValue = Math.min(...values);
+            state.maxMeasurementValue = Math.max(...values);
+            state.averageMeasurementValue =
+              values.reduce((sum, value) => sum + value, 0) / values.length;
+          } else {
+            state.minMeasurementValue = 0;
+            state.maxMeasurementValue = 0;
+            state.averageMeasurementValue = 0;
+          }
+        }
+      )
+      .addCase(
+        fetchMeasurements.rejected,
+        (state, action: PayloadAction<ApiError | undefined>) => {
+          state.status = StatusEnum.Rejected;
+          state.error = action.payload || { message: "Unknown error occurred" };
+          state.data = initialState.data;
+          state.isLoading = false;
+        }
+      );
   },
 });
 
