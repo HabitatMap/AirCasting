@@ -224,7 +224,8 @@ const Map = () => {
 
   const isTimelapseView = currentUserSettings === UserSettings.TimelapseView;
 
-  const isTimelapseDisabled = listSessions.length === 0 || isDormant;
+  const isTimelapseDisabled =
+    listSessions.length === 0 || isDormant || isIndoorParameterInUrl;
 
   const zoomLevel = !Number.isNaN(currentZoom) ? Math.round(currentZoom) : 5;
 
