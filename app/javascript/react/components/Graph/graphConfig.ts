@@ -1,5 +1,6 @@
 import Highcharts, {
   AlignValue,
+  chart,
   ChartZoomingOptions,
   RangeSelectorOptions,
   ResponsiveOptions,
@@ -38,11 +39,11 @@ import { LatLngLiteral } from "../../types/googleMaps";
 import { GraphData, GraphPoint } from "../../types/graph";
 import { Thresholds } from "../../types/thresholds";
 import {
-  MILLISECONDS_IN_AN_HOUR,
   MILLISECONDS_IN_A_5_MINUTES,
   MILLISECONDS_IN_A_DAY,
   MILLISECONDS_IN_A_MONTH,
   MILLISECONDS_IN_A_WEEK,
+  MILLISECONDS_IN_AN_HOUR,
 } from "../../utils/timeRanges";
 
 import { RefObject } from "react";
@@ -81,6 +82,7 @@ const getXAxisOptions = (
 
   const handleSetExtremes = debounce(
     (e: Highcharts.AxisSetExtremesEventObject) => {
+      if (!chart || Object.keys(chart).length === 0) return;
       if (!isLoading && e.min && e.max) {
         dispatch(
           fixedSessionTypeSelected
