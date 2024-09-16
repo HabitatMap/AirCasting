@@ -6,7 +6,7 @@ class Api::ToDormantSessionsArray
 
   def call
     return Failure.new(form.errors) if form.invalid?
-    cache_sessions_worker.perform('fixed_dormant', data)
+    cache_sessions_worker.perform(session_type: 'fixed_dormant', data: data)
 
     Success.new(
       sessions:
