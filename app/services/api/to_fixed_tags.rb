@@ -7,7 +7,7 @@ class Api::ToFixedTags
   def call
     return Failure.new(form.errors) if form.invalid?
 
-    cached_sessions = redis_cache.read("fixed_tags_#{data[:sensor_name]}_#{data[:is_indoor]}")
+    cached_sessions = redis_cache.read("fixed_sessions_#{data[:sensor_name]}_#{data[:is_indoor]}")
     sessions = data[:is_active] ? FixedSession.active.filter_(data) : FixedSession.dormant.filter_(data)
 
     unless cached_sessions.nil?

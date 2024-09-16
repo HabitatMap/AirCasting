@@ -7,7 +7,7 @@ class Api::ToMobileTags
   def call
     return Failure.new(form.errors) if form.invalid?
 
-    cached_sessions = redis_cache.read("mobile_tags_#{data[:sensor_name]}")
+    cached_sessions = redis_cache.read("mobile_sessions_#{data[:sensor_name]}")
 
     unless cached_sessions.nil?
       sessions = cached_sessions
