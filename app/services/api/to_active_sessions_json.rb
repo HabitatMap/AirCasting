@@ -1,17 +1,19 @@
 class Api::ToActiveSessionsJson
   def initialize(form:)
     @form = form
+    @cache_sessions_worker = CacheSessionsWorker.new
   end
 
   def call
     return Failure.new(form.errors) if form.invalid?
+    cache_sessions_worker.perform_async('fixed_active', data)
     result = data[:is_indoor] ? build_json_output(true) : build_json_output
     Success.new(result)
   end
 
   private
 
-  attr_reader :form
+  attr_reader :form, :cache_sessions_worker
 
   def data
     # dry-struct allows for missing key using `meta(omittable: true)`
