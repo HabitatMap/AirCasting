@@ -613,9 +613,6 @@ const Map = () => {
   };
 
   const openFilters = () => {
-    fixedSessionTypeSelected
-      ? dispatch(fetchActiveFixedSessions({ filters }))
-      : dispatch(fetchMobileSessions({ filters }));
     goToUserSettings(UserSettings.FiltersView);
   };
 
