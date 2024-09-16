@@ -4,6 +4,7 @@ import { useTranslation } from "react-i18next";
 import clockIcon from "../../assets/icons/clockIcon.svg";
 import copyLinkIcon from "../../assets/icons/copyLinkIcon.svg";
 import filterIcon from "../../assets/icons/filterIcon.svg";
+import { TRUE } from "../../const/booleans";
 import { selectFixedSessionsList } from "../../store/fixedSessionsSelectors";
 import { useAppSelector } from "../../store/hooks";
 import {
@@ -26,7 +27,8 @@ enum ButtonTypes {
 }
 
 const MapButtons: React.FC = () => {
-  const { goToUserSettings, currentUserSettings, sessionType } = useMapParams();
+  const { goToUserSettings, currentUserSettings, sessionType, isIndoor } =
+    useMapParams();
   const [activeButtons, setActiveButtons] = useState<ButtonTypes[]>([]);
   const [activeCopyLinkButton, setActiveCopyLinkButton] = useState(false);
 
@@ -42,7 +44,8 @@ const MapButtons: React.FC = () => {
   const isModalView = currentUserSettings === UserSettings.ModalView;
   const isTimelapseButtonVisible =
     !isModalView && sessionType === SessionTypes.FIXED;
-  const isTimelapseDisabled = listSessions.length === 0 || isDormant;
+  const isTimelapseDisabled =
+    listSessions.length === 0 || isDormant || isIndoor === TRUE;
   const isTimelapseButtonActive =
     activeButtons.includes(ButtonTypes.TIMELAPSE) &&
     currentUserSettings === UserSettings.TimelapseView;
