@@ -51,9 +51,9 @@ export const API_ENDPOINTS: ApiEndpoints = {
   fetchThresholds: (filters) => `/thresholds/${filters}`,
   fetchUsernames: (username) => `/autocomplete/usernames?q[input]=${username}`,
   fetchTags: (params) => {
-    let url = `/${
+    let url = `/${encodeURIComponent(
       params.sessionType
-    }/autocomplete/tags?q[input]=${encodeURIComponent(
+    )}/autocomplete/tags?q[input]=${encodeURIComponent(
       params.tag
     )}&q[west]=${encodeURIComponent(params.west)}&q[east]=${encodeURIComponent(
       params.east
@@ -63,14 +63,15 @@ export const API_ENDPOINTS: ApiEndpoints = {
       params.north
     )}&q[time_from]=${encodeURIComponent(
       params.timeFrom
-    )}&q[time_to]=${encodeURIComponent(params.timeTo)}&q[usernames]=${
-      params.usernames
-    }&q[sensor_name]=${encodeURIComponent(
-      params.sensorName
+    )}&q[time_to]=${encodeURIComponent(
+      params.timeTo
+    )}&q[usernames]=${encodeURIComponent(
+      params.usernames ?? ""
+    )}&q[sensor_name]=${encodeURIComponent(
+      params.sensorName ?? ""
     )}&q[unit_symbol]=${encodeURIComponent(
       params.unitSymbol
-    )}&q[is_indoor]=${encodeURIComponent(params.isIndoor)}
-      `;
+    )}&q[is_indoor]=${encodeURIComponent(params.isIndoor)}`;
 
     if (params.sessionType === "fixed") {
       url += `&q[is_active]=${encodeURIComponent(params.isActive)}`;

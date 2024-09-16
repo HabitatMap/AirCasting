@@ -73,6 +73,7 @@ export const fetchTags = createAsyncThunk<
   fetchTagsParamsType,
   { rejectValue: ApiError }
 >("autocomplete/tags", async (params, { rejectWithValue }) => {
+  console.log("fetchTags", params);
   try {
     const response: AxiosResponse<string[]> = await oldApiClient.get(
       API_ENDPOINTS.fetchTags(params)
