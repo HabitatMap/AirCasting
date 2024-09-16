@@ -75,8 +75,10 @@ class Session < ApplicationRecord
       sessions = sessions.where(is_indoor: data[:is_indoor])
     end
 
-    if data[:east] && data[:west] && data[:north] && data[:south]
-      sessions = sessions.joins(:streams).merge(Stream.in_rectangle(data))
+    unless data[:is_indoor] == true
+      if data[:east] && data[:west] && data[:north] && data[:south]
+        sessions = sessions.joins(:streams).merge(Stream.in_rectangle(data))
+      end
     end
 
     sensor_name = data[:sensor_name]
