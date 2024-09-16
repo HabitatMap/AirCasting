@@ -6,7 +6,7 @@ class Api::ToActiveSessionsJson
 
   def call
     return Failure.new(form.errors) if form.invalid?
-    cache_sessions_worker.perform_async('fixed_active', data)
+    cache_sessions_worker.perform('fixed_active', data)
     result = data[:is_indoor] ? build_json_output(true) : build_json_output
     Success.new(result)
   end

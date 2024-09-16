@@ -6,7 +6,7 @@ class Api::ToMobileSessionsArray
 
   def call
     return Failure.new(form.errors) if form.invalid?
-    cache_sessions_worker.perform_async('mobile', data)
+    cache_sessions_worker.perform('mobile', data)
 
     Success.new(
       sessions: to_mobile_sessions_array(filtered.offset(offset).limit(limit)),
