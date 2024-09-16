@@ -14,7 +14,6 @@ import { Navbar } from "./components/Navbar";
 import { CalendarPage } from "./pages/CalendarPage/CalendarPage";
 import { MapPage } from "./pages/MapPage";
 import { NotFoundPage } from "./pages/NotFoundPage";
-import { RedirectPage } from "./pages/RedirectPage";
 import store from "./store/index";
 
 const NEW_MAP = "/new_map";
@@ -46,14 +45,14 @@ const router = createBrowserRouter(
           </NotFoundPage>
         }
       />
-      <Route
+      {/* <Route
         path={NEW_MAP}
         element={
           <RedirectPage>
             <Navbar isMapPage={false} />
           </RedirectPage>
         }
-      />
+      /> */}
     </>
   )
 );
