@@ -19,6 +19,7 @@ import { MIN_ZOOM } from "../../const/coordinates";
 import { RootState, selectIsLoading } from "../../store";
 import {
   getFixedSessionPointsBySessionId,
+  getFixedSessionsList,
   getFixedSessionsPoints,
 } from "../../store/fixedSessionsHelpers";
 import {
@@ -62,14 +63,18 @@ import {
 } from "../../store/timelapseSelectors";
 import { fetchTimelapseData } from "../../store/timelapseSlice";
 import { SessionTypes } from "../../types/filters";
+import { SessionList } from "../../types/sessionType";
 import { UserSettings } from "../../types/userStates";
 import { UrlParamsTypes, useMapParams } from "../../utils/mapParamsHandler";
+import { useHandleScrollEnd } from "../../utils/scrollEnd";
 import useMobileDetection from "../../utils/useScreenSizeDetection";
 import { Loader } from "../Loader/Loader";
 import { SessionDetailsModal } from "../Modals/SessionDetailsModal";
 import { TimelapseComponent } from "../Modals/TimelapseModal";
 import { SectionButton } from "../SectionButton/SectionButton";
 import { MobileSessionFilters } from "../SessionFilters/MobileSessionFilters";
+import { SessionsListView } from "../SessionsListView";
+import { MobileSessionList } from "../SessionsListView/MobileSessionList";
 import { ThresholdButtonVariant } from "../ThresholdConfigurator/ThresholdButtons/ThresholdButton";
 import { ThresholdsConfigurator } from "../ThresholdConfigurator/ThresholdConfigurator";
 import { Legend } from "./Legend/Legend";
@@ -241,9 +246,11 @@ const Map = () => {
   const listSessions = useMemo(() => {
     if (fixedSessionTypeSelected) {
       if (isIndoorParameterInUrl) {
+        // Handle indoor sessions as before
         return useAppSelector(selectIndoorSessionsList(isDormant));
       } else {
-        return fixedSessionsData?.sessions || [];
+        // Use the helper function to transform the sessions
+        return getFixedSessionsList(fixedSessionsData?.sessions || []);
       }
     } else {
       return useAppSelector(selectMobileSessionsList);
@@ -480,16 +487,16 @@ const Map = () => {
     }
   }, [currentUserSettings, sessionsPoints]);
 
-  // const handleScrollEnd = useHandleScrollEnd(
-  //   offset,
-  //   listSessions,
-  //   updateOffset,
-  //   updateFetchedSessions,
-  //   filters,
-  //   fetchableMobileSessionsCount,
-  //   fixedSessionsData?.fetchableSessionsCount || 0,
-  //   isDormant
-  // );
+  const handleScrollEnd = useHandleScrollEnd(
+    offset,
+    listSessions,
+    updateOffset,
+    updateFetchedSessions,
+    filters,
+    fetchableMobileSessionsCount,
+    fixedSessionsData?.fetchableSessionsCount || 0,
+    isDormant
+  );
 
   const handleMapIdle = useCallback(
     (event: MapEvent) => {
@@ -843,7 +850,7 @@ const Map = () => {
         {currentUserSettings === UserSettings.MapLegendView && (
           <Legend onClose={() => goToUserSettings(previousUserSettings)} />
         )}
-        {/* {currentUserSettings === UserSettings.SessionListView && (
+        {currentUserSettings === UserSettings.SessionListView && (
           <MobileSessionList
             sessions={listSessions.map((session: SessionList) => ({
               id: session.id,
@@ -865,7 +872,7 @@ const Map = () => {
             onScrollEnd={handleScrollEnd}
             fetchableSessionsCount={fetchableSessionsCount}
           />
-        )} */}
+        )}
         {currentUserSettings === UserSettings.FiltersView && (
           <MobileSessionFilters
             onClose={() =>
@@ -877,7 +884,7 @@ const Map = () => {
           />
         )}
       </S.MobileContainer>
-      {/* {[UserSettings.MapView, UserSettings.CrowdMapView].includes(
+      {[UserSettings.MapView, UserSettings.CrowdMapView].includes(
         currentUserSettings
       ) && (
         <S.DesktopContainer>
@@ -905,7 +912,7 @@ const Map = () => {
             fetchableSessionsCount={fetchableSessionsCount}
           />
         </S.DesktopContainer>
-      )} */}
+      )}
     </>
   );
 };

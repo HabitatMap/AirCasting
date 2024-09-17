@@ -1,15 +1,9 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 
 import clockIcon from "../../assets/icons/clockIcon.svg";
 import copyLinkIcon from "../../assets/icons/copyLinkIcon.svg";
 import filterIcon from "../../assets/icons/filterIcon.svg";
-// import { selectFixedSessionsList } from "../../store/fixedSessionsSelectors";
-import { useAppSelector } from "../../store/hooks";
-import {
-  selectFixedSessionsType,
-  selectIsDormantSessionsType,
-} from "../../store/sessionFiltersSlice";
 import { SessionTypes } from "../../types/filters";
 import { UserSettings } from "../../types/userStates";
 import { useMapParams } from "../../utils/mapParamsHandler";
@@ -17,6 +11,10 @@ import { CopyLinkComponent } from "../Popups/CopyLinkComponent";
 import { DesktopSessionFilters } from "../SessionFilters/DesktopSessionFilters";
 import { MapButton } from "./MapButton";
 import * as S from "./MapButtons.style";
+
+import { TRUE } from "../../const/booleans";
+import { useFixedSessions } from "../../store/fixedSessionsSlice";
+import { FixedSessionsTypes } from "../../store/sessionFiltersSlice";
 
 enum ButtonTypes {
   FILTER = "filter",
@@ -26,25 +24,92 @@ enum ButtonTypes {
 }
 
 const MapButtons: React.FC = () => {
-  const { goToUserSettings, currentUserSettings, sessionType, isIndoor } =
-    useMapParams();
+  const {
+    goToUserSettings,
+    currentUserSettings,
+    sessionType,
+    isIndoor,
+    isActive,
+    timeFrom,
+    timeTo,
+    tags,
+    usernames,
+    sensorName,
+    measurementType,
+    unitSymbol,
+    boundWest,
+    boundEast,
+    boundSouth,
+    boundNorth,
+  } = useMapParams();
   const [activeButtons, setActiveButtons] = useState<ButtonTypes[]>([]);
   const [activeCopyLinkButton, setActiveCopyLinkButton] = useState(false);
 
   const { t } = useTranslation();
 
-  const fixedSessionsType = useAppSelector(selectFixedSessionsType);
-  // const listSessions = useAppSelector((state) =>
-  //   selectFixedSessionsList(state, fixedSessionsType)
-  // );
-  const isDormant = useAppSelector(selectIsDormantSessionsType);
+  const isDormant = !isActive;
+
+  // Prepare filter parameters
+  const preparedUnitSymbol = unitSymbol.replace(/"/g, "");
+  const encodedUnitSymbol = encodeURIComponent(preparedUnitSymbol);
+  const sensorNamedDecoded = decodeURIComponent(sensorName);
+  const tagsDecoded = tags && decodeURIComponent(tags);
+  const usernamesDecoded = usernames && decodeURIComponent(usernames);
+
+  // Define filters using useMemo to avoid unnecessary recomputations
+  const filters = useMemo(() => {
+    return JSON.stringify({
+      time_from: timeFrom,
+      time_to: timeTo,
+      tags: tagsDecoded,
+      usernames: usernamesDecoded,
+      west: boundWest,
+      east: boundEast,
+      south: boundSouth,
+      north: boundNorth,
+      sensor_name: sensorNamedDecoded.toLowerCase(),
+      measurement_type: measurementType,
+      unit_symbol: encodedUnitSymbol,
+      is_indoor: isIndoor === TRUE,
+    });
+  }, [
+    timeFrom,
+    timeTo,
+    tagsDecoded,
+    usernamesDecoded,
+    boundWest,
+    boundEast,
+    boundSouth,
+    boundNorth,
+    sensorNamedDecoded,
+    measurementType,
+    encodedUnitSymbol,
+    isIndoor,
+  ]);
+
+  // Fetch fixed sessions data using react-query hooks
+  const {
+    data: activeSessionsData,
+    isLoading: activeSessionsLoading,
+    error: activeSessionsError,
+  } = useFixedSessions(FixedSessionsTypes.ACTIVE, filters);
+
+  const {
+    data: dormantSessionsData,
+    isLoading: dormantSessionsLoading,
+    error: dormantSessionsError,
+  } = useFixedSessions(FixedSessionsTypes.DORMANT, filters);
+
+  // Determine which sessions data to use based on isActive
+  const fixedSessionsData = isActive ? activeSessionsData : dormantSessionsData;
+  const listSessions = fixedSessionsData?.sessions || [];
 
   const showFilters = activeButtons.includes(ButtonTypes.FILTER);
   const isModalView = currentUserSettings === UserSettings.ModalView;
   const isTimelapseButtonVisible =
     !isModalView && sessionType === SessionTypes.FIXED;
-  // const isTimelapseDisabled =
-  //   listSessions.length === 0 || isDormant || isIndoor === TRUE;
+  const isTimelapseDisabled =
+    listSessions.length === 0 || isDormant || isIndoor === TRUE;
   const isTimelapseButtonActive =
     activeButtons.includes(ButtonTypes.TIMELAPSE) &&
     currentUserSettings === UserSettings.TimelapseView;
@@ -107,7 +172,7 @@ const MapButtons: React.FC = () => {
             onClick={handleTimelapseClick}
             alt={t("navbar.altTimelapse")}
             isActive={isTimelapseButtonActive}
-            // isDisabled={isTimelapseDisabled}
+            isDisabled={isTimelapseDisabled}
             className="active-overlay"
           />
         )}
