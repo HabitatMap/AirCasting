@@ -83,6 +83,11 @@ const getXAxisOptions = (
   const handleSetExtremes = debounce(
     (e: Highcharts.AxisSetExtremesEventObject) => {
       if (!chart || Object.keys(chart).length === 0) return;
+      const { isIndoor } = useMapParams();
+
+      if (isIndoor === TRUE) {
+        if (!chart || Object.keys(chart).length === 0) return;
+      }
       if (!isLoading && e.min && e.max) {
         dispatch(
           fixedSessionTypeSelected
