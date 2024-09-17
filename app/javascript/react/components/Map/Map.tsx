@@ -361,6 +361,7 @@ const Map = () => {
               updateFetchedSessions(response.sessions.length);
             });
         }
+
         isFirstRender.current = false;
       }
     }

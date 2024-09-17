@@ -18,6 +18,7 @@ import { selectFixedStreamShortInfo } from "../../store/fixedStreamSelectors";
 import {
   fetchFixedStreamById,
   selectFixedData,
+  selectIsLoading,
 } from "../../store/fixedStreamSlice";
 import { useAppDispatch, useAppSelector } from "../../store/hooks";
 import {
@@ -43,28 +44,22 @@ const CalendarPage: React.FC<CalendarPageProps> = ({ children }) => {
   const dispatch = useAppDispatch();
   const isMobile = useMobileDetection();
   const { t } = useTranslation();
-
   const handleCalendarGoBack = useCalendarBackNavigation();
-
-  const { unitSymbol } = useMapParams();
-
-  const { streamId } = useMapParams();
+  const { unitSymbol, streamId } = useMapParams();
 
   const fixedStreamData = useAppSelector(selectFixedData);
   const movingCalendarData = useAppSelector(movingData);
   const { startTime, endTime } = useAppSelector(selectFixedStreamShortInfo);
+  const isLoading = useAppSelector(selectIsLoading);
 
   const rangeDisplayRef = useRef(null);
-
   const { formattedMinTime, formattedMaxTime } = formatTime(startTime, endTime);
-
   const [errorMessage, setErrorMessage] = useState("");
 
   const calendarIsVisible =
     movingCalendarData.data.length &&
     streamId &&
     fixedStreamData.stream.startTime;
-
   const streamEndTime: string =
     fixedStreamData.stream.endTime ??
     fixedStreamData.stream.lastUpdate ??
@@ -76,30 +71,144 @@ const CalendarPage: React.FC<CalendarPageProps> = ({ children }) => {
 
   useEffect(() => {
     window.addEventListener("popstate", handleCalendarGoBack);
-
-    return () => {
-      window.removeEventListener("popstate", handleCalendarGoBack);
-    };
+    return () => window.removeEventListener("popstate", handleCalendarGoBack);
   }, [handleCalendarGoBack]);
 
   useEffect(() => {
-    const formattedEndMoment = moment(streamEndTime, "YYYY-MM-DD");
-    const formattedEndDate = formattedEndMoment.format("YYYY-MM-DD");
-    const newStartDate = formattedEndMoment
-      .date(1)
-      .subtract(2, "months")
-      .format("YYYY-MM-DD");
-    if (streamId) {
-      dispatch(
-        fetchNewMovingStream({
-          id: streamId,
-          startDate: newStartDate,
-          endDate: formattedEndDate,
-        })
-      );
+    if (
+      streamId &&
+      !isLoading &&
+      fixedStreamData.stream.startTime &&
+      streamEndTime
+    ) {
+      const startMoment = moment(fixedStreamData.stream.startTime);
+      const endMoment = moment(streamEndTime);
+
+      if (startMoment.isValid() && endMoment.isValid()) {
+        const formattedEndDate = endMoment.format("YYYY-MM-DD");
+        const newStartDate = endMoment
+          .clone()
+          .date(1)
+          .subtract(2, "months")
+          .format("YYYY-MM-DD");
+
+        dispatch(
+          fetchNewMovingStream({
+            id: streamId,
+            startDate: newStartDate,
+            endDate: formattedEndDate,
+          })
+        );
+      }
     }
     dispatch(setDefaultThresholdsValues(fixedStreamData.stream));
-  }, [fixedStreamData, dispatch]);
+  }, [fixedStreamData, streamId, isLoading, streamEndTime]);
+
+  const renderMobileGraph = () => (
+    <S.GraphContainer $isMobile={isMobile}>
+      <HeaderToggle
+        isCalendarPage={true}
+        titleText={
+          <S.StyledContainer>
+            {t("calendarHeader.graphTitle")}
+          </S.StyledContainer>
+        }
+        componentToToggle={
+          <>
+            <S.SelectLabelContainer>
+              {t("calendarHeader.selectRange")}
+            </S.SelectLabelContainer>
+            <TimeRange
+              ref={rangeDisplayRef}
+              minTime={formattedMinTime}
+              maxTime={formattedMaxTime}
+            />
+            <Graph
+              streamId={Number(streamId)}
+              sessionType={SessionTypes.FIXED}
+              isCalendarPage={true}
+              rangeDisplayRef={rangeDisplayRef}
+            />
+            <MeasurementComponent />
+          </>
+        }
+      />
+    </S.GraphContainer>
+  );
+
+  const renderThresholdContainer = () => (
+    <S.ThresholdContainer $isMobile={isMobile}>
+      <HeaderToggle
+        titleText={
+          <S.StyledContainer>
+            {t("calendarHeader.legendTitle")}
+            <S.Units>({unitSymbol})</S.Units>
+            {!isMobile && (
+              <S.ThresholdButtonsContainer>
+                <ResetButton
+                  variant={ThresholdButtonVariant.TextWithIcon}
+                  swapIconTextPosition={true}
+                />
+                <UniformDistributionButton
+                  variant={ThresholdButtonVariant.TextWithIcon}
+                  swapIconTextPosition={true}
+                  hasErrorMessage={setErrorMessage}
+                />
+              </S.ThresholdButtonsContainer>
+            )}
+          </S.StyledContainer>
+        }
+        componentToToggle={
+          isMobile ? (
+            <ThresholdsConfigurator
+              resetButtonVariant={ThresholdButtonVariant.TextWithIcon}
+              resetButtonText={t("thresholdConfigurator.resetButton")}
+              useColorBoxStyle
+              uniformDistributionButtonText={t(
+                "thresholdConfigurator.uniformDistributionButton"
+              )}
+              uniformDistributionButtonVariant={
+                ThresholdButtonVariant.TextWithIcon
+              }
+            />
+          ) : (
+            <S.SliderWrapper>
+              {errorMessage && <S.ErrorMessage>{errorMessage}</S.ErrorMessage>}
+              <ThresholdsConfigurator noDisclaimers={true} />
+            </S.SliderWrapper>
+          )
+        }
+      />
+    </S.ThresholdContainer>
+  );
+
+  const renderDesktopGraph = () => (
+    <S.GraphContainer $isMobile={isMobile}>
+      <HeaderToggle
+        titleText={
+          <S.StyledContainerWithGraph>
+            {t("calendarHeader.graphTitle")}
+            <>
+              <MeasurementComponent />
+              <TimeRange
+                ref={rangeDisplayRef}
+                minTime={formattedMinTime}
+                maxTime={formattedMaxTime}
+              />
+            </>
+          </S.StyledContainerWithGraph>
+        }
+        componentToToggle={
+          <Graph
+            streamId={streamId}
+            sessionType={SessionTypes.FIXED}
+            isCalendarPage={true}
+            rangeDisplayRef={rangeDisplayRef}
+          />
+        }
+      />
+    </S.GraphContainer>
+  );
 
   return (
     <>
@@ -107,94 +216,8 @@ const CalendarPage: React.FC<CalendarPageProps> = ({ children }) => {
       <S.CalendarPageLayout>
         <S.StationDataContainer>
           <FixedStreamStationHeader />
-          {isMobile && (
-            <S.GraphContainer $isMobile={isMobile}>
-              <HeaderToggle
-                isCalendarPage={true}
-                titleText={
-                  <S.StyledContainer>
-                    {t("calendarHeader.graphTitle")}
-                  </S.StyledContainer>
-                }
-                componentToToggle={
-                  <>
-                    <S.SelectLabelContainer>
-                      {t("calendarHeader.selectRange")}
-                    </S.SelectLabelContainer>
-                    <TimeRange
-                      ref={rangeDisplayRef}
-                      minTime={formattedMinTime}
-                      maxTime={formattedMaxTime}
-                    />
-                    <Graph
-                      streamId={Number(streamId)}
-                      sessionType={SessionTypes.FIXED}
-                      isCalendarPage={true}
-                      rangeDisplayRef={rangeDisplayRef}
-                    />
-
-                    <MeasurementComponent />
-                  </>
-                }
-              />
-            </S.GraphContainer>
-          )}
-          {!isMobile && (
-            <S.ThresholdContainer $isMobile={isMobile}>
-              <HeaderToggle
-                titleText={
-                  <S.StyledContainer>
-                    {t("calendarHeader.legendTitle")}
-                    <S.Units>({unitSymbol})</S.Units>
-                    <S.ThresholdButtonsContainer>
-                      <ResetButton
-                        variant={ThresholdButtonVariant.TextWithIcon}
-                        swapIconTextPosition={true}
-                      ></ResetButton>
-                      <UniformDistributionButton
-                        variant={ThresholdButtonVariant.TextWithIcon}
-                        swapIconTextPosition={true}
-                        hasErrorMessage={setErrorMessage}
-                      />
-                    </S.ThresholdButtonsContainer>
-                  </S.StyledContainer>
-                }
-                componentToToggle={
-                  <S.SliderWrapper>
-                    {errorMessage && (
-                      <S.ErrorMessage>{errorMessage}</S.ErrorMessage>
-                    )}
-                    <ThresholdsConfigurator noDisclaimers={true} />
-                  </S.SliderWrapper>
-                }
-              />
-            </S.ThresholdContainer>
-          )}
-          {isMobile && (
-            <S.ThresholdContainer $isMobile={isMobile}>
-              <HeaderToggle
-                titleText={
-                  <S.StyledContainer>
-                    {t("calendarHeader.legendTitle")}
-                    <S.Units>({unitSymbol})</S.Units>
-                  </S.StyledContainer>
-                }
-                componentToToggle={
-                  <ThresholdsConfigurator
-                    resetButtonVariant={ThresholdButtonVariant.TextWithIcon}
-                    resetButtonText={t("thresholdConfigurator.resetButton")}
-                    useColorBoxStyle
-                    uniformDistributionButtonText={t(
-                      "thresholdConfigurator.uniformDistributionButton"
-                    )}
-                    uniformDistributionButtonVariant={
-                      ThresholdButtonVariant.TextWithIcon
-                    }
-                  />
-                }
-              />
-            </S.ThresholdContainer>
-          )}
+          {isMobile && renderMobileGraph()}
+          {renderThresholdContainer()}
           {calendarIsVisible ? (
             <Calendar
               streamId={streamId}
@@ -204,34 +227,7 @@ const CalendarPage: React.FC<CalendarPageProps> = ({ children }) => {
           ) : (
             <EmptyCalendar />
           )}
-          {!isMobile && (
-            <S.GraphContainer $isMobile={isMobile}>
-              <HeaderToggle
-                titleText={
-                  <S.StyledContainerWithGraph>
-                    {t("calendarHeader.graphTitle")}
-
-                    <>
-                      <MeasurementComponent />
-                      <TimeRange
-                        ref={rangeDisplayRef}
-                        minTime={formattedMinTime}
-                        maxTime={formattedMaxTime}
-                      />
-                    </>
-                  </S.StyledContainerWithGraph>
-                }
-                componentToToggle={
-                  <Graph
-                    streamId={streamId}
-                    sessionType={SessionTypes.FIXED}
-                    isCalendarPage={true}
-                    rangeDisplayRef={rangeDisplayRef}
-                  />
-                }
-              />
-            </S.GraphContainer>
-          )}
+          {!isMobile && renderDesktopGraph()}
         </S.StationDataContainer>
       </S.CalendarPageLayout>
     </>
