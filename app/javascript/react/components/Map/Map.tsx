@@ -48,6 +48,7 @@ import { fetchMobileStreamById } from "../../store/mobileStreamSlice";
 import { fetchSensors } from "../../store/sensorsSlice";
 import {
   FixedSessionsTypes,
+  resetTags,
   selectFixedSessionsType,
   selectIsDormantSessionsType,
   setFixedSessionsType,
@@ -301,6 +302,19 @@ const Map = () => {
   useEffect(() => {
     dispatch(fetchSensors(sessionType));
   }, [sessionType]);
+
+  useEffect(() => {
+    dispatch(resetTags());
+  }, [
+    sensorName,
+    sessionType,
+    isIndoorParameterInUrl,
+    encodedUnitSymbol,
+    measurementType,
+    timeFrom,
+    timeTo,
+    usernames,
+  ]);
 
   useEffect(() => {
     const isFirstLoad = isFirstRender.current;

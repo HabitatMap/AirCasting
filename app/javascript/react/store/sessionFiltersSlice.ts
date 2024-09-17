@@ -117,6 +117,9 @@ const sessionFilterSlice = createSlice({
     ) => {
       state.fixedSessionsType = action.payload;
     },
+    resetTags: (state) => {
+      state.tags = [];
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -203,5 +206,6 @@ export const {
   setBasicSensorsModalOpen,
   setCustomSensorsModalOpen,
   setFixedSessionsType,
+  resetTags,
 } = sessionFilterSlice.actions;
 export default sessionFilterSlice.reducer;

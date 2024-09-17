@@ -46,9 +46,9 @@ const TagsInput = () => {
 
   const preparedUnitSymbol = unitSymbol.replace(/"/g, "");
 
-  const getQueryParams = (tag: string): fetchTagsParamsType => {
+  const getQueryParams = (tags: string): fetchTagsParamsType => {
     return {
-      tag: tag,
+      tags: tags,
       west: boundWest.toString(),
       east: boundEast.toString(),
       south: boundSouth.toString(),
@@ -71,8 +71,8 @@ const TagsInput = () => {
       selectedItem,
       onInputValueChange: ({ inputValue }) => {
         const queryParams = getQueryParams(inputValue);
-
         dispatch(fetchTags(queryParams));
+
         setInputValue(inputValue);
       },
       onSelectedItemChange: ({ selectedItem: newSelectedItem }) => {
@@ -93,8 +93,9 @@ const TagsInput = () => {
 
   const handleOnInputClick = () => {
     const queryParams = getQueryParams(inputValue);
-
-    dispatch(fetchTags(queryParams));
+    if (tagsToSelect.length === 0) {
+      dispatch(fetchTags(queryParams));
+    }
   };
 
   const decodedTagsArray =

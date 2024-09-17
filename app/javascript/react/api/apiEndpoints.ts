@@ -52,33 +52,68 @@ export const API_ENDPOINTS: ApiEndpoints = {
   fetchThresholds: (filters) => `/thresholds/${filters}`,
   fetchUsernames: (username) => `/autocomplete/usernames?q[input]=${username}`,
   fetchTags: (params) => {
-    let url = `/${
-      params.sessionType
-    }/autocomplete/tags?q[input]=${encodeURIComponent(
-      params.tag
-    )}&q[west]=${encodeURIComponent(params.west)}&q[east]=${encodeURIComponent(
-      params.east
-    )}&q[south]=${encodeURIComponent(
-      params.south
-    )}&q[north]=${encodeURIComponent(
-      params.north
-    )}&q[time_from]=${encodeURIComponent(
-      params.timeFrom
-    )}&q[time_to]=${encodeURIComponent(params.timeTo)}&q[usernames]=${
-      params.usernames
-    }&q[sensor_name]=${encodeURIComponent(
-      params.sensorName
-    )}&q[unit_symbol]=${encodeURIComponent(
-      params.unitSymbol
-    )}&q[is_indoor]=${encodeURIComponent(params.isIndoor)}
-      `;
+    const {
+      tags,
+      west,
+      east,
+      south,
+      north,
+      timeFrom,
+      timeTo,
+      usernames,
+      sensorName,
+      unitSymbol,
+      isIndoor,
+      isActive,
+      sessionType,
+    } = params;
 
-    if (params.sessionType === "fixed") {
-      url += `&q[is_active]=${encodeURIComponent(params.isActive)}`;
+    if (
+      west === undefined ||
+      east === undefined ||
+      south === undefined ||
+      north === undefined ||
+      timeFrom === undefined ||
+      timeTo === undefined ||
+      sensorName === undefined ||
+      unitSymbol === undefined ||
+      isIndoor === undefined ||
+      isActive === undefined
+    ) {
+      throw new Error("Missing required parameters.");
     }
+
+    const query: Record<string, string | number | boolean> = {
+      "q[input]": tags || "",
+      "q[west]": west,
+      "q[east]": east,
+      "q[south]": south,
+      "q[north]": north,
+      "q[time_from]": timeFrom,
+      "q[time_to]": timeTo,
+      "q[usernames]": usernames || "",
+      "q[sensor_name]": sensorName,
+      "q[unit_symbol]": unitSymbol,
+      "q[is_indoor]": isIndoor,
+      "q[is_active]": isActive,
+    };
+
+    function encodeParamName(name: string): string {
+      return name.replace(/[^A-Za-z0-9_\[\]]/g, encodeURIComponent);
+    }
+
+    const queryString = Object.keys(query)
+      .map(
+        (key) =>
+          `${encodeParamName(key)}=${encodeURIComponent(String(query[key]))}`
+      )
+      .join("&");
+
+    const url = `/${sessionType}/autocomplete/tags?${queryString}`;
 
     return url;
   },
+
   fetchSensors: (sessionType) => `/sensors?session_type=${sessionType}Session`,
   fetchTimelapseData: (filters) => `/timelapse.json?q=${filters}`,
   fetchIndoorActiveSessions: (filters) =>

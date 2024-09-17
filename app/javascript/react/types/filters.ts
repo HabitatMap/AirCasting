@@ -6,7 +6,7 @@ const SessionTypes = {
 type SessionType = typeof SessionTypes.FIXED | typeof SessionTypes.MOBILE;
 
 type fetchTagsParamsType = {
-  tag: string;
+  tags: string;
   west: string;
   east: string;
   south: string;
