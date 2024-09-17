@@ -31,7 +31,10 @@ import {
 import { fetchFixedStreamById } from "../../store/fixedStreamSlice";
 import { useAppDispatch, useAppSelector } from "../../store/hooks";
 import { selectIndoorSessionsList } from "../../store/indoorSessionsSelectors";
-import { fetchIndoorSessions } from "../../store/indoorSessionsSlice";
+import {
+  fetchActiveIndoorSessions,
+  fetchDormantIndoorSessions,
+} from "../../store/indoorSessionsSlice";
 import { selectFetchingData, setFetchingData } from "../../store/mapSlice";
 import { selectMarkersLoading } from "../../store/markersLoadingSlice";
 import {
@@ -321,9 +324,15 @@ const Map = () => {
       if (fetchingData || isFirstLoad) {
         if (fixedSessionTypeSelected) {
           if (isIndoorParameterInUrl) {
-            dispatch(
-              fetchIndoorSessions({ filters: indoorSessionsFilters })
-            ).unwrap();
+            if (isActive) {
+              dispatch(
+                fetchActiveIndoorSessions({ filters: indoorSessionsFilters })
+              ).unwrap();
+            } else {
+              dispatch(
+                fetchDormantIndoorSessions({ filters: indoorSessionsFilters })
+              ).unwrap();
+            }
           } else {
             if (isActive) {
               dispatch(fetchActiveFixedSessions({ filters })).unwrap();

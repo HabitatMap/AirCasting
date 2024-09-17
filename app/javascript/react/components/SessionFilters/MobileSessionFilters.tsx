@@ -107,7 +107,9 @@ const MobileSessionFilters = ({
     switch (sessionType) {
       case SessionTypes.FIXED:
         return isIndoorParameterInUrl
-          ? indoorSessionsState.sessions.length
+          ? isDormant
+            ? indoorSessionsState.dormantIndoorSessions.length
+            : indoorSessionsState.activeIndoorSessions.length
           : isDormant
           ? dormantFixedSessionsState.length
           : activeFixedSessionsState.length;

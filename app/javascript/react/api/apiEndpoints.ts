@@ -20,7 +20,8 @@ interface ApiEndpoints {
   readonly fetchTags: (params: fetchTagsParamsType) => string;
   readonly fetchSensors: (sessionType: SessionType) => string;
   readonly fetchTimelapseData: (filters: string) => string;
-  readonly fetchIndoorSessions: (filters: string) => string;
+  readonly fetchIndoorActiveSessions: (filters: string) => string;
+  readonly fetchIndoorDormantSessions: (filters: string) => string;
   readonly fetchMeasurements: (
     streamId: number,
     startTime: string,
@@ -80,7 +81,10 @@ export const API_ENDPOINTS: ApiEndpoints = {
   },
   fetchSensors: (sessionType) => `/sensors?session_type=${sessionType}Session`,
   fetchTimelapseData: (filters) => `/timelapse.json?q=${filters}`,
-  fetchIndoorSessions: (filters) => `/fixed/active/sessions2.json?q=${filters}`,
+  fetchIndoorActiveSessions: (filters) =>
+    `/fixed/active/sessions2.json?q=${filters}`,
+  fetchIndoorDormantSessions: (filters) =>
+    `/fixed/dormant/sessions.json?q=${filters}`,
   fetchMeasurements: (streamId, startTime, endTime) =>
     `/measurements?stream_ids=${streamId}&start_time=${startTime}&end_time=${endTime}`,
 };

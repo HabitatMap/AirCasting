@@ -8,39 +8,48 @@ const selectIndoorSessionsState = (state: RootState) => state.indoorSessions;
 const selectIndoorSessionsStatusFulfilled = (state: RootState) =>
   state.indoorSessions.status === StatusEnum.Fulfilled;
 
-const selectIndoorSessionsPoints = createSelector(
-  [selectIndoorSessionsState],
-  (indoorSessionsState): IndoorSession[] =>
-    indoorSessionsState.sessions.map(
-      ({
-        id,
-        lastMeasurementValue,
-        title,
-        startTimeLocal,
-        endTimeLocal,
-        streams,
-      }) => {
-        const firstStream = streams[Object.keys(streams)[0]];
+const selectIndoorSessionsPoints = (isDormant: boolean) =>
+  createSelector(
+    [selectIndoorSessionsState],
+    (indoorSessionsState): IndoorSession[] => {
+      const sessions = isDormant
+        ? indoorSessionsState.dormantIndoorSessions
+        : indoorSessionsState.activeIndoorSessions;
 
-        return {
+      return sessions.map(
+        ({
           id,
-          title,
-          sensorName: firstStream.sensorName,
-          startTime: startTimeLocal,
-          endTime: endTimeLocal,
           lastMeasurementValue,
-        };
-      }
-    )
-);
+          title,
+          startTimeLocal,
+          endTimeLocal,
+          streams,
+        }) => {
+          const firstStream = streams[Object.keys(streams)[0]];
 
-const selectIndoorSessionsList = (isDormant: boolean | null) =>
+          return {
+            id,
+            title,
+            sensorName: firstStream.sensorName,
+            startTime: startTimeLocal,
+            endTime: endTimeLocal,
+            lastMeasurementValue,
+          };
+        }
+      );
+    }
+  );
+
+const selectIndoorSessionsList = (isDormant: boolean) =>
   createSelector(
     [selectIndoorSessionsState],
     (indoorSessionsState): SessionList[] => {
-      return indoorSessionsState.sessions
-        .filter((session) => session.isActive === !isDormant)
-        .map(({ id, title, startTimeLocal, endTimeLocal, streams }) => {
+      const sessions = isDormant
+        ? indoorSessionsState.dormantIndoorSessions
+        : indoorSessionsState.activeIndoorSessions;
+
+      return sessions.map(
+        ({ id, title, startTimeLocal, endTimeLocal, streams }) => {
           const firstStream = streams[Object.keys(streams)[0]];
 
           return {
@@ -52,7 +61,8 @@ const selectIndoorSessionsList = (isDormant: boolean | null) =>
             endTime: endTimeLocal,
             streamId: firstStream.id,
           };
-        });
+        }
+      );
     }
   );
 
