@@ -78,8 +78,6 @@ const Graph: React.FC<GraphProps> = ({
     ? fixedSeriesData
     : mobileSeriesData;
 
-  console.log(seriesData, "seriesData");
-
   const getTimeRangeFromSelectedRange = (range: number) => {
     const lastTimestamp =
       seriesData.length > 0
