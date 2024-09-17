@@ -159,12 +159,16 @@ const Input = styled.input`
   border: 1px solid ${gray200};
   border-radius: 5px;
   width: 100%;
-  font-size: 1.4rem;
+  font-size: 1.6rem;
   padding: 1.2rem 1.6rem;
 
   &::placeholder {
     color: ${gray600};
     text-transform: uppercase;
+  }
+
+  @media ${media.desktop} {
+    font-size: 1.4rem;
   }
 `;
 
