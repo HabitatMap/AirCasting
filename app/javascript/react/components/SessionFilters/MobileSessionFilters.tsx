@@ -3,15 +3,12 @@ import { useTranslation } from "react-i18next";
 
 import { TRUE } from "../../const/booleans";
 import { useAppSelector } from "../../store/hooks";
-import { selectIndoorSessionsState } from "../../store/indoorSessionsSelectors";
-import { selectMobileSessionsState } from "../../store/mobileSessionsSelectors";
 import { selectParameters, selectSensors } from "../../store/sensorsSlice";
 import {
   selectBasicParametersModalOpen,
   selectBasicSensorsModalOpen,
   selectCustomParametersModalOpen,
   selectCustomSensorsModalOpen,
-  selectFixedSessionsType,
   selectIsDormantSessionsType,
 } from "../../store/sessionFiltersSlice";
 import { SessionTypes } from "../../types/filters";
@@ -39,6 +36,8 @@ import { TagsInput } from "./TagsInput";
 import { YearPicker } from "./YearPicker";
 
 import { useFixedSessions } from "../../store/fixedSessionsSlice";
+import { useIndoorSessions } from "../../store/indoorSessionsSlice";
+// import { useMobileSessions } from "../../store/mobileSessionsSlice";
 import { FixedSessionsTypes } from "../../store/sessionFiltersSlice";
 import { DormantToggle } from "./DormantToggle";
 
@@ -51,9 +50,6 @@ const MobileSessionFilters = ({
   onClose,
   fetchableSessionsCount,
 }: MobileSessionFiltersProps) => {
-  const indoorSessionsState = useAppSelector(selectIndoorSessionsState);
-  const fixedSessionsType = useAppSelector(selectFixedSessionsType);
-  const mobileSessionsState = useAppSelector(selectMobileSessionsState);
   const basicParametersModalOpen = useAppSelector(
     selectBasicParametersModalOpen
   );
@@ -134,6 +130,34 @@ const MobileSessionFilters = ({
     unitSymbol,
   ]);
 
+  // Define indoor sessions filters
+  const indoorSessionsFilters = useMemo(() => {
+    const preparedUnitSymbol = unitSymbol.replace(/"/g, "");
+    const encodedUnitSymbol = encodeURIComponent(preparedUnitSymbol);
+    const sensorNamedDecoded = decodeURIComponent(sensorName);
+    const tagsDecoded = tags && decodeURIComponent(tags);
+    const usernamesDecoded = usernames && decodeURIComponent(usernames);
+
+    return JSON.stringify({
+      time_from: timeFrom,
+      time_to: timeTo,
+      tags: tagsDecoded,
+      usernames: usernamesDecoded,
+      sensor_name: sensorNamedDecoded.toLowerCase(),
+      measurement_type: measurementType,
+      unit_symbol: encodedUnitSymbol,
+      is_indoor: true, // explicitly set to true
+    });
+  }, [
+    sensorName,
+    measurementType,
+    timeFrom,
+    timeTo,
+    tags,
+    usernames,
+    unitSymbol,
+  ]);
+
   // Fetch fixed sessions using react-query hooks
   const {
     data: activeSessionsData,
@@ -147,33 +171,54 @@ const MobileSessionFilters = ({
     error: dormantSessionsError,
   } = useFixedSessions(FixedSessionsTypes.DORMANT, filters);
 
+  // Fetch indoor sessions using react-query hooks
+  const {
+    data: activeIndoorSessionsData,
+    isLoading: activeIndoorSessionsLoading,
+    error: activeIndoorSessionsError,
+  } = useIndoorSessions(FixedSessionsTypes.ACTIVE, indoorSessionsFilters);
+
+  const {
+    data: dormantIndoorSessionsData,
+    isLoading: dormantIndoorSessionsLoading,
+    error: dormantIndoorSessionsError,
+  } = useIndoorSessions(FixedSessionsTypes.DORMANT, indoorSessionsFilters);
+
+  // // Fetch mobile sessions using react-query hooks
+  // const {
+  //   data: mobileSessionsData,
+  //   isLoading: mobileSessionsLoading,
+  //   error: mobileSessionsError,
+  // } = useMobileSessions(filters);
+
   const sessionsCount = useMemo(() => {
     switch (sessionType) {
       case SessionTypes.FIXED:
         if (isIndoorParameterInUrl) {
-          return isDormant
-            ? indoorSessionsState.dormantIndoorSessions.length
-            : indoorSessionsState.activeIndoorSessions.length;
+          const indoorSessionsData = isDormant
+            ? dormantIndoorSessionsData
+            : activeIndoorSessionsData;
+          return indoorSessionsData?.sessions.length || 0;
         } else {
-          if (isDormant) {
-            return dormantSessionsData?.sessions.length || 0;
-          } else {
-            return activeSessionsData?.sessions.length || 0;
-          }
+          const fixedSessionsData = isDormant
+            ? dormantSessionsData
+            : activeSessionsData;
+          return fixedSessionsData?.sessions.length || 0;
         }
-      case SessionTypes.MOBILE:
-        return mobileSessionsState.sessions.length;
+      // case SessionTypes.MOBILE:
+      //   return mobileSessionsData?.sessions.length || 0;
       default:
         return 0;
     }
   }, [
-    mobileSessionsState.sessions.length,
     sessionType,
-    indoorSessionsState,
     isIndoorParameterInUrl,
     isDormant,
+    activeIndoorSessionsData,
+    dormantIndoorSessionsData,
     activeSessionsData,
     dormantSessionsData,
+    // mobileSessionsData,
   ]);
 
   useEffect(() => {

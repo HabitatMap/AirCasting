@@ -25,14 +25,12 @@ import {
 import {
   useCleanSessions,
   useFixedSessions,
-} from "../../store/fixedSessionsSlice"; // Updated import
+} from "../../store/fixedSessionsSlice";
 import { fetchFixedStreamById } from "../../store/fixedStreamSlice";
 import { useAppDispatch, useAppSelector } from "../../store/hooks";
-import { selectIndoorSessionsList } from "../../store/indoorSessionsSelectors";
-import {
-  fetchActiveIndoorSessions,
-  fetchDormantIndoorSessions,
-} from "../../store/indoorSessionsSlice";
+
+import { getIndoorSessionsList } from "../../store/indoorSessionsHelpers";
+import { useIndoorSessions } from "../../store/indoorSessionsSlice";
 import { selectFetchingData, setFetchingData } from "../../store/mapSlice";
 import { selectMarkersLoading } from "../../store/markersLoadingSlice";
 import {
@@ -40,7 +38,6 @@ import {
   selectMobileSessionsList,
   selectMobileSessionsPoints,
 } from "../../store/mobileSessionsSelectors";
-import { fetchMobileSessions } from "../../store/mobileSessionsSlice";
 import { selectMobileStreamPoints } from "../../store/mobileStreamSelectors";
 import { fetchMobileStreamById } from "../../store/mobileStreamSlice";
 import { fetchSensors } from "../../store/sensorsSlice";
@@ -194,8 +191,32 @@ const Map = () => {
     ]
   );
 
+  const indoorSessionsFilters = useMemo(
+    () =>
+      JSON.stringify({
+        time_from: timeFrom,
+        time_to: timeTo,
+        tags: tagsDecoded,
+        usernames: usernamesDecoded,
+        is_indoor: true,
+        sensor_name: sensorNamedDecoded.toLowerCase(),
+        measurement_type: measurementType,
+        unit_symbol: encodedUnitSymbol,
+      }),
+    [
+      encodedUnitSymbol,
+      measurementType,
+      sensorNamedDecoded,
+      tagsDecoded,
+      timeFrom,
+      timeTo,
+      usernamesDecoded,
+    ]
+  );
+
   const {
     data: activeSessionsData,
+    refetch: refetchActiveSessions,
     isLoading: activeSessionsLoading,
     error: activeSessionsError,
   } = useFixedSessions(FixedSessionsTypes.ACTIVE, filters);
@@ -205,6 +226,21 @@ const Map = () => {
     isLoading: dormantSessionsLoading,
     error: dormantSessionsError,
   } = useFixedSessions(FixedSessionsTypes.DORMANT, filters);
+
+  // const { data: mobileSessionsData, refetch: refetchMobileSessions } =
+  //   useMobileSessions(filters);
+
+  const {
+    data: activeIndoorSessionsData,
+    refetch: refetchActiveIndoorSessions,
+    isLoading: activeIndoorSessionsLoading,
+    error: activeIndoorSessionsError,
+  } = useIndoorSessions(FixedSessionsTypes.ACTIVE, indoorSessionsFilters);
+
+  const {
+    data: dormantIndoorSessionsData,
+    refetch: refetchDormantIndoorSessions,
+  } = useIndoorSessions(FixedSessionsTypes.DORMANT, indoorSessionsFilters);
 
   const fixedSessionsData = isActive ? activeSessionsData : dormantSessionsData;
   const fixedSessionsLoading = isActive
@@ -244,18 +280,27 @@ const Map = () => {
   const listSessions = useMemo(() => {
     if (fixedSessionTypeSelected) {
       if (isIndoorParameterInUrl) {
-        return useAppSelector(selectIndoorSessionsList(isDormant));
+        // Choose the correct data based on whether sessions are active or dormant
+        const indoorSessionsData = isActive
+          ? activeIndoorSessionsData
+          : dormantIndoorSessionsData;
+
+        const sessions = indoorSessionsData?.sessions || [];
+        return getIndoorSessionsList(sessions);
       } else {
         return getFixedSessionsList(fixedSessionsData?.sessions || []);
       }
     } else {
+      // If you've migrated mobile sessions to use React Query, update this accordingly
       return useAppSelector(selectMobileSessionsList);
     }
   }, [
     fixedSessionTypeSelected,
     isIndoorParameterInUrl,
     fixedSessionsData,
-    isDormant,
+    activeIndoorSessionsData,
+    dormantIndoorSessionsData,
+    isActive,
   ]);
 
   const cleanSessions = useCleanSessions();
@@ -294,29 +339,6 @@ const Map = () => {
 
   const memoizedTimelapseData = useMemo(() => timelapseData, [timelapseData]);
 
-  const indoorSessionsFilters = useMemo(
-    () =>
-      JSON.stringify({
-        time_from: timeFrom,
-        time_to: timeTo,
-        tags: tagsDecoded,
-        usernames: usernamesDecoded,
-        is_indoor: true,
-        sensor_name: sensorNamedDecoded.toLowerCase(),
-        measurement_type: measurementType,
-        unit_symbol: encodedUnitSymbol,
-      }),
-    [
-      encodedUnitSymbol,
-      measurementType,
-      sensorNamedDecoded,
-      tagsDecoded,
-      timeFrom,
-      timeTo,
-      usernamesDecoded,
-    ]
-  );
-
   const thresholdFilters = useMemo(() => {
     return `${sensorName}?unit_symbol=${encodedUnitSymbol}`;
   }, [sensorName, encodedUnitSymbol]);
@@ -341,55 +363,38 @@ const Map = () => {
 
   useEffect(() => {
     const isFirstLoad = isFirstRender.current;
+
     if (isFirstLoad && fetchedSessions > 0 && !fixedSessionTypeSelected) {
       const originalLimit = limit;
       updateLimit(fetchedSessions);
 
-      const updatedFilters = {
-        ...JSON.parse(filters),
-        limit: fetchedSessions,
-      };
+      updateFetchedSessions(fetchedSessions);
 
-      dispatch(fetchMobileSessions({ filters: JSON.stringify(updatedFilters) }))
-        .unwrap()
-        .then(() => {
-          updateLimit(originalLimit);
-          updateFetchedSessions(fetchedSessions);
-        });
+      updateLimit(originalLimit);
+
       isFirstRender.current = false;
-    } else {
-      if (fetchingData || isFirstLoad) {
-        if (fixedSessionTypeSelected) {
-          if (isIndoorParameterInUrl) {
-            if (isActive) {
-              dispatch(
-                fetchActiveIndoorSessions({ filters: indoorSessionsFilters })
-              ).unwrap();
-            } else {
-              dispatch(
-                fetchDormantIndoorSessions({ filters: indoorSessionsFilters })
-              ).unwrap();
-            }
+    } else if (fetchingData || isFirstLoad) {
+      if (fixedSessionTypeSelected) {
+        if (isIndoorParameterInUrl) {
+          if (isActive) {
+            refetchActiveIndoorSessions();
+          } else {
+            refetchDormantIndoorSessions();
           }
-        } else {
-          dispatch(fetchMobileSessions({ filters }))
-            .unwrap()
-            .then((response) => {
-              updateFetchedSessions(response.sessions.length);
-            });
         }
-
-        isFirstRender.current = false;
+        // } else {
+        //   refetchMobileSessions();
       }
+
+      isFirstRender.current = false;
     }
 
-    dispatch(setFetchingData(false));
+    setFetchingData(false);
   }, [
     fetchingData,
     filters,
     fetchedSessions,
     limit,
-    dispatch,
     fixedSessionTypeSelected,
     offset,
     updateFetchedSessions,
@@ -583,9 +588,7 @@ const Map = () => {
           selectedStreamId?.toString() || ""
         );
 
-        navigate(`/fixed_stream?${newSearchParams.toString()}`, {
-          replace: true,
-        });
+        navigate(`/fixed_stream?${newSearchParams.toString()}`);
         return;
       }
     }
