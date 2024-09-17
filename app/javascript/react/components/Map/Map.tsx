@@ -301,6 +301,19 @@ const Map = () => {
   }, [sessionType]);
 
   useEffect(() => {
+    dispatch(resetTags());
+  }, [
+    sensorName,
+    sessionType,
+    isIndoorParameterInUrl,
+    encodedUnitSymbol,
+    measurementType,
+    timeFrom,
+    timeTo,
+    usernames,
+  ]);
+
+  useEffect(() => {
     const isFirstLoad = isFirstRender.current;
     if (isFirstLoad && fetchedSessions > 0 && !fixedSessionTypeSelected) {
       const originalLimit = limit;

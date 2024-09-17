@@ -71,8 +71,8 @@ const TagsInput = () => {
       selectedItem,
       onInputValueChange: ({ inputValue }) => {
         const queryParams = getQueryParams(inputValue);
-
         dispatch(fetchTags(queryParams));
+
         setInputValue(inputValue);
       },
       onSelectedItemChange: ({ selectedItem: newSelectedItem }) => {
@@ -93,8 +93,9 @@ const TagsInput = () => {
 
   const handleOnInputClick = () => {
     const queryParams = getQueryParams(inputValue);
-
-    dispatch(fetchTags(queryParams));
+    if (tagsToSelect.length === 0) {
+      dispatch(fetchTags(queryParams));
+    }
   };
 
   const decodedTagsArray =
