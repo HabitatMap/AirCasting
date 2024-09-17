@@ -68,8 +68,6 @@ const selectFixedStreamShortInfo = createSelector(
       .utc(fixedStreamData.stream.endTime)
       .format(DateFormat.us_with_time);
 
-    console.log(startTime, endTime, "startTime, endTime");
-
     const active = fixedStreamData.stream.active;
     const { min, low, middle, high, max } = fixedStreamData.stream;
 
