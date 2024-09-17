@@ -52,19 +52,19 @@ export const API_ENDPOINTS: ApiEndpoints = {
   fetchUsernames: (username) => `/autocomplete/usernames?q[input]=${username}`,
   fetchTags: (params) => {
     const {
-      tag = "",
+      tags,
       west,
       east,
       south,
       north,
       timeFrom,
       timeTo,
-      usernames = "",
+      usernames,
       sensorName,
       unitSymbol,
       isIndoor,
       isActive,
-      sessionType = "fixed",
+      sessionType,
     } = params;
 
     if (
@@ -83,7 +83,7 @@ export const API_ENDPOINTS: ApiEndpoints = {
     }
 
     const query: Record<string, string | number | boolean> = {
-      "q[input]": tag,
+      "q[input]": tags || "",
       "q[west]": west,
       "q[east]": east,
       "q[south]": south,

@@ -73,7 +73,6 @@ export const fetchTags = createAsyncThunk<
   fetchTagsParamsType,
   { rejectValue: ApiError }
 >("autocomplete/tags", async (params, { rejectWithValue }) => {
-  console.log("params", params);
   try {
     const response: AxiosResponse<string[]> = await oldApiClient.get(
       API_ENDPOINTS.fetchTags(params)
@@ -117,6 +116,9 @@ const sessionFilterSlice = createSlice({
       action: PayloadAction<FixedSessionsTypes>
     ) => {
       state.fixedSessionsType = action.payload;
+    },
+    resetTags: (state) => {
+      state.tags = [];
     },
   },
   extraReducers: (builder) => {
@@ -204,5 +206,6 @@ export const {
   setBasicSensorsModalOpen,
   setCustomSensorsModalOpen,
   setFixedSessionsType,
+  resetTags,
 } = sessionFilterSlice.actions;
 export default sessionFilterSlice.reducer;

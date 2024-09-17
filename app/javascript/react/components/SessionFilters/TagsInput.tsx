@@ -46,9 +46,9 @@ const TagsInput = () => {
 
   const preparedUnitSymbol = unitSymbol.replace(/"/g, "");
 
-  const getQueryParams = (tag: string): fetchTagsParamsType => {
+  const getQueryParams = (tags: string): fetchTagsParamsType => {
     return {
-      tag: tag,
+      tags: tags,
       west: boundWest.toString(),
       east: boundEast.toString(),
       south: boundSouth.toString(),

@@ -45,6 +45,7 @@ import { fetchMobileStreamById } from "../../store/mobileStreamSlice";
 import { fetchSensors } from "../../store/sensorsSlice";
 import {
   FixedSessionsTypes,
+  resetTags,
   selectFixedSessionsType,
   selectIsDormantSessionsType,
   setFixedSessionsType,
@@ -319,6 +320,7 @@ const Map = () => {
       isFirstRender.current = false;
     } else {
       if (fetchingData || isFirstLoad) {
+        dispatch(resetTags());
         if (fixedSessionTypeSelected) {
           if (isIndoorParameterInUrl) {
             dispatch(
