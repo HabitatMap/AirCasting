@@ -1,6 +1,5 @@
 import Highcharts, {
   AlignValue,
-  chart,
   ChartZoomingOptions,
   RangeSelectorOptions,
   ResponsiveOptions,
@@ -82,7 +81,7 @@ const getXAxisOptions = (
 
   const handleSetExtremes = debounce(
     (e: Highcharts.AxisSetExtremesEventObject) => {
-      if (!chart || Object.keys(chart).length === 0) return;
+      // if (!chart || Object.keys(chart).length === 0) return;
       if (!isLoading && e.min && e.max) {
         dispatch(
           fixedSessionTypeSelected

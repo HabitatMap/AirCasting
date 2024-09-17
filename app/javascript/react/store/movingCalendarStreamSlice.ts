@@ -34,7 +34,6 @@ export const fetchNewMovingStream = createAsyncThunk<
 >(
   "movingCalendarStream/getData",
   async ({ id, startDate, endDate }, { rejectWithValue }) => {
-    console.log(startDate, endDate, "startDate, endDate");
     try {
       const response: AxiosResponse<StreamDailyAverage[]> = await apiClient.get(
         API_ENDPOINTS.fetchSelectedDataRangeOfStream(id, startDate, endDate)
