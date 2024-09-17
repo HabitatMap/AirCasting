@@ -333,7 +333,6 @@ const Map = () => {
       isFirstRender.current = false;
     } else {
       if (fetchingData || isFirstLoad) {
-        dispatch(resetTags());
         if (fixedSessionTypeSelected) {
           if (isIndoorParameterInUrl) {
             dispatch(
