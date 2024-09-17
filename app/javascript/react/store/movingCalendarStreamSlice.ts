@@ -1,11 +1,11 @@
-import { AxiosResponse } from "axios";
 import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { AxiosResponse } from "axios";
+import { apiClient } from "../api/apiClient";
+import { API_ENDPOINTS } from "../api/apiEndpoints";
+import { ApiError, StatusEnum } from "../types/api";
 import { StreamDailyAverage } from "../types/StreamDailyAverage";
 import { getErrorMessage } from "../utils/getErrorMessage";
-import { API_ENDPOINTS } from "../api/apiEndpoints";
-import { apiClient } from "../api/apiClient";
 import { logError } from "../utils/logController";
-import { ApiError, StatusEnum } from "../types/api";
 
 import type { RootState } from "./index";
 
@@ -34,6 +34,7 @@ export const fetchNewMovingStream = createAsyncThunk<
 >(
   "movingCalendarStream/getData",
   async ({ id, startDate, endDate }, { rejectWithValue }) => {
+    console.log(startDate, endDate, "startDate, endDate");
     try {
       const response: AxiosResponse<StreamDailyAverage[]> = await apiClient.get(
         API_ENDPOINTS.fetchSelectedDataRangeOfStream(id, startDate, endDate)
