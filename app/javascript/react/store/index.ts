@@ -3,7 +3,7 @@ import { configureStore } from "@reduxjs/toolkit";
 import clusterReducer from "./clusterSlice";
 import crowdMapReducer from "./crowdMapSlice";
 import sessionReducer from "./exportSessionSlice";
-import fixedSessionsReducer from "./fixedSessionsSlice";
+// import fixedSessionsReducer from "./fixedSessionsSlice";
 import fixedStreamReducer from "./fixedStreamSlice";
 import indoorSessionsReducer from "./indoorSessionsSlice";
 import { selectIsLoading } from "./loadingSelectors";
@@ -23,7 +23,7 @@ const store = configureStore({
   reducer: {
     cluster: clusterReducer,
     crowdMap: crowdMapReducer,
-    fixedSessions: fixedSessionsReducer,
+    // fixedSessions: fixedSessionsReducer,
     fixedStream: fixedStreamReducer,
     indoorSessions: indoorSessionsReducer,
     map: mapReducer,

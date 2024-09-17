@@ -23,10 +23,10 @@ import {
   selectFixedSessionsPoints,
   selectFixedSessionsStatusFulfilled,
 } from "../../store/fixedSessionsSelectors";
+
 import {
-  cleanSessions,
-  fetchActiveFixedSessions,
-  fetchDormantFixedSessions,
+  useCleanSessions,
+  useFixedSessions,
 } from "../../store/fixedSessionsSlice";
 import { fetchFixedStreamById } from "../../store/fixedStreamSlice";
 import { useAppDispatch, useAppSelector } from "../../store/hooks";
@@ -143,9 +143,9 @@ const Map = () => {
   const fetchableMobileSessionsCount = useAppSelector(
     (state: RootState) => state.mobileSessions.fetchableSessionsCount
   );
-  const fetchableFixedSessionsCount = useAppSelector(
-    (state: RootState) => state.fixedSessions.fetchableSessionsCount
-  );
+  // const fetchableFixedSessionsCount = useAppSelector(
+  //   (state: RootState) => state.fixedSessions.fetchableSessionsCount
+  // );
 
   const fetchingData = useAppSelector(selectFetchingData);
   const fixedSessionsType = useAppSelector(selectFixedSessionsType);
@@ -185,6 +185,7 @@ const Map = () => {
       return selectMobileSessionsList(state);
     }
   });
+  const cleanSessions = useCleanSessions();
 
   // update fixed session type based on the URL)
   useEffect(() => {
@@ -205,10 +206,9 @@ const Map = () => {
     return sessionType === SessionTypes.FIXED
       ? isIndoorParameterInUrl
         ? fetchableIndoorSessionsCount
-        : fetchableFixedSessionsCount
+        : activeSessions?.fetchableSessionsCount || 0
       : fetchableMobileSessionsCount;
   }, [
-    fetchableFixedSessionsCount,
     fetchableMobileSessionsCount,
     sessionType,
     fetchableIndoorSessionsCount,
@@ -298,6 +298,17 @@ const Map = () => {
     return `${sensorName}?unit_symbol=${encodedUnitSymbol}`;
   }, [sensorName, encodedUnitSymbol]);
 
+  const {
+    data: activeSessions,
+    isLoading,
+    error,
+  } = useFixedSessions(FixedSessionsTypes.ACTIVE, filters);
+  const {
+    data: dormantSessions,
+    isLoading: dormantSessionsLoading,
+    error: dormantSessionsError,
+  } = useFixedSessions(FixedSessionsTypes.DORMANT, filters);
+
   // Effects
   useEffect(() => {
     dispatch(fetchSensors(sessionType));
@@ -349,9 +360,9 @@ const Map = () => {
             }
           } else {
             if (isActive) {
-              dispatch(fetchActiveFixedSessions({ filters })).unwrap();
+              activeSessions;
             } else {
-              dispatch(fetchDormantFixedSessions({ filters })).unwrap();
+              dormantSessions;
             }
           }
         } else {
@@ -441,7 +452,9 @@ const Map = () => {
 
   useEffect(() => {
     if (realtimeMapUpdates) {
-      dispatch(cleanSessions());
+      const handleCleanSessions = () => {
+        cleanSessions.mutate();
+      };
       dispatch(setFetchingData(true));
     }
   }, [
@@ -466,7 +479,7 @@ const Map = () => {
     updateFetchedSessions,
     filters,
     fetchableMobileSessionsCount,
-    fetchableFixedSessionsCount,
+    dormantSessions?.fetchableSessionsCount || 0,
     isDormant
   );
 
