@@ -12,11 +12,9 @@ import {
   fetchMeasurements,
   selectFixedData,
   selectIsLoading,
-  updateFixedMeasurementExtremes,
 } from "../../store/fixedStreamSlice";
 import { useAppDispatch } from "../../store/hooks";
 import { selectMobileStreamPoints } from "../../store/mobileStreamSelectors";
-import { updateMobileMeasurementExtremes } from "../../store/mobileStreamSlice";
 import { selectThresholds } from "../../store/thresholdSlice";
 import { SessionType, SessionTypes } from "../../types/filters";
 import {
@@ -54,7 +52,6 @@ const Graph: React.FC<GraphProps> = ({
   rangeDisplayRef,
 }) => {
   const graphRef = useRef<HTMLDivElement>(null);
-  const initialRenderRef = useRef(true);
 
   const fixedSessionTypeSelected = sessionType === SessionTypes.FIXED;
   const [selectedRange, setSelectedRange] = useState(
@@ -68,7 +65,7 @@ const Graph: React.FC<GraphProps> = ({
   const fixedGraphData = useSelector(selectFixedData);
   const mobileGraphData = useSelector(selectMobileStreamPoints);
 
-  const { unitSymbol, measurementType } = useMapParams();
+  const { unitSymbol, measurementType, isIndoor } = useMapParams();
 
   const isMobile = useMobileDetection();
 
@@ -158,7 +155,8 @@ const Graph: React.FC<GraphProps> = ({
   const xAxisOptions = getXAxisOptions(
     isMobile,
     rangeDisplayRef,
-    fixedSessionTypeSelected
+    fixedSessionTypeSelected,
+    isIndoor
   );
   const yAxisOption = getYAxisOptions(thresholdsState, isMobile);
   const tooltipOptions = getTooltipOptions(measurementType, unitSymbol);
@@ -178,31 +176,6 @@ const Graph: React.FC<GraphProps> = ({
       setChartDataLoaded(true);
     }
   }, [seriesData, isLoading]);
-
-  useEffect(() => {
-    if (initialRenderRef.current && chartDataLoaded && seriesData.length > 0) {
-      const lastTimestamp = fixedSessionTypeSelected
-        ? (seriesData[seriesData.length - 1] as number[])[0]
-        : (seriesData[seriesData.length - 1] as { x: number }).x;
-
-      const startTime = new Date(lastTimestamp);
-      startTime.setHours(startTime.getHours() - 24);
-
-      dispatch(
-        fixedSessionTypeSelected
-          ? updateFixedMeasurementExtremes({
-              min: startTime.getTime(),
-              max: lastTimestamp,
-            })
-          : updateMobileMeasurementExtremes({
-              min: startTime.getTime(),
-              max: lastTimestamp,
-            })
-      );
-
-      initialRenderRef.current = false;
-    }
-  }, [chartDataLoaded]);
 
   useEffect(() => {
     const graphElement = graphRef.current;
