@@ -51,6 +51,7 @@ import {
   resetTags,
   selectFixedSessionsType,
   selectIsDormantSessionsType,
+  selectTags,
   setFixedSessionsType,
 } from "../../store/sessionFiltersSlice";
 import {
@@ -172,6 +173,7 @@ const Map = () => {
   const timelapseData = useAppSelector(selectTimelapseData);
   const currentTimestamp = useAppSelector(selectCurrentTimestamp);
   const isDormant = useAppSelector(selectIsDormantSessionsType);
+  const tagsToSelect = useAppSelector(selectTags);
 
   const fixedSessionTypeSelected: boolean = sessionType === SessionTypes.FIXED;
   const listSessions = useAppSelector((state) => {
@@ -304,7 +306,7 @@ const Map = () => {
   }, [sessionType]);
 
   useEffect(() => {
-    dispatch(resetTags());
+    tagsToSelect.length > 0 && dispatch(resetTags());
   }, [
     sensorName,
     sessionType,
@@ -314,6 +316,7 @@ const Map = () => {
     timeFrom,
     timeTo,
     usernames,
+    isActive,
   ]);
 
   useEffect(() => {
