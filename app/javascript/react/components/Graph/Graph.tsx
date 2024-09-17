@@ -65,7 +65,7 @@ const Graph: React.FC<GraphProps> = ({
   const fixedGraphData = useSelector(selectFixedData);
   const mobileGraphData = useSelector(selectMobileStreamPoints);
 
-  const { unitSymbol, measurementType } = useMapParams();
+  const { unitSymbol, measurementType, isIndoor } = useMapParams();
 
   const isMobile = useMobileDetection();
 
@@ -77,6 +77,8 @@ const Graph: React.FC<GraphProps> = ({
   const seriesData = fixedSessionTypeSelected
     ? fixedSeriesData
     : mobileSeriesData;
+
+  console.log(seriesData, "seriesData");
 
   const getTimeRangeFromSelectedRange = (range: number) => {
     const lastTimestamp =
@@ -155,7 +157,8 @@ const Graph: React.FC<GraphProps> = ({
   const xAxisOptions = getXAxisOptions(
     isMobile,
     rangeDisplayRef,
-    fixedSessionTypeSelected
+    fixedSessionTypeSelected,
+    isIndoor
   );
   const yAxisOption = getYAxisOptions(thresholdsState, isMobile);
   const tooltipOptions = getTooltipOptions(measurementType, unitSymbol);

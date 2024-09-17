@@ -75,14 +75,14 @@ const getScrollbarOptions = (isCalendarPage: boolean) => {
 const getXAxisOptions = (
   isMobile: boolean = false,
   rangeDisplayRef: RefObject<HTMLDivElement> | undefined,
-  fixedSessionTypeSelected: boolean
+  fixedSessionTypeSelected: boolean,
+  isIndoor: string | null
 ): XAxisOptions => {
   const dispatch = useAppDispatch();
   const isLoading = useAppSelector(selectIsLoading);
 
   const handleSetExtremes = debounce(
     (e: Highcharts.AxisSetExtremesEventObject) => {
-      const { isIndoor } = useMapParams();
       if (isIndoor === TRUE) {
         if (!chart || Object.keys(chart).length === 0) return;
       }
