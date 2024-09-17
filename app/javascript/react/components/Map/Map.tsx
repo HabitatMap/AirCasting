@@ -194,7 +194,6 @@ const Map = () => {
     ]
   );
 
-  // Fetch fixed sessions using react-query hooks
   const {
     data: activeSessionsData,
     isLoading: activeSessionsLoading,
@@ -207,7 +206,6 @@ const Map = () => {
     error: dormantSessionsError,
   } = useFixedSessions(FixedSessionsTypes.DORMANT, filters);
 
-  // Determine which fixed sessions data to use
   const fixedSessionsData = isActive ? activeSessionsData : dormantSessionsData;
   const fixedSessionsLoading = isActive
     ? activeSessionsLoading
@@ -246,10 +244,8 @@ const Map = () => {
   const listSessions = useMemo(() => {
     if (fixedSessionTypeSelected) {
       if (isIndoorParameterInUrl) {
-        // Handle indoor sessions as before
         return useAppSelector(selectIndoorSessionsList(isDormant));
       } else {
-        // Use the helper function to transform the sessions
         return getFixedSessionsList(fixedSessionsData?.sessions || []);
       }
     } else {
@@ -264,7 +260,6 @@ const Map = () => {
 
   const cleanSessions = useCleanSessions();
 
-  // Update fixed session type based on the URL
   useEffect(() => {
     if (isActive) {
       if (fixedSessionsType !== FixedSessionsTypes.ACTIVE) {
@@ -275,7 +270,7 @@ const Map = () => {
         dispatch(setFixedSessionsType(FixedSessionsTypes.DORMANT));
       }
     }
-  }, [isActive, fixedSessionsType, dispatch]);
+  }, [isActive, fixedSessionsType]);
 
   const fetchableIndoorSessionsCount = listSessions.length;
 
@@ -375,8 +370,6 @@ const Map = () => {
                 fetchDormantIndoorSessions({ filters: indoorSessionsFilters })
               ).unwrap();
             }
-          } else {
-            // No need to dispatch actions for fixed sessions; data is fetched via react-query
           }
         } else {
           dispatch(fetchMobileSessions({ filters }))
