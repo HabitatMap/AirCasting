@@ -18,16 +18,13 @@ import { TRUE } from "../../const/booleans";
 import { MIN_ZOOM } from "../../const/coordinates";
 import { RootState, selectIsLoading } from "../../store";
 import {
-  selectFixedSessionPointsBySessionId,
-  selectFixedSessionsList,
-  selectFixedSessionsPoints,
-  selectFixedSessionsStatusFulfilled,
-} from "../../store/fixedSessionsSelectors";
-
+  getFixedSessionPointsBySessionId,
+  getFixedSessionsPoints,
+} from "../../store/fixedSessionsHelpers";
 import {
   useCleanSessions,
   useFixedSessions,
-} from "../../store/fixedSessionsSlice";
+} from "../../store/fixedSessionsSlice"; // Updated import
 import { fetchFixedStreamById } from "../../store/fixedStreamSlice";
 import { useAppDispatch, useAppSelector } from "../../store/hooks";
 import { selectIndoorSessionsList } from "../../store/indoorSessionsSelectors";
@@ -65,18 +62,14 @@ import {
 } from "../../store/timelapseSelectors";
 import { fetchTimelapseData } from "../../store/timelapseSlice";
 import { SessionTypes } from "../../types/filters";
-import { SessionList } from "../../types/sessionType";
 import { UserSettings } from "../../types/userStates";
 import { UrlParamsTypes, useMapParams } from "../../utils/mapParamsHandler";
-import { useHandleScrollEnd } from "../../utils/scrollEnd";
 import useMobileDetection from "../../utils/useScreenSizeDetection";
 import { Loader } from "../Loader/Loader";
 import { SessionDetailsModal } from "../Modals/SessionDetailsModal";
 import { TimelapseComponent } from "../Modals/TimelapseModal";
 import { SectionButton } from "../SectionButton/SectionButton";
 import { MobileSessionFilters } from "../SessionFilters/MobileSessionFilters";
-import { MobileSessionList } from "../SessionsListView/MobileSessionList/MobileSessionList";
-import { SessionsListView } from "../SessionsListView/SessionsListView";
 import { ThresholdButtonVariant } from "../ThresholdConfigurator/ThresholdButtons/ThresholdButton";
 import { ThresholdsConfigurator } from "../ThresholdConfigurator/ThresholdConfigurator";
 import { Legend } from "./Legend/Legend";
@@ -143,81 +136,9 @@ const Map = () => {
   const fetchableMobileSessionsCount = useAppSelector(
     (state: RootState) => state.mobileSessions.fetchableSessionsCount
   );
-  // const fetchableFixedSessionsCount = useAppSelector(
-  //   (state: RootState) => state.fixedSessions.fetchableSessionsCount
-  // );
 
   const fetchingData = useAppSelector(selectFetchingData);
   const fixedSessionsType = useAppSelector(selectFixedSessionsType);
-  const fixedPoints = useAppSelector((state) =>
-    sessionId
-      ? selectFixedSessionPointsBySessionId(state, fixedSessionsType, sessionId)
-      : selectFixedSessionsPoints(state, fixedSessionsType)
-  );
-
-  const fixedSessionsStatusFulfilled = useAppSelector(
-    selectFixedSessionsStatusFulfilled
-  );
-
-  const selectorsLoading = useAppSelector(selectIsLoading);
-  const markersLoading = useAppSelector(selectMarkersLoading);
-  const mapId = useAppSelector((state: RootState) => state.map.mapId);
-  const mobilePoints = sessionId
-    ? useAppSelector(selectMobileSessionPointsBySessionId(sessionId))
-    : useAppSelector(selectMobileSessionsPoints);
-  const mobileStreamPoints = useAppSelector(selectMobileStreamPoints);
-  const realtimeMapUpdates = useAppSelector(
-    (state: RootState) => state.realtimeMapUpdates.realtimeMapUpdates
-  );
-  const timelapseData = useAppSelector(selectTimelapseData);
-  const currentTimestamp = useAppSelector(selectCurrentTimestamp);
-  const isDormant = useAppSelector(selectIsDormantSessionsType);
-
-  const fixedSessionTypeSelected: boolean = sessionType === SessionTypes.FIXED;
-  const listSessions = useAppSelector((state) => {
-    if (fixedSessionTypeSelected) {
-      if (isIndoorParameterInUrl) {
-        return selectIndoorSessionsList(isDormant)(state);
-      } else {
-        return selectFixedSessionsList(state, fixedSessionsType);
-      }
-    } else {
-      return selectMobileSessionsList(state);
-    }
-  });
-  const cleanSessions = useCleanSessions();
-
-  // update fixed session type based on the URL)
-  useEffect(() => {
-    if (isActive) {
-      if (fixedSessionsType !== FixedSessionsTypes.ACTIVE) {
-        dispatch(setFixedSessionsType(FixedSessionsTypes.ACTIVE));
-      }
-    } else {
-      if (fixedSessionsType !== FixedSessionsTypes.DORMANT) {
-        dispatch(setFixedSessionsType(FixedSessionsTypes.DORMANT));
-      }
-    }
-  }, [isActive, fixedSessionsType, dispatch]);
-
-  const fetchableIndoorSessionsCount = listSessions.length;
-
-  const fetchableSessionsCount = useMemo(() => {
-    return sessionType === SessionTypes.FIXED
-      ? isIndoorParameterInUrl
-        ? fetchableIndoorSessionsCount
-        : activeSessions?.fetchableSessionsCount || 0
-      : fetchableMobileSessionsCount;
-  }, [
-    fetchableMobileSessionsCount,
-    sessionType,
-    fetchableIndoorSessionsCount,
-    isIndoorParameterInUrl,
-  ]);
-
-  const sessionsPoints = fixedSessionTypeSelected ? fixedPoints : mobilePoints;
-
-  const memoizedTimelapseData = useMemo(() => timelapseData, [timelapseData]);
 
   const newSearchParams = new URLSearchParams(searchParams.toString());
   const preparedUnitSymbol = unitSymbol.replace(/"/g, "");
@@ -227,9 +148,6 @@ const Map = () => {
   const usernamesDecoded = usernames && decodeURIComponent(usernames);
 
   const isTimelapseView = currentUserSettings === UserSettings.TimelapseView;
-
-  const isTimelapseDisabled =
-    listSessions.length === 0 || isDormant || isIndoorParameterInUrl;
 
   const zoomLevel = !Number.isNaN(currentZoom) ? Math.round(currentZoom) : 5;
 
@@ -271,6 +189,109 @@ const Map = () => {
     ]
   );
 
+  // Fetch fixed sessions using react-query hooks
+  const {
+    data: activeSessionsData,
+    isLoading: activeSessionsLoading,
+    error: activeSessionsError,
+  } = useFixedSessions(FixedSessionsTypes.ACTIVE, filters);
+
+  const {
+    data: dormantSessionsData,
+    isLoading: dormantSessionsLoading,
+    error: dormantSessionsError,
+  } = useFixedSessions(FixedSessionsTypes.DORMANT, filters);
+
+  // Determine which fixed sessions data to use
+  const fixedSessionsData = isActive ? activeSessionsData : dormantSessionsData;
+  const fixedSessionsLoading = isActive
+    ? activeSessionsLoading
+    : dormantSessionsLoading;
+
+  // Extract points from fixed sessions data
+  const fixedPoints = useMemo(() => {
+    if (!fixedSessionsData || !fixedSessionsData.sessions) return [];
+    if (sessionId) {
+      return getFixedSessionPointsBySessionId(
+        fixedSessionsData.sessions,
+        Number(sessionId)
+      );
+    } else {
+      return getFixedSessionsPoints(fixedSessionsData.sessions);
+    }
+  }, [fixedSessionsData, sessionId]);
+
+  const fixedSessionsReady = !fixedSessionsLoading && fixedSessionsData;
+
+  const selectorsLoading = useAppSelector(selectIsLoading);
+  const markersLoading = useAppSelector(selectMarkersLoading);
+  const mapId = useAppSelector((state: RootState) => state.map.mapId);
+  const mobilePoints = sessionId
+    ? useAppSelector(selectMobileSessionPointsBySessionId(Number(sessionId)))
+    : useAppSelector(selectMobileSessionsPoints);
+  const mobileStreamPoints = useAppSelector(selectMobileStreamPoints);
+  const realtimeMapUpdates = useAppSelector(
+    (state: RootState) => state.realtimeMapUpdates.realtimeMapUpdates
+  );
+  const timelapseData = useAppSelector(selectTimelapseData);
+  const currentTimestamp = useAppSelector(selectCurrentTimestamp);
+  const isDormant = useAppSelector(selectIsDormantSessionsType);
+
+  const fixedSessionTypeSelected: boolean = sessionType === SessionTypes.FIXED;
+  const listSessions = useMemo(() => {
+    if (fixedSessionTypeSelected) {
+      if (isIndoorParameterInUrl) {
+        return useAppSelector(selectIndoorSessionsList(isDormant));
+      } else {
+        return fixedSessionsData?.sessions || [];
+      }
+    } else {
+      return useAppSelector(selectMobileSessionsList);
+    }
+  }, [
+    fixedSessionTypeSelected,
+    isIndoorParameterInUrl,
+    fixedSessionsData,
+    isDormant,
+  ]);
+
+  const cleanSessions = useCleanSessions();
+
+  // Update fixed session type based on the URL
+  useEffect(() => {
+    if (isActive) {
+      if (fixedSessionsType !== FixedSessionsTypes.ACTIVE) {
+        dispatch(setFixedSessionsType(FixedSessionsTypes.ACTIVE));
+      }
+    } else {
+      if (fixedSessionsType !== FixedSessionsTypes.DORMANT) {
+        dispatch(setFixedSessionsType(FixedSessionsTypes.DORMANT));
+      }
+    }
+  }, [isActive, fixedSessionsType, dispatch]);
+
+  const fetchableIndoorSessionsCount = listSessions.length;
+
+  const fetchableSessionsCount = useMemo(() => {
+    return sessionType === SessionTypes.FIXED
+      ? isIndoorParameterInUrl
+        ? fetchableIndoorSessionsCount
+        : fixedSessionsData?.fetchableSessionsCount || 0
+      : fetchableMobileSessionsCount;
+  }, [
+    fetchableMobileSessionsCount,
+    sessionType,
+    fetchableIndoorSessionsCount,
+    isIndoorParameterInUrl,
+    fixedSessionsData,
+  ]);
+
+  const sessionsPoints = fixedSessionTypeSelected ? fixedPoints : mobilePoints;
+  const isTimelapseDisabled =
+    listSessions.length === 0 || isDormant || isIndoorParameterInUrl;
+
+  const memoizedTimelapseData = useMemo(() => timelapseData, [timelapseData]);
+
   const indoorSessionsFilters = useMemo(
     () =>
       JSON.stringify({
@@ -297,17 +318,6 @@ const Map = () => {
   const thresholdFilters = useMemo(() => {
     return `${sensorName}?unit_symbol=${encodedUnitSymbol}`;
   }, [sensorName, encodedUnitSymbol]);
-
-  const {
-    data: activeSessions,
-    isLoading,
-    error,
-  } = useFixedSessions(FixedSessionsTypes.ACTIVE, filters);
-  const {
-    data: dormantSessions,
-    isLoading: dormantSessionsLoading,
-    error: dormantSessionsError,
-  } = useFixedSessions(FixedSessionsTypes.DORMANT, filters);
 
   // Effects
   useEffect(() => {
@@ -359,11 +369,7 @@ const Map = () => {
               ).unwrap();
             }
           } else {
-            if (isActive) {
-              activeSessions;
-            } else {
-              dormantSessions;
-            }
+            // No need to dispatch actions for fixed sessions; data is fetched via react-query
           }
         } else {
           dispatch(fetchMobileSessions({ filters }))
@@ -439,8 +445,8 @@ const Map = () => {
   useEffect(() => {
     if (streamId && currentUserSettings === UserSettings.ModalView) {
       fixedSessionTypeSelected
-        ? dispatch(fetchFixedStreamById(streamId))
-        : dispatch(fetchMobileStreamById(streamId));
+        ? dispatch(fetchFixedStreamById(Number(streamId)))
+        : dispatch(fetchMobileStreamById(Number(streamId)));
     }
   }, [
     streamId,
@@ -455,6 +461,7 @@ const Map = () => {
       const handleCleanSessions = () => {
         cleanSessions.mutate();
       };
+      handleCleanSessions();
       dispatch(setFetchingData(true));
     }
   }, [
@@ -464,6 +471,7 @@ const Map = () => {
     boundWest,
     realtimeMapUpdates,
     dispatch,
+    cleanSessions,
   ]);
 
   useEffect(() => {
@@ -472,16 +480,16 @@ const Map = () => {
     }
   }, [currentUserSettings, sessionsPoints]);
 
-  const handleScrollEnd = useHandleScrollEnd(
-    offset,
-    listSessions,
-    updateOffset,
-    updateFetchedSessions,
-    filters,
-    fetchableMobileSessionsCount,
-    dormantSessions?.fetchableSessionsCount || 0,
-    isDormant
-  );
+  // const handleScrollEnd = useHandleScrollEnd(
+  //   offset,
+  //   listSessions,
+  //   updateOffset,
+  //   updateFetchedSessions,
+  //   filters,
+  //   fetchableMobileSessionsCount,
+  //   fixedSessionsData?.fetchableSessionsCount || 0,
+  //   isDormant
+  // );
 
   const handleMapIdle = useCallback(
     (event: MapEvent) => {
@@ -530,7 +538,19 @@ const Map = () => {
         }
       }
     },
-    [currentUserSettings, mapInstance, searchParams, dispatch]
+    [
+      currentUserSettings,
+      mapInstance,
+      searchParams,
+      dispatch,
+      currentCenter,
+      currentZoom,
+      navigate,
+      newSearchParams,
+      previousCenter,
+      previousZoom,
+      sessionType,
+    ]
   );
 
   const handleMarkerClick = (
@@ -701,7 +721,7 @@ const Map = () => {
         minZoom={MIN_ZOOM}
         isFractionalZoomEnabled={true}
       >
-        {fixedSessionsStatusFulfilled &&
+        {fixedSessionsReady &&
           fixedSessionTypeSelected &&
           !isActive &&
           !isIndoorParameterInUrl && (
@@ -715,7 +735,7 @@ const Map = () => {
 
         {isTimelapseView
           ? renderTimelapseMarkers()
-          : fixedSessionsStatusFulfilled &&
+          : fixedSessionsReady &&
             fixedSessionTypeSelected &&
             !isIndoorParameterInUrl &&
             isActive && (
@@ -751,7 +771,7 @@ const Map = () => {
           />
         )}
       </GoogleMap>
-      {/* Show ThresholdsConfigurator only on desktop, if it's mobile, it should only be shown when modal is open */}
+      {/* Show ThresholdsConfigurator only on desktop; on mobile, show only when modal is open */}
       {(!isMobile ||
         (isMobile && currentUserSettings === UserSettings.ModalView)) && (
         <S.ThresholdContainer>
@@ -823,7 +843,7 @@ const Map = () => {
         {currentUserSettings === UserSettings.MapLegendView && (
           <Legend onClose={() => goToUserSettings(previousUserSettings)} />
         )}
-        {currentUserSettings === UserSettings.SessionListView && (
+        {/* {currentUserSettings === UserSettings.SessionListView && (
           <MobileSessionList
             sessions={listSessions.map((session: SessionList) => ({
               id: session.id,
@@ -845,7 +865,7 @@ const Map = () => {
             onScrollEnd={handleScrollEnd}
             fetchableSessionsCount={fetchableSessionsCount}
           />
-        )}
+        )} */}
         {currentUserSettings === UserSettings.FiltersView && (
           <MobileSessionFilters
             onClose={() =>
@@ -857,12 +877,12 @@ const Map = () => {
           />
         )}
       </S.MobileContainer>
-      {[UserSettings.MapView, UserSettings.CrowdMapView].includes(
+      {/* {[UserSettings.MapView, UserSettings.CrowdMapView].includes(
         currentUserSettings
       ) && (
         <S.DesktopContainer>
           <SessionsListView
-            sessions={listSessions.map((session) => ({
+            sessions={listSessions.map((session: SessionList) => ({
               id: session.id,
               sessionName: session.title,
               sensorName: session.sensorName,
@@ -885,7 +905,7 @@ const Map = () => {
             fetchableSessionsCount={fetchableSessionsCount}
           />
         </S.DesktopContainer>
-      )}
+      )} */}
     </>
   );
 };

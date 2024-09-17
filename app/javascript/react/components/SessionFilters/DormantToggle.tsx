@@ -1,16 +1,6 @@
 import React, { useCallback, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 
-import {
-  selectIsActiveSessionsFetched,
-  selectIsDormantSessionsFetched,
-} from "../../store/fixedSessionsSelectors";
-import { useAppDispatch, useAppSelector } from "../../store/hooks";
-import { setFetchingData } from "../../store/mapSlice";
-import {
-  FixedSessionsTypes,
-  setFixedSessionsType,
-} from "../../store/sessionFiltersSlice";
 import { useMapParams } from "../../utils/mapParamsHandler";
 import { Toggle } from "../Toggle/Toggle";
 import { FilterInfoPopup } from "./FilterInfoPopup";
@@ -19,44 +9,26 @@ import { YearPickerButtons } from "./YearPickerButtons";
 
 const DormantToggle = () => {
   const { t } = useTranslation();
-  const dispatch = useAppDispatch();
   const { isActive, updateIsActive, updateTime } = useMapParams();
 
-  const [isDormant, setIsDormant] = useState(false);
-  const isDormantSessionsFetched = useAppSelector(
-    selectIsDormantSessionsFetched
-  );
-  const isActiveSessionsFetched = useAppSelector(selectIsActiveSessionsFetched);
+  const [isDormant, setIsDormant] = useState(!isActive);
 
   const handleToggleClick = useCallback(() => {
     const newDormantState = !isDormant;
     setIsDormant(newDormantState);
     const currentYear = new Date().getFullYear();
 
-    if (newDormantState === true) {
+    if (newDormantState) {
       updateIsActive(false);
-      dispatch(setFixedSessionsType(FixedSessionsTypes.DORMANT));
     } else {
       updateTime(currentYear);
       updateIsActive(true);
-      dispatch(setFixedSessionsType(FixedSessionsTypes.ACTIVE));
+      // Trigger data refetching here if needed
     }
-
-    dispatch(setFetchingData(true));
-  }, [
-    isDormant,
-    isDormantSessionsFetched,
-    isActiveSessionsFetched,
-    dispatch,
-    updateIsActive,
-    updateTime,
-  ]);
+  }, [isDormant, updateIsActive, updateTime]);
 
   useEffect(() => {
     setIsDormant(!isActive);
-    if (!isActive) {
-      dispatch(setFixedSessionsType(FixedSessionsTypes.DORMANT));
-    }
   }, [isActive]);
 
   return (

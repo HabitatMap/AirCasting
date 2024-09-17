@@ -4,8 +4,7 @@ import { useTranslation } from "react-i18next";
 import clockIcon from "../../assets/icons/clockIcon.svg";
 import copyLinkIcon from "../../assets/icons/copyLinkIcon.svg";
 import filterIcon from "../../assets/icons/filterIcon.svg";
-import { TRUE } from "../../const/booleans";
-import { selectFixedSessionsList } from "../../store/fixedSessionsSelectors";
+// import { selectFixedSessionsList } from "../../store/fixedSessionsSelectors";
 import { useAppSelector } from "../../store/hooks";
 import {
   selectFixedSessionsType,
@@ -35,17 +34,17 @@ const MapButtons: React.FC = () => {
   const { t } = useTranslation();
 
   const fixedSessionsType = useAppSelector(selectFixedSessionsType);
-  const listSessions = useAppSelector((state) =>
-    selectFixedSessionsList(state, fixedSessionsType)
-  );
+  // const listSessions = useAppSelector((state) =>
+  //   selectFixedSessionsList(state, fixedSessionsType)
+  // );
   const isDormant = useAppSelector(selectIsDormantSessionsType);
 
   const showFilters = activeButtons.includes(ButtonTypes.FILTER);
   const isModalView = currentUserSettings === UserSettings.ModalView;
   const isTimelapseButtonVisible =
     !isModalView && sessionType === SessionTypes.FIXED;
-  const isTimelapseDisabled =
-    listSessions.length === 0 || isDormant || isIndoor === TRUE;
+  // const isTimelapseDisabled =
+  //   listSessions.length === 0 || isDormant || isIndoor === TRUE;
   const isTimelapseButtonActive =
     activeButtons.includes(ButtonTypes.TIMELAPSE) &&
     currentUserSettings === UserSettings.TimelapseView;
@@ -108,7 +107,7 @@ const MapButtons: React.FC = () => {
             onClick={handleTimelapseClick}
             alt={t("navbar.altTimelapse")}
             isActive={isTimelapseButtonActive}
-            isDisabled={isTimelapseDisabled}
+            // isDisabled={isTimelapseDisabled}
             className="active-overlay"
           />
         )}
