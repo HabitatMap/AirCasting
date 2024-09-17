@@ -8,9 +8,16 @@ class Api::ToMobileTags
 
     sessions = MobileSession.filter_(data)
 
-    tags = sessions.tag_counts.where(['tags.name ILIKE ?', "#{data[:input]}%"])
+    session_ids = sessions.pluck(:id)
+    return Success.new([]) if session_ids.empty?
 
-    Success.new(tags.map(&:name).sort_by { |word| words_first(word) })
+    tags = TagsRepository.new
+      .sessions_tags(
+        session_ids: session_ids,
+        input: data[:input]
+      )
+
+    Success.new(tags.rows.map { |row| row[0] })
   end
 
   private
@@ -19,9 +26,5 @@ class Api::ToMobileTags
 
   def data
     form.to_h.to_h
-  end
-
-  def words_first(str)
-    str[0] =~ /[[:alpha:]]/ ? '0' + str.downcase : '1' + str.downcase
   end
 end
