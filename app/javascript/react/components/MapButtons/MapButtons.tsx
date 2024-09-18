@@ -93,13 +93,19 @@ const MapButtons: React.FC = () => {
     data: activeSessionsData,
     isLoading: activeSessionsLoading,
     error: activeSessionsError,
-  } = useFixedSessions(FixedSessionsTypes.ACTIVE, filters);
+  } = useFixedSessions(FixedSessionsTypes.ACTIVE, {
+    filters,
+    enabled: isActive && sessionType === SessionTypes.FIXED,
+  });
 
   const {
     data: dormantSessionsData,
     isLoading: dormantSessionsLoading,
     error: dormantSessionsError,
-  } = useFixedSessions(FixedSessionsTypes.DORMANT, filters);
+  } = useFixedSessions(FixedSessionsTypes.DORMANT, {
+    filters,
+    enabled: !isActive && sessionType === SessionTypes.FIXED,
+  });
 
   // Determine which sessions data to use based on isActive
   const fixedSessionsData = isActive ? activeSessionsData : dormantSessionsData;

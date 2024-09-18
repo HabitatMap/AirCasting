@@ -3,7 +3,6 @@ import React from "react";
 import { APIProvider } from "@vis.gl/react-google-maps";
 
 import { Map } from "../../components/Map";
-import { MapButtons } from "../../components/MapButtons/MapButtons";
 import { FocusTabController } from "../../utils/focusTabController";
 import useMobileDetection from "../../utils/useScreenSizeDetection";
 
@@ -22,7 +21,7 @@ const MapPage: React.FC<MapPageProps> = ({ children }) => {
       onLoad={() => console.log("Maps API has loaded.")}
     >
       {children}
-      {!isMobile && <MapButtons />}
+      {/* {!isMobile && <MapButtons />} */}
       <FocusTabController />
       <Map />
     </APIProvider>

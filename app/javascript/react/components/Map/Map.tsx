@@ -1,3 +1,4 @@
+import { useQueryClient } from "@tanstack/react-query";
 import React, {
   useCallback,
   useEffect,
@@ -7,6 +8,10 @@ import React, {
 } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
+import {
+  prefetchFixedSessions,
+  useFixedSessions,
+} from "../../hooks/useFixedSessions";
 
 import { Map as GoogleMap, MapEvent } from "@vis.gl/react-google-maps";
 
@@ -26,10 +31,7 @@ import {
   getFixedSessionsList,
   getFixedSessionsPoints,
 } from "../../helpers/fixedSessionsHelpers";
-import {
-  useCleanSessions,
-  useFixedSessions,
-} from "../../hooks/useFixedSessions";
+import { useCleanSessions } from "../../hooks/useFixedSessions";
 import { selectFetchingData, setFetchingData } from "../../store/mapSlice";
 import { selectMarkersLoading } from "../../store/markersLoadingSlice";
 import {
@@ -84,6 +86,7 @@ import { TimelapseMarkers } from "./Markers/TimelapseMarkers";
 
 const Map = () => {
   const dispatch = useAppDispatch();
+  const queryClient = useQueryClient();
   const {
     boundEast,
     boundNorth,
@@ -192,19 +195,21 @@ const Map = () => {
 
   const {
     data: activeSessionsData,
-    refetch: refetchActiveSessions,
     isLoading: activeSessionsLoading,
     error: activeSessionsError,
-  } = useFixedSessions(FixedSessionsTypes.ACTIVE, filters);
+  } = useFixedSessions(FixedSessionsTypes.ACTIVE, {
+    filters,
+    enabled: isActive && sessionType === SessionTypes.FIXED, ,
+  });
 
   const {
     data: dormantSessionsData,
     isLoading: dormantSessionsLoading,
     error: dormantSessionsError,
-  } = useFixedSessions(FixedSessionsTypes.DORMANT, filters);
-
-  // const { data: mobileSessionsData, refetch: refetchMobileSessions } =
-  //   useMobileSessions(filters);
+  } = useFixedSessions(FixedSessionsTypes.DORMANT, {
+    filters,
+    enabled: !isActive && sessionType === SessionTypes.FIXED,
+  });
 
   const indoorSessionsFilters = useMemo(
     () =>
@@ -228,16 +233,6 @@ const Map = () => {
       usernamesDecoded,
     ]
   );
-
-  // const {
-  //   data: activeIndoorSessionsData,
-  //   refetch: refetchActiveIndoorSessions,
-  // } = useIndoorSessions(FixedSessionsTypes.ACTIVE, indoorSessionsFilters);
-
-  // const {
-  //   data: dormantIndoorSessionsData,
-  //   refetch: refetchDormantIndoorSessions,
-  // } = useIndoorSessions(FixedSessionsTypes.DORMANT, indoorSessionsFilters);
 
   const fixedSessionsData = isActive ? activeSessionsData : dormantSessionsData;
   const fixedSessionsLoading = isActive
@@ -364,13 +359,13 @@ const Map = () => {
     } else if (fetchingData || isFirstLoad) {
       if (fixedSessionTypeSelected) {
         if (isIndoorParameterInUrl) {
-          if (isActive) {
-            // Refetch active indoor sessions
-            refetchActiveIndoorSessions();
-          } else {
-            // Refetch dormant indoor sessions
-            refetchDormantIndoorSessions();
-          }
+          // if (isActive) {
+          //   // Refetch active indoor sessions
+          //   refetchActiveIndoorSessions();
+          // } else {
+          //   // Refetch dormant indoor sessions
+          //   refetchDormantIndoorSessions();
+          // }
         }
       } else {
         // Refetch mobile sessions
@@ -460,21 +455,20 @@ const Map = () => {
       handleCleanSessions();
       dispatch(setFetchingData(true));
     }
-  }, [
-    boundEast,
-    boundNorth,
-    boundSouth,
-    boundWest,
-    realtimeMapUpdates,
-    dispatch,
-    cleanSessions,
-  ]);
+  }, [boundEast, boundNorth, boundSouth, boundWest, realtimeMapUpdates]);
 
   useEffect(() => {
     if (currentUserSettings === UserSettings.TimelapseView) {
       dispatch(fetchTimelapseData({ filters: filters }));
     }
   }, [currentUserSettings, sessionsPoints]);
+
+  // Effect to prefetch dormant sessions when URL params change
+  useEffect(() => {
+    if (fixedSessionTypeSelected && isActive) {
+      prefetchFixedSessions(queryClient, FixedSessionsTypes.DORMANT, filters);
+    }
+  }, []);
 
   const {
     handleScrollEnd,
@@ -574,9 +568,7 @@ const Map = () => {
           selectedStreamId?.toString() || ""
         );
 
-        navigate(`/fixed_stream?${newSearchParams.toString()}`, {
-          replace: true,
-        });
+        navigate(`/fixed_stream?${newSearchParams.toString()}`);
         return;
       }
     }
@@ -712,22 +704,18 @@ const Map = () => {
         minZoom={MIN_ZOOM}
         isFractionalZoomEnabled={true}
       >
-        {fixedSessionsReady &&
-          fixedSessionTypeSelected &&
-          !isActive &&
-          !isIndoorParameterInUrl && (
-            <DormantMarkers
-              sessions={sessionsPoints}
-              onMarkerClick={handleMarkerClick}
-              selectedStreamId={streamId}
-              pulsatingSessionId={pulsatingSessionId}
-            />
-          )}
+        {fixedSessionsReady && !isActive && !isIndoorParameterInUrl && (
+          <DormantMarkers
+            sessions={sessionsPoints}
+            onMarkerClick={handleMarkerClick}
+            selectedStreamId={streamId}
+            pulsatingSessionId={pulsatingSessionId}
+          />
+        )}
 
         {isTimelapseView
           ? renderTimelapseMarkers()
           : fixedSessionsReady &&
-            fixedSessionTypeSelected &&
             !isIndoorParameterInUrl &&
             isActive && (
               <FixedMarkers
