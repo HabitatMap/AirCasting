@@ -35,9 +35,9 @@ import { SessionTypeToggle } from "./SessionTypeToggle";
 import { TagsInput } from "./TagsInput";
 import { YearPicker } from "./YearPicker";
 
-import { useFixedSessions } from "../../store/fixedSessionsSlice";
 import { useIndoorSessions } from "../../store/indoorSessionsSlice";
 // import { useMobileSessions } from "../../store/mobileSessionsSlice";
+import { useFixedSessions } from "../../hooks/useFixedSessions";
 import { FixedSessionsTypes } from "../../store/sessionFiltersSlice";
 import { DormantToggle } from "./DormantToggle";
 

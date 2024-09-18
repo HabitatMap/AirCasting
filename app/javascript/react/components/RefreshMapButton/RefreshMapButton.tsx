@@ -1,20 +1,20 @@
+import { useQueryClient } from "@tanstack/react-query";
 import React from "react";
-import { useTranslation } from "react-i18next";
 
-import { cleanSessions } from "../../store/fixedSessionsSlice";
-import { useAppDispatch } from "../../store/hooks";
-import { setFetchingData } from "../../store/mapSlice";
+import { useTranslation } from "react-i18next";
+import { useCleanSessions } from "../../hooks/useFixedSessions";
 import * as S from "./RefreshMapButton.style";
-import { clearMobileSessions } from "../../store/mobileSessionsSlice";
 
 const RefreshMapButton = () => {
   const { t } = useTranslation();
-  const dispatch = useAppDispatch();
+  const queryClient = useQueryClient();
+  const cleanSessions = useCleanSessions();
+  // const clearMobileSessions = useClearMobileSessions();
 
-  const handleClick = () => {
-    dispatch(clearMobileSessions());
-    dispatch(cleanSessions());
-    dispatch(setFetchingData(true));
+  const handleClick = async () => {
+    // await clearMobileSessions.mutateAsync();
+    await cleanSessions.mutateAsync();
+    queryClient.invalidateQueries({ queryKey: ["map"] });
   };
 
   return (

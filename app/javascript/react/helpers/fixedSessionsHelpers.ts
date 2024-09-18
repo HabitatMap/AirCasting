@@ -1,5 +1,5 @@
+import { FixedSession } from "../api/fixedSessionsApi";
 import { Session, SessionList } from "../types/sessionType";
-import { FixedSession } from "./fixedSessionsSlice";
 
 interface TransformedSession {
   id: number;
@@ -20,40 +20,42 @@ interface TransformedSession {
 export const transformSessionData = (
   sessions: FixedSession[]
 ): TransformedSession[] =>
-  sessions.map(
-    ({
-      id,
-      title,
-      lastMeasurementValue,
-      startTimeLocal,
-      endTimeLocal,
-      latitude,
-      longitude,
-      streams,
-    }) => {
-      const firstStreamKey = Object.keys(streams)[0];
-      const firstStream: {
-        sensorName?: string;
-        streamDailyAverage?: number;
-        id?: number;
-      } = firstStreamKey ? streams[firstStreamKey] : {};
-      return {
+  sessions
+    .filter(Boolean)
+    .map(
+      ({
         id,
         title,
-        sensorName: firstStream.sensorName ?? "",
         lastMeasurementValue,
-        startTime: startTimeLocal,
-        endTime: endTimeLocal,
-        averageValue: firstStream.streamDailyAverage ?? 0,
-        point: {
-          lat: latitude,
-          lng: longitude,
-          streamId: firstStream.id?.toString() ?? "0",
-        },
-        streamId: firstStream.id ?? 0,
-      };
-    }
-  );
+        startTimeLocal,
+        endTimeLocal,
+        latitude,
+        longitude,
+        streams,
+      }) => {
+        const firstStreamKey = Object.keys(streams)[0];
+        const firstStream: {
+          sensorName?: string;
+          streamDailyAverage?: number;
+          id?: number;
+        } = firstStreamKey ? streams[firstStreamKey] : {};
+        return {
+          id,
+          title,
+          sensorName: firstStream.sensorName ?? "",
+          lastMeasurementValue,
+          startTime: startTimeLocal,
+          endTime: endTimeLocal,
+          averageValue: firstStream.streamDailyAverage ?? 0,
+          point: {
+            lat: latitude,
+            lng: longitude,
+            streamId: firstStream.id?.toString() ?? "0",
+          },
+          streamId: firstStream.id ?? 0,
+        };
+      }
+    );
 
 export const getFixedSessionsPoints = (sessions: FixedSession[]): Session[] => {
   const transformedSessions = transformSessionData(sessions);
@@ -81,6 +83,9 @@ export const getFixedSessionsPoints = (sessions: FixedSession[]): Session[] => {
 export const getFixedSessionsList = (
   sessions: FixedSession[]
 ): SessionList[] => {
+  if (!sessions || sessions.length === 0) {
+    return [];
+  }
   const transformedSessions = transformSessionData(sessions);
   return transformedSessions.map(
     ({

@@ -13,7 +13,8 @@ import { MapButton } from "./MapButton";
 import * as S from "./MapButtons.style";
 
 import { TRUE } from "../../const/booleans";
-import { useFixedSessions } from "../../store/fixedSessionsSlice";
+
+import { useFixedSessions } from "../../hooks/useFixedSessions";
 import { FixedSessionsTypes } from "../../store/sessionFiltersSlice";
 
 enum ButtonTypes {

@@ -17,20 +17,19 @@ import pinImage from "../../assets/icons/pinImage.svg";
 import { TRUE } from "../../const/booleans";
 import { MIN_ZOOM } from "../../const/coordinates";
 import { RootState, selectIsLoading } from "../../store";
+
+import { fetchFixedStreamById } from "../../store/fixedStreamSlice";
+import { useAppDispatch, useAppSelector } from "../../store/hooks";
+
 import {
   getFixedSessionPointsBySessionId,
   getFixedSessionsList,
   getFixedSessionsPoints,
-} from "../../store/fixedSessionsHelpers";
+} from "../../helpers/fixedSessionsHelpers";
 import {
   useCleanSessions,
   useFixedSessions,
-} from "../../store/fixedSessionsSlice";
-import { fetchFixedStreamById } from "../../store/fixedStreamSlice";
-import { useAppDispatch, useAppSelector } from "../../store/hooks";
-
-import { getIndoorSessionsList } from "../../store/indoorSessionsHelpers";
-import { useIndoorSessions } from "../../store/indoorSessionsSlice";
+} from "../../hooks/useFixedSessions";
 import { selectFetchingData, setFetchingData } from "../../store/mapSlice";
 import { selectMarkersLoading } from "../../store/markersLoadingSlice";
 import {
@@ -191,6 +190,22 @@ const Map = () => {
     ]
   );
 
+  const {
+    data: activeSessionsData,
+    refetch: refetchActiveSessions,
+    isLoading: activeSessionsLoading,
+    error: activeSessionsError,
+  } = useFixedSessions(FixedSessionsTypes.ACTIVE, filters);
+
+  const {
+    data: dormantSessionsData,
+    isLoading: dormantSessionsLoading,
+    error: dormantSessionsError,
+  } = useFixedSessions(FixedSessionsTypes.DORMANT, filters);
+
+  // const { data: mobileSessionsData, refetch: refetchMobileSessions } =
+  //   useMobileSessions(filters);
+
   const indoorSessionsFilters = useMemo(
     () =>
       JSON.stringify({
@@ -214,33 +229,15 @@ const Map = () => {
     ]
   );
 
-  const {
-    data: activeSessionsData,
-    refetch: refetchActiveSessions,
-    isLoading: activeSessionsLoading,
-    error: activeSessionsError,
-  } = useFixedSessions(FixedSessionsTypes.ACTIVE, filters);
+  // const {
+  //   data: activeIndoorSessionsData,
+  //   refetch: refetchActiveIndoorSessions,
+  // } = useIndoorSessions(FixedSessionsTypes.ACTIVE, indoorSessionsFilters);
 
-  const {
-    data: dormantSessionsData,
-    isLoading: dormantSessionsLoading,
-    error: dormantSessionsError,
-  } = useFixedSessions(FixedSessionsTypes.DORMANT, filters);
-
-  // const { data: mobileSessionsData, refetch: refetchMobileSessions } =
-  //   useMobileSessions(filters);
-
-  const {
-    data: activeIndoorSessionsData,
-    refetch: refetchActiveIndoorSessions,
-    isLoading: activeIndoorSessionsLoading,
-    error: activeIndoorSessionsError,
-  } = useIndoorSessions(FixedSessionsTypes.ACTIVE, indoorSessionsFilters);
-
-  const {
-    data: dormantIndoorSessionsData,
-    refetch: refetchDormantIndoorSessions,
-  } = useIndoorSessions(FixedSessionsTypes.DORMANT, indoorSessionsFilters);
+  // const {
+  //   data: dormantIndoorSessionsData,
+  //   refetch: refetchDormantIndoorSessions,
+  // } = useIndoorSessions(FixedSessionsTypes.DORMANT, indoorSessionsFilters);
 
   const fixedSessionsData = isActive ? activeSessionsData : dormantSessionsData;
   const fixedSessionsLoading = isActive
@@ -280,27 +277,18 @@ const Map = () => {
   const listSessions = useMemo(() => {
     if (fixedSessionTypeSelected) {
       if (isIndoorParameterInUrl) {
-        // Choose the correct data based on whether sessions are active or dormant
-        const indoorSessionsData = isActive
-          ? activeIndoorSessionsData
-          : dormantIndoorSessionsData;
-
-        const sessions = indoorSessionsData?.sessions || [];
-        return getIndoorSessionsList(sessions);
+        // return useAppSelector(selectIndoorSessionsList(isDormant));
       } else {
         return getFixedSessionsList(fixedSessionsData?.sessions || []);
       }
     } else {
-      // If you've migrated mobile sessions to use React Query, update this accordingly
       return useAppSelector(selectMobileSessionsList);
     }
   }, [
     fixedSessionTypeSelected,
     isIndoorParameterInUrl,
     fixedSessionsData,
-    activeIndoorSessionsData,
-    dormantIndoorSessionsData,
-    isActive,
+    isDormant,
   ]);
 
   const cleanSessions = useCleanSessions();
@@ -377,13 +365,16 @@ const Map = () => {
       if (fixedSessionTypeSelected) {
         if (isIndoorParameterInUrl) {
           if (isActive) {
+            // Refetch active indoor sessions
             refetchActiveIndoorSessions();
           } else {
+            // Refetch dormant indoor sessions
             refetchDormantIndoorSessions();
           }
         }
-        // } else {
-        //   refetchMobileSessions();
+      } else {
+        // Refetch mobile sessions
+        // refetchMobileSessions();
       }
 
       isFirstRender.current = false;
@@ -485,16 +476,11 @@ const Map = () => {
     }
   }, [currentUserSettings, sessionsPoints]);
 
-  const handleScrollEnd = useHandleScrollEnd(
-    offset,
-    listSessions,
-    updateOffset,
-    updateFetchedSessions,
-    filters,
-    fetchableMobileSessionsCount,
-    fixedSessionsData?.fetchableSessionsCount || 0,
-    isDormant
-  );
+  const {
+    handleScrollEnd,
+    sessions: scrollSessions,
+    isLoading: scrollLoading,
+  } = useHandleScrollEnd(fixedSessionsType, filters);
 
   const handleMapIdle = useCallback(
     (event: MapEvent) => {
@@ -588,7 +574,9 @@ const Map = () => {
           selectedStreamId?.toString() || ""
         );
 
-        navigate(`/fixed_stream?${newSearchParams.toString()}`);
+        navigate(`/fixed_stream?${newSearchParams.toString()}`, {
+          replace: true,
+        });
         return;
       }
     }
