@@ -1,3 +1,4 @@
+import { useQueryClient } from "@tanstack/react-query";
 import React, {
   useCallback,
   useEffect,
@@ -17,24 +18,16 @@ import pinImage from "../../assets/icons/pinImage.svg";
 import { TRUE } from "../../const/booleans";
 import { MIN_ZOOM } from "../../const/coordinates";
 import { RootState, selectIsLoading } from "../../store";
-import {
-  selectFixedSessionPointsBySessionId,
-  selectFixedSessionsList,
-  selectFixedSessionsPoints,
-  selectFixedSessionsStatusFulfilled,
-} from "../../store/fixedSessionsSelectors";
-import {
-  cleanSessions,
-  fetchActiveFixedSessions,
-  fetchDormantFixedSessions,
-} from "../../store/fixedSessionsSlice";
+
 import { fetchFixedStreamById } from "../../store/fixedStreamSlice";
 import { useAppDispatch, useAppSelector } from "../../store/hooks";
-import { selectIndoorSessionsList } from "../../store/indoorSessionsSelectors";
+
 import {
-  fetchActiveIndoorSessions,
-  fetchDormantIndoorSessions,
-} from "../../store/indoorSessionsSlice";
+  getFixedSessionPointsBySessionId,
+  getFixedSessionsList,
+  getFixedSessionsPoints,
+} from "../../helpers/fixedSessionsHelpers";
+import { useCleanSessions } from "../../hooks/useFixedSessions";
 import { selectFetchingData, setFetchingData } from "../../store/mapSlice";
 import { selectMarkersLoading } from "../../store/markersLoadingSlice";
 import {
@@ -42,7 +35,6 @@ import {
   selectMobileSessionsList,
   selectMobileSessionsPoints,
 } from "../../store/mobileSessionsSelectors";
-import { fetchMobileSessions } from "../../store/mobileSessionsSlice";
 import { selectMobileStreamPoints } from "../../store/mobileStreamSelectors";
 import { fetchMobileStreamById } from "../../store/mobileStreamSlice";
 import { fetchSensors } from "../../store/sensorsSlice";
@@ -75,8 +67,8 @@ import { SessionDetailsModal } from "../Modals/SessionDetailsModal";
 import { TimelapseComponent } from "../Modals/TimelapseModal";
 import { SectionButton } from "../SectionButton/SectionButton";
 import { MobileSessionFilters } from "../SessionFilters/MobileSessionFilters";
-import { MobileSessionList } from "../SessionsListView/MobileSessionList/MobileSessionList";
-import { SessionsListView } from "../SessionsListView/SessionsListView";
+import { SessionsListView } from "../SessionsListView";
+import { MobileSessionList } from "../SessionsListView/MobileSessionList";
 import { ThresholdButtonVariant } from "../ThresholdConfigurator/ThresholdButtons/ThresholdButton";
 import { ThresholdsConfigurator } from "../ThresholdConfigurator/ThresholdConfigurator";
 import { Legend } from "./Legend/Legend";
@@ -88,8 +80,9 @@ import { MobileMarkers } from "./Markers/MobileMarkers";
 import { StreamMarkers } from "./Markers/StreamMarkers";
 import { TimelapseMarkers } from "./Markers/TimelapseMarkers";
 
-const Map = () => {
+const Map = ({ activeSessionsData, refetchActiveSessions }) => {
   const dispatch = useAppDispatch();
+  const queryClient = useQueryClient();
   const {
     boundEast,
     boundNorth,
@@ -137,87 +130,16 @@ const Map = () => {
   const [pulsatingSessionId, setPulsatingSessionId] = useState<number | null>(
     null
   );
+  const [isFirstLoad, setIsFirstLoad] = useState(true);
 
   // Selectors
   const defaultThresholds = useAppSelector(selectDefaultThresholds);
   const fetchableMobileSessionsCount = useAppSelector(
     (state: RootState) => state.mobileSessions.fetchableSessionsCount
   );
-  const fetchableFixedSessionsCount = useAppSelector(
-    (state: RootState) => state.fixedSessions.fetchableSessionsCount
-  );
 
   const fetchingData = useAppSelector(selectFetchingData);
   const fixedSessionsType = useAppSelector(selectFixedSessionsType);
-  const fixedPoints = useAppSelector((state) =>
-    sessionId
-      ? selectFixedSessionPointsBySessionId(state, fixedSessionsType, sessionId)
-      : selectFixedSessionsPoints(state, fixedSessionsType)
-  );
-
-  const fixedSessionsStatusFulfilled = useAppSelector(
-    selectFixedSessionsStatusFulfilled
-  );
-
-  const selectorsLoading = useAppSelector(selectIsLoading);
-  const markersLoading = useAppSelector(selectMarkersLoading);
-  const mapId = useAppSelector((state: RootState) => state.map.mapId);
-  const mobilePoints = sessionId
-    ? useAppSelector(selectMobileSessionPointsBySessionId(sessionId))
-    : useAppSelector(selectMobileSessionsPoints);
-  const mobileStreamPoints = useAppSelector(selectMobileStreamPoints);
-  const realtimeMapUpdates = useAppSelector(
-    (state: RootState) => state.realtimeMapUpdates.realtimeMapUpdates
-  );
-  const timelapseData = useAppSelector(selectTimelapseData);
-  const currentTimestamp = useAppSelector(selectCurrentTimestamp);
-  const isDormant = useAppSelector(selectIsDormantSessionsType);
-
-  const fixedSessionTypeSelected: boolean = sessionType === SessionTypes.FIXED;
-  const listSessions = useAppSelector((state) => {
-    if (fixedSessionTypeSelected) {
-      if (isIndoorParameterInUrl) {
-        return selectIndoorSessionsList(isDormant)(state);
-      } else {
-        return selectFixedSessionsList(state, fixedSessionsType);
-      }
-    } else {
-      return selectMobileSessionsList(state);
-    }
-  });
-
-  // update fixed session type based on the URL)
-  useEffect(() => {
-    if (isActive) {
-      if (fixedSessionsType !== FixedSessionsTypes.ACTIVE) {
-        dispatch(setFixedSessionsType(FixedSessionsTypes.ACTIVE));
-      }
-    } else {
-      if (fixedSessionsType !== FixedSessionsTypes.DORMANT) {
-        dispatch(setFixedSessionsType(FixedSessionsTypes.DORMANT));
-      }
-    }
-  }, [isActive, fixedSessionsType, dispatch]);
-
-  const fetchableIndoorSessionsCount = listSessions.length;
-
-  const fetchableSessionsCount = useMemo(() => {
-    return sessionType === SessionTypes.FIXED
-      ? isIndoorParameterInUrl
-        ? fetchableIndoorSessionsCount
-        : fetchableFixedSessionsCount
-      : fetchableMobileSessionsCount;
-  }, [
-    fetchableFixedSessionsCount,
-    fetchableMobileSessionsCount,
-    sessionType,
-    fetchableIndoorSessionsCount,
-    isIndoorParameterInUrl,
-  ]);
-
-  const sessionsPoints = fixedSessionTypeSelected ? fixedPoints : mobilePoints;
-
-  const memoizedTimelapseData = useMemo(() => timelapseData, [timelapseData]);
 
   const newSearchParams = new URLSearchParams(searchParams.toString());
   const preparedUnitSymbol = unitSymbol.replace(/"/g, "");
@@ -227,9 +149,6 @@ const Map = () => {
   const usernamesDecoded = usernames && decodeURIComponent(usernames);
 
   const isTimelapseView = currentUserSettings === UserSettings.TimelapseView;
-
-  const isTimelapseDisabled =
-    listSessions.length === 0 || isDormant || isIndoorParameterInUrl;
 
   const zoomLevel = !Number.isNaN(currentZoom) ? Math.round(currentZoom) : 5;
 
@@ -271,6 +190,30 @@ const Map = () => {
     ]
   );
 
+  // const {
+  //   data: activeSessionsData,
+  //   isLoading: activeSessionsLoading,
+  //   error: activeSessionsError,
+  //   refetch: refetchActiveSessions,
+  // } = useFixedSessions(FixedSessionsTypes.ACTIVE, {
+  //   filters,
+  //   enabled: isFirstLoad,
+  // });
+
+  useEffect(() => {
+    if (isFirstLoad && activeSessionsData) {
+      setIsFirstLoad(false);
+    }
+  }, [isFirstLoad, activeSessionsData]);
+  // const {
+  //   data: dormantSessionsData,
+  //   isLoading: dormantSessionsLoading,
+  //   error: dormantSessionsError,
+  // } = useFixedSessions(FixedSessionsTypes.DORMANT, {
+  //   filters,
+  //   enabled: firstLoad,
+  // });
+
   const indoorSessionsFilters = useMemo(
     () =>
       JSON.stringify({
@@ -293,6 +236,95 @@ const Map = () => {
       usernamesDecoded,
     ]
   );
+
+  const fixedSessionsData = isActive ? activeSessionsData : dormantSessionsData;
+
+  // const fixedSessionsLoading = isActive
+  //   ? activeSessionsLoading
+  //   : dormantSessionsLoading;
+
+  // Extract points from fixed sessions data
+  const fixedPoints = useMemo(() => {
+    if (!fixedSessionsData || !fixedSessionsData.sessions) return [];
+    if (sessionId) {
+      return getFixedSessionPointsBySessionId(
+        fixedSessionsData.sessions,
+        Number(sessionId)
+      );
+    } else {
+      return getFixedSessionsPoints(fixedSessionsData.sessions);
+    }
+  }, [fixedSessionsData, sessionId]);
+
+  const fixedSessionsReady = true;
+
+  const selectorsLoading = useAppSelector(selectIsLoading);
+  const markersLoading = useAppSelector(selectMarkersLoading);
+  const mapId = useAppSelector((state: RootState) => state.map.mapId);
+  const mobilePoints = sessionId
+    ? useAppSelector(selectMobileSessionPointsBySessionId(Number(sessionId)))
+    : useAppSelector(selectMobileSessionsPoints);
+  const mobileStreamPoints = useAppSelector(selectMobileStreamPoints);
+  const realtimeMapUpdates = useAppSelector(
+    (state: RootState) => state.realtimeMapUpdates.realtimeMapUpdates
+  );
+  const timelapseData = useAppSelector(selectTimelapseData);
+  const currentTimestamp = useAppSelector(selectCurrentTimestamp);
+  const isDormant = useAppSelector(selectIsDormantSessionsType);
+
+  const fixedSessionTypeSelected: boolean = sessionType === SessionTypes.FIXED;
+  const listSessions = useMemo(() => {
+    if (fixedSessionTypeSelected) {
+      if (isIndoorParameterInUrl) {
+        // return useAppSelector(selectIndoorSessionsList(isDormant));
+      } else {
+        return getFixedSessionsList(fixedSessionsData?.sessions || []);
+      }
+    } else {
+      return useAppSelector(selectMobileSessionsList);
+    }
+  }, [
+    fixedSessionTypeSelected,
+    isIndoorParameterInUrl,
+    fixedSessionsData,
+    isDormant,
+  ]);
+
+  const cleanSessions = useCleanSessions();
+
+  useEffect(() => {
+    if (isActive) {
+      if (fixedSessionsType !== FixedSessionsTypes.ACTIVE) {
+        dispatch(setFixedSessionsType(FixedSessionsTypes.ACTIVE));
+      }
+    } else {
+      if (fixedSessionsType !== FixedSessionsTypes.DORMANT) {
+        dispatch(setFixedSessionsType(FixedSessionsTypes.DORMANT));
+      }
+    }
+  }, [isActive, fixedSessionsType]);
+
+  const fetchableIndoorSessionsCount = listSessions.length;
+
+  const fetchableSessionsCount = useMemo(() => {
+    return sessionType === SessionTypes.FIXED
+      ? isIndoorParameterInUrl
+        ? fetchableIndoorSessionsCount
+        : fixedSessionsData?.fetchableSessionsCount || 0
+      : fetchableMobileSessionsCount;
+  }, [
+    fetchableMobileSessionsCount,
+    sessionType,
+    fetchableIndoorSessionsCount,
+    isIndoorParameterInUrl,
+    fixedSessionsData,
+  ]);
+
+  const sessionsPoints = fixedSessionTypeSelected ? fixedPoints : mobilePoints;
+  const isTimelapseDisabled =
+    listSessions.length === 0 || isDormant || isIndoorParameterInUrl;
+
+  const memoizedTimelapseData = useMemo(() => timelapseData, [timelapseData]);
 
   const thresholdFilters = useMemo(() => {
     return `${sensorName}?unit_symbol=${encodedUnitSymbol}`;
@@ -317,53 +349,41 @@ const Map = () => {
   ]);
 
   useEffect(() => {
-    const isFirstLoad = isFirstRender.current;
+    const isFirstLoad2 = isFirstRender.current;
+
     if (isFirstLoad && fetchedSessions > 0 && !fixedSessionTypeSelected) {
       const originalLimit = limit;
       updateLimit(fetchedSessions);
 
-      const updatedFilters = {
-        ...JSON.parse(filters),
-        limit: fetchedSessions,
-      };
+      updateFetchedSessions(fetchedSessions);
 
-      dispatch(fetchMobileSessions({ filters: JSON.stringify(updatedFilters) }))
-        .unwrap()
-        .then(() => {
-          updateLimit(originalLimit);
-          updateFetchedSessions(fetchedSessions);
-        });
+      updateLimit(originalLimit);
+
       isFirstRender.current = false;
-    } else {
-      if (fetchingData || isFirstLoad) {
-        if (fixedSessionTypeSelected) {
-          if (isIndoorParameterInUrl) {
-            if (isActive) {
-              dispatch(
-                fetchActiveIndoorSessions({ filters: indoorSessionsFilters })
-              ).unwrap();
-            } else {
-              dispatch(
-                fetchDormantIndoorSessions({ filters: indoorSessionsFilters })
-              ).unwrap();
-            }
-          } else {
-            if (isActive) {
-              dispatch(fetchActiveFixedSessions({ filters })).unwrap();
-            } else {
-              dispatch(fetchDormantFixedSessions({ filters })).unwrap();
-            }
-          }
+    } else if (fetchingData || isFirstLoad) {
+      if (fixedSessionTypeSelected) {
+        if (isIndoorParameterInUrl) {
+          // if (isActive) {
+          //   // Refetch active indoor sessions
+          //   refetchActiveIndoorSessions();
+          // } else {
+          //   // Refetch dormant indoor sessions
+          //   refetchDormantIndoorSessions();
+          // }
         } else {
-          dispatch(fetchMobileSessions({ filters }))
-            .unwrap()
-            .then((response) => {
-              updateFetchedSessions(response.sessions.length);
-            });
+          // Refetch based on active/dormant state for non-indoor sessions
+          if (isActive) {
+            refetchActiveSessions();
+          } else {
+            // refetchDormantSessions();
+          }
         }
-
-        isFirstRender.current = false;
+      } else {
+        // Refetch mobile sessions
+        // refetchMobileSessions();
       }
+
+      isFirstRender.current = false;
     }
 
     dispatch(setFetchingData(false));
@@ -372,7 +392,6 @@ const Map = () => {
     filters,
     fetchedSessions,
     limit,
-    dispatch,
     fixedSessionTypeSelected,
     offset,
     updateFetchedSessions,
@@ -428,8 +447,8 @@ const Map = () => {
   useEffect(() => {
     if (streamId && currentUserSettings === UserSettings.ModalView) {
       fixedSessionTypeSelected
-        ? dispatch(fetchFixedStreamById(streamId))
-        : dispatch(fetchMobileStreamById(streamId));
+        ? dispatch(fetchFixedStreamById(Number(streamId)))
+        : dispatch(fetchMobileStreamById(Number(streamId)));
     }
   }, [
     streamId,
@@ -441,17 +460,13 @@ const Map = () => {
 
   useEffect(() => {
     if (realtimeMapUpdates) {
-      dispatch(cleanSessions());
+      const handleCleanSessions = () => {
+        cleanSessions.mutate();
+      };
+      handleCleanSessions();
       dispatch(setFetchingData(true));
     }
-  }, [
-    boundEast,
-    boundNorth,
-    boundSouth,
-    boundWest,
-    realtimeMapUpdates,
-    dispatch,
-  ]);
+  }, [boundEast, boundNorth, boundSouth, boundWest, realtimeMapUpdates]);
 
   useEffect(() => {
     if (currentUserSettings === UserSettings.TimelapseView) {
@@ -459,16 +474,18 @@ const Map = () => {
     }
   }, [currentUserSettings, sessionsPoints]);
 
-  const handleScrollEnd = useHandleScrollEnd(
-    offset,
-    listSessions,
-    updateOffset,
-    updateFetchedSessions,
-    filters,
-    fetchableMobileSessionsCount,
-    fetchableFixedSessionsCount,
-    isDormant
-  );
+  // Effect to prefetch dormant sessions when URL params change
+  // useEffect(() => {
+  //   if (fixedSessionTypeSelected && isActive) {
+  //     prefetchFixedSessions(queryClient, FixedSessionsTypes.DORMANT, filters);
+  //   }
+  // }, []);
+
+  const {
+    handleScrollEnd,
+    sessions: scrollSessions,
+    isLoading: scrollLoading,
+  } = useHandleScrollEnd(fixedSessionsType, filters);
 
   const handleMapIdle = useCallback(
     (event: MapEvent) => {
@@ -517,7 +534,19 @@ const Map = () => {
         }
       }
     },
-    [currentUserSettings, mapInstance, searchParams, dispatch]
+    [
+      currentUserSettings,
+      mapInstance,
+      searchParams,
+      dispatch,
+      currentCenter,
+      currentZoom,
+      navigate,
+      newSearchParams,
+      previousCenter,
+      previousZoom,
+      sessionType,
+    ]
   );
 
   const handleMarkerClick = (
@@ -550,9 +579,7 @@ const Map = () => {
           selectedStreamId?.toString() || ""
         );
 
-        navigate(`/fixed_stream?${newSearchParams.toString()}`, {
-          replace: true,
-        });
+        navigate(`/fixed_stream?${newSearchParams.toString()}`);
         return;
       }
     }
@@ -688,22 +715,18 @@ const Map = () => {
         minZoom={MIN_ZOOM}
         isFractionalZoomEnabled={true}
       >
-        {fixedSessionsStatusFulfilled &&
-          fixedSessionTypeSelected &&
-          !isActive &&
-          !isIndoorParameterInUrl && (
-            <DormantMarkers
-              sessions={sessionsPoints}
-              onMarkerClick={handleMarkerClick}
-              selectedStreamId={streamId}
-              pulsatingSessionId={pulsatingSessionId}
-            />
-          )}
+        {fixedSessionsReady && !isActive && !isIndoorParameterInUrl && (
+          <DormantMarkers
+            sessions={sessionsPoints}
+            onMarkerClick={handleMarkerClick}
+            selectedStreamId={streamId}
+            pulsatingSessionId={pulsatingSessionId}
+          />
+        )}
 
         {isTimelapseView
           ? renderTimelapseMarkers()
-          : fixedSessionsStatusFulfilled &&
-            fixedSessionTypeSelected &&
+          : fixedSessionsReady &&
             !isIndoorParameterInUrl &&
             isActive && (
               <FixedMarkers
@@ -738,7 +761,7 @@ const Map = () => {
           />
         )}
       </GoogleMap>
-      {/* Show ThresholdsConfigurator only on desktop, if it's mobile, it should only be shown when modal is open */}
+      {/* Show ThresholdsConfigurator only on desktop; on mobile, show only when modal is open */}
       {(!isMobile ||
         (isMobile && currentUserSettings === UserSettings.ModalView)) && (
         <S.ThresholdContainer>
@@ -849,7 +872,7 @@ const Map = () => {
       ) && (
         <S.DesktopContainer>
           <SessionsListView
-            sessions={listSessions.map((session) => ({
+            sessions={listSessions.map((session: SessionList) => ({
               id: session.id,
               sessionName: session.title,
               sensorName: session.sensorName,

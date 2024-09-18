@@ -1,7 +1,6 @@
 import "./locales/i18n";
 
 import React from "react";
-import { Provider } from "react-redux";
 import {
   createBrowserRouter,
   createRoutesFromElements,
@@ -9,13 +8,16 @@ import {
   RouterProvider,
 } from "react-router-dom";
 
+import { QueryClientProvider } from "@tanstack/react-query";
+import { Provider } from "react-redux";
+import queryClient from "./api/queryClient";
 import GlobalStyles from "./assets/styles/global-styles";
 import { Navbar } from "./components/Navbar";
 import { CalendarPage } from "./pages/CalendarPage/CalendarPage";
 import { MapPage } from "./pages/MapPage";
 import { NotFoundPage } from "./pages/NotFoundPage";
 import { RedirectPage } from "./pages/RedirectPage";
-import store from "./store/index";
+import store from "./store";
 
 const NEW_MAP = "/new_map";
 
@@ -60,10 +62,12 @@ const router = createBrowserRouter(
 
 const App = () => {
   return (
-    <Provider store={store}>
-      <GlobalStyles />
-      <RouterProvider router={router}></RouterProvider>
-    </Provider>
+    <QueryClientProvider client={queryClient}>
+      <Provider store={store}>
+        <GlobalStyles />
+        <RouterProvider router={router}></RouterProvider>
+      </Provider>
+    </QueryClientProvider>
   );
 };
 

@@ -1,81 +1,46 @@
+import { useInfiniteQuery } from "@tanstack/react-query";
 import { useCallback } from "react";
-import { fetchDormantFixedSessions } from "../store/fixedSessionsSlice";
-import { useAppDispatch } from "../store/hooks";
-import { fetchMobileSessions } from "../store/mobileSessionsSlice";
+import { fetchSessions, SessionsResponse } from "../api/fixedSessionsApi";
+import { getFixedSessionsList } from "../helpers/fixedSessionsHelpers";
+import { FixedSessionsTypes } from "../store/sessionFiltersSlice";
 import { SessionList } from "../types/sessionType";
 
 export const useHandleScrollEnd = (
-  offset: number,
-  listSessions: SessionList[],
-  updateOffset: (offset: number) => void,
-  updateFetchedSessions: (count: number) => void,
-  filters: string,
-  fetchableMobileSessionsCount: number,
-  fetchableFixedSessionsCount: number,
-  isDormant: boolean
+  type: FixedSessionsTypes,
+  filters: string
 ) => {
-  const dispatch = useAppDispatch();
+  const { data, fetchNextPage, hasNextPage, isFetchingNextPage } =
+    useInfiniteQuery<SessionsResponse, Error>({
+      queryKey: ["fixedSessions", type, filters],
+      initialPageParam: 0,
+      queryFn: ({ pageParam = 0 }) => {
+        const updatedFilters = JSON.stringify({
+          ...JSON.parse(filters),
+          offset: pageParam,
+        });
+        return fetchSessions(type, updatedFilters);
+      },
+      getNextPageParam: (lastPage, allPages) => {
+        const totalFetched = allPages.flatMap((page) => page.sessions).length;
+        return totalFetched < lastPage.fetchableSessionsCount
+          ? totalFetched
+          : undefined;
+      },
+    });
 
   const handleScrollEnd = useCallback(() => {
-    const hasMoreSessions = listSessions.length < fetchableMobileSessionsCount;
-    const hasMoreDormantSessions =
-      isDormant && listSessions.length < fetchableFixedSessionsCount;
-
-    if (hasMoreSessions) {
-      const newOffset = offset + listSessions.length;
-      updateOffset(newOffset);
-
-      const updatedFilters = {
-        ...JSON.parse(filters),
-        offset: newOffset,
-      };
-
-      dispatch(
-        fetchMobileSessions({
-          filters: JSON.stringify(updatedFilters),
-          isAdditional: true,
-        })
-      )
-        .unwrap()
-        .then((response) => {
-          const totalFetchedSessions =
-            listSessions.length + response.sessions.length;
-          updateFetchedSessions(totalFetchedSessions);
-        });
+    if (hasNextPage && !isFetchingNextPage) {
+      fetchNextPage();
     }
+  }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
 
-    if (hasMoreDormantSessions) {
-      const newOffset = offset + listSessions.length;
-      updateOffset(newOffset);
+  const sessions: SessionList[] = data
+    ? getFixedSessionsList(data.pages.flatMap((page) => page.sessions || []))
+    : [];
 
-      const updatedFilters = {
-        ...JSON.parse(filters),
-        offset: newOffset,
-      };
-
-      dispatch(
-        fetchDormantFixedSessions({
-          filters: JSON.stringify(updatedFilters),
-          isAdditional: true,
-        })
-      )
-        .unwrap()
-        .then((response) => {
-          const totalFetchedSessions =
-            listSessions.length + response.sessions.length;
-          updateFetchedSessions(totalFetchedSessions);
-        });
-    }
-  }, [
-    offset,
-    listSessions.length,
-    fetchableMobileSessionsCount,
-    updateOffset,
-    dispatch,
-    filters,
-    fetchableFixedSessionsCount,
-    isDormant,
-  ]);
-
-  return handleScrollEnd;
+  return {
+    handleScrollEnd,
+    sessions,
+    isLoading: isFetchingNextPage,
+  };
 };

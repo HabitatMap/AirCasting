@@ -2,10 +2,10 @@ import { useQuery, UseQueryResult } from "@tanstack/react-query";
 import { AxiosResponse } from "axios";
 import { oldApiClient } from "../api/apiClient";
 import { API_ENDPOINTS } from "../api/apiEndpoints";
+import { FixedSessionsTypes } from "../store/sessionFiltersSlice";
 import { ApiError } from "../types/api";
 import { getErrorMessage } from "../utils/getErrorMessage";
 import { logError } from "../utils/logController";
-import { FixedSessionsTypes } from "./sessionFiltersSlice";
 
 interface IndoorSession {
   id: number;
