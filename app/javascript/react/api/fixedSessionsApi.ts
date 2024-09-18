@@ -42,11 +42,8 @@ export const fetchSessions = async (
       ? API_ENDPOINTS.fetchActiveFixedSessions
       : API_ENDPOINTS.fetchDormantFixedSessions;
 
-  console.log("endpoint", endpoint(filters));
-
   try {
     const response = await await oldApiClient.get(endpoint(filters));
-    console.log("response", response.data);
     return response.data;
   } catch (error) {
     const message = getErrorMessage(error);

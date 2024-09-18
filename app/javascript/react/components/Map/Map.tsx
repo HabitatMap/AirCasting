@@ -8,10 +8,6 @@ import React, {
 } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
-import {
-  prefetchFixedSessions,
-  useFixedSessions,
-} from "../../hooks/useFixedSessions";
 
 import { Map as GoogleMap, MapEvent } from "@vis.gl/react-google-maps";
 
@@ -84,7 +80,7 @@ import { MobileMarkers } from "./Markers/MobileMarkers";
 import { StreamMarkers } from "./Markers/StreamMarkers";
 import { TimelapseMarkers } from "./Markers/TimelapseMarkers";
 
-const Map = () => {
+const Map = ({ activeSessionsData, refetchActiveSessions }) => {
   const dispatch = useAppDispatch();
   const queryClient = useQueryClient();
   const {
@@ -134,6 +130,7 @@ const Map = () => {
   const [pulsatingSessionId, setPulsatingSessionId] = useState<number | null>(
     null
   );
+  const [isFirstLoad, setIsFirstLoad] = useState(true);
 
   // Selectors
   const defaultThresholds = useAppSelector(selectDefaultThresholds);
@@ -193,23 +190,29 @@ const Map = () => {
     ]
   );
 
-  const {
-    data: activeSessionsData,
-    isLoading: activeSessionsLoading,
-    error: activeSessionsError,
-  } = useFixedSessions(FixedSessionsTypes.ACTIVE, {
-    filters,
-    enabled: isActive && sessionType === SessionTypes.FIXED, ,
-  });
+  // const {
+  //   data: activeSessionsData,
+  //   isLoading: activeSessionsLoading,
+  //   error: activeSessionsError,
+  //   refetch: refetchActiveSessions,
+  // } = useFixedSessions(FixedSessionsTypes.ACTIVE, {
+  //   filters,
+  //   enabled: isFirstLoad,
+  // });
 
-  const {
-    data: dormantSessionsData,
-    isLoading: dormantSessionsLoading,
-    error: dormantSessionsError,
-  } = useFixedSessions(FixedSessionsTypes.DORMANT, {
-    filters,
-    enabled: !isActive && sessionType === SessionTypes.FIXED,
-  });
+  useEffect(() => {
+    if (isFirstLoad && activeSessionsData) {
+      setIsFirstLoad(false);
+    }
+  }, [isFirstLoad, activeSessionsData]);
+  // const {
+  //   data: dormantSessionsData,
+  //   isLoading: dormantSessionsLoading,
+  //   error: dormantSessionsError,
+  // } = useFixedSessions(FixedSessionsTypes.DORMANT, {
+  //   filters,
+  //   enabled: firstLoad,
+  // });
 
   const indoorSessionsFilters = useMemo(
     () =>
@@ -235,9 +238,10 @@ const Map = () => {
   );
 
   const fixedSessionsData = isActive ? activeSessionsData : dormantSessionsData;
-  const fixedSessionsLoading = isActive
-    ? activeSessionsLoading
-    : dormantSessionsLoading;
+
+  // const fixedSessionsLoading = isActive
+  //   ? activeSessionsLoading
+  //   : dormantSessionsLoading;
 
   // Extract points from fixed sessions data
   const fixedPoints = useMemo(() => {
@@ -252,7 +256,7 @@ const Map = () => {
     }
   }, [fixedSessionsData, sessionId]);
 
-  const fixedSessionsReady = !fixedSessionsLoading && fixedSessionsData;
+  const fixedSessionsReady = true;
 
   const selectorsLoading = useAppSelector(selectIsLoading);
   const markersLoading = useAppSelector(selectMarkersLoading);
@@ -345,7 +349,7 @@ const Map = () => {
   ]);
 
   useEffect(() => {
-    const isFirstLoad = isFirstRender.current;
+    const isFirstLoad2 = isFirstRender.current;
 
     if (isFirstLoad && fetchedSessions > 0 && !fixedSessionTypeSelected) {
       const originalLimit = limit;
@@ -366,6 +370,13 @@ const Map = () => {
           //   // Refetch dormant indoor sessions
           //   refetchDormantIndoorSessions();
           // }
+        } else {
+          // Refetch based on active/dormant state for non-indoor sessions
+          if (isActive) {
+            refetchActiveSessions();
+          } else {
+            // refetchDormantSessions();
+          }
         }
       } else {
         // Refetch mobile sessions
@@ -375,7 +386,7 @@ const Map = () => {
       isFirstRender.current = false;
     }
 
-    setFetchingData(false);
+    dispatch(setFetchingData(false));
   }, [
     fetchingData,
     filters,
@@ -464,11 +475,11 @@ const Map = () => {
   }, [currentUserSettings, sessionsPoints]);
 
   // Effect to prefetch dormant sessions when URL params change
-  useEffect(() => {
-    if (fixedSessionTypeSelected && isActive) {
-      prefetchFixedSessions(queryClient, FixedSessionsTypes.DORMANT, filters);
-    }
-  }, []);
+  // useEffect(() => {
+  //   if (fixedSessionTypeSelected && isActive) {
+  //     prefetchFixedSessions(queryClient, FixedSessionsTypes.DORMANT, filters);
+  //   }
+  // }, []);
 
   const {
     handleScrollEnd,

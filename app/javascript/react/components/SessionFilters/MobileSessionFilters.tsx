@@ -37,7 +37,6 @@ import { YearPicker } from "./YearPicker";
 
 import { useIndoorSessions } from "../../store/indoorSessionsSlice";
 // import { useMobileSessions } from "../../store/mobileSessionsSlice";
-import { useFixedSessions } from "../../hooks/useFixedSessions";
 import { FixedSessionsTypes } from "../../store/sessionFiltersSlice";
 import { DormantToggle } from "./DormantToggle";
 
@@ -159,17 +158,17 @@ const MobileSessionFilters = ({
   ]);
 
   // Fetch fixed sessions using react-query hooks
-  const {
-    data: activeSessionsData,
-    isLoading: activeSessionsLoading,
-    error: activeSessionsError,
-  } = useFixedSessions(FixedSessionsTypes.ACTIVE, filters);
+  // const {
+  //   data: activeSessionsData,
+  //   isLoading: activeSessionsLoading,
+  //   error: activeSessionsError,
+  // } = useFixedSessions(FixedSessionsTypes.ACTIVE, filters);
 
-  const {
-    data: dormantSessionsData,
-    isLoading: dormantSessionsLoading,
-    error: dormantSessionsError,
-  } = useFixedSessions(FixedSessionsTypes.DORMANT, filters);
+  // const {
+  //   data: dormantSessionsData,
+  //   isLoading: dormantSessionsLoading,
+  //   error: dormantSessionsError,
+  // } = useFixedSessions(FixedSessionsTypes.DORMANT, filters);
 
   // Fetch indoor sessions using react-query hooks
   const {
