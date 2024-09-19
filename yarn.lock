@@ -2572,10 +2572,10 @@
   dependencies:
     "@types/yargs-parser" "*"
 
-"@vis.gl/react-google-maps@^1.0.0":
-  version "1.0.0"
-  resolved "https://registry.yarnpkg.com/@vis.gl/react-google-maps/-/react-google-maps-1.0.0.tgz#03502b1263ea2a7e0d19328c382ae6b58566f40e"
-  integrity sha512-qkD2k8SIg5SrNJjM+FNOh0IITGLGCBULdALDOXGhVBq0hriv1GkTsoi7D0rs4fiYDQeKSqX8cmWgwGZcMTum1g==
+"@vis.gl/react-google-maps@^1.2.0":
+  version "1.2.0"
+  resolved "https://registry.yarnpkg.com/@vis.gl/react-google-maps/-/react-google-maps-1.2.0.tgz#f90bf285259da7d679b0d661ff6392fa7eb799f6"
+  integrity sha512-gKVE1Jb+FT+F8RGzFrsgB4GWbRq/vLJm2U5nMHiLJmRyaO6HcSfZJue8mUEDJCShsXE0ASphcoJxTQNrBhbFJg==
   dependencies:
     "@types/google.maps" "^3.54.10"
     fast-deep-equal "^3.1.3"
