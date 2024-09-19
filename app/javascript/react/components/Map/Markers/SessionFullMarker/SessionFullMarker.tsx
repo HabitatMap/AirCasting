@@ -20,6 +20,8 @@ interface MarkerProps {
   isSelected?: boolean;
   shouldPulse?: boolean;
   onClick?: () => void;
+  id?: string;
+  className?: string;
 }
 
 const SessionFullMarker = ({
@@ -28,12 +30,14 @@ const SessionFullMarker = ({
   isSelected,
   shouldPulse = false,
   onClick,
+  id,
+  className,
 }: MarkerProps) => {
   const isDormant = useAppSelector(selectIsDormantSessionsType);
 
   if (isSelected) {
     return (
-      <MarkerContainer onClick={onClick}>
+      <MarkerContainer onClick={onClick} id={id} className={className}>
         <SelectedShadowCircle color={color} />
         <SelectedDataContainer color={color}>
           <MarkerCircle color={color} />
@@ -43,7 +47,7 @@ const SessionFullMarker = ({
     );
   } else {
     return (
-      <MarkerContainer onClick={onClick}>
+      <MarkerContainer onClick={onClick} id={id} className={className}>
         <ShadowCircle color={color} $shouldPulse={shouldPulse} />
         <DataContainer>
           <MarkerCircle color={color} />

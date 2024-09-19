@@ -23,7 +23,6 @@ import { selectHoverStreamId } from "../../../store/mapSlice";
 import { selectThresholds } from "../../../store/thresholdSlice";
 import { Session } from "../../../types/sessionType";
 import { getClusterPixelPosition } from "../../../utils/getClusterPixelPosition";
-import useMapEventListeners from "../../../utils/mapEventListeners";
 import { useMapParams } from "../../../utils/mapParamsHandler";
 import { getColorForValue } from "../../../utils/thresholdColors";
 import {
@@ -31,8 +30,6 @@ import {
   pulsatingRenderer,
   updateClusterStyle,
 } from "./ClusterConfiguration";
-import { ClusterInfo } from "./ClusterInfo/ClusterInfo";
-import HoverMarker from "./HoverMarker/HoverMarker";
 
 import {
   selectFixedStreamData,
@@ -42,6 +39,9 @@ import {
 import { setMarkersLoading } from "../../../store/markersLoadingSlice";
 import { StatusEnum } from "../../../types/api";
 import type { LatLngLiteral } from "../../../types/googleMaps";
+import useMapEventListeners from "../../../utils/mapEventListeners";
+import { ClusterInfo } from "./ClusterInfo/ClusterInfo";
+import HoverMarker from "./HoverMarker/HoverMarker";
 import { SessionFullMarker } from "./SessionFullMarker/SessionFullMarker";
 
 type Props = {
@@ -97,6 +97,7 @@ const FixedMarkers = ({
     [streamId: string]: google.maps.marker.AdvancedMarkerElement | null;
   }>({});
   const [selectedCluster, setSelectedCluster] = useState<Cluster | null>(null);
+  const [visibleMarkers, setVisibleMarkers] = useState<Set<string>>(new Set());
 
   const memoizedSessions = useMemo(() => sessions, [sessions]);
   const memoizedMarkers = useMemo(() => markers, [markers]);
@@ -114,6 +115,8 @@ const FixedMarkers = ({
   const markersCount = Object.values(markers).filter(
     (marker) => marker !== null
   ).length;
+
+  console.log("selectedStreamId", selectedStreamId);
 
   const centerMapOnMarker = useCallback(
     (position: LatLngLiteral) => {
@@ -162,6 +165,18 @@ const FixedMarkers = ({
     },
     [dispatch]
   );
+
+  useEffect(() => {
+    if (selectedStreamId) {
+      setVisibleMarkers(new Set([`marker-${selectedStreamId}`]));
+    } else {
+      setVisibleMarkers(
+        new Set(
+          memoizedSessions.map((session) => `marker-${session.point.streamId}`)
+        )
+      );
+    }
+  }, [selectedStreamId, memoizedSessions]);
 
   const clusterElementsRef = useRef<
     Map<Cluster, google.maps.marker.AdvancedMarkerElement>
@@ -393,31 +408,47 @@ const FixedMarkers = ({
   return (
     <>
       {memoizedSessions.map((session) => (
-        <AdvancedMarker
-          position={session.point}
-          key={session.point.streamId}
-          zIndex={Number(google.maps.Marker.MAX_ZINDEX + 1)}
-          title={session.lastMeasurementValue.toString()}
-          ref={(marker) => {
-            if (marker && clusterer.current) {
-              setMarkerRef(marker, session.point.streamId);
-              clusterer.current.addMarker(marker);
-            }
-          }}
+        <div
+          id={`marker-${session.point.streamId}`}
+          className={`marker ${
+            visibleMarkers.has(`marker-${session.point.streamId}`)
+              ? ""
+              : "hide-marker"
+          }`}
         >
-          <SessionFullMarker
-            color={getColorForValue(thresholds, session.lastMeasurementValue)}
-            value={`${Math.round(session.lastMeasurementValue)} ${unitSymbol}`}
-            isSelected={session.point.streamId === selectedStreamId?.toString()}
-            shouldPulse={session.id === pulsatingSessionId}
-            onClick={() => {
-              onMarkerClick(Number(session.point.streamId), Number(session.id));
-              centerMapOnMarker(session.point);
+          <AdvancedMarker
+            position={session.point}
+            key={session.point.streamId}
+            zIndex={Number(google.maps.Marker.MAX_ZINDEX + 1)}
+            title={session.lastMeasurementValue.toString()}
+            ref={(marker) => {
+              if (marker && clusterer.current) {
+                setMarkerRef(marker, session.point.streamId);
+                clusterer.current.addMarker(marker);
+              }
             }}
-          />
-        </AdvancedMarker>
+          >
+            <SessionFullMarker
+              color={getColorForValue(thresholds, session.lastMeasurementValue)}
+              value={`${Math.round(
+                session.lastMeasurementValue
+              )} ${unitSymbol}`}
+              isSelected={
+                session.point.streamId === selectedStreamId?.toString()
+              }
+              shouldPulse={session.id === pulsatingSessionId}
+              onClick={() => {
+                onMarkerClick(
+                  Number(session.point.streamId),
+                  Number(session.id)
+                );
+                centerMapOnMarker(session.point);
+              }}
+            />
+          </AdvancedMarker>
+        </div>
       ))}
-      {shouldRenderSingularFixedStreamMarker && (
+      {/* {shouldRenderSingularFixedStreamMarker && (
         <AdvancedMarker
           position={{
             lat: fixedStreamData.stream.latitude,
@@ -432,7 +463,7 @@ const FixedMarkers = ({
             isSelected={true}
           />
         </AdvancedMarker>
-      )}
+      )} */}
       {hoverPosition && <HoverMarker position={hoverPosition} />}
       {selectedCluster && clusterPosition && !clusterLoading && clusterData && (
         <ClusterInfo

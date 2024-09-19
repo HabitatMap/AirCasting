@@ -37,6 +37,9 @@ const MarkerContainer = styled.div`
   cursor: pointer;
   z-index: 100;
   pointer-events: auto;
+  .hide-markers & {
+    display: none !important;
+  }
 `;
 
 const ShadowCircle = styled.div<MarkerShadowProps>`

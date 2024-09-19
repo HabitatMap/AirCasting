@@ -63,7 +63,9 @@ const GlobalStyles = createGlobalStyle`
         ${pulseAnimation} 2s infinite
       `};
   }
-
+  .hide-marker {
+    display: none !important;
+  }
   /* Scroll bar stylings */
 ::-webkit-scrollbar {
   width: 9px;
