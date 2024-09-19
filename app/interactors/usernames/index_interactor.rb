@@ -27,6 +27,7 @@ module Usernames
           .order(:username)
           .pluck(:username)
           .uniq
+          .sort
 
       Success.new(sessions_usernames)
     end
