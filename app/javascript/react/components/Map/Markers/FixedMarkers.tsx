@@ -102,21 +102,9 @@ const FixedMarkers = ({
   const memoizedSessions = useMemo(() => sessions, [sessions]);
   const memoizedMarkers = useMemo(() => markers, [markers]);
 
-  const shouldRenderSingularFixedStreamMarker =
-    selectedStreamId &&
-    !memoizedSessions.some(
-      (session) => session.point.streamId === selectedStreamId.toString()
-    ) &&
-    fixedStreamData.stream.latitude &&
-    fixedStreamData.stream.longitude;
-
-  const streamLastMeasurementValue = lastMeasurementValue ?? 0;
-
   const markersCount = Object.values(markers).filter(
     (marker) => marker !== null
   ).length;
-
-  console.log("selectedStreamId", selectedStreamId);
 
   const centerMapOnMarker = useCallback(
     (position: LatLngLiteral) => {
@@ -452,22 +440,6 @@ const FixedMarkers = ({
           </div>
         </AdvancedMarker>
       ))}
-      {/* {shouldRenderSingularFixedStreamMarker && (
-        <AdvancedMarker
-          position={{
-            lat: fixedStreamData.stream.latitude,
-            lng: fixedStreamData.stream.longitude,
-          }}
-          key={selectedStreamId.toString()}
-          zIndex={Number(google.maps.Marker.MAX_ZINDEX + 1)}
-        >
-          <SessionFullMarker
-            color={getColorForValue(thresholds, streamLastMeasurementValue)}
-            value={`${Math.round(streamLastMeasurementValue)} ${unitSymbol}`}
-            isSelected={true}
-          />
-        </AdvancedMarker>
-      )} */}
       {hoverPosition && <HoverMarker position={hoverPosition} />}
       {selectedCluster && clusterPosition && !clusterLoading && clusterData && (
         <ClusterInfo

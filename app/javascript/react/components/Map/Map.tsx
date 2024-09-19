@@ -149,9 +149,6 @@ const Map = () => {
   const fetchingData = useAppSelector(selectFetchingData);
   const fixedSessionsType = useAppSelector(selectFixedSessionsType);
   const fixedPoints = useAppSelector((state) =>
-    // sessionId
-    //   ? selectFixedSessionPointsBySessionId(state, fixedSessionsType, sessionId)
-    //   :
     selectFixedSessionsPoints(state, fixedSessionsType)
   );
 
@@ -527,14 +524,6 @@ const Map = () => {
     if (currentUserSettings !== UserSettings.SessionListView) {
       setPreviousZoomInTheURL();
     }
-
-    // niepotrzebne bo to samo dzieje się w useeffect
-    // if (selectedStreamId) {
-    //   fixedSessionTypeSelected
-    //     ? dispatch(fetchFixedStreamById(selectedStreamId))
-    //     : dispatch(fetchMobileStreamById(selectedStreamId));
-    // }
-    // ---
 
     if (isMobile) {
       if (fixedSessionTypeSelected) {
