@@ -26,6 +26,7 @@ module Usernames
           .where('username ILIKE ?', "#{data[:input]}%")
           .order(:username)
           .pluck(:username)
+          .uniq
 
       Success.new(sessions_usernames)
     end
