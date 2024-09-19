@@ -80,7 +80,8 @@ export const customRenderer = (
   thresholds: Thresholds,
   clusterElementsRef: React.MutableRefObject<
     Map<Cluster, google.maps.marker.AdvancedMarkerElement>
-  >
+  >,
+  selectedStreamId: number | null
 ) => ({
   render: (cluster: Cluster) => {
     const { markers, count, position } = cluster;
@@ -96,7 +97,7 @@ export const customRenderer = (
     div.style.backgroundSize = "contain";
     div.style.width = `${width}px`;
     div.style.height = `${height}px`;
-    div.style.display = "flex";
+    div.style.display = selectedStreamId ? "none" : "flex";
     div.style.alignItems = "center";
     div.style.justifyContent = "center";
     div.style.fontSize = `${textSize}px`;

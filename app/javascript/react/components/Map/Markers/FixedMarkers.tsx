@@ -373,7 +373,11 @@ const FixedMarkers = ({
       if (!clusterer.current) {
         clusterer.current = new MarkerClusterer({
           map,
-          renderer: customRenderer(thresholds, clusterElementsRef),
+          renderer: customRenderer(
+            thresholds,
+            clusterElementsRef,
+            selectedStreamId
+          ),
           algorithm: new SuperClusterAlgorithm({
             maxZoom: 21,
             radius: 40,
@@ -408,25 +412,25 @@ const FixedMarkers = ({
   return (
     <>
       {memoizedSessions.map((session) => (
-        <div
-          id={`marker-${session.point.streamId}`}
-          className={`marker ${
-            visibleMarkers.has(`marker-${session.point.streamId}`)
-              ? ""
-              : "hide-marker"
-          }`}
+        <AdvancedMarker
+          position={session.point}
+          key={session.point.streamId}
+          zIndex={Number(google.maps.Marker.MAX_ZINDEX + 1)}
+          title={session.lastMeasurementValue.toString()}
+          ref={(marker) => {
+            if (marker && clusterer.current) {
+              setMarkerRef(marker, session.point.streamId);
+              clusterer.current.addMarker(marker);
+            }
+          }}
         >
-          <AdvancedMarker
-            position={session.point}
-            key={session.point.streamId}
-            zIndex={Number(google.maps.Marker.MAX_ZINDEX + 1)}
-            title={session.lastMeasurementValue.toString()}
-            ref={(marker) => {
-              if (marker && clusterer.current) {
-                setMarkerRef(marker, session.point.streamId);
-                clusterer.current.addMarker(marker);
-              }
-            }}
+          <div
+            id={`marker-${session.point.streamId}`}
+            className={`marker ${
+              visibleMarkers.has(`marker-${session.point.streamId}`)
+                ? ""
+                : "hide-marker"
+            }`}
           >
             <SessionFullMarker
               color={getColorForValue(thresholds, session.lastMeasurementValue)}
@@ -445,8 +449,8 @@ const FixedMarkers = ({
                 centerMapOnMarker(session.point);
               }}
             />
-          </AdvancedMarker>
-        </div>
+          </div>
+        </AdvancedMarker>
       ))}
       {/* {shouldRenderSingularFixedStreamMarker && (
         <AdvancedMarker
