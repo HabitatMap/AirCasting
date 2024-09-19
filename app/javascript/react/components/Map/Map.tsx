@@ -80,7 +80,11 @@ import { ThresholdButtonVariant } from "../ThresholdConfigurator/ThresholdButton
 import { ThresholdsConfigurator } from "../ThresholdConfigurator/ThresholdConfigurator";
 import { Legend } from "./Legend/Legend";
 import * as S from "./Map.style";
+import { CrowdMapMarkers } from "./Markers/CrowdMapMarkers";
+import { DormantMarkers } from "./Markers/DormantMarkers";
 import { FixedMarkers } from "./Markers/FixedMarkers";
+import { MobileMarkers } from "./Markers/MobileMarkers";
+import { StreamMarkers } from "./Markers/StreamMarkers";
 import { TimelapseMarkers } from "./Markers/TimelapseMarkers";
 
 const Map = () => {
@@ -532,28 +536,28 @@ const Map = () => {
     // }
     // ---
 
-    // if (isMobile) {
-    //   if (fixedSessionTypeSelected) {
-    //     newSearchParams.set(
-    //       UrlParamsTypes.previousUserSettings,
-    //       currentUserSettings
-    //     );
-    //     newSearchParams.set(
-    //       UrlParamsTypes.currentUserSettings,
-    //       UserSettings.CalendarView
-    //     );
-    //     newSearchParams.set(UrlParamsTypes.sessionId, id?.toString() || "");
-    //     newSearchParams.set(
-    //       UrlParamsTypes.streamId,
-    //       selectedStreamId?.toString() || ""
-    //     );
+    if (isMobile) {
+      if (fixedSessionTypeSelected) {
+        newSearchParams.set(
+          UrlParamsTypes.previousUserSettings,
+          currentUserSettings
+        );
+        newSearchParams.set(
+          UrlParamsTypes.currentUserSettings,
+          UserSettings.CalendarView
+        );
+        newSearchParams.set(UrlParamsTypes.sessionId, id?.toString() || "");
+        newSearchParams.set(
+          UrlParamsTypes.streamId,
+          selectedStreamId?.toString() || ""
+        );
 
-    //     navigate(`/fixed_stream?${newSearchParams.toString()}`, {
-    //       replace: true,
-    //     });
-    //     return;
-    //   }
-    // }
+        navigate(`/fixed_stream?${newSearchParams.toString()}`, {
+          replace: true,
+        });
+        return;
+      }
+    }
 
     if (!streamId) {
       newSearchParams.set(UrlParamsTypes.sessionId, id?.toString() || "");
@@ -686,7 +690,7 @@ const Map = () => {
         minZoom={MIN_ZOOM}
         isFractionalZoomEnabled={true}
       >
-        {/* {fixedSessionsStatusFulfilled &&
+        {fixedSessionsStatusFulfilled &&
           fixedSessionTypeSelected &&
           !isActive &&
           !isIndoorParameterInUrl && (
@@ -703,14 +707,14 @@ const Map = () => {
           : fixedSessionsStatusFulfilled &&
             fixedSessionTypeSelected &&
             !isIndoorParameterInUrl &&
-            isActive && ( */}
-        <FixedMarkers
-          sessions={sessionsPoints}
-          onMarkerClick={handleMarkerClick}
-          selectedStreamId={streamId}
-          pulsatingSessionId={pulsatingSessionId}
-        />
-        {/* )}
+            isActive && (
+              <FixedMarkers
+                sessions={sessionsPoints}
+                onMarkerClick={handleMarkerClick}
+                selectedStreamId={streamId}
+                pulsatingSessionId={pulsatingSessionId}
+              />
+            )}
 
         {!fixedSessionTypeSelected &&
           ([UserSettings.CrowdMapView].includes(currentUserSettings) ||
@@ -734,7 +738,7 @@ const Map = () => {
             sessions={mobileStreamPoints}
             unitSymbol={unitSymbol}
           />
-        )} */}
+        )}
       </GoogleMap>
       {/* Show ThresholdsConfigurator only on desktop, if it's mobile, it should only be shown when modal is open */}
       {(!isMobile ||
