@@ -75,17 +75,6 @@ export const updateClusterStyle = (
   div.style.width = `${width}px`;
   div.style.height = `${height}px`;
   div.style.fontSize = `${textSize}px`;
-
-  // Smooth transition between visibility states
-  if (selectedStreamId) {
-    div.style.opacity = "0";
-    div.style.visibility = "hidden";
-  } else {
-    div.style.opacity = "1";
-    div.style.visibility = "visible";
-  }
-  div.style.transition =
-    "opacity 0.3s ease-in-out, visibility 0.3s ease-in-out";
 };
 
 export const customRenderer = (
@@ -117,11 +106,6 @@ export const customRenderer = (
     const span = document.createElement("span");
     span.textContent = `${count}`;
     div.appendChild(span);
-
-    div.style.opacity = selectedStreamId ? "0" : "1";
-    div.style.visibility = selectedStreamId ? "hidden" : "visible";
-    div.style.transition =
-      "opacity 0.3s ease-in-out, visibility 0.3s ease-in-out";
 
     const clusterElement = new google.maps.marker.AdvancedMarkerElement({
       position,

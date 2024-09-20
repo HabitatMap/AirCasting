@@ -181,7 +181,7 @@ const DormantMarkers = ({
         >
           <S.SessionMarkerWrapper
             id={`marker-${session.point.streamId}`}
-            isVisible={visibleMarkers.has(`marker-${session.point.streamId}`)}
+            $isVisible={visibleMarkers.has(`marker-${session.point.streamId}`)}
           >
             <SessionDotMarker
               color={gray300}

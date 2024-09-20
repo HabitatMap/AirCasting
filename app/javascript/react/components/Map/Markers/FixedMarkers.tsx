@@ -414,7 +414,7 @@ const FixedMarkers = ({
         >
           <S.SessionMarkerWrapper
             id={`marker-${session.point.streamId}`}
-            isVisible={visibleMarkers.has(`marker-${session.point.streamId}`)}
+            $isVisible={visibleMarkers.has(`marker-${session.point.streamId}`)}
           >
             <SessionFullMarker
               color={getColorForValue(thresholds, session.lastMeasurementValue)}

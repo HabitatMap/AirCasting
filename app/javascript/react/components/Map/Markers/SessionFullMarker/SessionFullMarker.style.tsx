@@ -97,9 +97,9 @@ const MarkerText = styled(H4)`
   white-space: nowrap;
 `;
 
-const SessionMarkerWrapper = styled.div<{ isVisible: boolean }>`
-  opacity: ${({ isVisible }) => (isVisible ? 1 : 0)};
-  visibility: ${({ isVisible }) => (isVisible ? "visible" : "hidden")};
+const SessionMarkerWrapper = styled.div<{ $isVisible: boolean }>`
+  opacity: ${({ $isVisible }) => ($isVisible ? 1 : 0)};
+  visibility: ${({ $isVisible }) => ($isVisible ? "visible" : "hidden")};
   transition: opacity 0.3s ease-in-out, visibility 0.3s ease-in-out;
 `;
 
