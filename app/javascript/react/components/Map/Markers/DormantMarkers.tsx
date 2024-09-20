@@ -53,6 +53,7 @@ const DormantMarkers = ({
   const [markers, setMarkers] = useState<{
     [streamId: string]: google.maps.marker.AdvancedMarkerElement | null;
   }>({});
+  const [visibleMarkers, setVisibleMarkers] = useState<Set<string>>(new Set());
 
   const memoizedSessions = useMemo(() => sessions, [sessions]);
 
@@ -114,6 +115,18 @@ const DormantMarkers = ({
   }, [selectedStreamId, fixedStreamData, fixedStreamStatus, centerMapOnMarker]);
 
   useEffect(() => {
+    if (selectedStreamId) {
+      setVisibleMarkers(new Set([`marker-${selectedStreamId}`]));
+    } else {
+      setVisibleMarkers(
+        new Set(
+          memoizedSessions.map((session) => `marker-${session.point.streamId}`)
+        )
+      );
+    }
+  }, [selectedStreamId, memoizedSessions]);
+
+  useEffect(() => {
     dispatch(setMarkersLoading(true));
   }, [dispatch, sessions.length]);
 
@@ -135,7 +148,6 @@ const DormantMarkers = ({
       dispatch(setMarkersLoading(false));
     }
   }, [dispatch, markersCount, sessions.length]);
-
 
   useEffect(() => {
     map && map.addListener("zoom_changed", () => handleMapInteraction());
@@ -166,14 +178,26 @@ const DormantMarkers = ({
             }
           }}
         >
-          <SessionDotMarker
-            color={gray300}
-            onClick={() => {
-              onMarkerClick(Number(session.point.streamId), Number(session.id));
-              centerMapOnMarker(session.point);
-            }}
-            shouldPulse={session.id === pulsatingSessionId}
-          />
+          <div
+            id={`marker-${session.point.streamId}`}
+            className={`marker ${
+              visibleMarkers.has(`marker-${session.point.streamId}`)
+                ? ""
+                : "hide-marker"
+            }`}
+          >
+            <SessionDotMarker
+              color={gray300}
+              onClick={() => {
+                onMarkerClick(
+                  Number(session.point.streamId),
+                  Number(session.id)
+                );
+                centerMapOnMarker(session.point);
+              }}
+              shouldPulse={session.id === pulsatingSessionId}
+            />
+          </div>
         </AdvancedMarker>
       ))}
       {hoverPosition && <HoverMarker position={hoverPosition} />}

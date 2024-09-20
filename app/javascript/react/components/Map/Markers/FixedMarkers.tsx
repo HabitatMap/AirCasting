@@ -154,18 +154,6 @@ const FixedMarkers = ({
     [dispatch]
   );
 
-  useEffect(() => {
-    if (selectedStreamId) {
-      setVisibleMarkers(new Set([`marker-${selectedStreamId}`]));
-    } else {
-      setVisibleMarkers(
-        new Set(
-          memoizedSessions.map((session) => `marker-${session.point.streamId}`)
-        )
-      );
-    }
-  }, [selectedStreamId, memoizedSessions]);
-
   const clusterElementsRef = useRef<
     Map<Cluster, google.maps.marker.AdvancedMarkerElement>
   >(new Map());
@@ -258,6 +246,18 @@ const FixedMarkers = ({
       clusterer.current.markerStreamIdMap = markerStreamIdMap;
     }
   }, [memoizedSessions, memoizedMarkers, dispatch]);
+
+  useEffect(() => {
+    if (selectedStreamId) {
+      setVisibleMarkers(new Set([`marker-${selectedStreamId}`]));
+    } else {
+      setVisibleMarkers(
+        new Set(
+          memoizedSessions.map((session) => `marker-${session.point.streamId}`)
+        )
+      );
+    }
+  }, [selectedStreamId, memoizedSessions]);
 
   useEffect(() => {
     return () => {
