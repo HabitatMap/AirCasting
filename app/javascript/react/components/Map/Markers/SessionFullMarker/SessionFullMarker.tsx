@@ -20,8 +20,6 @@ interface MarkerProps {
   isSelected?: boolean;
   shouldPulse?: boolean;
   onClick?: () => void;
-  id?: string;
-  className?: string;
 }
 
 const SessionFullMarker = ({
