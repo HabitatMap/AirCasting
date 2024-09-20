@@ -34,8 +34,8 @@ const DEVICE_CONFIGS: Record<
     bounds: {
       north: 49.3457868,
       south: 24.396308,
-      west: -109.56515614467838,
-      east: -81.87960966601229,
+      west: -112.15792978034534,
+      east: -79.28683603034534,
     },
   },
   "desktop-small": {
