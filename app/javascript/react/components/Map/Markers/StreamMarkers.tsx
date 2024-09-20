@@ -14,7 +14,6 @@ import {
 import { selectThresholds } from "../../../store/thresholdSlice";
 import { Session } from "../../../types/sessionType";
 import { getColorForValue } from "../../../utils/thresholdColors";
-import HoverMarker from "./HoverMarker/HoverMarker";
 import { StreamMarker } from "./StreamMarker/StreamMarker";
 
 type Props = {
@@ -98,7 +97,7 @@ const StreamMarkers = ({ sessions, unitSymbol }: Props) => {
           </AdvancedMarker>
         </React.Fragment>
       ))}
-      {hoverPosition && <HoverMarker position={hoverPosition} />}
+      {/* {hoverPosition && <HoverMarker position={hoverPosition} />} */}
     </>
   );
 };
