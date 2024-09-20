@@ -33,7 +33,6 @@ import {
 
 import {
   selectFixedStreamData,
-  selectFixedStreamShortInfo,
   selectFixedStreamStatus,
 } from "../../../store/fixedStreamSelectors";
 import { setMarkersLoading } from "../../../store/markersLoadingSlice";
@@ -43,6 +42,7 @@ import useMapEventListeners from "../../../utils/mapEventListeners";
 import { ClusterInfo } from "./ClusterInfo/ClusterInfo";
 import HoverMarker from "./HoverMarker/HoverMarker";
 import { SessionFullMarker } from "./SessionFullMarker/SessionFullMarker";
+import * as S from "./SessionFullMarker/SessionFullMarker.style";
 
 type Props = {
   sessions: Session[];
@@ -66,7 +66,6 @@ const FixedMarkers = ({
   const dispatch = useAppDispatch();
   const clusterData = useAppSelector((state: RootState) => state.cluster.data);
   const fixedStreamData = useAppSelector(selectFixedStreamData);
-  const { lastMeasurementValue } = useAppSelector(selectFixedStreamShortInfo);
   const clusterLoading = useAppSelector(
     (state: RootState) => state.cluster.loading
   );
@@ -413,13 +412,9 @@ const FixedMarkers = ({
             }
           }}
         >
-          <div
+          <S.SessionMarkerWrapper
             id={`marker-${session.point.streamId}`}
-            className={`marker ${
-              visibleMarkers.has(`marker-${session.point.streamId}`)
-                ? ""
-                : "hide-marker"
-            }`}
+            isVisible={visibleMarkers.has(`marker-${session.point.streamId}`)}
           >
             <SessionFullMarker
               color={getColorForValue(thresholds, session.lastMeasurementValue)}
@@ -438,7 +433,7 @@ const FixedMarkers = ({
                 centerMapOnMarker(session.point);
               }}
             />
-          </div>
+          </S.SessionMarkerWrapper>
         </AdvancedMarker>
       ))}
       {hoverPosition && <HoverMarker position={hoverPosition} />}

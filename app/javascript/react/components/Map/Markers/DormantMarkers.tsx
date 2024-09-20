@@ -24,6 +24,7 @@ import { setMarkersLoading } from "../../../store/markersLoadingSlice";
 import { StatusEnum } from "../../../types/api";
 import type { LatLngLiteral } from "../../../types/googleMaps";
 import { SessionDotMarker } from "./SessionDotMarker/SessionDotMarker";
+import * as S from "./SessionFullMarker/SessionFullMarker.style";
 
 type Props = {
   sessions: Session[];
@@ -178,13 +179,9 @@ const DormantMarkers = ({
             }
           }}
         >
-          <div
+          <S.SessionMarkerWrapper
             id={`marker-${session.point.streamId}`}
-            className={`marker ${
-              visibleMarkers.has(`marker-${session.point.streamId}`)
-                ? ""
-                : "hide-marker"
-            }`}
+            isVisible={visibleMarkers.has(`marker-${session.point.streamId}`)}
           >
             <SessionDotMarker
               color={gray300}
@@ -197,7 +194,7 @@ const DormantMarkers = ({
               }}
               shouldPulse={session.id === pulsatingSessionId}
             />
-          </div>
+          </S.SessionMarkerWrapper>
         </AdvancedMarker>
       ))}
       {hoverPosition && <HoverMarker position={hoverPosition} />}
