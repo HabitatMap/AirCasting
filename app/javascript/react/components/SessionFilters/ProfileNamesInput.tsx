@@ -46,10 +46,11 @@ const ProfileNamesInput = () => {
   );
   const selectedSessionType = sessionType || SessionTypes.FIXED;
   const preparedUnitSymbol = unitSymbol.replace(/"/g, "");
+  const tagsDecoded = tags && decodeURIComponent(tags);
 
   const getQueryParams = (usernames: string): ParamsType => {
     return {
-      tags: tags,
+      tags: tagsDecoded,
       west: boundWest.toString(),
       east: boundEast.toString(),
       south: boundSouth.toString(),
@@ -95,6 +96,7 @@ const ProfileNamesInput = () => {
     const queryParams = getQueryParams(inputValue);
     dispatch(fetchUsernames(queryParams));
   };
+
   const decodedUsernamesArray =
     usernames &&
     decodeURIComponent(usernames)

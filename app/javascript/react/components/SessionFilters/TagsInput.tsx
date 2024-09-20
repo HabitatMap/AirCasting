@@ -45,6 +45,7 @@ const TagsInput = () => {
   const isTagsInputFetching = useAppSelector(selectIsTagsInputFetching);
 
   const preparedUnitSymbol = unitSymbol.replace(/"/g, "");
+  const usernamesDecoded = usernames && decodeURIComponent(usernames);
 
   const getQueryParams = (tags: string): ParamsType => {
     return {
@@ -55,7 +56,7 @@ const TagsInput = () => {
       north: boundNorth.toString(),
       timeFrom: timeFrom,
       timeTo: timeTo,
-      usernames: usernames,
+      usernames: usernamesDecoded,
       sensorName: sensorName,
       unitSymbol: preparedUnitSymbol,
       sessionType: selectedSessionType,
