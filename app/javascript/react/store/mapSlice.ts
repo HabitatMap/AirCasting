@@ -30,7 +30,7 @@ const mapSlice = createSlice({
       state.hoverStreamId = action.payload;
     },
     setHoverPosition(state, action: PayloadAction<LatLngLiteral>) {
-      state.position = action.payload;
+      // state.position = action.payload;
     },
     setMapId(state, action: PayloadAction<string>) {
       state.mapId = action.payload;

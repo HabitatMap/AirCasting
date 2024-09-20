@@ -19,7 +19,6 @@ import { AdvancedMarker, useMap } from "@vis.gl/react-google-maps";
 import { RootState } from "../../../store";
 import { fetchClusterData, setVisibility } from "../../../store/clusterSlice";
 import { useAppDispatch, useAppSelector } from "../../../store/hooks";
-import { selectHoverStreamId } from "../../../store/mapSlice";
 import { selectThresholds } from "../../../store/thresholdSlice";
 import { Session } from "../../../types/sessionType";
 import { getClusterPixelPosition } from "../../../utils/getClusterPixelPosition";
@@ -71,7 +70,7 @@ const FixedMarkers = ({
   const clusterVisible = useAppSelector(
     (state: RootState) => state.cluster.visible
   );
-  const hoverStreamId = useAppSelector(selectHoverStreamId);
+  // const hoverStreamId = useAppSelector(selectHoverStreamId);
   const thresholds = useAppSelector(selectThresholds);
   const fixedStreamStatus = useAppSelector(selectFixedStreamStatus);
 
@@ -290,18 +289,18 @@ const FixedMarkers = ({
     dispatch(setMarkersLoading(true));
   }, [dispatch, sessions.length]);
 
-  useEffect(() => {
-    if (hoverStreamId) {
-      const hoveredSession = memoizedSessions.find(
-        (session) => Number(session.point.streamId) === hoverStreamId
-      );
-      if (hoveredSession) {
-        setHoverPosition(hoveredSession.point);
-      }
-    } else {
-      setHoverPosition(null);
-    }
-  }, [hoverStreamId, memoizedSessions]);
+  // useEffect(() => {
+  //   if (hoverStreamId) {
+  //     const hoveredSession = memoizedSessions.find(
+  //       (session) => Number(session.point.streamId) === hoverStreamId
+  //     );
+  //     if (hoveredSession) {
+  //       setHoverPosition(hoveredSession.point);
+  //     }
+  //   } else {
+  //     setHoverPosition(null);
+  //   }
+  // }, [hoverStreamId, memoizedSessions]);
 
   useEffect(() => {
     if (markersCount >= sessions.length) {
