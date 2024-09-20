@@ -30,14 +30,12 @@ const SessionFullMarker = ({
   isSelected,
   shouldPulse = false,
   onClick,
-  id,
-  className,
 }: MarkerProps) => {
   const isDormant = useAppSelector(selectIsDormantSessionsType);
 
   if (isSelected) {
     return (
-      <MarkerContainer onClick={onClick} id={id} className={className}>
+      <MarkerContainer onClick={onClick}>
         <SelectedShadowCircle color={color} />
         <SelectedDataContainer color={color}>
           <MarkerCircle color={color} />
@@ -47,7 +45,7 @@ const SessionFullMarker = ({
     );
   } else {
     return (
-      <MarkerContainer onClick={onClick} id={id} className={className}>
+      <MarkerContainer onClick={onClick}>
         <ShadowCircle color={color} $shouldPulse={shouldPulse} />
         <DataContainer>
           <MarkerCircle color={color} />
