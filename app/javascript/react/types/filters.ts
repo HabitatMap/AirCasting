@@ -5,8 +5,8 @@ const SessionTypes = {
 
 type SessionType = typeof SessionTypes.FIXED | typeof SessionTypes.MOBILE;
 
-type fetchTagsParamsType = {
-  tags: string;
+type ParamsType = {
+  tags: string | null;
   west: string;
   east: string;
   south: string;
@@ -56,8 +56,8 @@ export {
   MobileBasicParameterTypes,
   ParameterType,
   ParameterTypes,
+  ParamsType,
   SessionType,
   SessionTypes,
   UnitSymbols,
-  fetchTagsParamsType,
 };

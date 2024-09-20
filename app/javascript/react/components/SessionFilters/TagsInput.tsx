@@ -10,7 +10,7 @@ import {
   selectIsTagsInputFetching,
   selectTags,
 } from "../../store/sessionFiltersSlice";
-import { fetchTagsParamsType, SessionTypes } from "../../types/filters";
+import { ParamsType, SessionTypes } from "../../types/filters";
 import { UrlParamsTypes, useMapParams } from "../../utils/mapParamsHandler";
 import { Spinner } from "../Loader/Spinner";
 import { FilterInfoPopup } from "./FilterInfoPopup";
@@ -46,7 +46,7 @@ const TagsInput = () => {
 
   const preparedUnitSymbol = unitSymbol.replace(/"/g, "");
 
-  const getQueryParams = (tags: string): fetchTagsParamsType => {
+  const getQueryParams = (tags: string): ParamsType => {
     return {
       tags: tags,
       west: boundWest.toString(),

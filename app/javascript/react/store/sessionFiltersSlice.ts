@@ -1,10 +1,10 @@
 import { PayloadAction, createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { AxiosResponse } from "axios";
 import { RootState } from ".";
-import { oldApiClient } from "../api/apiClient";
+import { oldApiClient, stagingApiClient } from "../api/apiClient";
 import { API_ENDPOINTS } from "../api/apiEndpoints";
 import { ApiError, StatusEnum } from "../types/api";
-import { fetchTagsParamsType } from "../types/filters";
+import { ParamsType } from "../types/filters";
 import { getErrorMessage } from "../utils/getErrorMessage";
 import { logError } from "../utils/logController";
 
@@ -43,12 +43,12 @@ const initialState: SessionFilterState = {
 
 export const fetchUsernames = createAsyncThunk<
   string[],
-  string,
+  ParamsType,
   { rejectValue: ApiError }
->("autocomplete/usernames", async (username, { rejectWithValue }) => {
+>("autocomplete/usernames", async (params, { rejectWithValue }) => {
   try {
-    const response: AxiosResponse<string[]> = await oldApiClient.get(
-      API_ENDPOINTS.fetchUsernames(username)
+    const response: AxiosResponse<string[]> = await stagingApiClient.get(
+      API_ENDPOINTS.fetchUsernames(params)
     );
     return response.data;
   } catch (error) {
@@ -58,7 +58,7 @@ export const fetchUsernames = createAsyncThunk<
       message,
       additionalInfo: {
         action: "fetchUsernames",
-        endpoint: API_ENDPOINTS.fetchUsernames(username),
+        endpoint: API_ENDPOINTS.fetchUsernames(params),
       },
     };
 
@@ -70,7 +70,7 @@ export const fetchUsernames = createAsyncThunk<
 
 export const fetchTags = createAsyncThunk<
   string[],
-  fetchTagsParamsType,
+  ParamsType,
   { rejectValue: ApiError }
 >("autocomplete/tags", async (params, { rejectWithValue }) => {
   try {

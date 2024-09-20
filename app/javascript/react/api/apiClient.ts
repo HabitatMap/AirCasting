@@ -9,6 +9,10 @@ const oldApiClient = axios.create({
   baseURL: process.env.API_BASE_URL,
 });
 
+const stagingApiClient = axios.create({
+  baseURL: process.env.API_STAGING_URL,
+});
+
 apiClient.interceptors.response.use((response: AxiosResponse) => {
   response.data = camelizeKeys(response.data);
 
@@ -21,4 +25,4 @@ oldApiClient.interceptors.response.use((response: AxiosResponse) => {
   return response;
 });
 
-export { apiClient, oldApiClient };
+export { apiClient, oldApiClient, stagingApiClient };

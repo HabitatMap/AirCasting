@@ -1,4 +1,4 @@
-import { fetchTagsParamsType, SessionType } from "../types/filters";
+import { ParamsType, SessionType } from "../types/filters";
 
 interface ApiEndpoints {
   readonly exportSessionData: (sessionsIds: number[], email: string) => string;
@@ -16,8 +16,8 @@ interface ApiEndpoints {
     endDate: string
   ) => string;
   readonly fetchThresholds: (filters: string) => string;
-  readonly fetchUsernames: (username: string) => string;
-  readonly fetchTags: (params: fetchTagsParamsType) => string;
+  readonly fetchUsernames: (params: ParamsType) => string;
+  readonly fetchTags: (params: ParamsType) => string;
   readonly fetchSensors: (sessionType: SessionType) => string;
   readonly fetchTimelapseData: (filters: string) => string;
   readonly fetchIndoorActiveSessions: (filters: string) => string;
@@ -50,7 +50,70 @@ export const API_ENDPOINTS: ApiEndpoints = {
   fetchSelectedDataRangeOfStream: (id, startDate, endDate) =>
     `/stream_daily_averages?stream_id=${id}&start_date=${startDate}&end_date=${endDate}`,
   fetchThresholds: (filters) => `/thresholds/${filters}`,
-  fetchUsernames: (username) => `/autocomplete/usernames?q[input]=${username}`,
+  fetchUsernames: (params) => {
+    const {
+      usernames,
+      tags,
+      west,
+      east,
+      south,
+      north,
+      timeFrom,
+      timeTo,
+      sensorName,
+      unitSymbol,
+      isIndoor,
+      isActive,
+      sessionType,
+    } = params;
+
+    if (
+      west === undefined ||
+      east === undefined ||
+      south === undefined ||
+      north === undefined ||
+      timeFrom === undefined ||
+      timeTo === undefined ||
+      sensorName === undefined ||
+      unitSymbol === undefined ||
+      isIndoor === undefined ||
+      isActive === undefined ||
+      tags === undefined
+    ) {
+      throw new Error("Missing required parameters.");
+    }
+
+    const query: Record<string, string | number | boolean> = {
+      "q[input]": usernames || "",
+      "q[west]": west,
+      "q[east]": east,
+      "q[south]": south,
+      "q[north]": north,
+      "q[time_from]": timeFrom,
+      "q[time_to]": timeTo,
+      "q[sensor_name]": sensorName,
+      "q[unit_symbol]": unitSymbol,
+      "q[is_indoor]": isIndoor,
+      "q[session_type]": sessionType,
+      "q[is_dormant]": !isActive,
+      "q[tags]": tags || "",
+    };
+
+    function encodeParamName(name: string): string {
+      return name.replace(/[^A-Za-z0-9_\[\]]/g, encodeURIComponent);
+    }
+
+    const queryString = Object.keys(query)
+      .map(
+        (key) =>
+          `${encodeParamName(key)}=${encodeURIComponent(String(query[key]))}`
+      )
+      .join("&");
+
+    const url = `/autocomplete/usernames?${queryString}`;
+
+    return url;
+  },
   fetchTags: (params) => {
     const {
       tags,
