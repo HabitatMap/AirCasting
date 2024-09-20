@@ -1,7 +1,7 @@
 import { PayloadAction, createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { AxiosResponse } from "axios";
 import { RootState } from ".";
-import { oldApiClient, stagingApiClient } from "../api/apiClient";
+import { oldApiClient } from "../api/apiClient";
 import { API_ENDPOINTS } from "../api/apiEndpoints";
 import { ApiError, StatusEnum } from "../types/api";
 import { ParamsType } from "../types/filters";
@@ -47,7 +47,7 @@ export const fetchUsernames = createAsyncThunk<
   { rejectValue: ApiError }
 >("autocomplete/usernames", async (params, { rejectWithValue }) => {
   try {
-    const response: AxiosResponse<string[]> = await stagingApiClient.get(
+    const response: AxiosResponse<string[]> = await oldApiClient.get(
       API_ENDPOINTS.fetchUsernames(params)
     );
     return response.data;
