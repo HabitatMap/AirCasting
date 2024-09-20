@@ -63,7 +63,8 @@ const calculateClusterStyleIndex = (
 export const updateClusterStyle = (
   clusterElement: google.maps.marker.AdvancedMarkerElement,
   markers: google.maps.marker.AdvancedMarkerElement[],
-  thresholds: Thresholds
+  thresholds: Thresholds,
+  selectedStreamId: number | null
 ) => {
   const styleIndex = calculateClusterStyleIndex(markers, thresholds);
 
@@ -74,6 +75,7 @@ export const updateClusterStyle = (
   div.style.width = `${width}px`;
   div.style.height = `${height}px`;
   div.style.fontSize = `${textSize}px`;
+  div.style.display = selectedStreamId ? "none" : "flex";
 };
 
 export const customRenderer = (

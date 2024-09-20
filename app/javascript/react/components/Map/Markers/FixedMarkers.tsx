@@ -176,7 +176,8 @@ const FixedMarkers = ({
         updateClusterStyle(
           clusterElement,
           cluster.markers as google.maps.marker.AdvancedMarkerElement[],
-          thresholds
+          thresholds,
+          selectedStreamId
         );
       });
     }
