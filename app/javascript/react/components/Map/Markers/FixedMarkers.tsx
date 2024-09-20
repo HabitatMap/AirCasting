@@ -40,7 +40,6 @@ import { StatusEnum } from "../../../types/api";
 import type { LatLngLiteral } from "../../../types/googleMaps";
 import useMapEventListeners from "../../../utils/mapEventListeners";
 import { ClusterInfo } from "./ClusterInfo/ClusterInfo";
-import HoverMarker from "./HoverMarker/HoverMarker";
 import { SessionFullMarker } from "./SessionFullMarker/SessionFullMarker";
 import * as S from "./SessionFullMarker/SessionFullMarker.style";
 
@@ -436,7 +435,7 @@ const FixedMarkers = ({
           </S.SessionMarkerWrapper>
         </AdvancedMarker>
       ))}
-      {hoverPosition && <HoverMarker position={hoverPosition} />}
+      {/* {hoverPosition && <HoverMarker position={hoverPosition} />} */}
       {selectedCluster && clusterPosition && !clusterLoading && clusterData && (
         <ClusterInfo
           color={getColorForValue(thresholds, clusterData.average)}
