@@ -23,7 +23,6 @@ import { selectHoverStreamId } from "../../../store/mapSlice";
 import { selectThresholds } from "../../../store/thresholdSlice";
 import { Session } from "../../../types/sessionType";
 import { getClusterPixelPosition } from "../../../utils/getClusterPixelPosition";
-import useMapEventListeners from "../../../utils/mapEventListeners";
 import { useMapParams } from "../../../utils/mapParamsHandler";
 import { getColorForValue } from "../../../utils/thresholdColors";
 import {
@@ -31,18 +30,19 @@ import {
   pulsatingRenderer,
   updateClusterStyle,
 } from "./ClusterConfiguration";
-import { ClusterInfo } from "./ClusterInfo/ClusterInfo";
-import HoverMarker from "./HoverMarker/HoverMarker";
 
 import {
   selectFixedStreamData,
-  selectFixedStreamShortInfo,
   selectFixedStreamStatus,
 } from "../../../store/fixedStreamSelectors";
 import { setMarkersLoading } from "../../../store/markersLoadingSlice";
 import { StatusEnum } from "../../../types/api";
 import type { LatLngLiteral } from "../../../types/googleMaps";
+import useMapEventListeners from "../../../utils/mapEventListeners";
+import { ClusterInfo } from "./ClusterInfo/ClusterInfo";
+import HoverMarker from "./HoverMarker/HoverMarker";
 import { SessionFullMarker } from "./SessionFullMarker/SessionFullMarker";
+import * as S from "./SessionFullMarker/SessionFullMarker.style";
 
 type Props = {
   sessions: Session[];
@@ -66,7 +66,6 @@ const FixedMarkers = ({
   const dispatch = useAppDispatch();
   const clusterData = useAppSelector((state: RootState) => state.cluster.data);
   const fixedStreamData = useAppSelector(selectFixedStreamData);
-  const { lastMeasurementValue } = useAppSelector(selectFixedStreamShortInfo);
   const clusterLoading = useAppSelector(
     (state: RootState) => state.cluster.loading
   );
@@ -97,19 +96,10 @@ const FixedMarkers = ({
     [streamId: string]: google.maps.marker.AdvancedMarkerElement | null;
   }>({});
   const [selectedCluster, setSelectedCluster] = useState<Cluster | null>(null);
+  const [visibleMarkers, setVisibleMarkers] = useState<Set<string>>(new Set());
 
   const memoizedSessions = useMemo(() => sessions, [sessions]);
   const memoizedMarkers = useMemo(() => markers, [markers]);
-
-  const shouldRenderSingularFixedStreamMarker =
-    selectedStreamId &&
-    !memoizedSessions.some(
-      (session) => session.point.streamId === selectedStreamId.toString()
-    ) &&
-    fixedStreamData.stream.latitude &&
-    fixedStreamData.stream.longitude;
-
-  const streamLastMeasurementValue = lastMeasurementValue ?? 0;
 
   const markersCount = Object.values(markers).filter(
     (marker) => marker !== null
@@ -173,7 +163,8 @@ const FixedMarkers = ({
         updateClusterStyle(
           clusterElement,
           cluster.markers as google.maps.marker.AdvancedMarkerElement[],
-          thresholds
+          thresholds,
+          selectedStreamId
         );
       });
     }
@@ -254,6 +245,18 @@ const FixedMarkers = ({
       clusterer.current.markerStreamIdMap = markerStreamIdMap;
     }
   }, [memoizedSessions, memoizedMarkers, dispatch]);
+
+  useEffect(() => {
+    if (selectedStreamId) {
+      setVisibleMarkers(new Set([`marker-${selectedStreamId}`]));
+    } else {
+      setVisibleMarkers(
+        new Set(
+          memoizedSessions.map((session) => `marker-${session.point.streamId}`)
+        )
+      );
+    }
+  }, [selectedStreamId, memoizedSessions]);
 
   useEffect(() => {
     return () => {
@@ -358,7 +361,11 @@ const FixedMarkers = ({
       if (!clusterer.current) {
         clusterer.current = new MarkerClusterer({
           map,
-          renderer: customRenderer(thresholds, clusterElementsRef),
+          renderer: customRenderer(
+            thresholds,
+            clusterElementsRef,
+            selectedStreamId
+          ),
           algorithm: new SuperClusterAlgorithm({
             maxZoom: 21,
             radius: 40,
@@ -405,34 +412,30 @@ const FixedMarkers = ({
             }
           }}
         >
-          <SessionFullMarker
-            color={getColorForValue(thresholds, session.lastMeasurementValue)}
-            value={`${Math.round(session.lastMeasurementValue)} ${unitSymbol}`}
-            isSelected={session.point.streamId === selectedStreamId?.toString()}
-            shouldPulse={session.id === pulsatingSessionId}
-            onClick={() => {
-              onMarkerClick(Number(session.point.streamId), Number(session.id));
-              centerMapOnMarker(session.point);
-            }}
-          />
+          <S.SessionMarkerWrapper
+            id={`marker-${session.point.streamId}`}
+            $isVisible={visibleMarkers.has(`marker-${session.point.streamId}`)}
+          >
+            <SessionFullMarker
+              color={getColorForValue(thresholds, session.lastMeasurementValue)}
+              value={`${Math.round(
+                session.lastMeasurementValue
+              )} ${unitSymbol}`}
+              isSelected={
+                session.point.streamId === selectedStreamId?.toString()
+              }
+              shouldPulse={session.id === pulsatingSessionId}
+              onClick={() => {
+                onMarkerClick(
+                  Number(session.point.streamId),
+                  Number(session.id)
+                );
+                centerMapOnMarker(session.point);
+              }}
+            />
+          </S.SessionMarkerWrapper>
         </AdvancedMarker>
       ))}
-      {shouldRenderSingularFixedStreamMarker && (
-        <AdvancedMarker
-          position={{
-            lat: fixedStreamData.stream.latitude,
-            lng: fixedStreamData.stream.longitude,
-          }}
-          key={selectedStreamId.toString()}
-          zIndex={Number(google.maps.Marker.MAX_ZINDEX + 1)}
-        >
-          <SessionFullMarker
-            color={getColorForValue(thresholds, streamLastMeasurementValue)}
-            value={`${Math.round(streamLastMeasurementValue)} ${unitSymbol}`}
-            isSelected={true}
-          />
-        </AdvancedMarker>
-      )}
       {hoverPosition && <HoverMarker position={hoverPosition} />}
       {selectedCluster && clusterPosition && !clusterLoading && clusterData && (
         <ClusterInfo

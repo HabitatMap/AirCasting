@@ -18,7 +18,6 @@ import { TRUE } from "../../const/booleans";
 import { MIN_ZOOM } from "../../const/coordinates";
 import { RootState, selectIsLoading } from "../../store";
 import {
-  selectFixedSessionPointsBySessionId,
   selectFixedSessionsList,
   selectFixedSessionsPoints,
   selectFixedSessionsStatusFulfilled,
@@ -150,9 +149,7 @@ const Map = () => {
   const fetchingData = useAppSelector(selectFetchingData);
   const fixedSessionsType = useAppSelector(selectFixedSessionsType);
   const fixedPoints = useAppSelector((state) =>
-    sessionId
-      ? selectFixedSessionPointsBySessionId(state, fixedSessionsType, sessionId)
-      : selectFixedSessionsPoints(state, fixedSessionsType)
+    selectFixedSessionsPoints(state, fixedSessionsType)
   );
 
   const fixedSessionsStatusFulfilled = useAppSelector(

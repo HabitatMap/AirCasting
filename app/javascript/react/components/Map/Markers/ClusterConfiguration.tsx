@@ -63,7 +63,8 @@ const calculateClusterStyleIndex = (
 export const updateClusterStyle = (
   clusterElement: google.maps.marker.AdvancedMarkerElement,
   markers: google.maps.marker.AdvancedMarkerElement[],
-  thresholds: Thresholds
+  thresholds: Thresholds,
+  selectedStreamId: number | null
 ) => {
   const styleIndex = calculateClusterStyleIndex(markers, thresholds);
 
@@ -80,7 +81,8 @@ export const customRenderer = (
   thresholds: Thresholds,
   clusterElementsRef: React.MutableRefObject<
     Map<Cluster, google.maps.marker.AdvancedMarkerElement>
-  >
+  >,
+  selectedStreamId: number | null
 ) => ({
   render: (cluster: Cluster) => {
     const { markers, count, position } = cluster;

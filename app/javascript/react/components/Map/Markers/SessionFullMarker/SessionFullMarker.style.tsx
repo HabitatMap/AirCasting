@@ -37,6 +37,9 @@ const MarkerContainer = styled.div`
   cursor: pointer;
   z-index: 100;
   pointer-events: auto;
+  .hide-markers & {
+    display: none !important;
+  }
 `;
 
 const ShadowCircle = styled.div<MarkerShadowProps>`
@@ -94,10 +97,17 @@ const MarkerText = styled(H4)`
   white-space: nowrap;
 `;
 
+const SessionMarkerWrapper = styled.div<{ $isVisible: boolean }>`
+  opacity: ${({ $isVisible }) => ($isVisible ? 1 : 0)};
+  visibility: ${({ $isVisible }) => ($isVisible ? "visible" : "hidden")};
+  transition: opacity 0.3s ease-in-out, visibility 0.3s ease-in-out;
+`;
+
 export {
   DataContainer,
   MarkerCircle,
   MarkerContainer,
   MarkerText,
+  SessionMarkerWrapper,
   ShadowCircle,
 };
