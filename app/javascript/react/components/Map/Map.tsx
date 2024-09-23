@@ -676,7 +676,7 @@ const Map = () => {
         </S.IndoorOvelay>
       )}
       <GoogleMap
-        mapId={""}
+        mapId={mapId}
         mapTypeId={mapTypeId}
         defaultCenter={currentCenter}
         defaultZoom={currentZoom}
