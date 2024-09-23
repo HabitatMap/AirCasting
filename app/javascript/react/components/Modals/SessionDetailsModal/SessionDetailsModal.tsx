@@ -1,13 +1,10 @@
 import React, { useCallback, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 
-import circleCloseIcon from "../../../assets/icons/circleCloseIcon.svg";
 import { gray200 } from "../../../assets/styles/colors";
 import { SessionType } from "../../../types/filters";
 import useMobileDetection from "../../../utils/useScreenSizeDetection";
-import { Graph } from "../../Graph";
 import * as S from "./SessionDetailsModal.style";
-import SessionInfo from "./SessionInfo/SessionInfo";
 
 import type { PopupProps } from "reactjs-popup/dist/types";
 interface SessionDetailsModalProps {
@@ -69,7 +66,7 @@ const SessionDetailsModal: React.FC<
     >
       {(close) => (
         <>
-          <SessionInfo {...sessionInfoProps} />
+          {/* <SessionInfo {...sessionInfoProps} />
           {isVisible && (
             <Graph
               streamId={streamId}
@@ -81,7 +78,7 @@ const SessionDetailsModal: React.FC<
             <S.CancelButtonX onClick={close}>
               <img src={circleCloseIcon} alt={t("navbar.altClose")} />
             </S.CancelButtonX>
-          )}
+          )} */}
         </>
       )}
     </SessionModal>
