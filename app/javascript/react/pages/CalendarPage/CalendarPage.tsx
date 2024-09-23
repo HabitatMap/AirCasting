@@ -5,8 +5,6 @@ import { useTranslation } from "react-i18next";
 import { Graph } from "../../components/Graph";
 import MeasurementComponent from "../../components/Graph/MeasurementComponent";
 import TimeRange from "../../components/Graph/TimeRage";
-import { Calendar } from "../../components/molecules/Calendar";
-import { EmptyCalendar } from "../../components/molecules/Calendar/EmptyCalendar";
 import HeaderToggle from "../../components/molecules/Calendar/HeaderToggle/HeaderToggle";
 import { FixedStreamStationHeader } from "../../components/molecules/FixedStreamStationHeader";
 import { ThresholdsConfigurator } from "../../components/ThresholdConfigurator";
@@ -216,7 +214,7 @@ const CalendarPage: React.FC<CalendarPageProps> = ({ children }) => {
       <S.CalendarPageLayout>
         <S.StationDataContainer>
           <FixedStreamStationHeader />
-          {isMobile && renderMobileGraph()}
+          {/* {isMobile && renderMobileGraph()}
           {renderThresholdContainer()}
           {calendarIsVisible ? (
             <Calendar
@@ -227,7 +225,7 @@ const CalendarPage: React.FC<CalendarPageProps> = ({ children }) => {
           ) : (
             <EmptyCalendar />
           )}
-          {!isMobile && renderDesktopGraph()}
+          {!isMobile && renderDesktopGraph()} */}
         </S.StationDataContainer>
       </S.CalendarPageLayout>
     </>
