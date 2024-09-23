@@ -11,6 +11,7 @@ import {
   defaultOnClusterClickHandler,
   Marker,
   MarkerClusterer,
+  SuperClusterAlgorithm,
 } from "@googlemaps/markerclusterer";
 import { AdvancedMarker, useMap } from "@vis.gl/react-google-maps";
 
@@ -28,6 +29,8 @@ import {
 } from "../../../store/fixedStreamSelectors";
 import { StatusEnum } from "../../../types/api";
 import type { LatLngLiteral } from "../../../types/googleMaps";
+import { getClusterPixelPosition } from "../../../utils/getClusterPixelPosition";
+import { customRenderer } from "./ClusterConfiguration";
 import { SessionFullMarker } from "./SessionFullMarker/SessionFullMarker";
 import * as S from "./SessionFullMarker/SessionFullMarker.style";
 
@@ -102,15 +105,15 @@ const FixedMarkers = ({
     [map, selectedStreamId]
   );
 
-  // const handleBoundsChanged = useCallback(() => {
-  //   if (selectedCluster && map) {
-  //     const pixelPosition = getClusterPixelPosition(
-  //       map,
-  //       selectedCluster.position
-  //     );
-  //     setClusterPosition({ top: pixelPosition.y, left: pixelPosition.x });
-  //   }
-  // }, [map, selectedCluster]);
+  const handleBoundsChanged = useCallback(() => {
+    if (selectedCluster && map) {
+      const pixelPosition = getClusterPixelPosition(
+        map,
+        selectedCluster.position
+      );
+      setClusterPosition({ top: pixelPosition.y, left: pixelPosition.x });
+    }
+  }, [map, selectedCluster]);
 
   // const handleClusterClick = useCallback(
   //   async (
@@ -140,9 +143,9 @@ const FixedMarkers = ({
   //   [dispatch]
   // );
 
-  // const clusterElementsRef = useRef<
-  //   Map<Cluster, google.maps.marker.AdvancedMarkerElement>
-  // >(new Map());
+  const clusterElementsRef = useRef<
+    Map<Cluster, google.maps.marker.AdvancedMarkerElement>
+  >(new Map());
 
   // const handleThresholdChange = useCallback(() => {
   //   if (clusterElementsRef.current.size > 0) {
@@ -200,38 +203,38 @@ const FixedMarkers = ({
     []
   );
 
-  // const updateClusterer = useCallback(() => {
-  //   if (clusterer.current && memoizedSessions.length > 0) {
-  //     const sessionStreamIds = memoizedSessions.map(
-  //       (session) => session.point.streamId
-  //     );
-  //     const markerStreamIdMap = new Map<Marker, string>();
+  const updateClusterer = useCallback(() => {
+    if (clusterer.current && memoizedSessions.length > 0) {
+      const sessionStreamIds = memoizedSessions.map(
+        (session) => session.point.streamId
+      );
+      const markerStreamIdMap = new Map<Marker, string>();
 
-  //     Object.keys(memoizedMarkers).forEach((key) => {
-  //       if (!sessionStreamIds.includes(key)) {
-  //         delete memoizedMarkers[key];
-  //       }
-  //     });
+      Object.keys(memoizedMarkers).forEach((key) => {
+        if (!sessionStreamIds.includes(key)) {
+          delete memoizedMarkers[key];
+        }
+      });
 
-  //     const validMarkers = Object.values(memoizedMarkers).filter(
-  //       (marker): marker is google.maps.marker.AdvancedMarkerElement =>
-  //         marker !== null
-  //     );
+      const validMarkers = Object.values(memoizedMarkers).filter(
+        (marker): marker is google.maps.marker.AdvancedMarkerElement =>
+          marker !== null
+      );
 
-  //     validMarkers.forEach((marker) => {
-  //       const streamId = sessionStreamIds.find(
-  //         (id) => memoizedMarkers[id] === marker
-  //       );
-  //       if (streamId) {
-  //         markerStreamIdMap.set(marker, streamId);
-  //       }
-  //     });
+      validMarkers.forEach((marker) => {
+        const streamId = sessionStreamIds.find(
+          (id) => memoizedMarkers[id] === marker
+        );
+        if (streamId) {
+          markerStreamIdMap.set(marker, streamId);
+        }
+      });
 
-  //     clusterer.current.clearMarkers();
-  //     clusterer.current.addMarkers(validMarkers);
-  //     clusterer.current.markerStreamIdMap = markerStreamIdMap;
-  //   }
-  // }, [memoizedSessions, memoizedMarkers, dispatch]);
+      clusterer.current.clearMarkers();
+      clusterer.current.addMarkers(validMarkers);
+      clusterer.current.markerStreamIdMap = markerStreamIdMap;
+    }
+  }, [memoizedSessions, memoizedMarkers, dispatch]);
 
   useEffect(() => {
     if (selectedStreamId) {
@@ -245,16 +248,16 @@ const FixedMarkers = ({
     }
   }, [selectedStreamId, memoizedSessions]);
 
-  // useEffect(() => {
-  //   return () => {
-  //     if (clusterer.current) {
-  //       clusterer.current.clearMarkers();
-  //     }
-  //     if (pulsatingClusterer.current) {
-  //       pulsatingClusterer.current.clearMarkers();
-  //     }
-  //   };
-  // }, []);
+  useEffect(() => {
+    return () => {
+      if (clusterer.current) {
+        clusterer.current.clearMarkers();
+      }
+      if (pulsatingClusterer.current) {
+        pulsatingClusterer.current.clearMarkers();
+      }
+    };
+  }, []);
 
   useEffect(() => {
     const handleSelectedStreamId = (streamId: number | null) => {
@@ -343,27 +346,27 @@ const FixedMarkers = ({
   //   updateClusterer();
   // }, [updateClusterer]);
 
-  // useEffect(() => {
-  //   if (map && memoizedSessions.length > 0) {
-  //     if (!clusterer.current) {
-  //       clusterer.current = new MarkerClusterer({
-  //         map,
-  //         renderer: customRenderer(
-  //           thresholds,
-  //           clusterElementsRef,
-  //           selectedStreamId
-  //         ),
-  //         algorithm: new SuperClusterAlgorithm({
-  //           maxZoom: 21,
-  //           radius: 40,
-  //         }),
-  //         onClusterClick: handleClusterClick,
-  //       }) as CustomMarkerClusterer;
-  //     } else {
-  //       updateClusterer();
-  //     }
-  //   }
-  // }, [map, memoizedSessions, updateClusterer]);
+  useEffect(() => {
+    if (map && memoizedSessions.length > 0) {
+      if (!clusterer.current) {
+        clusterer.current = new MarkerClusterer({
+          map,
+          renderer: customRenderer(
+            thresholds,
+            clusterElementsRef,
+            selectedStreamId
+          ),
+          algorithm: new SuperClusterAlgorithm({
+            maxZoom: 21,
+            radius: 40,
+          }),
+          // onClusterClick: handleClusterClick,
+        }) as CustomMarkerClusterer;
+      } else {
+        updateClusterer();
+      }
+    }
+  }, [map, memoizedSessions, updateClusterer]);
 
   // useEffect(() => {
   //   map && map.addListener("zoom_changed", handleMapInteraction);
