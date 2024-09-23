@@ -419,4 +419,4 @@ const mapToFixedSession = (session: any): FixedSession => ({
   streams: session.streams,
 });
 
-const mockData: FixedSession[] = data.map(mapToFixedSession);
+export const mockData: FixedSession[] = data.map(mapToFixedSession);
