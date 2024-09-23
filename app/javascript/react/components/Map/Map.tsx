@@ -1,4 +1,10 @@
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 
@@ -438,55 +444,55 @@ const Map = () => {
   //   isDormant
   // );
 
-  // const handleMapIdle = useCallback(
-  //   (event: MapEvent) => {
-  //     const map = event.map;
-  //     if (!mapInstance) {
-  //       setMapInstance(map);
-  //       map.setOptions({
-  //         clickableIcons: false,
-  //       });
-  //     }
+  const handleMapIdle = useCallback(
+    (event: MapEvent) => {
+      const map = event.map;
+      if (!mapInstance) {
+        setMapInstance(map);
+        map.setOptions({
+          clickableIcons: false,
+        });
+      }
 
-  //     if (isFirstRender.current) {
-  //       if (currentUserSettings === UserSettings.MapView) {
-  //         newSearchParams.set(UrlParamsTypes.sessionType, sessionType);
-  //         newSearchParams.set(UrlParamsTypes.isActive, TRUE);
-  //         map.setCenter(currentCenter);
-  //         map.setZoom(currentZoom);
-  //       }
-  //       isFirstRender.current = false;
-  //     } else {
-  //       if (
-  //         [UserSettings.MapView, UserSettings.CrowdMapView].includes(
-  //           currentUserSettings
-  //         )
-  //       ) {
-  //         const currentCenter = JSON.stringify(
-  //           map.getCenter()?.toJSON() || previousCenter
-  //         );
-  //         const currentZoom = (map.getZoom() || previousZoom).toString();
-  //         const bounds = map?.getBounds();
-  //         if (!bounds) {
-  //           return;
-  //         }
-  //         const north = bounds.getNorthEast().lat();
-  //         const south = bounds.getSouthWest().lat();
-  //         const east = bounds.getNorthEast().lng();
-  //         const west = bounds.getSouthWest().lng();
+      if (isFirstRender.current) {
+        if (currentUserSettings === UserSettings.MapView) {
+          newSearchParams.set(UrlParamsTypes.sessionType, sessionType);
+          newSearchParams.set(UrlParamsTypes.isActive, TRUE);
+          map.setCenter(currentCenter);
+          map.setZoom(currentZoom);
+        }
+        isFirstRender.current = false;
+      } else {
+        if (
+          [UserSettings.MapView, UserSettings.CrowdMapView].includes(
+            currentUserSettings
+          )
+        ) {
+          const currentCenter = JSON.stringify(
+            map.getCenter()?.toJSON() || previousCenter
+          );
+          const currentZoom = (map.getZoom() || previousZoom).toString();
+          const bounds = map?.getBounds();
+          if (!bounds) {
+            return;
+          }
+          const north = bounds.getNorthEast().lat();
+          const south = bounds.getSouthWest().lat();
+          const east = bounds.getNorthEast().lng();
+          const west = bounds.getSouthWest().lng();
 
-  //         newSearchParams.set(UrlParamsTypes.boundEast, east.toString());
-  //         newSearchParams.set(UrlParamsTypes.boundNorth, north.toString());
-  //         newSearchParams.set(UrlParamsTypes.boundSouth, south.toString());
-  //         newSearchParams.set(UrlParamsTypes.boundWest, west.toString());
-  //         newSearchParams.set(UrlParamsTypes.currentCenter, currentCenter);
-  //         newSearchParams.set(UrlParamsTypes.currentZoom, currentZoom);
-  //         navigate(`?${newSearchParams.toString()}`);
-  //       }
-  //     }
-  //   },
-  //   [currentUserSettings, mapInstance, searchParams, dispatch]
-  // );
+          newSearchParams.set(UrlParamsTypes.boundEast, east.toString());
+          newSearchParams.set(UrlParamsTypes.boundNorth, north.toString());
+          newSearchParams.set(UrlParamsTypes.boundSouth, south.toString());
+          newSearchParams.set(UrlParamsTypes.boundWest, west.toString());
+          newSearchParams.set(UrlParamsTypes.currentCenter, currentCenter);
+          newSearchParams.set(UrlParamsTypes.currentZoom, currentZoom);
+          navigate(`?${newSearchParams.toString()}`);
+        }
+      }
+    },
+    [currentUserSettings, mapInstance, searchParams, dispatch]
+  );
 
   const handleMarkerClick = (
     selectedStreamId: number | null,
@@ -652,7 +658,7 @@ const Map = () => {
         disableDefaultUI={true}
         scaleControl={true}
         style={S.ContainerStyle}
-        // onIdle={handleMapIdle}
+        onIdle={handleMapIdle}
         minZoom={MIN_ZOOM}
         isFractionalZoomEnabled={true}
       >
