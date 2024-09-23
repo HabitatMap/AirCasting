@@ -9,6 +9,7 @@ import React, {
 import {
   Cluster,
   defaultOnClusterClickHandler,
+  GridAlgorithm,
   Marker,
   MarkerClusterer,
   SuperClusterAlgorithm,
@@ -16,7 +17,7 @@ import {
 import { AdvancedMarker, useMap } from "@vis.gl/react-google-maps";
 
 import { RootState } from "../../../store";
-import { setVisibility } from "../../../store/clusterSlice";
+import { fetchClusterData, setVisibility } from "../../../store/clusterSlice";
 import { useAppDispatch, useAppSelector } from "../../../store/hooks";
 import { selectThresholds } from "../../../store/thresholdSlice";
 import { Session } from "../../../types/sessionType";
@@ -27,10 +28,16 @@ import {
   selectFixedStreamData,
   selectFixedStreamStatus,
 } from "../../../store/fixedStreamSelectors";
+import { setMarkersLoading } from "../../../store/markersLoadingSlice";
 import { StatusEnum } from "../../../types/api";
 import type { LatLngLiteral } from "../../../types/googleMaps";
 import { getClusterPixelPosition } from "../../../utils/getClusterPixelPosition";
-import { customRenderer } from "./ClusterConfiguration";
+import useMapEventListeners from "../../../utils/mapEventListeners";
+import {
+  customRenderer,
+  pulsatingRenderer,
+  updateClusterStyle,
+} from "./ClusterConfiguration";
 import { SessionFullMarker } from "./SessionFullMarker/SessionFullMarker";
 import * as S from "./SessionFullMarker/SessionFullMarker.style";
 
@@ -115,54 +122,54 @@ const FixedMarkers = ({
     }
   }, [map, selectedCluster]);
 
-  // const handleClusterClick = useCallback(
-  //   async (
-  //     event: google.maps.MapMouseEvent,
-  //     cluster: Cluster,
-  //     map: google.maps.Map
-  //   ) => {
-  //     dispatch(setVisibility(false));
+  const handleClusterClick = useCallback(
+    async (
+      event: google.maps.MapMouseEvent,
+      cluster: Cluster,
+      map: google.maps.Map
+    ) => {
+      dispatch(setVisibility(false));
 
-  //     const markerStreamIdMap = clusterer.current?.markerStreamIdMap;
+      const markerStreamIdMap = clusterer.current?.markerStreamIdMap;
 
-  //     const streamIds =
-  //       cluster.markers &&
-  //       cluster.markers
-  //         .map((marker: Marker) => markerStreamIdMap?.get(marker))
-  //         .filter((streamId) => streamId !== undefined);
+      const streamIds =
+        cluster.markers &&
+        cluster.markers
+          .map((marker: Marker) => markerStreamIdMap?.get(marker))
+          .filter((streamId) => streamId !== undefined);
 
-  //     if (streamIds && streamIds.length > 0) {
-  //       dispatch(fetchClusterData(streamIds as string[]));
-  //     }
+      if (streamIds && streamIds.length > 0) {
+        dispatch(fetchClusterData(streamIds as string[]));
+      }
 
-  //     const pixelPosition = getClusterPixelPosition(map, cluster.position);
-  //     setClusterPosition({ top: pixelPosition.y, left: pixelPosition.x });
-  //     setSelectedCluster(cluster);
-  //     dispatch(setVisibility(true));
-  //   },
-  //   [dispatch]
-  // );
+      const pixelPosition = getClusterPixelPosition(map, cluster.position);
+      setClusterPosition({ top: pixelPosition.y, left: pixelPosition.x });
+      setSelectedCluster(cluster);
+      dispatch(setVisibility(true));
+    },
+    [dispatch]
+  );
 
   const clusterElementsRef = useRef<
     Map<Cluster, google.maps.marker.AdvancedMarkerElement>
   >(new Map());
 
-  // const handleThresholdChange = useCallback(() => {
-  //   if (clusterElementsRef.current.size > 0) {
-  //     clusterElementsRef.current.forEach((clusterElement, cluster) => {
-  //       updateClusterStyle(
-  //         clusterElement,
-  //         cluster.markers as google.maps.marker.AdvancedMarkerElement[],
-  //         thresholds,
-  //         selectedStreamId
-  //       );
-  //     });
-  //   }
-  // }, [thresholds]);
+  const handleThresholdChange = useCallback(() => {
+    if (clusterElementsRef.current.size > 0) {
+      clusterElementsRef.current.forEach((clusterElement, cluster) => {
+        updateClusterStyle(
+          clusterElement,
+          cluster.markers as google.maps.marker.AdvancedMarkerElement[],
+          thresholds,
+          selectedStreamId
+        );
+      });
+    }
+  }, [thresholds]);
 
-  // useEffect(() => {
-  //   handleThresholdChange();
-  // }, [thresholds, handleThresholdChange]);
+  useEffect(() => {
+    handleThresholdChange();
+  }, [thresholds, handleThresholdChange]);
 
   const handleMapInteraction = useCallback(() => {
     dispatch(setVisibility(false));
@@ -277,9 +284,9 @@ const FixedMarkers = ({
     handleSelectedStreamId(selectedStreamId);
   }, [selectedStreamId, fixedStreamData, fixedStreamStatus, centerMapOnMarker]);
 
-  // useEffect(() => {
-  //   dispatch(setMarkersLoading(true));
-  // }, [dispatch, sessions.length]);
+  useEffect(() => {
+    dispatch(setMarkersLoading(true));
+  }, [dispatch, sessions.length]);
 
   // useEffect(() => {
   //   if (hoverStreamId) {
@@ -294,57 +301,57 @@ const FixedMarkers = ({
   //   }
   // }, [hoverStreamId, memoizedSessions]);
 
-  // useEffect(() => {
-  //   if (markersCount >= sessions.length) {
-  //     dispatch(setMarkersLoading(false));
-  //   }
-  // }, [dispatch, markersCount, sessions.length]);
+  useEffect(() => {
+    if (markersCount >= sessions.length) {
+      dispatch(setMarkersLoading(false));
+    }
+  }, [dispatch, markersCount, sessions.length]);
 
-  // useEffect(() => {
-  //   if (pulsatingSessionId) {
-  //     const pulsatingSession = memoizedSessions.find(
-  //       (session) => session.id === pulsatingSessionId
-  //     );
-  //     const pulsatingSessionStreamId = pulsatingSession?.point.streamId;
-  //     if (pulsatingSessionStreamId && clusterer.current) {
-  //       const pulsatingCluster: Cluster | undefined =
-  //         //@ts-expect-error
-  //         clusterer.current.clusters.find(
-  //           (cluster: Cluster) =>
-  //             cluster.markers &&
-  //             cluster.markers.some(
-  //               (clusterMarker: Marker) =>
-  //                 clusterMarker === memoizedMarkers[pulsatingSessionStreamId]
-  //             )
-  //         );
+  useEffect(() => {
+    if (pulsatingSessionId) {
+      const pulsatingSession = memoizedSessions.find(
+        (session) => session.id === pulsatingSessionId
+      );
+      const pulsatingSessionStreamId = pulsatingSession?.point.streamId;
+      if (pulsatingSessionStreamId && clusterer.current) {
+        const pulsatingCluster: Cluster | undefined =
+          //@ts-expect-error
+          clusterer.current.clusters.find(
+            (cluster: Cluster) =>
+              cluster.markers &&
+              cluster.markers.some(
+                (clusterMarker: Marker) =>
+                  clusterMarker === memoizedMarkers[pulsatingSessionStreamId]
+              )
+          );
 
-  //       if (
-  //         pulsatingCluster &&
-  //         pulsatingCluster.markers &&
-  //         pulsatingCluster.markers.length > 1
-  //       ) {
-  //         if (pulsatingClusterer.current) {
-  //           pulsatingClusterer.current.clearMarkers();
-  //         }
-  //         pulsatingClusterer.current = new MarkerClusterer({
-  //           map,
-  //           renderer: pulsatingRenderer(thresholds, pulsatingCluster.position),
-  //           markers: pulsatingCluster.markers,
-  //           algorithm: new GridAlgorithm({ gridSize: 1000 }),
-  //         });
-  //       }
-  //     }
-  //   } else {
-  //     if (pulsatingClusterer.current) {
-  //       pulsatingClusterer.current.clearMarkers();
-  //       pulsatingClusterer.current = null;
-  //     }
-  //   }
-  // }, [pulsatingSessionId, memoizedMarkers, memoizedSessions, thresholds]);
+        if (
+          pulsatingCluster &&
+          pulsatingCluster.markers &&
+          pulsatingCluster.markers.length > 1
+        ) {
+          if (pulsatingClusterer.current) {
+            pulsatingClusterer.current.clearMarkers();
+          }
+          pulsatingClusterer.current = new MarkerClusterer({
+            map,
+            renderer: pulsatingRenderer(thresholds, pulsatingCluster.position),
+            markers: pulsatingCluster.markers,
+            algorithm: new GridAlgorithm({ gridSize: 1000 }),
+          });
+        }
+      }
+    } else {
+      if (pulsatingClusterer.current) {
+        pulsatingClusterer.current.clearMarkers();
+        pulsatingClusterer.current = null;
+      }
+    }
+  }, [pulsatingSessionId, memoizedMarkers, memoizedSessions, thresholds]);
 
-  // useEffect(() => {
-  //   updateClusterer();
-  // }, [updateClusterer]);
+  useEffect(() => {
+    updateClusterer();
+  }, [updateClusterer]);
 
   useEffect(() => {
     if (map && memoizedSessions.length > 0) {
@@ -360,7 +367,7 @@ const FixedMarkers = ({
             maxZoom: 21,
             radius: 40,
           }),
-          // onClusterClick: handleClusterClick,
+          onClusterClick: handleClusterClick,
         }) as CustomMarkerClusterer;
       } else {
         updateClusterer();
@@ -368,24 +375,24 @@ const FixedMarkers = ({
     }
   }, [map, memoizedSessions, updateClusterer]);
 
-  // useEffect(() => {
-  //   map && map.addListener("zoom_changed", handleMapInteraction);
-  // }, [map, selectedCluster, dispatch, clusterer.current]);
+  useEffect(() => {
+    map && map.addListener("zoom_changed", handleMapInteraction);
+  }, [map, selectedCluster, dispatch, clusterer.current]);
 
-  // useMapEventListeners(map, {
-  //   click: () => {
-  //     handleMapInteraction();
-  //   },
-  //   touchend: () => {
-  //     handleMapInteraction();
-  //   },
-  //   dragstart: () => {
-  //     handleMapInteraction();
-  //   },
-  //   bounds_changed: () => {
-  //     handleBoundsChanged();
-  //   },
-  // });
+  useMapEventListeners(map, {
+    click: () => {
+      handleMapInteraction();
+    },
+    touchend: () => {
+      handleMapInteraction();
+    },
+    dragstart: () => {
+      handleMapInteraction();
+    },
+    bounds_changed: () => {
+      handleBoundsChanged();
+    },
+  });
 
   return (
     <>

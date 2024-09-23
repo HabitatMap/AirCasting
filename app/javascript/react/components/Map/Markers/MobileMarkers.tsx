@@ -1,7 +1,8 @@
-import { Marker, useMap } from "@vis.gl/react-google-maps";
+import { AdvancedMarker, useMap } from "@vis.gl/react-google-maps";
 import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { useAppDispatch } from "../../../store/hooks";
+import { setMarkersLoading } from "../../../store/markersLoadingSlice";
 import {
   selectMobileStreamData,
   selectMobileStreamStatus,
@@ -11,8 +12,11 @@ import { StatusEnum } from "../../../types/api";
 import { LatLngLiteral } from "../../../types/googleMaps";
 import { Point, Session } from "../../../types/sessionType";
 import { useMapParams } from "../../../utils/mapParamsHandler";
+import { getColorForValue } from "../../../utils/thresholdColors";
+import { SessionDotMarker } from "./SessionDotMarker/SessionDotMarker";
+import { SessionFullMarker } from "./SessionFullMarker/SessionFullMarker";
 
-// import type { Marker } from "@googlemaps/markerclusterer";
+import type { Marker } from "@googlemaps/markerclusterer";
 
 type Props = {
   sessions: Session[];
@@ -43,9 +47,9 @@ const MobileMarkers = ({
   const mobileStreamData = useSelector(selectMobileStreamData);
   const mobileStreamStatus = useSelector(selectMobileStreamStatus);
 
-  const [markers, setMarkers] = useState<{
-    [streamId: string]: typeof Marker | null;
-  }>({});
+  const [markers, setMarkers] = useState<{ [streamId: string]: Marker | null }>(
+    {}
+  );
   const [selectedMarkerKey, setSelectedMarkerKey] = useState<string | null>(
     null
   );
@@ -66,17 +70,17 @@ const MobileMarkers = ({
     }
   }, [selectedStreamId, mobileStreamData, mobileStreamStatus]);
 
-  // useEffect(() => {
-  //   if (!selectedStreamId) {
-  //     dispatch(setMarkersLoading(true));
-  //   }
-  // }, [dispatch, sessions.length]);
+  useEffect(() => {
+    if (!selectedStreamId) {
+      dispatch(setMarkersLoading(true));
+    }
+  }, [dispatch, sessions.length]);
 
-  // useEffect(() => {
-  //   if (!selectedStreamId && markersCount >= sessions.length) {
-  //     dispatch(setMarkersLoading(false));
-  //   }
-  // }, [dispatch, markersCount, sessions.length]);
+  useEffect(() => {
+    if (!selectedStreamId && markersCount >= sessions.length) {
+      dispatch(setMarkersLoading(false));
+    }
+  }, [dispatch, markersCount, sessions.length]);
 
   const areMarkersTooClose = (
     marker1: google.maps.LatLngLiteral,
@@ -176,56 +180,61 @@ const MobileMarkers = ({
     setSelectedMarkerKey(null);
   };
 
-  // const renderMarkerContent = (session: Session, isSelected: boolean) => {
-  //   const isOverlapping = sessions.some(
-  //     (otherSession) =>
-  //       otherSession.point.streamId !== session.point.streamId &&
-  //       areMarkersTooClose(session.point, otherSession.point)
-  //   );
+  const renderMarkerContent = (session: Session, isSelected: boolean) => {
+    const isOverlapping = sessions.some(
+      (otherSession) =>
+        otherSession.point.streamId !== session.point.streamId &&
+        areMarkersTooClose(session.point, otherSession.point)
+    );
 
-  //   if (isOverlapping) {
-  //     return (
-  //       <SessionDotMarker
-  //         color={getColorForValue(thresholds, session.lastMeasurementValue)}
-  //         shouldPulse={session.id === pulsatingSessionId}
-  //         onClick={() => {
-  //           onMarkerClick(Number(session.point.streamId), Number(session.id));
-  //           centerMapOnMarker(session.point);
-  //         }}
-  //       />
-  //     );
-  //   }
+    if (isOverlapping) {
+      return (
+        <SessionDotMarker
+          color={getColorForValue(thresholds, session.lastMeasurementValue)}
+          shouldPulse={session.id === pulsatingSessionId}
+          onClick={() => {
+            onMarkerClick(Number(session.point.streamId), Number(session.id));
+            centerMapOnMarker(session.point);
+          }}
+        />
+      );
+    }
 
-  //   return (
-  //     <SessionFullMarker
-  //       color={getColorForValue(thresholds, session.lastMeasurementValue)}
-  //       value={`${Math.round(session.lastMeasurementValue)} ${unitSymbol}`}
-  //       isSelected={isSelected}
-  //       shouldPulse={session.id === pulsatingSessionId}
-  //       onClick={() => {
-  //         onMarkerClick(Number(session.point.streamId), Number(session.id));
-  //         centerMapOnMarker(session.point);
-  //       }}
-  //     />
-  //   );
-  // };
+    return (
+      <SessionFullMarker
+        color={getColorForValue(thresholds, session.lastMeasurementValue)}
+        value={`${Math.round(session.lastMeasurementValue)} ${unitSymbol}`}
+        isSelected={isSelected}
+        shouldPulse={session.id === pulsatingSessionId}
+        onClick={() => {
+          onMarkerClick(Number(session.point.streamId), Number(session.id));
+          centerMapOnMarker(session.point);
+        }}
+      />
+    );
+  };
 
   return (
     <>
       {sessions.map((session) => (
-        <Marker
+        <AdvancedMarker
           position={session.point}
           key={session.point.streamId}
           zIndex={1000}
-          // ref={(marker) => {
-          //   if (marker && !markers[session.point.streamId]) {
-          //     setMarkers((prev) => ({
-          //       ...prev,
-          //       [session.point.streamId]: marker,
-          //     }));
-          //   }
-          // }}
-        />
+          ref={(marker) => {
+            if (marker && !markers[session.point.streamId]) {
+              setMarkers((prev) => ({
+                ...prev,
+                [session.point.streamId]: marker,
+              }));
+            }
+          }}
+        >
+          {renderMarkerContent(
+            session,
+            session.point.streamId === selectedStreamId?.toString()
+          )}
+        </AdvancedMarker>
       ))}
     </>
   );
