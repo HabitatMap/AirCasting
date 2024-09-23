@@ -1,22 +1,22 @@
+import { Marker, useMap } from "@vis.gl/react-google-maps";
 import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
-import { AdvancedMarker, useMap } from "@vis.gl/react-google-maps";
 import { useAppDispatch } from "../../../store/hooks";
 import { setMarkersLoading } from "../../../store/markersLoadingSlice";
+import {
+  selectMobileStreamData,
+  selectMobileStreamStatus,
+} from "../../../store/mobileStreamSelectors";
 import { selectThresholds } from "../../../store/thresholdSlice";
+import { StatusEnum } from "../../../types/api";
 import { LatLngLiteral } from "../../../types/googleMaps";
 import { Point, Session } from "../../../types/sessionType";
 import { useMapParams } from "../../../utils/mapParamsHandler";
 import { getColorForValue } from "../../../utils/thresholdColors";
 import { SessionDotMarker } from "./SessionDotMarker/SessionDotMarker";
 import { SessionFullMarker } from "./SessionFullMarker/SessionFullMarker";
-import {
-  selectMobileStreamData,
-  selectMobileStreamStatus,
-} from "../../../store/mobileStreamSelectors";
-import { StatusEnum } from "../../../types/api";
 
-import type { Marker } from "@googlemaps/markerclusterer";
+// import type { Marker } from "@googlemaps/markerclusterer";
 
 type Props = {
   sessions: Session[];
@@ -47,9 +47,9 @@ const MobileMarkers = ({
   const mobileStreamData = useSelector(selectMobileStreamData);
   const mobileStreamStatus = useSelector(selectMobileStreamStatus);
 
-  const [markers, setMarkers] = useState<{ [streamId: string]: Marker | null }>(
-    {}
-  );
+  const [markers, setMarkers] = useState<{
+    [streamId: string]: typeof Marker | null;
+  }>({});
   const [selectedMarkerKey, setSelectedMarkerKey] = useState<string | null>(
     null
   );
@@ -217,24 +217,24 @@ const MobileMarkers = ({
   return (
     <>
       {sessions.map((session) => (
-        <AdvancedMarker
+        <Marker
           position={session.point}
           key={session.point.streamId}
           zIndex={1000}
-          ref={(marker) => {
-            if (marker && !markers[session.point.streamId]) {
-              setMarkers((prev) => ({
-                ...prev,
-                [session.point.streamId]: marker,
-              }));
-            }
-          }}
+          // ref={(marker) => {
+          //   if (marker && !markers[session.point.streamId]) {
+          //     setMarkers((prev) => ({
+          //       ...prev,
+          //       [session.point.streamId]: marker,
+          //     }));
+          //   }
+          // }}
         >
-          {renderMarkerContent(
+          {/* {renderMarkerContent(
             session,
             session.point.streamId === selectedStreamId?.toString()
-          )}
-        </AdvancedMarker>
+          )} */}
+        </Marker>
       ))}
     </>
   );
