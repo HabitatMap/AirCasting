@@ -5,16 +5,27 @@ import { useTranslation } from "react-i18next";
 import { Graph } from "../../components/Graph";
 import MeasurementComponent from "../../components/Graph/MeasurementComponent";
 import TimeRange from "../../components/Graph/TimeRage";
+import { Calendar } from "../../components/molecules/Calendar";
+import { EmptyCalendar } from "../../components/molecules/Calendar/EmptyCalendar";
 import HeaderToggle from "../../components/molecules/Calendar/HeaderToggle/HeaderToggle";
+import { FixedStreamStationHeader } from "../../components/molecules/FixedStreamStationHeader";
 import { ThresholdsConfigurator } from "../../components/ThresholdConfigurator";
 import { ResetButton } from "../../components/ThresholdConfigurator/ThresholdButtons/ResetButton";
 import { ThresholdButtonVariant } from "../../components/ThresholdConfigurator/ThresholdButtons/ThresholdButton";
 import { UniformDistributionButton } from "../../components/ThresholdConfigurator/ThresholdButtons/UniformDistributionButton";
 
 import { selectFixedStreamShortInfo } from "../../store/fixedStreamSelectors";
-import { selectFixedData, selectIsLoading } from "../../store/fixedStreamSlice";
+import {
+  fetchFixedStreamById,
+  selectFixedData,
+  selectIsLoading,
+} from "../../store/fixedStreamSlice";
 import { useAppDispatch, useAppSelector } from "../../store/hooks";
-import { movingData } from "../../store/movingCalendarStreamSlice";
+import {
+  fetchNewMovingStream,
+  movingData,
+} from "../../store/movingCalendarStreamSlice";
+import { setDefaultThresholdsValues } from "../../store/thresholdSlice";
 
 import { SessionTypes } from "../../types/filters";
 
@@ -54,44 +65,44 @@ const CalendarPage: React.FC<CalendarPageProps> = ({ children }) => {
     fixedStreamData.stream.lastUpdate ??
     moment().format("YYYY-MM-DD");
 
-  // useEffect(() => {
-  //   streamId && dispatch(fetchFixedStreamById(streamId));
-  // }, []);
+  useEffect(() => {
+    streamId && dispatch(fetchFixedStreamById(streamId));
+  }, []);
 
   useEffect(() => {
     window.addEventListener("popstate", handleCalendarGoBack);
     return () => window.removeEventListener("popstate", handleCalendarGoBack);
   }, [handleCalendarGoBack]);
 
-  // useEffect(() => {
-  //   if (
-  //     streamId &&
-  //     !isLoading &&
-  //     fixedStreamData.stream.startTime &&
-  //     streamEndTime
-  //   ) {
-  //     const startMoment = moment(fixedStreamData.stream.startTime);
-  //     const endMoment = moment(streamEndTime);
+  useEffect(() => {
+    if (
+      streamId &&
+      !isLoading &&
+      fixedStreamData.stream.startTime &&
+      streamEndTime
+    ) {
+      const startMoment = moment(fixedStreamData.stream.startTime);
+      const endMoment = moment(streamEndTime);
 
-  //     if (startMoment.isValid() && endMoment.isValid()) {
-  //       const formattedEndDate = endMoment.format("YYYY-MM-DD");
-  //       const newStartDate = endMoment
-  //         .clone()
-  //         .date(1)
-  //         .subtract(2, "months")
-  //         .format("YYYY-MM-DD");
+      if (startMoment.isValid() && endMoment.isValid()) {
+        const formattedEndDate = endMoment.format("YYYY-MM-DD");
+        const newStartDate = endMoment
+          .clone()
+          .date(1)
+          .subtract(2, "months")
+          .format("YYYY-MM-DD");
 
-  //       dispatch(
-  //         fetchNewMovingStream({
-  //           id: streamId,
-  //           startDate: newStartDate,
-  //           endDate: formattedEndDate,
-  //         })
-  //       );
-  //     }
-  //   }
-  //   dispatch(setDefaultThresholdsValues(fixedStreamData.stream));
-  // }, [fixedStreamData, streamId, isLoading, streamEndTime]);
+        dispatch(
+          fetchNewMovingStream({
+            id: streamId,
+            startDate: newStartDate,
+            endDate: formattedEndDate,
+          })
+        );
+      }
+    }
+    dispatch(setDefaultThresholdsValues(fixedStreamData.stream));
+  }, [fixedStreamData, streamId, isLoading, streamEndTime]);
 
   const renderMobileGraph = () => (
     <S.GraphContainer $isMobile={isMobile}>
@@ -204,8 +215,8 @@ const CalendarPage: React.FC<CalendarPageProps> = ({ children }) => {
       {children}
       <S.CalendarPageLayout>
         <S.StationDataContainer>
-          {/* <FixedStreamStationHeader /> */}
-          {/* {isMobile && renderMobileGraph()}
+          <FixedStreamStationHeader />
+          {isMobile && renderMobileGraph()}
           {renderThresholdContainer()}
           {calendarIsVisible ? (
             <Calendar
@@ -216,7 +227,7 @@ const CalendarPage: React.FC<CalendarPageProps> = ({ children }) => {
           ) : (
             <EmptyCalendar />
           )}
-          {!isMobile && renderDesktopGraph()} */}
+          {!isMobile && renderDesktopGraph()}
         </S.StationDataContainer>
       </S.CalendarPageLayout>
     </>

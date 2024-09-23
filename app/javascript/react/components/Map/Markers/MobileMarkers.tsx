@@ -2,7 +2,6 @@ import { Marker, useMap } from "@vis.gl/react-google-maps";
 import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { useAppDispatch } from "../../../store/hooks";
-import { setMarkersLoading } from "../../../store/markersLoadingSlice";
 import {
   selectMobileStreamData,
   selectMobileStreamStatus,
@@ -12,9 +11,6 @@ import { StatusEnum } from "../../../types/api";
 import { LatLngLiteral } from "../../../types/googleMaps";
 import { Point, Session } from "../../../types/sessionType";
 import { useMapParams } from "../../../utils/mapParamsHandler";
-import { getColorForValue } from "../../../utils/thresholdColors";
-import { SessionDotMarker } from "./SessionDotMarker/SessionDotMarker";
-import { SessionFullMarker } from "./SessionFullMarker/SessionFullMarker";
 
 // import type { Marker } from "@googlemaps/markerclusterer";
 
@@ -70,17 +66,17 @@ const MobileMarkers = ({
     }
   }, [selectedStreamId, mobileStreamData, mobileStreamStatus]);
 
-  useEffect(() => {
-    if (!selectedStreamId) {
-      dispatch(setMarkersLoading(true));
-    }
-  }, [dispatch, sessions.length]);
+  // useEffect(() => {
+  //   if (!selectedStreamId) {
+  //     dispatch(setMarkersLoading(true));
+  //   }
+  // }, [dispatch, sessions.length]);
 
-  useEffect(() => {
-    if (!selectedStreamId && markersCount >= sessions.length) {
-      dispatch(setMarkersLoading(false));
-    }
-  }, [dispatch, markersCount, sessions.length]);
+  // useEffect(() => {
+  //   if (!selectedStreamId && markersCount >= sessions.length) {
+  //     dispatch(setMarkersLoading(false));
+  //   }
+  // }, [dispatch, markersCount, sessions.length]);
 
   const areMarkersTooClose = (
     marker1: google.maps.LatLngLiteral,
@@ -180,39 +176,39 @@ const MobileMarkers = ({
     setSelectedMarkerKey(null);
   };
 
-  const renderMarkerContent = (session: Session, isSelected: boolean) => {
-    const isOverlapping = sessions.some(
-      (otherSession) =>
-        otherSession.point.streamId !== session.point.streamId &&
-        areMarkersTooClose(session.point, otherSession.point)
-    );
+  // const renderMarkerContent = (session: Session, isSelected: boolean) => {
+  //   const isOverlapping = sessions.some(
+  //     (otherSession) =>
+  //       otherSession.point.streamId !== session.point.streamId &&
+  //       areMarkersTooClose(session.point, otherSession.point)
+  //   );
 
-    if (isOverlapping) {
-      return (
-        <SessionDotMarker
-          color={getColorForValue(thresholds, session.lastMeasurementValue)}
-          shouldPulse={session.id === pulsatingSessionId}
-          onClick={() => {
-            onMarkerClick(Number(session.point.streamId), Number(session.id));
-            centerMapOnMarker(session.point);
-          }}
-        />
-      );
-    }
+  //   if (isOverlapping) {
+  //     return (
+  //       <SessionDotMarker
+  //         color={getColorForValue(thresholds, session.lastMeasurementValue)}
+  //         shouldPulse={session.id === pulsatingSessionId}
+  //         onClick={() => {
+  //           onMarkerClick(Number(session.point.streamId), Number(session.id));
+  //           centerMapOnMarker(session.point);
+  //         }}
+  //       />
+  //     );
+  //   }
 
-    return (
-      <SessionFullMarker
-        color={getColorForValue(thresholds, session.lastMeasurementValue)}
-        value={`${Math.round(session.lastMeasurementValue)} ${unitSymbol}`}
-        isSelected={isSelected}
-        shouldPulse={session.id === pulsatingSessionId}
-        onClick={() => {
-          onMarkerClick(Number(session.point.streamId), Number(session.id));
-          centerMapOnMarker(session.point);
-        }}
-      />
-    );
-  };
+  //   return (
+  //     <SessionFullMarker
+  //       color={getColorForValue(thresholds, session.lastMeasurementValue)}
+  //       value={`${Math.round(session.lastMeasurementValue)} ${unitSymbol}`}
+  //       isSelected={isSelected}
+  //       shouldPulse={session.id === pulsatingSessionId}
+  //       onClick={() => {
+  //         onMarkerClick(Number(session.point.streamId), Number(session.id));
+  //         centerMapOnMarker(session.point);
+  //       }}
+  //     />
+  //   );
+  // };
 
   return (
     <>
@@ -229,12 +225,7 @@ const MobileMarkers = ({
           //     }));
           //   }
           // }}
-        >
-          {/* {renderMarkerContent(
-            session,
-            session.point.streamId === selectedStreamId?.toString()
-          )} */}
-        </Marker>
+        />
       ))}
     </>
   );
