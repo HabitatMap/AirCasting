@@ -4,6 +4,7 @@ import { useSelector } from "react-redux";
 import { Marker } from "@googlemaps/markerclusterer";
 import { AdvancedMarker, useMap } from "@vis.gl/react-google-maps";
 
+import { mobileStreamPath } from "../../../assets/styles/colors";
 import { useAppDispatch, useAppSelector } from "../../../store/hooks";
 import { selectHoverPosition } from "../../../store/mapSlice";
 import {
@@ -43,34 +44,34 @@ const StreamMarkers = ({ sessions, unitSymbol }: Props) => {
   }, [dispatch, sessions.length]);
 
   // Create and update polyline
-  // useEffect(() => {
-  //   if (!map) return;
+  useEffect(() => {
+    if (!map) return;
 
-  //   const path = sortedSessions.map((session) => ({
-  //     lat: session.point.lat,
-  //     lng: session.point.lng,
-  //   }));
+    const path = sortedSessions.map((session) => ({
+      lat: session.point.lat,
+      lng: session.point.lng,
+    }));
 
-  //   if (polylineRef.current) {
-  //     polylineRef.current.setPath(path);
-  //   } else {
-  //     polylineRef.current = new google.maps.Polyline({
-  //       path,
-  //       map,
-  //       strokeColor: mobileStreamPath,
-  //       strokeOpacity: 0.7,
-  //       strokeWeight: 4,
-  //     });
-  //   }
+    if (polylineRef.current) {
+      polylineRef.current.setPath(path);
+    } else {
+      polylineRef.current = new google.maps.Polyline({
+        path,
+        map,
+        strokeColor: mobileStreamPath,
+        strokeOpacity: 0.7,
+        strokeWeight: 4,
+      });
+    }
 
-  // Cleanup function to remove the polyline
-  //   return () => {
-  //     if (polylineRef.current) {
-  //       polylineRef.current.setMap(null); // Remove the polyline from the map
-  //       polylineRef.current = null; // Cleanup the reference
-  //     }
-  //   };
-  // }, [sortedSessions, map]);
+    // Cleanup function to remove the polyline
+    return () => {
+      if (polylineRef.current) {
+        polylineRef.current.setMap(null); // Remove the polyline from the map
+        polylineRef.current = null; // Cleanup the reference
+      }
+    };
+  }, [sortedSessions, map]);
 
   return (
     <>

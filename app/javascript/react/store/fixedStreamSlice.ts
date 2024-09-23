@@ -144,6 +144,9 @@ const fixedStreamSlice = createSlice({
       state.maxMeasurementValue = newMax;
       state.averageMeasurementValue = newAvg;
     },
+    resetFixedStreamState(state) {
+      return initialState;
+    },
   },
   extraReducers: (builder) => {
     builder.addCase(fetchFixedStreamById.pending, (state) => {
@@ -209,7 +212,8 @@ const fixedStreamSlice = createSlice({
 
 export default fixedStreamSlice.reducer;
 
-export const { updateFixedMeasurementExtremes } = fixedStreamSlice.actions;
+export const { updateFixedMeasurementExtremes, resetFixedStreamState } =
+  fixedStreamSlice.actions;
 export const selectFixedData = (state: RootState) => state.fixedStream.data;
 export const selectIsLoading = (state: RootState) =>
   state.fixedStream.isLoading;

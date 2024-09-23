@@ -98,6 +98,9 @@ export const mobileStreamSlice = createSlice({
       state.maxMeasurementValue = newMax;
       state.averageMeasurementValue = newAvg;
     },
+    resetMobileStreamState(state) {
+      return initialState;
+    },
   },
   extraReducers: (builder) => {
     builder.addCase(fetchMobileStreamById.pending, (state) => {
@@ -125,5 +128,9 @@ export const mobileStreamSlice = createSlice({
     );
   },
 });
-export const { updateMobileMeasurementExtremes } = mobileStreamSlice.actions;
+
+// Export the new action
+export const { updateMobileMeasurementExtremes, resetMobileStreamState } =
+  mobileStreamSlice.actions;
+
 export default mobileStreamSlice.reducer;
