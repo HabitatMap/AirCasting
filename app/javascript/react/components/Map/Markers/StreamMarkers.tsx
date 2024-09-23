@@ -7,10 +7,6 @@ import { AdvancedMarker, useMap } from "@vis.gl/react-google-maps";
 import { mobileStreamPath } from "../../../assets/styles/colors";
 import { useAppDispatch, useAppSelector } from "../../../store/hooks";
 import { selectHoverPosition } from "../../../store/mapSlice";
-import {
-  setMarkersLoading,
-  setTotalMarkers,
-} from "../../../store/markersLoadingSlice";
 import { selectThresholds } from "../../../store/thresholdSlice";
 import { Session } from "../../../types/sessionType";
 import { getColorForValue } from "../../../utils/thresholdColors";
@@ -38,10 +34,10 @@ const StreamMarkers = ({ sessions, unitSymbol }: Props) => {
     return timeA - timeB;
   });
 
-  useEffect(() => {
-    dispatch(setMarkersLoading(true));
-    dispatch(setTotalMarkers(sessions.length));
-  }, [dispatch, sessions.length]);
+  // useEffect(() => {
+  //   dispatch(setMarkersLoading(true));
+  //   dispatch(setTotalMarkers(sessions.length));
+  // }, [dispatch, sessions.length]);
 
   // Create and update polyline
   useEffect(() => {
