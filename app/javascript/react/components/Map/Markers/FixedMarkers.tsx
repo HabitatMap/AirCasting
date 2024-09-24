@@ -19,10 +19,17 @@ import { AdvancedMarker, useMap } from "@vis.gl/react-google-maps";
 import { RootState } from "../../../store";
 import { fetchClusterData, setVisibility } from "../../../store/clusterSlice";
 import { useAppDispatch, useAppSelector } from "../../../store/hooks";
+import { selectHoverStreamId } from "../../../store/mapSlice";
 import { selectThresholds } from "../../../store/thresholdSlice";
 import { Session } from "../../../types/sessionType";
+import { getClusterPixelPosition } from "../../../utils/getClusterPixelPosition";
 import { useMapParams } from "../../../utils/mapParamsHandler";
 import { getColorForValue } from "../../../utils/thresholdColors";
+import {
+  customRenderer,
+  pulsatingRenderer,
+  updateClusterStyle,
+} from "./ClusterConfiguration";
 
 import {
   selectFixedStreamData,
@@ -31,13 +38,9 @@ import {
 import { setMarkersLoading } from "../../../store/markersLoadingSlice";
 import { StatusEnum } from "../../../types/api";
 import type { LatLngLiteral } from "../../../types/googleMaps";
-import { getClusterPixelPosition } from "../../../utils/getClusterPixelPosition";
 import useMapEventListeners from "../../../utils/mapEventListeners";
-import {
-  customRenderer,
-  pulsatingRenderer,
-  updateClusterStyle,
-} from "./ClusterConfiguration";
+import { ClusterInfo } from "./ClusterInfo/ClusterInfo";
+import HoverMarker from "./HoverMarker/HoverMarker";
 import { SessionFullMarker } from "./SessionFullMarker/SessionFullMarker";
 import * as S from "./SessionFullMarker/SessionFullMarker.style";
 
@@ -69,7 +72,7 @@ const FixedMarkers = ({
   const clusterVisible = useAppSelector(
     (state: RootState) => state.cluster.visible
   );
-  // const hoverStreamId = useAppSelector(selectHoverStreamId);
+  const hoverStreamId = useAppSelector(selectHoverStreamId);
   const thresholds = useAppSelector(selectThresholds);
   const fixedStreamStatus = useAppSelector(selectFixedStreamStatus);
 
@@ -288,18 +291,18 @@ const FixedMarkers = ({
     dispatch(setMarkersLoading(true));
   }, [dispatch, sessions.length]);
 
-  // useEffect(() => {
-  //   if (hoverStreamId) {
-  //     const hoveredSession = memoizedSessions.find(
-  //       (session) => Number(session.point.streamId) === hoverStreamId
-  //     );
-  //     if (hoveredSession) {
-  //       setHoverPosition(hoveredSession.point);
-  //     }
-  //   } else {
-  //     setHoverPosition(null);
-  //   }
-  // }, [hoverStreamId, memoizedSessions]);
+  useEffect(() => {
+    if (hoverStreamId) {
+      const hoveredSession = memoizedSessions.find(
+        (session) => Number(session.point.streamId) === hoverStreamId
+      );
+      if (hoveredSession) {
+        setHoverPosition(hoveredSession.point);
+      }
+    } else {
+      setHoverPosition(null);
+    }
+  }, [hoverStreamId, memoizedSessions]);
 
   useEffect(() => {
     if (markersCount >= sessions.length) {
@@ -433,8 +436,8 @@ const FixedMarkers = ({
           </S.SessionMarkerWrapper>
         </AdvancedMarker>
       ))}
-      {/* {hoverPosition && <HoverMarker position={hoverPosition} />} */}
-      {/* {selectedCluster && clusterPosition && !clusterLoading && clusterData && (
+      {hoverPosition && <HoverMarker position={hoverPosition} />}
+      {selectedCluster && clusterPosition && !clusterLoading && clusterData && (
         <ClusterInfo
           color={getColorForValue(thresholds, clusterData.average)}
           average={clusterData.average}
@@ -443,7 +446,7 @@ const FixedMarkers = ({
           position={clusterPosition}
           visible={clusterVisible}
         />
-      )} */}
+      )}
     </>
   );
 };
