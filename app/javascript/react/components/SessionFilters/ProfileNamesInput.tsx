@@ -10,6 +10,7 @@ import {
   selectIsUsernamesInputFetching,
   selectUsernames,
 } from "../../store/sessionFiltersSlice";
+import { ParamsType, SessionTypes } from "../../types/filters";
 import { UrlParamsTypes, useMapParams } from "../../utils/mapParamsHandler";
 import { Spinner } from "../Loader/Spinner";
 import { FilterInfoPopup } from "./FilterInfoPopup";
@@ -21,13 +22,49 @@ const ProfileNamesInput = () => {
   const [selectedItem, setSelectedItem] = useState<string>("");
   const dispatch = useAppDispatch();
   const { t } = useTranslation();
-  const { setFilter, usernames, isIndoor } = useMapParams();
+  const {
+    boundWest,
+    boundEast,
+    boundNorth,
+    boundSouth,
+    sensorName,
+    sessionType,
+    setFilter,
+    tags,
+    timeFrom,
+    timeTo,
+    unitSymbol,
+    usernames,
+    isIndoor,
+    isActive,
+  } = useMapParams();
 
   const profileNames = useAppSelector(selectUsernames);
   const isIndoorParameterInUrl = isIndoor === TRUE;
   const isUsernamesInputFetching = useAppSelector(
     selectIsUsernamesInputFetching
   );
+  const selectedSessionType = sessionType || SessionTypes.FIXED;
+  const preparedUnitSymbol = unitSymbol.replace(/"/g, "");
+  const tagsDecoded = tags && decodeURIComponent(tags);
+
+  const getQueryParams = (usernames: string): ParamsType => {
+    return {
+      tags: tagsDecoded,
+      west: boundWest.toString(),
+      east: boundEast.toString(),
+      south: boundSouth.toString(),
+      north: boundNorth.toString(),
+      timeFrom: timeFrom,
+      timeTo: timeTo,
+      usernames: usernames,
+      sensorName: sensorName,
+      unitSymbol: preparedUnitSymbol,
+      sessionType: selectedSessionType,
+      isIndoor: isIndoor === TRUE,
+      isActive: isActive,
+    };
+  };
 
   const { isOpen, getMenuProps, getInputProps, getItemProps, reset } =
     useCombobox({
@@ -35,7 +72,8 @@ const ProfileNamesInput = () => {
       inputValue,
       selectedItem,
       onInputValueChange: ({ inputValue }) => {
-        dispatch(fetchUsernames(inputValue));
+        const queryParams = getQueryParams(inputValue);
+        dispatch(fetchUsernames(queryParams));
         setInputValue(inputValue);
       },
       onSelectedItemChange: ({ selectedItem: newSelectedItem }) => {
@@ -53,6 +91,11 @@ const ProfileNamesInput = () => {
         }
       },
     });
+
+  const handleOnInputClick = () => {
+    const queryParams = getQueryParams(inputValue);
+    dispatch(fetchUsernames(queryParams));
+  };
 
   const decodedUsernamesArray =
     usernames &&
@@ -90,7 +133,7 @@ const ProfileNamesInput = () => {
             placeholder={t("filters.profileNames")}
             {...getInputProps({
               value: inputValue,
-              onClick: () => dispatch(fetchUsernames(inputValue)),
+              onClick: handleOnInputClick,
             })}
             disabled={isIndoorParameterInUrl}
           />

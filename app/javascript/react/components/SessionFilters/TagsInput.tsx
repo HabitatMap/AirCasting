@@ -10,7 +10,7 @@ import {
   selectIsTagsInputFetching,
   selectTags,
 } from "../../store/sessionFiltersSlice";
-import { fetchTagsParamsType, SessionTypes } from "../../types/filters";
+import { ParamsType, SessionTypes } from "../../types/filters";
 import { UrlParamsTypes, useMapParams } from "../../utils/mapParamsHandler";
 import { Spinner } from "../Loader/Spinner";
 import { FilterInfoPopup } from "./FilterInfoPopup";
@@ -45,8 +45,9 @@ const TagsInput = () => {
   const isTagsInputFetching = useAppSelector(selectIsTagsInputFetching);
 
   const preparedUnitSymbol = unitSymbol.replace(/"/g, "");
+  const usernamesDecoded = usernames && decodeURIComponent(usernames);
 
-  const getQueryParams = (tags: string): fetchTagsParamsType => {
+  const getQueryParams = (tags: string): ParamsType => {
     return {
       tags: tags,
       west: boundWest.toString(),
@@ -55,7 +56,7 @@ const TagsInput = () => {
       north: boundNorth.toString(),
       timeFrom: timeFrom,
       timeTo: timeTo,
-      usernames: usernames,
+      usernames: usernamesDecoded,
       sensorName: sensorName,
       unitSymbol: preparedUnitSymbol,
       sessionType: selectedSessionType,
