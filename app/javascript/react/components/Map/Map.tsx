@@ -759,7 +759,7 @@ const Map = () => {
         </S.ThresholdContainer>
       )}
 
-      {/* {currentUserSettings === UserSettings.ModalView && (
+      {currentUserSettings === UserSettings.ModalView && (
         <SessionDetailsModal
           onClose={() => {
             revertUserSettingsAndResetIds();
@@ -770,7 +770,7 @@ const Map = () => {
           sessionType={sessionType}
           streamId={streamId}
         />
-      )} */}
+      )}
       {currentUserSettings === UserSettings.TimelapseView && (
         <TimelapseComponent
           onClose={() => {

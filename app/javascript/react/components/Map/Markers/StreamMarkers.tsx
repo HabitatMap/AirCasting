@@ -58,7 +58,10 @@ const StreamMarkers = ({ sessions, unitSymbol }: Props) => {
           path: google.maps.SymbolPath.CIRCLE,
           fillColor: getColorForValue(thresholds, session.lastMeasurementValue),
           fillOpacity: 1,
-          strokeColor: "white",
+          strokeColor: getColorForValue(
+            thresholds,
+            session.lastMeasurementValue
+          ),
           strokeWeight: 1,
           scale: 6,
         },
