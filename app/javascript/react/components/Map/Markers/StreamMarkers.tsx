@@ -66,7 +66,7 @@ const StreamMarkers: React.FC<Props> = ({ sessions, unitSymbol }) => {
       path,
       map,
       strokeColor: mobileStreamPath,
-      strokeOpacity: 1, // Fully opaque
+      strokeOpacity: 0.7, // Fully opaque
       strokeWeight: 4,
       zIndex: 1, // Ensure polyline is below markers
     });
