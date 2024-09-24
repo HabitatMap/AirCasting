@@ -1,8 +1,8 @@
 import { useMap } from "@vis.gl/react-google-maps";
 import React, { useEffect, useMemo, useRef } from "react";
-import { useSelector } from "react-redux";
-
-import { mobileStreamPath } from "../../../assets/styles/colors";
+import { acBlue, mobileStreamPath } from "../../../assets/styles/colors";
+import { useAppSelector } from "../../../store/hooks";
+import { selectHoverPosition } from "../../../store/mapSlice";
 import { selectThresholds } from "../../../store/thresholdSlice";
 import { Session } from "../../../types/sessionType";
 import { getColorForValue } from "../../../utils/thresholdColors";
@@ -16,7 +16,9 @@ const StreamMarkers: React.FC<Props> = ({ sessions, unitSymbol }) => {
   const map = useMap();
   const markersRef = useRef<google.maps.Marker[]>([]);
   const polylineRef = useRef<google.maps.Polyline | null>(null);
-  const thresholds = useSelector(selectThresholds);
+  const thresholds = useAppSelector(selectThresholds);
+  const hoverPosition = useAppSelector(selectHoverPosition);
+  const hoverMarkerRef = useRef<google.maps.Marker | null>(null);
 
   // Memoize the sorted sessions to prevent unnecessary recalculations
   const sortedSessions = useMemo(() => {
@@ -45,8 +47,9 @@ const StreamMarkers: React.FC<Props> = ({ sessions, unitSymbol }) => {
         path,
         map,
         strokeColor: mobileStreamPath,
-        strokeOpacity: 0.7,
-        strokeWeight: 4,
+        strokeOpacity: 0.7, // Fully opaque
+        strokeWeight: 3,
+        zIndex: 1, // Ensure polyline is below markers
       });
     }
 
@@ -58,24 +61,27 @@ const StreamMarkers: React.FC<Props> = ({ sessions, unitSymbol }) => {
       markersRef.current = [];
     }
 
+    // Define a custom circle symbol centered at (0,0)
+    const createCircleSymbol = (color: string) => ({
+      path: "M0,0 m -6,0 a 6,6 0 1,0 12,0 a 6,6 0 1,0 -12,0",
+      fillColor: color,
+      fillOpacity: 1,
+      strokeColor: color,
+      strokeWeight: 1,
+      anchor: new google.maps.Point(0, 0),
+      scale: 1,
+    });
+
     // Create all markers at once
     sortedSessions.forEach((session) => {
+      const color = getColorForValue(thresholds, session.lastMeasurementValue);
       const marker = new google.maps.Marker({
         position: { lat: session.point.lat, lng: session.point.lng },
         map,
         title: `${session.lastMeasurementValue} ${unitSymbol}`,
-        zIndex: 0,
-        icon: {
-          path: google.maps.SymbolPath.CIRCLE,
-          fillColor: getColorForValue(thresholds, session.lastMeasurementValue),
-          fillOpacity: 1,
-          strokeColor: getColorForValue(
-            thresholds,
-            session.lastMeasurementValue
-          ),
-          strokeWeight: 1,
-          scale: 6,
-        },
+        zIndex: 3, // Ensure markers are above the polyline
+        icon: createCircleSymbol(color),
+        optimized: false, // Ensure proper rendering
       });
 
       markersRef.current.push(marker);
@@ -101,7 +107,45 @@ const StreamMarkers: React.FC<Props> = ({ sessions, unitSymbol }) => {
     };
   }, [map, sortedSessions, unitSymbol, thresholds]);
 
-  return null; // No JSX needed since we're directly interacting with the Google Maps API
+  useEffect(() => {
+    if (!map) return;
+
+    if (hoverPosition && hoverPosition.lat !== 0 && hoverPosition.lng !== 0) {
+      if (!hoverMarkerRef.current) {
+        hoverMarkerRef.current = new google.maps.Marker({
+          position: hoverPosition,
+          map,
+          zIndex: 4, // Ensure hover marker is above everything
+          icon: {
+            path: "M0,0 m -8,0 a 8,8 0 1,0 16,0 a 8,8 0 1,0 -16,0",
+            fillColor: acBlue,
+            fillOpacity: 1,
+            strokeWeight: 1,
+            strokeColor: acBlue,
+            anchor: new google.maps.Point(0, 0),
+            scale: 1,
+          },
+          optimized: false,
+        });
+      } else {
+        hoverMarkerRef.current.setPosition(hoverPosition);
+      }
+    } else {
+      if (hoverMarkerRef.current) {
+        hoverMarkerRef.current.setMap(null);
+        hoverMarkerRef.current = null;
+      }
+    }
+
+    return () => {
+      if (hoverMarkerRef.current) {
+        hoverMarkerRef.current.setMap(null);
+        hoverMarkerRef.current = null;
+      }
+    };
+  }, [map, hoverPosition]);
+
+  return null;
 };
 
 export { StreamMarkers };
