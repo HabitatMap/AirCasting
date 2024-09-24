@@ -18,7 +18,6 @@ import { TRUE } from "../../const/booleans";
 import { MIN_ZOOM } from "../../const/coordinates";
 import { RootState, selectIsLoading } from "../../store";
 import {
-  selectFixedSessionPointsBySessionId,
   selectFixedSessionsList,
   selectFixedSessionsPoints,
   selectFixedSessionsStatusFulfilled,
@@ -77,6 +76,7 @@ import { UrlParamsTypes, useMapParams } from "../../utils/mapParamsHandler";
 import { useHandleScrollEnd } from "../../utils/scrollEnd";
 import useMobileDetection from "../../utils/useScreenSizeDetection";
 import { Loader } from "../Loader/Loader";
+import { SessionDetailsModal } from "../Modals/SessionDetailsModal";
 import { TimelapseComponent } from "../Modals/TimelapseModal";
 import { SectionButton } from "../SectionButton/SectionButton";
 import { MobileSessionFilters } from "../SessionFilters/MobileSessionFilters";
@@ -155,9 +155,7 @@ const Map = () => {
   const fetchingData = useAppSelector(selectFetchingData);
   const fixedSessionsType = useAppSelector(selectFixedSessionsType);
   const fixedPoints = useAppSelector((state) =>
-    sessionId
-      ? selectFixedSessionPointsBySessionId(state, fixedSessionsType, sessionId)
-      : selectFixedSessionsPoints(state, fixedSessionsType)
+    selectFixedSessionsPoints(state, fixedSessionsType)
   );
 
   const fixedSessionsStatusFulfilled = useAppSelector(
@@ -533,11 +531,11 @@ const Map = () => {
       setPreviousZoomInTheURL();
     }
 
-    if (selectedStreamId) {
-      fixedSessionTypeSelected
-        ? dispatch(fetchFixedStreamById(selectedStreamId))
-        : dispatch(fetchMobileStreamById(selectedStreamId));
-    }
+    // if (selectedStreamId) {
+    //   fixedSessionTypeSelected
+    //     ? dispatch(fetchFixedStreamById(selectedStreamId))
+    //     : dispatch(fetchMobileStreamById(selectedStreamId));
+    // }
 
     if (isMobile) {
       if (fixedSessionTypeSelected) {
@@ -759,7 +757,7 @@ const Map = () => {
         </S.ThresholdContainer>
       )}
 
-      {/* {currentUserSettings === UserSettings.ModalView && (
+      {currentUserSettings === UserSettings.ModalView && (
         <SessionDetailsModal
           onClose={() => {
             revertUserSettingsAndResetIds();
@@ -770,7 +768,7 @@ const Map = () => {
           sessionType={sessionType}
           streamId={streamId}
         />
-      )} */}
+      )}
       {currentUserSettings === UserSettings.TimelapseView && (
         <TimelapseComponent
           onClose={() => {
