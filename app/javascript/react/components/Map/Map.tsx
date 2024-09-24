@@ -531,11 +531,11 @@ const Map = () => {
       setPreviousZoomInTheURL();
     }
 
-    // if (selectedStreamId) {
-    //   fixedSessionTypeSelected
-    //     ? dispatch(fetchFixedStreamById(selectedStreamId))
-    //     : dispatch(fetchMobileStreamById(selectedStreamId));
-    // }
+    if (selectedStreamId) {
+      fixedSessionTypeSelected
+        ? dispatch(fetchFixedStreamById(selectedStreamId))
+        : dispatch(fetchMobileStreamById(selectedStreamId));
+    }
 
     if (isMobile) {
       if (fixedSessionTypeSelected) {

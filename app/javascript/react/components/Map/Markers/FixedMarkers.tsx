@@ -288,18 +288,18 @@ const FixedMarkers = ({
     dispatch(setMarkersLoading(true));
   }, [dispatch, sessions.length]);
 
-  // useEffect(() => {
-  //   if (hoverStreamId) {
-  //     const hoveredSession = memoizedSessions.find(
-  //       (session) => Number(session.point.streamId) === hoverStreamId
-  //     );
-  //     if (hoveredSession) {
-  //       setHoverPosition(hoveredSession.point);
-  //     }
-  //   } else {
-  //     setHoverPosition(null);
-  //   }
-  // }, [hoverStreamId, memoizedSessions]);
+  useEffect(() => {
+    if (hoverStreamId) {
+      const hoveredSession = memoizedSessions.find(
+        (session) => Number(session.point.streamId) === hoverStreamId
+      );
+      if (hoveredSession) {
+        setHoverPosition(hoveredSession.point);
+      }
+    } else {
+      setHoverPosition(null);
+    }
+  }, [hoverStreamId, memoizedSessions]);
 
   useEffect(() => {
     if (markersCount >= sessions.length) {
