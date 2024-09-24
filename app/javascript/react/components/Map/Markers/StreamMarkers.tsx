@@ -1,61 +1,46 @@
-import React, { useEffect, useRef, useState } from "react";
+import { useMap } from "@vis.gl/react-google-maps";
+import React, { useEffect, useMemo, useRef } from "react";
 import { useSelector } from "react-redux";
 
-import { Marker } from "@googlemaps/markerclusterer";
-import { AdvancedMarker, useMap } from "@vis.gl/react-google-maps";
-
 import { mobileStreamPath } from "../../../assets/styles/colors";
-import { useAppDispatch } from "../../../store/hooks";
-import { selectHoverPosition } from "../../../store/mapSlice";
-import {
-  setMarkersLoading,
-  setTotalMarkers,
-} from "../../../store/markersLoadingSlice";
 import { selectThresholds } from "../../../store/thresholdSlice";
 import { Session } from "../../../types/sessionType";
 import { getColorForValue } from "../../../utils/thresholdColors";
-import HoverMarker from "./HoverMarker/HoverMarker";
-import { StreamMarker } from "./StreamMarker/StreamMarker";
 
 type Props = {
   sessions: Session[];
   unitSymbol: string;
 };
 
-const StreamMarkers = ({ sessions, unitSymbol }: Props) => {
-  const dispatch = useAppDispatch();
+const StreamMarkers: React.FC<Props> = ({ sessions, unitSymbol }) => {
   const map = useMap();
-  const [markers, setMarkers] = useState<{ [streamId: string]: Marker | null }>(
-    {}
-  );
-  const thresholds = useSelector(selectThresholds);
+  const markersRef = useRef<google.maps.Marker[]>([]);
   const polylineRef = useRef<google.maps.Polyline | null>(null);
-  const hoverPosition = useSelector(selectHoverPosition);
+  const thresholds = useSelector(selectThresholds);
 
-  // Sort sessions by time
-  const sortedSessions = sessions.sort((a, b) => {
-    const timeA = a.time ? new Date(a.time.toString()).getTime() : 0;
-    const timeB = b.time ? new Date(b.time.toString()).getTime() : 0;
-    return timeA - timeB;
-  });
+  // Memoize the sorted sessions to prevent unnecessary recalculations
+  const sortedSessions = useMemo(() => {
+    return [...sessions].sort((a, b) => {
+      const timeA = a.time ? new Date(a.time).getTime() : 0;
+      const timeB = b.time ? new Date(b.time).getTime() : 0;
+      return timeA - timeB;
+    });
+  }, [sessions]);
 
   useEffect(() => {
-    dispatch(setMarkersLoading(true));
-    dispatch(setTotalMarkers(sessions.length));
-  }, [dispatch, sessions.length]);
+    if (!map || sortedSessions.length === 0) return;
 
-  // Create and update polyline
-  useEffect(() => {
-    if (!map) return;
-
+    // Create or update the polyline
     const path = sortedSessions.map((session) => ({
       lat: session.point.lat,
       lng: session.point.lng,
     }));
 
     if (polylineRef.current) {
+      // Update the existing polyline's path
       polylineRef.current.setPath(path);
     } else {
+      // Create a new polyline
       polylineRef.current = new google.maps.Polyline({
         path,
         map,
@@ -65,42 +50,68 @@ const StreamMarkers = ({ sessions, unitSymbol }: Props) => {
       });
     }
 
-    // Cleanup function to remove the polyline
+    // Create markers only if they haven't been created yet
+    if (markersRef.current.length === 0) {
+      // Batch marker creation to prevent blocking the main thread
+      const batchSize = 100;
+      let index = 0;
+
+      function createBatch() {
+        const batch = sortedSessions.slice(index, index + batchSize);
+        batch.forEach((session) => {
+          const marker = new google.maps.Marker({
+            position: { lat: session.point.lat, lng: session.point.lng },
+            map,
+            title: `${session.lastMeasurementValue} ${unitSymbol}`,
+            zIndex: 0,
+            icon: {
+              path: google.maps.SymbolPath.CIRCLE,
+              fillColor: getColorForValue(
+                thresholds,
+                session.lastMeasurementValue
+              ),
+              fillOpacity: 1,
+              strokeColor: getColorForValue(
+                thresholds,
+                session.lastMeasurementValue
+              ),
+              strokeWeight: 1,
+              scale: 6,
+            },
+          });
+
+          markersRef.current.push(marker);
+        });
+        index += batchSize;
+        if (index < sortedSessions.length) {
+          setTimeout(createBatch, 0);
+        }
+      }
+
+      createBatch();
+    }
+
+    // Cleanup function to remove markers and polyline when the component unmounts
     return () => {
+      // Remove markers from the map
+      if (markersRef.current.length > 0) {
+        markersRef.current.forEach((marker) => {
+          google.maps.event.clearInstanceListeners(marker);
+          marker.setMap(null);
+        });
+        markersRef.current = [];
+      }
+
+      // Remove polyline from the map
       if (polylineRef.current) {
-        polylineRef.current.setMap(null); // Remove the polyline from the map
-        polylineRef.current = null; // Cleanup the reference
+        google.maps.event.clearInstanceListeners(polylineRef.current);
+        polylineRef.current.setMap(null);
+        polylineRef.current = null;
       }
     };
-  }, [sortedSessions, map]);
+  }, [map, sortedSessions, unitSymbol, thresholds]);
 
-  return (
-    <>
-      {sessions.map((session) => (
-        <React.Fragment key={session.id}>
-          <AdvancedMarker
-            title={`${session.lastMeasurementValue} ${unitSymbol}`}
-            position={session.point}
-            key={`marker-${session.id}`}
-            zIndex={0}
-            ref={(marker) => {
-              if (marker && !markers[session.point.streamId]) {
-                setMarkers((prev) => ({
-                  ...prev,
-                  [session.point.streamId]: marker,
-                }));
-              }
-            }}
-          >
-            <StreamMarker
-              color={getColorForValue(thresholds, session.lastMeasurementValue)}
-            />
-          </AdvancedMarker>
-        </React.Fragment>
-      ))}
-      {hoverPosition && <HoverMarker position={hoverPosition} />}
-    </>
-  );
+  return null;
 };
 
 export { StreamMarkers };

@@ -27,7 +27,10 @@ import {
   fetchActiveFixedSessions,
   fetchDormantFixedSessions,
 } from "../../store/fixedSessionsSlice";
-import { fetchFixedStreamById } from "../../store/fixedStreamSlice";
+import {
+  fetchFixedStreamById,
+  resetFixedStreamState,
+} from "../../store/fixedStreamSlice";
 import { useAppDispatch, useAppSelector } from "../../store/hooks";
 import { selectIndoorSessionsList } from "../../store/indoorSessionsSelectors";
 import {
@@ -43,7 +46,10 @@ import {
 } from "../../store/mobileSessionsSelectors";
 import { fetchMobileSessions } from "../../store/mobileSessionsSlice";
 import { selectMobileStreamPoints } from "../../store/mobileStreamSelectors";
-import { fetchMobileStreamById } from "../../store/mobileStreamSlice";
+import {
+  fetchMobileStreamById,
+  resetMobileStreamState,
+} from "../../store/mobileStreamSlice";
 import { fetchSensors } from "../../store/sensorsSlice";
 import {
   FixedSessionsTypes,
@@ -573,6 +579,9 @@ const Map = () => {
 
     if (streamId) {
       revertUserSettingsAndResetIds();
+      fixedSessionTypeSelected
+        ? dispatch(resetFixedStreamState())
+        : dispatch(resetMobileStreamState());
     }
   };
 
@@ -752,6 +761,9 @@ const Map = () => {
         <SessionDetailsModal
           onClose={() => {
             revertUserSettingsAndResetIds();
+            fixedSessionTypeSelected
+              ? dispatch(resetFixedStreamState())
+              : dispatch(resetMobileStreamState());
           }}
           sessionType={sessionType}
           streamId={streamId}

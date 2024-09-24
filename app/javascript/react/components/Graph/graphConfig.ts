@@ -1,24 +1,19 @@
-import Highcharts, {
+import {
   AlignValue,
-  chart,
+  ChartOptions,
   ChartZoomingOptions,
+  PlotOptions,
   RangeSelectorOptions,
   ResponsiveOptions,
-} from "highcharts";
-import {
-  LegendOptions,
-  PlotOptions,
-  SeriesOptionsType,
-  TitleOptions,
   XAxisOptions,
   YAxisOptions,
-} from "highcharts/highstock";
+} from "highcharts";
+import { TFunction } from "i18next";
 import { debounce } from "lodash";
-import { useTranslation } from "react-i18next";
 
+import Highcharts from "highcharts";
 import {
   blue,
-  disabledGraphButton,
   gray100,
   gray200,
   gray300,
@@ -29,32 +24,15 @@ import {
   white,
   yellow,
 } from "../../assets/styles/colors";
-import {
-  selectIsLoading,
-  updateFixedMeasurementExtremes,
-} from "../../store/fixedStreamSlice";
-import { useAppDispatch, useAppSelector } from "../../store/hooks";
+import { updateFixedMeasurementExtremes } from "../../store/fixedStreamSlice";
 import { setHoverPosition, setHoverStreamId } from "../../store/mapSlice";
+import { updateMobileMeasurementExtremes } from "../../store/mobileStreamSlice";
 import { LatLngLiteral } from "../../types/googleMaps";
 import { GraphData, GraphPoint } from "../../types/graph";
 import { Thresholds } from "../../types/thresholds";
-import {
-  MILLISECONDS_IN_A_5_MINUTES,
-  MILLISECONDS_IN_A_DAY,
-  MILLISECONDS_IN_A_MONTH,
-  MILLISECONDS_IN_A_WEEK,
-  MILLISECONDS_IN_AN_HOUR,
-} from "../../utils/timeRanges";
-
-import { RefObject } from "react";
-import { TRUE } from "../../const/booleans";
-import { updateMobileMeasurementExtremes } from "../../store/mobileStreamSlice";
-import { useMapParams } from "../../utils/mapParamsHandler";
 import { formatTimeExtremes } from "../../utils/measurementsCalc";
-import useMobileDetection from "../../utils/useScreenSizeDetection";
 
-const getScrollbarOptions = (isCalendarPage: boolean) => {
-  const isMobile = useMobileDetection();
+const getScrollbarOptions = (isCalendarPage: boolean, isMobile: boolean) => {
   return {
     barBackgroundColor: gray200,
     barBorderWidth: 0,
@@ -73,19 +51,17 @@ const getScrollbarOptions = (isCalendarPage: boolean) => {
 };
 
 const getXAxisOptions = (
-  isMobile: boolean = false,
-  rangeDisplayRef: RefObject<HTMLDivElement> | undefined,
+  isMobile: boolean,
+  rangeDisplayRef: React.RefObject<HTMLDivElement> | undefined,
   fixedSessionTypeSelected: boolean,
-  isIndoor: string | null
+  isIndoor: string | null,
+  dispatch: any,
+  isLoading: boolean,
+  isIndoorParameterInUrl: boolean
 ): XAxisOptions => {
-  const dispatch = useAppDispatch();
-  const isLoading = useAppSelector(selectIsLoading);
-
   const handleSetExtremes = debounce(
     (e: Highcharts.AxisSetExtremesEventObject) => {
-      if (isIndoor === TRUE) {
-        if (!chart || Object.keys(chart).length === 0) return;
-      }
+      if (isIndoorParameterInUrl) return;
       if (!isLoading && e.min && e.max) {
         dispatch(
           fixedSessionTypeSelected
@@ -98,18 +74,17 @@ const getXAxisOptions = (
           e.max
         );
 
-        // Dirty workaround to update timerange display in the graph
         if (rangeDisplayRef?.current) {
           rangeDisplayRef.current.innerHTML = `
-              <div class="time-container">
-                <span class="date">${formattedMinTime.date ?? ""}</span>
-                <span class="time">${formattedMinTime.time ?? ""}</span>
-              </div>
-              <span>-</span>
-              <div class="time-container">
-                <span class="date">${formattedMaxTime.date ?? ""}</span>
-                <span class="time">${formattedMaxTime.time ?? ""}</span>
-              </div>
+            <div class="time-container">
+              <span class="date">${formattedMinTime.date ?? ""}</span>
+              <span class="time">${formattedMinTime.time ?? ""}</span>
+            </div>
+            <span>-</span>
+            <div class="time-container">
+              <span class="date">${formattedMaxTime.date ?? ""}</span>
+              <span class="time">${formattedMaxTime.time ?? ""}</span>
+            </div>
           `;
         }
       }
@@ -142,16 +117,9 @@ const getXAxisOptions = (
     minRange: 10000,
     ordinal: false,
     events: {
-      afterSetExtremes: function (e) {
-        handleSetExtremes(e);
-      },
+      afterSetExtremes: handleSetExtremes,
     },
   };
-};
-
-const buildTicks = (low: number, high: number) => {
-  const tick = Math.round((high - low) / 4);
-  return [low, low + tick, low + 2 * tick, high - tick, high];
 };
 
 const getYAxisOptions = (
@@ -164,8 +132,7 @@ const getYAxisOptions = (
   const middle = Number(thresholdsState.middle);
   const high = Number(thresholdsState.high);
 
-  const ticks = buildTicks(min, max);
-  const tickInterval = ticks[1] - ticks[0];
+  const tickInterval = (max - min) / 4;
 
   return {
     title: {
@@ -222,17 +189,33 @@ const getYAxisOptions = (
 
 const getPlotOptions = (
   fixedSessionTypeSelected: boolean,
-  streamId: number | null
+  streamId: number | null,
+  dispatch: any,
+  isIndoorParameterInUrl: boolean
 ): PlotOptions => {
-  const dispatch = useAppDispatch();
-  const { isIndoor } = useMapParams();
+  const handleMouseOver = function (this: Highcharts.Point) {
+    if (!isIndoorParameterInUrl) {
+      const position: LatLngLiteral = (this as GraphPoint).position;
+      if (fixedSessionTypeSelected) {
+        dispatch(setHoverStreamId(streamId));
+      } else {
+        dispatch(setHoverPosition(position));
+      }
+    }
+  };
 
-  const isIndoorParameterInUrl = isIndoor === TRUE;
+  const handleMouseOut = () => {
+    if (!isIndoorParameterInUrl) {
+      dispatch(setHoverStreamId(null));
+      dispatch(setHoverPosition({ lat: 0, lng: 0 }));
+    }
+  };
+
   return {
     series: {
       lineWidth: 2,
       color: blue,
-      turboThreshold: 9999999, //above that graph will not display,
+      turboThreshold: 10000,
       marker: {
         fillColor: blue,
         lineWidth: 0,
@@ -251,40 +234,23 @@ const getPlotOptions = (
       },
       dataGrouping: {
         enabled: true,
-        units: [
-          ["millisecond", []],
-          ["second", [2, 3, 4, 5, 6, 7, 8, 9, 10, 15, 20, 30, 40, 50]],
-          ["minute", [1, 2, 3, 4, 5]],
-        ],
+        approximation: "average",
+        groupPixelWidth: 5,
       },
       dataLabels: {
         allowOverlap: true,
       },
       point: {
         events: {
-          mouseOver: function (this: Highcharts.Point) {
-            if (!isIndoorParameterInUrl) {
-              const position: LatLngLiteral = (this as GraphPoint).position;
-              if (fixedSessionTypeSelected) {
-                dispatch(setHoverStreamId(streamId));
-              } else {
-                dispatch(setHoverPosition(position));
-              }
-            }
-          },
-          mouseOut: function () {
-            if (!isIndoorParameterInUrl) {
-              dispatch(setHoverStreamId(null));
-              dispatch(setHoverPosition({ lat: 0, lng: 0 }));
-            }
-          },
+          mouseOver: handleMouseOver,
+          mouseOut: handleMouseOut,
         },
       },
     },
   };
 };
 
-const seriesOptions = (data: GraphData): SeriesOptionsType => ({
+const seriesOptions = (data: GraphData) => ({
   type: "spline",
   color: white,
   data: data,
@@ -293,17 +259,13 @@ const seriesOptions = (data: GraphData): SeriesOptionsType => ({
   },
 });
 
-const titleOption: TitleOptions = {
-  text: "Measurement graph",
-  align: "left",
-};
-
-const legendOption: LegendOptions = {
+const legendOption = {
   enabled: false,
 };
 
 const getResponsiveOptions = (
-  thresholdsState: Thresholds
+  thresholdsState: Thresholds,
+  isMobile: boolean
 ): ResponsiveOptions => {
   return {
     rules: [
@@ -312,7 +274,7 @@ const getResponsiveOptions = (
           maxWidth: 1024,
         },
         chartOptions: {
-          yAxis: getYAxisOptions(thresholdsState, true),
+          yAxis: getYAxisOptions(thresholdsState, isMobile),
           credits: {
             enabled: false,
           },
@@ -322,23 +284,17 @@ const getResponsiveOptions = (
   };
 };
 
-const getTooltipOptions = (measurementType: string, unitSymbol: string) => ({
+const getTooltipOptions = (
+  measurementType: string,
+  unitSymbol: string
+): Highcharts.TooltipOptions => ({
   enabled: true,
   formatter: function (this: Highcharts.TooltipFormatterContextObject): string {
     const date = Highcharts.dateFormat("%m/%d/%Y", Number(this.x));
     const time = Highcharts.dateFormat("%H:%M:%S", Number(this.x));
     const pointData = this.points ? this.points[0] : this.point;
-    const oneMinuteInterval = 60 * 1000;
     let s = `<span>${date} `;
-
-    if (this.points && this.points.length > 1) {
-      const xLess = Number(this.x);
-      const xMore = xLess + oneMinuteInterval * (this.points.length - 1);
-      s += Highcharts.dateFormat("%H:%M:%S", xLess) + "-";
-      s += Highcharts.dateFormat("%H:%M:%S", xMore) + "</span>";
-    } else {
-      s += Highcharts.dateFormat("%H:%M:%S", this.x as number) + "</span>";
-    }
+    s += Highcharts.dateFormat("%H:%M:%S", this.x as number) + "</span>";
     s +=
       "<br/>" +
       measurementType +
@@ -356,64 +312,13 @@ const getTooltipOptions = (measurementType: string, unitSymbol: string) => ({
 });
 
 const getRangeSelectorOptions = (
+  isMobile: boolean,
   fixedSessionTypeSelected: boolean,
-  totalDuration: number,
-  selectedRange?: number,
-  isCalendarPage: boolean = false
+  totalDuration: number | undefined,
+  selectedRange: number | undefined,
+  isCalendarPage: boolean,
+  t: TFunction
 ): RangeSelectorOptions => {
-  const { t } = useTranslation();
-  const isMobile = useMobileDetection();
-
-  const baseMobileCalendarOptions: RangeSelectorOptions = {
-    enabled: true,
-    buttonPosition: {
-      align: "center" as AlignValue,
-      y: -85,
-    },
-    buttonTheme: {
-      fill: "none",
-      width: 95,
-      height: 34,
-      r: 20,
-      stroke: "none",
-      "stroke-width": 1,
-      style: {
-        fontFamily: "Roboto, sans-serif",
-        fontSize: "1.4rem",
-        color: gray300,
-        fontWeight: "regular",
-      },
-
-      states: {
-        hover: {
-          fill: blue,
-          style: {
-            color: white,
-          },
-        },
-
-        select: {
-          fill: blue,
-          style: {
-            color: white,
-            fontWeight: "bold",
-          },
-        },
-
-        disabled: {
-          style: {
-            color: disabledGraphButton,
-            cursor: "default",
-          },
-        },
-      },
-    },
-    labelStyle: {
-      display: "none",
-    },
-    buttonSpacing: 10,
-    inputEnabled: false,
-  };
   const baseOptions: RangeSelectorOptions = {
     enabled: isMobile ? false : true,
     buttonPosition: {
@@ -455,61 +360,28 @@ const getRangeSelectorOptions = (
     inputEnabled: false,
   };
 
-  if (isCalendarPage && isMobile) {
-    return {
-      ...baseMobileCalendarOptions,
-      buttons: [
-        { type: "hour", count: 24, text: t("graph.24Hours") },
-        totalDuration > MILLISECONDS_IN_A_WEEK
-          ? { type: "day", count: 7, text: t("graph.oneWeek") }
-          : { type: "all", text: t("graph.oneWeek") },
-        totalDuration > MILLISECONDS_IN_A_MONTH
-          ? { type: "week", count: 4, text: t("graph.oneMonth") }
-          : { type: "all", text: t("graph.oneMonth") },
-      ],
-      allButtonsEnabled: true,
-      selected: selectedRange,
-    };
-  } else {
-    if (fixedSessionTypeSelected) {
-      return {
-        ...baseOptions,
-        buttons: [
-          // { type: "hour", count: 24, text: t("graph.24Hours") },
-          totalDuration < MILLISECONDS_IN_A_DAY
-            ? { type: "all", text: t("graph.24Hours") }
-            : { type: "hour", count: 24, text: t("graph.24Hours") },
-          totalDuration > MILLISECONDS_IN_A_WEEK
-            ? { type: "day", count: 7, text: t("graph.oneWeek") }
-            : { type: "all", text: t("graph.oneWeek") },
-          totalDuration > MILLISECONDS_IN_A_MONTH
-            ? { type: "week", count: 4, text: t("graph.oneMonth") }
-            : { type: "all", text: t("graph.oneMonth") },
-        ],
-        allButtonsEnabled: true,
-        selected: selectedRange,
-      };
-    } else {
-      return {
-        ...baseOptions,
-        buttons: [
-          totalDuration < MILLISECONDS_IN_A_5_MINUTES
-            ? { type: "all", text: t("graph.fiveMinutes") }
-            : { type: "minute", count: 5, text: t("graph.fiveMinutes") },
-          totalDuration < MILLISECONDS_IN_AN_HOUR
-            ? { type: "all", text: t("graph.oneHour") }
-            : { type: "minute", count: 60, text: t("graph.oneHour") },
+  return {
+    ...baseOptions,
+    buttons: fixedSessionTypeSelected
+      ? [
+          { type: "hour", count: 24, text: t("graph.24Hours") },
+          { type: "day", count: 7, text: t("graph.oneWeek") },
+          { type: "week", count: 4, text: t("graph.oneMonth") },
+        ]
+      : [
+          { type: "minute", count: 5, text: t("graph.fiveMinutes") },
+          { type: "minute", count: 60, text: t("graph.oneHour") },
           { type: "all", text: t("graph.all") },
         ],
-        allButtonsEnabled: true,
-        selected: selectedRange,
-      };
-    }
-  }
+    allButtonsEnabled: true,
+    selected: selectedRange,
+  };
 };
 
-const getChartOptions = (isCalendarPage: boolean): Highcharts.ChartOptions => {
-  const isMobile = useMobileDetection();
+const getChartOptions = (
+  isCalendarPage: boolean,
+  isMobile: boolean
+): ChartOptions => {
   const zoomingConfig: ChartZoomingOptions = {
     type: "x",
     resetButton: { theme: { style: { display: "none" } } },
@@ -547,5 +419,4 @@ export {
   getYAxisOptions,
   legendOption,
   seriesOptions,
-  titleOption,
 };
