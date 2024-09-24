@@ -1,6 +1,7 @@
-import React from "react";
-
+// StreamMarker.tsx
+import React, { useEffect } from "react";
 import { useAppDispatch } from "../../../../store/hooks";
+import { incrementLoadedMarkers } from "../../../../store/markersLoadingSlice";
 import { StreamMarkerCircle } from "./StreamMarker.style";
 
 interface StreamMarkerProps {
@@ -10,11 +11,10 @@ interface StreamMarkerProps {
 const StreamMarker = ({ color }: StreamMarkerProps) => {
   const dispatch = useAppDispatch();
 
-  // useEffect(() => {
-  //   setTimeout(() => {
-  //     dispatch(incrementLoadedMarkers());
-  //   }, 400);
-  // }, [dispatch]);
+  useEffect(() => {
+    // Dispatch increment immediately upon mounting
+    dispatch(incrementLoadedMarkers());
+  }, [dispatch]);
 
   return <StreamMarkerCircle color={color} />;
 };
