@@ -1,9 +1,9 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef } from "react";
 import { useSelector } from "react-redux";
 
-import { Marker } from "@googlemaps/markerclusterer";
 import { AdvancedMarker, useMap } from "@vis.gl/react-google-maps";
 
+import { Marker } from "@googlemaps/markerclusterer";
 import { mobileStreamPath } from "../../../assets/styles/colors";
 import { useAppDispatch, useAppSelector } from "../../../store/hooks";
 import { selectHoverPosition } from "../../../store/mapSlice";
@@ -24,9 +24,7 @@ type Props = {
 const StreamMarkers = ({ sessions, unitSymbol }: Props) => {
   const dispatch = useAppDispatch();
   const map = useMap();
-  const [markers, setMarkers] = useState<{ [streamId: string]: Marker | null }>(
-    {}
-  );
+  const markersRef = useRef<{ [streamId: string]: Marker | null }>({});
   const thresholds = useSelector(selectThresholds);
   const polylineRef = useRef<google.maps.Polyline | null>(null);
   const hoverPosition = useAppSelector(selectHoverPosition);
@@ -76,18 +74,14 @@ const StreamMarkers = ({ sessions, unitSymbol }: Props) => {
   return (
     <>
       {sessions.map((session) => (
-        // <React.Fragment key={session.id}>
         <AdvancedMarker
           title={`${session.lastMeasurementValue} ${unitSymbol}`}
           position={session.point}
           key={`marker-${session.id}`}
           zIndex={0}
           ref={(marker) => {
-            if (marker && !markers[session.point.streamId]) {
-              setMarkers((prev) => ({
-                ...prev,
-                [session.point.streamId]: marker,
-              }));
+            if (marker && !markersRef.current[session.point.streamId]) {
+              markersRef.current[session.point.streamId] = marker;
             }
           }}
         >
@@ -95,9 +89,7 @@ const StreamMarkers = ({ sessions, unitSymbol }: Props) => {
             color={getColorForValue(thresholds, session.lastMeasurementValue)}
           />
         </AdvancedMarker>
-        // </React.Fragment>
       ))}
-      {/* {hoverPosition && <HoverMarker position={hoverPosition} />} */}
     </>
   );
 };
