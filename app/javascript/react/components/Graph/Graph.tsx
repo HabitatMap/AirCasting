@@ -10,13 +10,12 @@ import React, {
   useState,
 } from "react";
 import { useTranslation } from "react-i18next";
-import { useSelector } from "react-redux";
 import {
   fetchMeasurements,
   selectFixedData,
   selectIsLoading,
 } from "../../store/fixedStreamSlice";
-import { useAppDispatch } from "../../store/hooks";
+import { useAppDispatch, useAppSelector } from "../../store/hooks";
 import { selectMobileStreamPoints } from "../../store/mobileStreamSelectors";
 import { selectThresholds } from "../../store/thresholdSlice";
 import { SessionType, SessionTypes } from "../../types/filters";
@@ -57,14 +56,15 @@ const Graph: React.FC<GraphProps> = React.memo(
     const { t } = useTranslation();
     const isMobile = useMobileDetection();
 
-    const thresholdsState = useSelector(selectThresholds);
-    const isLoading = useSelector(selectIsLoading);
-    const fixedGraphData = useSelector(selectFixedData);
-    const mobileGraphData = useSelector(selectMobileStreamPoints);
+    const thresholdsState = useAppSelector(selectThresholds);
+    const isLoading = useAppSelector(selectIsLoading);
+    const fixedGraphData = useAppSelector(selectFixedData);
+    const mobileGraphData = useAppSelector(selectMobileStreamPoints);
 
     const { unitSymbol, measurementType, isIndoor } = useMapParams();
 
     // Local States
+    const [chartDataLoaded, setChartDataLoaded] = useState(false);
     const fixedSessionTypeSelected = sessionType === SessionTypes.FIXED;
     const [selectedRange, setSelectedRange] = useState(
       fixedSessionTypeSelected ? 0 : 2
@@ -328,19 +328,25 @@ const Graph: React.FC<GraphProps> = React.memo(
       }
     }, []);
 
+    useEffect(() => {
+      if (seriesData.length > 0 && !isLoading) {
+        setChartDataLoaded(true);
+      }
+    }, [seriesData, isLoading]);
+
     return (
       <S.Container
         ref={graphRef}
         $isCalendarPage={isCalendarPage}
         $isMobile={isMobile}
       >
-        {seriesData.length > 0 && (
-          <HighchartsReact
-            highcharts={Highcharts}
-            constructorType={"stockChart"}
-            options={options}
-          />
-        )}
+        {/* {seriesData.length > 0 && ( */}
+        <HighchartsReact
+          highcharts={Highcharts}
+          constructorType={"stockChart"}
+          options={options}
+        />
+        {/* )} */}
       </S.Container>
     );
   }
