@@ -1,3 +1,5 @@
+// Graph.tsx
+
 import HighchartsReact from "highcharts-react-official";
 import Highcharts, { Chart } from "highcharts/highstock";
 import React, {
@@ -49,7 +51,6 @@ interface GraphProps {
 const Graph: React.FC<GraphProps> = React.memo(
   ({ streamId, sessionType, isCalendarPage, rangeDisplayRef }) => {
     const graphRef = useRef<HTMLDivElement>(null);
-    const chartComponentRef = useRef<HighchartsReact.RefObject>(null); // Ref for HighchartsReact
 
     // Hooks
     const dispatch = useAppDispatch();
@@ -327,28 +328,19 @@ const Graph: React.FC<GraphProps> = React.memo(
       }
     }, []);
 
-    useEffect(() => {
-      if (chartComponentRef.current) {
-        if (isLoading) {
-          chartComponentRef.current.chart.showLoading();
-        } else {
-          chartComponentRef.current.chart.hideLoading();
-        }
-      }
-    }, [isLoading]);
-
     return (
       <S.Container
         ref={graphRef}
         $isCalendarPage={isCalendarPage}
         $isMobile={isMobile}
       >
-        <HighchartsReact
-          highcharts={Highcharts}
-          constructorType={"stockChart"}
-          options={options}
-          ref={chartComponentRef}
-        />
+        {seriesData.length > 0 && (
+          <HighchartsReact
+            highcharts={Highcharts}
+            constructorType={"stockChart"}
+            options={options}
+          />
+        )}
       </S.Container>
     );
   }
