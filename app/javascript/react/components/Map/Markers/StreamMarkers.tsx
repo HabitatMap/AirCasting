@@ -75,7 +75,7 @@ const StreamMarkers = ({ sessions, unitSymbol }: Props) => {
     // Remove existing markers
     if (markersRef.current.length > 0) {
       markersRef.current.forEach((marker) => {
-        marker.map = null; // Removes the marker from the map
+        marker.map = null;
       });
       markersRef.current = [];
     }
@@ -104,7 +104,6 @@ const StreamMarkers = ({ sessions, unitSymbol }: Props) => {
       const position = { lat: session.point.lat, lng: session.point.lng };
       const color = getColorForValue(thresholds, session.lastMeasurementValue);
 
-      // Check if marker content for this color is already cached
       let cachedContent = markerContentCache.current[color];
       if (!cachedContent) {
         cachedContent = createMarkerContent(color);
@@ -122,15 +121,11 @@ const StreamMarkers = ({ sessions, unitSymbol }: Props) => {
         map: map,
       });
 
-      // Optional: Log the marker's content structure for debugging
-      // console.log(`Marker ${index} created with color: ${color}`, markerContentClone);
-
       return marker;
     });
 
     markersRef.current = markers;
 
-    // Add the idle event listener
     const idleListener = map.addListener("idle", handleIdle);
 
     // Set fallback timeout
@@ -142,7 +137,7 @@ const StreamMarkers = ({ sessions, unitSymbol }: Props) => {
       // Cleanup markers
       if (markersRef.current.length > 0) {
         markersRef.current.forEach((marker) => {
-          marker.map = null; // Removes the marker from the map
+          marker.map = null;
         });
         markersRef.current = [];
       }
@@ -186,21 +181,18 @@ const StreamMarkers = ({ sessions, unitSymbol }: Props) => {
         return;
       }
 
-      // Select the SVG element
       const svg = markerContent.querySelector("svg");
       if (!svg) {
         console.warn(`Marker at index ${index} has no SVG element.`);
         return;
       }
 
-      // Select the circle element
       const circle = svg.querySelector("circle");
       if (!circle) {
         console.warn(`Marker at index ${index} has no circle element.`);
         return;
       }
 
-      // Get the current fill color
       const currentFill = circle.getAttribute("fill");
 
       // Update the fill color only if it has changed
