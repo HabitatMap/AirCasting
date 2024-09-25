@@ -10,12 +10,13 @@ import React, {
   useState,
 } from "react";
 import { useTranslation } from "react-i18next";
+import { useSelector } from "react-redux";
 import {
   fetchMeasurements,
   selectFixedData,
   selectIsLoading,
 } from "../../store/fixedStreamSlice";
-import { useAppDispatch, useAppSelector } from "../../store/hooks";
+import { useAppDispatch } from "../../store/hooks";
 import { selectMobileStreamPoints } from "../../store/mobileStreamSelectors";
 import { selectThresholds } from "../../store/thresholdSlice";
 import { SessionType, SessionTypes } from "../../types/filters";
@@ -56,10 +57,10 @@ const Graph: React.FC<GraphProps> = React.memo(
     const { t } = useTranslation();
     const isMobile = useMobileDetection();
 
-    const thresholdsState = useAppSelector(selectThresholds);
-    const isLoading = useAppSelector(selectIsLoading);
-    const fixedGraphData = useAppSelector(selectFixedData);
-    const mobileGraphData = useAppSelector(selectMobileStreamPoints);
+    const thresholdsState = useSelector(selectThresholds);
+    const isLoading = useSelector(selectIsLoading);
+    const fixedGraphData = useSelector(selectFixedData);
+    const mobileGraphData = useSelector(selectMobileStreamPoints);
 
     const { unitSymbol, measurementType, isIndoor } = useMapParams();
 
