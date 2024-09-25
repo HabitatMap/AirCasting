@@ -334,11 +334,13 @@ const Graph: React.FC<GraphProps> = React.memo(
         $isCalendarPage={isCalendarPage}
         $isMobile={isMobile}
       >
-        <HighchartsReact
-          highcharts={Highcharts}
-          constructorType={"stockChart"}
-          options={options}
-        />
+        {seriesData.length > 0 && (
+          <HighchartsReact
+            highcharts={Highcharts}
+            constructorType={"stockChart"}
+            options={options}
+          />
+        )}
       </S.Container>
     );
   }
