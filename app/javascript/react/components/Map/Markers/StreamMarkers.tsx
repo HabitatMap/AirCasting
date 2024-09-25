@@ -34,13 +34,20 @@ const StreamMarkers = ({ sessions, unitSymbol }: Props) => {
   // Caching marker content to prevent redundant DOM creation
   const markerContentCache = useRef<{ [color: string]: HTMLElement }>({});
 
-  // Memoize the sorted sessions
+  // Memoize the sorted sessions and filter out invalid sessions
   const sortedSessions = useMemo(() => {
-    return [...sessions].sort((a, b) => {
-      const timeA = a.time ? new Date(a.time.toString()).getTime() : 0;
-      const timeB = b.time ? new Date(b.time.toString()).getTime() : 0;
-      return timeA - timeB;
-    });
+    return [...sessions]
+      .filter(
+        (session) =>
+          session.point &&
+          typeof session.point.lat === "number" &&
+          typeof session.point.lng === "number"
+      )
+      .sort((a, b) => {
+        const timeA = a.time ? new Date(a.time.toString()).getTime() : 0;
+        const timeB = b.time ? new Date(b.time.toString()).getTime() : 0;
+        return timeA - timeB;
+      });
   }, [sessions]);
 
   // Handle idle event to end loading
@@ -115,6 +122,9 @@ const StreamMarkers = ({ sessions, unitSymbol }: Props) => {
         map: map,
       });
 
+      // Optional: Log the marker's content structure for debugging
+      // console.log(`Marker ${index} created with color: ${color}`, markerContentClone);
+
       return marker;
     });
 
@@ -150,15 +160,7 @@ const StreamMarkers = ({ sessions, unitSymbol }: Props) => {
         timeoutId.current = null;
       }
     };
-  }, [
-    map,
-    sortedSessions,
-    unitSymbol,
-    dispatch,
-    sessions.length,
-    thresholds,
-    handleIdle,
-  ]);
+  }, [map, sortedSessions, unitSymbol, dispatch, sessions.length, handleIdle]);
 
   /**
    * Effect 2: Handle changes in thresholds
