@@ -156,13 +156,7 @@ const Graph: React.FC<GraphProps> = React.memo(
           }
         }
       },
-      [
-        dispatch,
-        streamId,
-        isMaxRangeFetched,
-        totalDuration,
-        getTimeRangeFromSelectedRange,
-      ]
+      [streamId, isMaxRangeFetched, totalDuration]
     );
 
     useEffect(() => {

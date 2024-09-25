@@ -8,12 +8,13 @@ import {
   XAxisOptions,
   YAxisOptions,
 } from "highcharts";
-import { TFunction } from "i18next";
 import { debounce } from "lodash";
 
 import Highcharts from "highcharts";
+import { TFunction } from "i18next";
 import {
   blue,
+  disabledGraphButton,
   gray100,
   gray200,
   gray300,
@@ -31,6 +32,13 @@ import { LatLngLiteral } from "../../types/googleMaps";
 import { GraphData, GraphPoint } from "../../types/graph";
 import { Thresholds } from "../../types/thresholds";
 import { formatTimeExtremes } from "../../utils/measurementsCalc";
+import {
+  MILLISECONDS_IN_A_5_MINUTES,
+  MILLISECONDS_IN_A_DAY,
+  MILLISECONDS_IN_A_MONTH,
+  MILLISECONDS_IN_A_WEEK,
+  MILLISECONDS_IN_AN_HOUR,
+} from "../../utils/timeRanges";
 
 const getScrollbarOptions = (isCalendarPage: boolean, isMobile: boolean) => {
   return {
@@ -215,7 +223,7 @@ const getPlotOptions = (
     series: {
       lineWidth: 2,
       color: blue,
-      turboThreshold: 10000,
+      turboThreshold: 9999999, //above that graph will not display
       marker: {
         fillColor: blue,
         lineWidth: 0,
@@ -236,6 +244,11 @@ const getPlotOptions = (
         enabled: true,
         approximation: "average",
         groupPixelWidth: 5,
+        units: [
+          ["millisecond", []],
+          ["second", [2, 3, 4, 5, 6, 7, 8, 9, 10, 15, 20, 30, 40, 50]],
+          ["minute", [1, 2, 3, 4, 5]],
+        ],
       },
       dataLabels: {
         allowOverlap: true,
@@ -310,15 +323,64 @@ const getTooltipOptions = (
     fontFamily: "Roboto",
   },
 });
-
 const getRangeSelectorOptions = (
   isMobile: boolean,
   fixedSessionTypeSelected: boolean,
-  totalDuration: number | undefined,
-  selectedRange: number | undefined,
+  totalDuration: number,
+  selectedRange: number,
   isCalendarPage: boolean,
-  t: TFunction
+  t: TFunction<"translation", undefined>
 ): RangeSelectorOptions => {
+  const baseMobileCalendarOptions: RangeSelectorOptions = {
+    enabled: true,
+    buttonPosition: {
+      align: "center" as AlignValue,
+      y: -85,
+    },
+    buttonTheme: {
+      fill: "none",
+      width: 95,
+      height: 34,
+      r: 20,
+      stroke: "none",
+      "stroke-width": 1,
+      style: {
+        fontFamily: "Roboto, sans-serif",
+        fontSize: "1.4rem",
+        color: gray300,
+        fontWeight: "regular",
+      },
+
+      states: {
+        hover: {
+          fill: blue,
+          style: {
+            color: white,
+          },
+        },
+
+        select: {
+          fill: blue,
+          style: {
+            color: white,
+            fontWeight: "bold",
+          },
+        },
+
+        disabled: {
+          style: {
+            color: disabledGraphButton,
+            cursor: "default",
+          },
+        },
+      },
+    },
+    labelStyle: {
+      display: "none",
+    },
+    buttonSpacing: 10,
+    inputEnabled: false,
+  };
   const baseOptions: RangeSelectorOptions = {
     enabled: isMobile ? false : true,
     buttonPosition: {
@@ -360,23 +422,123 @@ const getRangeSelectorOptions = (
     inputEnabled: false,
   };
 
-  return {
-    ...baseOptions,
-    buttons: fixedSessionTypeSelected
-      ? [
-          { type: "hour", count: 24, text: t("graph.24Hours") },
-          { type: "day", count: 7, text: t("graph.oneWeek") },
-          { type: "week", count: 4, text: t("graph.oneMonth") },
-        ]
-      : [
-          { type: "minute", count: 5, text: t("graph.fiveMinutes") },
-          { type: "minute", count: 60, text: t("graph.oneHour") },
+  if (isCalendarPage && isMobile) {
+    return {
+      ...baseMobileCalendarOptions,
+      buttons: [
+        { type: "hour", count: 24, text: t("graph.24Hours") },
+        totalDuration > MILLISECONDS_IN_A_WEEK
+          ? { type: "day", count: 7, text: t("graph.oneWeek") }
+          : { type: "all", text: t("graph.oneWeek") },
+        totalDuration > MILLISECONDS_IN_A_MONTH
+          ? { type: "week", count: 4, text: t("graph.oneMonth") }
+          : { type: "all", text: t("graph.oneMonth") },
+      ],
+      allButtonsEnabled: true,
+      selected: selectedRange,
+    };
+  } else {
+    if (fixedSessionTypeSelected) {
+      return {
+        ...baseOptions,
+        buttons: [
+          // { type: "hour", count: 24, text: t("graph.24Hours") },
+          totalDuration < MILLISECONDS_IN_A_DAY
+            ? { type: "all", text: t("graph.24Hours") }
+            : { type: "hour", count: 24, text: t("graph.24Hours") },
+          totalDuration > MILLISECONDS_IN_A_WEEK
+            ? { type: "day", count: 7, text: t("graph.oneWeek") }
+            : { type: "all", text: t("graph.oneWeek") },
+          totalDuration > MILLISECONDS_IN_A_MONTH
+            ? { type: "week", count: 4, text: t("graph.oneMonth") }
+            : { type: "all", text: t("graph.oneMonth") },
+        ],
+        allButtonsEnabled: true,
+        selected: selectedRange,
+      };
+    } else {
+      return {
+        ...baseOptions,
+        buttons: [
+          totalDuration < MILLISECONDS_IN_A_5_MINUTES
+            ? { type: "all", text: t("graph.fiveMinutes") }
+            : { type: "minute", count: 5, text: t("graph.fiveMinutes") },
+          totalDuration < MILLISECONDS_IN_AN_HOUR
+            ? { type: "all", text: t("graph.oneHour") }
+            : { type: "minute", count: 60, text: t("graph.oneHour") },
           { type: "all", text: t("graph.all") },
         ],
-    allButtonsEnabled: true,
-    selected: selectedRange,
-  };
+        allButtonsEnabled: true,
+        selected: selectedRange,
+      };
+    }
+  }
 };
+//   isMobile: boolean,
+//   fixedSessionTypeSelected: boolean,
+//   totalDuration: number | undefined,
+//   selectedRange: number | undefined,
+//   isCalendarPage: boolean,
+//   t: TFunction
+// ): RangeSelectorOptions => {
+//   const baseOptions: RangeSelectorOptions = {
+//     enabled: isMobile ? false : true,
+//     buttonPosition: {
+//       align: "right" as AlignValue,
+//       x: -32,
+//       y: 50,
+//     },
+//     buttonTheme: {
+//       fill: "rgba(255, 255, 255, 0.8)",
+//       width: 90,
+//       r: 5,
+//       style: {
+//         fontFamily: "Roboto, sans-serif",
+//         fontSize: "1.4rem",
+//         color: gray300,
+//         fontWeight: "regular",
+//       },
+//       states: {
+//         hover: {
+//           fill: white,
+//           style: {
+//             color: gray400,
+//             fontWeight: "regular",
+//           },
+//         },
+//         select: {
+//           fill: white,
+//           style: {
+//             color: gray400,
+//             fontWeight: "regular",
+//           },
+//         },
+//       },
+//     },
+//     labelStyle: {
+//       display: "none",
+//     },
+//     buttonSpacing: 10,
+//     inputEnabled: false,
+//   };
+
+//   return {
+//     ...baseOptions,
+//     buttons: fixedSessionTypeSelected
+//       ? [
+//           { type: "hour", count: 24, text: t("graph.24Hours") },
+//           { type: "day", count: 7, text: t("graph.oneWeek") },
+//           { type: "week", count: 4, text: t("graph.oneMonth") },
+//         ]
+//       : [
+//           { type: "minute", count: 5, text: t("graph.fiveMinutes") },
+//           { type: "minute", count: 60, text: t("graph.oneHour") },
+//           { type: "all", text: t("graph.all") },
+//         ],
+//     allButtonsEnabled: true,
+//     selected: selectedRange,
+//   };
+// };
 
 const getChartOptions = (
   isCalendarPage: boolean,
