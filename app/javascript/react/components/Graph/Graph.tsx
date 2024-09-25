@@ -278,7 +278,7 @@ const Graph: React.FC<GraphProps> = React.memo(
         plotOptions: plotOptions,
         series: [
           {
-            ...(seriesOptions(seriesData) as Highcharts.SeriesOptionsType), // Ensure correct type
+            ...(seriesOptions(seriesData) as Highcharts.SeriesOptionsType),
             turboThreshold: 10000,
           },
         ],

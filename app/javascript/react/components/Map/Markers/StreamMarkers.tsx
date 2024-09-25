@@ -36,9 +36,16 @@ const StreamMarkers = ({ sessions, unitSymbol }: Props) => {
     });
   }, [sessions]);
 
+  /**
+   * Effect 1: Handle changes in sessions (data)
+   * - Manage markers loading state
+   * - Add/remove markers
+   * - Update polyline
+   */
   useEffect(() => {
     if (!map) return;
 
+    // Start loading
     dispatch(setMarkersLoading(true));
     dispatch(setTotalMarkers(sessions.length));
 
@@ -68,6 +75,7 @@ const StreamMarkers = ({ sessions, unitSymbol }: Props) => {
       });
     }
 
+    // Create markers
     const markers = sortedSessions.map((session) => {
       const position = { lat: session.point.lat, lng: session.point.lng };
       const color = getColorForValue(thresholds, session.lastMeasurementValue);
@@ -93,29 +101,7 @@ const StreamMarkers = ({ sessions, unitSymbol }: Props) => {
 
     markersRef.current = markers;
 
-    // Remove the immediate dispatch of setMarkersLoading(false)
-    // dispatch(setMarkersLoading(false));
-
-    return () => {
-      // Remove markers
-      if (markersRef.current.length > 0) {
-        markersRef.current.forEach((marker) => {
-          marker.map = null;
-        });
-        markersRef.current = [];
-      }
-
-      // Remove polyline
-      if (polylineRef.current) {
-        polylineRef.current.setMap(null);
-        polylineRef.current = null;
-      }
-    };
-  }, [map, sortedSessions, thresholds, unitSymbol, dispatch]);
-
-  useEffect(() => {
-    if (!map) return;
-
+    // Listener to detect when the map has finished rendering markers
     const handleIdle = () => {
       dispatch(setMarkersLoading(false));
     };
@@ -124,10 +110,47 @@ const StreamMarkers = ({ sessions, unitSymbol }: Props) => {
     const idleListener = map.addListener("idle", handleIdle);
 
     return () => {
-      // Remove the idle event listener on cleanup
+      // Cleanup markers
+      if (markersRef.current.length > 0) {
+        markersRef.current.forEach((marker) => {
+          marker.map = null;
+        });
+        markersRef.current = [];
+      }
+
+      // Cleanup polyline
+      if (polylineRef.current) {
+        polylineRef.current.setMap(null);
+        polylineRef.current = null;
+      }
+
+      // Remove idle listener
       google.maps.event.removeListener(idleListener);
     };
-  }, [map, dispatch]);
+  }, [map, sortedSessions, unitSymbol, dispatch]);
+
+  /**
+   * Effect 2: Handle changes in thresholds
+   * - Update marker colors based on new thresholds
+   * - Do NOT affect loading state
+   */
+  useEffect(() => {
+    if (!markersRef.current.length) return;
+
+    markersRef.current.forEach((marker, index) => {
+      const session = sortedSessions[index];
+      if (!session) return;
+
+      const color = getColorForValue(thresholds, session.lastMeasurementValue);
+      const markerContent = marker.content;
+
+      // Ensure the content is an HTMLElement before accessing its styles
+      if (markerContent instanceof HTMLElement) {
+        markerContent.style.backgroundColor = color;
+        markerContent.style.border = `1px solid ${color}`;
+      }
+    });
+  }, [thresholds, sortedSessions]);
 
   return hoverPosition ? <HoverMarker position={hoverPosition} /> : null;
 };
