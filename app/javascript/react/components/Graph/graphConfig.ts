@@ -442,7 +442,6 @@ const getRangeSelectorOptions = (
       return {
         ...baseOptions,
         buttons: [
-          // { type: "hour", count: 24, text: t("graph.24Hours") },
           totalDuration < MILLISECONDS_IN_A_DAY
             ? { type: "all", text: t("graph.24Hours") }
             : { type: "hour", count: 24, text: t("graph.24Hours") },
@@ -474,71 +473,6 @@ const getRangeSelectorOptions = (
     }
   }
 };
-//   isMobile: boolean,
-//   fixedSessionTypeSelected: boolean,
-//   totalDuration: number | undefined,
-//   selectedRange: number | undefined,
-//   isCalendarPage: boolean,
-//   t: TFunction
-// ): RangeSelectorOptions => {
-//   const baseOptions: RangeSelectorOptions = {
-//     enabled: isMobile ? false : true,
-//     buttonPosition: {
-//       align: "right" as AlignValue,
-//       x: -32,
-//       y: 50,
-//     },
-//     buttonTheme: {
-//       fill: "rgba(255, 255, 255, 0.8)",
-//       width: 90,
-//       r: 5,
-//       style: {
-//         fontFamily: "Roboto, sans-serif",
-//         fontSize: "1.4rem",
-//         color: gray300,
-//         fontWeight: "regular",
-//       },
-//       states: {
-//         hover: {
-//           fill: white,
-//           style: {
-//             color: gray400,
-//             fontWeight: "regular",
-//           },
-//         },
-//         select: {
-//           fill: white,
-//           style: {
-//             color: gray400,
-//             fontWeight: "regular",
-//           },
-//         },
-//       },
-//     },
-//     labelStyle: {
-//       display: "none",
-//     },
-//     buttonSpacing: 10,
-//     inputEnabled: false,
-//   };
-
-//   return {
-//     ...baseOptions,
-//     buttons: fixedSessionTypeSelected
-//       ? [
-//           { type: "hour", count: 24, text: t("graph.24Hours") },
-//           { type: "day", count: 7, text: t("graph.oneWeek") },
-//           { type: "week", count: 4, text: t("graph.oneMonth") },
-//         ]
-//       : [
-//           { type: "minute", count: 5, text: t("graph.fiveMinutes") },
-//           { type: "minute", count: 60, text: t("graph.oneHour") },
-//           { type: "all", text: t("graph.all") },
-//         ],
-//     allButtonsEnabled: true,
-//     selected: selectedRange,
-//   };
-// };
 
 const getChartOptions = (
   isCalendarPage: boolean,
