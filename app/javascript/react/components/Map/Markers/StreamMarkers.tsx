@@ -88,6 +88,10 @@ const StreamMarkers = ({ sessions, unitSymbol }: Props) => {
       markerElement.style.backgroundColor = color;
       markerElement.style.border = `1px solid ${color}`;
 
+      // Center the marker content
+      markerElement.style.position = "absolute";
+      markerElement.style.transform = "translate(-50%, -50%)";
+
       const marker = new google.maps.marker.AdvancedMarkerElement({
         position,
         content: markerElement,
@@ -104,10 +108,16 @@ const StreamMarkers = ({ sessions, unitSymbol }: Props) => {
     // Listener to detect when the map has finished rendering markers
     const handleIdle = () => {
       dispatch(setMarkersLoading(false));
+      clearTimeout(timeoutId); // Clear the timeout if idle fires
     };
 
     // Add the idle event listener
     const idleListener = map.addListener("idle", handleIdle);
+
+    // Fallback timeout (e.g., 10 seconds)
+    const timeoutId = setTimeout(() => {
+      dispatch(setMarkersLoading(false));
+    }, 10000); // 10,000 ms = 10 seconds
 
     return () => {
       // Cleanup markers
@@ -124,8 +134,9 @@ const StreamMarkers = ({ sessions, unitSymbol }: Props) => {
         polylineRef.current = null;
       }
 
-      // Remove idle listener
+      // Remove idle listener and clear timeout
       google.maps.event.removeListener(idleListener);
+      clearTimeout(timeoutId);
     };
   }, [map, sortedSessions, unitSymbol, dispatch]);
 
