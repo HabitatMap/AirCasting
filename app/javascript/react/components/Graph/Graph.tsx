@@ -64,7 +64,6 @@ const Graph: React.FC<GraphProps> = React.memo(
     const { unitSymbol, measurementType, isIndoor } = useMapParams();
 
     // Local States
-    const [chartDataLoaded, setChartDataLoaded] = useState(false);
     const fixedSessionTypeSelected = sessionType === SessionTypes.FIXED;
     const [selectedRange, setSelectedRange] = useState(
       fixedSessionTypeSelected ? 0 : 2
@@ -328,25 +327,17 @@ const Graph: React.FC<GraphProps> = React.memo(
       }
     }, []);
 
-    useEffect(() => {
-      if (seriesData.length > 0 && !isLoading) {
-        setChartDataLoaded(true);
-      }
-    }, [seriesData, isLoading]);
-
     return (
       <S.Container
         ref={graphRef}
         $isCalendarPage={isCalendarPage}
         $isMobile={isMobile}
       >
-        {/* {seriesData.length > 0 && ( */}
         <HighchartsReact
           highcharts={Highcharts}
           constructorType={"stockChart"}
           options={options}
         />
-        {/* )} */}
       </S.Container>
     );
   }
