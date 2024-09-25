@@ -8019,6 +8019,11 @@ signal-exit@^3.0.2, signal-exit@^3.0.3, signal-exit@^3.0.7:
   resolved "https://registry.yarnpkg.com/signal-exit/-/signal-exit-3.0.7.tgz#a9a1767f8af84155114eaabd73f99273c8f59ad9"
   integrity sha512-wnD2ZE+l+SPC/uoS0vXeE9L1+0wuaMqKlfz9AMUo38JsyLSBWSFcHR1Rri62LZc12vLr1gb3jl7iwQhgwpAbGQ==
 
+simplify-js@^1.2.4:
+  version "1.2.4"
+  resolved "https://registry.yarnpkg.com/simplify-js/-/simplify-js-1.2.4.tgz#7aab22d6df547ffd40ef0761ccd82b75287d45c7"
+  integrity sha512-vITfSlwt7h/oyrU42R83mtzFpwYk3+mkH9bOHqq/Qw6n8rtR7aE3NZQ5fbcyCUVVmuMJR6ynsAhOfK2qoah8Jg==
+
 sinon@^12.0.1:
   version "12.0.1"
   resolved "https://registry.yarnpkg.com/sinon/-/sinon-12.0.1.tgz#331eef87298752e1b88a662b699f98e403c859e9"

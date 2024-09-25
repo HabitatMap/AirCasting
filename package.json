@@ -55,6 +55,7 @@
     "resolve-url-loader": "^5.0.0",
     "sass": "^1.63.6",
     "sass-loader": "^13.3.2",
+    "simplify-js": "^1.2.4",
     "styled-components": "^6.1.1",
     "tippy.js": "^6.3.7",
     "ts-loader": "^9.4.4",
