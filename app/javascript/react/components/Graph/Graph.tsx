@@ -2,6 +2,7 @@
 
 import HighchartsReact from "highcharts-react-official";
 import Highcharts, { Chart } from "highcharts/highstock";
+import NoDataToDisplay from "highcharts/modules/no-data-to-display";
 import React, {
   useCallback,
   useEffect,
@@ -25,6 +26,8 @@ import {
 } from "../../utils/createGraphData";
 import { useMapParams } from "../../utils/mapParamsHandler";
 import useMobileDetection from "../../utils/useScreenSizeDetection";
+
+import { gray300 } from "../../assets/styles/colors";
 import { handleLoad } from "./chartEvents";
 import * as S from "./Graph.style";
 import {
@@ -39,6 +42,9 @@ import {
   legendOption,
   seriesOptions,
 } from "./graphConfig";
+
+// Initialize the No-Data module
+NoDataToDisplay(Highcharts);
 
 interface GraphProps {
   sessionType: SessionType;
@@ -73,12 +79,20 @@ const Graph: React.FC<GraphProps> = React.memo(
     const isIndoorParameterInUrl = isIndoor === "true";
 
     // Memoized Data
-    const fixedSeriesData = createFixedSeriesData(fixedGraphData?.measurements);
-    const mobileSeriesData = createMobileSeriesData(mobileGraphData, true);
+    const fixedSeriesData = useMemo(
+      () => createFixedSeriesData(fixedGraphData?.measurements) || [],
+      [fixedGraphData]
+    );
 
-    const seriesData = fixedSessionTypeSelected
-      ? fixedSeriesData
-      : mobileSeriesData;
+    const mobileSeriesData = useMemo(
+      () => createMobileSeriesData(mobileGraphData, true) || [],
+      [mobileGraphData]
+    );
+
+    const seriesData = useMemo(
+      () => (fixedSessionTypeSelected ? fixedSeriesData : mobileSeriesData),
+      [fixedSessionTypeSelected, fixedSeriesData, mobileSeriesData]
+    );
 
     // Helper Functions
     const getTimeRangeFromSelectedRange = useCallback(
@@ -147,7 +161,13 @@ const Graph: React.FC<GraphProps> = React.memo(
           }
         }
       },
-      [streamId, isMaxRangeFetched, totalDuration]
+      [
+        streamId,
+        isMaxRangeFetched,
+        totalDuration,
+        dispatch,
+        getTimeRangeFromSelectedRange,
+      ]
     );
 
     useEffect(() => {
@@ -259,7 +279,15 @@ const Graph: React.FC<GraphProps> = React.memo(
         title: undefined,
         xAxis: xAxisOptions,
         yAxis: yAxisOption,
-        loading: { hideDuration: 1000, showDuration: 1000 },
+        loading: {
+          hideDuration: 1000,
+          showDuration: 1000,
+          labelStyle: {
+            display: "block",
+            fontWeight: "bold",
+            color: "gray",
+          },
+        },
         plotOptions: plotOptions,
         series: [
           {
@@ -281,6 +309,19 @@ const Graph: React.FC<GraphProps> = React.memo(
         rangeSelector: {
           ...rangeSelectorOptions,
           buttons: rangeSelectorButtons,
+        },
+        noData: {
+          style: {
+            fontWeight: "bold",
+            fontSize: "15px",
+            color: gray300,
+          },
+          position: {
+            align: "center",
+            verticalAlign: "middle",
+          },
+          useHTML: true,
+          text: "No data available",
         },
       }),
       [
@@ -318,6 +359,19 @@ const Graph: React.FC<GraphProps> = React.memo(
         }
       }
     }, []);
+
+    // Manage Highcharts loading state
+    useEffect(() => {
+      Highcharts.charts.forEach((chart) => {
+        if (chart) {
+          if (isLoading) {
+            chart.showLoading();
+          } else {
+            chart.hideLoading();
+          }
+        }
+      });
+    }, [isLoading]);
 
     return (
       <S.Container

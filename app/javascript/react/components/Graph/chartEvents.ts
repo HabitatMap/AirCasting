@@ -17,6 +17,13 @@ const addNavigationArrows = (
   if (isMobile && !isCalendarPage) {
     return;
   }
+
+  if (
+    chart.renderer.boxWrapper.element.querySelectorAll(".custom-arrow").length >
+    0
+  ) {
+    return;
+  }
   let leftArrow: Highcharts.SVGElement;
   let rightArrow: Highcharts.SVGElement;
 
