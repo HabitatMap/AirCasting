@@ -84,7 +84,8 @@ const Graph: React.FC<GraphProps> = React.memo(
     );
 
     const seriesData = useMemo(
-      () => (fixedSessionTypeSelected ? fixedSeriesData : mobileSeriesData),
+      () =>
+        (fixedSessionTypeSelected ? fixedSeriesData : mobileSeriesData) || [],
       [fixedSessionTypeSelected, fixedSeriesData, mobileSeriesData]
     );
 
@@ -333,7 +334,7 @@ const Graph: React.FC<GraphProps> = React.memo(
         $isCalendarPage={isCalendarPage}
         $isMobile={isMobile}
       >
-        {seriesData.length > 0 && (
+        {seriesData.length > 0 && !isLoading && (
           <HighchartsReact
             highcharts={Highcharts}
             constructorType={"stockChart"}

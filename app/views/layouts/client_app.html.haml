@@ -9,7 +9,7 @@
     %title AirCasting
     = javascript_include_tag *webpack_asset_urls('react-app', 'js'), defer: true
     = stylesheet_link_tag *webpack_asset_urls('react-app', 'css'), defer: true
-    = javascript_include_tag "https://maps.googleapis.com/maps/api/js?key=#{A9n.google_maps_api_key}&libraries=places&v=quarterly&callback=initMap", defer: true
+    = javascript_include_tag "https://maps.googleapis.com/maps/api/js?key=#{A9n.google_maps_api_key}&libraries=places&v=quarterly", defer: true
     = render partial: 'shared/gtm'
     = csrf_meta_tags
     = render partial: "shared/favicon"

@@ -33,7 +33,7 @@
     "elm-hot-webpack-loader": "^1.1.7",
     "elm-webpack-loader": "^6.0.1",
     "esbuild-loader": "^4.0.2",
-    "highcharts": "^11.1.0",
+    "highcharts": "^11.4.8",
     "highcharts-react-official": "^3.2.1",
     "humps": "^2.0.1",
     "i18": "^0.0.6",
