@@ -138,7 +138,14 @@ const FixedMarkers: React.FC<Props> = React.memo(
         clusterCenter.lat /= markers.length;
         clusterCenter.lng /= markers.length;
 
-        const pixelPosition = getClusterPixelPosition(map!, clusterCenter);
+        const clusterCenterLatLng = new google.maps.LatLng(
+          clusterCenter.lat,
+          clusterCenter.lng
+        );
+        const pixelPosition = getClusterPixelPosition(
+          map!,
+          clusterCenterLatLng
+        );
         setClusterPosition({ top: pixelPosition.y, left: pixelPosition.x });
         setSelectedCluster(markers);
         dispatch(setVisibility(true));
@@ -257,7 +264,7 @@ const FixedMarkers: React.FC<Props> = React.memo(
         clusterer.current.addListener(
           "click",
           (event: google.maps.MapMouseEvent) => {
-            const cluster = event.cluster;
+            const cluster = (event as any).get("cluster"); // Type assertion to access get method
             if (cluster) {
               handleClusterClick(cluster);
             }
