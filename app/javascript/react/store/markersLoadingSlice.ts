@@ -1,4 +1,3 @@
-// markersLoadingSlice.ts
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { RootState } from "./index";
 
@@ -39,7 +38,6 @@ export const { setMarkersLoading, setTotalMarkers, incrementLoadedMarkers } =
 
 export default markersLoadingSlice.reducer;
 
-// Selectors
 export const selectMarkersLoading = (state: RootState) =>
   state.markersLoading.isLoading;
 export const selectLoadedMarkers = (state: RootState) =>

@@ -81,7 +81,7 @@ const getXAxisOptions = (
           e.min,
           e.max
         );
-
+        // Dirty workaround to update timerange display in the graph
         if (rangeDisplayRef?.current) {
           rangeDisplayRef.current.innerHTML = `
             <div class="time-container">

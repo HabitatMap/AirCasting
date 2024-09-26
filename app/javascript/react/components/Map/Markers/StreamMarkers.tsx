@@ -1,5 +1,3 @@
-// StreamMarkers.tsx
-
 import { useMap } from "@vis.gl/react-google-maps";
 import React, { useCallback, useEffect, useMemo, useRef } from "react";
 import { useSelector } from "react-redux";
@@ -174,7 +172,6 @@ const StreamMarkers = ({ sessions, unitSymbol }: Props) => {
         session.lastMeasurementValue
       );
 
-      // Access the marker's content safely
       const markerContent = marker.content as HTMLElement | null;
       if (!markerContent) {
         console.warn(`Marker at index ${index} has no content.`);
@@ -195,7 +192,6 @@ const StreamMarkers = ({ sessions, unitSymbol }: Props) => {
 
       const currentFill = circle.getAttribute("fill");
 
-      // Update the fill color only if it has changed
       if (currentFill !== newColor) {
         circle.setAttribute("fill", newColor);
       }

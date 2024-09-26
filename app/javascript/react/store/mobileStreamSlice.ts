@@ -129,7 +129,6 @@ export const mobileStreamSlice = createSlice({
   },
 });
 
-// Export the new action
 export const { updateMobileMeasurementExtremes, resetMobileStreamState } =
   mobileStreamSlice.actions;
 
