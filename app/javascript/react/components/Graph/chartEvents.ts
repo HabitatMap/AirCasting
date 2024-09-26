@@ -1,5 +1,3 @@
-// chartEvents.ts
-
 import Highcharts from "highcharts/highstock";
 import chevronLeft from "../../assets/icons/chevronLeftCircle.svg";
 import chevronRight from "../../assets/icons/chevronRightCircle.svg";
@@ -16,45 +14,33 @@ const addNavigationArrows = (
   isCalendarPage: boolean,
   isMobile: boolean
 ) => {
-  // Remove existing arrows to prevent duplicates
-  chart.renderer.boxWrapper.element
-    .querySelectorAll(".custom-arrow")
-    .forEach((el) => el.remove());
+  if (isMobile && !isCalendarPage) {
+    return;
+  }
 
-  // Define arrow icons based on device and page type
-  const leftIcon = isMobile
-    ? mobileChevronLeft
-    : isCalendarPage
-    ? chevronLeft
-    : graphChevronLeft;
-  const rightIcon = isMobile
-    ? mobileChevronRight
-    : isCalendarPage
-    ? chevronRight
-    : graphChevronRight;
+  if (
+    chart.renderer.boxWrapper.element.querySelectorAll(".custom-arrow").length >
+    0
+  ) {
+    return;
+  }
+  let leftArrow: Highcharts.SVGElement;
+  let rightArrow: Highcharts.SVGElement;
 
-  // Define arrow dimensions and positions
-  let iconSize = isMobile && isCalendarPage ? 40 : 48;
-  let leftArrowX = isMobile && isCalendarPage ? 0 : 15;
-  let rightArrowX =
-    isMobile && isCalendarPage ? chart.chartWidth - 50 : chart.chartWidth - 118;
-  let arrowY = isMobile && isCalendarPage ? -29 : chart.chartHeight / 2 - 24;
+  const updateArrowStates = () => {
+    const axis = chart.xAxis[0];
+    const { min, max, dataMin, dataMax } = axis.getExtremes();
 
-  // Create left arrow
-  const leftArrow = chart.renderer
-    .image(leftIcon, leftArrowX, arrowY, iconSize, iconSize)
-    .attr({ zIndex: 10, class: "custom-arrow" })
-    .css({ cursor: "pointer" })
-    .add();
+    leftArrow.css({
+      cursor: min <= dataMin ? "not-allowed" : "pointer",
+      opacity: min <= dataMin ? 0.5 : 1,
+    });
+    rightArrow.css({
+      cursor: max >= dataMax ? "not-allowed" : "pointer",
+      opacity: max >= dataMax ? 0.5 : 1,
+    });
+  };
 
-  // Create right arrow
-  const rightArrow = chart.renderer
-    .image(rightIcon, rightArrowX, arrowY, iconSize, iconSize)
-    .attr({ zIndex: 10, class: "custom-arrow" })
-    .css({ cursor: "pointer" })
-    .add();
-
-  // Define move functionality
   const move = (direction: typeof DIRECTION_LEFT | typeof DIRECTION_RIGHT) => {
     const axis = chart.xAxis[0];
     const { min, max, dataMin, dataMax } = axis.getExtremes();
@@ -74,22 +60,6 @@ const addNavigationArrows = (
     updateArrowStates();
   };
 
-  // Update arrow states based on axis extremes
-  const updateArrowStates = () => {
-    const axis = chart.xAxis[0];
-    const { min, max, dataMin, dataMax } = axis.getExtremes();
-
-    leftArrow.css({
-      cursor: min <= dataMin ? "not-allowed" : "pointer",
-      opacity: min <= dataMin ? 0.5 : 1,
-    });
-    rightArrow.css({
-      cursor: max >= dataMax ? "not-allowed" : "pointer",
-      opacity: max >= dataMax ? 0.5 : 1,
-    });
-  };
-
-  // Toggle visibility of chart elements when hovering over arrows
   const toggleElements = (display: "none" | "block") => {
     const elements = [
       ".highcharts-tooltip",
@@ -103,49 +73,92 @@ const addNavigationArrows = (
     });
   };
 
-  // Event listeners for arrows
-  leftArrow.on("click", () => {
-    if (leftArrow.element.style.cursor !== "not-allowed") {
-      move(DIRECTION_LEFT);
+  const createArrows = () => {
+    const chartWidth = chart.chartWidth;
+    const chartHeight = chart.chartHeight;
+
+    // Remove existing arrows if any
+    chart.renderer.boxWrapper.element
+      .querySelectorAll(".custom-arrow")
+      .forEach((el) => el.remove());
+
+    const leftIcon = isMobile
+      ? mobileChevronLeft
+      : isCalendarPage
+      ? chevronLeft
+      : graphChevronLeft;
+    const rightIcon = isMobile
+      ? mobileChevronRight
+      : isCalendarPage
+      ? chevronRight
+      : graphChevronRight;
+
+    let iconSize = 48;
+    let leftArrowX = 15;
+    let rightArrowX = chartWidth - 118;
+    let arrowY = chartHeight / 2;
+
+    if (isMobile && isCalendarPage) {
+      iconSize = 40;
+      leftArrowX = 0;
+      rightArrowX = chartWidth - 50;
+      arrowY = -29;
+    } else if (!isMobile && isCalendarPage) {
+      iconSize = 46;
+      leftArrowX = -70;
+      rightArrowX = chartWidth + 25;
+      arrowY = chartHeight / 2 - 24;
+    } else if (!isMobile && !isCalendarPage) {
+      iconSize = 48;
+      leftArrowX = 15;
+      rightArrowX = chartWidth - 118;
+      arrowY = chartHeight / 2 - 24;
     }
-  });
 
-  rightArrow.on("click", () => {
-    if (rightArrow.element.style.cursor !== "not-allowed") {
-      move(DIRECTION_RIGHT);
-    }
-  });
+    leftArrow = chart.renderer
+      .image(leftIcon, leftArrowX, arrowY, iconSize, iconSize)
+      .attr({ zIndex: 10, class: "custom-arrow" })
+      .css({ cursor: "pointer" })
+      .add();
 
-  leftArrow.on("mouseover", () => toggleElements("none"));
-  leftArrow.on("mouseout", () => toggleElements("block"));
-  rightArrow.on("mouseover", () => toggleElements("none"));
-  rightArrow.on("mouseout", () => toggleElements("block"));
+    rightArrow = chart.renderer
+      .image(rightIcon, rightArrowX, arrowY, iconSize, iconSize)
+      .attr({ zIndex: 10, class: "custom-arrow" })
+      .css({ cursor: "pointer" })
+      .add();
 
-  // Initial state update
-  updateArrowStates();
+    leftArrow.on("click", () => {
+      if (leftArrow.element.style.cursor !== "not-allowed") {
+        move(DIRECTION_LEFT);
+      }
+    });
 
-  // Update arrows on chart redraw
-  Highcharts.addEvent(chart, "redraw", () => {
+    rightArrow.on("click", () => {
+      if (rightArrow.element.style.cursor !== "not-allowed") {
+        move(DIRECTION_RIGHT);
+      }
+    });
+
+    leftArrow.on("mouseover", () => toggleElements("none"));
+    leftArrow.on("mouseout", () => toggleElements("block"));
+    rightArrow.on("mouseover", () => toggleElements("none"));
+    rightArrow.on("mouseout", () => toggleElements("block"));
+
     updateArrowStates();
-    leftArrow.attr({ x: leftArrowX, y: arrowY });
-    rightArrow.attr({ x: rightArrowX, y: arrowY });
-  });
 
-  // Update arrows on chart resize
-  Highcharts.addEvent(chart, "resize", () => {
-    const newChartWidth = chart.chartWidth;
-    const newChartHeight = chart.chartHeight;
+    Highcharts.addEvent(chart, "redraw", () => {
+      updateArrowStates();
+      leftArrow.attr({ x: leftArrowX, y: arrowY });
+      rightArrow.attr({
+        x: rightArrowX,
+        y: arrowY,
+      });
+    });
+  };
 
-    // Recalculate positions based on new dimensions
-    const updatedLeftArrowX = isMobile && isCalendarPage ? 0 : 15;
-    const updatedRightArrowX =
-      isMobile && isCalendarPage ? newChartWidth - 50 : newChartWidth - 118;
-    const updatedArrowY =
-      isMobile && isCalendarPage ? -29 : newChartHeight / 2 - 24;
+  createArrows();
 
-    leftArrow.attr({ x: updatedLeftArrowX, y: updatedArrowY });
-    rightArrow.attr({ x: updatedRightArrowX, y: updatedArrowY });
-  });
+  Highcharts.addEvent(chart, "resize", createArrows);
 };
 
 const handleLoad = function (
