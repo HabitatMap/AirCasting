@@ -73,12 +73,20 @@ const Graph: React.FC<GraphProps> = React.memo(
     const isIndoorParameterInUrl = isIndoor === "true";
 
     // Memoized Data
-    const fixedSeriesData = createFixedSeriesData(fixedGraphData?.measurements);
-    const mobileSeriesData = createMobileSeriesData(mobileGraphData, true);
+    const fixedSeriesData = useMemo(
+      () => createFixedSeriesData(fixedGraphData?.measurements),
+      [fixedGraphData]
+    );
 
-    const seriesData = fixedSessionTypeSelected
-      ? fixedSeriesData
-      : mobileSeriesData;
+    const mobileSeriesData = useMemo(
+      () => createMobileSeriesData(mobileGraphData, true),
+      [mobileGraphData]
+    );
+
+    const seriesData = useMemo(
+      () => (fixedSessionTypeSelected ? fixedSeriesData : mobileSeriesData),
+      [fixedSessionTypeSelected, fixedSeriesData, mobileSeriesData]
+    );
 
     // Helper Functions
     const getTimeRangeFromSelectedRange = useCallback(
