@@ -111,3 +111,7 @@ export {
   SessionMarkerWrapper,
   ShadowCircle,
 };
+
+export function renderToString(arg0: JSX.Element) {
+  throw new Error("Function not implemented.");
+}

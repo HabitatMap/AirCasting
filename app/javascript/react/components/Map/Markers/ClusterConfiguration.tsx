@@ -1,4 +1,4 @@
-import { Cluster, Marker } from "@googlemaps/markerclusterer";
+import { Cluster, ClusterStats, Renderer } from "@googlemaps/markerclusterer";
 
 import GreenCluster from "../../../assets/icons/markers/marker-cluster-green.svg";
 import OrangeCluster from "../../../assets/icons/markers/marker-cluster-orange.svg";
@@ -33,126 +33,144 @@ const clusterStyles = [
   },
 ];
 
+interface MarkerWithValue extends google.maps.Marker {
+  get(key: string): any;
+}
+
 const calculateClusterStyleIndex = (
-  markers: google.maps.marker.AdvancedMarkerElement[],
+  markers: MarkerWithValue[],
   thresholds: Thresholds
 ): number => {
-  const sum = markers.reduce(
-    (accumulator: number, marker: google.maps.marker.AdvancedMarkerElement) => {
-      return accumulator + Number(marker.title);
-    },
-    0
-  );
+  if (!Array.isArray(markers) || markers.length === 0) {
+    console.warn("Invalid markers array passed to calculateClusterStyleIndex");
+    return 0;
+  }
 
-  // Calculate the average
+  const sum = markers.reduce((accumulator: number, marker: MarkerWithValue) => {
+    const value = marker.get("value");
+    return accumulator + (typeof value === "number" ? value : 0);
+  }, 0);
+
   const average = sum / markers.length;
 
-  let styleIndex = 0;
   if (average < thresholds.low) {
-    styleIndex = 0;
+    return 0;
   } else if (average <= thresholds.middle) {
-    styleIndex = 1;
+    return 1;
   } else if (average <= thresholds.high) {
-    styleIndex = 2;
+    return 2;
   } else {
-    styleIndex = 3;
+    return 3;
   }
-  return styleIndex;
 };
 
 export const updateClusterStyle = (
-  clusterElement: google.maps.marker.AdvancedMarkerElement,
-  markers: google.maps.marker.AdvancedMarkerElement[],
-  thresholds: Thresholds,
-  selectedStreamId: number | null
+  cluster: Cluster,
+  markers: MarkerWithValue[],
+  thresholds: Thresholds
 ) => {
   const styleIndex = calculateClusterStyleIndex(markers, thresholds);
+  const { url, height, width } = clusterStyles[styleIndex];
 
-  const { url, height, width, textSize } = clusterStyles[styleIndex];
-  const div = clusterElement.content as HTMLDivElement;
+  const icon = {
+    url: url,
+    size: new google.maps.Size(width, height),
+    anchor: new google.maps.Point(width / 2, height / 2),
+    scaledSize: new google.maps.Size(width, height),
+  };
 
-  div.style.backgroundImage = `url(${url})`;
-  div.style.width = `${width}px`;
-  div.style.height = `${height}px`;
-  div.style.fontSize = `${textSize}px`;
+  if (cluster.marker instanceof google.maps.Marker) {
+    cluster.marker.setIcon(icon);
+  }
 };
 
 export const customRenderer = (
   thresholds: Thresholds,
-  clusterElementsRef: React.MutableRefObject<
-    Map<Cluster, google.maps.marker.AdvancedMarkerElement>
-  >,
   selectedStreamId: number | null
-) => ({
-  render: (cluster: Cluster) => {
-    const { markers, count, position } = cluster;
+): Renderer => ({
+  render: ({ count, position }: Cluster, stats: ClusterStats) => {
+    const markers = Array.isArray(stats.markers)
+      ? (stats.markers as MarkerWithValue[])
+      : [];
+    const styleIndex = calculateClusterStyleIndex(markers, thresholds);
+    const { url, height, width } = clusterStyles[styleIndex];
 
-    const styleIndex = calculateClusterStyleIndex(
-      markers as google.maps.marker.AdvancedMarkerElement[],
-      thresholds
-    );
+    const label = {
+      text: count.toString(),
+      color: "white",
+      fontSize: "12px",
+    };
 
-    const { url, height, width, textSize } = clusterStyles[styleIndex];
-    const div = document.createElement("div");
-    div.style.backgroundImage = `url(${url})`;
-    div.style.backgroundSize = "contain";
-    div.style.width = `${width}px`;
-    div.style.height = `${height}px`;
-    div.style.display = "flex";
-    div.style.alignItems = "center";
-    div.style.justifyContent = "center";
-    div.style.fontSize = `${textSize}px`;
+    const icon = {
+      url: url,
+      size: new google.maps.Size(width, height),
+      anchor: new google.maps.Point(width / 2, height / 2),
+      scaledSize: new google.maps.Size(width, height),
+    };
 
-    const span = document.createElement("span");
-    span.textContent = `${count}`;
-    div.appendChild(span);
-
-    const clusterElement = new google.maps.marker.AdvancedMarkerElement({
-      position,
-      content: div,
-      title: `${count}`,
+    const marker = new google.maps.Marker({
+      position: position,
+      icon: icon,
+      label: label,
+      zIndex: markers.some((m) => m.get("streamId") === selectedStreamId)
+        ? Number(google.maps.Marker.MAX_ZINDEX + 1)
+        : undefined,
     });
 
-    clusterElementsRef.current.set(cluster, clusterElement);
-
-    return clusterElement;
+    return marker;
   },
 });
 
 export const pulsatingRenderer = (
   thresholds: Thresholds,
   customPosition?: google.maps.LatLng
-) => ({
-  render: (cluster: Cluster) => {
-    const { markers, count, position } = cluster;
+): Renderer => ({
+  render: ({ count, position }: Cluster, stats: ClusterStats) => {
+    const markers = Array.isArray(stats.markers)
+      ? (stats.markers as MarkerWithValue[])
+      : [];
+    const styleIndex = calculateClusterStyleIndex(markers, thresholds);
+    const { url, height, width } = clusterStyles[styleIndex];
 
-    const styleIndex = calculateClusterStyleIndex(
-      markers as google.maps.marker.AdvancedMarkerElement[],
-      thresholds
-    );
+    const label = {
+      text: count.toString(),
+      color: "white",
+      fontSize: "12px",
+    };
 
-    const { url, height, width, textSize } = clusterStyles[styleIndex];
-    const div = document.createElement("div");
-    div.style.backgroundImage = `url(${url})`;
-    div.style.backgroundSize = "contain";
-    div.style.width = `${width}px`;
-    div.style.height = `${height}px`;
-    div.style.display = "flex";
-    div.style.alignItems = "center";
-    div.style.justifyContent = "center";
-    div.style.fontSize = `${textSize}px`;
+    const icon = {
+      url: url,
+      size: new google.maps.Size(width, height),
+      anchor: new google.maps.Point(width / 2, height / 2),
+      scaledSize: new google.maps.Size(width, height),
+    };
 
-    const span = document.createElement("span");
-    span.textContent = `${count}`;
-    div.appendChild(span);
-
-    div.classList.add("pulsating-marker");
-
-    return new google.maps.marker.AdvancedMarkerElement({
+    const marker = new google.maps.Marker({
       position: customPosition || position,
-      content: div,
-      title: `${count}`,
+      icon: icon,
+      label: label,
       zIndex: Number(google.maps.Marker.MAX_ZINDEX + 1),
-    }) as Marker;
+    });
+
+    // Add pulsating effect
+    const pulsate = (marker: google.maps.Marker) => {
+      let opacity = 1;
+      let increasing = false;
+
+      setInterval(() => {
+        if (opacity <= 0.5) {
+          increasing = true;
+        } else if (opacity >= 1) {
+          increasing = false;
+        }
+
+        opacity += increasing ? 0.1 : -0.1;
+        marker.setOpacity(opacity);
+      }, 100);
+    };
+
+    pulsate(marker);
+
+    return marker;
   },
 });
