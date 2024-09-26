@@ -1,20 +1,20 @@
+import { AdvancedMarker, useMap } from "@vis.gl/react-google-maps";
 import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
-import { AdvancedMarker, useMap } from "@vis.gl/react-google-maps";
 import { useAppDispatch } from "../../../store/hooks";
 import { setMarkersLoading } from "../../../store/markersLoadingSlice";
+import {
+  selectMobileStreamData,
+  selectMobileStreamStatus,
+} from "../../../store/mobileStreamSelectors";
 import { selectThresholds } from "../../../store/thresholdSlice";
+import { StatusEnum } from "../../../types/api";
 import { LatLngLiteral } from "../../../types/googleMaps";
 import { Point, Session } from "../../../types/sessionType";
 import { useMapParams } from "../../../utils/mapParamsHandler";
 import { getColorForValue } from "../../../utils/thresholdColors";
 import { SessionDotMarker } from "./SessionDotMarker/SessionDotMarker";
 import { SessionFullMarker } from "./SessionFullMarker/SessionFullMarker";
-import {
-  selectMobileStreamData,
-  selectMobileStreamStatus,
-} from "../../../store/mobileStreamSelectors";
-import { StatusEnum } from "../../../types/api";
 
 import type { Marker } from "@googlemaps/markerclusterer";
 

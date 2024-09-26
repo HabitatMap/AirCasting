@@ -36,7 +36,11 @@ const markersLoadingSlice = createSlice({
 export const { setMarkersLoading, setTotalMarkers, incrementLoadedMarkers } =
   markersLoadingSlice.actions;
 
+export default markersLoadingSlice.reducer;
+
 export const selectMarkersLoading = (state: RootState) =>
   state.markersLoading.isLoading;
-
-export default markersLoadingSlice.reducer;
+export const selectLoadedMarkers = (state: RootState) =>
+  state.markersLoading.loadedMarkers;
+export const selectTotalMarkers = (state: RootState) =>
+  state.markersLoading.totalMarkers;

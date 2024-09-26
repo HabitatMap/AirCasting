@@ -5,6 +5,10 @@ import backArrowIcon from "../../assets/icons/backArrowIcon.svg";
 import hamburgerMobile from "../../assets/icons/hamburgerMobile.svg";
 
 import { urls } from "../../const/urls";
+import { resetFixedStreamState } from "../../store/fixedStreamSlice";
+import { useAppDispatch } from "../../store/hooks";
+import { resetMobileStreamState } from "../../store/mobileStreamSlice";
+import { SessionTypes } from "../../types/filters";
 import { UserSettings } from "../../types/userStates";
 import { useMapParams } from "../../utils/mapParamsHandler";
 import { LocationSearch } from "../LocationSearch";
@@ -30,13 +34,24 @@ export const MobileHeader = ({
     currentUserSettings,
     previousUserSettings,
     revertUserSettingsAndResetIds,
+    sessionType,
   } = useMapParams();
+
+  const dispatch = useAppDispatch();
+  const fixedSessionTypeSelected: boolean = sessionType === SessionTypes.FIXED;
+
+  const handleGoingBack = () => {
+    revertUserSettingsAndResetIds();
+    fixedSessionTypeSelected
+      ? dispatch(resetFixedStreamState())
+      : dispatch(resetMobileStreamState());
+  };
 
   return (
     <S.MobileHeaderContainer>
       {currentUserSettings === UserSettings.ModalView ? (
         <S.GoBack
-          onClick={() => revertUserSettingsAndResetIds()}
+          onClick={() => handleGoingBack()}
           aria-label={t("navbar.mapPage")}
         >
           <img
