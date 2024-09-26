@@ -10,13 +10,12 @@ import React, {
   useState,
 } from "react";
 import { useTranslation } from "react-i18next";
-import { useSelector } from "react-redux";
 import {
   fetchMeasurements,
   selectFixedData,
   selectIsLoading,
 } from "../../store/fixedStreamSlice";
-import { useAppDispatch } from "../../store/hooks";
+import { useAppDispatch, useAppSelector } from "../../store/hooks";
 import { selectMobileStreamPoints } from "../../store/mobileStreamSelectors";
 import { selectThresholds } from "../../store/thresholdSlice";
 import { SessionType, SessionTypes } from "../../types/filters";
@@ -57,10 +56,10 @@ const Graph: React.FC<GraphProps> = React.memo(
     const { t } = useTranslation();
     const isMobile = useMobileDetection();
 
-    const thresholdsState = useSelector(selectThresholds);
-    const isLoading = useSelector(selectIsLoading);
-    const fixedGraphData = useSelector(selectFixedData);
-    const mobileGraphData = useSelector(selectMobileStreamPoints);
+    const thresholdsState = useAppSelector(selectThresholds);
+    const isLoading = useAppSelector(selectIsLoading);
+    const fixedGraphData = useAppSelector(selectFixedData);
+    const mobileGraphData = useAppSelector(selectMobileStreamPoints);
 
     const { unitSymbol, measurementType, isIndoor } = useMapParams();
 
@@ -74,20 +73,12 @@ const Graph: React.FC<GraphProps> = React.memo(
     const isIndoorParameterInUrl = isIndoor === "true";
 
     // Memoized Data
-    const fixedSeriesData = useMemo(
-      () => createFixedSeriesData(fixedGraphData?.measurements),
-      [fixedGraphData]
-    );
+    const fixedSeriesData = createFixedSeriesData(fixedGraphData?.measurements);
+    const mobileSeriesData = createMobileSeriesData(mobileGraphData, true);
 
-    const mobileSeriesData = useMemo(
-      () => createMobileSeriesData(mobileGraphData, true),
-      [mobileGraphData]
-    );
-
-    const seriesData = useMemo(
-      () => (fixedSessionTypeSelected ? fixedSeriesData : mobileSeriesData),
-      [fixedSessionTypeSelected, fixedSeriesData, mobileSeriesData]
-    );
+    const seriesData = fixedSessionTypeSelected
+      ? fixedSeriesData
+      : mobileSeriesData;
 
     // Helper Functions
     const getTimeRangeFromSelectedRange = useCallback(
