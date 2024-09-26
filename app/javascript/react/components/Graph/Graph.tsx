@@ -27,6 +27,7 @@ import {
 import { useMapParams } from "../../utils/mapParamsHandler";
 import useMobileDetection from "../../utils/useScreenSizeDetection";
 
+import { gray300 } from "../../assets/styles/colors";
 import { handleLoad } from "./chartEvents";
 import * as S from "./Graph.style";
 import {
@@ -313,7 +314,7 @@ const Graph: React.FC<GraphProps> = React.memo(
           style: {
             fontWeight: "bold",
             fontSize: "15px",
-            color: "#303030",
+            color: gray300,
           },
           position: {
             align: "center",
