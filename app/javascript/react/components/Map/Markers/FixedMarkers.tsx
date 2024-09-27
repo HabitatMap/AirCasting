@@ -1,5 +1,9 @@
-import { Cluster, MarkerClusterer } from "@googlemaps/markerclusterer";
-import { useMap } from "@vis.gl/react-google-maps";
+import {
+  Cluster,
+  MarkerClusterer,
+  SuperClusterAlgorithm,
+} from "@googlemaps/markerclusterer";
+import { Marker, useMap } from "@vis.gl/react-google-maps";
 import React, {
   useCallback,
   useEffect,
@@ -8,25 +12,17 @@ import React, {
   useState,
 } from "react";
 
-import { RootState } from "../../../store";
-import { fetchClusterData, setVisibility } from "../../../store/clusterSlice";
 import { useAppDispatch, useAppSelector } from "../../../store/hooks";
 import { selectHoverStreamId } from "../../../store/mapSlice";
 import { selectThresholds } from "../../../store/thresholdSlice";
 import { Session } from "../../../types/sessionType";
-import { getClusterPixelPosition } from "../../../utils/getClusterPixelPosition";
 import { useMapParams } from "../../../utils/mapParamsHandler";
 import { getColorForValue } from "../../../utils/thresholdColors";
-import { customRenderer } from "./ClusterConfiguration";
 
-import {
-  selectFixedStreamData,
-  selectFixedStreamStatus,
-} from "../../../store/fixedStreamSelectors";
+import { fetchClusterData, setVisibility } from "../../../store/clusterSlice";
 import { setMarkersLoading } from "../../../store/markersLoadingSlice";
-import { StatusEnum } from "../../../types/api";
 import type { LatLngLiteral } from "../../../types/googleMaps";
-import useMapEventListeners from "../../../utils/mapEventListeners";
+import { getClusterPixelPosition } from "../../../utils/getClusterPixelPosition";
 import { ClusterInfo } from "./ClusterInfo/ClusterInfo";
 import HoverMarker from "./HoverMarker/HoverMarker";
 import { createMarkerIcon } from "./createMarkerIcon";
@@ -38,313 +34,226 @@ type Props = {
   pulsatingSessionId: number | null;
 };
 
-const FixedMarkers: React.FC<Props> = React.memo(
-  ({ sessions, onMarkerClick, selectedStreamId, pulsatingSessionId }) => {
-    const ZOOM_FOR_SELECTED_SESSION = 15;
+interface CustomMarkerClusterer extends MarkerClusterer {
+  markerStreamIdMap?: Map<google.maps.Marker, string>;
+}
 
-    const dispatch = useAppDispatch();
-    const map = useMap();
-    const { unitSymbol } = useMapParams();
+const FixedMarkers = ({
+  sessions,
+  onMarkerClick,
+  selectedStreamId,
+  pulsatingSessionId,
+}: Props) => {
+  const ZOOM_FOR_SELECTED_SESSION = 15;
 
-    const clusterData = useAppSelector(
-      (state: RootState) => state.cluster.data
-    );
-    const fixedStreamData = useAppSelector(selectFixedStreamData);
-    const clusterLoading = useAppSelector(
-      (state: RootState) => state.cluster.loading
-    );
-    const clusterVisible = useAppSelector(
-      (state: RootState) => state.cluster.visible
-    );
-    const hoverStreamId = useAppSelector(selectHoverStreamId);
-    const thresholds = useAppSelector(selectThresholds);
-    const fixedStreamStatus = useAppSelector(selectFixedStreamStatus);
+  const dispatch = useAppDispatch();
+  const hoverStreamId = useAppSelector(selectHoverStreamId);
+  const thresholds = useAppSelector(selectThresholds);
+  const map = useMap();
+  const { unitSymbol } = useMapParams();
+  const clusterData = useAppSelector((state) => state.cluster.data);
+  const clusterLoading = useAppSelector((state) => state.cluster.loading);
+  const clusterVisible = useAppSelector((state) => state.cluster.visible);
 
-    const clusterer = useRef<MarkerClusterer | null>(null);
-    const markersRef = useRef<{ [streamId: string]: google.maps.Marker }>({});
+  const clusterer = useRef<CustomMarkerClusterer | null>(null);
+  const markerRefs = useRef<{
+    [streamId: string]: google.maps.Marker | null;
+  }>({});
 
-    const [clusterPosition, setClusterPosition] = useState<{
-      top: number;
-      left: number;
-    } | null>(null);
-    const [hoverPosition, setHoverPosition] = useState<LatLngLiteral | null>(
-      null
-    );
-    const [selectedCluster, setSelectedCluster] = useState<
-      google.maps.Marker[] | null
-    >(null);
+  const [hoverPosition, setHoverPosition] = useState<LatLngLiteral | null>(
+    null
+  );
+  const [markers, setMarkers] = useState<{
+    [streamId: string]: google.maps.Marker | null;
+  }>({});
+  const [visibleMarkers, setVisibleMarkers] = useState<Set<string>>(new Set());
+  const [selectedCluster, setSelectedCluster] = useState<Cluster | null>(null);
+  const [clusterPosition, setClusterPosition] = useState<{
+    top: number;
+    left: number;
+  } | null>(null);
 
-    const memoizedSessions = useMemo(() => sessions, [sessions]);
+  const memoizedSessions = useMemo(() => sessions, [sessions]);
+  const memoizedMarkers = useMemo(() => markers, [markers]);
 
-    const centerMapOnMarker = useCallback(
-      (position: LatLngLiteral) => {
-        if (map && selectedStreamId) {
-          map.setCenter(position);
-          map.setZoom(ZOOM_FOR_SELECTED_SESSION);
-        }
-      },
-      [map, selectedStreamId]
-    );
+  const markersCount = Object.values(markers).filter(
+    (marker) => marker !== null
+  ).length;
 
-    const handleBoundsChanged = useCallback(() => {
-      if (selectedCluster && map) {
-        const clusterCenter = selectedCluster.reduce(
-          (acc, marker) => {
-            const pos = marker.getPosition();
-            if (pos) {
-              acc.lat += pos.lat();
-              acc.lng += pos.lng();
-            }
-            return acc;
-          },
-          { lat: 0, lng: 0 }
-        );
-        clusterCenter.lat /= selectedCluster.length;
-        clusterCenter.lng /= selectedCluster.length;
-
-        const clusterCenterLatLng = new google.maps.LatLng(
-          clusterCenter.lat,
-          clusterCenter.lng
-        );
-        const pixelPosition = getClusterPixelPosition(map, clusterCenterLatLng);
-        setClusterPosition({ top: pixelPosition.y, left: pixelPosition.x });
+  const centerMapOnMarker = useCallback(
+    (position: LatLngLiteral) => {
+      if (map && position) {
+        map.panTo(position);
+        map.setZoom(ZOOM_FOR_SELECTED_SESSION);
       }
-    }, [map, selectedCluster]);
+    },
+    [map]
+  );
 
-    const handleClusterClick = useCallback(
-      (cluster: Cluster) => {
-        dispatch(setVisibility(false));
+  const setMarkerRef = useCallback(
+    (marker: google.maps.Marker | null, key: string) => {
+      if (markerRefs.current[key] === marker) return;
 
-        const markers = cluster.markers as google.maps.Marker[];
-        const streamIds = markers
-          .map((marker) => marker.get("streamId"))
-          .filter(Boolean);
-
-        if (streamIds.length > 0) {
-          dispatch(fetchClusterData(streamIds));
+      markerRefs.current[key] = marker;
+      setMarkers((prev) => {
+        if (marker) {
+          return { ...prev, [key]: marker };
+        } else {
+          const newMarkers = { ...prev };
+          delete newMarkers[key];
+          return newMarkers;
         }
+      });
+    },
+    []
+  );
 
-        const clusterCenter = markers.reduce(
-          (acc, marker) => {
-            const pos = marker.getPosition();
-            if (pos) {
-              acc.lat += pos.lat();
-              acc.lng += pos.lng();
-            }
-            return acc;
-          },
-          { lat: 0, lng: 0 }
-        );
-        clusterCenter.lat /= markers.length;
-        clusterCenter.lng /= markers.length;
-
-        const clusterCenterLatLng = new google.maps.LatLng(
-          clusterCenter.lat,
-          clusterCenter.lng
-        );
-        const pixelPosition = getClusterPixelPosition(
-          map!,
-          clusterCenterLatLng
-        );
-        setClusterPosition({ top: pixelPosition.y, left: pixelPosition.x });
-        setSelectedCluster(markers);
-        dispatch(setVisibility(true));
-      },
-      [dispatch, map]
-    );
-
-    const handleMapInteraction = useCallback(() => {
+  // Handle cluster clicks and display cluster info
+  const handleClusterClick = useCallback(
+    async (
+      event: google.maps.MapMouseEvent,
+      cluster: Cluster,
+      map: google.maps.Map
+    ) => {
       dispatch(setVisibility(false));
-      setSelectedCluster(null);
-      setClusterPosition(null);
-    }, [dispatch]);
 
-    const handleZoomIn = useCallback(() => {
-      if (map && selectedCluster) {
-        const bounds = new google.maps.LatLngBounds();
-        selectedCluster.forEach((marker) => {
-          const position = marker.getPosition();
-          if (position) bounds.extend(position);
-        });
-        map.fitBounds(bounds);
-        handleMapInteraction();
+      const markerStreamIds =
+        cluster.markers?.map((marker) => marker.title || "") ?? [];
+      if (markerStreamIds.length > 0) {
+        dispatch(fetchClusterData(markerStreamIds as string[]));
       }
-    }, [map, selectedCluster, handleMapInteraction]);
 
-    const createMarker = useCallback(
-      (session: Session) => {
-        if (!map) return null;
+      const pixelPosition = getClusterPixelPosition(map, cluster.position);
+      setClusterPosition({ top: pixelPosition.y, left: pixelPosition.x });
+      setSelectedCluster(cluster);
+      dispatch(setVisibility(true));
+    },
+    [dispatch]
+  );
 
-        const marker = new google.maps.Marker({
-          position: session.point,
-          map: map,
-          icon: createMarkerIcon(
+  useEffect(() => {
+    if (selectedStreamId) {
+      setVisibleMarkers(new Set([`marker-${selectedStreamId}`]));
+    } else {
+      setVisibleMarkers(
+        new Set(
+          memoizedSessions.map((session) => `marker-${session.point.streamId}`)
+        )
+      );
+    }
+  }, [selectedStreamId, memoizedSessions]);
+
+  useEffect(() => {
+    return () => {
+      if (markerRefs.current) {
+        Object.values(markerRefs.current).forEach((marker) => {
+          marker?.setMap(null);
+        });
+      }
+    };
+  }, []);
+
+  useEffect(() => {
+    if (hoverStreamId) {
+      const hoveredSession = memoizedSessions.find(
+        (session) => Number(session.point.streamId) === hoverStreamId
+      );
+      if (hoveredSession) {
+        setHoverPosition(hoveredSession.point);
+      }
+    } else {
+      setHoverPosition(null);
+    }
+  }, [hoverStreamId, memoizedSessions]);
+
+  useEffect(() => {
+    if (markersCount >= sessions.length) {
+      dispatch(setMarkersLoading(false));
+    }
+  }, [dispatch, markersCount, sessions.length]);
+
+  // Initialize the MarkerClusterer with custom renderer
+  useEffect(() => {
+    if (map && memoizedSessions.length > 0) {
+      if (!clusterer.current) {
+        clusterer.current = new MarkerClusterer({
+          map,
+          algorithm: new SuperClusterAlgorithm({ maxZoom: 21, radius: 40 }),
+        });
+
+        // Add cluster click event listener
+        clusterer.current.addListener(
+          "clusterclick",
+          (event: google.maps.MapMouseEvent, cluster: Cluster) => {
+            handleClusterClick(event, cluster, map);
+          }
+        );
+      }
+
+      if (clusterer.current) {
+        const markerArray = Object.values(memoizedMarkers).filter(
+          (marker): marker is google.maps.Marker => marker !== null
+        );
+
+        clusterer.current.clearMarkers();
+
+        if (markerArray.length > 0) {
+          clusterer.current.addMarkers(markerArray);
+        }
+      }
+    }
+
+    return () => {
+      if (clusterer.current) {
+        clusterer.current.clearMarkers();
+      }
+    };
+  }, [map, memoizedSessions, memoizedMarkers, handleClusterClick]);
+
+  return (
+    <>
+      {memoizedSessions.map((session) => (
+        <Marker
+          position={session.point}
+          key={session.point.streamId}
+          icon={createMarkerIcon(
             getColorForValue(thresholds, session.lastMeasurementValue),
             `${Math.round(session.lastMeasurementValue)} ${unitSymbol}`,
             session.point.streamId === selectedStreamId?.toString(),
             session.id === pulsatingSessionId
-          ),
-          zIndex: Number(google.maps.Marker.MAX_ZINDEX) + 1,
-        });
-
-        marker.set("streamId", session.point.streamId);
-        marker.set("value", session.lastMeasurementValue);
-
-        marker.addListener("click", () => {
-          onMarkerClick(Number(session.point.streamId), Number(session.id));
-          centerMapOnMarker(session.point);
-        });
-
-        return marker;
-      },
-      [
-        map,
-        thresholds,
-        unitSymbol,
-        selectedStreamId,
-        pulsatingSessionId,
-        onMarkerClick,
-        centerMapOnMarker,
-      ]
-    );
-
-    useEffect(() => {
-      memoizedSessions.forEach((session) => {
-        const existingMarker = markersRef.current[session.point.streamId];
-        if (existingMarker) {
-          existingMarker.setIcon(
-            createMarkerIcon(
-              getColorForValue(thresholds, session.lastMeasurementValue),
-              `${Math.round(session.lastMeasurementValue)} ${unitSymbol}`,
-              session.point.streamId === selectedStreamId?.toString(),
-              session.id === pulsatingSessionId
-            )
-          );
-        } else {
-          const newMarker = createMarker(session);
-          if (newMarker) {
-            markersRef.current[session.point.streamId] = newMarker;
-          }
-        }
-      });
-
-      // Remove markers that are no longer in the sessions
-      Object.keys(markersRef.current).forEach((streamId) => {
-        if (
-          !memoizedSessions.some(
-            (session) => session.point.streamId === streamId
-          )
-        ) {
-          markersRef.current[streamId].setMap(null);
-          delete markersRef.current[streamId];
-        }
-      });
-
-      if (clusterer.current) {
-        clusterer.current.clearMarkers();
-        clusterer.current.addMarkers(Object.values(markersRef.current));
-      }
-    }, [
-      memoizedSessions,
-      createMarker,
-      thresholds,
-      unitSymbol,
-      selectedStreamId,
-      pulsatingSessionId,
-    ]);
-
-    useEffect(() => {
-      if (map && !clusterer.current) {
-        clusterer.current = new MarkerClusterer({
-          map,
-          markers: Object.values(markersRef.current),
-          renderer: customRenderer(thresholds, selectedStreamId),
-        });
-
-        clusterer.current.addListener(
-          "click",
-          (event: google.maps.KmlMouseEvent) => {
-            const cluster = (event as any).get("cluster"); // Type assertion to access get method
-            if (cluster) {
-              handleClusterClick(cluster);
-            }
-          }
-        );
-      }
-    }, [map, handleClusterClick, thresholds, selectedStreamId]);
-
-    useEffect(() => {
-      const handleSelectedStreamId = (streamId: number | null) => {
-        if (!streamId || fixedStreamStatus === StatusEnum.Pending) return;
-        const { latitude, longitude } = fixedStreamData.stream;
-
-        if (latitude && longitude) {
-          const fixedStreamPosition = { lat: latitude, lng: longitude };
-          centerMapOnMarker(fixedStreamPosition);
-        } else {
-          console.error(
-            `Stream ID ${streamId} not found or missing latitude/longitude in fixedStream data.`
-          );
-        }
-      };
-
-      handleSelectedStreamId(selectedStreamId);
-    }, [
-      selectedStreamId,
-      fixedStreamData,
-      fixedStreamStatus,
-      centerMapOnMarker,
-    ]);
-
-    useEffect(() => {
-      dispatch(setMarkersLoading(true));
-    }, [dispatch, sessions.length]);
-
-    useEffect(() => {
-      if (Object.keys(markersRef.current).length >= sessions.length) {
-        dispatch(setMarkersLoading(false));
-      }
-    }, [dispatch, sessions.length]);
-
-    useEffect(() => {
-      if (hoverStreamId) {
-        const hoveredSession = memoizedSessions.find(
-          (session) => Number(session.point.streamId) === hoverStreamId
-        );
-        if (hoveredSession) {
-          setHoverPosition(hoveredSession.point);
-        }
-      } else {
-        setHoverPosition(null);
-      }
-    }, [hoverStreamId, memoizedSessions]);
-
-    useMapEventListeners(map, {
-      click: handleMapInteraction,
-      zoom_changed: handleMapInteraction,
-      dragstart: handleMapInteraction,
-      bounds_changed: handleBoundsChanged,
-    });
-
-    return (
-      <>
-        {hoverPosition && <HoverMarker position={hoverPosition} />}
-        {selectedCluster &&
-          clusterPosition &&
-          !clusterLoading &&
-          clusterData && (
-            <ClusterInfo
-              color={getColorForValue(thresholds, clusterData.average)}
-              average={clusterData.average}
-              numberOfSessions={clusterData.numberOfInstruments}
-              handleZoomIn={handleZoomIn}
-              position={clusterPosition}
-              visible={clusterVisible}
-            />
           )}
-      </>
-    );
-  }
-);
+          ref={(marker) => {
+            if (marker) {
+              setMarkerRef(marker, session.point.streamId);
+            }
+          }}
+          onClick={() => {
+            onMarkerClick(Number(session.point.streamId), Number(session.id));
+            centerMapOnMarker(session.point);
+          }}
+        />
+      ))}
+      {hoverPosition && <HoverMarker position={hoverPosition} />}
+
+      {/* Cluster Info display */}
+      {selectedCluster && clusterPosition && !clusterLoading && clusterData && (
+        <ClusterInfo
+          color={getColorForValue(thresholds, clusterData.average)}
+          average={clusterData.average}
+          numberOfSessions={clusterData.numberOfInstruments}
+          handleZoomIn={() => {
+            const currentZoom = map?.getZoom();
+            if (currentZoom && map) {
+              map.setZoom(currentZoom + 1);
+              map.panTo(selectedCluster.position);
+            }
+          }}
+          position={clusterPosition}
+          visible={clusterVisible}
+        />
+      )}
+    </>
+  );
+};
 
 export { FixedMarkers };

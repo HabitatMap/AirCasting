@@ -7,11 +7,11 @@ export const createMarkerIcon = (
   shouldPulse: boolean
 ): google.maps.Icon => {
   const padding = 7; // Padding around the text inside the rectangle
-  const baseCircleX = 18; // X position of the circle
+  const baseCircleX = 19; // X position of the circle
   const baseCircleR = 5; // Radius of the circle
   const rectHeight = 18; // Height of the rounded rectangle
   const height = 40; // Total height of the SVG
-  const strokeWidth = isSelected ? 3 : 2; // Adjust stroke width if selected
+  const strokeWidth = isSelected ? 1 : 0; // Adjust stroke width if selected
 
   // Temporarily create an SVG to calculate the text width
   const temporarySvg = document.createElementNS(
@@ -80,16 +80,16 @@ export const createMarkerIcon = (
   }" />
 
       <!-- Rounded rectangle with marker dot and text inside -->
-      <rect x="7" y="${(height - rectHeight) / 2}" rx="10" ry="10" width="${
+      <rect x="8" y="${(height - rectHeight) / 2}" rx="9" ry="9" width="${
     totalWidth - 14
-  }" height="${rectHeight}" fill="white" stroke="none"/>
+  }" height="${rectHeight}" fill="white" stroke="${color}" stroke-width="${strokeWidth}"/>
 
-      <!-- Marker circle (dot) inside the rectangle, aligned left -->
+      <!-- Marker circle (dot) inside the rectangle -->
       <circle cx="${baseCircleX}" cy="${
     height / 2
   }" r="${baseCircleR}" fill="${color}" stroke="${color}" stroke-width="${strokeWidth}" />
 
-      <!-- Marker text next to the circle, aligned to the same line as the circle, placed closer to the dot -->
+      <!-- Marker text next to the circle -->
       <text x="${
         baseCircleX + baseCircleR + padding
       }" y="25" font-family="Roboto, Arial, sans-serif" font-size="12" fill="${gray400}" text-anchor="start" font-weight="400" font-style="normal">${value}</text>
