@@ -263,7 +263,7 @@ const FixedMarkers: React.FC<Props> = React.memo(
 
         clusterer.current.addListener(
           "click",
-          (event: google.maps.MapMouseEvent) => {
+          (event: google.maps.KmlMouseEvent) => {
             const cluster = (event as any).get("cluster"); // Type assertion to access get method
             if (cluster) {
               handleClusterClick(cluster);

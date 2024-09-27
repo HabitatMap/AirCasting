@@ -95,12 +95,6 @@ export const customRenderer = (
     const styleIndex = calculateClusterStyleIndex(markers, thresholds);
     const { url, height, width } = clusterStyles[styleIndex];
 
-    const label = {
-      text: count.toString(),
-      color: "white",
-      fontSize: "12px",
-    };
-
     const icon = {
       url: url,
       size: new google.maps.Size(width, height),
@@ -111,7 +105,6 @@ export const customRenderer = (
     const marker = new google.maps.Marker({
       position: position,
       icon: icon,
-      label: label,
       zIndex: markers.some((m) => m.get("streamId") === selectedStreamId)
         ? Number(google.maps.Marker.MAX_ZINDEX + 1)
         : undefined,
@@ -125,18 +118,12 @@ export const pulsatingRenderer = (
   thresholds: Thresholds,
   customPosition?: google.maps.LatLng
 ): Renderer => ({
-  render: ({ count, position }: Cluster, stats: ClusterStats) => {
+  render: ({ position }: Cluster, stats: ClusterStats) => {
     const markers = Array.isArray(stats.markers)
       ? (stats.markers as MarkerWithValue[])
       : [];
     const styleIndex = calculateClusterStyleIndex(markers, thresholds);
     const { url, height, width } = clusterStyles[styleIndex];
-
-    const label = {
-      text: count.toString(),
-      color: "white",
-      fontSize: "12px",
-    };
 
     const icon = {
       url: url,
@@ -148,7 +135,6 @@ export const pulsatingRenderer = (
     const marker = new google.maps.Marker({
       position: customPosition || position,
       icon: icon,
-      label: label,
       zIndex: Number(google.maps.Marker.MAX_ZINDEX + 1),
     });
 
