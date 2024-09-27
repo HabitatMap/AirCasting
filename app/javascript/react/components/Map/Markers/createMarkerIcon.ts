@@ -31,7 +31,7 @@ export const createMarkerIcon = (
   // Calculate the width of the text
   const textWidth = tempText.getComputedTextLength();
   const totalWidth =
-    baseCircleX + baseCircleR * 2 + padding + textWidth + padding + 2; // Adjust total width based on text length
+    baseCircleX + baseCircleR * 2 + padding * 2 + textWidth + 2;
 
   // Remove the temporary SVG after calculation
   document.body.removeChild(temporarySvg);
