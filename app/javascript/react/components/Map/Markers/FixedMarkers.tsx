@@ -2,6 +2,7 @@
 
 import {
   Cluster,
+  Marker,
   MarkerClusterer,
   SuperClusterAlgorithm,
 } from "@googlemaps/markerclusterer";
@@ -25,6 +26,7 @@ import { selectThresholds } from "../../../store/thresholdSlice";
 import type { LatLngLiteral } from "../../../types/googleMaps";
 import { Session } from "../../../types/sessionType";
 import { getClusterPixelPosition } from "../../../utils/getClusterPixelPosition";
+import useMapEventListeners from "../../../utils/mapEventListeners";
 import { useMapParams } from "../../../utils/mapParamsHandler";
 import { getColorForValue } from "../../../utils/thresholdColors";
 import { ClusterInfo } from "./ClusterInfo/ClusterInfo";
@@ -38,8 +40,8 @@ type Props = {
   pulsatingSessionId: number | null;
 };
 
-interface ExtendedCluster extends Cluster {
-  count: number;
+interface CustomMarkerClusterer extends MarkerClusterer {
+  markerStreamIdMap?: Map<Marker, string>;
 }
 
 const clusterStyles = [
@@ -63,17 +65,15 @@ const FixedMarkers: React.FC<Props> = ({
   const map = useMap();
   const { unitSymbol } = useMapParams();
   const clusterData = useAppSelector((state) => state.cluster.data);
-  const clusterLoading = useAppSelector((state) => state.cluster.loading);
   const clusterVisible = useAppSelector((state) => state.cluster.visible);
 
-  const clusterer = useRef<MarkerClusterer | null>(null);
+  const clusterer = useRef<CustomMarkerClusterer | null>(null);
   const markerRefs = useRef<Map<string, google.maps.Marker>>(new Map());
 
   const [hoverPosition, setHoverPosition] = useState<LatLngLiteral | null>(
     null
   );
-  const [selectedCluster, setSelectedCluster] =
-    useState<ExtendedCluster | null>(null);
+  const [selectedCluster, setSelectedCluster] = useState<Cluster | null>(null);
   const [clusterPosition, setClusterPosition] = useState<{
     top: number;
     left: number;
@@ -92,19 +92,25 @@ const FixedMarkers: React.FC<Props> = ({
   );
 
   const handleClusterClick = useCallback(
-    (event: google.maps.MapMouseEvent, cluster: ExtendedCluster) => {
-      if (!map) return;
-
+    async (
+      event: google.maps.MapMouseEvent,
+      cluster: Cluster,
+      map: google.maps.Map
+    ) => {
       dispatch(setVisibility(false));
+
       const markerStreamIds =
         cluster.markers?.map((marker) =>
           (marker as google.maps.Marker).getTitle()
         ) ?? [];
+
       if (markerStreamIds.length > 0) {
         const validIds = markerStreamIds.filter(
           (id): id is string => id != null
         );
-        dispatch(fetchClusterData(validIds));
+        if (validIds.length > 0) {
+          await dispatch(fetchClusterData(validIds)); // Fetch cluster data
+        }
       }
 
       const pixelPosition = getClusterPixelPosition(map, cluster.position);
@@ -117,9 +123,10 @@ const FixedMarkers: React.FC<Props> = ({
 
   const calculateClusterStyleIndex = useCallback(
     (markers: google.maps.Marker[]): number => {
-      const sum = markers.reduce((acc, marker) => {
-        return acc + Number(marker.get("value") || 0);
-      }, 0);
+      const sum = markers.reduce(
+        (acc, marker) => acc + Number(marker.get("value") || 0),
+        0
+      );
       const average = sum / markers.length;
 
       if (average < thresholds.low) return 0;
@@ -130,14 +137,14 @@ const FixedMarkers: React.FC<Props> = ({
     [thresholds]
   );
 
-  const customRenderer = useCallback(
-    ({ count, position, markers }: ExtendedCluster) => {
+  const customRenderer = {
+    render: ({ count, position, markers }: Cluster) => {
       const styleIndex = calculateClusterStyleIndex(
         markers as google.maps.Marker[]
       );
       const { url, height, width, textSize } = clusterStyles[styleIndex];
 
-      const clusterElement = new google.maps.Marker({
+      return new google.maps.Marker({
         position,
         icon: {
           url: url,
@@ -150,64 +157,36 @@ const FixedMarkers: React.FC<Props> = ({
         },
         zIndex: Number(google.maps.Marker.MAX_ZINDEX) + count,
       });
-
-      return clusterElement;
     },
-    [calculateClusterStyleIndex]
-  );
+  };
 
-  // Update only when necessary
-  const updateMarkers = useCallback(() => {
-    if (map && memoizedSessions.length > 0) {
-      if (!clusterer.current) {
-        clusterer.current = new MarkerClusterer({
-          map,
-          algorithm: new SuperClusterAlgorithm({ radius: 60, maxZoom: 16 }),
-          renderer: {
-            render: (cluster) => customRenderer(cluster as ExtendedCluster),
-          },
+  const updateClusterer = useCallback(() => {
+    if (clusterer.current && memoizedSessions.length > 0) {
+      const newMarkers = memoizedSessions.map((session) => {
+        const marker = new google.maps.Marker({
+          position: session.point,
+          icon: createMarkerIcon(
+            getColorForValue(thresholds, session.lastMeasurementValue),
+            `${Math.round(session.lastMeasurementValue)} ${unitSymbol}`,
+            session.point.streamId === selectedStreamId?.toString(),
+            session.id === pulsatingSessionId
+          ),
+          title: session.point.streamId, // Store streamId in marker title
         });
 
-        clusterer.current.addListener(
-          "clusterclick",
-          (event: google.maps.MapMouseEvent, cluster: ExtendedCluster) =>
-            handleClusterClick(event, cluster as ExtendedCluster)
-        );
-      }
+        marker.set("value", session.lastMeasurementValue);
+        marker.addListener("click", () => {
+          onMarkerClick(Number(session.point.streamId), Number(session.id));
+          centerMapOnMarker(session.point);
+        });
 
-      const newMarkers: google.maps.Marker[] = [];
-
-      memoizedSessions.forEach((session) => {
-        // Avoid recreating markers if they already exist
-        if (!markerRefs.current.has(session.point.streamId)) {
-          const marker = new google.maps.Marker({
-            position: session.point,
-            icon: createMarkerIcon(
-              getColorForValue(thresholds, session.lastMeasurementValue),
-              `${Math.round(session.lastMeasurementValue)} ${unitSymbol}`,
-              session.point.streamId === selectedStreamId?.toString(),
-              session.id === pulsatingSessionId
-            ),
-            title: session.point.streamId,
-          });
-
-          marker.set("value", session.lastMeasurementValue);
-          marker.addListener("click", () => {
-            onMarkerClick(Number(session.point.streamId), Number(session.id));
-            centerMapOnMarker(session.point);
-          });
-
-          markerRefs.current.set(session.point.streamId, marker);
-          newMarkers.push(marker);
-        }
+        return marker;
       });
 
-      if (newMarkers.length > 0) {
-        clusterer.current.addMarkers(newMarkers);
-      }
+      clusterer.current.clearMarkers();
+      clusterer.current.addMarkers(newMarkers);
     }
   }, [
-    map,
     memoizedSessions,
     thresholds,
     unitSymbol,
@@ -215,21 +194,60 @@ const FixedMarkers: React.FC<Props> = ({
     pulsatingSessionId,
     onMarkerClick,
     centerMapOnMarker,
-    customRenderer,
-    handleClusterClick,
   ]);
 
-  // Only re-render markers if sessions change
   useEffect(() => {
-    updateMarkers();
-    return () => {
-      markerRefs.current.forEach((marker) => marker.setMap(null));
-      markerRefs.current.clear();
-      if (clusterer.current) {
-        clusterer.current.clearMarkers();
+    if (map && memoizedSessions.length > 0) {
+      if (!clusterer.current) {
+        clusterer.current = new MarkerClusterer({
+          map,
+          renderer: customRenderer, // Use the correct renderer object
+          algorithm: new SuperClusterAlgorithm({
+            maxZoom: 21,
+            radius: 40,
+          }),
+          onClusterClick: handleClusterClick,
+        }) as CustomMarkerClusterer;
+      } else {
+        updateClusterer();
       }
-    };
-  }, [map, memoizedSessions.length]);
+    }
+  }, [map, memoizedSessions, updateClusterer]);
+
+  const handleMapInteraction = useCallback(() => {
+    dispatch(setVisibility(false));
+    setSelectedCluster(null);
+    setClusterPosition(null);
+  }, [dispatch]);
+
+  const handleBoundsChanged = useCallback(() => {
+    if (selectedCluster && map) {
+      const pixelPosition = getClusterPixelPosition(
+        map,
+        selectedCluster.position
+      );
+      setClusterPosition({ top: pixelPosition.y, left: pixelPosition.x });
+    }
+  }, [map, selectedCluster]);
+
+  useEffect(() => {
+    map && map.addListener("zoom_changed", handleMapInteraction);
+  }, [map, selectedCluster, dispatch]);
+
+  useMapEventListeners(map, {
+    click: () => {
+      handleMapInteraction();
+    },
+    touchend: () => {
+      handleMapInteraction();
+    },
+    dragstart: () => {
+      handleMapInteraction();
+    },
+    bounds_changed: () => {
+      handleBoundsChanged();
+    },
+  });
 
   useEffect(() => {
     if (hoverStreamId) {
@@ -253,17 +271,13 @@ const FixedMarkers: React.FC<Props> = ({
   return (
     <>
       {hoverPosition && <HoverMarker position={hoverPosition} />}
-      {selectedCluster && clusterPosition && !clusterLoading && clusterData && (
+      {selectedCluster && clusterPosition && clusterVisible && clusterData && (
         <ClusterInfo
           color={getColorForValue(thresholds, clusterData.average)}
           average={clusterData.average}
           numberOfSessions={clusterData.numberOfInstruments}
           handleZoomIn={() => {
-            const currentZoom = map?.getZoom();
-            if (currentZoom !== undefined && map) {
-              map.setZoom(currentZoom + 1);
-              map.panTo(selectedCluster.position);
-            }
+            // Custom zoom-in if needed
           }}
           position={clusterPosition}
           visible={clusterVisible}
