@@ -67,7 +67,6 @@ const FixedMarkers: React.FC<Props> = ({
   const clusterData = useAppSelector((state) => state.cluster.data);
   const clusterVisible = useAppSelector((state) => state.cluster.visible);
 
-  const clusterer = useRef<CustomMarkerClusterer | null>(null);
   const markerRefs = useRef<Map<string, google.maps.Marker>>(new Map());
 
   const [hoverPosition, setHoverPosition] = useState<LatLngLiteral | null>(
@@ -160,9 +159,10 @@ const FixedMarkers: React.FC<Props> = ({
     },
   };
 
-  const updateClusterer = useCallback(() => {
-    if (clusterer.current && memoizedSessions.length > 0) {
-      const newMarkers = memoizedSessions.map((session) => {
+  // Memoize markers to prevent rerenders on zoom/interaction
+  const markers = useMemo(() => {
+    return memoizedSessions.map((session) => {
+      if (!markerRefs.current.has(session.point.streamId)) {
         const marker = new google.maps.Marker({
           position: session.point,
           icon: createMarkerIcon(
@@ -180,12 +180,11 @@ const FixedMarkers: React.FC<Props> = ({
           centerMapOnMarker(session.point);
         });
 
+        markerRefs.current.set(session.point.streamId, marker); // Store marker reference
         return marker;
-      });
-
-      clusterer.current.clearMarkers();
-      clusterer.current.addMarkers(newMarkers);
-    }
+      }
+      return markerRefs.current.get(session.point.streamId)!;
+    });
   }, [
     memoizedSessions,
     thresholds,
@@ -196,23 +195,34 @@ const FixedMarkers: React.FC<Props> = ({
     centerMapOnMarker,
   ]);
 
-  useEffect(() => {
-    if (map && memoizedSessions.length > 0) {
-      if (!clusterer.current) {
-        clusterer.current = new MarkerClusterer({
-          map,
-          renderer: customRenderer, // Use the correct renderer object
-          algorithm: new SuperClusterAlgorithm({
-            maxZoom: 21,
-            radius: 40,
-          }),
-          onClusterClick: handleClusterClick,
-        }) as CustomMarkerClusterer;
-      } else {
-        updateClusterer();
-      }
+  // Memoize clusterer to avoid recreating it on every render
+  const clusterer = useMemo(() => {
+    if (map && markers.length > 0) {
+      const clustererInstance = new MarkerClusterer({
+        map,
+        renderer: customRenderer, // Use the correct renderer object
+        algorithm: new SuperClusterAlgorithm({
+          maxZoom: 21,
+          radius: 40,
+        }),
+      });
+
+      // Attach the click handler to clusters
+      google.maps.event.addListener(clustererInstance, "click", (cluster) => {
+        handleClusterClick(null, cluster, map); // Properly invoke the handler
+      });
+
+      return clustererInstance;
     }
-  }, [map, memoizedSessions, updateClusterer]);
+    return null;
+  }, [map, markers, customRenderer, handleClusterClick]);
+
+  useEffect(() => {
+    if (clusterer) {
+      clusterer.clearMarkers();
+      clusterer.addMarkers(markers);
+    }
+  }, [clusterer, markers]);
 
   const handleMapInteraction = useCallback(() => {
     dispatch(setVisibility(false));
@@ -230,23 +240,11 @@ const FixedMarkers: React.FC<Props> = ({
     }
   }, [map, selectedCluster]);
 
-  useEffect(() => {
-    map && map.addListener("zoom_changed", handleMapInteraction);
-  }, [map, selectedCluster, dispatch]);
-
   useMapEventListeners(map, {
-    click: () => {
-      handleMapInteraction();
-    },
-    touchend: () => {
-      handleMapInteraction();
-    },
-    dragstart: () => {
-      handleMapInteraction();
-    },
-    bounds_changed: () => {
-      handleBoundsChanged();
-    },
+    click: handleMapInteraction,
+    touchend: handleMapInteraction,
+    dragstart: handleMapInteraction,
+    bounds_changed: handleBoundsChanged,
   });
 
   useEffect(() => {
