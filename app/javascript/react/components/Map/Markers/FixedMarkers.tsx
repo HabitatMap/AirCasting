@@ -143,7 +143,7 @@ const FixedMarkers: React.FC<Props> = ({
         return new google.maps.Marker({
           position,
           icon: clusterIcon,
-          zIndex: 3,
+          zIndex: 1,
         });
       },
     }),
@@ -161,6 +161,7 @@ const FixedMarkers: React.FC<Props> = ({
           session.id === pulsatingSessionId
         ),
         title: session.point.streamId,
+        zIndex: Number(google.maps.Marker.MAX_ZINDEX + 1),
       });
 
       marker.set("value", session.lastMeasurementValue);

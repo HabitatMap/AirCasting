@@ -82,47 +82,6 @@ export const updateClusterStyle = (
   }
 };
 
-export const customRenderer = (
-  thresholds: Thresholds,
-  clusterElementsRef: React.MutableRefObject<
-    Map<Cluster, google.maps.marker.AdvancedMarkerElement>
-  >
-) => ({
-  render: (cluster: Cluster) => {
-    const { markers, count, position } = cluster;
-
-    const styleIndex = calculateClusterStyleIndex(
-      markers as google.maps.Marker[],
-      thresholds
-    );
-
-    const { url, height, width, textSize } = clusterStyles[styleIndex];
-    const div = document.createElement("div");
-    div.style.backgroundImage = `url(${url})`;
-    div.style.backgroundSize = "contain";
-    div.style.width = `${width}px`;
-    div.style.height = `${height}px`;
-    div.style.display = "flex";
-    div.style.alignItems = "center";
-    div.style.justifyContent = "center";
-    div.style.fontSize = `${textSize}px`;
-
-    const span = document.createElement("span");
-    span.textContent = `${count}`;
-    div.appendChild(span);
-
-    const clusterElement = new google.maps.Marker({
-      position,
-      icon: div,
-      title: `${count}`,
-    });
-
-    clusterElementsRef.current.set(cluster, clusterElement);
-
-    return clusterElement;
-  },
-});
-
 export const pulsatingRenderer = (
   thresholds: Thresholds,
   customPosition?: google.maps.LatLng
