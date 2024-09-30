@@ -306,13 +306,35 @@ const FixedMarkers: React.FC<Props> = ({
 
   const handleZoomIn = useCallback(() => {
     if (map && selectedCluster) {
-      const currentZoom = map.getZoom();
-      if (currentZoom !== null && currentZoom !== undefined) {
-        map.setZoom(currentZoom - 0.5);
-      }
+      const bounds = new google.maps.LatLngBounds();
+
+      selectedCluster.markers?.forEach((marker) => {
+        if (marker instanceof google.maps.Marker) {
+          bounds.extend(
+            marker.getPosition() as unknown as google.maps.LatLngLiteral
+          );
+        } else if (marker instanceof google.maps.Marker) {
+          const position = marker.position as google.maps.LatLngLiteral;
+          bounds.extend(position);
+        }
+      });
+
+      map.fitBounds(bounds);
+      map.panToBounds(bounds);
+
+      // Optional: Add a slight zoom out to give some padding
+      google.maps.event.addListenerOnce(map, "bounds_changed", () => {
+        const currentZoom = map.getZoom();
+        if (currentZoom !== undefined) {
+          map.setZoom(Math.max(currentZoom - 1, 0));
+        }
+      });
+
       handleMapInteraction();
+      setSelectedCluster(null); // Clear the selected cluster
+      dispatch(setVisibility(false)); // Hide the cluster info
     }
-  }, [map, selectedCluster, handleMapInteraction]);
+  }, [map, selectedCluster, handleMapInteraction, dispatch]);
 
   return (
     <>
