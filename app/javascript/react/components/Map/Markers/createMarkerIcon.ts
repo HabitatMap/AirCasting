@@ -38,42 +38,54 @@ export const createMarkerIcon = (
     shadowRadius * 2
   );
 
-  const shadowColor = `${color}66`; // More opaque for non-selected
+  const shadowColor = `${color}66`;
+
+  // Update the viewBox to encompass the entire shape of the SVG
+  const viewBoxWidth = totalWidth;
+  const viewBoxHeight = height + shadowRadius; // Add shadow radius to height
 
   const svg = `
-    <svg xmlns="http://www.w3.org/2000/svg" width="${totalWidth}" height="${height}" viewBox="0 0 ${totalWidth} ${height}">
+    <svg xmlns="http://www.w3.org/2000/svg" width="${totalWidth}" height="${
+    height + shadowRadius
+  }" viewBox="0 0 ${viewBoxWidth} ${viewBoxHeight}" overflow="visible">
       <defs>
-        <radialGradient id="shadowGradient" cx="50%" cy="50%" r="70%">
+      ${
+        isSelected
+          ? `<radialGradient id="shadowGradient" cx="50%" cy="50%" r="70%">
           <stop offset="0%" stop-color="${shadowColor}" />
-          <stop offset="${
-            isSelected ? "30%" : "40%"
-          }" stop-color="${shadowColor}" />
+          <stop offset="40%" stop-color="${shadowColor}" />
           <stop offset="100%" stop-color="${shadowColor}" stop-opacity="0" />
-        </radialGradient>
+        </radialGradient>`
+          : `<radialGradient id="shadowGradient" cx="50%" cy="50%" r="50%">
+          <stop offset="0%" stop-color="${shadowColor}" />
+          <stop offset="30%" stop-color="${shadowColor}" />
+          <stop offset="100%" stop-color="${shadowColor}" />
+        </radialGradient>`
+      }
         ${
-          isSelected
-            ? `
-        <filter id="blur" x="-50%" y="-50%" width="200%" height="200%">
+          !isSelected
+            ? `<filter id="blur" x="-50%" y="-50%" width="200%" height="200%">
           <feGaussianBlur in="SourceGraphic" stdDeviation="5" />
-        </filter>
-        `
+        </filter>`
             : ""
         }
       </defs>
       <style>
         .pulse {
           animation: pulse-animation 2s infinite;
-          transform-origin: ${baseCircleX}px 20px;
+          transform-origin: ${baseCircleX}px 20px; /* Set transform origin to circle center */
         }
         @keyframes pulse-animation {
           0% { transform: scale(1); opacity: 1; }
-          50% { transform: scale(1.5); opacity: 0.8; }
+          50% { transform: scale(1.5); opacity: 0.7; }
           100% { transform: scale(1); opacity: 1; }
         }
       </style>
+      ${shouldPulse ? `<g class="pulse">` : ""}
       <circle cx="${baseCircleX}" cy="20" r="${shadowRadius}" fill="url(#shadowGradient)" ${
-    isSelected ? 'filter="url(#blur)"' : ""
-  } class="${shouldPulse ? "pulse" : ""}" />
+    !isSelected ? 'filter="url(#blur)"' : ""
+  } />
+      ${shouldPulse ? `</g>` : ""}
       <rect x="8" y="${(height - rectHeight) / 2}" rx="9" ry="9" width="${
     totalWidth - 14
   }" height="${rectHeight}" fill="white" stroke="${color}" stroke-width="${strokeWidth}"/>
@@ -88,7 +100,7 @@ export const createMarkerIcon = (
 
   const icon = {
     url: `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(svg)}`,
-    scaledSize: new google.maps.Size(totalWidth, height),
+    scaledSize: new google.maps.Size(totalWidth, height + shadowRadius),
     anchor: new google.maps.Point(baseCircleX, 20),
   };
 
