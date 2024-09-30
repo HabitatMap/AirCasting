@@ -345,8 +345,10 @@ const FixedMarkers: React.FC<Props> = ({
       const center = map.getCenter();
       const zoom = map.getZoom();
       const params = new URLSearchParams(window.location.search);
-      params.set("lat", center.lat().toString());
-      params.set("lng", center.lng().toString());
+      if (center) {
+        params.set("lat", center.lat().toString());
+        params.set("lng", center.lng().toString());
+      }
       params.set("zoom", zoom?.toString() || "15");
       window.history.replaceState(
         {},
@@ -359,8 +361,8 @@ const FixedMarkers: React.FC<Props> = ({
     map.addListener("zoom_changed", updateURL);
 
     return () => {
-      google.maps.event.removeListener(map, "center_changed", updateURL);
-      google.maps.event.removeListener(map, "zoom_changed", updateURL);
+      google.maps.event.clearListeners(map, "center_changed");
+      google.maps.event.clearListeners(map, "zoom_changed");
     };
   }, [map]);
 
