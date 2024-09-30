@@ -1,4 +1,5 @@
 import { Cluster, Marker } from "@googlemaps/markerclusterer";
+
 import GreenCluster from "../../../assets/icons/markers/marker-cluster-green.svg";
 import OrangeCluster from "../../../assets/icons/markers/marker-cluster-orange.svg";
 import RedCluster from "../../../assets/icons/markers/marker-cluster-red.svg";
@@ -31,13 +32,14 @@ const clusterStyles = [
     textSize: 0,
   },
 ];
+
 const calculateClusterStyleIndex = (
   markers: google.maps.Marker[],
   thresholds: Thresholds
 ): number => {
   const sum = markers.reduce(
     (accumulator: number, marker: google.maps.Marker) => {
-      return accumulator + Number(marker.getTitle());
+      return accumulator + Number(marker.get("value"));
     },
     0
   );
@@ -61,38 +63,34 @@ const calculateClusterStyleIndex = (
 export const updateClusterStyle = (
   clusterElement: google.maps.Marker,
   markers: google.maps.Marker[],
-  thresholds: Thresholds
+  thresholds: Thresholds,
+  selectedStreamId: number | null
 ) => {
   const styleIndex = calculateClusterStyleIndex(markers, thresholds);
   const { url, height, width, textSize } = clusterStyles[styleIndex];
+  const icon = clusterElement.getIcon() as google.maps.Icon;
 
-  // Check if clusterElement is a valid Marker and has an icon property
-  if (clusterElement && clusterElement.getIcon) {
-    const icon = clusterElement.getIcon();
-    if (icon && typeof icon === "object") {
-      // Update the icon properties
-      const newIcon: google.maps.Icon = {
-        url: url,
-        scaledSize: new google.maps.Size(width, height),
-      };
-      clusterElement.setIcon(newIcon);
-    }
+  if (icon && icon.url) {
+    icon.url = url;
+    icon.scaledSize = new google.maps.Size(width, height);
+    clusterElement.setIcon(icon);
   }
 
-  // Update the label if it exists
-  const label = clusterElement.getLabel();
-  if (label && typeof label === "object") {
-    label.fontSize = `${textSize}px`;
-    clusterElement.setLabel(label);
+  const div = clusterElement.getIcon() as unknown as HTMLElement;
+  if (div) {
+    div.style.fontSize = `${textSize}px`;
   }
 };
 
 export const customRenderer = (
   thresholds: Thresholds,
-  clusterElementsRef: React.MutableRefObject<Map<Cluster, google.maps.Marker>>
+  clusterElementsRef: React.MutableRefObject<
+    Map<Cluster, google.maps.marker.AdvancedMarkerElement>
+  >
 ) => ({
   render: (cluster: Cluster) => {
     const { markers, count, position } = cluster;
+
     const styleIndex = calculateClusterStyleIndex(
       markers as google.maps.Marker[],
       thresholds
@@ -115,24 +113,11 @@ export const customRenderer = (
 
     const clusterElement = new google.maps.Marker({
       position,
-      icon: {
-        url:
-          "data:image/svg+xml;charset=UTF-8," +
-          encodeURIComponent(div.outerHTML),
-        anchor: new google.maps.Point(width / 2, height / 2),
-      },
-      label: {
-        text: `${count}`,
-        fontSize: `${textSize}px`,
-        color: "white",
-      },
+      icon: div,
       title: `${count}`,
     });
 
-    clusterElementsRef.current.set(
-      cluster,
-      clusterElement as unknown as google.maps.Marker
-    );
+    clusterElementsRef.current.set(cluster, clusterElement);
 
     return clusterElement;
   },
@@ -144,6 +129,7 @@ export const pulsatingRenderer = (
 ) => ({
   render: (cluster: Cluster) => {
     const { markers, count, position } = cluster;
+
     const styleIndex = calculateClusterStyleIndex(
       markers as google.maps.Marker[],
       thresholds
@@ -169,13 +155,13 @@ export const pulsatingRenderer = (
     return new google.maps.Marker({
       position: customPosition || position,
       icon: {
-        url:
-          "data:image/svg+xml;charset=UTF-8," +
-          encodeURIComponent(div.outerHTML),
-        anchor: new google.maps.Point(width / 2, height / 2),
+        url: `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(
+          div.outerHTML
+        )}`,
+        scaledSize: new google.maps.Size(div.offsetWidth, div.offsetHeight),
       },
       title: `${count}`,
-      zIndex: Number(google.maps.Marker.MAX_ZINDEX) + 1,
+      zIndex: Number(google.maps.Marker.MAX_ZINDEX + 1),
     }) as Marker;
   },
 });

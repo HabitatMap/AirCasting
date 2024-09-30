@@ -2,7 +2,6 @@
 
 import {
   Cluster,
-  Marker,
   MarkerClusterer,
   SuperClusterAlgorithm,
 } from "@googlemaps/markerclusterer";
@@ -14,10 +13,7 @@ import React, {
   useRef,
   useState,
 } from "react";
-import GreenCluster from "../../../assets/icons/markers/marker-cluster-green.svg";
-import OrangeCluster from "../../../assets/icons/markers/marker-cluster-orange.svg";
-import RedCluster from "../../../assets/icons/markers/marker-cluster-red.svg";
-import YellowCluster from "../../../assets/icons/markers/marker-cluster-yellow.svg";
+import { green, orange, red, yellow } from "../../../assets/styles/colors";
 import { fetchClusterData, setVisibility } from "../../../store/clusterSlice";
 import { useAppDispatch, useAppSelector } from "../../../store/hooks";
 import { selectHoverStreamId } from "../../../store/mapSlice";
@@ -31,7 +27,7 @@ import { useMapParams } from "../../../utils/mapParamsHandler";
 import { getColorForValue } from "../../../utils/thresholdColors";
 import { ClusterInfo } from "./ClusterInfo/ClusterInfo";
 import HoverMarker from "./HoverMarker/HoverMarker";
-import { createMarkerIcon } from "./createMarkerIcon";
+import { createClusterIcon, createMarkerIcon } from "./createMarkerIcon";
 
 type Props = {
   sessions: Session[];
@@ -40,17 +36,6 @@ type Props = {
   pulsatingSessionId: number | null;
 };
 
-interface CustomMarkerClusterer extends MarkerClusterer {
-  markerStreamIdMap?: Map<Marker, string>;
-}
-
-const clusterStyles = [
-  { url: GreenCluster, height: 30, width: 30, textSize: 12 },
-  { url: YellowCluster, height: 30, width: 30, textSize: 12 },
-  { url: OrangeCluster, height: 30, width: 30, textSize: 12 },
-  { url: RedCluster, height: 30, width: 30, textSize: 12 },
-];
-
 const FixedMarkers: React.FC<Props> = ({
   sessions,
   onMarkerClick,
@@ -58,6 +43,7 @@ const FixedMarkers: React.FC<Props> = ({
   pulsatingSessionId,
 }) => {
   const ZOOM_FOR_SELECTED_SESSION = 15;
+  const CLUSTER_RADIUS = 80;
 
   const dispatch = useAppDispatch();
   const hoverStreamId = useAppSelector(selectHoverStreamId);
@@ -68,7 +54,11 @@ const FixedMarkers: React.FC<Props> = ({
   const clusterVisible = useAppSelector((state) => state.cluster.visible);
 
   const markerRefs = useRef<Map<string, google.maps.Marker>>(new Map());
+  const clusterer = useRef<MarkerClusterer | null>(null);
 
+  const [visibleMarkers, setVisibleMarkers] = useState<google.maps.Marker[]>(
+    []
+  );
   const [hoverPosition, setHoverPosition] = useState<LatLngLiteral | null>(
     null
   );
@@ -80,6 +70,7 @@ const FixedMarkers: React.FC<Props> = ({
 
   const memoizedSessions = useMemo(() => sessions, [sessions]);
 
+  // Function to center map on a specific marker's position
   const centerMapOnMarker = useCallback(
     (position: LatLngLiteral) => {
       if (map) {
@@ -90,12 +81,9 @@ const FixedMarkers: React.FC<Props> = ({
     [map]
   );
 
+  // Function to handle clicking on a cluster
   const handleClusterClick = useCallback(
-    async (
-      event: google.maps.MapMouseEvent,
-      cluster: Cluster,
-      map: google.maps.Map
-    ) => {
+    async (cluster: Cluster, map: google.maps.Map) => {
       dispatch(setVisibility(false));
 
       const markerStreamIds =
@@ -108,7 +96,7 @@ const FixedMarkers: React.FC<Props> = ({
           (id): id is string => id != null
         );
         if (validIds.length > 0) {
-          await dispatch(fetchClusterData(validIds)); // Fetch cluster data
+          await dispatch(fetchClusterData(validIds));
         }
       }
 
@@ -117,9 +105,10 @@ const FixedMarkers: React.FC<Props> = ({
       setSelectedCluster(cluster);
       dispatch(setVisibility(true));
     },
-    [dispatch, map]
+    [dispatch]
   );
 
+  // Calculate the appropriate style for a cluster based on marker values and thresholds
   const calculateClusterStyleIndex = useCallback(
     (markers: google.maps.Marker[]): number => {
       const sum = markers.reduce(
@@ -136,100 +125,121 @@ const FixedMarkers: React.FC<Props> = ({
     [thresholds]
   );
 
+  // Custom renderer to create clusters with appropriate styles and pulsating behavior
   const customRenderer = {
     render: ({ count, position, markers }: Cluster) => {
       const styleIndex = calculateClusterStyleIndex(
         markers as google.maps.Marker[]
       );
-      const { url, height, width, textSize } = clusterStyles[styleIndex];
+      const color = [green, yellow, orange, red][styleIndex];
+
+      const hasPulsatingSession =
+        markers && markers.length > 0
+          ? markers.some((marker) => {
+              const googleMarker = marker as google.maps.Marker;
+              const sessionId =
+                (googleMarker.get("sessionId") as number) || null;
+              return sessionId === pulsatingSessionId;
+            })
+          : false;
+
+      const clusterIcon = createClusterIcon(color, hasPulsatingSession);
 
       return new google.maps.Marker({
         position,
-        icon: {
-          url: url,
-          scaledSize: new google.maps.Size(width, height),
-        },
-        label: {
-          text: count.toString(),
-          color: "white",
-          fontSize: `${textSize}px`,
-        },
-        zIndex: Number(google.maps.Marker.MAX_ZINDEX) + count,
+        icon: clusterIcon,
+        zIndex: 3,
       });
     },
   };
 
-  // Memoize markers to prevent rerenders on zoom/interaction
-  const markers = useMemo(() => {
-    return memoizedSessions.map((session) => {
-      if (!markerRefs.current.has(session.point.streamId)) {
-        const marker = new google.maps.Marker({
-          position: session.point,
-          icon: createMarkerIcon(
-            getColorForValue(thresholds, session.lastMeasurementValue),
-            `${Math.round(session.lastMeasurementValue)} ${unitSymbol}`,
-            session.point.streamId === selectedStreamId?.toString(),
-            session.id === pulsatingSessionId
-          ),
-          title: session.point.streamId, // Store streamId in marker title
-        });
+  // Function to create individual markers for each session
+  const createMarker = useCallback(
+    (session: Session) => {
+      const marker = new google.maps.Marker({
+        position: session.point,
+        icon: createMarkerIcon(
+          getColorForValue(thresholds, session.lastMeasurementValue),
+          `${Math.round(session.lastMeasurementValue)} ${unitSymbol}`,
+          session.point.streamId === selectedStreamId?.toString(),
+          session.id === pulsatingSessionId
+        ),
+        title: session.point.streamId,
+      });
 
-        marker.set("value", session.lastMeasurementValue);
-        marker.addListener("click", () => {
-          onMarkerClick(Number(session.point.streamId), Number(session.id));
-          centerMapOnMarker(session.point);
-        });
+      marker.set("value", session.lastMeasurementValue);
+      marker.set("sessionId", session.id);
+      marker.addListener("click", () => {
+        onMarkerClick(Number(session.point.streamId), Number(session.id));
+        centerMapOnMarker(session.point);
+      });
 
-        markerRefs.current.set(session.point.streamId, marker); // Store marker reference
-        return marker;
-      }
-      return markerRefs.current.get(session.point.streamId)!;
-    });
-  }, [
-    memoizedSessions,
-    thresholds,
-    unitSymbol,
-    selectedStreamId,
-    pulsatingSessionId,
-    onMarkerClick,
-    centerMapOnMarker,
-  ]);
+      return marker;
+    },
+    [
+      thresholds,
+      unitSymbol,
+      selectedStreamId,
+      pulsatingSessionId,
+      onMarkerClick,
+      centerMapOnMarker,
+    ]
+  );
 
-  // Memoize clusterer to avoid recreating it on every render
-  const clusterer = useMemo(() => {
-    if (map && markers.length > 0) {
-      const clustererInstance = new MarkerClusterer({
+  // Update the visible markers based on the current map bounds
+  const updateVisibleMarkers = useCallback(() => {
+    if (!map || !clusterer.current) return;
+
+    const bounds = map.getBounds();
+    if (!bounds) return;
+
+    const newVisibleMarkers = memoizedSessions
+      .filter((session) => bounds.contains(session.point))
+      .map((session) => {
+        if (!markerRefs.current.has(session.point.streamId)) {
+          const marker = createMarker(session);
+          markerRefs.current.set(session.point.streamId, marker);
+        }
+        return markerRefs.current.get(session.point.streamId)!;
+      });
+
+    setVisibleMarkers(newVisibleMarkers);
+    clusterer.current.clearMarkers();
+    clusterer.current.addMarkers(newVisibleMarkers);
+  }, [map, memoizedSessions, createMarker]);
+
+  // Initialize the marker clusterer when the map is loaded
+  useEffect(() => {
+    if (map && !clusterer.current) {
+      clusterer.current = new MarkerClusterer({
         map,
-        renderer: customRenderer, // Use the correct renderer object
+        renderer: customRenderer,
         algorithm: new SuperClusterAlgorithm({
           maxZoom: 21,
-          radius: 40,
+          radius: CLUSTER_RADIUS,
         }),
       });
 
-      // Attach the click handler to clusters
-      google.maps.event.addListener(clustererInstance, "click", (cluster) => {
-        handleClusterClick(null, cluster, map); // Properly invoke the handler
-      });
+      google.maps.event.addListener(
+        clusterer.current,
+        "click",
+        (cluster: Cluster) => {
+          handleClusterClick(cluster, map);
+        }
+      );
 
-      return clustererInstance;
+      updateVisibleMarkers();
     }
-    return null;
-  }, [map, markers, customRenderer, handleClusterClick]);
+  }, [map, customRenderer, handleClusterClick, updateVisibleMarkers]);
 
-  useEffect(() => {
-    if (clusterer) {
-      clusterer.clearMarkers();
-      clusterer.addMarkers(markers);
-    }
-  }, [clusterer, markers]);
-
+  // Hide clusters when the map is interacted with
   const handleMapInteraction = useCallback(() => {
     dispatch(setVisibility(false));
     setSelectedCluster(null);
     setClusterPosition(null);
   }, [dispatch]);
 
+  // Update cluster position when bounds change
   const handleBoundsChanged = useCallback(() => {
     if (selectedCluster && map) {
       const pixelPosition = getClusterPixelPosition(
@@ -247,6 +257,7 @@ const FixedMarkers: React.FC<Props> = ({
     bounds_changed: handleBoundsChanged,
   });
 
+  // Handle hover logic for displaying markers
   useEffect(() => {
     if (hoverStreamId) {
       const hoveredSession = memoizedSessions.find(
@@ -260,11 +271,53 @@ const FixedMarkers: React.FC<Props> = ({
     }
   }, [hoverStreamId, memoizedSessions]);
 
+  // Hide the loading spinner when all markers are loaded
   useEffect(() => {
     if (markerRefs.current.size >= sessions.length) {
       dispatch(setMarkersLoading(false));
     }
   }, [dispatch, sessions.length]);
+
+  // Function to zoom in on clusters
+  const handleZoomIn = useCallback(() => {
+    if (map && selectedCluster) {
+      const currentZoom = map.getZoom();
+      if (currentZoom !== null && currentZoom !== undefined) {
+        map.setZoom(currentZoom - 0.5);
+      }
+      handleMapInteraction();
+    }
+  }, [map, selectedCluster, handleMapInteraction]);
+
+  // Update the markers' icons based on hover, selection, and pulsation state
+  useEffect(() => {
+    visibleMarkers.forEach((marker) => {
+      const sessionId = marker.get("sessionId");
+      const isPulsating = sessionId === pulsatingSessionId;
+      const isSelected = marker.getTitle() === selectedStreamId?.toString();
+
+      marker.setIcon(
+        createMarkerIcon(
+          getColorForValue(thresholds, marker.get("value")),
+          `${Math.round(marker.get("value"))} ${unitSymbol}`,
+          isSelected,
+          isPulsating
+        )
+      );
+    });
+
+    // Force the clusterer to update when markers change
+    if (clusterer.current) {
+      clusterer.current.clearMarkers();
+      clusterer.current.addMarkers(visibleMarkers);
+    }
+  }, [
+    visibleMarkers,
+    pulsatingSessionId,
+    selectedStreamId,
+    thresholds,
+    unitSymbol,
+  ]);
 
   return (
     <>
@@ -274,9 +327,7 @@ const FixedMarkers: React.FC<Props> = ({
           color={getColorForValue(thresholds, clusterData.average)}
           average={clusterData.average}
           numberOfSessions={clusterData.numberOfInstruments}
-          handleZoomIn={() => {
-            // Custom zoom-in if needed
-          }}
+          handleZoomIn={handleZoomIn}
           position={clusterPosition}
           visible={clusterVisible}
         />

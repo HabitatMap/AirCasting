@@ -1,62 +1,97 @@
 import { gray400 } from "../../../assets/styles/colors";
 
+const getTextWidth = (text: string, font: string): number => {
+  const canvas = document.createElement("canvas");
+  const context = canvas.getContext("2d");
+  if (context) {
+    context.font = font;
+    return context.measureText(text).width;
+  }
+  return 0;
+};
+
+const iconCache = new Map<string, google.maps.Icon>();
+
 export const createMarkerIcon = (
   color: string,
   value: string,
   isSelected: boolean,
   shouldPulse: boolean
 ): google.maps.Icon => {
-  const padding = 7; // Padding around the text inside the rectangle
-  const baseCircleX = 19; // X position of the circle
-  const baseCircleR = 5; // Radius of the circle
-  const rectHeight = 18; // Height of the rounded rectangle
-  const height = 40; // Total height of the SVG
-  const strokeWidth = isSelected ? 1 : 0; // Adjust stroke width if selected
+  const cacheKey = `${color}-${value}-${isSelected}-${shouldPulse}`;
+  if (iconCache.has(cacheKey)) {
+    return iconCache.get(cacheKey)!;
+  }
 
-  // Temporarily create an SVG to calculate the text width
-  const temporarySvg = document.createElementNS(
-    "http://www.w3.org/2000/svg",
-    "svg"
-  );
-  const tempText = document.createElementNS(
-    "http://www.w3.org/2000/svg",
-    "text"
-  );
-  tempText.setAttribute("font-family", "Roboto, Arial, sans-serif");
-  tempText.setAttribute("font-size", "12");
-  tempText.textContent = value;
-  temporarySvg.appendChild(tempText);
-  document.body.appendChild(temporarySvg);
+  const padding = 7;
+  const baseCircleX = 19;
+  const baseCircleR = 5;
+  const rectHeight = 18;
+  const height = 40;
+  const strokeWidth = isSelected ? 1 : 0;
 
-  // Calculate the width of the text
-  const textWidth = tempText.getComputedTextLength();
+  const font = "12px Roboto, Arial, sans-serif";
+  const textWidth = getTextWidth(value, font);
   const totalWidth =
     baseCircleX + baseCircleR * 2 + padding * 2 + textWidth + 2;
 
-  // Remove the temporary SVG after calculation
-  document.body.removeChild(temporarySvg);
-
-  // Construct the SVG string with the marker design
   const svg = `
     <svg xmlns="http://www.w3.org/2000/svg" width="${totalWidth}" height="${height}" viewBox="0 0 ${totalWidth} ${height}">
       <defs>
-        <!-- Define the radial gradient for the shadow circle -->
         <radialGradient id="shadowGradient" cx="50%" cy="50%" r="50%">
           <stop offset="0%" stop-color="${color}" stop-opacity="0.6" />
           <stop offset="50%" stop-color="${color}" stop-opacity="0.3" />
           <stop offset="100%" stop-color="${color}"/>
         </radialGradient>
-
-        <!-- Define the blur filter -->
         <filter id="blurFilter" x="-50%" y="-50%" width="200%" height="200%" filterUnits="userSpaceOnUse">
           <feGaussianBlur stdDeviation="4" />
         </filter>
       </defs>
-
       <style>
         .pulse {
           animation: pulse-animation 2s infinite;
-          transform-origin: ${baseCircleX}px 20px; /* Center the transform origin on the circle */
+          transform-origin: ${baseCircleX}px 20px;
+        }
+        @keyframes pulse-animation {
+          0% { transform: scale(1); opacity: 1; }
+          50% { transform: scale(1.5); opacity: 0.8; }
+          100% { transform: scale(1); opacity: 1; }
+        }
+      </style>
+      <circle cx="${baseCircleX}" cy="20" r="15" fill="url(#shadowGradient)" filter="url(#blurFilter)" class="${
+    shouldPulse ? "pulse" : ""
+  }" />
+      <rect x="8" y="${(height - rectHeight) / 2}" rx="9" ry="9" width="${
+    totalWidth - 14
+  }" height="${rectHeight}" fill="white" stroke="${color}" stroke-width="${strokeWidth}"/>
+      <circle cx="${baseCircleX}" cy="${
+    height / 2
+  }" r="${baseCircleR}" fill="${color}" stroke="${color}" stroke-width="${strokeWidth}" />
+      <text x="${
+        baseCircleX + baseCircleR + padding
+      }" y="25" font-family="Roboto, Arial, sans-serif" font-size="12" fill="${gray400}" text-anchor="start">${value}</text>
+    </svg>
+  `;
+
+  const icon = {
+    url: `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(svg)}`,
+    scaledSize: new google.maps.Size(totalWidth, height),
+    anchor: new google.maps.Point(20, 20),
+  };
+
+  iconCache.set(cacheKey, icon);
+  return icon;
+};
+
+export const createClusterIcon = (color: string, shouldPulse: boolean) => {
+  const pulseClass = shouldPulse ? "pulse" : "";
+
+  const svg = `
+    <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 30 30">
+      <style>
+        .pulse {
+          animation: pulse-animation 2s infinite;
+          transform-origin: center;
         }
         @keyframes pulse-animation {
           0% {
@@ -64,8 +99,8 @@ export const createMarkerIcon = (
             opacity: 1;
           }
           50% {
-            transform: scale(1.5);
-            opacity: 0.8;
+            transform: scale(1.2);
+            opacity: 0.7;
           }
           100% {
             transform: scale(1);
@@ -73,32 +108,18 @@ export const createMarkerIcon = (
           }
         }
       </style>
-
-      <!-- Pulsating Shadow Circle behind the white rectangle -->
-      <circle cx="${baseCircleX}" cy="20" r="15" fill="url(#shadowGradient)" filter="url(#blurFilter)" class="${
-    shouldPulse ? "pulse" : ""
-  }" />
-
-      <!-- Rounded rectangle with marker dot and text inside -->
-      <rect x="8" y="${(height - rectHeight) / 2}" rx="9" ry="9" width="${
-    totalWidth - 14
-  }" height="${rectHeight}" fill="white" stroke="${color}" stroke-width="${strokeWidth}"/>
-
-      <!-- Marker circle (dot) inside the rectangle -->
-      <circle cx="${baseCircleX}" cy="${
-    height / 2
-  }" r="${baseCircleR}" fill="${color}" stroke="${color}" stroke-width="${strokeWidth}" />
-
-      <!-- Marker text next to the circle -->
-      <text x="${
-        baseCircleX + baseCircleR + padding
-      }" y="25" font-family="Roboto, Arial, sans-serif" font-size="12" fill="${gray400}" text-anchor="start" font-weight="400" font-style="normal">${value}</text>
+      <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g fill="${color}">
+          <rect x="8" y="8" width="14" height="14" rx="7" class="${pulseClass}"></rect>
+        </g>
+        <circle stroke="${color}" cx="15" cy="15" r="14" class="${pulseClass}"></circle>
+      </g>
     </svg>
   `;
 
   return {
     url: `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(svg)}`,
-    scaledSize: new google.maps.Size(totalWidth, height),
-    anchor: new google.maps.Point(20, 20), // Center anchor based on the circle position
+    scaledSize: new google.maps.Size(30, 30),
+    labelOrigin: new google.maps.Point(15, 15), // Adjust the label position
   };
 };
