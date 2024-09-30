@@ -189,25 +189,29 @@ const FixedMarkers: React.FC<Props> = ({
   const updateVisibleMarkers = useCallback(() => {
     if (!map || !clusterer.current) return;
 
-    const bounds = map.getBounds();
-    if (!bounds) return;
+    // Include all markers without filtering by bounds
+    const allMarkers = memoizedSessions.map((session) => {
+      if (!markerRefs.current.has(session.point.streamId)) {
+        const marker = memoizedCreateMarker(session);
+        markerRefs.current.set(session.point.streamId, marker);
+      }
+      return markerRefs.current.get(session.point.streamId)!;
+    });
 
-    const newVisibleMarkers = memoizedSessions
-      .filter((session) => bounds.contains(session.point))
-      .map((session) => {
-        if (!markerRefs.current.has(session.point.streamId)) {
-          const marker = memoizedCreateMarker(session);
-          markerRefs.current.set(session.point.streamId, marker);
-        }
-        return markerRefs.current.get(session.point.streamId)!;
-      });
+    setVisibleMarkers(allMarkers);
 
-    setVisibleMarkers(newVisibleMarkers);
+    // Clear existing markers to avoid duplication
+    clusterer.current.clearMarkers();
 
-    // Add markers to the clusterer
-    if (clusterer.current) {
-      clusterer.current.addMarkers(newVisibleMarkers);
-    }
+    // Add all markers to the clusterer
+    clusterer.current.addMarkers(allMarkers);
+
+    // Fit map bounds to include all markers
+    const bounds = new google.maps.LatLngBounds();
+    allMarkers.forEach((marker) => {
+      bounds.extend(marker.getPosition() as google.maps.LatLng);
+    });
+    map.fitBounds(bounds);
   }, [map, memoizedSessions, memoizedCreateMarker]);
 
   useEffect(() => {
@@ -313,9 +317,6 @@ const FixedMarkers: React.FC<Props> = ({
           bounds.extend(
             marker.getPosition() as unknown as google.maps.LatLngLiteral
           );
-        } else if (marker instanceof google.maps.Marker) {
-          const position = marker.position as google.maps.LatLngLiteral;
-          bounds.extend(position);
         }
       });
 
@@ -335,6 +336,51 @@ const FixedMarkers: React.FC<Props> = ({
       dispatch(setVisibility(false)); // Hide the cluster info
     }
   }, [map, selectedCluster, handleMapInteraction, dispatch]);
+
+  // Optional: Persist map state via URL
+  useEffect(() => {
+    if (!map) return;
+
+    const updateURL = () => {
+      const center = map.getCenter();
+      const zoom = map.getZoom();
+      const params = new URLSearchParams(window.location.search);
+      params.set("lat", center.lat().toString());
+      params.set("lng", center.lng().toString());
+      params.set("zoom", zoom?.toString() || "15");
+      window.history.replaceState(
+        {},
+        "",
+        `${window.location.pathname}?${params}`
+      );
+    };
+
+    map.addListener("center_changed", updateURL);
+    map.addListener("zoom_changed", updateURL);
+
+    return () => {
+      google.maps.event.removeListener(map, "center_changed", updateURL);
+      google.maps.event.removeListener(map, "zoom_changed", updateURL);
+    };
+  }, [map]);
+
+  // Initialize map state from URL
+  useEffect(() => {
+    if (!map) return;
+
+    const params = new URLSearchParams(window.location.search);
+    const lat = parseFloat(params.get("lat") || "");
+    const lng = parseFloat(params.get("lng") || "");
+    const zoom = parseInt(params.get("zoom") || "", 10);
+
+    if (!isNaN(lat) && !isNaN(lng)) {
+      map.setCenter({ lat, lng });
+    }
+
+    if (!isNaN(zoom)) {
+      map.setZoom(zoom);
+    }
+  }, [map]);
 
   return (
     <>
