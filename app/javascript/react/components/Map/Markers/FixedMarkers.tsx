@@ -327,7 +327,7 @@ const FixedMarkers: React.FC<Props> = ({
       google.maps.event.addListenerOnce(map, "bounds_changed", () => {
         const currentZoom = map.getZoom();
         if (currentZoom !== undefined) {
-          map.setZoom(Math.max(currentZoom - 1, 0));
+          map.setZoom(Math.max(currentZoom - 5, 0));
         }
       });
 
