@@ -202,7 +202,6 @@ const FixedMarkers: React.FC<Props> = ({
 
     // Add markers to the clusterer
     if (clusterer.current) {
-      clusterer.current.clearMarkers();
       clusterer.current.addMarkers(newVisibleMarkers);
     }
   }, [map, memoizedSessions, memoizedCreateMarker]);
