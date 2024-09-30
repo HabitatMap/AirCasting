@@ -79,7 +79,10 @@ const FixedMarkers: React.FC<Props> = ({
   );
 
   const handleClusterClick = useCallback(
-    async (cluster: Cluster, map: google.maps.Map) => {
+    async (event: google.maps.MapMouseEvent, cluster: Cluster) => {
+      // Prevent the default zoom behavior
+      event.stop();
+
       dispatch(setVisibility(false));
 
       const markerStreamIds =
@@ -96,12 +99,12 @@ const FixedMarkers: React.FC<Props> = ({
         }
       }
 
-      const pixelPosition = getClusterPixelPosition(map, cluster.position);
+      const pixelPosition = getClusterPixelPosition(map!, cluster.position);
       setClusterPosition({ top: pixelPosition.y, left: pixelPosition.x });
       setSelectedCluster(cluster);
       dispatch(setVisibility(true));
     },
-    [dispatch]
+    [dispatch, map]
   );
 
   const calculateClusterStyleIndex = useCallback(
@@ -216,13 +219,19 @@ const FixedMarkers: React.FC<Props> = ({
           maxZoom: 21,
           radius: CLUSTER_RADIUS,
         }),
+        onClusterClick: (event, cluster) => handleClusterClick(event, cluster),
       });
 
       google.maps.event.addListener(
         clusterer.current,
         "click",
         (cluster: Cluster) => {
-          handleClusterClick(cluster, map);
+          const fakeEvent: google.maps.MapMouseEvent = {
+            domEvent: new MouseEvent("click"),
+            latLng: cluster.position,
+            stop: () => {},
+          };
+          handleClusterClick(fakeEvent, cluster as unknown as Cluster);
         }
       );
 
