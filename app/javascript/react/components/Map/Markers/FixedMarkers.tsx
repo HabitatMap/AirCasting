@@ -13,10 +13,15 @@ import React, {
 } from "react";
 import { green, orange, red, yellow } from "../../../assets/styles/colors";
 import { fetchClusterData, setVisibility } from "../../../store/clusterSlice";
+import {
+  selectFixedStreamData,
+  selectFixedStreamStatus,
+} from "../../../store/fixedStreamSelectors";
 import { useAppDispatch, useAppSelector } from "../../../store/hooks";
 import { selectHoverStreamId } from "../../../store/mapSlice";
 import { setMarkersLoading } from "../../../store/markersLoadingSlice";
 import { selectThresholds } from "../../../store/thresholdSlice";
+import { StatusEnum } from "../../../types/api";
 import type { LatLngLiteral } from "../../../types/googleMaps";
 import { Session } from "../../../types/sessionType";
 import { getClusterPixelPosition } from "../../../utils/getClusterPixelPosition";
@@ -49,7 +54,10 @@ const FixedMarkers: React.FC<Props> = ({
   const map = useMap();
   const { unitSymbol } = useMapParams();
   const clusterData = useAppSelector((state) => state.cluster.data);
+  const fixedStreamData = useAppSelector(selectFixedStreamData);
+
   const clusterVisible = useAppSelector((state) => state.cluster.visible);
+  const fixedStreamStatus = useAppSelector(selectFixedStreamStatus);
 
   const markerRefs = useRef<Map<string, google.maps.Marker>>(new Map());
   const clusterer = useRef<MarkerClusterer | null>(null);
@@ -185,6 +193,24 @@ const FixedMarkers: React.FC<Props> = ({
       centerMapOnMarker,
     ]
   );
+
+  useEffect(() => {
+    const handleSelectedStreamId = (streamId: number | null) => {
+      if (!streamId || fixedStreamStatus === StatusEnum.Pending) return;
+      const { latitude, longitude } = fixedStreamData.stream;
+
+      if (latitude && longitude) {
+        const fixedStreamPosition = { lat: latitude, lng: longitude };
+        centerMapOnMarker(fixedStreamPosition);
+      } else {
+        console.error(
+          `Stream ID ${streamId} not found or missing latitude/longitude in fixedStream data.`
+        );
+      }
+    };
+
+    handleSelectedStreamId(selectedStreamId);
+  }, [selectedStreamId, fixedStreamData, fixedStreamStatus, centerMapOnMarker]);
 
   const updateVisibleMarkers = useCallback(() => {
     if (!map || !clusterer.current) return;
