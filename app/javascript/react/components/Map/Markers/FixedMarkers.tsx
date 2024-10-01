@@ -204,7 +204,6 @@ export function FixedMarkers({
           session.point.streamId === selectedStreamId?.toString(),
           session.id === pulsatingSessionId
         ),
-        title: session.point.streamId?.toString() || "",
         zIndex: Number(google.maps.Marker.MAX_ZINDEX + 1),
       });
 
