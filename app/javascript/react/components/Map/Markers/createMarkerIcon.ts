@@ -25,11 +25,14 @@ export const createMarkerIcon = (
 
   const padding = 7;
   const baseCircleX = 19;
+  const baseCircleY = 20;
   const baseCircleR = 6;
   const rectHeight = 20;
   const height = 40;
   const strokeWidth = isSelected ? 1 : 0;
   const shadowRadius = isSelected ? 22 : 17;
+  const maxScaleFactor = 1.5;
+  const deltaR = shadowRadius * (maxScaleFactor - 1);
 
   const font = "12px Roboto, Arial, sans-serif";
   const textWidth = getTextWidth(value, font);
@@ -41,13 +44,17 @@ export const createMarkerIcon = (
   const shadowColor = `${color}66`;
 
   // Update the viewBox to encompass the entire shape of the SVG
-  const viewBoxWidth = totalWidth;
-  const viewBoxHeight = height + shadowRadius; // Add shadow radius to height
+  const viewBoxMinX = -deltaR;
+  const viewBoxMinY = -deltaR;
+  const viewBoxWidth = totalWidth + deltaR * 2;
+  const viewBoxHeight = height + shadowRadius + deltaR * 2;
 
   const svg = `
-    <svg xmlns="http://www.w3.org/2000/svg" width="${totalWidth}" height="${
-    height + shadowRadius
-  }" viewBox="0 0 ${viewBoxWidth} ${viewBoxHeight}" overflow="visible">
+    <svg xmlns="http://www.w3.org/2000/svg" width="${
+      totalWidth + deltaR * 2
+    }" height="${
+    height + shadowRadius + deltaR * 2
+  }" viewBox="${viewBoxMinX} ${viewBoxMinY} ${viewBoxWidth} ${viewBoxHeight}" overflow="visible">
       <defs>
       ${
         isSelected
@@ -73,16 +80,16 @@ export const createMarkerIcon = (
       <style>
         .pulse {
           animation: pulse-animation 2s infinite;
-          transform-origin: ${baseCircleX}px 20px; /* Set transform origin to circle center */
+          transform-origin: ${baseCircleX}px ${baseCircleY}px; /* Set transform origin to circle center */
         }
         @keyframes pulse-animation {
           0% { transform: scale(1); opacity: 1; }
-          50% { transform: scale(1.5); opacity: 0.7; }
+          50% { transform: scale(${maxScaleFactor}); opacity: 0.7; }
           100% { transform: scale(1); opacity: 1; }
         }
       </style>
       ${shouldPulse ? `<g class="pulse">` : ""}
-      <circle cx="${baseCircleX}" cy="20" r="${shadowRadius}" fill="url(#shadowGradient)" ${
+      <circle cx="${baseCircleX}" cy="${baseCircleY}" r="${shadowRadius}" fill="url(#shadowGradient)" ${
     !isSelected ? 'filter="url(#blur)"' : ""
   } />
       ${shouldPulse ? `</g>` : ""}
@@ -100,8 +107,11 @@ export const createMarkerIcon = (
 
   const icon = {
     url: `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(svg)}`,
-    scaledSize: new google.maps.Size(totalWidth, height + shadowRadius),
-    anchor: new google.maps.Point(baseCircleX, 20),
+    scaledSize: new google.maps.Size(
+      totalWidth + deltaR * 2,
+      height + shadowRadius + deltaR * 2
+    ),
+    anchor: new google.maps.Point(baseCircleX + deltaR, baseCircleY + deltaR),
   };
 
   iconCache.set(cacheKey, icon);
