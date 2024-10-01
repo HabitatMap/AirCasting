@@ -1,4 +1,5 @@
 "use client";
+
 import {
   Cluster,
   MarkerClusterer,
@@ -22,7 +23,6 @@ import { selectHoverStreamId } from "../../../store/mapSlice";
 import { setMarkersLoading } from "../../../store/markersLoadingSlice";
 import { selectThresholds } from "../../../store/thresholdSlice";
 import { StatusEnum } from "../../../types/api";
-// Import the custom marker interface
 import { CustomMarker, LatLngLiteral } from "../../../types/googleMaps";
 import { Session } from "../../../types/sessionType";
 import { getClusterPixelPosition } from "../../../utils/getClusterPixelPosition";
@@ -64,6 +64,7 @@ export function FixedMarkers({
 
   const markerRefs = useRef<Map<string, google.maps.Marker>>(new Map());
   const clusterer = useRef<MarkerClusterer | null>(null);
+  const clusterElementsRef = useRef<Map<Cluster, HTMLElement>>(new Map());
 
   const [visibleMarkers, setVisibleMarkers] = useState<google.maps.Marker[]>(
     []
@@ -76,6 +77,7 @@ export function FixedMarkers({
     top: number;
     left: number;
   } | null>(null);
+  const [isMapInitialized, setIsMapInitialized] = useState(false);
 
   const memoizedSessions = useMemo(() => sessions, [sessions]);
 
@@ -119,9 +121,61 @@ export function FixedMarkers({
     [dispatch, map, onClusterClick]
   );
 
+  const updateClusterStyle = useCallback(
+    (
+      clusterElement: HTMLElement,
+      markers: google.maps.Marker[],
+      thresholds: any,
+      selectedStreamId: number | null
+    ) => {
+      const values = markers.map((marker) => marker.get("value"));
+      const average =
+        values.reduce((sum, value) => sum + value, 0) / values.length;
+      const color = getColorForValue(thresholds, average);
+
+      clusterElement.style.backgroundColor = color;
+      clusterElement.style.color = "white";
+      clusterElement.style.borderRadius = "50%";
+      clusterElement.style.padding = "10px";
+      clusterElement.style.display = "flex";
+      clusterElement.style.alignItems = "center";
+      clusterElement.style.justifyContent = "center";
+
+      if (
+        markers.some(
+          (marker) => marker.get("title") === selectedStreamId?.toString()
+        )
+      ) {
+        clusterElement.style.border = "2px solid #000";
+      } else {
+        clusterElement.style.border = "none";
+      }
+    },
+    []
+  );
+
+  const handleThresholdChange = useCallback(() => {
+    if (clusterElementsRef.current.size > 0) {
+      clusterElementsRef.current.forEach((clusterElement, cluster) => {
+        updateClusterStyle(
+          clusterElement,
+          cluster.markers as google.maps.Marker[],
+          thresholds,
+          selectedStreamId
+        );
+      });
+    }
+  }, [thresholds, selectedStreamId, updateClusterStyle]);
+
   const customRenderer = useMemo(
-    () => createFixedMarkersRenderer({ thresholds, pulsatingSessionId }),
-    [thresholds, pulsatingSessionId]
+    () =>
+      createFixedMarkersRenderer({
+        thresholds,
+        pulsatingSessionId,
+        updateClusterStyle,
+        clusterElementsRef,
+      }),
+    [thresholds, pulsatingSessionId, updateClusterStyle]
   );
 
   const memoizedCreateMarker = useCallback(
@@ -172,17 +226,28 @@ export function FixedMarkers({
     clusterer.current.clearMarkers();
     clusterer.current.addMarkers(allMarkers);
 
-    const bounds = new google.maps.LatLngBounds();
-    allMarkers.forEach((marker) => {
-      if (marker instanceof google.maps.Marker) {
-        const position = marker.getPosition();
-        if (position) {
-          bounds.extend(position.toJSON());
+    if (!isMapInitialized) {
+      const bounds = new google.maps.LatLngBounds();
+      allMarkers.forEach((marker) => {
+        if (marker instanceof google.maps.Marker) {
+          const position = marker.getPosition();
+          if (position) {
+            bounds.extend(position.toJSON());
+          }
         }
-      }
-    });
-    map.fitBounds(bounds);
-  }, [map, memoizedSessions, memoizedCreateMarker]);
+      });
+      // map.fitBounds(bounds);
+
+      google.maps.event.addListenerOnce(map, "bounds_changed", () => {
+        const currentZoom = map.getZoom();
+        if (currentZoom !== undefined && currentZoom > 2) {
+          map.setZoom(currentZoom - 1);
+        }
+      });
+
+      setIsMapInitialized(true);
+    }
+  }, [map, memoizedSessions, memoizedCreateMarker, isMapInitialized]);
 
   useEffect(() => {
     if (map && !clusterer.current) {
@@ -196,9 +261,15 @@ export function FixedMarkers({
         onClusterClick: handleClusterClickInternal,
       });
 
-      updateVisibleMarkers();
+      setTimeout(() => {
+        updateVisibleMarkers();
+      }, 100);
     }
   }, [map, customRenderer, handleClusterClickInternal, updateVisibleMarkers]);
+
+  useEffect(() => {
+    handleThresholdChange();
+  }, [handleThresholdChange]);
 
   useEffect(() => {
     const handleSelectedStreamId = (streamId: number | null) => {
@@ -217,41 +288,6 @@ export function FixedMarkers({
 
     handleSelectedStreamId(selectedStreamId);
   }, [selectedStreamId, fixedStreamData, fixedStreamStatus, centerMapOnMarker]);
-
-  const handleMapInteraction = useCallback(() => {
-    dispatch(setVisibility(false));
-    setSelectedCluster(null);
-    setClusterPosition(null);
-  }, [dispatch]);
-
-  const handleBoundsChanged = useCallback(() => {
-    if (selectedCluster && map) {
-      const pixelPosition = getClusterPixelPosition(
-        map,
-        selectedCluster.position
-      );
-      setClusterPosition({ top: pixelPosition.y, left: pixelPosition.x });
-    }
-  }, [map, selectedCluster]);
-
-  useEffect(() => {
-    map && map.addListener("zoom_changed", handleMapInteraction);
-  }, [map, selectedCluster, dispatch, clusterer.current]);
-
-  useMapEventListeners(map, {
-    click: () => {
-      handleMapInteraction();
-    },
-    touchend: () => {
-      handleMapInteraction();
-    },
-    dragstart: () => {
-      handleMapInteraction();
-    },
-    bounds_changed: () => {
-      handleBoundsChanged();
-    },
-  });
 
   useEffect(() => {
     visibleMarkers.forEach((marker) => {
@@ -292,6 +328,29 @@ export function FixedMarkers({
     }
   }, [dispatch, sessions.length]);
 
+  const handleMapInteraction = useCallback(() => {
+    dispatch(setVisibility(false));
+    setSelectedCluster(null);
+    setClusterPosition(null);
+  }, [dispatch]);
+
+  const handleBoundsChanged = useCallback(() => {
+    if (selectedCluster && map) {
+      const pixelPosition = getClusterPixelPosition(
+        map,
+        selectedCluster.position
+      );
+      setClusterPosition({ top: pixelPosition.y, left: pixelPosition.x });
+    }
+  }, [map, selectedCluster]);
+
+  useMapEventListeners(map, {
+    click: handleMapInteraction,
+    touchend: handleMapInteraction,
+    dragstart: handleMapInteraction,
+    bounds_changed: handleBoundsChanged,
+  });
+
   const handleZoomIn = useCallback(() => {
     if (map && selectedCluster) {
       const bounds = new google.maps.LatLngBounds();
@@ -311,7 +370,7 @@ export function FixedMarkers({
       google.maps.event.addListenerOnce(map, "bounds_changed", () => {
         const currentZoom = map.getZoom();
         if (currentZoom !== undefined) {
-          map.setZoom(Math.max(currentZoom - 5, 0));
+          map.setZoom(Math.max(currentZoom - 1, 0));
         }
       });
 
@@ -319,7 +378,7 @@ export function FixedMarkers({
       setSelectedCluster(null);
       dispatch(setVisibility(false));
     }
-  }, [map, selectedCluster, handleMapInteraction, dispatch]);
+  }, [map, selectedCluster, handleMapInteraction]);
 
   return (
     <>
