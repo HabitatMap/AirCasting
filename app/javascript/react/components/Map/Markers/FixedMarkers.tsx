@@ -234,11 +234,23 @@ export function FixedMarkers({
     }
   }, [map, selectedCluster]);
 
+  useEffect(() => {
+    map && map.addListener("zoom_changed", handleMapInteraction);
+  }, [map, selectedCluster, dispatch, clusterer.current]);
+
   useMapEventListeners(map, {
-    click: handleMapInteraction,
-    touchend: handleMapInteraction,
-    dragstart: handleMapInteraction,
-    bounds_changed: handleBoundsChanged,
+    click: () => {
+      handleMapInteraction();
+    },
+    touchend: () => {
+      handleMapInteraction();
+    },
+    dragstart: () => {
+      handleMapInteraction();
+    },
+    bounds_changed: () => {
+      handleBoundsChanged();
+    },
   });
 
   useEffect(() => {
