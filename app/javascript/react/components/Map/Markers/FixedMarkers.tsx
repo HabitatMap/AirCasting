@@ -1,3 +1,5 @@
+// FixedMarkers.jsx
+
 import {
   Cluster,
   MarkerClusterer,
@@ -22,7 +24,7 @@ import { selectHoverStreamId } from "../../../store/mapSlice";
 import { setMarkersLoading } from "../../../store/markersLoadingSlice";
 import { selectThresholds } from "../../../store/thresholdSlice";
 import { StatusEnum } from "../../../types/api";
-import type { LatLngLiteral } from "../../../types/googleMaps";
+import { LatLngLiteral } from "../../../types/googleMaps";
 import { Session } from "../../../types/sessionType";
 import { getClusterPixelPosition } from "../../../utils/getClusterPixelPosition";
 import useMapEventListeners from "../../../utils/mapEventListeners";
@@ -37,6 +39,7 @@ type Props = {
   onMarkerClick: (streamId: number | null, id: number | null) => void;
   selectedStreamId: number | null;
   pulsatingSessionId: number | null;
+  onClusterClick?: (clusterData: any) => void; // Optional additional callback
 };
 
 const FixedMarkers: React.FC<Props> = ({
@@ -44,6 +47,7 @@ const FixedMarkers: React.FC<Props> = ({
   onMarkerClick,
   selectedStreamId,
   pulsatingSessionId,
+  onClusterClick,
 }) => {
   const ZOOM_FOR_SELECTED_SESSION = 15;
   const CLUSTER_RADIUS = 40;
@@ -56,8 +60,8 @@ const FixedMarkers: React.FC<Props> = ({
   const clusterData = useAppSelector((state) => state.cluster.data);
   const fixedStreamData = useAppSelector(selectFixedStreamData);
 
-  const clusterVisible = useAppSelector((state) => state.cluster.visible);
   const fixedStreamStatus = useAppSelector(selectFixedStreamStatus);
+  const clusterVisible = useAppSelector((state) => state.cluster.visible);
 
   const markerRefs = useRef<Map<string, google.maps.Marker>>(new Map());
   const clusterer = useRef<MarkerClusterer | null>(null);
@@ -86,7 +90,7 @@ const FixedMarkers: React.FC<Props> = ({
     [map]
   );
 
-  const handleClusterClick = useCallback(
+  const handleClusterClickInternal = useCallback(
     async (event: google.maps.MapMouseEvent, cluster: Cluster) => {
       // Prevent the default zoom behavior
       event.stop();
@@ -111,8 +115,12 @@ const FixedMarkers: React.FC<Props> = ({
       setClusterPosition({ top: pixelPosition.y, left: pixelPosition.x });
       setSelectedCluster(cluster);
       dispatch(setVisibility(true));
+
+      if (onClusterClick) {
+        onClusterClick(cluster); // Optional: Pass cluster data back to parent
+      }
     },
-    [dispatch, map]
+    [dispatch, map, onClusterClick]
   );
 
   const calculateClusterStyleIndex = useCallback(
@@ -133,18 +141,17 @@ const FixedMarkers: React.FC<Props> = ({
 
   const customRenderer = useMemo(
     () => ({
-      render: ({ count, position, markers }: Cluster) => {
+      render: ({ position, markers }: Cluster) => {
         const styleIndex = calculateClusterStyleIndex(
           markers as google.maps.Marker[]
         );
-        const color = [green, yellow, orange, red][styleIndex];
+        const color = [green, yellow, orange, red][styleIndex]; // Ensure these colors are defined or imported
 
         const hasPulsatingSession =
           markers && markers.length > 0
             ? markers.some((marker) => {
                 const googleMarker = marker as google.maps.Marker;
-                const sessionId =
-                  (googleMarker.get("sessionId") as number) || null;
+                const sessionId = Number(googleMarker.get("sessionId")) || null;
                 return sessionId === pulsatingSessionId;
               })
             : false;
@@ -158,7 +165,7 @@ const FixedMarkers: React.FC<Props> = ({
         });
       },
     }),
-    [thresholds, pulsatingSessionId, calculateClusterStyleIndex]
+    [calculateClusterStyleIndex, pulsatingSessionId]
   );
 
   const memoizedCreateMarker = useCallback(
@@ -171,7 +178,7 @@ const FixedMarkers: React.FC<Props> = ({
           session.point.streamId === selectedStreamId?.toString(),
           session.id === pulsatingSessionId
         ),
-        title: session.point.streamId,
+        title: session.point.streamId?.toString() || "",
         zIndex: Number(google.maps.Marker.MAX_ZINDEX + 1),
       });
 
@@ -193,24 +200,6 @@ const FixedMarkers: React.FC<Props> = ({
       centerMapOnMarker,
     ]
   );
-
-  useEffect(() => {
-    const handleSelectedStreamId = (streamId: number | null) => {
-      if (!streamId || fixedStreamStatus === StatusEnum.Pending) return;
-      const { latitude, longitude } = fixedStreamData.stream;
-
-      if (latitude && longitude) {
-        const fixedStreamPosition = { lat: latitude, lng: longitude };
-        centerMapOnMarker(fixedStreamPosition);
-      } else {
-        console.error(
-          `Stream ID ${streamId} not found or missing latitude/longitude in fixedStream data.`
-        );
-      }
-    };
-
-    handleSelectedStreamId(selectedStreamId);
-  }, [selectedStreamId, fixedStreamData, fixedStreamStatus, centerMapOnMarker]);
 
   const updateVisibleMarkers = useCallback(() => {
     if (!map || !clusterer.current) return;
@@ -235,7 +224,12 @@ const FixedMarkers: React.FC<Props> = ({
     // Fit map bounds to include all markers
     const bounds = new google.maps.LatLngBounds();
     allMarkers.forEach((marker) => {
-      bounds.extend(marker.getPosition() as google.maps.LatLng);
+      if (marker instanceof google.maps.Marker) {
+        const position = marker.getPosition();
+        if (position) {
+          bounds.extend(position.toJSON());
+        }
+      }
     });
     map.fitBounds(bounds);
   }, [map, memoizedSessions, memoizedCreateMarker]);
@@ -249,25 +243,33 @@ const FixedMarkers: React.FC<Props> = ({
           maxZoom: 21,
           radius: CLUSTER_RADIUS,
         }),
-        onClusterClick: (event, cluster) => handleClusterClick(event, cluster),
+        onClusterClick: handleClusterClickInternal,
       });
 
-      google.maps.event.addListener(
-        clusterer.current,
-        "click",
-        (cluster: Cluster) => {
-          const fakeEvent: google.maps.MapMouseEvent = {
-            domEvent: new MouseEvent("click"),
-            latLng: cluster.position,
-            stop: () => {},
-          };
-          handleClusterClick(fakeEvent, cluster as unknown as Cluster);
-        }
-      );
+      // Optional: If you need to handle cluster clicks differently
+      // google.maps.event.addListener(clusterer.current, "click", handleClusterClickInternal);
 
       updateVisibleMarkers();
     }
-  }, [map, customRenderer, handleClusterClick, updateVisibleMarkers]);
+  }, [map, customRenderer, handleClusterClickInternal, updateVisibleMarkers]);
+
+  useEffect(() => {
+    const handleSelectedStreamId = (streamId: number | null) => {
+      if (!streamId || fixedStreamStatus === StatusEnum.Pending) return;
+      const { latitude, longitude } = fixedStreamData.stream;
+
+      if (latitude && longitude) {
+        const fixedStreamPosition = { lat: latitude, lng: longitude };
+        centerMapOnMarker(fixedStreamPosition);
+      } else {
+        console.error(
+          `Stream ID ${streamId} not found or missing latitude/longitude in fixedStream data.`
+        );
+      }
+    };
+
+    handleSelectedStreamId(selectedStreamId);
+  }, [selectedStreamId, fixedStreamData, fixedStreamStatus, centerMapOnMarker]);
 
   const handleMapInteraction = useCallback(() => {
     dispatch(setVisibility(false));
@@ -292,7 +294,7 @@ const FixedMarkers: React.FC<Props> = ({
     bounds_changed: handleBoundsChanged,
   });
 
-  // Directly update marker icons when thresholds change
+  // Update marker icons when thresholds change
   useEffect(() => {
     visibleMarkers.forEach((marker) => {
       const value = marker.get("value");
@@ -340,9 +342,10 @@ const FixedMarkers: React.FC<Props> = ({
 
       selectedCluster.markers?.forEach((marker) => {
         if (marker instanceof google.maps.Marker) {
-          bounds.extend(
-            marker.getPosition() as unknown as google.maps.LatLngLiteral
-          );
+          const position = marker.getPosition();
+          if (position) {
+            bounds.extend(position.toJSON());
+          }
         }
       });
 
@@ -363,52 +366,8 @@ const FixedMarkers: React.FC<Props> = ({
     }
   }, [map, selectedCluster, handleMapInteraction, dispatch]);
 
-  // Optional: Persist map state via URL
-  useEffect(() => {
-    if (!map) return;
-
-    const updateURL = () => {
-      const center = map.getCenter();
-      const zoom = map.getZoom();
-      const params = new URLSearchParams(window.location.search);
-      if (center) {
-        params.set("lat", center.lat().toString());
-        params.set("lng", center.lng().toString());
-      }
-      params.set("zoom", zoom?.toString() || "15");
-      window.history.replaceState(
-        {},
-        "",
-        `${window.location.pathname}?${params}`
-      );
-    };
-
-    map.addListener("center_changed", updateURL);
-    map.addListener("zoom_changed", updateURL);
-
-    return () => {
-      google.maps.event.clearListeners(map, "center_changed");
-      google.maps.event.clearListeners(map, "zoom_changed");
-    };
-  }, [map]);
-
-  // Initialize map state from URL
-  useEffect(() => {
-    if (!map) return;
-
-    const params = new URLSearchParams(window.location.search);
-    const lat = parseFloat(params.get("lat") || "");
-    const lng = parseFloat(params.get("lng") || "");
-    const zoom = parseInt(params.get("zoom") || "", 10);
-
-    if (!isNaN(lat) && !isNaN(lng)) {
-      map.setCenter({ lat, lng });
-    }
-
-    if (!isNaN(zoom)) {
-      map.setZoom(zoom);
-    }
-  }, [map]);
+  // Optional: Persist map state via URL (centralized in Map component)
+  // This section should be handled in the Map component, not FixedMarkers
 
   return (
     <>

@@ -29,7 +29,7 @@ export const createMarkerIcon = (
   const rectHeight = 20;
   const height = 40;
   const strokeWidth = isSelected ? 1 : 0;
-  const shadowRadius = isSelected ? 22 : 20;
+  const shadowRadius = isSelected ? 22 : 17;
 
   const font = "12px Roboto, Arial, sans-serif";
   const textWidth = getTextWidth(value, font);
@@ -65,7 +65,7 @@ export const createMarkerIcon = (
         ${
           !isSelected
             ? `<filter id="blur" x="-50%" y="-50%" width="200%" height="200%">
-          <feGaussianBlur in="SourceGraphic" stdDeviation="5" />
+          <feGaussianBlur in="SourceGraphic" stdDeviation="4" />
         </filter>`
             : ""
         }
