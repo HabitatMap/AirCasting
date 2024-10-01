@@ -1,7 +1,3 @@
-// FixedMarkers.tsx
-
-"use client";
-
 import {
   Cluster,
   MarkerClusterer,
@@ -25,7 +21,7 @@ import { selectHoverStreamId } from "../../../store/mapSlice";
 import { setMarkersLoading } from "../../../store/markersLoadingSlice";
 import { selectThresholds } from "../../../store/thresholdSlice";
 import { StatusEnum } from "../../../types/api";
-import { CustomMarker, LatLngLiteral } from "../../../types/googleMaps";
+import { LatLngLiteral } from "../../../types/googleMaps";
 import { Session } from "../../../types/sessionType";
 import { getClusterPixelPosition } from "../../../utils/getClusterPixelPosition";
 import useMapEventListeners from "../../../utils/mapEventListeners";
@@ -64,6 +60,9 @@ export function FixedMarkers({
   const fixedStreamStatus = useAppSelector(selectFixedStreamStatus);
   const clusterVisible = useAppSelector((state) => state.cluster.visible);
 
+  // Use useRef for clusterer to avoid re-renders
+  const clustererRef = useRef<MarkerClusterer | null>(null);
+
   // Store individual marker references
   const markerRefs = useRef<Map<string, google.maps.Marker>>(new Map());
 
@@ -72,12 +71,6 @@ export function FixedMarkers({
     new Map()
   );
 
-  // **Define `clusterer` using `useRef`**
-  const clusterer = useRef<MarkerClusterer | null>(null);
-
-  const [visibleMarkers, setVisibleMarkers] = useState<google.maps.Marker[]>(
-    []
-  );
   const [hoverPosition, setHoverPosition] = useState<LatLngLiteral | null>(
     null
   );
@@ -107,7 +100,7 @@ export function FixedMarkers({
 
       const markerStreamIds =
         cluster.markers?.map((marker) =>
-          (marker as CustomMarker).get("title")
+          (marker as google.maps.Marker).get("title")
         ) ?? [];
       if (markerStreamIds.length > 0) {
         const validIds = markerStreamIds.filter(
@@ -154,7 +147,8 @@ export function FixedMarkers({
     // Update cluster marker styles
     if (clusterElementsRef.current.size > 0) {
       clusterElementsRef.current.forEach((clusterMarker, cluster) => {
-        const markers = cluster.markers as google.maps.Marker[];
+        const markers =
+          cluster.markers?.map((marker) => marker as google.maps.Marker) ?? [];
         updateClusterStyle(
           clusterMarker,
           markers,
@@ -189,12 +183,17 @@ export function FixedMarkers({
         thresholds,
         pulsatingSessionId,
         updateClusterStyle,
-        clusterElementsRef,
+        clusterElementsRef, // Pass the ref object
       }),
-    [thresholds, pulsatingSessionId, updateClusterStyle]
+    [
+      thresholds,
+      pulsatingSessionId,
+      updateClusterStyle,
+      // Do not include clusterElementsRef in dependencies
+    ]
   );
 
-  const memoizedCreateMarker = useCallback(
+  const createMarker = useCallback(
     (session: Session): google.maps.Marker => {
       const marker = new google.maps.Marker({
         position: session.point,
@@ -209,6 +208,8 @@ export function FixedMarkers({
 
       marker.set("value", session.lastMeasurementValue);
       marker.set("sessionId", session.id);
+      marker.set("title", session.point.streamId);
+
       marker.addListener("click", () => {
         onMarkerClick(Number(session.point.streamId), Number(session.id));
         centerMapOnMarker(session.point);
@@ -226,57 +227,10 @@ export function FixedMarkers({
     ]
   );
 
-  const updateVisibleMarkers = useCallback(() => {
-    if (!map || !clusterer.current) return;
-
-    const allMarkers = memoizedSessions.map((session) => {
-      if (!markerRefs.current.has(session.point.streamId)) {
-        const marker = memoizedCreateMarker(session);
-        markerRefs.current.set(session.point.streamId, marker);
-      }
-      return markerRefs.current.get(session.point.streamId)!;
-    });
-
-    setVisibleMarkers(allMarkers);
-
-    // **Do NOT clear clusterElementsRef here**
-    // Remove existing cluster markers if necessary
-    // clusterElementsRef.current.forEach((clusterMarker) => {
-    //   clusterMarker.setMap(null);
-    // });
-    // clusterElementsRef.current.clear();
-
-    // Clear and add markers via MarkerClusterer
-    if (clusterer.current) {
-      clusterer.current.clearMarkers();
-      clusterer.current.addMarkers(allMarkers);
-    }
-
-    if (!isMapInitialized) {
-      const bounds = new google.maps.LatLngBounds();
-      allMarkers.forEach((marker) => {
-        if (marker instanceof google.maps.Marker) {
-          const position = marker.getPosition();
-          if (position) {
-            bounds.extend(position.toJSON());
-          }
-        }
-      });
-
-      google.maps.event.addListenerOnce(map, "bounds_changed", () => {
-        const currentZoom = map.getZoom();
-        if (currentZoom !== undefined && currentZoom > 2) {
-          map.setZoom(currentZoom - 1);
-        }
-      });
-
-      setIsMapInitialized(true);
-    }
-  }, [map, memoizedSessions, memoizedCreateMarker, isMapInitialized]);
-
+  // Initialize the clusterer when the map is available
   useEffect(() => {
-    if (map && !clusterer.current) {
-      clusterer.current = new MarkerClusterer({
+    if (map && !clustererRef.current) {
+      clustererRef.current = new MarkerClusterer({
         map,
         renderer: customRenderer,
         algorithm: new SuperClusterAlgorithm({
@@ -285,14 +239,73 @@ export function FixedMarkers({
         }),
         onClusterClick: handleClusterClickInternal,
       });
-
-      setTimeout(() => {
-        updateVisibleMarkers();
-      }, 100);
     }
-  }, [map, customRenderer, handleClusterClickInternal, updateVisibleMarkers]);
+  }, [map, customRenderer, handleClusterClickInternal]);
 
-  // **Trigger cluster and marker style update when thresholds change**
+  // Update markers when sessions change
+  useEffect(() => {
+    if (!map || !clustererRef.current) return;
+
+    // Remove markers from the map and from markerRefs
+    markerRefs.current.forEach((marker) => {
+      marker.setMap(null);
+    });
+    markerRefs.current.clear();
+
+    // Clear existing markers from the clusterer
+    clustererRef.current.clearMarkers();
+
+    // Clear clusters from clusterElementsRef
+    clusterElementsRef.current.clear();
+
+    // Create new markers
+    const allMarkers = sessions.map((session) => {
+      const marker = createMarker(session);
+      markerRefs.current.set(session.point.streamId, marker);
+      return marker;
+    });
+
+    // Add new markers to the clusterer
+    clustererRef.current.addMarkers(allMarkers);
+
+    // Adjust the map view if necessary
+    if (!isMapInitialized && allMarkers.length > 0) {
+      const bounds = new google.maps.LatLngBounds();
+      allMarkers.forEach((marker) => {
+        const position = marker.getPosition();
+        if (position) {
+          bounds.extend(position);
+        }
+      });
+
+      if (!bounds.isEmpty()) {
+        map.fitBounds(bounds);
+      }
+
+      setIsMapInitialized(true);
+    }
+  }, [sessions, map, createMarker, isMapInitialized]);
+
+  // Cleanup markers and clusters when component unmounts
+  useEffect(() => {
+    return () => {
+      if (clustererRef.current) {
+        clustererRef.current.clearMarkers();
+        clustererRef.current.setMap(null);
+        clustererRef.current = null;
+      }
+      markerRefs.current.forEach((marker) => {
+        marker.setMap(null);
+      });
+      markerRefs.current.clear();
+      clusterElementsRef.current.forEach((clusterMarker) => {
+        clusterMarker.setMap(null);
+      });
+      clusterElementsRef.current.clear();
+    };
+  }, []);
+
+  // Update marker icons when thresholds change
   useEffect(() => {
     handleThresholdChange();
   }, [handleThresholdChange]);
@@ -314,25 +327,6 @@ export function FixedMarkers({
 
     handleSelectedStreamId(selectedStreamId);
   }, [selectedStreamId, fixedStreamData, fixedStreamStatus, centerMapOnMarker]);
-
-  useEffect(() => {
-    visibleMarkers.forEach((marker) => {
-      const value = marker.get("value");
-      const newIcon = createMarkerIcon(
-        getColorForValue(thresholds, value),
-        `${Math.round(value)} ${unitSymbol}`,
-        marker.get("title") === selectedStreamId?.toString(),
-        marker.get("sessionId") === pulsatingSessionId
-      );
-      marker.setIcon(newIcon);
-    });
-  }, [
-    thresholds,
-    unitSymbol,
-    visibleMarkers,
-    pulsatingSessionId,
-    selectedStreamId,
-  ]);
 
   useEffect(() => {
     if (hoverStreamId) {
@@ -381,11 +375,9 @@ export function FixedMarkers({
       const bounds = new google.maps.LatLngBounds();
 
       selectedCluster.markers?.forEach((marker) => {
-        if (marker instanceof google.maps.Marker) {
-          const position = marker.getPosition();
-          if (position) {
-            bounds.extend(position.toJSON());
-          }
+        const position = (marker as google.maps.Marker).getPosition();
+        if (position) {
+          bounds.extend(position);
         }
       });
 
