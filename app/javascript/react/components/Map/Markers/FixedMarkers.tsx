@@ -183,14 +183,9 @@ export function FixedMarkers({
         thresholds,
         pulsatingSessionId,
         updateClusterStyle,
-        clusterElementsRef, // Pass the ref object
+        clusterElementsRef,
       }),
-    [
-      thresholds,
-      pulsatingSessionId,
-      updateClusterStyle,
-      // Do not include clusterElementsRef in dependencies
-    ]
+    [thresholds, pulsatingSessionId, updateClusterStyle]
   );
 
   const createMarker = useCallback(
@@ -267,23 +262,6 @@ export function FixedMarkers({
 
     // Add new markers to the clusterer
     clustererRef.current.addMarkers(allMarkers);
-
-    // Adjust the map view if necessary
-    if (!isMapInitialized && allMarkers.length > 0) {
-      const bounds = new google.maps.LatLngBounds();
-      allMarkers.forEach((marker) => {
-        const position = marker.getPosition();
-        if (position) {
-          bounds.extend(position);
-        }
-      });
-
-      if (!bounds.isEmpty()) {
-        map.fitBounds(bounds);
-      }
-
-      setIsMapInitialized(true);
-    }
   }, [sessions, map, createMarker, isMapInitialized]);
 
   // Cleanup markers and clusters when component unmounts
