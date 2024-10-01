@@ -1,5 +1,4 @@
-// FixedMarkers.jsx
-
+"use client";
 import {
   Cluster,
   MarkerClusterer,
@@ -13,7 +12,6 @@ import React, {
   useRef,
   useState,
 } from "react";
-import { green, orange, red, yellow } from "../../../assets/styles/colors";
 import { fetchClusterData, setVisibility } from "../../../store/clusterSlice";
 import {
   selectFixedStreamData,
@@ -24,31 +22,33 @@ import { selectHoverStreamId } from "../../../store/mapSlice";
 import { setMarkersLoading } from "../../../store/markersLoadingSlice";
 import { selectThresholds } from "../../../store/thresholdSlice";
 import { StatusEnum } from "../../../types/api";
-import { LatLngLiteral } from "../../../types/googleMaps";
+// Import the custom marker interface
+import { CustomMarker, LatLngLiteral } from "../../../types/googleMaps";
 import { Session } from "../../../types/sessionType";
 import { getClusterPixelPosition } from "../../../utils/getClusterPixelPosition";
 import useMapEventListeners from "../../../utils/mapEventListeners";
 import { useMapParams } from "../../../utils/mapParamsHandler";
 import { getColorForValue } from "../../../utils/thresholdColors";
+import { createFixedMarkersRenderer } from "./ClusterConfiguration";
 import { ClusterInfo } from "./ClusterInfo/ClusterInfo";
+import { createMarkerIcon } from "./createMarkerIcon";
 import HoverMarker from "./HoverMarker/HoverMarker";
-import { createClusterIcon, createMarkerIcon } from "./createMarkerIcon";
 
-type Props = {
+type FixedMarkersProps = {
   sessions: Session[];
   onMarkerClick: (streamId: number | null, id: number | null) => void;
   selectedStreamId: number | null;
   pulsatingSessionId: number | null;
-  onClusterClick?: (clusterData: any) => void; // Optional additional callback
+  onClusterClick?: (clusterData: any) => void;
 };
 
-const FixedMarkers: React.FC<Props> = ({
+export function FixedMarkers({
   sessions,
   onMarkerClick,
   selectedStreamId,
   pulsatingSessionId,
   onClusterClick,
-}) => {
+}: FixedMarkersProps) {
   const ZOOM_FOR_SELECTED_SESSION = 15;
   const CLUSTER_RADIUS = 40;
 
@@ -59,7 +59,6 @@ const FixedMarkers: React.FC<Props> = ({
   const { unitSymbol } = useMapParams();
   const clusterData = useAppSelector((state) => state.cluster.data);
   const fixedStreamData = useAppSelector(selectFixedStreamData);
-
   const fixedStreamStatus = useAppSelector(selectFixedStreamStatus);
   const clusterVisible = useAppSelector((state) => state.cluster.visible);
 
@@ -92,16 +91,13 @@ const FixedMarkers: React.FC<Props> = ({
 
   const handleClusterClickInternal = useCallback(
     async (event: google.maps.MapMouseEvent, cluster: Cluster) => {
-      // Prevent the default zoom behavior
       event.stop();
-
       dispatch(setVisibility(false));
 
       const markerStreamIds =
         cluster.markers?.map((marker) =>
-          (marker as google.maps.Marker).getTitle()
+          (marker as CustomMarker).get("title")
         ) ?? [];
-
       if (markerStreamIds.length > 0) {
         const validIds = markerStreamIds.filter(
           (id): id is string => id != null
@@ -117,59 +113,19 @@ const FixedMarkers: React.FC<Props> = ({
       dispatch(setVisibility(true));
 
       if (onClusterClick) {
-        onClusterClick(cluster); // Optional: Pass cluster data back to parent
+        onClusterClick(cluster);
       }
     },
     [dispatch, map, onClusterClick]
   );
 
-  const calculateClusterStyleIndex = useCallback(
-    (markers: google.maps.Marker[]): number => {
-      const sum = markers.reduce(
-        (acc, marker) => acc + Number(marker.get("value") || 0),
-        0
-      );
-      const average = sum / markers.length;
-
-      if (average < thresholds.low) return 0;
-      if (average <= thresholds.middle) return 1;
-      if (average <= thresholds.high) return 2;
-      return 3;
-    },
-    [thresholds]
-  );
-
   const customRenderer = useMemo(
-    () => ({
-      render: ({ position, markers }: Cluster) => {
-        const styleIndex = calculateClusterStyleIndex(
-          markers as google.maps.Marker[]
-        );
-        const color = [green, yellow, orange, red][styleIndex]; // Ensure these colors are defined or imported
-
-        const hasPulsatingSession =
-          markers && markers.length > 0
-            ? markers.some((marker) => {
-                const googleMarker = marker as google.maps.Marker;
-                const sessionId = Number(googleMarker.get("sessionId")) || null;
-                return sessionId === pulsatingSessionId;
-              })
-            : false;
-
-        const clusterIcon = createClusterIcon(color, hasPulsatingSession);
-
-        return new google.maps.Marker({
-          position,
-          icon: clusterIcon,
-          zIndex: 1,
-        });
-      },
-    }),
-    [calculateClusterStyleIndex, pulsatingSessionId]
+    () => createFixedMarkersRenderer({ thresholds, pulsatingSessionId }),
+    [thresholds, pulsatingSessionId]
   );
 
   const memoizedCreateMarker = useCallback(
-    (session: Session) => {
+    (session: Session): CustomMarker => {
       const marker = new google.maps.Marker({
         position: session.point,
         icon: createMarkerIcon(
@@ -180,7 +136,7 @@ const FixedMarkers: React.FC<Props> = ({
         ),
         title: session.point.streamId?.toString() || "",
         zIndex: Number(google.maps.Marker.MAX_ZINDEX + 1),
-      });
+      }) as CustomMarker;
 
       marker.set("value", session.lastMeasurementValue);
       marker.set("sessionId", session.id);
@@ -204,7 +160,6 @@ const FixedMarkers: React.FC<Props> = ({
   const updateVisibleMarkers = useCallback(() => {
     if (!map || !clusterer.current) return;
 
-    // Include all markers without filtering by bounds
     const allMarkers = memoizedSessions.map((session) => {
       if (!markerRefs.current.has(session.point.streamId)) {
         const marker = memoizedCreateMarker(session);
@@ -214,14 +169,9 @@ const FixedMarkers: React.FC<Props> = ({
     });
 
     setVisibleMarkers(allMarkers);
-
-    // Clear existing markers to avoid duplication
     clusterer.current.clearMarkers();
-
-    // Add all markers to the clusterer
     clusterer.current.addMarkers(allMarkers);
 
-    // Fit map bounds to include all markers
     const bounds = new google.maps.LatLngBounds();
     allMarkers.forEach((marker) => {
       if (marker instanceof google.maps.Marker) {
@@ -245,9 +195,6 @@ const FixedMarkers: React.FC<Props> = ({
         }),
         onClusterClick: handleClusterClickInternal,
       });
-
-      // Optional: If you need to handle cluster clicks differently
-      // google.maps.event.addListener(clusterer.current, "click", handleClusterClickInternal);
 
       updateVisibleMarkers();
     }
@@ -294,7 +241,6 @@ const FixedMarkers: React.FC<Props> = ({
     bounds_changed: handleBoundsChanged,
   });
 
-  // Update marker icons when thresholds change
   useEffect(() => {
     visibleMarkers.forEach((marker) => {
       const value = marker.get("value");
@@ -302,7 +248,7 @@ const FixedMarkers: React.FC<Props> = ({
         createMarkerIcon(
           getColorForValue(thresholds, value),
           `${Math.round(value)} ${unitSymbol}`,
-          marker.getTitle() === selectedStreamId?.toString(),
+          marker.get("title") === selectedStreamId?.toString(),
           marker.get("sessionId") === pulsatingSessionId
         )
       );
@@ -315,7 +261,6 @@ const FixedMarkers: React.FC<Props> = ({
     selectedStreamId,
   ]);
 
-  // Handle hover logic for displaying markers
   useEffect(() => {
     if (hoverStreamId) {
       const hoveredSession = memoizedSessions.find(
@@ -329,7 +274,6 @@ const FixedMarkers: React.FC<Props> = ({
     }
   }, [hoverStreamId, memoizedSessions]);
 
-  // Hide the loading spinner when all markers are loaded
   useEffect(() => {
     if (markerRefs.current.size >= sessions.length) {
       dispatch(setMarkersLoading(false));
@@ -352,7 +296,6 @@ const FixedMarkers: React.FC<Props> = ({
       map.fitBounds(bounds);
       map.panToBounds(bounds);
 
-      // Optional: Add a slight zoom out to give some padding
       google.maps.event.addListenerOnce(map, "bounds_changed", () => {
         const currentZoom = map.getZoom();
         if (currentZoom !== undefined) {
@@ -361,13 +304,10 @@ const FixedMarkers: React.FC<Props> = ({
       });
 
       handleMapInteraction();
-      setSelectedCluster(null); // Clear the selected cluster
-      dispatch(setVisibility(false)); // Hide the cluster info
+      setSelectedCluster(null);
+      dispatch(setVisibility(false));
     }
   }, [map, selectedCluster, handleMapInteraction, dispatch]);
-
-  // Optional: Persist map state via URL (centralized in Map component)
-  // This section should be handled in the Map component, not FixedMarkers
 
   return (
     <>
@@ -384,6 +324,4 @@ const FixedMarkers: React.FC<Props> = ({
       )}
     </>
   );
-};
-
-export { FixedMarkers };
+}
