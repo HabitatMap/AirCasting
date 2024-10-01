@@ -1,3 +1,5 @@
+// FixedMarkers.tsx
+
 "use client";
 
 import {
@@ -31,7 +33,7 @@ import { useMapParams } from "../../../utils/mapParamsHandler";
 import { getColorForValue } from "../../../utils/thresholdColors";
 import { createFixedMarkersRenderer } from "./ClusterConfiguration";
 import { ClusterInfo } from "./ClusterInfo/ClusterInfo";
-import { createMarkerIcon } from "./createMarkerIcon";
+import { createClusterIcon, createMarkerIcon } from "./createMarkerIcon";
 import HoverMarker from "./HoverMarker/HoverMarker";
 
 type FixedMarkersProps = {
@@ -62,9 +64,16 @@ export function FixedMarkers({
   const fixedStreamStatus = useAppSelector(selectFixedStreamStatus);
   const clusterVisible = useAppSelector((state) => state.cluster.visible);
 
+  // Store individual marker references
   const markerRefs = useRef<Map<string, google.maps.Marker>>(new Map());
+
+  // Store cluster marker references
+  const clusterElementsRef = useRef<Map<Cluster, google.maps.Marker>>(
+    new Map()
+  );
+
+  // **Define `clusterer` using `useRef`**
   const clusterer = useRef<MarkerClusterer | null>(null);
-  const clusterElementsRef = useRef<Map<Cluster, HTMLElement>>(new Map());
 
   const [visibleMarkers, setVisibleMarkers] = useState<google.maps.Marker[]>(
     []
@@ -123,49 +132,56 @@ export function FixedMarkers({
 
   const updateClusterStyle = useCallback(
     (
-      clusterElement: HTMLElement,
+      clusterMarker: google.maps.Marker,
       markers: google.maps.Marker[],
       thresholds: any,
       selectedStreamId: number | null
     ) => {
-      const values = markers.map((marker) => marker.get("value"));
+      const values = markers.map((marker) => Number(marker.get("value") || 0));
       const average =
         values.reduce((sum, value) => sum + value, 0) / values.length;
       const color = getColorForValue(thresholds, average);
 
-      clusterElement.style.backgroundColor = color;
-      clusterElement.style.color = "white";
-      clusterElement.style.borderRadius = "50%";
-      clusterElement.style.padding = "10px";
-      clusterElement.style.display = "flex";
-      clusterElement.style.alignItems = "center";
-      clusterElement.style.justifyContent = "center";
+      // Create a new icon based on the updated color
+      const newIcon = createClusterIcon(color, false); // Assuming no pulsating for simplicity
 
-      if (
-        markers.some(
-          (marker) => marker.get("title") === selectedStreamId?.toString()
-        )
-      ) {
-        clusterElement.style.border = "2px solid #000";
-      } else {
-        clusterElement.style.border = "none";
-      }
+      clusterMarker.setIcon(newIcon);
     },
     []
   );
 
   const handleThresholdChange = useCallback(() => {
+    // Update cluster marker styles
     if (clusterElementsRef.current.size > 0) {
-      clusterElementsRef.current.forEach((clusterElement, cluster) => {
+      clusterElementsRef.current.forEach((clusterMarker, cluster) => {
+        const markers = cluster.markers as google.maps.Marker[];
         updateClusterStyle(
-          clusterElement,
-          cluster.markers as google.maps.Marker[],
+          clusterMarker,
+          markers,
           thresholds,
           selectedStreamId
         );
       });
     }
-  }, [thresholds, selectedStreamId, updateClusterStyle]);
+
+    // Update individual marker icons
+    markerRefs.current.forEach((marker, streamId) => {
+      const value = marker.get("value");
+      const newIcon = createMarkerIcon(
+        getColorForValue(thresholds, value),
+        `${Math.round(value)} ${unitSymbol}`,
+        marker.get("title") === selectedStreamId?.toString(),
+        marker.get("sessionId") === pulsatingSessionId
+      );
+      marker.setIcon(newIcon);
+    });
+  }, [
+    thresholds,
+    selectedStreamId,
+    updateClusterStyle,
+    unitSymbol,
+    pulsatingSessionId,
+  ]);
 
   const customRenderer = useMemo(
     () =>
@@ -179,7 +195,7 @@ export function FixedMarkers({
   );
 
   const memoizedCreateMarker = useCallback(
-    (session: Session): CustomMarker => {
+    (session: Session): google.maps.Marker => {
       const marker = new google.maps.Marker({
         position: session.point,
         icon: createMarkerIcon(
@@ -190,7 +206,7 @@ export function FixedMarkers({
         ),
         title: session.point.streamId?.toString() || "",
         zIndex: Number(google.maps.Marker.MAX_ZINDEX + 1),
-      }) as CustomMarker;
+      });
 
       marker.set("value", session.lastMeasurementValue);
       marker.set("sessionId", session.id);
@@ -223,8 +239,19 @@ export function FixedMarkers({
     });
 
     setVisibleMarkers(allMarkers);
-    clusterer.current.clearMarkers();
-    clusterer.current.addMarkers(allMarkers);
+
+    // **Do NOT clear clusterElementsRef here**
+    // Remove existing cluster markers if necessary
+    // clusterElementsRef.current.forEach((clusterMarker) => {
+    //   clusterMarker.setMap(null);
+    // });
+    // clusterElementsRef.current.clear();
+
+    // Clear and add markers via MarkerClusterer
+    if (clusterer.current) {
+      clusterer.current.clearMarkers();
+      clusterer.current.addMarkers(allMarkers);
+    }
 
     if (!isMapInitialized) {
       const bounds = new google.maps.LatLngBounds();
@@ -236,7 +263,6 @@ export function FixedMarkers({
           }
         }
       });
-      // map.fitBounds(bounds);
 
       google.maps.event.addListenerOnce(map, "bounds_changed", () => {
         const currentZoom = map.getZoom();
@@ -267,6 +293,7 @@ export function FixedMarkers({
     }
   }, [map, customRenderer, handleClusterClickInternal, updateVisibleMarkers]);
 
+  // **Trigger cluster and marker style update when thresholds change**
   useEffect(() => {
     handleThresholdChange();
   }, [handleThresholdChange]);
@@ -292,14 +319,13 @@ export function FixedMarkers({
   useEffect(() => {
     visibleMarkers.forEach((marker) => {
       const value = marker.get("value");
-      marker.setIcon(
-        createMarkerIcon(
-          getColorForValue(thresholds, value),
-          `${Math.round(value)} ${unitSymbol}`,
-          marker.get("title") === selectedStreamId?.toString(),
-          marker.get("sessionId") === pulsatingSessionId
-        )
+      const newIcon = createMarkerIcon(
+        getColorForValue(thresholds, value),
+        `${Math.round(value)} ${unitSymbol}`,
+        marker.get("title") === selectedStreamId?.toString(),
+        marker.get("sessionId") === pulsatingSessionId
       );
+      marker.setIcon(newIcon);
     });
   }, [
     thresholds,
@@ -378,7 +404,7 @@ export function FixedMarkers({
       setSelectedCluster(null);
       dispatch(setVisibility(false));
     }
-  }, [map, selectedCluster, handleMapInteraction]);
+  }, [map, selectedCluster, handleMapInteraction, dispatch]);
 
   return (
     <>

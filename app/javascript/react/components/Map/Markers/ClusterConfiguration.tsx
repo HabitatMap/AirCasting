@@ -1,3 +1,5 @@
+// createFixedMarkersRenderer.ts
+
 import { Cluster } from "@googlemaps/markerclusterer";
 import { green, orange, red, yellow } from "../../../assets/styles/colors";
 import { CustomMarker } from "../../../types/googleMaps";
@@ -13,12 +15,12 @@ interface RendererParams {
   thresholds: Thresholds;
   pulsatingSessionId: number | null;
   updateClusterStyle: (
-    clusterElement: HTMLElement,
+    clusterMarker: google.maps.Marker,
     markers: google.maps.Marker[],
     thresholds: Thresholds,
     selectedStreamId: number | null
   ) => void;
-  clusterElementsRef: React.MutableRefObject<Map<Cluster, HTMLElement>>;
+  clusterElementsRef: React.MutableRefObject<Map<Cluster, google.maps.Marker>>;
 }
 
 export const createFixedMarkersRenderer = ({
@@ -27,7 +29,10 @@ export const createFixedMarkersRenderer = ({
   updateClusterStyle,
   clusterElementsRef,
 }: RendererParams) => ({
-  render: ({ count, position, markers = [] }: Cluster) => {
+  render: (cluster: Cluster) => {
+    // Accept the entire Cluster object
+    const { count, position, markers = [] } = cluster;
+
     const customMarkers = markers as CustomMarker[];
 
     const sum = customMarkers.reduce(
@@ -53,41 +58,34 @@ export const createFixedMarkersRenderer = ({
 
     const clusterIcon = createClusterIcon(color, hasPulsatingSession);
 
-    const marker = new google.maps.Marker({
+    const clusterMarker = new google.maps.Marker({
       position,
       icon: clusterIcon,
       zIndex: 1,
     });
 
-    const clusterElement = document.createElement("div");
-    clusterElement.textContent = String(count);
-    clusterElement.style.position = "absolute";
-    clusterElement.style.top = "50%";
-    clusterElement.style.left = "50%";
-    clusterElement.style.transform = "translate(-50%, -50%)";
-
     const selectedStreamId = customMarkers
       .find((marker) => marker.get("isSelected"))
       ?.get("streamId") as number | null;
 
+    // Apply initial styles based on thresholds
     updateClusterStyle(
-      clusterElement,
+      clusterMarker,
       customMarkers,
       thresholds,
       selectedStreamId
     );
 
-    clusterElementsRef.current.set(
-      { count, position, markers } as Cluster,
-      clusterElement
-    );
+    // Store the reference to the cluster Marker
+    clusterElementsRef.current.set(cluster, clusterMarker);
 
-    marker.addListener("click", () => {
-      const cluster = { count, position, markers } as Cluster;
-      const event = new CustomEvent("cluster-click", { detail: cluster });
+    // Add click listener to the cluster marker
+    clusterMarker.addListener("click", () => {
+      const clusterData = { count, position, markers } as Cluster;
+      const event = new CustomEvent("cluster-click", { detail: clusterData });
       window.dispatchEvent(event);
     });
 
-    return marker;
+    return clusterMarker;
   },
 });
