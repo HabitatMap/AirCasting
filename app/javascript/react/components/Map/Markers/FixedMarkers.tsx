@@ -158,7 +158,7 @@ export function FixedMarkers({
       });
     }
 
-    markerRefs.current.forEach((marker, streamId) => {
+    markerRefs.current.forEach((marker) => {
       const value = (marker as any).value;
       const newIcon = createMarkerIcon(
         getColorForValue(thresholds, value),
@@ -198,7 +198,6 @@ export function FixedMarkers({
           session.id === pulsatingSessionId
         ),
         zIndex: Number(google.maps.Marker.MAX_ZINDEX) + 1,
-        title: session.point.streamId,
       });
 
       (marker as any).value = session.lastMeasurementValue;

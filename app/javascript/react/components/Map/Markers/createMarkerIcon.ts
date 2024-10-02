@@ -1,4 +1,4 @@
-import { gray400 } from "../../../assets/styles/colors";
+import { gray300 } from "../../../assets/styles/colors";
 
 const getTextWidth = (text: string, font: string): number => {
   const canvas = document.createElement("canvas");
@@ -27,7 +27,7 @@ export const createMarkerIcon = (
   const baseCircleX = 19;
   const baseCircleY = 20;
   const baseCircleR = 6;
-  const rectHeight = 20;
+  const rectHeight = 19;
   const height = 40;
   const strokeWidth = isSelected ? 1 : 0;
   const shadowRadius = isSelected ? 22 : 17;
@@ -41,7 +41,7 @@ export const createMarkerIcon = (
     shadowRadius * 2
   );
 
-  const shadowColor = `${color}66`;
+  const shadowColor = `${color}90`;
 
   // Update the viewBox to encompass the entire shape of the SVG
   const viewBoxMinX = -deltaR;
@@ -56,26 +56,36 @@ export const createMarkerIcon = (
     height + shadowRadius + deltaR * 2
   }" viewBox="${viewBoxMinX} ${viewBoxMinY} ${viewBoxWidth} ${viewBoxHeight}" overflow="visible">
       <defs>
-      ${
-        isSelected
-          ? `<radialGradient id="shadowGradient" cx="50%" cy="50%" r="70%">
-          <stop offset="0%" stop-color="${shadowColor}" />
-          <stop offset="40%" stop-color="${shadowColor}" />
-          <stop offset="100%" stop-color="${shadowColor}" stop-opacity="0" />
-        </radialGradient>`
-          : `<radialGradient id="shadowGradient" cx="50%" cy="50%" r="50%">
-          <stop offset="0%" stop-color="${shadowColor}" />
-          <stop offset="30%" stop-color="${shadowColor}" />
-          <stop offset="100%" stop-color="${shadowColor}" />
-        </radialGradient>`
-      }
+        ${
+          isSelected
+            ? `<radialGradient id="shadowGradient" cx="50%" cy="50%" r="70%">
+            <stop offset="0%" stop-color="${shadowColor}" />
+            <stop offset="40%" stop-color="${shadowColor}" />
+            <stop offset="100%" stop-color="${shadowColor}" stop-opacity="0" />
+          </radialGradient>`
+            : `<radialGradient id="shadowGradient" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stop-color="${shadowColor}" />
+            <stop offset="30%" stop-color="${shadowColor}" />
+            <stop offset="100%" stop-color="${shadowColor}" />
+          </radialGradient>`
+        }
         ${
           !isSelected
             ? `<filter id="blur" x="-50%" y="-50%" width="200%" height="200%">
-          <feGaussianBlur in="SourceGraphic" stdDeviation="4" />
-        </filter>`
+            <feGaussianBlur in="SourceGraphic" stdDeviation="4" />
+          </filter>`
             : ""
         }
+        <filter id="dropShadow" x="-20%" y="-20%" width="140%" height="140%">
+          <feGaussianBlur in="SourceAlpha" stdDeviation="0.5"/>
+          <feOffset dx="1.25" dy="1.25" result="offsetblur"/>
+          <feFlood flood-color="rgba(76, 86, 96, 0.1)"/>
+          <feComposite in2="offsetblur" operator="in"/>
+          <feMerge>
+            <feMergeNode/>
+            <feMergeNode in="SourceGraphic"/>
+          </feMerge>
+        </filter>
       </defs>
       <style>
         .pulse {
@@ -95,13 +105,13 @@ export const createMarkerIcon = (
       ${shouldPulse ? `</g>` : ""}
       <rect x="8" y="${(height - rectHeight) / 2}" rx="9" ry="9" width="${
     totalWidth - 14
-  }" height="${rectHeight}" fill="white" stroke="${color}" stroke-width="${strokeWidth}"/>
+  }" height="${rectHeight}" fill="white" stroke="${color}" stroke-width="${strokeWidth}" filter="url(#dropShadow)"/>
       <circle cx="${baseCircleX}" cy="${
     height / 2
   }" r="${baseCircleR}" fill="${color}" stroke="${color}" stroke-width="${strokeWidth}" />
       <text x="${
         baseCircleX + baseCircleR + padding
-      }" y="25" font-family="Roboto, Arial, sans-serif" font-size="12" fill="${gray400}" text-anchor="start">${value}</text>
+      }" y="25" font-family="Roboto, Arial, sans-serif" font-size="12" font-weight="400" letter-spacing="0.14" fill="${gray300}"  text-anchor="start">${value}</text>
     </svg>
   `;
 
