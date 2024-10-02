@@ -143,7 +143,7 @@ export function FixedMarkers({
       const newIcon = createClusterIcon(color, hasPulsatingSession);
 
       if (hasPulsatingSession) {
-        clusterMarker.setZIndex(google.maps.Marker.MAX_ZINDEX + 1);
+        clusterMarker.setZIndex(google.maps.Marker.MAX_ZINDEX + 2);
       } else {
         clusterMarker.setZIndex(1);
       }
