@@ -36,7 +36,6 @@ export const fetchClusterData = createAsyncThunk<
     const response: AxiosResponse<ClusterData> = await oldApiClient.get(
       API_ENDPOINTS.fetchClusterData(streamIds)
     );
-    console.log(response.data, streamIds, "response.data");
     return response.data;
   } catch (error) {
     const errorMessage = getErrorMessage(error);
