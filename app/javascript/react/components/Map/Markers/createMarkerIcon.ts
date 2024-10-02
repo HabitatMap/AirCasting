@@ -1,16 +1,21 @@
 import { gray300 } from "../../../assets/styles/colors";
 
-const getTextWidth = (text: string, font: string): number => {
-  const canvas = document.createElement("canvas");
-  const context = canvas.getContext("2d");
-  if (context) {
-    context.font = font;
-    return context.measureText(text).width;
-  }
-  return 0;
-};
-
 const iconCache = new Map<string, google.maps.Icon>();
+
+// Reuse a single canvas and context for text measurement
+const canvas = document.createElement("canvas");
+const context = canvas.getContext("2d")!;
+context.font = "12px Roboto, Arial, sans-serif";
+const textWidthCache = new Map<string, number>();
+
+const getTextWidth = (text: string): number => {
+  if (textWidthCache.has(text)) {
+    return textWidthCache.get(text)!;
+  }
+  const width = context.measureText(text).width;
+  textWidthCache.set(text, width);
+  return width;
+};
 
 export const createMarkerIcon = (
   color: string,
@@ -18,7 +23,11 @@ export const createMarkerIcon = (
   isSelected: boolean,
   shouldPulse: boolean
 ): google.maps.Icon => {
-  const cacheKey = `${color}-${value}-${isSelected}-${shouldPulse}`;
+  // Round value to reduce number of unique icons
+  const roundedValue = Math.round(Number(value.split(" ")[0]));
+  const displayedValue = `${roundedValue} ${value.split(" ")[1]}`;
+
+  const cacheKey = `${color}-${displayedValue}-${isSelected}-${shouldPulse}`;
   if (iconCache.has(cacheKey)) {
     return iconCache.get(cacheKey)!;
   }
@@ -35,7 +44,7 @@ export const createMarkerIcon = (
   const deltaR = shadowRadius * (maxScaleFactor - 1);
 
   const font = "12px Roboto, Arial, sans-serif";
-  const textWidth = getTextWidth(value, font);
+  const textWidth = getTextWidth(displayedValue);
   const totalWidth = Math.max(
     baseCircleX + baseCircleR * 2 + padding * 2 + textWidth + 2,
     shadowRadius * 2
@@ -43,7 +52,6 @@ export const createMarkerIcon = (
 
   const shadowColor = `${color}90`;
 
-  // Update the viewBox to encompass the entire shape of the SVG
   const viewBoxMinX = -deltaR;
   const viewBoxMinY = -deltaR;
   const viewBoxWidth = totalWidth + deltaR * 2;
@@ -90,7 +98,7 @@ export const createMarkerIcon = (
       <style>
         .pulse {
           animation: pulse-animation 2s infinite;
-          transform-origin: ${baseCircleX}px ${baseCircleY}px; /* Set transform origin to circle center */
+          transform-origin: ${baseCircleX}px ${baseCircleY}px;
         }
         @keyframes pulse-animation {
           0% { transform: scale(1); opacity: 1; }
@@ -111,7 +119,7 @@ export const createMarkerIcon = (
   }" r="${baseCircleR}" fill="${color}" stroke="${color}" stroke-width="${strokeWidth}" />
       <text x="${
         baseCircleX + baseCircleR + padding
-      }" y="25" font-family="Roboto, Arial, sans-serif" font-size="12" font-weight="400" letter-spacing="0.14" fill="${gray300}"  text-anchor="start">${value}</text>
+      }" y="25" font-family="Roboto, Arial, sans-serif" font-size="12" font-weight="400" letter-spacing="0.14" fill="${gray300}"  text-anchor="start">${displayedValue}</text>
     </svg>
   `;
 
@@ -129,6 +137,11 @@ export const createMarkerIcon = (
 };
 
 export const createClusterIcon = (color: string, shouldPulse: boolean) => {
+  const cacheKey = `${color}-cluster-${shouldPulse}`;
+  if (iconCache.has(cacheKey)) {
+    return iconCache.get(cacheKey)!;
+  }
+
   const pulseClass = shouldPulse ? "pulse" : "";
 
   const svg = `
@@ -162,9 +175,12 @@ export const createClusterIcon = (color: string, shouldPulse: boolean) => {
     </svg>
   `;
 
-  return {
+  const icon = {
     url: `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(svg)}`,
     scaledSize: new google.maps.Size(30, 30),
-    labelOrigin: new google.maps.Point(15, 15), // Adjust the label position
+    labelOrigin: new google.maps.Point(15, 15),
   };
+
+  iconCache.set(cacheKey, icon);
+  return icon;
 };
