@@ -39,8 +39,8 @@ export const createMarkerIcon = (
   const rectHeight = 19;
   const height = 40;
   const strokeWidth = isSelected ? 1 : 0;
-  const shadowRadius = isSelected ? 22 : 17;
-  const maxScaleFactor = 1.5;
+  const shadowRadius = isSelected ? 22 : 18;
+  const maxScaleFactor = 1.6;
   const deltaR = shadowRadius * (maxScaleFactor - 1);
 
   const font = "12px Roboto, Arial, sans-serif";
@@ -50,7 +50,7 @@ export const createMarkerIcon = (
     shadowRadius * 2
   );
 
-  const shadowColor = `${color}90`;
+  const shadowColor = `${color}`;
 
   const viewBoxMinX = -deltaR;
   const viewBoxMinY = -deltaR;
@@ -67,20 +67,20 @@ export const createMarkerIcon = (
         ${
           isSelected
             ? `<radialGradient id="shadowGradient" cx="50%" cy="50%" r="70%">
-            <stop offset="0%" stop-color="${shadowColor}" />
-            <stop offset="40%" stop-color="${shadowColor}" />
-            <stop offset="100%" stop-color="${shadowColor}" stop-opacity="0" />
+            <stop offset="0%" stop-color="${shadowColor}90" />
+            <stop offset="40%" stop-color="${shadowColor}90" />
+            <stop offset="100%" stop-color="${shadowColor}90" stop-opacity="0" />
           </radialGradient>`
-            : `<radialGradient id="shadowGradient" cx="50%" cy="50%" r="50%">
-            <stop offset="0%" stop-color="${shadowColor}" />
-            <stop offset="30%" stop-color="${shadowColor}" />
-            <stop offset="100%" stop-color="${shadowColor}" />
+            : `<radialGradient id="shadowGradient" cx="50%" cy="50%" r="60%">
+            <stop offset="0%" stop-color="${shadowColor}95" />
+            <stop offset="30%" stop-color="${shadowColor}95" />
+            <stop offset="100%" stop-color="${shadowColor}95" />
           </radialGradient>`
         }
         ${
           !isSelected
             ? `<filter id="blur" x="-50%" y="-50%" width="200%" height="200%">
-            <feGaussianBlur in="SourceGraphic" stdDeviation="4" />
+            <feGaussianBlur in="SourceGraphic" stdDeviation="3" />
           </filter>`
             : ""
         }
@@ -102,7 +102,7 @@ export const createMarkerIcon = (
         }
         @keyframes pulse-animation {
           0% { transform: scale(1); opacity: 1; }
-          50% { transform: scale(${maxScaleFactor}); opacity: 0.7; }
+          50% { transform: scale(${maxScaleFactor}); opacity: 0.9; }
           100% { transform: scale(1); opacity: 1; }
         }
       </style>
@@ -146,55 +146,85 @@ export const createClusterIcon = (
   }
 
   const baseSize = 30;
-  const maxScaleFactor = 2.0;
-  const extraMargin = 4;
-  const scaledBaseSize = baseSize * maxScaleFactor;
-  const totalSize = scaledBaseSize + extraMargin * 2;
+  const baseRadius = 14;
+  const center = baseSize / 2;
 
-  const halfTotalSize = totalSize / 2;
+  let totalSize = baseSize;
+  let anchorPoint = new google.maps.Point(center, baseSize);
+  let svgContent = "";
+  let viewBox = `0 0 ${baseSize} ${baseSize}`;
+  let pulseStyles = "";
 
-  const offsetY = (scaledBaseSize - baseSize) / 2;
-  const anchorY = halfTotalSize + offsetY;
+  // Making sure the icon is not obscuring other map elements when not pulsing
+  if (shouldPulse) {
+    const maxScaleFactor = 2.0;
+    const extraMargin = (baseSize * (maxScaleFactor - 1)) / 2;
+    totalSize = baseSize + extraMargin * 2;
+    const scaledBaseSize = baseSize * maxScaleFactor;
+    const halfTotalSize = totalSize / 2;
 
-  const pulseClass = shouldPulse ? "pulse" : "";
+    const offsetY = (scaledBaseSize - baseSize) / 2;
+    const anchorY = halfTotalSize + offsetY;
+    anchorPoint = new google.maps.Point(totalSize / 2, anchorY);
+    viewBox = `0 0 ${totalSize} ${totalSize}`;
 
-  const svg = `
-    <svg xmlns="http://www.w3.org/2000/svg" width="${totalSize}" height="${totalSize}" viewBox="0 0 ${totalSize} ${totalSize}">
-      <style>
-        .pulse {
-          animation: pulse-animation 2s infinite;
-          transform-origin: center;
+    pulseStyles = `
+      .pulse {
+        animation: pulse-animation 2s infinite;
+        transform-origin: center;
+      }
+      @keyframes pulse-animation {
+        0% {
+          transform: scale(1);
+          opacity: 1;
         }
-        @keyframes pulse-animation {
-          0% {
-            transform: scale(1);
-            opacity: 1;
-          }
-          50% {
-            transform: scale(${maxScaleFactor});
-            opacity: 0.8;
-          }
-          100% {
-            transform: scale(1);
-            opacity: 1;
-          }
+        50% {
+          transform: scale(${maxScaleFactor});
+          opacity: 0.8;
         }
-      </style>
-      <g class="${pulseClass}">
-        <circle stroke="${color}" fill="none" cx="${halfTotalSize}" cy="${halfTotalSize}" r="14"></circle>
+        100% {
+          transform: scale(1);
+          opacity: 1;
+        }
+      }
+    `;
+
+    svgContent = `
+      <g class="pulse">
+        <circle stroke="${color}" fill="none" cx="${totalSize / 2}" cy="${
+      totalSize / 2
+    }" r="${baseRadius}"></circle>
         <g fill="${color}">
-          <rect x="${halfTotalSize - 7}" y="${
-    halfTotalSize - 7
-  }" width="14" height="14" rx="7"></rect>
+          <rect x="${(totalSize - 14) / 2}" y="${
+      (totalSize - 14) / 2
+    }" width="14" height="14" rx="7"></rect>
         </g>
       </g>
+    `;
+  } else {
+    svgContent = `
+      <circle stroke="${color}" fill="none" cx="${center}" cy="${center}" r="${baseRadius}"></circle>
+      <g fill="${color}">
+        <rect x="${(baseSize - 14) / 2}" y="${
+      (baseSize - 14) / 2
+    }" width="14" height="14" rx="7"></rect>
+      </g>
+    `;
+  }
+
+  const svg = `
+    <svg xmlns="http://www.w3.org/2000/svg" width="${totalSize}" height="${totalSize}" viewBox="${viewBox}">
+      <style>
+        ${pulseStyles}
+      </style>
+      ${svgContent}
     </svg>
   `;
 
   const icon: google.maps.Icon = {
     url: `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(svg)}`,
     scaledSize: new google.maps.Size(totalSize, totalSize),
-    anchor: new google.maps.Point(halfTotalSize, anchorY),
+    anchor: anchorPoint,
   };
 
   iconCache.set(cacheKey, icon);
