@@ -6,7 +6,7 @@ import {
   SuperClusterAlgorithm,
 } from "@googlemaps/markerclusterer";
 import { useMap } from "@vis.gl/react-google-maps";
-import { debounce } from "lodash";
+import { debounce, has } from "lodash";
 import React, {
   useCallback,
   useEffect,
@@ -142,6 +142,12 @@ export function FixedMarkers({
 
       const newIcon = createClusterIcon(color, hasPulsatingSession);
 
+      if (hasPulsatingSession) {
+        clusterMarker.setZIndex(google.maps.Marker.MAX_ZINDEX + 1);
+      } else {
+        clusterMarker.setZIndex(1);
+      }
+
       clusterMarker.setIcon(newIcon);
     },
     [pulsatingSessionId]
@@ -152,7 +158,6 @@ export function FixedMarkers({
       clusterElementsRef.current.forEach((clusterMarker, cluster) => {
         const markers =
           cluster.markers?.map((marker) => marker as google.maps.Marker) ?? [];
-        console.log("cluster markers", markers);
         updateClusterStyle(clusterMarker, markers, thresholds);
       });
     }
@@ -247,8 +252,6 @@ export function FixedMarkers({
         markerRefs.current.set(session.point.streamId, marker);
         updatedMarkers.push(marker);
       } else {
-        // console.log("pulsatuing session id", pulsatingSessionId);
-        // console.log("clusterer", clustererRef.current.markers);
         // Update existing marker
         const newIcon = createMarkerIcon(
           getColorForValue(thresholds, session.lastMeasurementValue),
