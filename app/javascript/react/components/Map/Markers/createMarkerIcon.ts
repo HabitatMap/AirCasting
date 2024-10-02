@@ -20,7 +20,7 @@ const getTextWidth = (text: string): number => {
 export const createMarkerIcon = (
   color: string,
   value: string,
-  isSelected: boolean,
+  isSelected: boolean = false,
   shouldPulse: boolean
 ): google.maps.Icon => {
   // Round value to reduce number of unique icons
