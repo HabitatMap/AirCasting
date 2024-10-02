@@ -13,19 +13,16 @@ interface Thresholds {
 
 interface RendererParams {
   thresholds: Thresholds;
-  pulsatingSessionId: number | null;
   updateClusterStyle: (
     clusterMarker: google.maps.Marker,
     markers: google.maps.Marker[],
-    thresholds: Thresholds,
-    selectedStreamId: number | null
+    thresholds: Thresholds
   ) => void;
   clusterElementsRef: React.MutableRefObject<Map<Cluster, google.maps.Marker>>;
 }
 
 export const createFixedMarkersRenderer = ({
   thresholds,
-  pulsatingSessionId,
   updateClusterStyle,
   clusterElementsRef,
 }: RendererParams) => ({
@@ -49,14 +46,7 @@ export const createFixedMarkersRenderer = ({
 
     const color = [green, yellow, orange, red][styleIndex];
 
-    const hasPulsatingSession =
-      customMarkers.length > 0 &&
-      customMarkers.some((marker) => {
-        const sessionId = Number(marker.get("sessionId")) || null;
-        return sessionId === pulsatingSessionId;
-      });
-
-    const clusterIcon = createClusterIcon(color, hasPulsatingSession);
+    const clusterIcon = createClusterIcon(color, false);
 
     const clusterMarker = new google.maps.Marker({
       position,
@@ -64,17 +54,8 @@ export const createFixedMarkersRenderer = ({
       zIndex: 1,
     });
 
-    const selectedStreamId = customMarkers
-      .find((marker) => marker.get("isSelected"))
-      ?.get("streamId") as number | null;
-
     // Apply initial styles based on thresholds
-    updateClusterStyle(
-      clusterMarker,
-      customMarkers,
-      thresholds,
-      selectedStreamId
-    );
+    updateClusterStyle(clusterMarker, customMarkers, thresholds);
 
     // Store the reference to the cluster Marker
     clusterElementsRef.current.set(cluster, clusterMarker);

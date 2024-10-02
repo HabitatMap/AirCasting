@@ -136,16 +136,30 @@ export const createMarkerIcon = (
   return icon;
 };
 
-export const createClusterIcon = (color: string, shouldPulse: boolean) => {
+export const createClusterIcon = (
+  color: string,
+  shouldPulse: boolean
+): google.maps.Icon => {
   const cacheKey = `${color}-cluster-${shouldPulse}`;
   if (iconCache.has(cacheKey)) {
     return iconCache.get(cacheKey)!;
   }
 
+  const baseSize = 30;
+  const maxScaleFactor = 2.0;
+  const extraMargin = 4;
+  const scaledBaseSize = baseSize * maxScaleFactor;
+  const totalSize = scaledBaseSize + extraMargin * 2;
+
+  const halfTotalSize = totalSize / 2;
+
+  const offsetY = (scaledBaseSize - baseSize) / 2;
+  const anchorY = halfTotalSize + offsetY;
+
   const pulseClass = shouldPulse ? "pulse" : "";
 
   const svg = `
-    <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 30 30">
+    <svg xmlns="http://www.w3.org/2000/svg" width="${totalSize}" height="${totalSize}" viewBox="0 0 ${totalSize} ${totalSize}">
       <style>
         .pulse {
           animation: pulse-animation 2s infinite;
@@ -157,8 +171,8 @@ export const createClusterIcon = (color: string, shouldPulse: boolean) => {
             opacity: 1;
           }
           50% {
-            transform: scale(1.2);
-            opacity: 0.7;
+            transform: scale(${maxScaleFactor});
+            opacity: 0.8;
           }
           100% {
             transform: scale(1);
@@ -166,19 +180,21 @@ export const createClusterIcon = (color: string, shouldPulse: boolean) => {
           }
         }
       </style>
-      <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+      <g class="${pulseClass}">
+        <circle stroke="${color}" fill="none" cx="${halfTotalSize}" cy="${halfTotalSize}" r="14"></circle>
         <g fill="${color}">
-          <rect x="8" y="8" width="14" height="14" rx="7" class="${pulseClass}"></rect>
+          <rect x="${halfTotalSize - 7}" y="${
+    halfTotalSize - 7
+  }" width="14" height="14" rx="7"></rect>
         </g>
-        <circle stroke="${color}" cx="15" cy="15" r="14" class="${pulseClass}"></circle>
       </g>
     </svg>
   `;
 
-  const icon = {
+  const icon: google.maps.Icon = {
     url: `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(svg)}`,
-    scaledSize: new google.maps.Size(30, 30),
-    labelOrigin: new google.maps.Point(15, 15),
+    scaledSize: new google.maps.Size(totalSize, totalSize),
+    anchor: new google.maps.Point(halfTotalSize, anchorY),
   };
 
   iconCache.set(cacheKey, icon);

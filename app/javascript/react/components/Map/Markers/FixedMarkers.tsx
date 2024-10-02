@@ -127,8 +127,7 @@ export function FixedMarkers({
     (
       clusterMarker: google.maps.Marker,
       markers: google.maps.Marker[],
-      thresholds: any,
-      selectedStreamId: number | null
+      thresholds: any
     ) => {
       const values = markers.map((marker) =>
         Number((marker as any).value || 0)
@@ -137,11 +136,15 @@ export function FixedMarkers({
         values.reduce((sum, value) => sum + value, 0) / values.length;
       const color = getColorForValue(thresholds, average);
 
-      const newIcon = createClusterIcon(color, false);
+      const hasPulsatingSession = markers.some(
+        (marker) => (marker as any).sessionId === pulsatingSessionId
+      );
+
+      const newIcon = createClusterIcon(color, hasPulsatingSession);
 
       clusterMarker.setIcon(newIcon);
     },
-    []
+    [pulsatingSessionId]
   );
 
   const handleThresholdChange = useCallback(() => {
@@ -149,12 +152,8 @@ export function FixedMarkers({
       clusterElementsRef.current.forEach((clusterMarker, cluster) => {
         const markers =
           cluster.markers?.map((marker) => marker as google.maps.Marker) ?? [];
-        updateClusterStyle(
-          clusterMarker,
-          markers,
-          thresholds,
-          selectedStreamId
-        );
+        console.log("cluster markers", markers);
+        updateClusterStyle(clusterMarker, markers, thresholds);
       });
     }
 
@@ -180,7 +179,6 @@ export function FixedMarkers({
     () =>
       createFixedMarkersRenderer({
         thresholds,
-        pulsatingSessionId,
         updateClusterStyle,
         clusterElementsRef,
       }),
@@ -249,6 +247,8 @@ export function FixedMarkers({
         markerRefs.current.set(session.point.streamId, marker);
         updatedMarkers.push(marker);
       } else {
+        // console.log("pulsatuing session id", pulsatingSessionId);
+        // console.log("clusterer", clustererRef.current.markers);
         // Update existing marker
         const newIcon = createMarkerIcon(
           getColorForValue(thresholds, session.lastMeasurementValue),
