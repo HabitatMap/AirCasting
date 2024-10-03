@@ -3,13 +3,8 @@
 import { Cluster } from "@googlemaps/markerclusterer";
 import { green, orange, red, yellow } from "../../../assets/styles/colors";
 import { CustomMarker } from "../../../types/googleMaps";
+import { Thresholds } from "../../../types/thresholds";
 import { createClusterIcon } from "./createMarkerIcon";
-
-interface Thresholds {
-  low: number;
-  middle: number;
-  high: number;
-}
 
 interface RendererParams {
   thresholds: Thresholds;
