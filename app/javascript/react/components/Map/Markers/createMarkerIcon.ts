@@ -1,4 +1,4 @@
-import { gray300 } from "../../../assets/styles/colors";
+import { gray400 } from "../../../assets/styles/colors";
 
 const iconCache = new Map<string, google.maps.Icon>();
 
@@ -119,7 +119,7 @@ export const createMarkerIcon = (
   }" r="${baseCircleR}" fill="${color}" stroke="${color}" stroke-width="${strokeWidth}" />
       <text x="${
         baseCircleX + baseCircleR + padding
-      }" y="25" font-family="Roboto, Arial, sans-serif" font-size="12" font-weight="400" letter-spacing="0.14" fill="${gray300}"  text-anchor="start">${displayedValue}</text>
+      }" y="25" font-family="Roboto, Arial, sans-serif" font-size="12" font-weight="400" letter-spacing="0.14" fill="${gray400}"  text-anchor="start">${displayedValue}</text>
     </svg>
   `;
 

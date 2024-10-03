@@ -186,12 +186,16 @@ export function FixedMarkers({
 
   const createMarker = useCallback(
     (session: Session): CustomMarker => {
+      const isSelected =
+        selectedStreamId != null &&
+        session.point.streamId === selectedStreamId.toString();
+
       const marker = new google.maps.Marker({
         position: session.point,
         icon: createMarkerIcon(
           getColorForValue(thresholds, session.lastMeasurementValue),
           `${Math.round(session.lastMeasurementValue)} ${unitSymbol}`,
-          session.point.streamId === selectedStreamId?.toString(),
+          isSelected,
           session.id === pulsatingSessionId
         ),
         zIndex: Number(google.maps.Marker.MAX_ZINDEX) + 1,
