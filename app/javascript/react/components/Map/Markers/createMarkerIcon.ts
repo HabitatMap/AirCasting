@@ -25,7 +25,8 @@ export const createMarkerIcon = (
 ): google.maps.Icon => {
   // Round value to reduce number of unique icons
   const roundedValue = Math.round(Number(value.split(" ")[0]));
-  const displayedValue = `${roundedValue} ${value.split(" ")[1]}`;
+  const unit = value.split(" ")[1];
+  const displayedValue = `${roundedValue} ${unit}`;
 
   const cacheKey = `${color}-${displayedValue}-${isSelected}-${shouldPulse}`;
   if (iconCache.has(cacheKey)) {
@@ -35,55 +36,64 @@ export const createMarkerIcon = (
   const padding = 7;
   const baseCircleX = 19;
   const baseCircleY = 20;
-  const baseCircleR = 6;
-  const rectHeight = 19;
-  const height = 40;
-  const strokeWidth = isSelected ? 1 : 0;
-  const shadowRadius = isSelected ? 22 : 18;
-  const maxScaleFactor = 1.6;
-  const deltaR = shadowRadius * (maxScaleFactor - 1);
+  const baseCircleR = 6; // Radius of the small circle
+  const rectHeight = 19; // Height of the label rectangle
+  const height = 40; // Total height of the marker
+  const strokeWidth = isSelected ? 1 : 0; // Stroke width of the rectangle and circle
+  const shadowRadius = isSelected ? 22 : 18; // Radius for the blur effect
+  const maxScaleFactor = 1.6; // Maximum scale for pulsation
+  const deltaR = shadowRadius * (maxScaleFactor - 1); // Additional space for pulsation
 
-  const font = "12px Roboto, Arial, sans-serif";
   const textWidth = getTextWidth(displayedValue);
+  const mainContentWidth =
+    8 + height / 2 + baseCircleR + padding + textWidth + 2; // Calculate main content width
   const totalWidth = Math.max(
-    baseCircleX + baseCircleR * 2 + padding * 2 + textWidth + 2,
+    mainContentWidth + 8, // Additional padding if needed
     shadowRadius * 2
   );
 
   const shadowColor = `${color}`;
 
-  const viewBoxMinX = -deltaR;
-  const viewBoxMinY = -deltaR;
-  const viewBoxWidth = totalWidth + deltaR * 2;
-  const viewBoxHeight = height + shadowRadius + deltaR * 2;
+  // Define viewBox based on whether pulsation is needed
+  const viewBoxMinX = shouldPulse ? -deltaR : 0;
+  const viewBoxMinY = shouldPulse ? -deltaR : 0;
+  const viewBoxWidth = shouldPulse
+    ? totalWidth + deltaR * 2
+    : totalWidth + padding * 2;
+  const viewBoxHeight = shouldPulse
+    ? height + shadowRadius + deltaR * 2
+    : height;
+
+  // Calculate the center point of the viewBox
+  const centerX = viewBoxWidth / 2;
+  const centerY = viewBoxHeight / 2;
 
   const svg = `
-    <svg xmlns="http://www.w3.org/2000/svg" width="${
-      totalWidth + deltaR * 2
-    }" height="${
-    height + shadowRadius + deltaR * 2
-  }" viewBox="${viewBoxMinX} ${viewBoxMinY} ${viewBoxWidth} ${viewBoxHeight}" overflow="visible">
+    <svg xmlns="http://www.w3.org/2000/svg" width="${viewBoxWidth}" height="${viewBoxHeight}" viewBox="${viewBoxMinX} ${viewBoxMinY} ${viewBoxWidth} ${viewBoxHeight}" overflow="visible">
       <defs>
+        <!-- Radial Gradient for Shadow -->
         ${
           isSelected
             ? `<radialGradient id="shadowGradient" cx="50%" cy="50%" r="70%">
-            <stop offset="0%" stop-color="${shadowColor}90" />
-            <stop offset="40%" stop-color="${shadowColor}90" />
-            <stop offset="100%" stop-color="${shadowColor}90" stop-opacity="0" />
-          </radialGradient>`
+                <stop offset="0%" stop-color="${shadowColor}90" />
+                <stop offset="40%" stop-color="${shadowColor}90" />
+                <stop offset="100%" stop-color="${shadowColor}90" stop-opacity="0" />
+              </radialGradient>`
             : `<radialGradient id="shadowGradient" cx="50%" cy="50%" r="60%">
-            <stop offset="0%" stop-color="${shadowColor}95" />
-            <stop offset="30%" stop-color="${shadowColor}95" />
-            <stop offset="100%" stop-color="${shadowColor}95" />
-          </radialGradient>`
+                <stop offset="0%" stop-color="${shadowColor}95" />
+                <stop offset="30%" stop-color="${shadowColor}95" />
+                <stop offset="100%" stop-color="${shadowColor}95" />
+              </radialGradient>`
         }
+        <!-- Blur Filter -->
         ${
           !isSelected
             ? `<filter id="blur" x="-50%" y="-50%" width="200%" height="200%">
-            <feGaussianBlur in="SourceGraphic" stdDeviation="3" />
-          </filter>`
+                <feGaussianBlur in="SourceGraphic" stdDeviation="3" />
+              </filter>`
             : ""
         }
+        <!-- Drop Shadow for Rectangle -->
         <filter id="dropShadow" x="-20%" y="-20%" width="140%" height="140%">
           <feGaussianBlur in="SourceAlpha" stdDeviation="0.5"/>
           <feOffset dx="1.25" dy="1.25" result="offsetblur"/>
@@ -96,40 +106,51 @@ export const createMarkerIcon = (
         </filter>
       </defs>
       <style>
-        .pulse {
-          animation: pulse-animation 2s infinite;
-          transform-origin: ${baseCircleX}px ${baseCircleY}px;
-        }
-        @keyframes pulse-animation {
-          0% { transform: scale(1); opacity: 1; }
-          50% { transform: scale(${maxScaleFactor}); opacity: 0.9; }
-          100% { transform: scale(1); opacity: 1; }
+        ${
+          shouldPulse
+            ? `
+          @keyframes pulse-animation {
+            0% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(${maxScaleFactor}); opacity: 0.9; }
+            100% { transform: scale(1); opacity: 1; }
+          }
+          .pulse {
+            animation: pulse-animation 2s infinite;
+            transform-origin: ${
+              centerX - mainContentWidth / 2 + 11
+            }px ${centerY}px;
+          }
+        `
+            : ""
         }
       </style>
+      <!-- Pulsating Circle (Background) -->
       ${shouldPulse ? `<g class="pulse">` : ""}
-      <circle cx="${baseCircleX}" cy="${baseCircleY}" r="${shadowRadius}" fill="url(#shadowGradient)" ${
+              <circle cx="${
+                centerX - mainContentWidth / 2 + 11
+              }" cy="${centerY}" r="${shadowRadius}" fill="url(#shadowGradient)" ${
     !isSelected ? 'filter="url(#blur)"' : ""
   } />
-      ${shouldPulse ? `</g>` : ""}
-      <rect x="8" y="${(height - rectHeight) / 2}" rx="9" ry="9" width="${
-    totalWidth - 14
-  }" height="${rectHeight}" fill="white" stroke="${color}" stroke-width="${strokeWidth}" filter="url(#dropShadow)"/>
-      <circle cx="${baseCircleX}" cy="${
-    height / 2
-  }" r="${baseCircleR}" fill="${color}" stroke="${color}" stroke-width="${strokeWidth}" />
+            ${shouldPulse ? `</g>` : ""}
+      <!-- Label Rectangle with Drop Shadow -->
+      <rect x="${centerX - mainContentWidth / 2}" y="${
+    centerY - rectHeight / 2
+  }" rx="9" ry="9" width="${mainContentWidth}" height="${rectHeight}" fill="white" stroke="${color}" stroke-width="${strokeWidth}" filter="url(#dropShadow)"/>
+      <!-- Small Colored Circle Inside Label -->
+      <circle cx="${
+        centerX - mainContentWidth / 2 + 11
+      }" cy="${centerY}" r="${baseCircleR}" fill="${color}" stroke="${color}" stroke-width="${strokeWidth}" />
+      <!-- Label Text -->
       <text x="${
-        baseCircleX + baseCircleR + padding
-      }" y="25" font-family="Roboto, Arial, sans-serif" font-size="12" font-weight="400" letter-spacing="0.14" fill="${gray400}"  text-anchor="start">${displayedValue}</text>
+        centerX - mainContentWidth / 2 + 11 + baseCircleR + padding
+      }" y="${
+    centerY + 5
+  }" font-family="Roboto, Arial, sans-serif" font-size="12" font-weight="400" letter-spacing="0.14" fill="${gray400}" text-anchor="start">${displayedValue}</text>
     </svg>
   `;
 
   const icon = {
     url: `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(svg)}`,
-    scaledSize: new google.maps.Size(
-      totalWidth + deltaR * 2,
-      height + shadowRadius + deltaR * 2
-    ),
-    anchor: new google.maps.Point(baseCircleX + deltaR, baseCircleY + deltaR),
   };
 
   iconCache.set(cacheKey, icon);
