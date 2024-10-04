@@ -62,7 +62,7 @@ const SessionsListView: React.FC<SessionsListViewProps> = ({
         left: rect.left + window.scrollX,
       });
     }
-  }, [sessions]);
+  }, [exportButtonRef, sessions]);
 
   const debouncedUpdateButtonPosition = useCallback(
     debounce(updateButtonPosition, 100),
