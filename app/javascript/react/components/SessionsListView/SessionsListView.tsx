@@ -1,5 +1,4 @@
-import { debounce } from "lodash"; // Ensure lodash is installed
-import React, { useCallback, useLayoutEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import { useScrollEndListener } from "../../hooks/useScrollEndListener";
 import { useAutoDismissAlert } from "../../utils/useAutoDismissAlert";
@@ -42,47 +41,36 @@ const SessionsListView: React.FC<SessionsListViewProps> = ({
   const sessionsIds = sessions.map((session) => session.id);
   const exportButtonRef = useRef<HTMLDivElement>(null);
   const sessionListRef = useRef<HTMLDivElement>(null);
-  const [buttonPosition, setButtonPosition] = useState({
+  const [buttonPosition, setButtonPosition] = React.useState({
     top: 0,
     left: 0,
   });
-  const [showExportPopup, setShowExportPopup] = useState(false);
-  const [showAlert, setShowAlert] = useState(false);
-  const [alertMessage, setAlertMessage] = useState<string>("");
+  const [showExportPopup, setShowExportPopup] = React.useState(false);
+  const [showAlert, setShowAlert] = React.useState(false);
+  const [alertMessage, setAlertMessage] = React.useState<string>("");
 
+  const rect = exportButtonRef.current?.getBoundingClientRect();
   const NO_SESSIONS = sessionsIds.length === 0;
   const EXCEEDS_LIMIT = sessionsIds.length > SESSIONS_LIMIT;
   const popupTopOffset = NO_SESSIONS ? -13 : -50;
 
   const updateButtonPosition = useCallback(() => {
-    const rect = exportButtonRef.current?.getBoundingClientRect();
     if (rect) {
       setButtonPosition({
         top: rect.top + window.scrollY,
         left: rect.left + window.scrollX,
       });
     }
-  }, [exportButtonRef, sessions]);
+  }, [rect]);
 
-  const debouncedUpdateButtonPosition = useCallback(
-    debounce(updateButtonPosition, 100),
-    [updateButtonPosition]
-  );
-
-  useLayoutEffect(() => {
+  useEffect(() => {
     updateButtonPosition();
-
-    const handleResize = () => {
-      debouncedUpdateButtonPosition();
-    };
-
-    window.addEventListener("resize", handleResize);
+    window.addEventListener("resize", updateButtonPosition);
 
     return () => {
-      window.removeEventListener("resize", handleResize);
-      debouncedUpdateButtonPosition.cancel();
+      window.removeEventListener("resize", updateButtonPosition);
     };
-  }, [updateButtonPosition, debouncedUpdateButtonPosition]);
+  }, [rect?.top]);
 
   useScrollEndListener(sessionListRef, onScrollEnd);
 
