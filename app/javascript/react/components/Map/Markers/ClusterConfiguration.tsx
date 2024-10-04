@@ -1,5 +1,3 @@
-// createFixedMarkersRenderer.ts
-
 import { Cluster } from "@googlemaps/markerclusterer";
 import { green, orange, red, yellow } from "../../../assets/styles/colors";
 import { CustomMarker } from "../../../types/googleMaps";
