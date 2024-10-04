@@ -819,7 +819,7 @@ const Map = () => {
         {currentUserSettings === UserSettings.MapLegendView && (
           <Legend onClose={() => goToUserSettings(previousUserSettings)} />
         )}
-        {currentUserSettings === UserSettings.SessionListView && (
+        {currentUserSettings === UserSettings.SessionListView && isMobile && (
           <MobileSessionList
             sessions={listSessions.map((session: SessionList) => ({
               id: session.id,
