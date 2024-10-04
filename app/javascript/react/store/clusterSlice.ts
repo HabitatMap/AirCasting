@@ -1,10 +1,10 @@
-import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
+import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { AxiosResponse } from "axios";
-import { API_ENDPOINTS } from "../api/apiEndpoints";
 import { oldApiClient } from "../api/apiClient";
-import { logError } from "../utils/logController";
-import { getErrorMessage } from "../utils/getErrorMessage";
+import { API_ENDPOINTS } from "../api/apiEndpoints";
 import { ApiError } from "../types/api";
+import { getErrorMessage } from "../utils/getErrorMessage";
+import { logError } from "../utils/logController";
 
 interface ClusterData {
   average: number;

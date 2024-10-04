@@ -63,6 +63,7 @@ const GlobalStyles = createGlobalStyle`
         ${pulseAnimation} 2s infinite
       `};
   }
+
   /* Scroll bar stylings */
 ::-webkit-scrollbar {
   width: 9px;
