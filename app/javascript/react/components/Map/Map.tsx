@@ -855,33 +855,34 @@ const Map = () => {
       </S.MobileContainer>
       {[UserSettings.MapView, UserSettings.CrowdMapView].includes(
         currentUserSettings
-      ) && (
-        <S.DesktopContainer>
-          <SessionsListView
-            sessions={listSessions.map((session) => ({
-              id: session.id,
-              sessionName: session.title,
-              sensorName: session.sensorName,
-              averageValue: session.averageValue,
-              startTime: session.startTime,
-              endTime: session.endTime,
-              streamId: session.streamId,
-            }))}
-            onCellClick={(id, streamId) => {
-              setPulsatingSessionId(null);
-              handleMarkerClick(streamId, id);
-            }}
-            onCellMouseEnter={(id) => {
-              setPulsatingSessionId(id);
-            }}
-            onCellMouseLeave={() => {
-              setPulsatingSessionId(null);
-            }}
-            onScrollEnd={handleScrollEnd}
-            fetchableSessionsCount={fetchableSessionsCount}
-          />
-        </S.DesktopContainer>
-      )}
+      ) &&
+        !isMobile && (
+          <S.DesktopContainer>
+            <SessionsListView
+              sessions={listSessions.map((session) => ({
+                id: session.id,
+                sessionName: session.title,
+                sensorName: session.sensorName,
+                averageValue: session.averageValue,
+                startTime: session.startTime,
+                endTime: session.endTime,
+                streamId: session.streamId,
+              }))}
+              onCellClick={(id, streamId) => {
+                setPulsatingSessionId(null);
+                handleMarkerClick(streamId, id);
+              }}
+              onCellMouseEnter={(id) => {
+                setPulsatingSessionId(id);
+              }}
+              onCellMouseLeave={() => {
+                setPulsatingSessionId(null);
+              }}
+              onScrollEnd={handleScrollEnd}
+              fetchableSessionsCount={fetchableSessionsCount}
+            />
+          </S.DesktopContainer>
+        )}
     </>
   );
 };
