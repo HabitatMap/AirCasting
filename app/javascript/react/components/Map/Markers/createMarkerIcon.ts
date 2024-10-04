@@ -39,7 +39,7 @@ export const createMarkerIcon = (
   const baseCircleY = 20;
   const baseCircleR = 6;
   const rectHeight = 19;
-  const height = 40;
+  const height = 44;
   const strokeWidth = isSelected ? 1 : 0;
   const shadowRadius = isSelected ? 22 : 18;
   const maxScaleFactor = 1.6;
@@ -62,6 +62,9 @@ export const createMarkerIcon = (
 
   const centerX = (totalWidth + padding * 2) / 2;
   const centerY = (height + padding * 2) / 2;
+
+  // const centerX = baseCircleX + 2;
+  // const centerY = baseCircleY;
 
   const svg = `
     <svg xmlns="http://www.w3.org/2000/svg" width="${viewBoxWidth}" height="${viewBoxHeight}" viewBox="${viewBoxMinX} ${viewBoxMinY} ${viewBoxWidth} ${viewBoxHeight}" overflow="visible">
@@ -144,8 +147,11 @@ export const createMarkerIcon = (
     </svg>
   `;
 
+  const selectedAnchor = new google.maps.Point(shadowRadius, shadowRadius);
+
   const icon = {
     url: `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(svg)}`,
+    anchor: isSelected ? selectedAnchor : null,
   };
 
   iconCache.set(cacheKey, icon);
