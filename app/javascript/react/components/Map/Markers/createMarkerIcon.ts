@@ -1,3 +1,4 @@
+import { size } from "lodash";
 import { gray400 } from "../../../assets/styles/colors";
 
 const iconCache = new Map<string, google.maps.Icon>();
@@ -36,37 +37,31 @@ export const createMarkerIcon = (
   const padding = 7;
   const baseCircleX = 19;
   const baseCircleY = 20;
-  const baseCircleR = 6; // Radius of the small circle
-  const rectHeight = 19; // Height of the label rectangle
-  const height = 40; // Total height of the marker
-  const strokeWidth = isSelected ? 1 : 0; // Stroke width of the rectangle and circle
-  const shadowRadius = isSelected ? 22 : 18; // Radius for the blur effect
-  const maxScaleFactor = 1.6; // Maximum scale for pulsation
-  const deltaR = shadowRadius * (maxScaleFactor - 1); // Additional space for pulsation
+  const baseCircleR = 6;
+  const rectHeight = 19;
+  const height = 40;
+  const strokeWidth = isSelected ? 1 : 0;
+  const shadowRadius = isSelected ? 22 : 18;
+  const maxScaleFactor = 1.6;
+  const deltaR = shadowRadius * (maxScaleFactor - 1);
 
   const textWidth = getTextWidth(displayedValue);
   const mainContentWidth =
-    8 + height / 2 + baseCircleR + padding + textWidth + 2; // Calculate main content width
-  const totalWidth = Math.max(
-    mainContentWidth + 8, // Additional padding if needed
-    shadowRadius * 2
-  );
+    8 + height / 2 + baseCircleR + padding + textWidth + 2;
+  const totalWidth = Math.max(mainContentWidth + 8, shadowRadius * 2);
 
   const shadowColor = `${color}`;
 
   // Define viewBox based on whether pulsation is needed
   const viewBoxMinX = shouldPulse ? -deltaR : 0;
-  const viewBoxMinY = shouldPulse ? -deltaR : 0;
-  const viewBoxWidth = shouldPulse
-    ? totalWidth + deltaR * 2
-    : totalWidth + padding * 2;
-  const viewBoxHeight = shouldPulse
-    ? height + shadowRadius + deltaR * 2
-    : height;
+  const viewBoxMinY = shouldPulse ? -deltaR * 2 + padding : padding;
 
-  // Calculate the center point of the viewBox
-  const centerX = viewBoxWidth / 2;
-  const centerY = viewBoxHeight / 2;
+  const viewBoxWidth =
+    totalWidth + (shouldPulse ? deltaR * 2 : 0) + padding * 2;
+  const viewBoxHeight = height + (shouldPulse ? deltaR * 2 + padding : padding);
+
+  const centerX = (totalWidth + padding * 2) / 2;
+  const centerY = (height + padding * 2) / 2;
 
   const svg = `
     <svg xmlns="http://www.w3.org/2000/svg" width="${viewBoxWidth}" height="${viewBoxHeight}" viewBox="${viewBoxMinX} ${viewBoxMinY} ${viewBoxWidth} ${viewBoxHeight}" overflow="visible">
@@ -135,7 +130,7 @@ export const createMarkerIcon = (
       <!-- Label Rectangle with Drop Shadow -->
       <rect x="${centerX - mainContentWidth / 2}" y="${
     centerY - rectHeight / 2
-  }" rx="9" ry="9" width="${mainContentWidth}" height="${rectHeight}" fill="white" stroke="${color}" stroke-width="${strokeWidth}" filter="url(#dropShadow)"/>
+  }" rx="9" ry="${centerY}" width="${mainContentWidth}" height="${rectHeight}" fill="white" stroke="${color}" stroke-width="${strokeWidth}" filter="url(#dropShadow)"/>
       <!-- Small Colored Circle Inside Label -->
       <circle cx="${
         centerX - mainContentWidth / 2 + 11
