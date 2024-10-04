@@ -1,4 +1,10 @@
-import React, { useCallback, useEffect, useRef } from "react";
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { useTranslation } from "react-i18next";
 import { useScrollEndListener } from "../../hooks/useScrollEndListener";
 import { useAutoDismissAlert } from "../../utils/useAutoDismissAlert";
@@ -28,75 +34,78 @@ interface SessionsListViewProps {
 
 const SESSIONS_LIMIT = 100;
 
-const SessionsListView: React.FC<SessionsListViewProps> = ({
+const SessionsListView = ({
   sessions,
   onCellClick,
   onCellMouseEnter,
   onCellMouseLeave,
   onScrollEnd,
   fetchableSessionsCount,
-}) => {
+}: SessionsListViewProps) => {
   const { t } = useTranslation();
-  const results = sessions.length;
-  const sessionsIds = sessions.map((session) => session.id);
   const exportButtonRef = useRef<HTMLDivElement>(null);
   const sessionListRef = useRef<HTMLDivElement>(null);
-  const [buttonPosition, setButtonPosition] = React.useState({
-    top: 0,
-    left: 0,
-  });
-  const [showExportPopup, setShowExportPopup] = React.useState(false);
-  const [showAlert, setShowAlert] = React.useState(false);
-  const [alertMessage, setAlertMessage] = React.useState<string>("");
+  const [buttonPosition, setButtonPosition] = useState({ top: 0, left: 0 });
+  const [showExportPopup, setShowExportPopup] = useState(false);
+  const [showAlert, setShowAlert] = useState(false);
+  const [alertMessage, setAlertMessage] = useState<string>("");
 
-  const rect = exportButtonRef.current?.getBoundingClientRect();
-  const NO_SESSIONS = sessionsIds.length === 0;
-  const EXCEEDS_LIMIT = sessionsIds.length > SESSIONS_LIMIT;
+  const results = useMemo(() => sessions.length, [sessions]);
+  const sessionsIds = useMemo(
+    () => sessions.map((session) => session.id),
+    [sessions]
+  );
+  const NO_SESSIONS = useMemo(() => sessionsIds.length === 0, [sessionsIds]);
+  const EXCEEDS_LIMIT = useMemo(
+    () => sessionsIds.length > SESSIONS_LIMIT,
+    [sessionsIds]
+  );
   const popupTopOffset = NO_SESSIONS ? -13 : -50;
 
   const updateButtonPosition = useCallback(() => {
-    if (rect) {
+    if (exportButtonRef.current) {
+      const rect = exportButtonRef.current.getBoundingClientRect();
       setButtonPosition({
         top: rect.top + window.scrollY,
         left: rect.left + window.scrollX,
       });
     }
-  }, [rect]);
+  }, []);
 
   useEffect(() => {
     updateButtonPosition();
-    window.addEventListener("resize", updateButtonPosition);
-
-    return () => {
-      window.removeEventListener("resize", updateButtonPosition);
+    const handleResize = () => {
+      requestAnimationFrame(updateButtonPosition);
     };
-  }, [rect?.top]);
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, [updateButtonPosition]);
 
   useScrollEndListener(sessionListRef, onScrollEnd);
 
-  const calculatePopupLeftPosition = () => {
+  const calculatePopupLeftPosition = useCallback(() => {
     return `${buttonPosition.left - 185}px`;
-  };
+  }, [buttonPosition.left]);
 
-  const handleClick = (id: number, streamId: number) => {
-    if (onCellClick) {
-      onCellClick(id, streamId);
-    }
-  };
+  const handleClick = useCallback(
+    (id: number, streamId: number) => {
+      onCellClick?.(id, streamId);
+    },
+    [onCellClick]
+  );
 
-  const handleMouseEnter = (id: number) => {
-    if (onCellMouseEnter) {
-      onCellMouseEnter(id);
-    }
-  };
+  const handleMouseEnter = useCallback(
+    (id: number) => {
+      onCellMouseEnter?.(id);
+    },
+    [onCellMouseEnter]
+  );
 
-  const handleMouseLeave = () => {
-    if (onCellMouseLeave) {
-      onCellMouseLeave();
-    }
-  };
+  const handleMouseLeave = useCallback(() => {
+    onCellMouseLeave?.();
+  }, [onCellMouseLeave]);
 
-  const handleExportClick = () => {
+  const handleExportClick = useCallback(() => {
     if (NO_SESSIONS) {
       setAlertMessage(t("exportDataModal.noResultsMessage"));
       setShowAlert(true);
@@ -108,9 +117,29 @@ const SessionsListView: React.FC<SessionsListViewProps> = ({
     } else {
       setShowExportPopup(true);
     }
-  };
+  }, [NO_SESSIONS, EXCEEDS_LIMIT, t]);
 
   useAutoDismissAlert(showAlert, setShowAlert);
+
+  const sessionListItems = useMemo(
+    () =>
+      sessions.map((session) => (
+        <SessionsListTile
+          key={session.id}
+          id={session.id}
+          sessionName={session.sessionName}
+          sensorName={session.sensorName}
+          averageValue={session.averageValue}
+          startTime={session.startTime}
+          endTime={session.endTime}
+          streamId={session.streamId}
+          onClick={handleClick}
+          onMouseEnter={handleMouseEnter}
+          onMouseLeave={handleMouseLeave}
+        />
+      )),
+    [sessions, handleClick, handleMouseEnter, handleMouseLeave]
+  );
 
   return (
     <S.SessionListViewStyle>
@@ -131,22 +160,7 @@ const SessionsListView: React.FC<SessionsListViewProps> = ({
         />
       </S.SessionInfoTile>
       <S.SessionListContainer ref={sessionListRef}>
-        {sessions.map((session) => (
-          <div key={session.id}>
-            <SessionsListTile
-              id={session.id}
-              sessionName={session.sessionName}
-              sensorName={session.sensorName}
-              averageValue={session.averageValue}
-              startTime={session.startTime}
-              endTime={session.endTime}
-              streamId={session.streamId}
-              onClick={(id, streamId) => handleClick(id, streamId)}
-              onMouseEnter={(id) => handleMouseEnter(id)}
-              onMouseLeave={handleMouseLeave}
-            />
-          </div>
-        ))}
+        {sessionListItems}
       </S.SessionListContainer>
       {showAlert && (
         <AlertPopup
