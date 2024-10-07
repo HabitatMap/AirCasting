@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useMemo } from "react";
 import { useSelector } from "react-redux";
 
 import {
@@ -30,7 +30,10 @@ const SessionInfo: React.FC<SessionInfoProps> = ({
   isVisible,
   setIsVisible,
 }) => {
-  const fixedSessionTypeSelected: boolean = sessionType === SessionTypes.FIXED;
+  const fixedSessionTypeSelected = useMemo(
+    () => sessionType === SessionTypes.FIXED,
+    [sessionType]
+  );
   const isMobile = useMobileDetection();
 
   const streamShortInfo: StreamShortInfo = useSelector(
@@ -43,24 +46,31 @@ const SessionInfo: React.FC<SessionInfoProps> = ({
   );
   const thresholds = useSelector(selectThresholds);
 
-  const toggleVisibility = () => {
-    setIsVisible(!isVisible);
+  const toggleVisibility = () => setIsVisible(!isVisible);
+
+  const commonProps = {
+    streamShortInfo,
+    thresholds,
+    extremes,
   };
+
+  if (isMobile) {
+    return (
+      <S.InfoContainer>
+        <ModalMobileHeader
+          {...commonProps}
+          toggleVisibility={toggleVisibility}
+          isVisible={isVisible}
+          isMobile={isMobile}
+        />
+      </S.InfoContainer>
+    );
+  }
 
   return (
     <S.InfoContainer>
-      <ModalMobileHeader
-        toggleVisibility={toggleVisibility}
-        isVisible={isVisible}
-        streamShortInfo={streamShortInfo}
-        thresholds={thresholds}
-        extremes={extremes}
-        isMobile={isMobile}
-      />
       <ModalDesktopHeader
-        streamShortInfo={streamShortInfo}
-        thresholds={thresholds}
-        extremes={extremes}
+        {...commonProps}
         fixedSessionTypeSelected={fixedSessionTypeSelected}
         streamId={streamId}
       />
@@ -68,4 +78,4 @@ const SessionInfo: React.FC<SessionInfoProps> = ({
   );
 };
 
-export default SessionInfo;
+export default React.memo(SessionInfo);
