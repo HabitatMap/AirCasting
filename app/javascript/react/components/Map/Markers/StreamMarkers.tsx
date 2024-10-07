@@ -11,7 +11,6 @@ import {
 } from "../../../store/markersLoadingSlice";
 import { selectThresholds } from "../../../store/thresholdSlice";
 import { Session } from "../../../types/sessionType";
-import { createMarkerContent } from "../../../utils/createMarkerContent";
 import { getColorForValue } from "../../../utils/thresholdColors";
 import HoverMarker from "./HoverMarker/HoverMarker";
 
@@ -23,14 +22,11 @@ type Props = {
 const StreamMarkers = ({ sessions, unitSymbol }: Props) => {
   const dispatch = useAppDispatch();
   const map = useMap();
-  const markersRef = useRef<google.maps.marker.AdvancedMarkerElement[]>([]);
+  const markersRef = useRef<Map<string, google.maps.Marker>>(new Map());
   const thresholds = useSelector(selectThresholds);
   const polylineRef = useRef<google.maps.Polyline | null>(null);
   const hoverPosition = useSelector(selectHoverPosition);
   const timeoutId = useRef<NodeJS.Timeout | null>(null);
-
-  // Caching marker content to prevent redundant DOM creation
-  const markerContentCache = useRef<{ [color: string]: HTMLElement }>({});
 
   // Memoize the sorted sessions and filter out invalid sessions
   const sortedSessions = useMemo(() => {
@@ -57,10 +53,50 @@ const StreamMarkers = ({ sessions, unitSymbol }: Props) => {
     }
   }, [dispatch]);
 
+  // Create marker icon
+  const createMarkerIcon = useCallback((color: string) => {
+    return {
+      path: google.maps.SymbolPath.CIRCLE,
+      fillColor: color,
+      fillOpacity: 1,
+      strokeWeight: 0,
+      scale: 8,
+    };
+  }, []);
+
+  // Create or update marker
+  const createOrUpdateMarker = useCallback(
+    (session: Session) => {
+      const position = { lat: session.point.lat, lng: session.point.lng };
+      const color = getColorForValue(thresholds, session.lastMeasurementValue);
+      const markerId = session.id.toString();
+
+      let marker = markersRef.current.get(markerId);
+
+      if (!marker) {
+        marker = new google.maps.Marker({
+          position,
+          icon: createMarkerIcon(color),
+          title: `${session.lastMeasurementValue} ${unitSymbol}`,
+          zIndex: 0,
+          map: map,
+        });
+        markersRef.current.set(markerId, marker);
+      } else {
+        marker.setPosition(position);
+        marker.setIcon(createMarkerIcon(color));
+        marker.setTitle(`${session.lastMeasurementValue} ${unitSymbol}`);
+      }
+
+      return marker;
+    },
+    [map, thresholds, unitSymbol, createMarkerIcon]
+  );
+
   /**
    * Effect 1: Handle changes in sessions (data)
    * - Manage markers loading state
-   * - Add/remove markers
+   * - Add/remove/update markers
    * - Update polyline
    */
   useEffect(() => {
@@ -68,15 +104,7 @@ const StreamMarkers = ({ sessions, unitSymbol }: Props) => {
 
     // Start loading
     dispatch(setMarkersLoading(true));
-    dispatch(setTotalMarkers(sessions.length));
-
-    // Remove existing markers
-    if (markersRef.current.length > 0) {
-      markersRef.current.forEach((marker) => {
-        marker.map = null;
-      });
-      markersRef.current = [];
-    }
+    dispatch(setTotalMarkers(sortedSessions.length));
 
     // Create the polyline path using sorted session coordinates
     const path = sortedSessions.map((session) => ({
@@ -97,32 +125,22 @@ const StreamMarkers = ({ sessions, unitSymbol }: Props) => {
       });
     }
 
-    // Create markers using custom SVG content
-    const markers = sortedSessions.map((session, index) => {
-      const position = { lat: session.point.lat, lng: session.point.lng };
-      const color = getColorForValue(thresholds, session.lastMeasurementValue);
+    // Create or update markers
+    const currentMarkerIds = new Set<string>();
 
-      let cachedContent = markerContentCache.current[color];
-      if (!cachedContent) {
-        cachedContent = createMarkerContent(color);
-        markerContentCache.current[color] = cachedContent;
-      }
-
-      // Clone the cached HTMLElement to ensure uniqueness
-      const markerContentClone = cachedContent.cloneNode(true) as HTMLElement;
-
-      const marker = new google.maps.marker.AdvancedMarkerElement({
-        position,
-        content: markerContentClone, // Assign the cloned HTMLElement
-        title: `${session.lastMeasurementValue} ${unitSymbol}`,
-        zIndex: 0,
-        map: map,
-      });
-
-      return marker;
+    sortedSessions.forEach((session) => {
+      const markerId = session.id.toString();
+      createOrUpdateMarker(session);
+      currentMarkerIds.add(markerId);
     });
 
-    markersRef.current = markers;
+    // Remove markers that are no longer needed
+    markersRef.current.forEach((marker, markerId) => {
+      if (!currentMarkerIds.has(markerId)) {
+        marker.setMap(null);
+        markersRef.current.delete(markerId);
+      }
+    });
 
     const idleListener = map.addListener("idle", handleIdle);
 
@@ -133,12 +151,10 @@ const StreamMarkers = ({ sessions, unitSymbol }: Props) => {
 
     return () => {
       // Cleanup markers
-      if (markersRef.current.length > 0) {
-        markersRef.current.forEach((marker) => {
-          marker.map = null;
-        });
-        markersRef.current = [];
-      }
+      markersRef.current.forEach((marker) => {
+        marker.setMap(null);
+      });
+      markersRef.current.clear();
 
       // Cleanup polyline
       if (polylineRef.current) {
@@ -153,50 +169,25 @@ const StreamMarkers = ({ sessions, unitSymbol }: Props) => {
         timeoutId.current = null;
       }
     };
-  }, [map, sortedSessions, unitSymbol, dispatch, sessions.length, handleIdle]);
+  }, [map, sortedSessions, dispatch, handleIdle, createOrUpdateMarker]);
 
   /**
    * Effect 2: Handle changes in thresholds
-   * - Update marker content's color based on new thresholds
+   * - Update marker icon's color based on new thresholds
    * - Do NOT affect loading state
    */
   useEffect(() => {
-    if (!markersRef.current.length) return;
-
-    markersRef.current.forEach((marker, index) => {
-      const session = sortedSessions[index];
-      if (!session) return;
-
-      const newColor = getColorForValue(
-        thresholds,
-        session.lastMeasurementValue
-      );
-
-      const markerContent = marker.content as HTMLElement | null;
-      if (!markerContent) {
-        console.warn(`Marker at index ${index} has no content.`);
-        return;
-      }
-
-      const svg = markerContent.querySelector("svg");
-      if (!svg) {
-        console.warn(`Marker at index ${index} has no SVG element.`);
-        return;
-      }
-
-      const circle = svg.querySelector("circle");
-      if (!circle) {
-        console.warn(`Marker at index ${index} has no circle element.`);
-        return;
-      }
-
-      const currentFill = circle.getAttribute("fill");
-
-      if (currentFill !== newColor) {
-        circle.setAttribute("fill", newColor);
+    markersRef.current.forEach((marker, markerId) => {
+      const session = sortedSessions.find((s) => s.id.toString() === markerId);
+      if (session) {
+        const newColor = getColorForValue(
+          thresholds,
+          session.lastMeasurementValue
+        );
+        marker.setIcon(createMarkerIcon(newColor));
       }
     });
-  }, [thresholds, sortedSessions]);
+  }, [thresholds, sortedSessions, createMarkerIcon]);
 
   return hoverPosition ? <HoverMarker position={hoverPosition} /> : null;
 };
