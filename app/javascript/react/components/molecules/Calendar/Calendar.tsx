@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 
 import { MovesKeys } from "../../../types/movesKeys";
@@ -30,9 +30,63 @@ const Calendar: React.FC<CalendarProps> = ({
   } = useCalendarHook({ streamId, minCalendarDate, maxCalendarDate });
   const { t } = useTranslation();
 
-  const sortedThreeMonthsData = isMobile()
-    ? [...threeMonthsData].reverse()
-    : threeMonthsData;
+  const isMobileView = isMobile();
+
+  const sortedThreeMonthsData = useMemo(
+    () => (isMobileView ? [...threeMonthsData].reverse() : threeMonthsData),
+    [threeMonthsData, isMobileView]
+  );
+
+  const MobileSwipeComponent = () => (
+    <S.MobileSwipeContainer>
+      <ScrollCalendarButton
+        disabled={isLeftButtonDisabled}
+        direction={MovesKeys.MOVE_BACKWARD}
+        handleClick={handleLeftClick}
+      />
+      <S.DateField>
+        <span>{dateReference.firstVisibleDataPointDate}</span>
+        <span>-</span>
+        <span>{dateReference.lastVisibleDataPointDate}</span>
+      </S.DateField>
+      <ScrollCalendarButton
+        disabled={isRightButtonDisabled}
+        direction={MovesKeys.MOVE_FORWARD}
+        handleClick={handleRightClick}
+      />
+    </S.MobileSwipeContainer>
+  );
+
+  const DesktopSwipeComponent = () => (
+    <>
+      <S.DesktopSwipeLeftContainer>
+        <ScrollCalendarButton
+          disabled={isLeftButtonDisabled}
+          direction={MovesKeys.MOVE_BACKWARD}
+          handleClick={handleLeftClick}
+        />
+      </S.DesktopSwipeLeftContainer>
+      <S.DesktopSwipeRightContainer>
+        <ScrollCalendarButton
+          disabled={isRightButtonDisabled}
+          direction={MovesKeys.MOVE_FORWARD}
+          handleClick={handleRightClick}
+        />
+      </S.DesktopSwipeRightContainer>
+    </>
+  );
+
+  const CalendarContent = () => (
+    <>
+      {isMobileView && <MobileSwipeComponent />}
+      <S.ThreeMonths>
+        {!isMobileView && <DesktopSwipeComponent />}
+        {sortedThreeMonthsData.map((month) => (
+          <Month key={month.monthName} {...month} />
+        ))}
+      </S.ThreeMonths>
+    </>
+  );
 
   return (
     sortedThreeMonthsData && (
@@ -41,51 +95,10 @@ const Calendar: React.FC<CalendarProps> = ({
           titleText={t("calendarHeader.calendarTitle")}
           startDate={dateReference.firstVisibleDataPointDate}
           endDate={dateReference.lastVisibleDataPointDate}
-          componentToToggle={
-            <>
-              <S.MobileSwipeContainer>
-                <ScrollCalendarButton
-                  disabled={isLeftButtonDisabled}
-                  direction={MovesKeys.MOVE_BACKWARD}
-                  handleClick={handleLeftClick}
-                />
-                <S.DateField>
-                  <span>{dateReference.firstVisibleDataPointDate}</span>
-                  <span>-</span>
-                  <span>{dateReference.lastVisibleDataPointDate}</span>
-                </S.DateField>
-
-                <ScrollCalendarButton
-                  disabled={isRightButtonDisabled}
-                  direction={MovesKeys.MOVE_FORWARD}
-                  handleClick={handleRightClick}
-                />
-              </S.MobileSwipeContainer>
-              <S.ThreeMonths>
-                <S.DesktopSwipeLeftContainer>
-                  <ScrollCalendarButton
-                    disabled={isLeftButtonDisabled}
-                    direction={MovesKeys.MOVE_BACKWARD}
-                    handleClick={handleLeftClick}
-                  />
-                </S.DesktopSwipeLeftContainer>
-                {sortedThreeMonthsData.map((month) => (
-                  <Month key={month.monthName} {...month} />
-                ))}
-                <S.DesktopSwipeRightContainer>
-                  <ScrollCalendarButton
-                    disabled={isRightButtonDisabled}
-                    direction={MovesKeys.MOVE_FORWARD}
-                    handleClick={handleRightClick}
-                  />
-                </S.DesktopSwipeRightContainer>
-              </S.ThreeMonths>
-            </>
-          }
+          componentToToggle={<CalendarContent />}
         />
       </S.CalendarContainer>
     )
   );
 };
-
 export { Calendar };
