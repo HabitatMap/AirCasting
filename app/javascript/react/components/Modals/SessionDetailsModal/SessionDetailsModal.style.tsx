@@ -82,20 +82,12 @@ const ModalMobileHeader = styled.div`
   display: flex;
   width: 100%;
   flex-direction: column;
-
-  @media ${media.desktop} {
-    display: none;
-  }
 `;
 
 const ModalDesktopHeader = styled.div`
-  display: none;
-
-  @media ${media.desktop} {
-    display: flex;
-    flex-direction: column;
-    gap: 2rem;
-  }
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
 `;
 
 const SessionName = styled(H2)`
