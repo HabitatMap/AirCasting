@@ -1,4 +1,3 @@
-import { size } from "lodash";
 import { gray400 } from "../../../assets/styles/colors";
 
 const iconCache = new Map<string, google.maps.Icon>();
@@ -21,76 +20,43 @@ const getTextWidth = (text: string): number => {
 export const createMarkerIcon = (
   color: string,
   value: string,
-  isSelected: boolean = false,
-  shouldPulse: boolean
+  isSelected: boolean = false
 ): google.maps.Icon => {
-  // Round value to reduce number of unique icons
+  // Round value to reduce the number of unique icons
   const roundedValue = Math.round(Number(value.split(" ")[0]));
   const unit = value.split(" ")[1];
   const displayedValue = `${roundedValue} ${unit}`;
 
-  const cacheKey = `${color}-${displayedValue}-${isSelected}-${shouldPulse}`;
+  const cacheKey = `${color}-${displayedValue}-${isSelected}`;
   if (iconCache.has(cacheKey)) {
     return iconCache.get(cacheKey)!;
   }
 
   const padding = 7;
-  const baseCircleX = 19;
-  const baseCircleY = 20;
   const baseCircleR = 6;
   const rectHeight = 19;
-  const height = 44;
   const strokeWidth = isSelected ? 1 : 0;
-  const shadowRadius = isSelected ? 22 : 18;
-  const maxScaleFactor = 1.6;
-  const deltaR = shadowRadius * (maxScaleFactor - 1);
 
+  // Calculate text width
   const textWidth = getTextWidth(displayedValue);
-  const mainContentWidth =
-    8 + height / 2 + baseCircleR + padding + textWidth + 2;
-  const totalWidth = Math.max(mainContentWidth + 8, shadowRadius * 2);
 
-  const shadowColor = `${color}`;
+  // Calculate rectangle width
+  const rectWidth = 8 + baseCircleR + padding + textWidth * 1.2 + 2;
 
-  // Define viewBox based on whether pulsation is needed
-  const viewBoxMinX = shouldPulse ? -deltaR : 0;
-  const viewBoxMinY = shouldPulse ? -deltaR * 2 + padding : padding;
+  // Set SVG dimensions and viewBox to match the rectangle
+  const svgWidth = rectWidth;
+  const svgHeight = rectHeight;
 
-  const viewBoxWidth =
-    totalWidth + (shouldPulse ? deltaR * 2 : 0) + padding * 2;
-  const viewBoxHeight = height + (shouldPulse ? deltaR * 2 + padding : padding);
+  // Positions within the SVG
+  const circleCX = 11; // Circle center x-coordinate
+  const circleCY = rectHeight / 2; // Circle center y-coordinate
+  const textX = circleCX + baseCircleR + padding; // Text x-coordinate
+  const textY = rectHeight / 2 + 4; // Text y-coordinate
 
-  const centerX = (totalWidth + padding * 2) / 2;
-  const centerY = (height + padding * 2) / 2;
-
-  // const centerX = baseCircleX + 2;
-  // const centerY = baseCircleY;
-
+  // Generate SVG
   const svg = `
-    <svg xmlns="http://www.w3.org/2000/svg" width="${viewBoxWidth}" height="${viewBoxHeight}" viewBox="${viewBoxMinX} ${viewBoxMinY} ${viewBoxWidth} ${viewBoxHeight}" overflow="visible">
+    <svg xmlns="http://www.w3.org/2000/svg" width="${svgWidth}" height="${svgHeight}" viewBox="0 0 ${svgWidth} ${svgHeight}">
       <defs>
-        <!-- Radial Gradient for Shadow -->
-        ${
-          isSelected
-            ? `<radialGradient id="shadowGradient" cx="50%" cy="50%" r="70%">
-                <stop offset="0%" stop-color="${shadowColor}90" />
-                <stop offset="40%" stop-color="${shadowColor}90" />
-                <stop offset="100%" stop-color="${shadowColor}90" stop-opacity="0" />
-              </radialGradient>`
-            : `<radialGradient id="shadowGradient" cx="50%" cy="50%" r="60%">
-                <stop offset="0%" stop-color="${shadowColor}95" />
-                <stop offset="30%" stop-color="${shadowColor}95" />
-                <stop offset="100%" stop-color="${shadowColor}95" />
-              </radialGradient>`
-        }
-        <!-- Blur Filter -->
-        ${
-          !isSelected
-            ? `<filter id="blur" x="-50%" y="-50%" width="200%" height="200%">
-                <feGaussianBlur in="SourceGraphic" stdDeviation="3" />
-              </filter>`
-            : ""
-        }
         <!-- Drop Shadow for Rectangle -->
         <filter id="dropShadow" x="-20%" y="-20%" width="140%" height="140%">
           <feGaussianBlur in="SourceAlpha" stdDeviation="0.5"/>
@@ -103,55 +69,21 @@ export const createMarkerIcon = (
           </feMerge>
         </filter>
       </defs>
-      <style>
-        ${
-          shouldPulse
-            ? `
-          @keyframes pulse-animation {
-            0% { transform: scale(1); opacity: 1; }
-            50% { transform: scale(${maxScaleFactor}); opacity: 0.9; }
-            100% { transform: scale(1); opacity: 1; }
-          }
-          .pulse {
-            animation: pulse-animation 2s infinite;
-            transform-origin: ${
-              centerX - mainContentWidth / 2 + 11
-            }px ${centerY}px;
-          }
-        `
-            : ""
-        }
-      </style>
-      <!-- Pulsating Circle (Background) -->
-      ${shouldPulse ? `<g class="pulse">` : ""}
-              <circle cx="${
-                centerX - mainContentWidth / 2 + 11
-              }" cy="${centerY}" r="${shadowRadius}" fill="url(#shadowGradient)" ${
-    !isSelected ? 'filter="url(#blur)"' : ""
-  } />
-            ${shouldPulse ? `</g>` : ""}
       <!-- Label Rectangle with Drop Shadow -->
-      <rect x="${centerX - mainContentWidth / 2}" y="${
-    centerY - rectHeight / 2
-  }" rx="9" ry="${centerY}" width="${mainContentWidth}" height="${rectHeight}" fill="white" stroke="${color}" stroke-width="${strokeWidth}" filter="url(#dropShadow)"/>
+      <rect x="0" y="0" rx="9" ry="9.5" width="${rectWidth}" height="${rectHeight}" fill="white" stroke="${color}" stroke-width="${strokeWidth}" filter="url(#dropShadow)"/>
       <!-- Small Colored Circle Inside Label -->
-      <circle cx="${
-        centerX - mainContentWidth / 2 + 11
-      }" cy="${centerY}" r="${baseCircleR}" fill="${color}" stroke="${color}" stroke-width="${strokeWidth}" />
+      <circle cx="${circleCX}" cy="${circleCY}" r="${baseCircleR}" fill="${color}" stroke="${color}" stroke-width="${strokeWidth}" />
       <!-- Label Text -->
-      <text x="${
-        centerX - mainContentWidth / 2 + 11 + baseCircleR + padding
-      }" y="${
-    centerY + 5
-  }" font-family="Roboto, Arial, sans-serif" font-size="12" font-weight="400" letter-spacing="0.14" fill="${gray400}" text-anchor="start">${displayedValue}</text>
+      <text x="${textX}" y="${textY}" font-family="Roboto, Arial, sans-serif" font-size="12" font-weight="500" letter-spacing="0.14" fill="${gray400}" text-anchor="start">${displayedValue}</text>
     </svg>
   `;
 
-  const selectedAnchor = new google.maps.Point(shadowRadius, shadowRadius);
+  // Set the anchor point to the center of the small colored circle
+  const anchorPoint = new google.maps.Point(circleCX, circleCY);
 
   const icon = {
     url: `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(svg)}`,
-    anchor: isSelected ? selectedAnchor : null,
+    anchor: anchorPoint,
   };
 
   iconCache.set(cacheKey, icon);

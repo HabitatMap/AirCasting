@@ -34,11 +34,13 @@ import { createFixedMarkersRenderer } from "./ClusterConfiguration";
 import { ClusterInfo } from "./ClusterInfo/ClusterInfo";
 import { createClusterIcon, createMarkerIcon } from "./createMarkerIcon";
 import HoverMarker from "./HoverMarker/HoverMarker";
+import { CustomMarkerOverlay } from "./customMarkerOverlay";
 
 type CustomMarker = google.maps.Marker & {
   value: number;
   sessionId: number;
   userData: { streamId: string };
+  clustered: boolean; // New property
 };
 
 type FixedMarkersProps = {
@@ -75,6 +77,7 @@ export function FixedMarkers({
   const clusterElementsRef = useRef<Map<Cluster, google.maps.Marker>>(
     new Map()
   );
+  const markerOverlays = new Map<string, CustomMarkerOverlay>();
 
   const [hoverPosition, setHoverPosition] = useState<LatLngLiteral | null>(
     null
@@ -86,6 +89,57 @@ export function FixedMarkers({
   } | null>(null);
 
   const memoizedSessions = useMemo(() => sessions, [sessions]);
+  const updateMarkerOverlays = useCallback(() => {
+    markerRefs.current.forEach((marker, streamId) => {
+      const isSelected =
+        marker.userData?.streamId === selectedStreamId?.toString();
+      const shouldPulse =
+        marker.sessionId === pulsatingSessionId && !marker.clustered;
+
+      console.log(`Marker ${streamId}: clustered=${marker.clustered}`);
+
+      const existingOverlay = markerOverlays.get(streamId);
+
+      if (marker.clustered) {
+        // If the marker is clustered, remove its overlay if it exists
+        if (existingOverlay) {
+          existingOverlay.setMap(null);
+          markerOverlays.delete(streamId);
+        }
+      } else {
+        // The marker is not clustered, so it should have an overlay
+        if (existingOverlay) {
+          // Update overlay if properties have changed
+          if (
+            existingOverlay.getIsSelected() !== isSelected ||
+            existingOverlay.getShouldPulse() !== shouldPulse
+          ) {
+            existingOverlay.setMap(null);
+            markerOverlays.delete(streamId);
+            const overlay = new CustomMarkerOverlay(
+              marker.getPosition()!,
+              getColorForValue(thresholds, marker.value),
+              isSelected,
+              shouldPulse
+            );
+            overlay.setMap(map);
+            markerOverlays.set(streamId, overlay);
+          }
+        } else {
+          // Create new overlay
+          const overlay = new CustomMarkerOverlay(
+            marker.getPosition()!,
+            getColorForValue(thresholds, marker.value),
+            isSelected,
+            shouldPulse
+          );
+          overlay.setMap(map);
+          markerOverlays.set(streamId, overlay);
+          console.log(`Overlay created for marker ${streamId}`);
+        }
+      }
+    });
+  }, [map, selectedStreamId, pulsatingSessionId, thresholds]);
 
   // Utility functions and event handlers for map interactions, marker creation, and cluster management
   const centerMapOnMarker = useCallback(
@@ -161,8 +215,7 @@ export function FixedMarkers({
       const newIcon = createMarkerIcon(
         getColorForValue(thresholds, value),
         `${Math.round(value)} ${unitSymbol}`,
-        marker.userData?.streamId === selectedStreamId?.toString(),
-        marker.sessionId === pulsatingSessionId
+        marker.userData?.streamId === selectedStreamId?.toString()
       );
       marker.setIcon(newIcon);
     });
@@ -195,8 +248,7 @@ export function FixedMarkers({
         icon: createMarkerIcon(
           getColorForValue(thresholds, session.lastMeasurementValue),
           `${Math.round(session.lastMeasurementValue)} ${unitSymbol}`,
-          isSelected,
-          session.id === pulsatingSessionId
+          isSelected
         ),
         zIndex: Number(google.maps.Marker.MAX_ZINDEX) + 1,
       }) as CustomMarker;
@@ -204,6 +256,7 @@ export function FixedMarkers({
       marker.value = session.lastMeasurementValue;
       marker.sessionId = session.id;
       marker.userData = { streamId: session.point.streamId };
+      marker.clustered;
 
       marker.addListener("click", () => {
         onMarkerClick(Number(session.point.streamId), Number(session.id));
@@ -291,8 +344,7 @@ export function FixedMarkers({
         const newIcon = createMarkerIcon(
           getColorForValue(thresholds, session.lastMeasurementValue),
           `${Math.round(session.lastMeasurementValue)} ${unitSymbol}`,
-          session.point.streamId === selectedStreamId?.toString(),
-          session.id === pulsatingSessionId
+          session.point.streamId === selectedStreamId?.toString()
         );
 
         // Update existing marker
@@ -321,6 +373,8 @@ export function FixedMarkers({
     }
     // Force clusterer update
     clustererRef.current.render();
+
+    updateMarkerOverlays();
   }, [
     sessions,
     map,
@@ -346,6 +400,40 @@ export function FixedMarkers({
       clusterElementsRef.current.clear();
     };
   }, []);
+
+  useEffect(() => {
+    if (clustererRef.current) {
+      clustererRef.current.addListener("clusteringend", () => {
+        console.log("clusteringend event fired");
+        // Update clustered status for markers
+        markerRefs.current.forEach((marker) => {
+          (marker as CustomMarker).clustered = false;
+        });
+        // @ts-ignore
+        clustererRef.current.clusters.forEach((cluster) => {
+          if (cluster.markers && cluster.markers.length > 1) {
+            cluster.markers.forEach((marker) => {
+              (marker as CustomMarker).clustered = true;
+            });
+          }
+        });
+
+        // Update marker icons and overlays
+        updateMarkerOverlays();
+      });
+    }
+  }, [
+    map,
+    thresholds,
+    selectedStreamId,
+    pulsatingSessionId,
+    updateMarkerOverlays,
+    markerRefs.current,
+  ]);
+
+  useEffect(() => {
+    updateMarkerOverlays();
+  }, [pulsatingSessionId, markerRefs.current, sessions]);
 
   useEffect(() => {
     handleThresholdChange();
@@ -402,6 +490,16 @@ export function FixedMarkers({
       });
     }
   }, [map, customRenderer, handleClusterClickInternal]);
+
+  useEffect(() => {
+    return () => {
+      if (clustererRef.current) {
+        google.maps.event.clearInstanceListeners(clustererRef.current);
+      }
+      markerOverlays.forEach((overlay) => overlay.setMap(null));
+      markerOverlays.clear();
+    };
+  }, []);
 
   return (
     <>

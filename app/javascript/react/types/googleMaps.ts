@@ -7,4 +7,8 @@ export { LatLngLiteral, Map, type MapOptions };
 export interface CustomMarker extends google.maps.Marker {
   get(key: string): any;
   set(key: string, value: any): void;
+  value: number;
+  sessionId: number;
+  userData: { streamId: string };
+  clustered: boolean;
 }
