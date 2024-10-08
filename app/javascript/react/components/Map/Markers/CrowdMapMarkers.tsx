@@ -132,7 +132,7 @@ const CrowdMapMarkers = ({ pulsatingSessionId, sessions }: Props) => {
 
   useEffect(() => {
     if (!mobileSessionsLoading || fetchingCrowdMapData) {
-      setRectanglePoint(null);
+      setRectanglePoint(null); // Clear rectanglePoint when fetching new data
       dispatch(clearCrowdMap());
       dispatch(fetchCrowdMapData(filters));
     }
@@ -196,6 +196,7 @@ const CrowdMapMarkers = ({ pulsatingSessionId, sessions }: Props) => {
       rectanglesRef.current.push(...newRectangles);
     }
 
+    // Cleanup function to remove rectangles on unmount
     return () => {
       rectanglesRef.current.forEach((rectangle) => rectangle.setMap(null));
       rectanglesRef.current = [];
@@ -218,13 +219,26 @@ const CrowdMapMarkers = ({ pulsatingSessionId, sessions }: Props) => {
   ]);
 
   useEffect(() => {
-    map && map.addListener("zoom_changed", () => dispatch(clearRectangles()));
+    map &&
+      map.addListener("zoom_changed", () => {
+        dispatch(clearRectangles());
+        setRectanglePoint(null); // Clear rectanglePoint when zoom changes
+      });
   }, [dispatch, map]);
 
   useMapEventListeners(map, {
-    click: () => dispatch(clearRectangles()),
-    touchend: () => dispatch(clearRectangles()),
-    dragstart: () => dispatch(clearRectangles()),
+    click: () => {
+      dispatch(clearRectangles());
+      setRectanglePoint(null); // Clear rectanglePoint when map is clicked
+    },
+    touchend: () => {
+      dispatch(clearRectangles());
+      setRectanglePoint(null);
+    },
+    dragstart: () => {
+      dispatch(clearRectangles());
+      setRectanglePoint(null);
+    },
   });
 
   useEffect(() => {
@@ -233,8 +247,10 @@ const CrowdMapMarkers = ({ pulsatingSessionId, sessions }: Props) => {
     }
   }, [crowdMapRectanglesLength, dispatch, rectanglesRef.current.length]);
 
+  // Manage displayed session marker
   useEffect(() => {
     if (displayedSession && map) {
+      // Remove previous marker if any
       if (displayedSessionMarkerRef.current) {
         displayedSessionMarkerRef.current.setMap(null);
       }
@@ -251,12 +267,14 @@ const CrowdMapMarkers = ({ pulsatingSessionId, sessions }: Props) => {
       displayedSessionMarkerRef.current = marker;
 
       return () => {
+        // Clean up marker when component unmounts or displayedSession changes
         if (displayedSessionMarkerRef.current) {
           displayedSessionMarkerRef.current.setMap(null);
           displayedSessionMarkerRef.current = null;
         }
       };
     } else {
+      // No displayedSession, remove any existing marker
       if (displayedSessionMarkerRef.current) {
         displayedSessionMarkerRef.current.setMap(null);
         displayedSessionMarkerRef.current = null;
@@ -266,7 +284,7 @@ const CrowdMapMarkers = ({ pulsatingSessionId, sessions }: Props) => {
 
   return (
     <>
-      {rectanglePoint && (
+      {rectanglePoint && (rectangleLoading || rectangleData) && (
         <MapOverlay position={rectanglePoint}>
           {rectangleData && !rectangleLoading ? (
             <RectangleInfo
