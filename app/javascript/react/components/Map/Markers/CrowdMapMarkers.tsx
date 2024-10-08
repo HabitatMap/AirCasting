@@ -126,6 +126,13 @@ const CrowdMapMarkers = ({ pulsatingSessionId, sessions }: Props) => {
 
   const displayedSessionMarkerRef = useRef<CustomMarker | null>(null);
 
+  const cleanupMarker = () => {
+    if (displayedSessionMarkerRef.current) {
+      displayedSessionMarkerRef.current.setMap(null);
+      displayedSessionMarkerRef.current = null;
+    }
+  };
+
   useEffect(() => {
     dispatch(setMarkersLoading(true));
   }, [crowdMapRectanglesLength, tags, usernames, dispatch]);
@@ -250,10 +257,7 @@ const CrowdMapMarkers = ({ pulsatingSessionId, sessions }: Props) => {
   // Manage displayed session marker
   useEffect(() => {
     if (displayedSession && map) {
-      // Remove previous marker if any
-      if (displayedSessionMarkerRef.current) {
-        displayedSessionMarkerRef.current.setMap(null);
-      }
+      cleanupMarker();
 
       const position = displayedSession.point;
       const color = getColorForValue(
@@ -266,19 +270,9 @@ const CrowdMapMarkers = ({ pulsatingSessionId, sessions }: Props) => {
       marker.setMap(map);
       displayedSessionMarkerRef.current = marker;
 
-      return () => {
-        // Clean up marker when component unmounts or displayedSession changes
-        if (displayedSessionMarkerRef.current) {
-          displayedSessionMarkerRef.current.setMap(null);
-          displayedSessionMarkerRef.current = null;
-        }
-      };
+      return cleanupMarker;
     } else {
-      // No displayedSession, remove any existing marker
-      if (displayedSessionMarkerRef.current) {
-        displayedSessionMarkerRef.current.setMap(null);
-        displayedSessionMarkerRef.current = null;
-      }
+      cleanupMarker();
     }
   }, [displayedSession, map, thresholds]);
 
