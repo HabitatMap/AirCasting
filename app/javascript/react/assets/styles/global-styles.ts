@@ -9,7 +9,7 @@ const pulseAnimation = keyframes`
   }
   50% {
     transform: scale(2.0);
-    opacity: 0.8;
+    opacity: 0.5;
   }
   100% {
     transform: scale(1);
