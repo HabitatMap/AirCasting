@@ -1,7 +1,6 @@
+import { useMap } from "@vis.gl/react-google-maps";
 import React, { useEffect, useMemo, useRef, useState } from "react";
-
-import { AdvancedMarker, useMap } from "@vis.gl/react-google-maps";
-
+import { grey } from "../../../assets/styles/colors";
 import {
   clearCrowdMap,
   fetchCrowdMapData,
@@ -15,7 +14,6 @@ import { selectMobileSessionsStreamIds } from "../../../store/mobileSessionsSele
 import {
   clearRectangles,
   fetchRectangleData,
-  RectangleData,
   selectRectangleData,
   selectRectangleLoading,
 } from "../../../store/rectangleSlice";
@@ -24,11 +22,11 @@ import { Session } from "../../../types/sessionType";
 import useMapEventListeners from "../../../utils/mapEventListeners";
 import { useMapParams } from "../../../utils/mapParamsHandler";
 import { getColorForValue } from "../../../utils/thresholdColors";
+import { CustomMarker } from "./CustomMarker"; // Adjust the import path accordingly
 import {
   RectangleInfo,
   RectangleInfoLoading,
 } from "./RectangleInfo/RectangleInfo";
-import { SessionDotMarker } from "./SessionDotMarker/SessionDotMarker";
 
 type Props = {
   pulsatingSessionId: number | null;
@@ -124,6 +122,9 @@ const CrowdMapMarkers = ({ pulsatingSessionId, sessions }: Props) => {
   const displayedSession: Session | undefined = sessions.find(
     (session) => session.id === pulsatingSessionId
   );
+
+  const displayedSessionMarkerRef = useRef<CustomMarker | null>(null);
+  const rectangleInfoMarkerRef = useRef<CustomMarker | null>(null);
 
   useEffect(() => {
     dispatch(setMarkersLoading(true));
@@ -233,48 +234,93 @@ const CrowdMapMarkers = ({ pulsatingSessionId, sessions }: Props) => {
     }
   }, [crowdMapRectanglesLength, dispatch, rectanglesRef.current.length]);
 
-  const renderMarker = (displayedSession: Session) => {
-    return (
-      <AdvancedMarker
-        position={displayedSession.point}
-        key={displayedSession.point.streamId}
-        zIndex={10}
-      >
-        <SessionDotMarker
-          color={getColorForValue(
-            thresholds,
-            displayedSession.lastMeasurementValue
-          )}
-          onClick={() => {}}
-          opacity={0.6}
-        />
-      </AdvancedMarker>
-    );
-  };
+  // Manage displayed session marker
+  useEffect(() => {
+    if (displayedSession && map) {
+      // Remove previous marker if any
+      if (displayedSessionMarkerRef.current) {
+        displayedSessionMarkerRef.current.setMap(null);
+      }
 
-  const renderInfo = (
-    rectangleData: RectangleData | undefined,
-    rectangleLoading: boolean
-  ) => {
-    return (
-      <AdvancedMarker position={rectanglePoint} zIndex={20}>
-        {rectangleData && !rectangleLoading && (
-          <RectangleInfo
-            color={getColorForValue(thresholds, rectangleData.average)}
-            rectangleData={rectangleData}
-          />
-        )}
-        {rectangleLoading && <RectangleInfoLoading />}
-      </AdvancedMarker>
-    );
-  };
+      const position = displayedSession.point;
+      const color = getColorForValue(
+        thresholds,
+        displayedSession.lastMeasurementValue
+      );
 
-  return (
-    <>
-      {displayedSession && renderMarker(displayedSession)}
-      {rectanglePoint && renderInfo(rectangleData, rectangleLoading)}
-    </>
-  );
+      const marker = new CustomMarker(
+        position,
+        color,
+        "", // title
+        12 // size
+      );
+
+      marker.setMap(map);
+      displayedSessionMarkerRef.current = marker;
+
+      return () => {
+        // Clean up marker when component unmounts or displayedSession changes
+        if (displayedSessionMarkerRef.current) {
+          displayedSessionMarkerRef.current.setMap(null);
+          displayedSessionMarkerRef.current = null;
+        }
+      };
+    } else {
+      // No displayedSession, remove any existing marker
+      if (displayedSessionMarkerRef.current) {
+        displayedSessionMarkerRef.current.setMap(null);
+        displayedSessionMarkerRef.current = null;
+      }
+    }
+  }, [displayedSession, map, thresholds]);
+
+  // Manage rectangle info marker
+  useEffect(() => {
+    if (rectanglePoint && map) {
+      // Remove previous marker if any
+      if (rectangleInfoMarkerRef.current) {
+        rectangleInfoMarkerRef.current.setMap(null);
+      }
+
+      const color = rectangleData
+        ? getColorForValue(thresholds, rectangleData.average)
+        : grey; // Use a default color if data is loading
+
+      const content =
+        rectangleData && !rectangleLoading ? (
+          <RectangleInfo color={color} rectangleData={rectangleData} />
+        ) : (
+          <RectangleInfoLoading />
+        );
+
+      const marker = new CustomMarker(
+        rectanglePoint,
+        color,
+        "", // title
+        0, // size, set to 0 since we're rendering custom content
+        content
+      );
+
+      marker.setMap(map);
+      rectangleInfoMarkerRef.current = marker;
+
+      return () => {
+        // Clean up marker when component unmounts or rectanglePoint changes
+        if (rectangleInfoMarkerRef.current) {
+          rectangleInfoMarkerRef.current.setMap(null);
+          rectangleInfoMarkerRef.current = null;
+        }
+      };
+    } else {
+      // No rectanglePoint, remove any existing marker
+      if (rectangleInfoMarkerRef.current) {
+        rectangleInfoMarkerRef.current.setMap(null);
+        rectangleInfoMarkerRef.current = null;
+      }
+    }
+  }, [rectanglePoint, map, rectangleData, rectangleLoading, thresholds]);
+
+  return null; // No JSX needed since we're managing markers directly
 };
 
 export { CrowdMapMarkers };
