@@ -3,23 +3,26 @@ export class CustomMarker extends google.maps.OverlayView {
   private position: google.maps.LatLng;
   private color: string;
   private title: string;
+  private size: number;
 
   constructor(
     position: google.maps.LatLngLiteral,
     color: string,
-    title: string
+    title: string,
+    size: number = 12
   ) {
     super();
     this.position = new google.maps.LatLng(position);
     this.color = color;
     this.title = title;
+    this.size = size;
   }
 
   onAdd() {
     this.div = document.createElement("div");
     this.div.style.position = "absolute";
-    this.div.style.width = "12px";
-    this.div.style.height = "12px";
+    this.div.style.width = `${this.size}px`;
+    this.div.style.height = `${this.size}px`;
     this.div.style.borderRadius = "50%";
     this.div.style.backgroundColor = this.color;
     this.div.title = this.title;
@@ -35,8 +38,9 @@ export class CustomMarker extends google.maps.OverlayView {
     const position = overlayProjection.fromLatLngToDivPixel(this.position);
 
     if (position) {
-      this.div.style.left = position.x - 6 + "px";
-      this.div.style.top = position.y - 6 + "px";
+      const offset = this.size / 2;
+      this.div.style.left = `${position.x - offset}px`;
+      this.div.style.top = `${position.y - offset}px`;
     }
   }
 
@@ -63,6 +67,15 @@ export class CustomMarker extends google.maps.OverlayView {
     this.title = title;
     if (this.div) {
       this.div.title = title;
+    }
+  }
+
+  setSize(size: number) {
+    this.size = size;
+    if (this.div) {
+      this.div.style.width = `${size}px`;
+      this.div.style.height = `${size}px`;
+      this.draw(); // Redraw to update position based on new size
     }
   }
 }

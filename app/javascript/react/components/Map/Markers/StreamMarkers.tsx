@@ -73,7 +73,7 @@ const StreamMarkers = ({ sessions, unitSymbol }: Props) => {
       let marker = markersRef.current.get(markerId);
 
       if (!marker) {
-        marker = new CustomOverlay(position, color, title);
+        marker = new CustomOverlay(position, color, title, 12);
         marker.setMap(map);
         markersRef.current.set(markerId, marker);
       } else {
