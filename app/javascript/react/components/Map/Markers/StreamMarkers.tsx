@@ -66,25 +66,27 @@ const StreamMarkers = ({ sessions, unitSymbol }: Props) => {
       if (!CustomOverlay) return;
 
       const position = { lat: session.point.lat, lng: session.point.lng };
-      const color = getColorForValue(thresholds, session.lastMeasurementValue);
       const markerId = session.id.toString();
       const title = `${session.lastMeasurementValue} ${unitSymbol}`;
 
       let marker = markersRef.current.get(markerId);
 
       if (!marker) {
+        const color = getColorForValue(
+          thresholds,
+          session.lastMeasurementValue
+        );
         marker = new CustomOverlay(position, color, title, 12);
         marker.setMap(map);
         markersRef.current.set(markerId, marker);
       } else {
         marker.setPosition(position);
-        marker.setColor(color);
         marker.setTitle(title);
       }
 
       return marker;
     },
-    [map, thresholds, unitSymbol, CustomOverlay]
+    [map, unitSymbol, CustomOverlay]
   );
 
   useEffect(() => {
