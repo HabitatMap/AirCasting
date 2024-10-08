@@ -1,5 +1,11 @@
 import { useMap } from "@vis.gl/react-google-maps";
-import React, { useCallback, useEffect, useMemo, useRef } from "react";
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { useSelector } from "react-redux";
 
 import { mobileStreamPath } from "../../../assets/styles/colors";
@@ -11,8 +17,8 @@ import {
 } from "../../../store/markersLoadingSlice";
 import { selectThresholds } from "../../../store/thresholdSlice";
 import { Session } from "../../../types/sessionType";
-import { createMarkerContent } from "../../../utils/createMarkerContent";
 import { getColorForValue } from "../../../utils/thresholdColors";
+import { CustomMarker } from "./CustomMarker";
 import HoverMarker from "./HoverMarker/HoverMarker";
 
 type Props = {
@@ -23,15 +29,15 @@ type Props = {
 const StreamMarkers = ({ sessions, unitSymbol }: Props) => {
   const dispatch = useAppDispatch();
   const map = useMap();
-  const markersRef = useRef<google.maps.marker.AdvancedMarkerElement[]>([]);
+  const markersRef = useRef<Map<string, CustomMarker>>(new Map());
   const thresholds = useSelector(selectThresholds);
   const polylineRef = useRef<google.maps.Polyline | null>(null);
   const hoverPosition = useSelector(selectHoverPosition);
   const timeoutId = useRef<NodeJS.Timeout | null>(null);
+  const [CustomOverlay, setCustomOverlay] = useState<
+    typeof CustomMarker | null
+  >(null);
 
-  // Caching marker content to prevent redundant DOM creation
-  const markerContentCache = useRef<{ [color: string]: HTMLElement }>({});
-  // Memoize the sorted sessions and filter out invalid sessions
   const sortedSessions = useMemo(() => {
     return [...sessions]
       .filter(
@@ -47,7 +53,6 @@ const StreamMarkers = ({ sessions, unitSymbol }: Props) => {
       });
   }, [sessions]);
 
-  // Handle idle event to end loading
   const handleIdle = useCallback(() => {
     dispatch(setMarkersLoading(false));
     if (timeoutId.current) {
@@ -56,33 +61,49 @@ const StreamMarkers = ({ sessions, unitSymbol }: Props) => {
     }
   }, [dispatch]);
 
-  /**
-   * Effect 1: Handle changes in sessions (data)
-   * - Manage markers loading state
-   * - Add/remove markers
-   * - Update polyline
-   */
+  const createOrUpdateMarker = useCallback(
+    (session: Session) => {
+      if (!CustomOverlay) return;
+
+      const position = { lat: session.point.lat, lng: session.point.lng };
+      const color = getColorForValue(thresholds, session.lastMeasurementValue);
+      const markerId = session.id.toString();
+      const title = `${session.lastMeasurementValue} ${unitSymbol}`;
+
+      let marker = markersRef.current.get(markerId);
+
+      if (!marker) {
+        marker = new CustomOverlay(position, color, title, 12);
+        marker.setMap(map);
+        markersRef.current.set(markerId, marker);
+      } else {
+        marker.setPosition(position);
+        marker.setColor(color);
+        marker.setTitle(title);
+      }
+
+      return marker;
+    },
+    [map, thresholds, unitSymbol, CustomOverlay]
+  );
+
   useEffect(() => {
-    if (!map) return;
-
-    // Start loading
-    dispatch(setMarkersLoading(true));
-    dispatch(setTotalMarkers(sessions.length));
-    // Remove existing markers
-    if (markersRef.current.length > 0) {
-      markersRef.current.forEach((marker) => {
-        marker.map = null;
-      });
-      markersRef.current = [];
+    if (window.google && window.google.maps && !CustomOverlay) {
+      setCustomOverlay(() => CustomMarker);
     }
+  }, [CustomOverlay]);
 
-    // Create the polyline path using sorted session coordinates
+  useEffect(() => {
+    if (!map || !CustomOverlay) return;
+
+    dispatch(setMarkersLoading(true));
+    dispatch(setTotalMarkers(sortedSessions.length));
+
     const path = sortedSessions.map((session) => ({
       lat: session.point.lat,
       lng: session.point.lng,
     }));
 
-    // Create or update the polyline
     if (polylineRef.current) {
       polylineRef.current.setPath(path);
     } else {
@@ -95,93 +116,62 @@ const StreamMarkers = ({ sessions, unitSymbol }: Props) => {
       });
     }
 
-    // Create markers using custom SVG content
-    const markers = sortedSessions.map((session, index) => {
-      const position = { lat: session.point.lat, lng: session.point.lng };
-      const color = getColorForValue(thresholds, session.lastMeasurementValue);
-      let cachedContent = markerContentCache.current[color];
-      if (!cachedContent) {
-        cachedContent = createMarkerContent(color);
-        markerContentCache.current[color] = cachedContent;
-      }
-      // Clone the cached HTMLElement to ensure uniqueness
-      const markerContentClone = cachedContent.cloneNode(true) as HTMLElement;
-      const marker = new google.maps.marker.AdvancedMarkerElement({
-        position,
-        content: markerContentClone, // Assign the cloned HTMLElement
-        title: `${session.lastMeasurementValue} ${unitSymbol}`,
-        zIndex: 0,
-        map: map,
-      });
+    const currentMarkerIds = new Set<string>();
 
-      return marker;
+    sortedSessions.forEach((session) => {
+      const markerId = session.id.toString();
+      createOrUpdateMarker(session);
+      currentMarkerIds.add(markerId);
     });
 
-    markersRef.current = markers;
+    markersRef.current.forEach((marker, markerId) => {
+      if (!currentMarkerIds.has(markerId)) {
+        marker.setMap(null);
+        markersRef.current.delete(markerId);
+      }
+    });
 
     const idleListener = map.addListener("idle", handleIdle);
 
-    // Set fallback timeout
     timeoutId.current = setTimeout(() => {
       dispatch(setMarkersLoading(false));
-    }, 10000); // 10,000 ms = 10 seconds
+    }, 10000);
 
     return () => {
-      // Cleanup markers
-      if (markersRef.current.length > 0) {
-        markersRef.current.forEach((marker) => {
-          marker.map = null;
-        });
-        markersRef.current = [];
-      }
+      markersRef.current.forEach((marker) => {
+        marker.setMap(null);
+      });
+      markersRef.current.clear();
 
-      // Cleanup polyline
       if (polylineRef.current) {
         polylineRef.current.setMap(null);
         polylineRef.current = null;
       }
 
-      // Remove idle listener and clear timeout
       google.maps.event.removeListener(idleListener);
       if (timeoutId.current) {
         clearTimeout(timeoutId.current);
         timeoutId.current = null;
       }
     };
-  }, [map, sortedSessions, unitSymbol, dispatch, sessions.length, handleIdle]);
+  }, [
+    map,
+    sortedSessions,
+    dispatch,
+    handleIdle,
+    createOrUpdateMarker,
+    CustomOverlay,
+  ]);
 
-  /**
-   * Effect 2: Handle changes in thresholds
-   * - Update marker content's color based on new thresholds
-   * - Do NOT affect loading state
-   */
   useEffect(() => {
-    if (!markersRef.current.length) return;
-    markersRef.current.forEach((marker, index) => {
-      const session = sortedSessions[index];
-      if (!session) return;
-      const newColor = getColorForValue(
-        thresholds,
-        session.lastMeasurementValue
-      );
-      const markerContent = marker.content as HTMLElement | null;
-      if (!markerContent) {
-        console.warn(`Marker at index ${index} has no content.`);
-        return;
-      }
-      const svg = markerContent.querySelector("svg");
-      if (!svg) {
-        console.warn(`Marker at index ${index} has no SVG element.`);
-        return;
-      }
-      const circle = svg.querySelector("circle");
-      if (!circle) {
-        console.warn(`Marker at index ${index} has no circle element.`);
-        return;
-      }
-      const currentFill = circle.getAttribute("fill");
-      if (currentFill !== newColor) {
-        circle.setAttribute("fill", newColor);
+    markersRef.current.forEach((marker, markerId) => {
+      const session = sortedSessions.find((s) => s.id.toString() === markerId);
+      if (session) {
+        const newColor = getColorForValue(
+          thresholds,
+          session.lastMeasurementValue
+        );
+        marker.setColor(newColor);
       }
     });
   }, [thresholds, sortedSessions]);
