@@ -1,4 +1,3 @@
-// CustomMarker.tsx
 export class CustomMarker extends google.maps.OverlayView {
   private div: HTMLDivElement | null = null;
   private position: google.maps.LatLng;
