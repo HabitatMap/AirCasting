@@ -1,4 +1,3 @@
-// DormantMarkers.tsx
 import React, {
   useCallback,
   useEffect,
@@ -22,7 +21,7 @@ import {
 import { setMarkersLoading } from "../../../store/markersLoadingSlice";
 import { StatusEnum } from "../../../types/api";
 import type { LatLngLiteral } from "../../../types/googleMaps";
-import { CustomMarker } from "./CustomMarker"; // Adjust the path as necessary
+import { CustomMarker } from "./CustomMarker";
 
 type DormantMarkersProps = {
   sessions: Session[];
