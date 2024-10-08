@@ -1,3 +1,4 @@
+// DormantMarkers.tsx
 import React, {
   useCallback,
   useEffect,
@@ -21,12 +22,7 @@ import {
 import { setMarkersLoading } from "../../../store/markersLoadingSlice";
 import { StatusEnum } from "../../../types/api";
 import type { LatLngLiteral } from "../../../types/googleMaps";
-
-type CustomMarker = google.maps.Marker & {
-  value: number;
-  sessionId: number;
-  userData: { streamId: string };
-};
+import { CustomMarker } from "./CustomMarker"; // Adjust the path as necessary
 
 type DormantMarkersProps = {
   sessions: Session[];
@@ -67,67 +63,60 @@ const DormantMarkers = ({
     [map, selectedStreamId]
   );
 
-  const createMarkerIcon = useCallback(() => {
-    return {
-      path: google.maps.SymbolPath.CIRCLE,
-      fillColor: gray300,
-      fillOpacity: 1,
-      strokeWeight: 0,
-      scale: 6,
-    };
-  }, []);
-
   const createMarker = useCallback(
     (session: Session): CustomMarker => {
-      const marker = new google.maps.Marker({
-        position: session.point,
-        icon: createMarkerIcon(),
-        zIndex: 0,
-        map: map,
-      }) as CustomMarker;
+      const position = session.point;
+      const color = gray300;
+      const title = "";
+      const size = 12;
+      const shouldPulse = session.id === pulsatingSessionId;
 
-      marker.addListener("click", () => {
+      const marker = new CustomMarker(position, color, title, size, () => {
         onMarkerClick(Number(session.point.streamId), Number(session.id));
-        centerMapOnMarker(session.point);
+        centerMapOnMarker(position);
       });
+
+      marker.setPulsating(shouldPulse);
+
+      // Set the map to display the marker
+      marker.setMap(map);
+
       return marker;
     },
-    [
-      map,
-      sessions,
-      selectedStreamId,
-      pulsatingSessionId,
-      onMarkerClick,
-      centerMapOnMarker,
-    ]
+    [map, onMarkerClick, centerMapOnMarker, pulsatingSessionId]
   );
 
   useEffect(() => {
     if (!map) return;
 
     sessions.forEach((session) => {
-      let marker = markerRefs.current.get(session.point.streamId);
+      const markerId = session.point.streamId;
+      let marker = markerRefs.current.get(markerId);
       if (!marker) {
         marker = createMarker(session);
-        markerRefs.current.set(session.point.streamId, marker);
+        markerRefs.current.set(markerId, marker);
       } else {
-        const newIcon = createMarkerIcon();
-
         // Update existing marker
-        marker.setIcon(newIcon);
         marker.setPosition(session.point);
-        marker.value = session.lastMeasurementValue;
-        marker.sessionId = session.id;
+        marker.setPulsating(session.id === pulsatingSessionId);
       }
     });
-  }, [sessions, map, createMarker, selectedStreamId, pulsatingSessionId]);
 
-  useEffect(() => {
+    // Remove markers that are no longer in sessions
+    const sessionStreamIds = new Set(sessions.map((s) => s.point.streamId));
+    markerRefs.current.forEach((marker, markerId) => {
+      if (!sessionStreamIds.has(markerId)) {
+        marker.setMap(null);
+        markerRefs.current.delete(markerId);
+      }
+    });
+
+    // Cleanup on unmount
     return () => {
       markerRefs.current.forEach((marker) => marker.setMap(null));
       markerRefs.current.clear();
     };
-  }, []);
+  }, [sessions, map, createMarker, pulsatingSessionId]);
 
   useEffect(() => {
     const handleSelectedStreamId = (streamId: number | null) => {
