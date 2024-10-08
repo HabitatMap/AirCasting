@@ -1,4 +1,3 @@
-// MapOverlay.tsx
 import { useMap } from "@vis.gl/react-google-maps";
 import React, { useEffect, useRef } from "react";
 import ReactDOM from "react-dom";
