@@ -111,7 +111,6 @@ const DormantMarkers = ({
         marker = createMarker(session);
         markerRefs.current.set(session.point.streamId, marker);
       } else {
-        console.log("wchodzi tu");
         const newIcon = createMarkerIcon();
 
         // Update existing marker
