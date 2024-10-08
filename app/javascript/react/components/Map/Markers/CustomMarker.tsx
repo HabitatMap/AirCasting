@@ -1,5 +1,7 @@
 import React from "react";
 import { createRoot, Root } from "react-dom/client";
+import { Provider } from "react-redux";
+import store from "../../../store/index";
 
 export class CustomMarker extends google.maps.OverlayView {
   private div: HTMLDivElement | null = null;
@@ -145,11 +147,11 @@ export class CustomMarker extends google.maps.OverlayView {
     if (this.div) {
       if (this.root) {
         // Update the rendered content
-        this.root.render(<>{this.content}</>);
+        this.root.render(<Provider store={store}>{this.content}</Provider>);
       } else {
         // If root doesn't exist, create it
         this.root = createRoot(this.div);
-        this.root.render(<>{this.content}</>);
+        this.root.render(<Provider store={store}>{this.content}</Provider>);
       }
     }
   }

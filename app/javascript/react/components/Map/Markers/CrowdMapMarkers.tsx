@@ -1,6 +1,5 @@
 import { useMap } from "@vis.gl/react-google-maps";
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import { grey } from "../../../assets/styles/colors";
 import {
   clearCrowdMap,
   fetchCrowdMapData,
@@ -22,7 +21,9 @@ import { Session } from "../../../types/sessionType";
 import useMapEventListeners from "../../../utils/mapEventListeners";
 import { useMapParams } from "../../../utils/mapParamsHandler";
 import { getColorForValue } from "../../../utils/thresholdColors";
-import { CustomMarker } from "./CustomMarker"; // Adjust the import path accordingly
+
+import { CustomMarker } from "./CustomMarker";
+import MapOverlay from "./MapOverlay";
 import {
   RectangleInfo,
   RectangleInfoLoading,
@@ -124,7 +125,6 @@ const CrowdMapMarkers = ({ pulsatingSessionId, sessions }: Props) => {
   );
 
   const displayedSessionMarkerRef = useRef<CustomMarker | null>(null);
-  const rectangleInfoMarkerRef = useRef<CustomMarker | null>(null);
 
   useEffect(() => {
     dispatch(setMarkersLoading(true));
@@ -196,7 +196,6 @@ const CrowdMapMarkers = ({ pulsatingSessionId, sessions }: Props) => {
       rectanglesRef.current.push(...newRectangles);
     }
 
-    // Cleanup function to remove rectangles on unmount
     return () => {
       rectanglesRef.current.forEach((rectangle) => rectangle.setMap(null));
       rectanglesRef.current = [];
@@ -234,10 +233,8 @@ const CrowdMapMarkers = ({ pulsatingSessionId, sessions }: Props) => {
     }
   }, [crowdMapRectanglesLength, dispatch, rectanglesRef.current.length]);
 
-  // Manage displayed session marker
   useEffect(() => {
     if (displayedSession && map) {
-      // Remove previous marker if any
       if (displayedSessionMarkerRef.current) {
         displayedSessionMarkerRef.current.setMap(null);
       }
@@ -248,25 +245,18 @@ const CrowdMapMarkers = ({ pulsatingSessionId, sessions }: Props) => {
         displayedSession.lastMeasurementValue
       );
 
-      const marker = new CustomMarker(
-        position,
-        color,
-        "", // title
-        12 // size
-      );
+      const marker = new CustomMarker(position, color, "", 12);
 
       marker.setMap(map);
       displayedSessionMarkerRef.current = marker;
 
       return () => {
-        // Clean up marker when component unmounts or displayedSession changes
         if (displayedSessionMarkerRef.current) {
           displayedSessionMarkerRef.current.setMap(null);
           displayedSessionMarkerRef.current = null;
         }
       };
     } else {
-      // No displayedSession, remove any existing marker
       if (displayedSessionMarkerRef.current) {
         displayedSessionMarkerRef.current.setMap(null);
         displayedSessionMarkerRef.current = null;
@@ -274,53 +264,22 @@ const CrowdMapMarkers = ({ pulsatingSessionId, sessions }: Props) => {
     }
   }, [displayedSession, map, thresholds]);
 
-  // Manage rectangle info marker
-  useEffect(() => {
-    if (rectanglePoint && map) {
-      // Remove previous marker if any
-      if (rectangleInfoMarkerRef.current) {
-        rectangleInfoMarkerRef.current.setMap(null);
-      }
-
-      const color = rectangleData
-        ? getColorForValue(thresholds, rectangleData.average)
-        : grey; // Use a default color if data is loading
-
-      const content =
-        rectangleData && !rectangleLoading ? (
-          <RectangleInfo color={color} rectangleData={rectangleData} />
-        ) : (
-          <RectangleInfoLoading />
-        );
-
-      const marker = new CustomMarker(
-        rectanglePoint,
-        color,
-        "", // title
-        0, // size, set to 0 since we're rendering custom content
-        content
-      );
-
-      marker.setMap(map);
-      rectangleInfoMarkerRef.current = marker;
-
-      return () => {
-        // Clean up marker when component unmounts or rectanglePoint changes
-        if (rectangleInfoMarkerRef.current) {
-          rectangleInfoMarkerRef.current.setMap(null);
-          rectangleInfoMarkerRef.current = null;
-        }
-      };
-    } else {
-      // No rectanglePoint, remove any existing marker
-      if (rectangleInfoMarkerRef.current) {
-        rectangleInfoMarkerRef.current.setMap(null);
-        rectangleInfoMarkerRef.current = null;
-      }
-    }
-  }, [rectanglePoint, map, rectangleData, rectangleLoading, thresholds]);
-
-  return null; // No JSX needed since we're managing markers directly
+  return (
+    <>
+      {rectanglePoint && (
+        <MapOverlay position={rectanglePoint}>
+          {rectangleData && !rectangleLoading ? (
+            <RectangleInfo
+              color={getColorForValue(thresholds, rectangleData.average)}
+              rectangleData={rectangleData}
+            />
+          ) : (
+            <RectangleInfoLoading />
+          )}
+        </MapOverlay>
+      )}
+    </>
+  );
 };
 
 export { CrowdMapMarkers };
