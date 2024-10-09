@@ -1,7 +1,5 @@
+import { useMap } from "@vis.gl/react-google-maps";
 import React, { useEffect, useMemo, useRef, useState } from "react";
-
-import { AdvancedMarker, useMap } from "@vis.gl/react-google-maps";
-
 import {
   clearCrowdMap,
   fetchCrowdMapData,
@@ -15,7 +13,6 @@ import { selectMobileSessionsStreamIds } from "../../../store/mobileSessionsSele
 import {
   clearRectangles,
   fetchRectangleData,
-  RectangleData,
   selectRectangleData,
   selectRectangleLoading,
 } from "../../../store/rectangleSlice";
@@ -24,11 +21,13 @@ import { Session } from "../../../types/sessionType";
 import useMapEventListeners from "../../../utils/mapEventListeners";
 import { useMapParams } from "../../../utils/mapParamsHandler";
 import { getColorForValue } from "../../../utils/thresholdColors";
+
+import { CustomMarker } from "./CustomMarker";
+import MapOverlay from "./MapOverlay";
 import {
   RectangleInfo,
   RectangleInfoLoading,
 } from "./RectangleInfo/RectangleInfo";
-import { SessionDotMarker } from "./SessionDotMarker/SessionDotMarker";
 
 type Props = {
   pulsatingSessionId: number | null;
@@ -125,13 +124,22 @@ const CrowdMapMarkers = ({ pulsatingSessionId, sessions }: Props) => {
     (session) => session.id === pulsatingSessionId
   );
 
+  const displayedSessionMarkerRef = useRef<CustomMarker | null>(null);
+
+  const cleanupMarker = () => {
+    if (displayedSessionMarkerRef.current) {
+      displayedSessionMarkerRef.current.setMap(null);
+      displayedSessionMarkerRef.current = null;
+    }
+  };
+
   useEffect(() => {
     dispatch(setMarkersLoading(true));
   }, [crowdMapRectanglesLength, tags, usernames, dispatch]);
 
   useEffect(() => {
     if (!mobileSessionsLoading || fetchingCrowdMapData) {
-      setRectanglePoint(null);
+      setRectanglePoint(null); // Clear rectanglePoint when fetching new data
       dispatch(clearCrowdMap());
       dispatch(fetchCrowdMapData(filters));
     }
@@ -218,13 +226,26 @@ const CrowdMapMarkers = ({ pulsatingSessionId, sessions }: Props) => {
   ]);
 
   useEffect(() => {
-    map && map.addListener("zoom_changed", () => dispatch(clearRectangles()));
+    map &&
+      map.addListener("zoom_changed", () => {
+        dispatch(clearRectangles());
+        setRectanglePoint(null); // Clear rectanglePoint when zoom changes
+      });
   }, [dispatch, map]);
 
   useMapEventListeners(map, {
-    click: () => dispatch(clearRectangles()),
-    touchend: () => dispatch(clearRectangles()),
-    dragstart: () => dispatch(clearRectangles()),
+    click: () => {
+      dispatch(clearRectangles());
+      setRectanglePoint(null); // Clear rectanglePoint when map is clicked
+    },
+    touchend: () => {
+      dispatch(clearRectangles());
+      setRectanglePoint(null);
+    },
+    dragstart: () => {
+      dispatch(clearRectangles());
+      setRectanglePoint(null);
+    },
   });
 
   useEffect(() => {
@@ -233,46 +254,42 @@ const CrowdMapMarkers = ({ pulsatingSessionId, sessions }: Props) => {
     }
   }, [crowdMapRectanglesLength, dispatch, rectanglesRef.current.length]);
 
-  const renderMarker = (displayedSession: Session) => {
-    return (
-      <AdvancedMarker
-        position={displayedSession.point}
-        key={displayedSession.point.streamId}
-        zIndex={10}
-      >
-        <SessionDotMarker
-          color={getColorForValue(
-            thresholds,
-            displayedSession.lastMeasurementValue
-          )}
-          onClick={() => {}}
-          opacity={0.6}
-        />
-      </AdvancedMarker>
-    );
-  };
+  // Manage displayed session marker
+  useEffect(() => {
+    if (displayedSession && map) {
+      cleanupMarker();
 
-  const renderInfo = (
-    rectangleData: RectangleData | undefined,
-    rectangleLoading: boolean
-  ) => {
-    return (
-      <AdvancedMarker position={rectanglePoint} zIndex={20}>
-        {rectangleData && !rectangleLoading && (
-          <RectangleInfo
-            color={getColorForValue(thresholds, rectangleData.average)}
-            rectangleData={rectangleData}
-          />
-        )}
-        {rectangleLoading && <RectangleInfoLoading />}
-      </AdvancedMarker>
-    );
-  };
+      const position = displayedSession.point;
+      const color = getColorForValue(
+        thresholds,
+        displayedSession.lastMeasurementValue
+      );
+
+      const marker = new CustomMarker(position, color, "", 12);
+
+      marker.setMap(map);
+      displayedSessionMarkerRef.current = marker;
+
+      return cleanupMarker;
+    } else {
+      cleanupMarker();
+    }
+  }, [displayedSession, map, thresholds]);
 
   return (
     <>
-      {displayedSession && renderMarker(displayedSession)}
-      {rectanglePoint && renderInfo(rectangleData, rectangleLoading)}
+      {rectanglePoint && (rectangleLoading || rectangleData) && (
+        <MapOverlay position={rectanglePoint}>
+          {rectangleData && !rectangleLoading ? (
+            <RectangleInfo
+              color={getColorForValue(thresholds, rectangleData.average)}
+              rectangleData={rectangleData}
+            />
+          ) : (
+            <RectangleInfoLoading />
+          )}
+        </MapOverlay>
+      )}
     </>
   );
 };
