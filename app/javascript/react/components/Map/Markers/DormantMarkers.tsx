@@ -1,3 +1,6 @@
+"use client";
+
+import { useMap } from "@vis.gl/react-google-maps";
 import React, {
   useCallback,
   useEffect,
@@ -5,23 +8,19 @@ import React, {
   useRef,
   useState,
 } from "react";
-
-import { useMap } from "@vis.gl/react-google-maps";
-
-import { useAppDispatch, useAppSelector } from "../../../store/hooks";
-import { selectHoverStreamId } from "../../../store/mapSlice";
-import { Session } from "../../../types/sessionType";
-import HoverMarker from "./HoverMarker/HoverMarker";
-
 import { gray300 } from "../../../assets/styles/colors";
 import {
   selectFixedStreamData,
   selectFixedStreamStatus,
 } from "../../../store/fixedStreamSelectors";
+import { useAppDispatch, useAppSelector } from "../../../store/hooks";
+import { selectHoverStreamId } from "../../../store/mapSlice";
 import { setMarkersLoading } from "../../../store/markersLoadingSlice";
 import { StatusEnum } from "../../../types/api";
 import type { LatLngLiteral } from "../../../types/googleMaps";
+import { Session } from "../../../types/sessionType";
 import { CustomMarker } from "./CustomMarker";
+import HoverMarker from "./HoverMarker/HoverMarker";
 
 type DormantMarkersProps = {
   sessions: Session[];
@@ -30,12 +29,12 @@ type DormantMarkersProps = {
   pulsatingSessionId: number | null;
 };
 
-const DormantMarkers = ({
+const DormantMarkers: React.FC<DormantMarkersProps> = ({
   sessions,
   onMarkerClick,
   selectedStreamId,
   pulsatingSessionId,
-}: DormantMarkersProps) => {
+}) => {
   const ZOOM_FOR_SELECTED_SESSION = 15;
 
   const dispatch = useAppDispatch();
@@ -70,14 +69,19 @@ const DormantMarkers = ({
       const size = 12;
       const shouldPulse = session.id === pulsatingSessionId;
 
-      const marker = new CustomMarker(position, color, title, size, () => {
-        onMarkerClick(Number(session.point.streamId), Number(session.id));
-        centerMapOnMarker(position);
-      });
+      const marker = new CustomMarker(
+        position,
+        color,
+        title,
+        size,
+        undefined,
+        () => {
+          onMarkerClick(Number(session.point.streamId), Number(session.id));
+          centerMapOnMarker(position);
+        }
+      );
 
       marker.setPulsating(shouldPulse);
-
-      // Set the map to display the marker
       marker.setMap(map);
 
       return marker;
@@ -95,13 +99,11 @@ const DormantMarkers = ({
         marker = createMarker(session);
         markerRefs.current.set(markerId, marker);
       } else {
-        // Update existing marker
         marker.setPosition(session.point);
         marker.setPulsating(session.id === pulsatingSessionId);
       }
     });
 
-    // Remove markers that are no longer in sessions
     const sessionStreamIds = new Set(sessions.map((s) => s.point.streamId));
     markerRefs.current.forEach((marker, markerId) => {
       if (!sessionStreamIds.has(markerId)) {
@@ -110,7 +112,6 @@ const DormantMarkers = ({
       }
     });
 
-    // Cleanup on unmount
     return () => {
       markerRefs.current.forEach((marker) => marker.setMap(null));
       markerRefs.current.clear();
@@ -154,7 +155,7 @@ const DormantMarkers = ({
     }
   }, [dispatch, sessions.length]);
 
-  return hoverPosition && <HoverMarker position={hoverPosition} />;
+  return hoverPosition ? <HoverMarker position={hoverPosition} /> : null;
 };
 
 export { DormantMarkers };

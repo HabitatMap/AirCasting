@@ -9,31 +9,26 @@ export class CustomMarker extends google.maps.OverlayView {
   private color: string;
   private title: string;
   private size: number;
-  private pulsating: boolean = false;
-  private onClick?: () => void;
   private content?: React.ReactNode;
   private root?: Root;
+  private pulsating: boolean = false;
+  private onClick?: () => void;
 
   constructor(
     position: google.maps.LatLngLiteral,
     color: string,
     title: string,
     size: number = 12,
+    content?: React.ReactNode,
     onClick?: () => void
-    content?: React.ReactNode
   ) {
     super();
     this.position = new google.maps.LatLng(position);
     this.color = color;
     this.title = title;
     this.size = size;
+    this.content = content;
     this.onClick = onClick;
-  }
-
-  setZIndex(zIndex: number) {
-    if (this.div) {
-      this.div.style.zIndex = zIndex.toString();
-    }
   }
 
   setPulsating(pulsating: boolean) {
@@ -45,16 +40,30 @@ export class CustomMarker extends google.maps.OverlayView {
         this.div.classList.remove("pulsating-marker");
       }
     }
-    this.content = content;
   }
 
   onAdd() {
     this.div = document.createElement("div");
     this.div.style.position = "absolute";
-    this.div.style.transform = "translate(-50%, -50%)";
     this.div.style.cursor = "pointer";
     this.div.title = this.title;
-    this.div.style.cursor = "pointer";
+
+    const innerDiv = document.createElement("div");
+    innerDiv.style.width = `${this.size}px`;
+    innerDiv.style.height = `${this.size}px`;
+    innerDiv.style.borderRadius = "50%";
+    innerDiv.style.backgroundColor = this.color;
+    innerDiv.style.position = "absolute";
+    innerDiv.style.top = "50%";
+    innerDiv.style.left = "50%";
+    innerDiv.style.transform = "translate(-50%, -50%)";
+
+    this.div.appendChild(innerDiv);
+
+    if (this.content) {
+      this.root = createRoot(this.div);
+      this.root.render(<Provider store={store}>{this.content}</Provider>);
+    }
 
     if (this.onClick) {
       this.div.addEventListener("click", this.onClick);
@@ -62,18 +71,6 @@ export class CustomMarker extends google.maps.OverlayView {
 
     if (this.pulsating) {
       this.div.classList.add("pulsating-marker");
-    }
-
-    if (this.content) {
-      // Render React content into the div
-      this.root = createRoot(this.div);
-      this.root.render(<>{this.content}</>);
-    } else {
-      // Default marker styling
-      this.div.style.width = `${this.size}px`;
-      this.div.style.height = `${this.size}px`;
-      this.div.style.borderRadius = "50%";
-      this.div.style.backgroundColor = this.color;
     }
 
     const panes = this.getPanes();
@@ -94,12 +91,12 @@ export class CustomMarker extends google.maps.OverlayView {
 
   onRemove() {
     if (this.div) {
-      if (this.onClick) {
-        this.div.removeEventListener("click", this.onClick);
       if (this.root) {
-        // Unmount React component
         this.root.unmount();
         this.root = undefined;
+      }
+      if (this.onClick) {
+        this.div.removeEventListener("click", this.onClick);
       }
       this.div.parentNode?.removeChild(this.div);
       this.div = null;
@@ -113,8 +110,11 @@ export class CustomMarker extends google.maps.OverlayView {
 
   setColor(color: string) {
     this.color = color;
-    if (this.div && !this.content) {
-      this.div.style.backgroundColor = color;
+    if (this.div) {
+      const innerDiv = this.div.firstChild as HTMLDivElement;
+      if (innerDiv) {
+        innerDiv.style.backgroundColor = color;
+      }
     }
   }
 
@@ -127,10 +127,12 @@ export class CustomMarker extends google.maps.OverlayView {
 
   setSize(size: number) {
     this.size = size;
-    if (this.div && !this.content) {
-      this.div.style.width = `${size}px`;
-      this.div.style.height = `${size}px`;
-      this.draw(); // Redraw to update position based on new size
+    if (this.div) {
+      const innerDiv = this.div.firstChild as HTMLDivElement;
+      if (innerDiv) {
+        innerDiv.style.width = `${size}px`;
+        innerDiv.style.height = `${size}px`;
+      }
     }
   }
 
@@ -146,13 +148,17 @@ export class CustomMarker extends google.maps.OverlayView {
     this.content = content;
     if (this.div) {
       if (this.root) {
-        // Update the rendered content
         this.root.render(<Provider store={store}>{this.content}</Provider>);
       } else {
-        // If root doesn't exist, create it
         this.root = createRoot(this.div);
         this.root.render(<Provider store={store}>{this.content}</Provider>);
       }
+    }
+  }
+
+  setZIndex(zIndex: number) {
+    if (this.div) {
+      this.div.style.zIndex = zIndex.toString();
     }
   }
 }
