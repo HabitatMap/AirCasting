@@ -77,7 +77,7 @@ export function FixedMarkers({
   const clusterElementsRef = useRef<Map<Cluster, google.maps.Marker>>(
     new Map()
   );
-  const markerOverlays = new Map<string, CustomMarkerOverlay>();
+  const markerOverlays = useRef<Map<string, CustomMarkerOverlay>>(new Map());
 
   const [hoverPosition, setHoverPosition] = useState<LatLngLiteral | null>(
     null
@@ -95,46 +95,49 @@ export function FixedMarkers({
         marker.userData?.streamId === selectedStreamId?.toString();
       const shouldPulse =
         marker.sessionId === pulsatingSessionId && !marker.clustered;
+      const newColor = getColorForValue(thresholds, marker.value);
 
       console.log(`Marker ${streamId}: clustered=${marker.clustered}`);
 
-      const existingOverlay = markerOverlays.get(streamId);
+      const existingOverlay = markerOverlays.current.get(streamId);
 
       if (marker.clustered) {
         // If the marker is clustered, remove its overlay if it exists
         if (existingOverlay) {
           existingOverlay.setMap(null);
-          markerOverlays.delete(streamId);
+          markerOverlays.current.delete(streamId);
         }
       } else {
         // The marker is not clustered, so it should have an overlay
         if (existingOverlay) {
           // Update overlay if properties have changed
-          if (
-            existingOverlay.getIsSelected() !== isSelected ||
-            existingOverlay.getShouldPulse() !== shouldPulse
-          ) {
-            existingOverlay.setMap(null);
-            markerOverlays.delete(streamId);
-            const overlay = new CustomMarkerOverlay(
-              marker.getPosition()!,
-              getColorForValue(thresholds, marker.value),
-              isSelected,
-              shouldPulse
-            );
-            overlay.setMap(map);
-            markerOverlays.set(streamId, overlay);
+          let needsUpdate = false;
+
+          if (existingOverlay.getIsSelected() !== isSelected) {
+            existingOverlay.setIsSelected(isSelected);
+            needsUpdate = true;
+          }
+          if (existingOverlay.getShouldPulse() !== shouldPulse) {
+            existingOverlay.setShouldPulse(shouldPulse);
+            needsUpdate = true;
+          }
+          if (existingOverlay.getColor() !== newColor) {
+            existingOverlay.setColor(newColor);
+            needsUpdate = true;
+          }
+          if (needsUpdate) {
+            existingOverlay.update();
           }
         } else {
           // Create new overlay
           const overlay = new CustomMarkerOverlay(
             marker.getPosition()!,
-            getColorForValue(thresholds, marker.value),
+            newColor,
             isSelected,
             shouldPulse
           );
           overlay.setMap(map);
-          markerOverlays.set(streamId, overlay);
+          markerOverlays.current.set(streamId, overlay);
           console.log(`Overlay created for marker ${streamId}`);
         }
       }
@@ -510,12 +513,16 @@ export function FixedMarkers({
   }, [map, customRenderer, handleClusterClickInternal]);
 
   useEffect(() => {
+    updateMarkerOverlays();
+  }, [pulsatingSessionId, selectedStreamId, updateMarkerOverlays]);
+
+  useEffect(() => {
     return () => {
       if (clustererRef.current) {
         google.maps.event.clearInstanceListeners(clustererRef.current);
       }
-      markerOverlays.forEach((overlay) => overlay.setMap(null));
-      markerOverlays.clear();
+      markerOverlays.current.forEach((overlay) => overlay.setMap(null));
+      markerOverlays.current.clear();
     };
   }, []);
 

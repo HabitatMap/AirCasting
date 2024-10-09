@@ -26,6 +26,15 @@ export class CustomMarkerOverlay extends google.maps.OverlayView {
     return this.shouldPulse;
   }
 
+  public getColor(): string {
+    return this.color;
+  }
+
+  public setColor(color: string): void {
+    this.color = color;
+    this.update();
+  }
+
   onAdd() {
     this.div = document.createElement("div");
     this.div.style.position = "absolute";
@@ -37,6 +46,22 @@ export class CustomMarkerOverlay extends google.maps.OverlayView {
 
     const panes = this.getPanes();
     panes && panes.overlayLayer.appendChild(this.div);
+  }
+
+  setIsSelected(isSelected: boolean) {
+    this.isSelected = isSelected;
+    this.update();
+  }
+
+  setShouldPulse(shouldPulse: boolean) {
+    this.shouldPulse = shouldPulse;
+    this.update();
+  }
+
+  update() {
+    if (this.div) {
+      this.applyStyles();
+    }
   }
 
   draw() {
@@ -59,9 +84,9 @@ export class CustomMarkerOverlay extends google.maps.OverlayView {
   private applyStyles() {
     if (!this.div) return;
 
-    const size = this.isSelected ? 44 : 36; // Adjust size based on selection
+    const size = this.isSelected ? 44 : 36;
     const blurValue = this.isSelected ? 3 : 6;
-    const opacityValue = this.isSelected ? 0.6 : 0.4;
+    const opacityValue = this.isSelected ? 0.6 : 0.9;
 
     // Base styles
     this.div.style.width = `${size}px`;
@@ -90,15 +115,15 @@ if (!document.getElementById(styleSheetId)) {
   styleSheet.innerText = `
     @keyframes pulse-animation {
       0% {
-        transform: scale(1);
+        transform: translate(-50%, -50%) scale(1);
         opacity: 1;
       }
       50% {
-        transform: scale(1.6);
-        opacity: 0.6;
+        transform: translate(-50%, -50%) scale(1.6);
+        opacity: 0.8;
       }
       100% {
-        transform: scale(1);
+        transform: translate(-50%, -50%) scale(1);
         opacity: 1;
       }
     }
