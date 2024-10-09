@@ -29,14 +29,15 @@ type DormantMarkersProps = {
   pulsatingSessionId: number | null;
 };
 
+const ZOOM_FOR_SELECTED_SESSION = 15;
+const CLICKABLE_AREA_SIZE = 20;
+
 const DormantMarkers: React.FC<DormantMarkersProps> = ({
   sessions,
   onMarkerClick,
   selectedStreamId,
   pulsatingSessionId,
 }) => {
-  const ZOOM_FOR_SELECTED_SESSION = 15;
-
   const dispatch = useAppDispatch();
   const hoverStreamId = useAppSelector(selectHoverStreamId);
   const fixedStreamStatus = useAppSelector(selectFixedStreamStatus);
@@ -79,7 +80,8 @@ const DormantMarkers: React.FC<DormantMarkersProps> = ({
           onMarkerClick(Number(session.point.streamId), Number(session.id));
           centerMapOnMarker(position);
           hideOtherMarkers(session.point.streamId);
-        }
+        },
+        CLICKABLE_AREA_SIZE
       );
 
       marker.setPulsating(shouldPulse);

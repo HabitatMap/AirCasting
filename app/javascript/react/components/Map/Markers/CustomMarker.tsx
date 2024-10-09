@@ -13,6 +13,7 @@ export class CustomMarker extends google.maps.OverlayView {
   private root?: Root;
   private pulsating: boolean = false;
   private onClick?: () => void;
+  private clickableAreaSize: number;
 
   constructor(
     position: google.maps.LatLngLiteral,
@@ -20,7 +21,8 @@ export class CustomMarker extends google.maps.OverlayView {
     title: string,
     size: number = 12,
     content?: React.ReactNode,
-    onClick?: () => void
+    onClick?: () => void,
+    clickableAreaSize: number = 20
   ) {
     super();
     this.position = new google.maps.LatLng(position);
@@ -29,17 +31,7 @@ export class CustomMarker extends google.maps.OverlayView {
     this.size = size;
     this.content = content;
     this.onClick = onClick;
-  }
-
-  setPulsating(pulsating: boolean) {
-    this.pulsating = pulsating;
-    if (this.div) {
-      if (this.pulsating) {
-        this.div.classList.add("pulsating-marker");
-      } else {
-        this.div.classList.remove("pulsating-marker");
-      }
-    }
+    this.clickableAreaSize = clickableAreaSize;
   }
 
   onAdd() {
@@ -47,6 +39,8 @@ export class CustomMarker extends google.maps.OverlayView {
     this.div.style.position = "absolute";
     this.div.style.cursor = "pointer";
     this.div.title = this.title;
+    this.div.style.width = `${this.clickableAreaSize}px`;
+    this.div.style.height = `${this.clickableAreaSize}px`;
 
     const innerDiv = document.createElement("div");
     innerDiv.style.width = `${this.size}px`;
@@ -84,8 +78,10 @@ export class CustomMarker extends google.maps.OverlayView {
     const position = overlayProjection.fromLatLngToDivPixel(this.position);
 
     if (position) {
-      this.div.style.left = `${position.x}px`;
-      this.div.style.top = `${position.y}px`;
+      const offsetX = this.clickableAreaSize / 2;
+      const offsetY = this.clickableAreaSize / 2;
+      this.div.style.left = `${position.x - offsetX}px`;
+      this.div.style.top = `${position.y - offsetY}px`;
     }
   }
 
@@ -136,6 +132,15 @@ export class CustomMarker extends google.maps.OverlayView {
     }
   }
 
+  setClickableAreaSize(size: number) {
+    this.clickableAreaSize = size;
+    if (this.div) {
+      this.div.style.width = `${size}px`;
+      this.div.style.height = `${size}px`;
+      this.draw(); // Redraw to update position based on new size
+    }
+  }
+
   getPosition(): google.maps.LatLng {
     return this.position;
   }
@@ -159,6 +164,17 @@ export class CustomMarker extends google.maps.OverlayView {
   setZIndex(zIndex: number) {
     if (this.div) {
       this.div.style.zIndex = zIndex.toString();
+    }
+  }
+
+  setPulsating(pulsating: boolean) {
+    this.pulsating = pulsating;
+    if (this.div) {
+      if (this.pulsating) {
+        this.div.classList.add("pulsating-marker");
+      } else {
+        this.div.classList.remove("pulsating-marker");
+      }
     }
   }
 }
