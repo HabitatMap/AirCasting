@@ -8,6 +8,7 @@ import {
 } from "../../store/fixedSessionsSelectors";
 import { useAppSelector } from "../../store/hooks";
 import { selectIndoorSessionsState } from "../../store/indoorSessionsSelectors";
+import { selectIsLoading } from "../../store/loadingSelectors";
 import { selectMobileSessionsState } from "../../store/mobileSessionsSelectors";
 import { selectParameters, selectSensors } from "../../store/sensorsSlice";
 import {
@@ -15,13 +16,14 @@ import {
   selectBasicSensorsModalOpen,
   selectCustomParametersModalOpen,
   selectCustomSensorsModalOpen,
-  selectFixedSessionsType,
   selectIsDormantSessionsType,
 } from "../../store/sessionFiltersSlice";
 import { SessionTypes } from "../../types/filters";
 import { SensorPrefix } from "../../types/sensors";
 import { useMapParams } from "../../utils/mapParamsHandler";
+import { Loader } from "../Loader/Loader";
 import { CloseButton } from "../Map/Legend/Legend.style";
+import { LoaderOverlay } from "../Map/Map.style";
 import { CrowdMapToggle } from "./CrowdmapToggle";
 import { CustomParameterFilter } from "./CustomParameterFilter";
 import { CustomSensorFilter } from "./CustomSensorFilter";
@@ -60,7 +62,6 @@ const MobileSessionFilters = ({
   const activeFixedSessionsState = useAppSelector(
     selectActiveFixedSessionsState
   );
-  const fixedSessionsType = useAppSelector(selectFixedSessionsType);
   const mobileSessionsState = useAppSelector(selectMobileSessionsState);
   const basicParametersModalOpen = useAppSelector(
     selectBasicParametersModalOpen
@@ -93,6 +94,8 @@ const MobileSessionFilters = ({
     measurementType,
     sessionType
   );
+
+  const selectorsLoading = useAppSelector(selectIsLoading);
 
   const isIndoorParameterInUrl = isIndoor === TRUE;
   const airBeamSensorNameSelected = sensorName.startsWith(SensorPrefix.AIR);
@@ -171,6 +174,11 @@ const MobileSessionFilters = ({
         />
       ) : (
         <>
+          {selectorsLoading && (
+            <LoaderOverlay>
+              <Loader />
+            </LoaderOverlay>
+          )}
           <S.ModalContent>
             <S.Header>
               <CloseButton onClick={onClose}></CloseButton>
