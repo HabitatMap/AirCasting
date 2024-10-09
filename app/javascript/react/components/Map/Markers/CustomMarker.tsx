@@ -1,4 +1,5 @@
 import React from "react";
+import { unstable_batchedUpdates } from "react-dom";
 import { createRoot, Root } from "react-dom/client";
 import { Provider } from "react-redux";
 import store from "../../../store/index";
@@ -88,8 +89,11 @@ export class CustomMarker extends google.maps.OverlayView {
   onRemove() {
     if (this.div) {
       if (this.root) {
-        this.root.unmount();
-        this.root = undefined;
+        // Schedule unmounting after the current render cycle
+        setTimeout(() => {
+          this.root?.unmount();
+          this.root = undefined;
+        }, 0);
       }
       if (this.onClick) {
         this.div.removeEventListener("click", this.onClick);
@@ -99,8 +103,11 @@ export class CustomMarker extends google.maps.OverlayView {
     }
   }
 
-  setPosition(position: google.maps.LatLngLiteral) {
-    this.position = new google.maps.LatLng(position);
+  setPosition(position: google.maps.LatLngLiteral | google.maps.LatLng) {
+    this.position =
+      position instanceof google.maps.LatLng
+        ? position
+        : new google.maps.LatLng(position.lat, position.lng);
     this.draw();
   }
 
@@ -152,12 +159,12 @@ export class CustomMarker extends google.maps.OverlayView {
   setContent(content: React.ReactNode) {
     this.content = content;
     if (this.div) {
-      if (this.root) {
-        this.root.render(<Provider store={store}>{this.content}</Provider>);
-      } else {
+      if (!this.root) {
         this.root = createRoot(this.div);
-        this.root.render(<Provider store={store}>{this.content}</Provider>);
       }
+      unstable_batchedUpdates(() => {
+        this.root!.render(<Provider store={store}>{this.content}</Provider>);
+      });
     }
   }
 
@@ -176,5 +183,9 @@ export class CustomMarker extends google.maps.OverlayView {
         this.div.classList.remove("pulsating-marker");
       }
     }
+  }
+
+  isPulsating(): boolean {
+    return this.pulsating;
   }
 }
