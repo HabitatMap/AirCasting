@@ -35,7 +35,7 @@ type CustomMarker = google.maps.Marker & {
   value: number;
   sessionId: number;
   userData: { streamId: string };
-  clustered: boolean; // New property
+  clustered: boolean;
 };
 
 type FixedMarkersProps = {
@@ -177,10 +177,6 @@ export function FixedMarkers({
 
   const createMarker = useCallback(
     (session: Session): CustomMarker => {
-      // const isSelected =
-      //   selectedStreamId != null &&
-      //   session.point.streamId === selectedStreamId.toString();
-
       const marker = new google.maps.Marker({
         position: session.point,
         icon: {
