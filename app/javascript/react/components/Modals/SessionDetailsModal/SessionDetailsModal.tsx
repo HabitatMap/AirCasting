@@ -40,6 +40,10 @@ const SessionDetailsModal: React.FC<
   const closeHandler = useCallback(() => {
     setIsVisible(false);
     onClose();
+    // clear streamId
+    return () => {
+      streamId = null;
+    };
   }, [onClose]);
 
   const sessionInfoProps = useMemo(

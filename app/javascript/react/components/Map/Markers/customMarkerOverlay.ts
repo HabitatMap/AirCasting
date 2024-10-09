@@ -39,7 +39,8 @@ export class CustomMarkerOverlay extends google.maps.OverlayView {
     this.div = document.createElement("div");
     this.div.style.position = "absolute";
     this.div.style.transform = "translate(-50%, -50%)";
-    this.div.style.pointerEvents = "none"; // Allow clicks to pass through
+    this.div.style.pointerEvents = "none";
+    this.div.style.cursor = "none";
 
     // Apply styles based on the overlay properties
     this.applyStyles();

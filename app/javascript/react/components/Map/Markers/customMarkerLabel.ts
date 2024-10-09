@@ -97,6 +97,7 @@ export class LabelOverlay extends google.maps.OverlayView {
     labelContainer.style.whiteSpace = "nowrap";
     labelContainer.style.alignItems = "center";
     labelContainer.style.justifyContent = "center";
+    labelContainer.style.cursor = "pointer";
 
     // Create the small colored circle
     const circle = document.createElement("div");

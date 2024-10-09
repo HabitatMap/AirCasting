@@ -53,7 +53,7 @@ const TimelapseMarkers = ({ sessions }: Props) => {
 
         if (session.sessions === 1) {
           const valueText = `${Math.round(session.value)} ${unitSymbol}`;
-          icon = createMarkerIcon(color, valueText, false);
+          icon = createMarkerIcon(color, valueText, false, false);
         } else {
           icon = createClusterIcon(color, false);
         }
@@ -73,7 +73,7 @@ const TimelapseMarkers = ({ sessions }: Props) => {
 
         if (session.sessions === 1) {
           const valueText = `${Math.round(session.value)} ${unitSymbol}`;
-          icon = createMarkerIcon(color, valueText, false);
+          icon = createMarkerIcon(color, valueText, false, false);
         } else {
           icon = createClusterIcon(color, false);
         }
