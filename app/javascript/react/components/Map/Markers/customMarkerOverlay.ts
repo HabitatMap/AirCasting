@@ -38,7 +38,7 @@ export class CustomMarkerOverlay extends google.maps.OverlayView {
   onAdd() {
     this.div = document.createElement("div");
     this.div.style.position = "absolute";
-    this.div.style.transform = "translate(-50%, -50%)"; // Center the overlay
+    this.div.style.transform = "translate(-50%, -50%)";
     this.div.style.pointerEvents = "none"; // Allow clicks to pass through
 
     // Apply styles based on the overlay properties
@@ -85,8 +85,8 @@ export class CustomMarkerOverlay extends google.maps.OverlayView {
     if (!this.div) return;
 
     const size = this.isSelected ? 44 : 36;
-    const blurValue = this.isSelected ? 3 : 6;
-    const opacityValue = this.isSelected ? 0.6 : 0.9;
+    const blurValue = this.isSelected ? 0 : 3;
+    const opacityValue = this.isSelected ? 0.4 : 0.8;
 
     // Base styles
     this.div.style.width = `${size}px`;
@@ -97,7 +97,6 @@ export class CustomMarkerOverlay extends google.maps.OverlayView {
     this.div.style.filter = `blur(${blurValue}px)`;
     this.div.style.transition = "transform 0.3s ease-out";
 
-    // Apply pulsation if needed
     if (this.shouldPulse) {
       this.div.style.animation = `pulse-animation 2s infinite`;
     } else {

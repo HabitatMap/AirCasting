@@ -34,8 +34,9 @@ export const createMarkerIcon = (
 
   const padding = 7;
   const baseCircleR = 6;
-  const rectHeight = 19;
+  const rectHeight = 20;
   const strokeWidth = isSelected ? 1 : 0;
+  const shadowPadding = 4;
 
   // Calculate text width
   const textWidth = getTextWidth(displayedValue);
@@ -44,18 +45,21 @@ export const createMarkerIcon = (
   const rectWidth = 8 + baseCircleR + padding + textWidth * 1.2 + 2;
 
   // Set SVG dimensions and viewBox to match the rectangle
-  const svgWidth = rectWidth;
-  const svgHeight = rectHeight;
+  const svgWidth = rectWidth + shadowPadding * 2;
+  const svgHeight = rectHeight + shadowPadding * 2;
+  const viewBox = `0 0 ${svgWidth} ${svgHeight}`;
 
   // Positions within the SVG
-  const circleCX = 11; // Circle center x-coordinate
-  const circleCY = rectHeight / 2; // Circle center y-coordinate
-  const textX = circleCX + baseCircleR + padding; // Text x-coordinate
-  const textY = rectHeight / 2 + 4; // Text y-coordinate
+  const circleCX = shadowPadding + 11;
+  const circleCY = shadowPadding + rectHeight / 2;
+  const textX = circleCX + baseCircleR + padding;
+  const textY = shadowPadding + rectHeight / 2 + 4;
 
+  const rectX = shadowPadding;
+  const rectY = shadowPadding;
   // Generate SVG
   const svg = `
-    <svg xmlns="http://www.w3.org/2000/svg" width="${svgWidth}" height="${svgHeight}" viewBox="0 0 ${svgWidth} ${svgHeight}">
+    <svg xmlns="http://www.w3.org/2000/svg" width="${svgWidth}" height="${svgHeight}" viewBox="${viewBox}">
       <defs>
         <!-- Drop Shadow for Rectangle -->
         <filter id="dropShadow" x="-20%" y="-20%" width="140%" height="140%">
@@ -70,7 +74,7 @@ export const createMarkerIcon = (
         </filter>
       </defs>
       <!-- Label Rectangle with Drop Shadow -->
-      <rect x="0" y="0" rx="9" ry="9.5" width="${rectWidth}" height="${rectHeight}" fill="white" stroke="${color}" stroke-width="${strokeWidth}" filter="url(#dropShadow)"/>
+      <rect x="${rectX}" y="${rectY}" rx="9" ry="9.5" width="${rectWidth}" height="${rectHeight}" fill="white" stroke="${color}" stroke-width="${strokeWidth}" filter="url(#dropShadow)"/>
       <!-- Small Colored Circle Inside Label -->
       <circle cx="${circleCX}" cy="${circleCY}" r="${baseCircleR}" fill="${color}" stroke="${color}" stroke-width="${strokeWidth}" />
       <!-- Label Text -->
