@@ -256,7 +256,7 @@ export function FixedMarkers({
       marker.value = session.lastMeasurementValue;
       marker.sessionId = session.id;
       marker.userData = { streamId: session.point.streamId };
-      marker.clustered;
+      marker.clustered = false;
 
       marker.addListener("click", () => {
         onMarkerClick(Number(session.point.streamId), Number(session.id));
@@ -487,6 +487,24 @@ export function FixedMarkers({
           radius: CLUSTER_RADIUS,
         }),
         onClusterClick: handleClusterClickInternal,
+      });
+
+      clustererRef.current.addListener("clusteringend", () => {
+        console.log("clusteringend event fired");
+        // Update clustered status for markers
+        markerRefs.current.forEach((marker) => {
+          (marker as CustomMarker).clustered = false;
+        });
+        // @ts-ignore
+        clustererRef.current.clusters.forEach((cluster) => {
+          if (cluster.markers && cluster.markers.length > 1) {
+            cluster.markers.forEach((marker) => {
+              (marker as CustomMarker).clustered = true;
+            });
+          }
+        });
+        // Update marker icons and overlays
+        updateMarkerOverlays();
       });
     }
   }, [map, customRenderer, handleClusterClickInternal]);
