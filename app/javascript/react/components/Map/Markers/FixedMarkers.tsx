@@ -35,6 +35,7 @@ import { ClusterInfo } from "./ClusterInfo/ClusterInfo";
 import { createClusterIcon, createMarkerIcon } from "./createMarkerIcon";
 import HoverMarker from "./HoverMarker/HoverMarker";
 import { CustomMarkerOverlay } from "./customMarkerOverlay";
+import { LabelOverlay } from "./customMarkerLabel";
 
 type CustomMarker = google.maps.Marker & {
   value: number;
@@ -78,6 +79,7 @@ export function FixedMarkers({
     new Map()
   );
   const markerOverlays = useRef<Map<string, CustomMarkerOverlay>>(new Map());
+  const labelOverlays = useRef<Map<string, LabelOverlay>>(new Map());
 
   const [hoverPosition, setHoverPosition] = useState<LatLngLiteral | null>(
     null
@@ -89,60 +91,6 @@ export function FixedMarkers({
   } | null>(null);
 
   const memoizedSessions = useMemo(() => sessions, [sessions]);
-  const updateMarkerOverlays = useCallback(() => {
-    markerRefs.current.forEach((marker, streamId) => {
-      const isSelected =
-        marker.userData?.streamId === selectedStreamId?.toString();
-      const shouldPulse =
-        marker.sessionId === pulsatingSessionId && !marker.clustered;
-      const newColor = getColorForValue(thresholds, marker.value);
-
-      console.log(`Marker ${streamId}: clustered=${marker.clustered}`);
-
-      const existingOverlay = markerOverlays.current.get(streamId);
-
-      if (marker.clustered) {
-        // If the marker is clustered, remove its overlay if it exists
-        if (existingOverlay) {
-          existingOverlay.setMap(null);
-          markerOverlays.current.delete(streamId);
-        }
-      } else {
-        // The marker is not clustered, so it should have an overlay
-        if (existingOverlay) {
-          // Update overlay if properties have changed
-          let needsUpdate = false;
-
-          if (existingOverlay.getIsSelected() !== isSelected) {
-            existingOverlay.setIsSelected(isSelected);
-            needsUpdate = true;
-          }
-          if (existingOverlay.getShouldPulse() !== shouldPulse) {
-            existingOverlay.setShouldPulse(shouldPulse);
-            needsUpdate = true;
-          }
-          if (existingOverlay.getColor() !== newColor) {
-            existingOverlay.setColor(newColor);
-            needsUpdate = true;
-          }
-          if (needsUpdate) {
-            existingOverlay.update();
-          }
-        } else {
-          // Create new overlay
-          const overlay = new CustomMarkerOverlay(
-            marker.getPosition()!,
-            newColor,
-            isSelected,
-            shouldPulse
-          );
-          overlay.setMap(map);
-          markerOverlays.current.set(streamId, overlay);
-          console.log(`Overlay created for marker ${streamId}`);
-        }
-      }
-    });
-  }, [map, selectedStreamId, pulsatingSessionId, thresholds]);
 
   // Utility functions and event handlers for map interactions, marker creation, and cluster management
   const centerMapOnMarker = useCallback(
@@ -212,16 +160,6 @@ export function FixedMarkers({
         cluster.markers?.map((marker) => marker as google.maps.Marker) ?? [];
       updateClusterStyle(clusterMarker, markers, thresholds);
     });
-
-    markerRefs.current.forEach((marker) => {
-      const value = Number(marker.value || 0);
-      const newIcon = createMarkerIcon(
-        getColorForValue(thresholds, value),
-        `${Math.round(value)} ${unitSymbol}`,
-        marker.userData?.streamId === selectedStreamId?.toString()
-      );
-      marker.setIcon(newIcon);
-    });
   }, [
     thresholds,
     selectedStreamId,
@@ -242,17 +180,15 @@ export function FixedMarkers({
 
   const createMarker = useCallback(
     (session: Session): CustomMarker => {
-      const isSelected =
-        selectedStreamId != null &&
-        session.point.streamId === selectedStreamId.toString();
+      // const isSelected =
+      //   selectedStreamId != null &&
+      //   session.point.streamId === selectedStreamId.toString();
 
       const marker = new google.maps.Marker({
         position: session.point,
-        icon: createMarkerIcon(
-          getColorForValue(thresholds, session.lastMeasurementValue),
-          `${Math.round(session.lastMeasurementValue)} ${unitSymbol}`,
-          isSelected
-        ),
+        icon: {
+          url: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAAEklEQVR4nGMAAQAABQABDQottAAAAABJRU5ErkJggg==", // Transparent 1x1 pixel
+        },
         zIndex: Number(google.maps.Marker.MAX_ZINDEX) + 1,
       }) as CustomMarker;
 
@@ -329,13 +265,96 @@ export function FixedMarkers({
     }
   }, [map, selectedCluster, handleMapInteraction, dispatch]);
 
+  const updateMarkerOverlays = useCallback(() => {
+    markerRefs.current.forEach((marker, streamId) => {
+      const isSelected =
+        marker.userData?.streamId === selectedStreamId?.toString();
+      const shouldPulse =
+        marker.sessionId === pulsatingSessionId && !marker.clustered;
+      const newColor = getColorForValue(thresholds, marker.value);
+
+      // console.log(`Marker ${streamId}: clustered=${marker.clustered}`);
+
+      const existingOverlay = markerOverlays.current.get(streamId);
+      const existingLabelOverlay = labelOverlays.current.get(streamId);
+      const position = marker.getPosition();
+
+      if (marker.clustered) {
+        // If the marker is clustered, remove its overlays if they exist
+        if (existingOverlay) {
+          existingOverlay.setMap(null);
+          markerOverlays.current.delete(streamId);
+        }
+        if (existingLabelOverlay) {
+          existingLabelOverlay.setMap(null);
+          labelOverlays.current.delete(streamId);
+        }
+      } else {
+        // The marker is not clustered, so it should have overlays
+        if (!existingOverlay) {
+          const overlay = new CustomMarkerOverlay(
+            marker.getPosition()!,
+            newColor,
+            isSelected,
+            shouldPulse
+          );
+          overlay.setMap(map);
+          markerOverlays.current.set(streamId, overlay);
+          // console.log(`Overlay created for marker ${streamId}`);
+        } else {
+          existingOverlay.setIsSelected(isSelected);
+          existingOverlay.setShouldPulse(shouldPulse);
+          existingOverlay.setColor(newColor);
+          existingOverlay.update();
+        }
+
+        if (!existingLabelOverlay) {
+          const labelOverlay = new LabelOverlay(
+            marker.getPosition()!,
+            newColor,
+            marker.value,
+            unitSymbol,
+            isSelected,
+            () => {
+              onMarkerClick(
+                Number(marker.userData.streamId),
+                Number(marker.sessionId)
+              );
+              if (position) {
+                centerMapOnMarker({ lat: position.lat(), lng: position.lng() });
+              }
+            }
+          );
+          labelOverlay.setMap(map);
+          labelOverlays.current.set(streamId, labelOverlay);
+          // console.log(`Label overlay created for marker ${streamId}`);
+        } else {
+          existingLabelOverlay.update(
+            isSelected,
+            newColor,
+            marker.value,
+            unitSymbol
+          );
+        }
+      }
+    });
+  }, [
+    map,
+    selectedStreamId,
+    pulsatingSessionId,
+    thresholds,
+    unitSymbol,
+    onMarkerClick,
+    centerMapOnMarker,
+  ]);
+
   // Effect to manage markers: create, update, and remove markers based on sessions data
 
   useEffect(() => {
     if (!map || !clustererRef.current) return;
 
     const updatedMarkers: google.maps.Marker[] = [];
-    const markersToRemove: google.maps.Marker[] = [];
+    const markersToRemove: CustomMarker[] = [];
 
     memoizedSessions.forEach((session) => {
       let marker = markerRefs.current.get(session.point.streamId);
@@ -344,14 +363,6 @@ export function FixedMarkers({
         markerRefs.current.set(session.point.streamId, marker);
         updatedMarkers.push(marker);
       } else {
-        const newIcon = createMarkerIcon(
-          getColorForValue(thresholds, session.lastMeasurementValue),
-          `${Math.round(session.lastMeasurementValue)} ${unitSymbol}`,
-          session.point.streamId === selectedStreamId?.toString()
-        );
-
-        // Update existing marker
-        marker.setIcon(newIcon);
         marker.setPosition(session.point);
         marker.value = session.lastMeasurementValue;
         marker.sessionId = session.id;
@@ -374,6 +385,21 @@ export function FixedMarkers({
     if (updatedMarkers.length > 0) {
       clustererRef.current.addMarkers(updatedMarkers);
     }
+
+    markersToRemove.forEach((marker) => {
+      const streamId = marker.userData.streamId;
+      const overlay = markerOverlays.current.get(streamId);
+      if (overlay) {
+        overlay.setMap(null);
+        markerOverlays.current.delete(streamId);
+      }
+      const labelOverlay = labelOverlays.current.get(streamId);
+      if (labelOverlay) {
+        labelOverlay.setMap(null);
+        labelOverlays.current.delete(streamId);
+      }
+      marker.setMap(null);
+    });
     // Force clusterer update
     clustererRef.current.render();
 
@@ -407,7 +433,7 @@ export function FixedMarkers({
   useEffect(() => {
     if (clustererRef.current) {
       clustererRef.current.addListener("clusteringend", () => {
-        console.log("clusteringend event fired");
+        // console.log("clusteringend event fired");
         // Update clustered status for markers
         markerRefs.current.forEach((marker) => {
           (marker as CustomMarker).clustered = false;
@@ -493,7 +519,7 @@ export function FixedMarkers({
       });
 
       clustererRef.current.addListener("clusteringend", () => {
-        console.log("clusteringend event fired");
+        // console.log("clusteringend event fired");
         // Update clustered status for markers
         markerRefs.current.forEach((marker) => {
           (marker as CustomMarker).clustered = false;
@@ -523,6 +549,8 @@ export function FixedMarkers({
       }
       markerOverlays.current.forEach((overlay) => overlay.setMap(null));
       markerOverlays.current.clear();
+      labelOverlays.current.forEach((overlay) => overlay.setMap(null));
+      labelOverlays.current.clear();
     };
   }, []);
 
