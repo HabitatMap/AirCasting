@@ -78,6 +78,7 @@ const DormantMarkers: React.FC<DormantMarkersProps> = ({
         () => {
           onMarkerClick(Number(session.point.streamId), Number(session.id));
           centerMapOnMarker(position);
+          hideOtherMarkers(session.point.streamId);
         }
       );
 
@@ -88,6 +89,20 @@ const DormantMarkers: React.FC<DormantMarkersProps> = ({
     },
     [map, onMarkerClick, centerMapOnMarker, pulsatingSessionId]
   );
+
+  const hideOtherMarkers = useCallback((selectedStreamId: string) => {
+    markerRefs.current.forEach((marker, streamId) => {
+      if (streamId !== selectedStreamId) {
+        marker.setMap(null);
+      }
+    });
+  }, []);
+
+  const showAllMarkers = useCallback(() => {
+    markerRefs.current.forEach((marker) => {
+      marker.setMap(map);
+    });
+  }, [map]);
 
   useEffect(() => {
     if (!map) return;
@@ -120,12 +135,16 @@ const DormantMarkers: React.FC<DormantMarkersProps> = ({
 
   useEffect(() => {
     const handleSelectedStreamId = (streamId: number | null) => {
-      if (!streamId || fixedStreamStatus === StatusEnum.Pending) return;
+      if (!streamId || fixedStreamStatus === StatusEnum.Pending) {
+        showAllMarkers();
+        return;
+      }
       const { latitude, longitude } = fixedStreamData.stream;
 
       if (latitude && longitude) {
         const fixedStreamPosition = { lat: latitude, lng: longitude };
         centerMapOnMarker(fixedStreamPosition);
+        hideOtherMarkers(streamId.toString());
       } else {
         console.error(
           `Stream ID ${streamId} not found or missing latitude/longitude in fixedStream data.`
@@ -134,7 +153,14 @@ const DormantMarkers: React.FC<DormantMarkersProps> = ({
     };
 
     handleSelectedStreamId(selectedStreamId);
-  }, [selectedStreamId, fixedStreamData, fixedStreamStatus, centerMapOnMarker]);
+  }, [
+    selectedStreamId,
+    fixedStreamData,
+    fixedStreamStatus,
+    centerMapOnMarker,
+    hideOtherMarkers,
+    showAllMarkers,
+  ]);
 
   useEffect(() => {
     if (hoverStreamId) {
