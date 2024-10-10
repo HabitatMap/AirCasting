@@ -499,6 +499,7 @@ export function FixedMarkers({
     };
 
     handleSelectedStreamId(selectedStreamId);
+    updateMarkerOverlays();
   }, [selectedStreamId, fixedStreamData, fixedStreamStatus, centerMapOnMarker]);
 
   useEffect(() => {
