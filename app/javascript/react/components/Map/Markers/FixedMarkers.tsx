@@ -84,11 +84,6 @@ export function FixedMarkers({
 
   const memoizedSessions = useMemo(() => sessions, [sessions]);
 
-  useEffect(() => {
-    console.log("url stream Id", selectedStreamId);
-    console.log("infer type of selectedStreamId", typeof selectedStreamId);
-  }, [selectedStreamId]);
-
   // Utility functions and event handlers for map interactions, marker creation, and cluster management
   const centerMapOnMarker = useCallback(
     (position: LatLngLiteral) => {
@@ -399,7 +394,6 @@ export function FixedMarkers({
   useEffect(() => {
     if (clustererRef.current) {
       clustererRef.current.addListener("clusteringend", () => {
-        // console.log("clusteringend event fired");
         // Update clustered status for markers
         markerRefs.current.forEach((marker) => {
           (marker as CustomMarker).clustered = false;
