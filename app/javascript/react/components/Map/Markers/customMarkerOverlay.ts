@@ -1,21 +1,26 @@
+import { useEffect } from "react";
+
 export class CustomMarkerOverlay extends google.maps.OverlayView {
   private div: HTMLElement | null = null;
   private position: google.maps.LatLng;
   private color: string;
   private isSelected: boolean;
   private shouldPulse: boolean;
+  private zIndex: number;
 
   constructor(
     position: google.maps.LatLng,
     color: string,
     isSelected: boolean,
-    shouldPulse: boolean
+    shouldPulse: boolean,
+    zIndex: number = 1
   ) {
     super();
     this.position = position;
     this.color = color;
     this.isSelected = isSelected;
     this.shouldPulse = shouldPulse;
+    this.zIndex = zIndex;
   }
 
   public getIsSelected(): boolean {
@@ -32,6 +37,11 @@ export class CustomMarkerOverlay extends google.maps.OverlayView {
 
   public setColor(color: string): void {
     this.color = color;
+    this.update();
+  }
+
+  public setZIndex(zIndex: number): void {
+    this.zIndex = zIndex;
     this.update();
   }
 
@@ -97,6 +107,7 @@ export class CustomMarkerOverlay extends google.maps.OverlayView {
     this.div.style.opacity = `${opacityValue}`;
     this.div.style.filter = `blur(${blurValue}px)`;
     this.div.style.transition = "transform 0.3s ease-out";
+    this.div.style.zIndex = this.zIndex.toString();
 
     if (this.shouldPulse) {
       this.div.style.animation = `pulse-animation 2s infinite`;
@@ -107,26 +118,41 @@ export class CustomMarkerOverlay extends google.maps.OverlayView {
 }
 
 // Define the keyframes once
-const styleSheetId = "custom-marker-overlay-styles";
-if (!document.getElementById(styleSheetId)) {
-  const styleSheet = document.createElement("style");
-  styleSheet.type = "text/css";
-  styleSheet.id = styleSheetId;
-  styleSheet.innerText = `
-    @keyframes pulse-animation {
-      0% {
-        transform: translate(-50%, -50%) scale(1);
-        opacity: 1;
-      }
-      50% {
-        transform: translate(-50%, -50%) scale(1.6);
-        opacity: 0.8;
-      }
-      100% {
-        transform: translate(-50%, -50%) scale(1);
-        opacity: 1;
-      }
+const CustomMarkerOverlayStyles = () => {
+  useEffect(() => {
+    const styleSheetId = "custom-marker-overlay-styles";
+    if (!document.getElementById(styleSheetId)) {
+      const styleSheet = document.createElement("style");
+      styleSheet.type = "text/css";
+      styleSheet.id = styleSheetId;
+      styleSheet.innerText = `
+        @keyframes pulse-animation {
+          0% {
+            transform: translate(-50%, -50%) scale(1);
+            opacity: 1;
+          }
+          50% {
+            transform: translate(-50%, -50%) scale(1.6);
+            opacity: 0.8;
+          }
+          100% {
+            transform: translate(-50%, -50%) scale(1);
+            opacity: 1;
+          }
+        }
+      `;
+      document.head.appendChild(styleSheet);
     }
-  `;
-  document.head.appendChild(styleSheet);
-}
+
+    return () => {
+      const existingStyleSheet = document.getElementById(styleSheetId);
+      if (existingStyleSheet) {
+        existingStyleSheet.remove();
+      }
+    };
+  }, []);
+
+  return null;
+};
+
+export default CustomMarkerOverlayStyles;

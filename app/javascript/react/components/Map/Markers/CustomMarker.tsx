@@ -15,6 +15,7 @@ export class CustomMarker extends google.maps.OverlayView {
   private pulsating: boolean = false;
   private onClick?: () => void;
   private clickableAreaSize: number;
+  private zIndex: number = 0;
 
   constructor(
     position: google.maps.LatLngLiteral,
@@ -42,6 +43,7 @@ export class CustomMarker extends google.maps.OverlayView {
     this.div.title = this.title;
     this.div.style.width = `${this.clickableAreaSize}px`;
     this.div.style.height = `${this.clickableAreaSize}px`;
+    this.div.style.zIndex = this.zIndex.toString();
 
     const innerDiv = document.createElement("div");
     innerDiv.style.width = `${this.size}px`;
@@ -169,6 +171,7 @@ export class CustomMarker extends google.maps.OverlayView {
   }
 
   setZIndex(zIndex: number) {
+    this.zIndex = zIndex;
     if (this.div) {
       this.div.style.zIndex = zIndex.toString();
     }
