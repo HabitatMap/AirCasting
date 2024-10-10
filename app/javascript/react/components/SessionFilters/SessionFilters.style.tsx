@@ -543,6 +543,8 @@ const CustomParameterList = styled.ul`
     grid-template-columns: 1fr 1fr;
     max-height: 40rem;
     margin-top: 0.8rem;
+    height: 100%;
+    padding-top: 0;
   }
 `;
 

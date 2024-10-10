@@ -158,26 +158,25 @@ const CustomParameterFilter: React.FC<CustomParameterFilterProps> = ({
             ))}
           </S.CustomParameterList>
         </S.CustomParametersListWrapper>
+        <S.ButtonsWrapper>
+          <S.BackButton onClick={goBack}>{t("filters.back")}</S.BackButton>
+          <S.MinorShowSessionsButton onClick={onClose}>
+            {fixedSessionTypeSelected ? (
+              <>
+                {t("filters.showSessions")} ({sessionsCount})
+              </>
+            ) : (
+              <>
+                {t("filters.showSessions")}{" "}
+                {t("map.results", {
+                  results: sessionsCount,
+                  fetchableSessionsCount,
+                })}
+              </>
+            )}
+          </S.MinorShowSessionsButton>
+        </S.ButtonsWrapper>
       </S.MobileCustomParameters>
-
-      <S.ButtonsWrapper>
-        <S.BackButton onClick={goBack}>{t("filters.back")}</S.BackButton>
-        <S.MinorShowSessionsButton onClick={onClose}>
-          {fixedSessionTypeSelected ? (
-            <>
-              {t("filters.showSessions")} ({sessionsCount})
-            </>
-          ) : (
-            <>
-              {t("filters.showSessions")}{" "}
-              {t("map.results", {
-                results: sessionsCount,
-                fetchableSessionsCount,
-              })}
-            </>
-          )}
-        </S.MinorShowSessionsButton>
-      </S.ButtonsWrapper>
     </>
   );
 };
