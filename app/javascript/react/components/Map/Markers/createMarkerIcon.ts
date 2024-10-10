@@ -194,6 +194,7 @@ export const createClusterIcon = (
       .pulse {
         animation: pulse-animation 2s infinite;
         transform-origin: center;
+        zIndex: 9999999999999999;
       }
       @keyframes pulse-animation {
         0% {
