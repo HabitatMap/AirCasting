@@ -137,27 +137,27 @@ const CustomParameterFilter: React.FC<CustomParameterFilterProps> = ({
             </S.ChevronBackButton>
             <S.HeaderTitle>{t("filters.selectCustomParameter")}</S.HeaderTitle>
           </S.Header>
-
-          <S.CustomParametersListWrapper>
-            <S.CustomParametersInput
-              {...getInputProps({ value: inputValue })}
-              placeholder={t("filters.searchCustomParameters")}
-            />
-            <S.CustomParameterList {...getMenuProps()}>
-              {filteredParameters.map((item, index) => (
-                <S.CustomParameterItem
-                  key={index}
-                  {...getItemProps({ item, index })}
-                >
-                  <S.CustomParameter $isActive={item === measurementType}>
-                    {item}
-                  </S.CustomParameter>
-                  {item === measurementType && <img src={checkmark} />}
-                </S.CustomParameterItem>
-              ))}
-            </S.CustomParameterList>
-          </S.CustomParametersListWrapper>
+          <S.CustomParametersInput
+            {...getInputProps({ value: inputValue })}
+            placeholder={t("filters.searchCustomParameters")}
+          />
         </S.ModalContent>
+
+        <S.CustomParametersListWrapper>
+          <S.CustomParameterList {...getMenuProps()}>
+            {filteredParameters.map((item, index) => (
+              <S.CustomParameterItem
+                key={index}
+                {...getItemProps({ item, index })}
+              >
+                <S.CustomParameter $isActive={item === measurementType}>
+                  {item}
+                </S.CustomParameter>
+                {item === measurementType && <img src={checkmark} />}
+              </S.CustomParameterItem>
+            ))}
+          </S.CustomParameterList>
+        </S.CustomParametersListWrapper>
         <S.ButtonsWrapper>
           <S.BackButton onClick={goBack}>{t("filters.back")}</S.BackButton>
           <S.MinorShowSessionsButton onClick={onClose}>

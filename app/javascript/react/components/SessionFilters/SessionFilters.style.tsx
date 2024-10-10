@@ -119,6 +119,10 @@ const MobileSessionFilters = styled(SessionFilters)`
 const ModalContent = styled.div`
   display: flex;
   flex-direction: column;
+  position: sticky;
+  top: 0;
+  background-color: ${white};
+  height: 10.5rem;
 `;
 
 const Header = styled.div`
@@ -434,6 +438,9 @@ const Description = styled.p`
 const ButtonsWrapper = styled.div`
   display: flex;
   justify-content: space-between;
+  position: sticky;
+  bottom: 1.6rem;
+  height: 4.2rem;
 `;
 
 const BackButton = styled(Button)`
@@ -529,31 +536,16 @@ const CustomParameterList = styled.ul`
   grid-template-columns: 1fr;
   column-gap: 0.5rem;
   overflow-y: auto;
-  margin-top: 1.8rem;
+  padding-top: 1.8rem;
+  height: calc(100vh - (10.5rem + 4.2rem + 1.6rem));
 
   @media (${media.desktop}) {
     grid-template-columns: 1fr 1fr;
     max-height: 40rem;
     margin-top: 0.8rem;
+    height: 100%;
+    padding-top: 0;
   }
-
-  ::-webkit-scrollbar {
-    width: 12px;
-  }
-
-  ::-webkit-scrollbar-track {
-    background-color: ${gray100};
-  }
-
-  ::-webkit-scrollbar-thumb {
-    background-color: ${acBlue};
-  }
-
-  ::-webkit-scrollbar-thumb:hover {
-    background: ${acBlue};
-  }
-  scrollbar-width: thin;
-  scrollbar-color: ${acBlue} ${gray100};
 `;
 
 const CustomParameterItem = styled.li`
