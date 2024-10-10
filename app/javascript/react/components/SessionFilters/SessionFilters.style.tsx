@@ -494,7 +494,13 @@ const GrayButton = styled(Button)`
 
 const CustomParameterWrapper = styled.div``;
 
-const CustomParametersListWrapper = styled.div``;
+const CustomParametersListWrapper = styled.div`
+  height: calc(100% - (10.5rem + 4.2rem + 1.6rem));
+
+  @media (${media.desktop}) {
+    height: auto;
+  }
+`;
 
 const CustomParameterSearch = styled.div`
   display: flex;
@@ -537,13 +543,12 @@ const CustomParameterList = styled.ul`
   column-gap: 0.5rem;
   overflow-y: auto;
   padding-top: 1.8rem;
-  height: calc(100vh - (10.5rem + 4.2rem + 1.6rem));
+  height: 100%;
 
   @media (${media.desktop}) {
     grid-template-columns: 1fr 1fr;
     max-height: 40rem;
     margin-top: 0.8rem;
-    height: 100%;
     padding-top: 0;
   }
 `;
