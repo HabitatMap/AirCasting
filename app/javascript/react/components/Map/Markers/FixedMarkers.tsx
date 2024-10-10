@@ -522,11 +522,6 @@ export function FixedMarkers({
     };
   }, []);
 
-  useEffect(() => {
-    console.log("url stream Id", selectedStreamId);
-    console.log("infer type of selectedStreamId", typeof selectedStreamId);
-  }, [selectedStreamId]);
-
   return (
     <>
       {hoverPosition && <HoverMarker position={hoverPosition} />}
