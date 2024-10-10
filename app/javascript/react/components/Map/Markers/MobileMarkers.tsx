@@ -38,7 +38,7 @@ export function MobileMarkers({
   const LAT_DIFF_MEDIUM = 0.0001;
   const LAT_ADJUST_SMALL = 0.005;
   const BASE_Z_INDEX = 1;
-  const SELECTED_Z_INDEX = 2;
+  const OVERLAY_Z_INDEX = 2;
 
   const map = useMap();
   const dispatch = useAppDispatch();
@@ -124,8 +124,6 @@ export function MobileMarkers({
       const color = getColorForValue(thresholds, session.lastMeasurementValue);
       const shouldPulse = session.id === pulsatingSessionId;
       const size = 12;
-      const isSelected =
-        session.point.streamId === selectedStreamId?.toString();
 
       const marker = new CustomMarker(
         session.point,
@@ -137,7 +135,8 @@ export function MobileMarkers({
           onMarkerClick(Number(session.point.streamId), Number(session.id));
           centerMapOnMarker(session.point);
         },
-        size
+        size,
+        "overlayMouseTarget" // Add marker to 'overlayMouseTarget' pane
       );
 
       marker.setPulsating(shouldPulse);
@@ -145,15 +144,7 @@ export function MobileMarkers({
 
       return marker;
     },
-    [
-      sessions,
-      thresholds,
-      pulsatingSessionId,
-      selectedStreamId,
-      areMarkersTooClose,
-      onMarkerClick,
-      centerMapOnMarker,
-    ]
+    [thresholds, pulsatingSessionId, onMarkerClick, centerMapOnMarker]
   );
 
   const updateMarkers = useCallback(() => {
@@ -175,7 +166,7 @@ export function MobileMarkers({
       marker.setSize(size);
       marker.setPulsating(shouldPulse);
       marker.setClickableAreaSize(size);
-      marker.setZIndex(isSelected ? SELECTED_Z_INDEX : BASE_Z_INDEX);
+      marker.setZIndex(BASE_Z_INDEX);
 
       if (isOverlapping) {
         const existingOverlay = markerOverlays.current.get(streamId);
@@ -205,7 +196,6 @@ export function MobileMarkers({
           overlay.setColor(color);
           overlay.update();
         }
-        overlay.setZIndex(isSelected ? SELECTED_Z_INDEX : BASE_Z_INDEX);
 
         let labelOverlay = labelOverlays.current.get(streamId);
         if (!labelOverlay) {
@@ -230,7 +220,7 @@ export function MobileMarkers({
             unitSymbol
           );
         }
-        labelOverlay.setZIndex(isSelected ? SELECTED_Z_INDEX : BASE_Z_INDEX);
+        labelOverlay.setZIndex(OVERLAY_Z_INDEX);
       }
     });
   }, [

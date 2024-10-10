@@ -11,7 +11,7 @@ interface HoverMarkerProps {
 const HoverMarker: React.FC<HoverMarkerProps> = ({ position }) => {
   const map = useMap();
   const markerRef = useRef<CustomMarker | null>(null);
-  const HOVER_Z_INDEX = 3;
+  const HOVER_MARKER_Z_INDEX = 3;
 
   useEffect(() => {
     if (!map || !position) return;
@@ -24,12 +24,14 @@ const HoverMarker: React.FC<HoverMarkerProps> = ({ position }) => {
         16,
         undefined,
         undefined,
-        20
+        20,
+        "floatPane"
       );
       markerRef.current.setMap(map);
-      markerRef.current.setZIndex(HOVER_Z_INDEX);
+      markerRef.current.setZIndex(HOVER_MARKER_Z_INDEX);
     } else {
       markerRef.current.setPosition(position);
+      markerRef.current.setZIndex(HOVER_MARKER_Z_INDEX);
     }
 
     return () => {

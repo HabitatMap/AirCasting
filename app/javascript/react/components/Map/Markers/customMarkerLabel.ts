@@ -17,7 +17,7 @@ export class LabelOverlay extends google.maps.OverlayView {
     unitSymbol: string,
     isSelected: boolean,
     onClick: () => void,
-    zIndex: number = 1
+    zIndex: number = 1000
   ) {
     super();
     this.position = position;
@@ -40,7 +40,7 @@ export class LabelOverlay extends google.maps.OverlayView {
     this.div.addEventListener("click", this.onClick);
 
     const panes = this.getPanes();
-    panes && panes.overlayMouseTarget.appendChild(this.div);
+    panes && panes.floatPane.appendChild(this.div); // Use floatPane
   }
 
   draw() {

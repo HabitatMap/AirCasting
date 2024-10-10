@@ -16,6 +16,7 @@ export class CustomMarker extends google.maps.OverlayView {
   private onClick?: () => void;
   private clickableAreaSize: number;
   private zIndex: number = 0;
+  private paneName: keyof google.maps.MapPanes;
 
   constructor(
     position: google.maps.LatLngLiteral,
@@ -24,7 +25,8 @@ export class CustomMarker extends google.maps.OverlayView {
     size: number = 12,
     content?: React.ReactNode,
     onClick?: () => void,
-    clickableAreaSize: number = 20
+    clickableAreaSize: number = 20,
+    paneName: keyof google.maps.MapPanes = "overlayMouseTarget" // Default pane
   ) {
     super();
     this.position = new google.maps.LatLng(position);
@@ -34,6 +36,7 @@ export class CustomMarker extends google.maps.OverlayView {
     this.content = content;
     this.onClick = onClick;
     this.clickableAreaSize = clickableAreaSize;
+    this.paneName = paneName;
   }
 
   onAdd() {
@@ -71,7 +74,8 @@ export class CustomMarker extends google.maps.OverlayView {
     }
 
     const panes = this.getPanes();
-    panes?.overlayMouseTarget.appendChild(this.div);
+    const pane = panes ? panes[this.paneName] : null;
+    pane && pane.appendChild(this.div);
   }
 
   draw() {
@@ -91,7 +95,6 @@ export class CustomMarker extends google.maps.OverlayView {
   onRemove() {
     if (this.div) {
       if (this.root) {
-        // Schedule unmounting after the current render cycle
         setTimeout(() => {
           this.root?.unmount();
           this.root = undefined;
@@ -146,7 +149,7 @@ export class CustomMarker extends google.maps.OverlayView {
     if (this.div) {
       this.div.style.width = `${size}px`;
       this.div.style.height = `${size}px`;
-      this.draw(); // Redraw to update position based on new size
+      this.draw();
     }
   }
 
