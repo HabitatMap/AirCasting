@@ -1,9 +1,9 @@
 import { useMap } from "@vis.gl/react-google-maps";
 import React, { useEffect, useRef } from "react";
+import { blue } from "../../../../assets/styles/colors";
 import { LatLngLiteral } from "../../../../types/googleMaps";
 import { CustomMarker } from "../CustomMarker";
 
-import { blue } from "../../../../assets/styles/colors";
 interface HoverMarkerProps {
   position: LatLngLiteral | null;
 }
@@ -11,6 +11,7 @@ interface HoverMarkerProps {
 const HoverMarker: React.FC<HoverMarkerProps> = ({ position }) => {
   const map = useMap();
   const markerRef = useRef<CustomMarker | null>(null);
+  const HOVER_MARKER_Z_INDEX = 3;
 
   useEffect(() => {
     if (!map || !position) return;
@@ -20,11 +21,17 @@ const HoverMarker: React.FC<HoverMarkerProps> = ({ position }) => {
         position,
         `${blue}`,
         "Hover Marker",
-        16
+        16,
+        undefined,
+        undefined,
+        20,
+        "floatPane"
       );
       markerRef.current.setMap(map);
+      markerRef.current.setZIndex(HOVER_MARKER_Z_INDEX);
     } else {
       markerRef.current.setPosition(position);
+      markerRef.current.setZIndex(HOVER_MARKER_Z_INDEX);
     }
 
     return () => {

@@ -1,4 +1,5 @@
 import React from "react";
+import { unstable_batchedUpdates } from "react-dom";
 import { createRoot, Root } from "react-dom/client";
 import { Provider } from "react-redux";
 import store from "../../../store/index";
@@ -14,6 +15,8 @@ export class CustomMarker extends google.maps.OverlayView {
   private pulsating: boolean = false;
   private onClick?: () => void;
   private clickableAreaSize: number;
+  private zIndex: number = 0;
+  private paneName: keyof google.maps.MapPanes;
 
   constructor(
     position: google.maps.LatLngLiteral,
@@ -22,7 +25,8 @@ export class CustomMarker extends google.maps.OverlayView {
     size: number = 12,
     content?: React.ReactNode,
     onClick?: () => void,
-    clickableAreaSize: number = 20
+    clickableAreaSize: number = 20,
+    paneName: keyof google.maps.MapPanes = "overlayMouseTarget"
   ) {
     super();
     this.position = new google.maps.LatLng(position);
@@ -32,6 +36,7 @@ export class CustomMarker extends google.maps.OverlayView {
     this.content = content;
     this.onClick = onClick;
     this.clickableAreaSize = clickableAreaSize;
+    this.paneName = paneName;
   }
 
   onAdd() {
@@ -41,6 +46,7 @@ export class CustomMarker extends google.maps.OverlayView {
     this.div.title = this.title;
     this.div.style.width = `${this.clickableAreaSize}px`;
     this.div.style.height = `${this.clickableAreaSize}px`;
+    this.div.style.zIndex = this.zIndex.toString();
 
     const innerDiv = document.createElement("div");
     innerDiv.style.width = `${this.size}px`;
@@ -68,7 +74,8 @@ export class CustomMarker extends google.maps.OverlayView {
     }
 
     const panes = this.getPanes();
-    panes?.overlayMouseTarget.appendChild(this.div);
+    const pane = panes ? panes[this.paneName] : null;
+    pane && pane.appendChild(this.div);
   }
 
   draw() {
@@ -88,8 +95,10 @@ export class CustomMarker extends google.maps.OverlayView {
   onRemove() {
     if (this.div) {
       if (this.root) {
-        this.root.unmount();
-        this.root = undefined;
+        setTimeout(() => {
+          this.root?.unmount();
+          this.root = undefined;
+        }, 0);
       }
       if (this.onClick) {
         this.div.removeEventListener("click", this.onClick);
@@ -99,8 +108,11 @@ export class CustomMarker extends google.maps.OverlayView {
     }
   }
 
-  setPosition(position: google.maps.LatLngLiteral) {
-    this.position = new google.maps.LatLng(position);
+  setPosition(position: google.maps.LatLngLiteral | google.maps.LatLng) {
+    this.position =
+      position instanceof google.maps.LatLng
+        ? position
+        : new google.maps.LatLng(position.lat, position.lng);
     this.draw();
   }
 
@@ -137,7 +149,7 @@ export class CustomMarker extends google.maps.OverlayView {
     if (this.div) {
       this.div.style.width = `${size}px`;
       this.div.style.height = `${size}px`;
-      this.draw(); // Redraw to update position based on new size
+      this.draw();
     }
   }
 
@@ -152,16 +164,17 @@ export class CustomMarker extends google.maps.OverlayView {
   setContent(content: React.ReactNode) {
     this.content = content;
     if (this.div) {
-      if (this.root) {
-        this.root.render(<Provider store={store}>{this.content}</Provider>);
-      } else {
+      if (!this.root) {
         this.root = createRoot(this.div);
-        this.root.render(<Provider store={store}>{this.content}</Provider>);
       }
+      unstable_batchedUpdates(() => {
+        this.root!.render(<Provider store={store}>{this.content}</Provider>);
+      });
     }
   }
 
   setZIndex(zIndex: number) {
+    this.zIndex = zIndex;
     if (this.div) {
       this.div.style.zIndex = zIndex.toString();
     }
@@ -176,5 +189,9 @@ export class CustomMarker extends google.maps.OverlayView {
         this.div.classList.remove("pulsating-marker");
       }
     }
+  }
+
+  isPulsating(): boolean {
+    return this.pulsating;
   }
 }
