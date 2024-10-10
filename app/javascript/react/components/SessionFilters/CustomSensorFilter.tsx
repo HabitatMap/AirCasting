@@ -129,27 +129,27 @@ const CustomSensorFilter: React.FC<CustomSensorFilterProps> = ({
             </S.ChevronBackButton>
             <S.HeaderTitle>{t("filters.selectCustomSensor")}</S.HeaderTitle>
           </S.Header>
-
-          <S.CustomParametersListWrapper>
-            <S.CustomParametersInput
-              {...getInputProps({ value: inputValue })}
-              placeholder={t("filters.searchCustomSensors")}
-            />
-            <S.CustomParameterList {...getMenuProps()}>
-              {filteredSensors.map((item, index) => (
-                <S.CustomParameterItem
-                  key={index}
-                  {...getItemProps({ item, index })}
-                >
-                  <S.CustomParameter $isActive={item === sensorName}>
-                    {item}
-                  </S.CustomParameter>
-                  {item === sensorName && <img src={checkmark} />}
-                </S.CustomParameterItem>
-              ))}
-            </S.CustomParameterList>
-          </S.CustomParametersListWrapper>
+          <S.CustomParametersInput
+            {...getInputProps({ value: inputValue })}
+            placeholder={t("filters.searchCustomSensors")}
+          />
         </S.ModalContent>
+
+        <S.CustomParametersListWrapper>
+          <S.CustomParameterList {...getMenuProps()}>
+            {filteredSensors.map((item, index) => (
+              <S.CustomParameterItem
+                key={index}
+                {...getItemProps({ item, index })}
+              >
+                <S.CustomParameter $isActive={item === sensorName}>
+                  {item}
+                </S.CustomParameter>
+                {item === sensorName && <img src={checkmark} />}
+              </S.CustomParameterItem>
+            ))}
+          </S.CustomParameterList>
+        </S.CustomParametersListWrapper>
         <S.ButtonsWrapper>
           <S.BackButton onClick={goBack}>{t("filters.back")}</S.BackButton>
           <S.MinorShowSessionsButton onClick={onClose}>
