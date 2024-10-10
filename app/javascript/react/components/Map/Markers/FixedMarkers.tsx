@@ -30,6 +30,11 @@ import { createClusterIcon } from "./createMarkerIcon";
 import HoverMarker from "./HoverMarker/HoverMarker";
 import { CustomMarkerOverlay } from "./customMarkerOverlay";
 import { LabelOverlay } from "./customMarkerLabel";
+import {
+  selectFixedStreamData,
+  selectFixedStreamStatus,
+} from "../../../store/fixedStreamSelectors";
+import { StatusEnum } from "../../../types/api";
 
 type CustomMarker = google.maps.Marker & {
   value: number;
@@ -64,6 +69,9 @@ export function FixedMarkers({
   const thresholds = useAppSelector(selectThresholds);
   const clusterData = useAppSelector((state) => state.cluster.data);
   const clusterVisible = useAppSelector((state) => state.cluster.visible);
+
+  const fixedStreamData = useAppSelector(selectFixedStreamData);
+  const fixedStreamStatus = useAppSelector(selectFixedStreamStatus);
 
   const clustererRef = useRef<MarkerClusterer | null>(null);
   const markerRefs = useRef<Map<string, CustomMarker>>(new Map());
@@ -411,6 +419,7 @@ export function FixedMarkers({
   }, [
     map,
     thresholds,
+    selectedStreamId,
     pulsatingSessionId,
     updateMarkerOverlays,
     markerRefs.current,
@@ -418,7 +427,7 @@ export function FixedMarkers({
 
   useEffect(() => {
     updateMarkerOverlays();
-  }, [pulsatingSessionId, markerRefs.current, sessions]);
+  }, [pulsatingSessionId, selectedStreamId, markerRefs.current, sessions]);
 
   useEffect(() => {
     handleThresholdChange();
@@ -472,6 +481,25 @@ export function FixedMarkers({
       });
     }
   }, [map, customRenderer, handleClusterClickInternal]);
+
+  // Needed to handle fixed session opened in a new tab - otherwise markers won't appear
+  useEffect(() => {
+    const handleSelectedStreamId = (streamId: number | null) => {
+      if (!streamId || fixedStreamStatus === StatusEnum.Pending) return;
+      const { latitude, longitude } = fixedStreamData?.stream ?? {};
+
+      if (latitude && longitude) {
+        const fixedStreamPosition = { lat: latitude, lng: longitude };
+        centerMapOnMarker(fixedStreamPosition);
+      } else {
+        console.error(
+          `Stream ID ${streamId} not found or missing latitude/longitude in fixedStream data.`
+        );
+      }
+    };
+
+    handleSelectedStreamId(selectedStreamId);
+  }, [selectedStreamId, fixedStreamData, fixedStreamStatus, centerMapOnMarker]);
 
   useEffect(() => {
     return () => {
