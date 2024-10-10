@@ -109,6 +109,8 @@ const IconWrapper = styled.div<{ $isActive: boolean; $src: string }>`
 `;
 
 const MobileSessionFilters = styled(SessionFilters)`
+  display: fixed;
+  bottom: 0;
   top: 0;
   z-index: 6;
   margin: 0;
