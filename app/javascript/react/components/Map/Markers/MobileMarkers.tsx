@@ -1,5 +1,7 @@
+"use client";
+
 import { useMap } from "@vis.gl/react-google-maps";
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useSelector } from "react-redux";
 import { useAppDispatch } from "../../../store/hooks";
 import { setMarkersLoading } from "../../../store/markersLoadingSlice";
@@ -14,8 +16,8 @@ import { Point, Session } from "../../../types/sessionType";
 import { useMapParams } from "../../../utils/mapParamsHandler";
 import { getColorForValue } from "../../../utils/thresholdColors";
 import { CustomMarker } from "./CustomMarker";
-import { SessionDotMarker } from "./SessionDotMarker/SessionDotMarker";
-import { SessionFullMarker } from "./SessionFullMarker/SessionFullMarker";
+import { LabelOverlay } from "./customMarkerLabel";
+import { CustomMarkerOverlay } from "./customMarkerOverlay";
 
 type Props = {
   sessions: Session[];
@@ -24,16 +26,14 @@ type Props = {
   pulsatingSessionId: number | null;
 };
 
-const MobileMarkers = ({
+export function MobileMarkers({
   sessions,
   onMarkerClick,
   selectedStreamId,
   pulsatingSessionId,
-}: Props) => {
+}: Props) {
   const DISTANCE_THRESHOLD = 21;
   const ZOOM_FOR_SELECTED_SESSION = 16;
-
-  // Latitude adjustment constants
   const LAT_DIFF_SMALL = 0.00001;
   const LAT_DIFF_MEDIUM = 0.0001;
   const LAT_ADJUST_SMALL = 0.005;
@@ -42,70 +42,30 @@ const MobileMarkers = ({
   const dispatch = useAppDispatch();
   const thresholds = useSelector(selectThresholds);
   const { unitSymbol } = useMapParams();
-
   const mobileStreamData = useSelector(selectMobileStreamData);
   const mobileStreamStatus = useSelector(selectMobileStreamStatus);
 
   const markerRefs = useRef<Map<string, CustomMarker>>(new Map());
+  const markerOverlays = useRef<Map<string, CustomMarkerOverlay>>(new Map());
+  const labelOverlays = useRef<Map<string, LabelOverlay>>(new Map());
   const [selectedMarkerKey, setSelectedMarkerKey] = useState<string | null>(
     null
   );
 
-  // Memoized function to check if markers are too close
   const areMarkersTooClose = useCallback(
-    (
-      marker1: google.maps.LatLngLiteral,
-      marker2: google.maps.LatLngLiteral
-    ) => {
+    (marker1: LatLngLiteral, marker2: LatLngLiteral) => {
       if (!map) return false;
-
       const zoom = map.getZoom() ?? 0;
       const latDiff = marker1.lat - marker2.lat;
       const lngDiff = marker1.lng - marker2.lng;
       const distance = Math.sqrt(latDiff * latDiff + lngDiff * lngDiff);
-
-      // Convert distance to pixels based on the current zoom level
       const pixelSize = Math.pow(2, -zoom);
       const distanceInPixels = distance / pixelSize;
-
       return distanceInPixels < DISTANCE_THRESHOLD;
     },
     [map]
   );
 
-  // Helper functions
-  const calculateLatitudeDiff = (
-    minLatitude: number,
-    maxLatitude: number
-  ): number => {
-    return maxLatitude - minLatitude;
-  };
-
-  const adjustLatitude = (minLatitude: number, maxLatitude: number): number => {
-    const latDiff = calculateLatitudeDiff(minLatitude, maxLatitude);
-
-    if (latDiff >= 0 && latDiff < LAT_DIFF_SMALL) {
-      return minLatitude - LAT_ADJUST_SMALL;
-    } else if (latDiff >= LAT_DIFF_SMALL && latDiff < LAT_DIFF_MEDIUM) {
-      return minLatitude - latDiff * 2;
-    } else {
-      return minLatitude - latDiff;
-    }
-  };
-
-  const calculateBounds = (
-    maxLatitude: number,
-    minLongitude: number,
-    maxLongitude: number,
-    adjustedLat: number
-  ): LatLngLiteral[] => {
-    return [
-      { lat: maxLatitude, lng: maxLongitude },
-      { lat: adjustedLat, lng: minLongitude },
-    ];
-  };
-
-  // Memoized function to center the map on bounds
   const centerMapOnBounds = useCallback(
     (
       minLatitude: number,
@@ -114,7 +74,7 @@ const MobileMarkers = ({
       maxLongitude: number
     ) => {
       if (map && !selectedMarkerKey) {
-        const latDiff = calculateLatitudeDiff(minLatitude, maxLatitude);
+        const latDiff = maxLatitude - minLatitude;
         const lngDiff = maxLongitude - minLongitude;
 
         if (latDiff < LAT_DIFF_SMALL && lngDiff < LAT_DIFF_SMALL) {
@@ -123,38 +83,33 @@ const MobileMarkers = ({
           map.setCenter({ lat: centerLat, lng: centerLng });
           map.setZoom(ZOOM_FOR_SELECTED_SESSION);
         } else {
-          const adjustedLat = adjustLatitude(minLatitude, maxLatitude);
-          const bounds = calculateBounds(
-            maxLatitude,
-            minLongitude,
-            maxLongitude,
-            adjustedLat
+          let adjustedLat: number;
+          if (latDiff >= 0 && latDiff < LAT_DIFF_SMALL) {
+            adjustedLat = minLatitude - LAT_ADJUST_SMALL;
+          } else if (latDiff >= LAT_DIFF_SMALL && latDiff < LAT_DIFF_MEDIUM) {
+            adjustedLat = minLatitude - latDiff * 2;
+          } else {
+            adjustedLat = minLatitude - latDiff;
+          }
+          const bounds = new google.maps.LatLngBounds(
+            new google.maps.LatLng(adjustedLat, minLongitude),
+            new google.maps.LatLng(maxLatitude, maxLongitude)
           );
-          const googleBounds = new google.maps.LatLngBounds();
-
-          bounds.forEach((coord) =>
-            googleBounds.extend(new google.maps.LatLng(coord.lat, coord.lng))
-          );
-          map.fitBounds(googleBounds);
-
+          map.fitBounds(bounds);
           if (latDiff === 0) {
             map.setZoom(ZOOM_FOR_SELECTED_SESSION);
           }
         }
-
         setSelectedMarkerKey(null);
       }
     },
     [map, selectedMarkerKey]
   );
 
-  // Memoized function to center the map on a specific marker
   const centerMapOnMarker = useCallback(
     (position: Point) => {
-      const { lat, lng } = position;
-
       if (map && !selectedMarkerKey) {
-        map.setCenter({ lat, lng });
+        map.setCenter(position);
         map.setZoom(ZOOM_FOR_SELECTED_SESSION);
       }
       setSelectedMarkerKey(null);
@@ -162,93 +117,131 @@ const MobileMarkers = ({
     [map, selectedMarkerKey]
   );
 
-  // Memoized function to render marker content
-  const renderMarkerContent = useCallback(
-    (session: Session, isSelected: boolean) => {
+  const createMarker = useCallback(
+    (session: Session): CustomMarker => {
       const isOverlapping = sessions.some(
         (otherSession) =>
           otherSession.point.streamId !== session.point.streamId &&
           areMarkersTooClose(session.point, otherSession.point)
       );
 
-      if (isOverlapping) {
-        return (
-          <SessionDotMarker
-            color={getColorForValue(thresholds, session.lastMeasurementValue)}
-            shouldPulse={session.id === pulsatingSessionId}
-            onClick={() => {
-              onMarkerClick(Number(session.point.streamId), Number(session.id));
-              centerMapOnMarker(session.point);
-            }}
-          />
-        );
-      }
-
-      return (
-        <SessionFullMarker
-          color={getColorForValue(thresholds, session.lastMeasurementValue)}
-          value={`${Math.round(session.lastMeasurementValue)} ${unitSymbol}`}
-          isSelected={isSelected}
-          shouldPulse={session.id === pulsatingSessionId}
-          onClick={() => {
-            onMarkerClick(Number(session.point.streamId), Number(session.id));
-            centerMapOnMarker(session.point);
-          }}
-        />
-      );
-    },
-    [
-      sessions,
-      thresholds,
-      unitSymbol,
-      pulsatingSessionId,
-      onMarkerClick,
-      centerMapOnMarker,
-      areMarkersTooClose,
-    ]
-  );
-
-  // Memoized function to create markers
-  const createMarker = useCallback(
-    (session: Session): CustomMarker => {
-      const position = session.point;
-      const isSelected =
-        session.point.streamId === selectedStreamId?.toString();
-
-      const content = renderMarkerContent(session, isSelected);
-
       const color = getColorForValue(thresholds, session.lastMeasurementValue);
+      const shouldPulse = session.id === pulsatingSessionId;
+      const size = isOverlapping ? 12 : 24;
 
       const marker = new CustomMarker(
-        position,
+        session.point,
         color,
         "",
-        12,
-        content,
+        size,
+        undefined,
         () => {
           onMarkerClick(Number(session.point.streamId), Number(session.id));
           centerMapOnMarker(session.point);
         },
-        20
+        size
       );
 
-      marker.setPulsating(session.id === pulsatingSessionId);
-      marker.setMap(map);
+      marker.setPulsating(shouldPulse);
 
       return marker;
     },
     [
-      map,
+      sessions,
+      thresholds,
+      pulsatingSessionId,
+      areMarkersTooClose,
       onMarkerClick,
       centerMapOnMarker,
-      pulsatingSessionId,
-      thresholds,
-      renderMarkerContent,
-      selectedStreamId,
     ]
   );
 
-  // Center map when selectedStreamId changes
+  const updateMarkers = useCallback(() => {
+    markerRefs.current.forEach((marker, streamId) => {
+      const session = sessions.find((s) => s.point.streamId === streamId);
+      if (!session) return;
+
+      const isSelected = streamId === selectedStreamId?.toString();
+      const shouldPulse = session.id === pulsatingSessionId;
+      const isOverlapping = sessions.some(
+        (otherSession) =>
+          otherSession.point.streamId !== streamId &&
+          areMarkersTooClose(session.point, otherSession.point)
+      );
+      const color = getColorForValue(thresholds, session.lastMeasurementValue);
+      const size = isOverlapping ? 12 : 24;
+
+      marker.setColor(color);
+      marker.setSize(size);
+      marker.setPulsating(shouldPulse);
+      marker.setClickableAreaSize(size);
+
+      if (isOverlapping) {
+        const existingOverlay = markerOverlays.current.get(streamId);
+        if (existingOverlay) {
+          existingOverlay.setMap(null);
+          markerOverlays.current.delete(streamId);
+        }
+        const existingLabel = labelOverlays.current.get(streamId);
+        if (existingLabel) {
+          existingLabel.setMap(null);
+          labelOverlays.current.delete(streamId);
+        }
+      } else {
+        let overlay = markerOverlays.current.get(streamId);
+        if (!overlay) {
+          overlay = new CustomMarkerOverlay(
+            marker.getPosition()!,
+            color,
+            isSelected,
+            shouldPulse
+          );
+          overlay.setMap(map);
+          markerOverlays.current.set(streamId, overlay);
+        } else {
+          overlay.setIsSelected(isSelected);
+          overlay.setShouldPulse(shouldPulse);
+          overlay.setColor(color);
+          overlay.update();
+        }
+
+        let labelOverlay = labelOverlays.current.get(streamId);
+        if (!labelOverlay) {
+          labelOverlay = new LabelOverlay(
+            marker.getPosition()!,
+            color,
+            session.lastMeasurementValue,
+            unitSymbol,
+            isSelected,
+            () => {
+              onMarkerClick(Number(streamId), Number(session.id));
+              centerMapOnMarker(session.point);
+            }
+          );
+          labelOverlay.setMap(map);
+          labelOverlays.current.set(streamId, labelOverlay);
+        } else {
+          labelOverlay.update(
+            isSelected,
+            color,
+            session.lastMeasurementValue,
+            unitSymbol
+          );
+        }
+      }
+    });
+  }, [
+    sessions,
+    selectedStreamId,
+    pulsatingSessionId,
+    thresholds,
+    unitSymbol,
+    areMarkersTooClose,
+    map,
+    onMarkerClick,
+    centerMapOnMarker,
+  ]);
+
   useEffect(() => {
     if (selectedStreamId && mobileStreamStatus !== StatusEnum.Pending) {
       const { minLatitude, maxLatitude, minLongitude, maxLongitude } =
@@ -267,84 +260,65 @@ const MobileMarkers = ({
     centerMapOnBounds,
   ]);
 
-  // Set markers loading state
   useEffect(() => {
     if (!selectedStreamId) {
       dispatch(setMarkersLoading(true));
     }
   }, [dispatch, sessions.length, selectedStreamId]);
 
-  // Manage markers on the map
   useEffect(() => {
     if (!map) return;
 
+    const updatedMarkers = new Set<string>();
+
     sessions.forEach((session) => {
       const markerId = session.point.streamId;
+      updatedMarkers.add(markerId);
+
       let marker = markerRefs.current.get(markerId);
       if (!marker) {
         marker = createMarker(session);
+        marker.setMap(map);
         markerRefs.current.set(markerId, marker);
       } else {
-        const isPulsating = session.id === pulsatingSessionId;
-        const isSelected =
-          session.point.streamId === selectedStreamId?.toString();
-        const newContent = renderMarkerContent(session, isSelected);
-
-        // Convert session.point to google.maps.LatLng
-        const sessionLatLng = new google.maps.LatLng(
-          session.point.lat,
-          session.point.lng
-        );
-
-        // Get marker position
-        const markerPosition = marker.getPosition();
-
-        // Update only if necessary
-        if (markerPosition && !markerPosition.equals(sessionLatLng)) {
-          marker.setPosition(session.point);
-        }
-
-        if (marker.isPulsating() !== isPulsating) {
-          marker.setPulsating(isPulsating);
-        }
-
-        if (marker.getContent() !== newContent) {
-          marker.setContent(newContent);
-        }
+        marker.setPosition(session.point);
       }
     });
 
-    const sessionStreamIds = new Set(sessions.map((s) => s.point.streamId));
     markerRefs.current.forEach((marker, markerId) => {
-      if (!sessionStreamIds.has(markerId)) {
+      if (!updatedMarkers.has(markerId)) {
         marker.setMap(null);
         markerRefs.current.delete(markerId);
+        const overlay = markerOverlays.current.get(markerId);
+        if (overlay) {
+          overlay.setMap(null);
+          markerOverlays.current.delete(markerId);
+        }
+        const labelOverlay = labelOverlays.current.get(markerId);
+        if (labelOverlay) {
+          labelOverlay.setMap(null);
+          labelOverlays.current.delete(markerId);
+        }
       }
     });
 
-    // After markers are loaded, dispatch setMarkersLoading(false)
+    updateMarkers();
+
     if (!selectedStreamId && markerRefs.current.size >= sessions.length) {
       dispatch(setMarkersLoading(false));
     }
-  }, [
-    sessions,
-    map,
-    createMarker,
-    renderMarkerContent,
-    pulsatingSessionId,
-    selectedStreamId,
-    dispatch,
-  ]);
+  }, [sessions, map, createMarker, updateMarkers, selectedStreamId, dispatch]);
 
-  // Cleanup markers when component unmounts
   useEffect(() => {
     return () => {
       markerRefs.current.forEach((marker) => marker.setMap(null));
       markerRefs.current.clear();
+      markerOverlays.current.forEach((overlay) => overlay.setMap(null));
+      markerOverlays.current.clear();
+      labelOverlays.current.forEach((overlay) => overlay.setMap(null));
+      labelOverlays.current.clear();
     };
   }, []);
 
-  return null; // Markers are managed via CustomMarker instances
-};
-
-export { MobileMarkers };
+  return null;
+}
