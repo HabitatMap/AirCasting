@@ -93,6 +93,7 @@ import { FixedMarkers } from "./Markers/FixedMarkers";
 import { MobileMarkers } from "./Markers/MobileMarkers";
 import { StreamMarkers } from "./Markers/StreamMarkers";
 import { TimelapseMarkers } from "./Markers/TimelapseMarkers";
+import mapStyles from "./mapStyles";
 
 const Map = () => {
   const dispatch = useAppDispatch();
@@ -685,7 +686,7 @@ const Map = () => {
         </S.IndoorOvelay>
       )}
       <GoogleMap
-        mapId={mapId}
+        // mapId={mapId}
         mapTypeId={mapTypeId}
         defaultCenter={currentCenter}
         defaultZoom={currentZoom}
@@ -696,6 +697,7 @@ const Map = () => {
         onIdle={handleMapIdle}
         minZoom={MIN_ZOOM}
         isFractionalZoomEnabled={true}
+        styles={mapStyles}
       >
         {fixedSessionsStatusFulfilled &&
           fixedSessionTypeSelected &&
