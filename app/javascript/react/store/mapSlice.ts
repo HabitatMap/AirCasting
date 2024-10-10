@@ -10,6 +10,7 @@ interface MapState {
   hoverStreamId: number | null;
   mapId: string;
   position: LatLngLiteral;
+  sessionsListExpanded: boolean;
 }
 
 export const initialState: MapState = {
@@ -17,6 +18,7 @@ export const initialState: MapState = {
   hoverStreamId: null,
   mapId: MAP_ID,
   position: DEFAULT_MAP_CENTER,
+  sessionsListExpanded: true,
 };
 
 const mapSlice = createSlice({
@@ -35,11 +37,19 @@ const mapSlice = createSlice({
     setMapId(state, action: PayloadAction<string>) {
       state.mapId = action.payload;
     },
+    setSessionsListExpanded(state, action: PayloadAction<boolean>) {
+      state.sessionsListExpanded = action.payload;
+    },
   },
 });
 
-export const { setFetchingData, setHoverPosition, setHoverStreamId, setMapId } =
-  mapSlice.actions;
+export const {
+  setFetchingData,
+  setHoverPosition,
+  setHoverStreamId,
+  setMapId,
+  setSessionsListExpanded,
+} = mapSlice.actions;
 
 export default mapSlice.reducer;
 
@@ -47,3 +57,5 @@ export const selectFetchingData = (state: RootState) => state.map.fetchingData;
 export const selectHoverStreamId = (state: RootState) =>
   state.map.hoverStreamId;
 export const selectHoverPosition = (state: RootState) => state.map.position;
+export const selectSessionsListExpanded = (state: RootState) =>
+  state.map.sessionsListExpanded;

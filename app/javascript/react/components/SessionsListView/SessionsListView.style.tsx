@@ -1,25 +1,21 @@
 import styled from "styled-components";
 
 import { blue, gray400 } from "../../assets/styles/colors";
-import { media } from "../../utils/media";
 import { SessionListTile } from "./SessionsListTile/SessionListTile.style";
 
 const SessionListViewStyle = styled.div`
   position: fixed;
   top: 10.5rem;
-  bottom: 0;
   right: 1.25rem;
+  bottom: 6.4rem;
   border-radius: 0.5rem;
   box-sizing: border-box;
   padding-right: 0.8rem;
+  width: 25rem;
   z-index: 1;
   display: flex;
   flex-direction: column;
   gap: 1rem;
-
-  @media (${media.desktop}) {
-    bottom: 6.4rem;
-  }
 `;
 
 const SessionListTitle = styled.span`
@@ -28,6 +24,10 @@ const SessionListTitle = styled.span`
   font-size: 1.2rem;
   color: ${gray400};
   align-items: center;
+
+  &:nth-of-type(2) {
+    margin-left: 0.3rem;
+  }
 `;
 
 const SessionListInfoContainer = styled.div`
@@ -50,9 +50,9 @@ const SessionListContainer = styled.div`
     width: calc(100% + 2rem);
   }
 
-
   &::-webkit-scrollbar-button:end:decrement {
-  padding-bottom: 1rem;}
+    padding-bottom: 1rem;
+  }
 `;
 
 const ExportSessionsButton = styled.button<{ $hasSessions: boolean }>`
@@ -68,12 +68,30 @@ const SessionInfoTile = styled(SessionListTile)`
   display: flex;
   gap: 0.5rem;
   justify-content: space-around;
+  align-items: center;
   padding: 1rem;
+  cursor: default;
+`;
+
+const ExpandButton = styled.button`
+  display: flex;
+  align-items: center;
+  background-color: transparent;
+  border: none;
   cursor: pointer;
 `;
 
+const RotatedIcon = styled.img<{ $rotated: boolean }>`
+  transform: ${({ $rotated }) => ($rotated ? "rotate(180deg)" : "none")};
+  width: 1.5rem;
+  height: 1.5rem;
+  margin-right: 0.3rem;
+`;
+
 export {
+  ExpandButton,
   ExportSessionsButton,
+  RotatedIcon,
   SessionInfoTile,
   SessionListContainer,
   SessionListInfoContainer,
