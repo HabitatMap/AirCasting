@@ -13,10 +13,15 @@ import React, {
 } from "react";
 
 import { fetchClusterData, setVisibility } from "../../../store/clusterSlice";
+import {
+  selectFixedStreamData,
+  selectFixedStreamStatus,
+} from "../../../store/fixedStreamSelectors";
 import { useAppDispatch, useAppSelector } from "../../../store/hooks";
 import { selectHoverStreamId } from "../../../store/mapSlice";
 import { setMarkersLoading } from "../../../store/markersLoadingSlice";
 import { selectThresholds } from "../../../store/thresholdSlice";
+import { StatusEnum } from "../../../types/api";
 import { LatLngLiteral } from "../../../types/googleMaps";
 import { Session } from "../../../types/sessionType";
 import { Thresholds } from "../../../types/thresholds";
@@ -27,14 +32,9 @@ import { getColorForValue } from "../../../utils/thresholdColors";
 import { createFixedMarkersRenderer } from "./ClusterConfiguration";
 import { ClusterInfo } from "./ClusterInfo/ClusterInfo";
 import { createClusterIcon } from "./createMarkerIcon";
-import HoverMarker from "./HoverMarker/HoverMarker";
-import { CustomMarkerOverlay } from "./customMarkerOverlay";
 import { LabelOverlay } from "./customMarkerLabel";
-import {
-  selectFixedStreamData,
-  selectFixedStreamStatus,
-} from "../../../store/fixedStreamSelectors";
-import { StatusEnum } from "../../../types/api";
+import { CustomMarkerOverlay } from "./customMarkerOverlay";
+import HoverMarker from "./HoverMarker/HoverMarker";
 
 type CustomMarker = google.maps.Marker & {
   value: number;
