@@ -26,7 +26,7 @@ export class CustomMarker extends google.maps.OverlayView {
     content?: React.ReactNode,
     onClick?: () => void,
     clickableAreaSize: number = 20,
-    paneName: keyof google.maps.MapPanes = "overlayMouseTarget" // Default pane
+    paneName: keyof google.maps.MapPanes = "overlayMouseTarget"
   ) {
     super();
     this.position = new google.maps.LatLng(position);

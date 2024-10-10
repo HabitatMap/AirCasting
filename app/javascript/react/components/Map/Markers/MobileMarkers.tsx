@@ -25,13 +25,12 @@ type Props = {
   selectedStreamId: number | null;
   pulsatingSessionId: number | null;
 };
-
-export function MobileMarkers({
+const MobileMarkers = ({
   sessions,
   onMarkerClick,
   selectedStreamId,
   pulsatingSessionId,
-}: Props) {
+}: Props) => {
   const DISTANCE_THRESHOLD = 21;
   const ZOOM_FOR_SELECTED_SESSION = 16;
   const LAT_DIFF_SMALL = 0.00001;
@@ -136,7 +135,7 @@ export function MobileMarkers({
           centerMapOnMarker(session.point);
         },
         size,
-        "overlayMouseTarget" // Add marker to 'overlayMouseTarget' pane
+        "overlayMouseTarget"
       );
 
       marker.setPulsating(shouldPulse);
@@ -314,4 +313,6 @@ export function MobileMarkers({
   }, []);
 
   return null;
-}
+};
+
+export { MobileMarkers };
