@@ -26,11 +26,11 @@ const NavList = styled.ul<{ $isVisible?: boolean }>`
   list-style-type: none;
   font-weight: 400;
   font-family: Moderat, sans-serif;
-  height: 100vh;
   padding: 2.5rem 3.2rem;
   width: 100%;
   position: fixed;
   top: 0;
+  bottom: 0;
   right: ${(p) => (p.$isVisible ? "0" : "-35.2rem")};
   z-index: 7;
   -webkit-font-smoothing: antialiased;

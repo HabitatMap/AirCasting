@@ -67,7 +67,7 @@ const ExportSessionsButton = styled.button<{ $hasSessions: boolean }>`
 const SessionInfoTile = styled(SessionListTile)`
   display: flex;
   gap: 0.5rem;
-  justify-content: space-around;
+  justify-content: space-between;
   align-items: center;
   padding: 1rem;
   cursor: default;
