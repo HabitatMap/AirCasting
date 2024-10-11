@@ -93,6 +93,7 @@ import { FixedMarkers } from "./Markers/FixedMarkers";
 import { MobileMarkers } from "./Markers/MobileMarkers";
 import { StreamMarkers } from "./Markers/StreamMarkers";
 import { TimelapseMarkers } from "./Markers/TimelapseMarkers";
+import mapStyles from "./mapStyles";
 
 const Map = () => {
   const dispatch = useAppDispatch();
@@ -165,7 +166,6 @@ const Map = () => {
 
   const selectorsLoading = useAppSelector(selectIsLoading);
   const markersLoading = useAppSelector(selectMarkersLoading);
-  const mapId = useAppSelector((state: RootState) => state.map.mapId);
   const mobilePoints = sessionId
     ? useAppSelector(selectMobileSessionPointsBySessionId(sessionId))
     : useAppSelector(selectMobileSessionsPoints);
@@ -190,6 +190,8 @@ const Map = () => {
       return selectMobileSessionsList(state);
     }
   });
+
+  const memoizedMapStyles = useMemo(() => mapStyles, []);
 
   // update fixed session type based on the URL)
   useEffect(() => {
@@ -685,7 +687,6 @@ const Map = () => {
         </S.IndoorOvelay>
       )}
       <GoogleMap
-        mapId={mapId}
         mapTypeId={mapTypeId}
         defaultCenter={currentCenter}
         defaultZoom={currentZoom}
@@ -696,6 +697,7 @@ const Map = () => {
         onIdle={handleMapIdle}
         minZoom={MIN_ZOOM}
         isFractionalZoomEnabled={true}
+        styles={memoizedMapStyles}
       >
         {fixedSessionsStatusFulfilled &&
           fixedSessionTypeSelected &&
