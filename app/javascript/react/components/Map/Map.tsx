@@ -10,10 +10,6 @@ import { useNavigate } from "react-router-dom";
 
 import { Map as GoogleMap, MapEvent } from "@vis.gl/react-google-maps";
 
-import clockIcon from "../../assets/icons/clockIcon.svg";
-import filterIcon from "../../assets/icons/filterIcon.svg";
-import mapLegend from "../../assets/icons/mapLegend.svg";
-import pinImage from "../../assets/icons/pinImage.svg";
 import { TRUE } from "../../const/booleans";
 import { MIN_ZOOM } from "../../const/coordinates";
 import { RootState, selectIsLoading } from "../../store";
@@ -71,7 +67,6 @@ import {
 } from "../../store/timelapseSelectors";
 import { fetchTimelapseData } from "../../store/timelapseSlice";
 import { SessionTypes } from "../../types/filters";
-import { SessionList } from "../../types/sessionType";
 import { UserSettings } from "../../types/userStates";
 import { UrlParamsTypes, useMapParams } from "../../utils/mapParamsHandler";
 import { useHandleScrollEnd } from "../../utils/scrollEnd";
@@ -79,13 +74,9 @@ import useMobileDetection from "../../utils/useScreenSizeDetection";
 import { Loader } from "../Loader/Loader";
 import { SessionDetailsModal } from "../Modals/SessionDetailsModal";
 import { TimelapseComponent } from "../Modals/TimelapseModal";
-import { SectionButton } from "../SectionButton/SectionButton";
-import { MobileSessionFilters } from "../SessionFilters/MobileSessionFilters";
-import { MobileSessionList } from "../SessionsListView/MobileSessionList/MobileSessionList";
 import { SessionsListView } from "../SessionsListView/SessionsListView";
 import { ThresholdButtonVariant } from "../ThresholdConfigurator/ThresholdButtons/ThresholdButton";
 import { ThresholdsConfigurator } from "../ThresholdConfigurator/ThresholdConfigurator";
-import { Legend } from "./Legend/Legend";
 import * as S from "./Map.style";
 import { CrowdMapMarkers } from "./Markers/CrowdMapMarkers";
 import { DormantMarkers } from "./Markers/DormantMarkers";
@@ -779,7 +770,7 @@ const Map = () => {
           }}
         />
       )}
-      <S.MobileContainer>
+      {/* <S.MobileContainer>
         {currentUserSettings !== UserSettings.ModalView && (
           <S.MobileButtons $isTimelapseView={isTimelapseView}>
             <SectionButton
@@ -855,7 +846,7 @@ const Map = () => {
             fetchableSessionsCount={fetchableSessionsCount}
           />
         )}
-      </S.MobileContainer>
+      </S.MobileContainer> */}
       {[UserSettings.MapView, UserSettings.CrowdMapView].includes(
         currentUserSettings
       ) &&
