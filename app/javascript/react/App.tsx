@@ -24,11 +24,7 @@ const router = createBrowserRouter(
     <>
       <Route
         path="/"
-        element={
-          <MapPage>
-            <Navbar isMapPage={true} />
-          </MapPage>
-        }
+        element={<MapPage>{/* <Navbar isMapPage={true} /> */}</MapPage>}
       />
       <Route
         path="/fixed_stream"
