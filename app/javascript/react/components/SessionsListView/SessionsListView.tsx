@@ -1,7 +1,19 @@
 import { debounce } from "lodash"; // Ensure lodash is installed
-import React, { useCallback, useLayoutEffect, useRef, useState } from "react";
+import React, {
+  useCallback,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { useTranslation } from "react-i18next";
+import toggleIcon from "../../assets/icons/toggleIcon.svg";
 import { useScrollEndListener } from "../../hooks/useScrollEndListener";
+import { useAppDispatch, useAppSelector } from "../../store/hooks";
+import {
+  selectSessionsListExpanded,
+  setSessionsListExpanded,
+} from "../../store/mapSlice";
 import { useAutoDismissAlert } from "../../utils/useAutoDismissAlert";
 import { AlertPopup } from "../Popups/AlertComponent";
 import ExportButtonComponent from "./ExportButtonComponent";
@@ -53,6 +65,9 @@ const SessionsListView: React.FC<SessionsListViewProps> = ({
   const NO_SESSIONS = sessionsIds.length === 0;
   const EXCEEDS_LIMIT = sessionsIds.length > SESSIONS_LIMIT;
   const popupTopOffset = NO_SESSIONS ? -13 : -50;
+  const memoizedSessions = useMemo(() => sessions, [sessions]);
+  const dispatch = useAppDispatch();
+  const sessionsListExpanded = useAppSelector(selectSessionsListExpanded);
 
   const updateButtonPosition = useCallback(() => {
     const rect = exportButtonRef.current?.getBoundingClientRect();
@@ -122,16 +137,27 @@ const SessionsListView: React.FC<SessionsListViewProps> = ({
     }
   };
 
+  const handleExpandClick = () => {
+    dispatch(setSessionsListExpanded(!sessionsListExpanded));
+  };
+
   useAutoDismissAlert(showAlert, setShowAlert);
 
   return (
     <S.SessionListViewStyle>
       <S.SessionInfoTile>
         <S.SessionListInfoContainer>
-          <S.SessionListTitle>{t("map.listSessions")}</S.SessionListTitle>
-          <S.SessionListTitle>
-            {t("map.results", { results, fetchableSessionsCount })}
-          </S.SessionListTitle>
+          <S.ExpandButton onClick={handleExpandClick}>
+            <S.RotatedIcon
+              src={toggleIcon}
+              alt={t("headerToggle.arrowIcon")}
+              $rotated={!sessionsListExpanded}
+            />
+            <S.SessionListTitle>{t("map.listSessions")}</S.SessionListTitle>
+            <S.SessionListTitle>
+              {t("map.results", { results, fetchableSessionsCount })}
+            </S.SessionListTitle>
+          </S.ExpandButton>
         </S.SessionListInfoContainer>
         <ExportButtonComponent
           NO_SESSIONS={NO_SESSIONS}
@@ -142,24 +168,26 @@ const SessionsListView: React.FC<SessionsListViewProps> = ({
           exportButtonRef={exportButtonRef}
         />
       </S.SessionInfoTile>
-      <S.SessionListContainer ref={sessionListRef}>
-        {sessions.map((session) => (
-          <div key={session.id}>
-            <SessionsListTile
-              id={session.id}
-              sessionName={session.sessionName}
-              sensorName={session.sensorName}
-              averageValue={session.averageValue}
-              startTime={session.startTime}
-              endTime={session.endTime}
-              streamId={session.streamId}
-              onClick={(id, streamId) => handleClick(id, streamId)}
-              onMouseEnter={(id) => handleMouseEnter(id)}
-              onMouseLeave={handleMouseLeave}
-            />
-          </div>
-        ))}
-      </S.SessionListContainer>
+      {sessionsListExpanded && (
+        <S.SessionListContainer ref={sessionListRef}>
+          {memoizedSessions.map((session) => (
+            <div key={session.id}>
+              <SessionsListTile
+                id={session.id}
+                sessionName={session.sessionName}
+                sensorName={session.sensorName}
+                averageValue={session.averageValue}
+                startTime={session.startTime}
+                endTime={session.endTime}
+                streamId={session.streamId}
+                onClick={(id, streamId) => handleClick(id, streamId)}
+                onMouseEnter={(id) => handleMouseEnter(id)}
+                onMouseLeave={handleMouseLeave}
+              />
+            </div>
+          ))}
+        </S.SessionListContainer>
+      )}
       {showAlert && (
         <AlertPopup
           open={showAlert}
