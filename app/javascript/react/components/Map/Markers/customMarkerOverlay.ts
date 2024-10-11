@@ -42,7 +42,6 @@ export class CustomMarkerOverlay extends google.maps.OverlayView {
     this.div.style.pointerEvents = "none";
     this.div.style.cursor = "none";
 
-    // Apply styles based on the overlay properties
     this.applyStyles();
 
     const panes = this.getPanes();
@@ -89,7 +88,6 @@ export class CustomMarkerOverlay extends google.maps.OverlayView {
     const blurValue = this.isSelected ? 0 : 3;
     const opacityValue = this.isSelected ? 0.4 : 0.8;
 
-    // Base styles
     this.div.style.width = `${size}px`;
     this.div.style.height = `${size}px`;
     this.div.style.borderRadius = "50%";
@@ -106,7 +104,6 @@ export class CustomMarkerOverlay extends google.maps.OverlayView {
   }
 }
 
-// Define the keyframes once
 const styleSheetId = "custom-marker-overlay-styles";
 if (!document.getElementById(styleSheetId)) {
   const styleSheet = document.createElement("style");

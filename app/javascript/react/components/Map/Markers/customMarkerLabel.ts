@@ -34,13 +34,14 @@ export class LabelOverlay extends google.maps.OverlayView {
     this.div.style.position = "absolute";
     this.div.style.transform = "translate(-13%, 0)";
     this.div.style.cursor = "pointer";
+    this.div.style.zIndex = "3";
 
     this.applyStyles();
 
     this.div.addEventListener("click", this.onClick);
 
     const panes = this.getPanes();
-    panes && panes.floatPane.appendChild(this.div); // Use floatPane
+    panes && panes.overlayMouseTarget.appendChild(this.div);
   }
 
   draw() {
