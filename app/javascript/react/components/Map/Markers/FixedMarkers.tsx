@@ -556,7 +556,6 @@ export function FixedMarkers({
   useEffect(() => {
     const handleSelectedStreamId = (streamId: number | null) => {
       if (fixedStreamStatus === StatusEnum.Pending) return;
-      console.log("streamId", streamId);
       if (streamId) {
         const { latitude, longitude } = fixedStreamData?.stream ?? {};
 
