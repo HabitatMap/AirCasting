@@ -3,10 +3,15 @@ import styled from "styled-components";
 import * as colors from "../../assets/styles/colors";
 import { media } from "../../utils/media";
 
-const ContainerStyle = {
+const ContainerStyle: React.CSSProperties = {
   width: "100%",
-  height: "100vh",
+  height: "100%",
   overflow: "hidden",
+  position: "absolute", // Ensure it covers the entire viewport
+  top: 0,
+  left: 0,
+  right: 0,
+  bottom: 0,
 };
 
 const DesktopContainer = styled.div`
