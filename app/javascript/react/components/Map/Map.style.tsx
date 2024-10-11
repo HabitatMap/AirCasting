@@ -4,9 +4,14 @@ import * as colors from "../../assets/styles/colors";
 import { media } from "../../utils/media";
 
 const ContainerStyle = {
-  width: "100%",
-  height: "100vh",
+  // width: "100%",
+  // height: "100vh",
   overflow: "hidden",
+  position: "fixed",
+  top: 0,
+  left: 0,
+  right: 0,
+  bottom: 0,
 };
 
 const DesktopContainer = styled.div`

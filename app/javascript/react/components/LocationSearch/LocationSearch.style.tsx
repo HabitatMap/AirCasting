@@ -38,7 +38,7 @@ const SuggestionsList = styled.ul<SuggestionsListProps>`
   box-shadow: ${(p) =>
     p.$displaySearchResults ? `2px 2px 4px 0px rgba(76, 86, 96, 0.1)` : `none`};
   padding: 30px 0 8px 8px;
-  width: 26.9rem;
+  width: 26rem;
   z-index: 2;
   color: ${gray400};
 
@@ -70,7 +70,7 @@ const SearchInput = styled.input<SearchInputProps>`
   color: ${gray400};
 
   @media ${media.smallDesktop} {
-    width: 26.9rem;
+    width: 26rem;
   }
 
   @media ${media.mediumDesktop} {
