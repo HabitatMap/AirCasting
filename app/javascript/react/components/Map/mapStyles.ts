@@ -313,6 +313,9 @@ export default [
       {
         lightness: 45,
       },
+      {
+        color: white,
+      },
     ],
   },
   {
@@ -328,7 +331,7 @@ export default [
     featureType: "road.highway",
     stylers: [
       {
-        visibility: "simplified",
+        visibility: "off",
       },
     ],
   },

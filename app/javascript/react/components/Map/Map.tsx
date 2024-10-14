@@ -666,6 +666,23 @@ const Map = () => {
                 },
               ],
             },
+            {
+              featureType: "road.highway",
+              stylers: [
+                {
+                  visibility: "simplified",
+                },
+              ],
+            },
+            {
+              featureType: "road.highway",
+              elementType: "labels",
+              stylers: [
+                {
+                  visibility: "off",
+                },
+              ],
+            },
           ],
         });
       } else {
