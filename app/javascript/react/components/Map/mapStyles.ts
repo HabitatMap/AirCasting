@@ -17,11 +17,173 @@ export default [
     ],
   },
   {
-    featureType: "administrative.land_parcel",
+    featureType: "administrative",
+    elementType: "labels.text.stroke",
+    stylers: [
+      {
+        color: white,
+      },
+    ],
+  },
+  {
+    featureType: "administrative",
+    elementType: "labels.icon",
+    stylers: [
+      {
+        visibility: "off",
+      },
+    ],
+  },
+  {
+    featureType: "administrative",
+    elementType: "geometry",
+    stylers: [
+      {
+        visibility: "simplified",
+      },
+    ],
+  },
+  {
+    featureType: "administrative.country",
+    elementType: "labels.text.fill",
+    stylers: [
+      {
+        color: "#afafaf",
+      },
+    ],
+  },
+  {
+    featureType: "administrative.international_border",
+    elementType: "geometry",
+    stylers: [
+      {
+        visibility: "on",
+      },
+    ],
+  },
+  {
+    featureType: "administrative.international_border",
+    elementType: "geometry.fill",
+    stylers: [
+      {
+        color: "#818181",
+      },
+    ],
+  },
+  {
+    featureType: "administrative.neighborhood",
     elementType: "labels",
     stylers: [
       {
         visibility: "off",
+      },
+    ],
+  },
+  {
+    featureType: "administrative.base_city",
+    elementType: "labels",
+    stylers: [
+      {
+        visibility: "on",
+      },
+    ],
+  },
+  {
+    featureType: "administrative.base_city",
+    elementType: "labels.text.fill",
+    stylers: [
+      {
+        color: mapLabels,
+      },
+    ],
+  },
+  {
+    featureType: "administrative.country",
+    elementType: "labels",
+    stylers: [
+      {
+        visibility: "on",
+      },
+    ],
+  },
+  {
+    featureType: "administrative.country",
+    elementType: "labels.text.fill",
+    stylers: [
+      {
+        color: "#afafaf",
+      },
+    ],
+  },
+  {
+    featureType: "administrative.neighborhood",
+    elementType: "labels.text.fill",
+    stylers: [
+      {
+        color: "#acacac",
+      },
+    ],
+  },
+  {
+    featureType: "administrative.parcel",
+    elementType: "geometry",
+    stylers: [
+      {
+        visibility: "on",
+      },
+    ],
+  },
+  {
+    featureType: "administrative.reservation",
+    elementType: "geometry.fill",
+    stylers: [
+      {
+        visibility: "off",
+      },
+    ],
+  },
+  {
+    featureType: "administrative.reservation",
+    elementType: "geometry.stroke",
+    stylers: [
+      {
+        visibility: "on",
+      },
+    ],
+  },
+  {
+    featureType: "administrative.reservation",
+    elementType: "labels.text.fill",
+    stylers: [
+      {
+        color: "#AFAFAF",
+      },
+    ],
+  },
+  {
+    featureType: "administrative",
+    elementType: "geometry.fill",
+    stylers: [
+      {
+        color: "#E8EDE9",
+      },
+    ],
+  },
+  {
+    featureType: "administrative.reservation",
+    elementType: "labels",
+    stylers: [
+      {
+        visibility: "on",
+      },
+    ],
+  },
+  {
+    featureType: "administrative.land_parcel",
+    elementType: "labels",
+    stylers: [
+      {
+        visibility: "on",
       },
     ],
   },

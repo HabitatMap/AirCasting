@@ -94,6 +94,7 @@ import { MobileMarkers } from "./Markers/MobileMarkers";
 import { StreamMarkers } from "./Markers/StreamMarkers";
 import { TimelapseMarkers } from "./Markers/TimelapseMarkers";
 import mapStyles from "./mapStyles";
+import { fetchMeasurements } from "../../store/fixedStreamSlice";
 
 const Map = () => {
   const dispatch = useAppDispatch();
@@ -648,6 +649,39 @@ const Map = () => {
     }
   };
 
+  // get map current zoom and if bigger than 6.5 then change map styles by removing administrative.reservation current setting and adding a changed one with visibility on
+  const handleMapZoomStyles = useCallback(() => {
+    if (mapInstance) {
+      const zoom = mapInstance.getZoom();
+      if (zoom && zoom >= 5.5) {
+        mapInstance.setOptions({
+          styles: [
+            ...memoizedMapStyles,
+            {
+              featureType: "administrative.reservation",
+              elementType: "geometry",
+              stylers: [
+                {
+                  visibility: "on",
+                },
+              ],
+            },
+          ],
+        });
+      } else {
+        mapInstance.setOptions({
+          styles: memoizedMapStyles,
+        });
+      }
+    }
+  }, [mapInstance, memoizedMapStyles]);
+
+  const handleZoomChanged = () => {
+    if (mapInstance) {
+      handleMapZoomStyles();
+    }
+  };
+
   const openFilters = () => {
     goToUserSettings(UserSettings.FiltersView);
   };
@@ -698,7 +732,8 @@ const Map = () => {
         onIdle={handleMapIdle}
         minZoom={MIN_ZOOM}
         isFractionalZoomEnabled={true}
-        mapId={mapId}
+        styles={memoizedMapStyles}
+        onZoomChanged={handleZoomChanged}
       >
         {fixedSessionsStatusFulfilled &&
           fixedSessionTypeSelected &&
