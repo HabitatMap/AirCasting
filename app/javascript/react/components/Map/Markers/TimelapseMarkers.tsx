@@ -20,16 +20,15 @@ type Props = {
   sessions: SessionData[];
 };
 
-// Define TimelapseMarker type to encapsulate both overlays
 type TimelapseMarker = {
   markerOverlay: CustomMarkerOverlay;
-  labelOverlay: LabelOverlay;
+  labelOverlay: LabelOverlay | null;
 };
 
 const calculateZIndex = (sessions: number): number => {
   return sessions === 1
-    ? Number(google.maps.Marker.MAX_ZINDEX + 2)
-    : Number(google.maps.Marker.MAX_ZINDEX + 1);
+    ? Number(google.maps.Marker.MAX_ZINDEX) + 2
+    : Number(google.maps.Marker.MAX_ZINDEX) + 1;
 };
 
 const TimelapseMarkers = ({ sessions }: Props) => {
@@ -43,8 +42,7 @@ const TimelapseMarkers = ({ sessions }: Props) => {
 
     const sessionsMap = new Map<string, SessionData>();
     sessions.forEach((session) => {
-      // Assuming each session has a unique identifier, use it as part of the key
-      const key = `${session.latitude}-${session.longitude}-${session.value}`;
+      const key = `${session.latitude}-${session.longitude}`;
       sessionsMap.set(key, session);
     });
 
@@ -66,17 +64,42 @@ const TimelapseMarkers = ({ sessions }: Props) => {
         timelapseMarker.markerOverlay.setColor(color);
         timelapseMarker.markerOverlay.setPosition(position);
         timelapseMarker.markerOverlay.setZIndex(zIndex);
-        timelapseMarker.markerOverlay.setIsSelected(isSelected);
 
-        // Update existing label overlay
-        timelapseMarker.labelOverlay.update(
-          isSelected,
-          color,
-          session.value,
-          unitSymbol
-        );
-        timelapseMarker.labelOverlay.setPosition(position);
-        timelapseMarker.labelOverlay.setZIndex(zIndex);
+        // Update existing label overlay or remove it based on sessions count
+        if (session.sessions === 1) {
+          if (timelapseMarker.labelOverlay) {
+            timelapseMarker.labelOverlay.update(
+              isSelected,
+              color,
+              session.value,
+              unitSymbol
+            );
+            timelapseMarker.labelOverlay.setPosition(position);
+            timelapseMarker.labelOverlay.setZIndex(zIndex);
+          } else {
+            // Create label overlay if it doesn't exist
+            const labelOverlay = new LabelOverlay(
+              position,
+              color,
+              session.value,
+              unitSymbol,
+              isSelected,
+              () => {}, // No action on click for TimelapseMarkers
+              zIndex
+            );
+            labelOverlay.setMap(map);
+            timelapseMarker.labelOverlay = labelOverlay;
+          }
+        } else {
+          // Remove label overlay if sessions > 1
+          if (timelapseMarker.labelOverlay) {
+            timelapseMarker.labelOverlay.setMap(null);
+            timelapseMarker.labelOverlay = null;
+          }
+        }
+
+        // Update marker overlay to use cluster icon if sessions > 1
+        timelapseMarker.markerOverlay.setIsCluster(session.sessions > 1);
       } else {
         // Create new marker overlay
         const markerOverlay = new CustomMarkerOverlay(
@@ -88,19 +111,23 @@ const TimelapseMarkers = ({ sessions }: Props) => {
         markerOverlay.setZIndex(zIndex);
         markerOverlay.setMap(map);
 
-        // Create new label overlay with a no-op click handler
-        const labelOverlay = new LabelOverlay(
-          position,
-          color,
-          session.value,
-          unitSymbol,
-          isSelected,
-          () => {
-            // No action on click for TimelapseMarkers
-          },
-          zIndex
-        );
-        labelOverlay.setMap(map);
+        // Set the marker to use cluster icon if sessions > 1
+        markerOverlay.setIsCluster(session.sessions > 1);
+
+        let labelOverlay: LabelOverlay | null = null;
+        if (session.sessions === 1) {
+          // Create label overlay for single sessions
+          labelOverlay = new LabelOverlay(
+            position,
+            color,
+            session.value,
+            unitSymbol,
+            isSelected,
+            () => {},
+            zIndex
+          );
+          labelOverlay.setMap(map);
+        }
 
         // Store both overlays in the markersRef
         markersRef.current.set(key, { markerOverlay, labelOverlay });
@@ -111,7 +138,9 @@ const TimelapseMarkers = ({ sessions }: Props) => {
     markersRef.current.forEach((timelapseMarker, key) => {
       if (!sessionsMap.has(key)) {
         timelapseMarker.markerOverlay.setMap(null);
-        timelapseMarker.labelOverlay.setMap(null);
+        if (timelapseMarker.labelOverlay) {
+          timelapseMarker.labelOverlay.setMap(null);
+        }
         markersRef.current.delete(key);
       }
     });
@@ -122,7 +151,9 @@ const TimelapseMarkers = ({ sessions }: Props) => {
     return () => {
       markersRef.current.forEach((timelapseMarker) => {
         timelapseMarker.markerOverlay.setMap(null);
-        timelapseMarker.labelOverlay.setMap(null);
+        if (timelapseMarker.labelOverlay) {
+          timelapseMarker.labelOverlay.setMap(null);
+        }
       });
       markersRef.current.clear();
     };

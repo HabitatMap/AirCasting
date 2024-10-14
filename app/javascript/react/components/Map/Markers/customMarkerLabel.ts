@@ -1,4 +1,3 @@
-// LabelOverlay.ts
 import { gray400, white } from "../../../assets/styles/colors";
 
 export class LabelOverlay extends google.maps.OverlayView {
@@ -82,14 +81,11 @@ export class LabelOverlay extends google.maps.OverlayView {
 
   public setZIndex(zIndex: number): void {
     this.zIndex = zIndex;
-    this.applyStyles();
+    if (this.div) {
+      this.div.style.zIndex = zIndex.toString();
+    }
   }
 
-  /**
-   * **New Method**
-   * Updates the position of the label.
-   * @param position - New geographical position.
-   */
   public setPosition(position: google.maps.LatLng): void {
     this.position = position;
     this.draw();
