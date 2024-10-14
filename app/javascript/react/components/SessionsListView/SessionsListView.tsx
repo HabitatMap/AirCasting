@@ -7,7 +7,7 @@ import React, {
   useState,
 } from "react";
 import { useTranslation } from "react-i18next";
-import toggleIcon from "../../assets/icons/toggleIcon.svg";
+import toggleIconThick from "../../assets/icons/toggleIconBlue.svg";
 import { useScrollEndListener } from "../../hooks/useScrollEndListener";
 import { useAppDispatch, useAppSelector } from "../../store/hooks";
 import {
@@ -149,7 +149,7 @@ const SessionsListView: React.FC<SessionsListViewProps> = ({
         <S.SessionListInfoContainer>
           <S.ExpandButton onClick={handleExpandClick}>
             <S.RotatedIcon
-              src={toggleIcon}
+              src={toggleIconThick}
               alt={t("headerToggle.arrowIcon")}
               $rotated={!sessionsListExpanded}
             />
