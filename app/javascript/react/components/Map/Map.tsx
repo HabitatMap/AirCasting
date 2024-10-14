@@ -166,6 +166,7 @@ const Map = () => {
 
   const selectorsLoading = useAppSelector(selectIsLoading);
   const markersLoading = useAppSelector(selectMarkersLoading);
+  const mapId = useAppSelector((state: RootState) => state.map.mapId);
   const mobilePoints = sessionId
     ? useAppSelector(selectMobileSessionPointsBySessionId(sessionId))
     : useAppSelector(selectMobileSessionsPoints);
@@ -697,7 +698,7 @@ const Map = () => {
         onIdle={handleMapIdle}
         minZoom={MIN_ZOOM}
         isFractionalZoomEnabled={true}
-        styles={memoizedMapStyles}
+        mapId={mapId}
       >
         {fixedSessionsStatusFulfilled &&
           fixedSessionTypeSelected &&

@@ -21,7 +21,7 @@ export default [
     elementType: "labels",
     stylers: [
       {
-        visibility: "simplified",
+        visibility: "off",
       },
     ],
   },
@@ -54,6 +54,24 @@ export default [
     stylers: [
       {
         visibility: "off",
+      },
+    ],
+  },
+  {
+    featureType: "landscape.man_made",
+    elementType: "geometry",
+    stylers: [
+      {
+        visibility: "simplified",
+      },
+    ],
+  },
+  {
+    featureType: "landscape.man_made",
+    elementType: "geometry.fill",
+    stylers: [
+      {
+        visibility: "simplified",
       },
     ],
   },
@@ -100,6 +118,15 @@ export default [
     ],
   },
   {
+    featureType: "poi",
+    elementType: "labels.text",
+    stylers: [
+      {
+        visibility: "off",
+      },
+    ],
+  },
+  {
     featureType: "poi.business",
     stylers: [
       {
@@ -108,8 +135,15 @@ export default [
     ],
   },
   {
+    featureType: "poi.park",
+    stylers: [
+      {
+        visibility: "off",
+      },
+    ],
+  },
+  {
     featureType: "road",
-    elementType: "geometry",
     stylers: [
       {
         saturation: -100,
@@ -120,8 +154,8 @@ export default [
     ],
   },
   {
-    featureType: "road",
-    elementType: "labels.text",
+    featureType: "road.arterial",
+    elementType: "labels.icon",
     stylers: [
       {
         visibility: "off",
@@ -146,11 +180,20 @@ export default [
     ],
   },
   {
-    featureType: "road.local",
+    featureType: "road.highway",
     elementType: "labels",
     stylers: [
       {
         visibility: "off",
+      },
+    ],
+  },
+  {
+    featureType: "road.local",
+    elementType: "labels",
+    stylers: [
+      {
+        visibility: "on",
       },
     ],
   },
@@ -167,6 +210,8 @@ export default [
     stylers: [
       {
         color: mapWater,
+      },
+      {
         visibility: "on",
       },
     ],

@@ -58,7 +58,7 @@ interface CustomRendererProps {
 }
 
 const ZOOM_FOR_SELECTED_SESSION = 15;
-const CLUSTER_RADIUS = 50;
+const CLUSTER_RADIUS = 40;
 
 export function FixedMarkers({
   sessions,
