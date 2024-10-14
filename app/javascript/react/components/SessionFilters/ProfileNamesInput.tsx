@@ -88,6 +88,9 @@ const ProfileNamesInput = () => {
           setFilter(UrlParamsTypes.usernames, urlEncodedString.toString());
           reset();
           setSelectedItem("");
+          setTimeout(() => {
+            dispatch(setFetchingData(true));
+          }, 200);
         }
       },
     });
@@ -113,17 +116,14 @@ const ProfileNamesInput = () => {
       ? usernamesUpdated.join(", ")
       : "";
     setFilter(UrlParamsTypes.usernames, decodedUsernamesString.toString());
+    setTimeout(() => {
+      dispatch(setFetchingData(true));
+    }, 200);
   };
 
   useEffect(() => {
     setItems(profileNames);
   }, [profileNames]);
-
-  useEffect(() => {
-    setTimeout(() => {
-      dispatch(setFetchingData(true));
-    }, 200);
-  }, [usernames]);
 
   return (
     <S.Wrapper>
