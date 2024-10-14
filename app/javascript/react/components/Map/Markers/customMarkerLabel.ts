@@ -1,4 +1,6 @@
+// LabelOverlay.ts
 import { gray400, white } from "../../../assets/styles/colors";
+
 export class LabelOverlay extends google.maps.OverlayView {
   private div: HTMLElement | null = null;
   private position: google.maps.LatLng;
@@ -7,6 +9,7 @@ export class LabelOverlay extends google.maps.OverlayView {
   private unitSymbol: string;
   private isSelected: boolean;
   private onClick: () => void;
+  private zIndex: number;
 
   constructor(
     position: google.maps.LatLng,
@@ -14,7 +17,8 @@ export class LabelOverlay extends google.maps.OverlayView {
     value: number,
     unitSymbol: string,
     isSelected: boolean,
-    onClick: () => void
+    onClick: () => void,
+    zIndex: number = 1001 // Set higher zIndex than marker overlay
   ) {
     super();
     this.position = position;
@@ -23,22 +27,22 @@ export class LabelOverlay extends google.maps.OverlayView {
     this.unitSymbol = unitSymbol;
     this.isSelected = isSelected;
     this.onClick = onClick;
+    this.zIndex = zIndex;
   }
 
   onAdd() {
     this.div = document.createElement("div");
     this.div.style.position = "absolute";
     this.div.style.transform = "translate(-13%, 0)";
-    this.div.style.cursor = "pointer"; // Make it clickable
+    this.div.style.cursor = "pointer";
+    this.div.style.pointerEvents = "auto"; // Enable pointer events
 
-    // Apply styles based on the overlay properties
     this.applyStyles();
 
-    // Add click event listener
     this.div.addEventListener("click", this.onClick);
 
     const panes = this.getPanes();
-    panes && panes.overlayMouseTarget.appendChild(this.div); // Ensure clicks are captured
+    panes && panes.floatPane.appendChild(this.div);
   }
 
   draw() {
@@ -48,6 +52,7 @@ export class LabelOverlay extends google.maps.OverlayView {
     if (pos) {
       this.div.style.left = `${pos.x}px`;
       this.div.style.top = `${pos.y}px`;
+      this.div.style.zIndex = this.zIndex.toString(); // Apply zIndex
     }
   }
 
@@ -75,13 +80,26 @@ export class LabelOverlay extends google.maps.OverlayView {
     this.applyStyles();
   }
 
+  public setZIndex(zIndex: number): void {
+    this.zIndex = zIndex;
+    this.applyStyles();
+  }
+
+  /**
+   * **New Method**
+   * Updates the position of the label.
+   * @param position - New geographical position.
+   */
+  public setPosition(position: google.maps.LatLng): void {
+    this.position = position;
+    this.draw();
+  }
+
   private applyStyles() {
     if (!this.div) return;
 
-    // Clear existing content
     this.div.innerHTML = "";
 
-    // Create the label container
     const labelContainer = document.createElement("div");
     labelContainer.style.display = "flex";
     labelContainer.style.backgroundColor = white;
@@ -98,8 +116,8 @@ export class LabelOverlay extends google.maps.OverlayView {
     labelContainer.style.alignItems = "center";
     labelContainer.style.justifyContent = "center";
     labelContainer.style.cursor = "pointer";
+    labelContainer.style.zIndex = this.zIndex.toString();
 
-    // Create the small colored circle
     const circle = document.createElement("div");
     circle.style.width = "12px";
     circle.style.height = "12px";
@@ -108,27 +126,22 @@ export class LabelOverlay extends google.maps.OverlayView {
     circle.style.marginRight = "6px";
     circle.style.flexShrink = "0";
 
-    // Create the text element
     const textElement = document.createElement("span");
-
     textElement.style.fontSize = "12px";
     textElement.style.fontWeight = "400";
     textElement.style.fontFamily = "Roboto, Arial, sans-serif";
     textElement.style.letterSpacing = "0.14px";
-    textElement.style.color = gray400; // You can adjust this color as needed
+    textElement.style.color = gray400;
     textElement.innerText = `${Math.round(this.value)} ${this.unitSymbol}`;
     textElement.style.alignSelf = "center";
 
-    // Append elements
     labelContainer.appendChild(circle);
     labelContainer.appendChild(textElement);
     this.div.appendChild(labelContainer);
 
-    // Optional: Add a drop shadow
     labelContainer.style.boxShadow = "0 2px 6px rgba(0, 0, 0, 0.15)";
   }
 
-  // Expose div for external control if needed
   public getDiv(): HTMLElement | null {
     return this.div;
   }

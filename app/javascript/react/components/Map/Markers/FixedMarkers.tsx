@@ -1,3 +1,5 @@
+// FixedMarkers.tsx
+
 import {
   Cluster,
   MarkerClusterer,
@@ -13,10 +15,15 @@ import React, {
 } from "react";
 
 import { fetchClusterData, setVisibility } from "../../../store/clusterSlice";
+import {
+  selectFixedStreamData,
+  selectFixedStreamStatus,
+} from "../../../store/fixedStreamSelectors";
 import { useAppDispatch, useAppSelector } from "../../../store/hooks";
 import { selectHoverStreamId } from "../../../store/mapSlice";
 import { setMarkersLoading } from "../../../store/markersLoadingSlice";
 import { selectThresholds } from "../../../store/thresholdSlice";
+import { StatusEnum } from "../../../types/api";
 import { LatLngLiteral } from "../../../types/googleMaps";
 import { Session } from "../../../types/sessionType";
 import { Thresholds } from "../../../types/thresholds";
@@ -27,14 +34,9 @@ import { getColorForValue } from "../../../utils/thresholdColors";
 import { createFixedMarkersRenderer } from "./ClusterConfiguration";
 import { ClusterInfo } from "./ClusterInfo/ClusterInfo";
 import { createClusterIcon } from "./createMarkerIcon";
-import HoverMarker from "./HoverMarker/HoverMarker";
-import { CustomMarkerOverlay } from "./customMarkerOverlay";
 import { LabelOverlay } from "./customMarkerLabel";
-import {
-  selectFixedStreamData,
-  selectFixedStreamStatus,
-} from "../../../store/fixedStreamSelectors";
-import { StatusEnum } from "../../../types/api";
+import { CustomMarkerOverlay } from "./customMarkerOverlay";
+import HoverMarker from "./HoverMarker/HoverMarker";
 
 type CustomMarker = google.maps.Marker & {
   value: number;
@@ -162,10 +164,8 @@ export function FixedMarkers({
     });
   }, [
     thresholds,
-    selectedStreamId,
     updateClusterStyle,
-    unitSymbol,
-    pulsatingSessionId,
+    // Removed unnecessary dependencies to prevent unintended re-renders
   ]);
 
   const customRenderer = useMemo(
@@ -200,13 +200,7 @@ export function FixedMarkers({
 
       return marker;
     },
-    [
-      thresholds,
-      unitSymbol,
-      pulsatingSessionId,
-      onMarkerClick,
-      centerMapOnMarker,
-    ]
+    [onMarkerClick, centerMapOnMarker]
   );
 
   const handleMapInteraction = useCallback(() => {
@@ -293,13 +287,15 @@ export function FixedMarkers({
             isSelected,
             shouldPulse
           );
+
           overlay.setMap(map);
           markerOverlays.current.set(streamId, overlay);
         } else {
+          existingOverlay.setColor(newColor);
+          existingOverlay.setPosition(position!);
+
           existingOverlay.setIsSelected(isSelected);
           existingOverlay.setShouldPulse(shouldPulse);
-          existingOverlay.setColor(newColor);
-          existingOverlay.update();
         }
 
         if (!existingLabelOverlay) {
@@ -328,6 +324,7 @@ export function FixedMarkers({
             marker.value,
             unitSymbol
           );
+          existingLabelOverlay.setPosition(position!);
         }
       }
     });

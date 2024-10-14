@@ -1,9 +1,12 @@
+// CustomMarkerOverlay.ts
+
 export class CustomMarkerOverlay extends google.maps.OverlayView {
   private div: HTMLElement | null = null;
   private position: google.maps.LatLng;
   private color: string;
   private isSelected: boolean;
   private shouldPulse: boolean;
+  private zIndex: number = 1000; // Default zIndex
 
   constructor(
     position: google.maps.LatLng,
@@ -35,6 +38,39 @@ export class CustomMarkerOverlay extends google.maps.OverlayView {
     this.update();
   }
 
+  public setIsSelected(isSelected: boolean): void {
+    this.isSelected = isSelected;
+    this.update();
+  }
+
+  public setShouldPulse(shouldPulse: boolean): void {
+    this.shouldPulse = shouldPulse;
+    this.update();
+  }
+
+  /**
+   * **New Method**
+   * Updates the position of the marker.
+   * @param position - New geographical position.
+   */
+  public setPosition(position: google.maps.LatLng): void {
+    this.position = position;
+    this.draw(); // Redraw to update position on the map
+  }
+
+  /**
+   * **New Method**
+   * Updates the zIndex of the marker to control stacking order.
+   * @param zIndex - New zIndex value.
+   */
+  public setZIndex(zIndex: number): void {
+    this.zIndex = zIndex;
+    if (this.div) {
+      this.div.style.zIndex = zIndex.toString();
+    }
+  }
+
+  /** Called when the overlay is added to the map */
   onAdd() {
     this.div = document.createElement("div");
     this.div.style.position = "absolute";
@@ -42,29 +78,14 @@ export class CustomMarkerOverlay extends google.maps.OverlayView {
     this.div.style.pointerEvents = "none";
     this.div.style.cursor = "none";
 
-    // Apply styles based on the overlay properties
+    // Apply initial styles based on the overlay properties
     this.applyStyles();
 
     const panes = this.getPanes();
     panes && panes.overlayLayer.appendChild(this.div);
   }
 
-  setIsSelected(isSelected: boolean) {
-    this.isSelected = isSelected;
-    this.update();
-  }
-
-  setShouldPulse(shouldPulse: boolean) {
-    this.shouldPulse = shouldPulse;
-    this.update();
-  }
-
-  update() {
-    if (this.div) {
-      this.applyStyles();
-    }
-  }
-
+  /** Draws the overlay */
   draw() {
     if (!this.div) return;
     const overlayProjection = this.getProjection();
@@ -72,9 +93,11 @@ export class CustomMarkerOverlay extends google.maps.OverlayView {
     if (pos) {
       this.div.style.left = `${pos.x}px`;
       this.div.style.top = `${pos.y}px`;
+      this.div.style.zIndex = this.zIndex.toString(); // Apply zIndex
     }
   }
 
+  /** Called when the overlay is removed from the map */
   onRemove() {
     if (this.div && this.div.parentNode) {
       this.div.parentNode.removeChild(this.div);
@@ -82,6 +105,7 @@ export class CustomMarkerOverlay extends google.maps.OverlayView {
     }
   }
 
+  /** Updates the overlay's styles based on current properties */
   private applyStyles() {
     if (!this.div) return;
 
@@ -89,7 +113,6 @@ export class CustomMarkerOverlay extends google.maps.OverlayView {
     const blurValue = this.isSelected ? 0 : 3;
     const opacityValue = this.isSelected ? 0.4 : 0.8;
 
-    // Base styles
     this.div.style.width = `${size}px`;
     this.div.style.height = `${size}px`;
     this.div.style.borderRadius = "50%";
@@ -102,6 +125,14 @@ export class CustomMarkerOverlay extends google.maps.OverlayView {
       this.div.style.animation = `pulse-animation 2s infinite`;
     } else {
       this.div.style.animation = "";
+    }
+  }
+
+  /** Updates the overlay's appearance */
+  public update() {
+    if (this.div) {
+      this.applyStyles();
+      this.draw();
     }
   }
 }
