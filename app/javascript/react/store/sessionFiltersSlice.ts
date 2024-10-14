@@ -25,6 +25,7 @@ interface SessionFilterState {
   basicSensorsModalOpen: boolean;
   customSensorsModalOpen: boolean;
   fixedSessionsType: FixedSessionsTypes;
+  filtersButtonClosed: boolean;
 }
 
 const initialState: SessionFilterState = {
@@ -39,6 +40,7 @@ const initialState: SessionFilterState = {
   basicSensorsModalOpen: false,
   customSensorsModalOpen: false,
   fixedSessionsType: FixedSessionsTypes.ACTIVE,
+  filtersButtonClosed: false,
 };
 
 export const fetchUsernames = createAsyncThunk<
@@ -120,6 +122,9 @@ const sessionFilterSlice = createSlice({
     resetTags: (state) => {
       state.tags = [];
     },
+    setFiltersButtonClosed: (state, action: PayloadAction<boolean>) => {
+      state.filtersButtonClosed = action.payload;
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -200,6 +205,9 @@ export const selectIsTagsInputFetching = (state: RootState): boolean =>
 export const selectIsUsernamesInputFetching = (state: RootState): boolean =>
   state.sessionFilter.fetchUsernamesStatus === StatusEnum.Pending;
 
+export const selectFiltersButtonClosed = (state: RootState): boolean =>
+  state.sessionFilter.filtersButtonClosed;
+
 export const {
   setBasicParametersModalOpen,
   setCustomParametersModalOpen,
@@ -207,5 +215,6 @@ export const {
   setCustomSensorsModalOpen,
   setFixedSessionsType,
   resetTags,
+  setFiltersButtonClosed,
 } = sessionFilterSlice.actions;
 export default sessionFilterSlice.reducer;
