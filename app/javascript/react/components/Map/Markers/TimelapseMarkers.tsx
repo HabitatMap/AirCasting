@@ -1,10 +1,14 @@
 import { useMap } from "@vis.gl/react-google-maps";
-import { useEffect, useRef } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import { useSelector } from "react-redux";
 import { selectThresholds } from "../../../store/thresholdSlice";
 import { useMapParams } from "../../../utils/mapParamsHandler";
 import { getColorForValue } from "../../../utils/thresholdColors";
-import { createClusterIcon, createMarkerIcon } from "./createMarkerIcon";
+
+import { ClusterOverlay } from "./clusterOverlay";
+import { LabelOverlay } from "./customMarkerLabel";
+import { CustomMarkerOverlay } from "./customMarkerOverlay";
+import { CustomCluster } from "./FixedMarkers";
 
 type SessionData = {
   value: number;
@@ -17,99 +21,177 @@ type Props = {
   sessions: SessionData[];
 };
 
-const calculateZIndex = (sessions: number): number => {
-  return sessions === 1
-    ? Number(google.maps.Marker.MAX_ZINDEX + 2)
-    : Number(google.maps.Marker.MAX_ZINDEX + 1);
+type TimelapseMarker = {
+  markerOverlay: CustomMarkerOverlay | ClusterOverlay;
+  labelOverlay: LabelOverlay | null;
 };
 
-const TimelapseMarkers = ({ sessions }: Props) => {
+const calculateZIndex = (sessions: number): number => {
+  return sessions === 1
+    ? Number(google.maps.Marker.MAX_ZINDEX) + 2
+    : Number(google.maps.Marker.MAX_ZINDEX) + 1;
+};
+
+export function TimelapseMarkers({ sessions }: Props) {
   const thresholds = useSelector(selectThresholds);
   const { unitSymbol } = useMapParams();
   const map = useMap();
-  const markersRef = useRef<Map<string, google.maps.Marker>>(new Map());
+  const markersRef = useRef<Map<string, TimelapseMarker>>(new Map());
+
+  const memoizedSessions = useMemo(() => sessions, [sessions]);
 
   useEffect(() => {
     if (!map) return;
 
     const sessionsMap = new Map<string, SessionData>();
-    sessions.forEach((session) => {
+    memoizedSessions.forEach((session) => {
       const key = `${session.latitude}-${session.longitude}`;
       sessionsMap.set(key, session);
     });
 
     // Update existing markers and create new ones if necessary
     sessionsMap.forEach((session, key) => {
-      let marker = markersRef.current.get(key);
+      let timelapseMarker = markersRef.current.get(key);
 
-      if (marker) {
-        // Update existing marker
-        const position = {
-          lat: session.latitude,
-          lng: session.longitude,
-        };
-        const color = getColorForValue(thresholds, session.value);
-        let icon: google.maps.Icon;
+      const position = new google.maps.LatLng(
+        session.latitude,
+        session.longitude
+      );
+      const color = getColorForValue(thresholds, session.value);
+      const zIndex = calculateZIndex(session.sessions);
+      const isCluster = session.sessions > 1;
 
-        if (session.sessions === 1) {
-          const valueText = `${Math.round(session.value)} ${unitSymbol}`;
-          icon = createMarkerIcon(color, valueText, false, false);
+      if (timelapseMarker) {
+        if (
+          isCluster &&
+          !(timelapseMarker.markerOverlay instanceof ClusterOverlay)
+        ) {
+          // Convert to cluster overlay
+          timelapseMarker.markerOverlay.setMap(null);
+          if (timelapseMarker.labelOverlay) {
+            timelapseMarker.labelOverlay.setMap(null);
+          }
+          const clusterOverlay = new ClusterOverlay(
+            {
+              id: key,
+              position: position,
+              count: session.sessions,
+            } as CustomCluster,
+            color,
+            false,
+            map,
+            () => {}
+          );
+          timelapseMarker.markerOverlay = clusterOverlay;
+          timelapseMarker.labelOverlay = null;
+        } else if (
+          !isCluster &&
+          timelapseMarker.markerOverlay instanceof ClusterOverlay
+        ) {
+          // Convert to marker overlay
+          timelapseMarker.markerOverlay.setMap(null);
+          const markerOverlay = new CustomMarkerOverlay(
+            position,
+            color,
+            false,
+            false
+          );
+          markerOverlay.setMap(map);
+          timelapseMarker.markerOverlay = markerOverlay;
+
+          const labelOverlay = new LabelOverlay(
+            position,
+            color,
+            session.value,
+            unitSymbol,
+            false,
+            () => {},
+            zIndex
+          );
+          labelOverlay.setMap(map);
+          timelapseMarker.labelOverlay = labelOverlay;
         } else {
-          icon = createClusterIcon(color, false);
-        }
+          if (timelapseMarker.markerOverlay instanceof ClusterOverlay) {
+          } else {
+            timelapseMarker.markerOverlay.setColor(color);
+          }
 
-        marker.setPosition(position);
-        marker.setIcon(icon);
-        marker.setZIndex(calculateZIndex(session.sessions));
-        marker.setTitle(session.value.toString());
+          if (timelapseMarker.labelOverlay) {
+            timelapseMarker.labelOverlay.update(
+              false,
+              color,
+              session.value,
+              unitSymbol
+            );
+          }
+        }
       } else {
-        // Create new marker
-        const position = {
-          lat: session.latitude,
-          lng: session.longitude,
-        };
-        const color = getColorForValue(thresholds, session.value);
-        let icon: google.maps.Icon;
-
-        if (session.sessions === 1) {
-          const valueText = `${Math.round(session.value)} ${unitSymbol}`;
-          icon = createMarkerIcon(color, valueText, false, false);
+        // Create new marker or cluster overlay
+        if (isCluster) {
+          const clusterOverlay = new ClusterOverlay(
+            {
+              id: key,
+              position: position,
+              count: session.sessions,
+            } as CustomCluster,
+            color,
+            false,
+            map,
+            () => {}
+          );
+          markersRef.current.set(key, {
+            markerOverlay: clusterOverlay,
+            labelOverlay: null,
+          });
         } else {
-          icon = createClusterIcon(color, false);
+          const markerOverlay = new CustomMarkerOverlay(
+            position,
+            color,
+            false,
+            false
+          );
+          markerOverlay.setMap(map);
+
+          const labelOverlay = new LabelOverlay(
+            position,
+            color,
+            session.value,
+            unitSymbol,
+            false,
+            () => {},
+            zIndex
+          );
+          labelOverlay.setMap(map);
+
+          markersRef.current.set(key, { markerOverlay, labelOverlay });
         }
-
-        marker = new google.maps.Marker({
-          position,
-          map,
-          zIndex: calculateZIndex(session.sessions),
-          title: session.value.toString(),
-          icon,
-        });
-
-        markersRef.current.set(key, marker);
       }
     });
 
     // Remove markers that are no longer in the sessions array
-    markersRef.current.forEach((marker, key) => {
+    markersRef.current.forEach((timelapseMarker, key) => {
       if (!sessionsMap.has(key)) {
-        marker.setMap(null);
+        timelapseMarker.markerOverlay.setMap(null);
+        if (timelapseMarker.labelOverlay) {
+          timelapseMarker.labelOverlay.setMap(null);
+        }
         markersRef.current.delete(key);
       }
     });
-  }, [map, sessions, thresholds, unitSymbol]);
+  }, [map, memoizedSessions, thresholds, unitSymbol]);
 
   // Cleanup markers when component unmounts
   useEffect(() => {
     return () => {
-      markersRef.current.forEach((marker) => {
-        marker.setMap(null);
+      markersRef.current.forEach((timelapseMarker) => {
+        timelapseMarker.markerOverlay.setMap(null);
+        if (timelapseMarker.labelOverlay) {
+          timelapseMarker.labelOverlay.setMap(null);
+        }
       });
       markersRef.current.clear();
     };
   }, []);
 
   return null;
-};
-
-export { TimelapseMarkers };
+}
