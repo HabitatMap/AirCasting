@@ -9,25 +9,24 @@ import {
 export default [
   {
     featureType: "administrative",
-    elementType: "labels.text.fill",
+    elementType: "labels",
     stylers: [
       {
-        color: mapLabels,
+        visibility: "off",
       },
     ],
   },
   {
-    featureType: "administrative",
-    elementType: "labels.text.stroke",
+    featureType: "administrative.neighborhood",
     stylers: [
       {
-        color: white,
+        visibility: "off",
       },
     ],
   },
   {
-    featureType: "administrative",
-    elementType: "labels.icon",
+    featureType: "administrative.neighborhood",
+    elementType: "labels",
     stylers: [
       {
         visibility: "off",
@@ -36,10 +35,58 @@ export default [
   },
   {
     featureType: "administrative",
-    elementType: "geometry",
+    elementType: "geometry.fill",
     stylers: [
       {
+        color: "#e8ede9",
+      },
+      {
         visibility: "simplified",
+      },
+    ],
+  },
+  {
+    featureType: "administrative",
+    elementType: "labels.text.fill",
+    stylers: [
+      {
+        color: "#acacac",
+      },
+    ],
+  },
+  {
+    featureType: "administrative",
+    elementType: "labels.text.stroke",
+    stylers: [
+      {
+        color: "#ffffff",
+      },
+    ],
+  },
+  {
+    featureType: "administrative.base_city",
+    elementType: "labels.text.fill",
+    stylers: [
+      {
+        color: "#acacac",
+      },
+    ],
+  },
+  {
+    featureType: "administrative.base_city",
+    elementType: "labels.text.stroke",
+    stylers: [
+      {
+        color: "#ffffff",
+      },
+    ],
+  },
+  {
+    featureType: "administrative.country",
+    elementType: "labels",
+    stylers: [
+      {
+        visibility: "on",
       },
     ],
   },
@@ -71,59 +118,14 @@ export default [
     ],
   },
   {
-    featureType: "administrative.neighborhood",
-    elementType: "labels",
+    featureType: "administrative.land_parcel",
     stylers: [
       {
         visibility: "off",
       },
     ],
   },
-  {
-    featureType: "administrative.base_city",
-    elementType: "labels",
-    stylers: [
-      {
-        visibility: "on",
-      },
-    ],
-  },
-  {
-    featureType: "administrative.base_city",
-    elementType: "labels.text.fill",
-    stylers: [
-      {
-        color: mapLabels,
-      },
-    ],
-  },
-  {
-    featureType: "administrative.country",
-    elementType: "labels",
-    stylers: [
-      {
-        visibility: "on",
-      },
-    ],
-  },
-  {
-    featureType: "administrative.country",
-    elementType: "labels.text.fill",
-    stylers: [
-      {
-        color: "#afafaf",
-      },
-    ],
-  },
-  {
-    featureType: "administrative.neighborhood",
-    elementType: "labels.text.fill",
-    stylers: [
-      {
-        color: "#acacac",
-      },
-    ],
-  },
+
   {
     featureType: "administrative.parcel",
     elementType: "geometry",
@@ -133,6 +135,7 @@ export default [
       },
     ],
   },
+
   {
     featureType: "administrative.reservation",
     elementType: "geometry.fill",
@@ -145,6 +148,15 @@ export default [
   {
     featureType: "administrative.reservation",
     elementType: "geometry.stroke",
+    stylers: [
+      {
+        visibility: "on",
+      },
+    ],
+  },
+  {
+    featureType: "administrative.reservation",
+    elementType: "labels",
     stylers: [
       {
         visibility: "on",
@@ -161,53 +173,10 @@ export default [
     ],
   },
   {
-    featureType: "administrative",
-    elementType: "geometry.fill",
-    stylers: [
-      {
-        color: "#E8EDE9",
-      },
-    ],
-  },
-  {
-    featureType: "administrative.reservation",
-    elementType: "labels",
-    stylers: [
-      {
-        visibility: "on",
-      },
-    ],
-  },
-  {
-    featureType: "administrative.land_parcel",
-    elementType: "labels",
-    stylers: [
-      {
-        visibility: "on",
-      },
-    ],
-  },
-  {
-    featureType: "administrative.locality",
-    stylers: [
-      {
-        visibility: "simplified",
-      },
-    ],
-  },
-  {
-    featureType: "administrative.neighborhood",
-    stylers: [
-      {
-        visibility: "off",
-      },
-    ],
-  },
-  {
     featureType: "landscape",
     stylers: [
       {
-        color: mapLandscape,
+        color: "#f2f2f2",
       },
     ],
   },
@@ -242,7 +211,12 @@ export default [
     elementType: "geometry.stroke",
     stylers: [
       {
-        color: mapStroke,
+        color: "#d9dce8",
+      },
+      {
+        lightness: -5,
+      },
+      {
         visibility: "on",
       },
     ],
@@ -281,7 +255,15 @@ export default [
   },
   {
     featureType: "poi",
-    elementType: "labels.text",
+    elementType: "labels",
+    stylers: [
+      {
+        visibility: "off",
+      },
+    ],
+  },
+  {
+    featureType: "poi.attraction",
     stylers: [
       {
         visibility: "off",
@@ -308,22 +290,34 @@ export default [
     featureType: "road",
     stylers: [
       {
+        color: "#ffffff",
+      },
+      {
         saturation: -100,
       },
       {
         lightness: 45,
       },
       {
-        color: white,
+        visibility: "simplified",
       },
     ],
   },
   {
     featureType: "road.arterial",
-    elementType: "labels.icon",
+    elementType: "labels",
     stylers: [
       {
         visibility: "off",
+      },
+    ],
+  },
+  {
+    featureType: "road.arterial",
+    elementType: "labels.text.fill",
+    stylers: [
+      {
+        color: "#acacac",
       },
     ],
   },
@@ -331,7 +325,7 @@ export default [
     featureType: "road.highway",
     stylers: [
       {
-        visibility: "off",
+        visibility: "simplified",
       },
     ],
   },
@@ -340,7 +334,7 @@ export default [
     elementType: "geometry.fill",
     stylers: [
       {
-        color: white,
+        color: "#ffffff",
       },
     ],
   },
@@ -363,6 +357,15 @@ export default [
     ],
   },
   {
+    featureType: "road.local",
+    elementType: "labels.text.fill",
+    stylers: [
+      {
+        color: "#acacac",
+      },
+    ],
+  },
+  {
     featureType: "transit",
     stylers: [
       {
@@ -374,7 +377,7 @@ export default [
     featureType: "water",
     stylers: [
       {
-        color: mapWater,
+        color: "#e0f1f9",
       },
       {
         visibility: "on",
