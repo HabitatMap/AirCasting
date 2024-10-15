@@ -1,3 +1,5 @@
+// fixedStreamSlice.ts
+
 import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { AxiosResponse } from "axios";
 import { apiClient, oldApiClient } from "../api/apiClient";
@@ -103,7 +105,7 @@ export const fetchMeasurements = createAsyncThunk<
       const apiError: ApiError = {
         message,
         additionalInfo: {
-          action: "fetchFixedStreamById",
+          action: "fetchMeasurements",
           endpoint: API_ENDPOINTS.fetchMeasurements(
             streamId,
             startTime,
@@ -181,12 +183,18 @@ const fixedStreamSlice = createSlice({
       fetchMeasurements.fulfilled,
       (state, action: PayloadAction<Measurement[]>) => {
         state.status = StatusEnum.Fulfilled;
-        state.data.measurements = action.payload;
+
+        // **Prepend** new measurements to existing measurements
+        state.data.measurements = [
+          ...action.payload,
+          ...state.data.measurements,
+        ];
+
         state.isLoading = false;
         state.error = null;
 
-        if (action.payload.length > 0) {
-          const values = action.payload.map((m) => m.value);
+        if (state.data.measurements.length > 0) {
+          const values = state.data.measurements.map((m) => m.value);
           state.minMeasurementValue = Math.min(...values);
           state.maxMeasurementValue = Math.max(...values);
           state.averageMeasurementValue =
@@ -203,7 +211,8 @@ const fixedStreamSlice = createSlice({
       (state, action: PayloadAction<ApiError | undefined>) => {
         state.status = StatusEnum.Rejected;
         state.error = action.payload || { message: "Unknown error occurred" };
-        state.data = initialState.data;
+        // **Do not reset data on fetchMeasurements rejection**
+        // state.data = initialState.data; // Commented out to preserve existing data
         state.isLoading = false;
       }
     );
