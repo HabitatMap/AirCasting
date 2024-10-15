@@ -140,7 +140,7 @@ export default [
     elementType: "geometry.fill",
     stylers: [
       {
-        visibility: "off",
+        visibility: "on",
       },
       {
         color: "#e8ede9",

@@ -95,6 +95,7 @@ import { StreamMarkers } from "./Markers/StreamMarkers";
 import { TimelapseMarkers } from "./Markers/TimelapseMarkers";
 import mapStyles from "./mapStyles";
 import { fetchMeasurements } from "../../store/fixedStreamSlice";
+import mapStylesZoomedIn from "./mapStylesZoomedIn";
 
 const Map = () => {
   const dispatch = useAppDispatch();
@@ -649,43 +650,17 @@ const Map = () => {
     }
   };
 
-  // get map current zoom and if bigger than 6.5 then change map styles by removing administrative.reservation current setting and adding a changed one with visibility on
+  // get map current zoom and if bigger than 5.5 then change map styles by removing administrative.reservation current setting and adding a changed one with visibility on
   const handleMapZoomStyles = useCallback(() => {
     if (mapInstance) {
       const zoom = mapInstance.getZoom();
       if (zoom && zoom >= 5.5) {
+        // Apply the zoomed-in styles when zoom level is 5.5 or greater
         mapInstance.setOptions({
-          styles: [
-            ...memoizedMapStyles,
-            {
-              featureType: "administrative.reservation",
-              elementType: "geometry",
-              stylers: [
-                {
-                  visibility: "on",
-                },
-              ],
-            },
-            {
-              featureType: "road.highway",
-              stylers: [
-                {
-                  visibility: "simplified",
-                },
-              ],
-            },
-            {
-              featureType: "road.highway",
-              elementType: "labels",
-              stylers: [
-                {
-                  visibility: "off",
-                },
-              ],
-            },
-          ],
+          styles: mapStylesZoomedIn,
         });
       } else {
+        // Apply the default map styles when zoom level is less than 5.5
         mapInstance.setOptions({
           styles: memoizedMapStyles,
         });
