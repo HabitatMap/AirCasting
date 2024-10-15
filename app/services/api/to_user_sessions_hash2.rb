@@ -9,6 +9,15 @@ class Api::ToUserSessionsHash2
 
     delete_sessions(data.select(&:deleted))
 
+    # upload: sessions to upload from mobile app to the server
+    # download: sessions to upload from the server to the mobile app
+    # deleted: sessions deleted from the database, sending to mobile app to delete also from the mobile app
+
+    # log the response to the server (uuids of sessions to upload, download and delete) all in newlines readable format
+    Rails.logger.info(
+      "User: #{user.id} - Upload: #{new_in_params.join("\n")}\nDownload: #{new_in_database.join("\n")}\nDeleted: #{deleted.join("\n")}"
+    )
+
     Success.new(
       {
         upload: new_in_params,
