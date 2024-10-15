@@ -56,6 +56,7 @@ interface GraphProps {
 const Graph: React.FC<GraphProps> = React.memo(
   ({ streamId, sessionType, isCalendarPage, rangeDisplayRef }) => {
     const graphRef = useRef<HTMLDivElement>(null);
+    const chartComponentRef = useRef<HighchartsReact.RefObject>(null);
 
     // Hooks
     const dispatch = useAppDispatch();
@@ -75,6 +76,10 @@ const Graph: React.FC<GraphProps> = React.memo(
       fixedSessionTypeSelected ? 0 : 2
     );
     const [isMaxRangeFetched, setIsMaxRangeFetched] = useState(false);
+    const [earliestFetchedTime, setEarliestFetchedTime] = useState<
+      number | null
+    >(null);
+    const [isFetchingMore, setIsFetchingMore] = useState<boolean>(false);
 
     const isIndoorParameterInUrl = isIndoor === "true";
 
@@ -93,6 +98,16 @@ const Graph: React.FC<GraphProps> = React.memo(
       () => (fixedSessionTypeSelected ? fixedSeriesData : mobileSeriesData),
       [fixedSessionTypeSelected, fixedSeriesData, mobileSeriesData]
     );
+
+    // Initialize earliestFetchedTime
+    useEffect(() => {
+      if (seriesData.length > 0 && !earliestFetchedTime) {
+        const firstDataPoint = fixedSessionTypeSelected
+          ? (seriesData[0] as number[])[0]
+          : (seriesData[0] as { x: number }).x;
+        setEarliestFetchedTime(firstDataPoint);
+      }
+    }, [seriesData, fixedSessionTypeSelected, earliestFetchedTime]);
 
     // Helper Functions
     const getTimeRangeFromSelectedRange = useCallback(
@@ -174,6 +189,44 @@ const Graph: React.FC<GraphProps> = React.memo(
       setIsMaxRangeFetched(false);
     }, [streamId]);
 
+    // Handler for afterSetExtremes to fetch more data
+    const handleAfterSetExtremes = useCallback(
+      (event: Highcharts.AxisSetExtremesEventObject) => {
+        // Check if already fetching to prevent duplicate requests
+        if (isFetchingMore || !earliestFetchedTime) return;
+
+        // Define a threshold (e.g., within 1% of the earliestFetchedTime)
+        const threshold =
+          (earliestFetchedTime - event.min) / earliestFetchedTime;
+
+        if (threshold >= 0 && threshold <= 0.01) {
+          // Adjust threshold as needed
+          setIsFetchingMore(true);
+
+          const threeMonthsInMs = 3 * 30 * 24 * 60 * 60 * 1000; // Approximation
+          const newStartTime = earliestFetchedTime - threeMonthsInMs;
+          const newEndTime = earliestFetchedTime;
+
+          dispatch(
+            fetchMeasurements({
+              streamId: streamId as number,
+              startTime: newStartTime.toString(),
+              endTime: newEndTime.toString(),
+            })
+          )
+            .then(() => {
+              setEarliestFetchedTime(newStartTime);
+              setIsFetchingMore(false);
+            })
+            .catch(() => {
+              // Handle errors appropriately
+              setIsFetchingMore(false);
+            });
+        }
+      },
+      [earliestFetchedTime, isFetchingMore, dispatch, streamId]
+    );
+
     // Configuration Options
     const xAxisOptions = useMemo(
       () =>
@@ -184,7 +237,8 @@ const Graph: React.FC<GraphProps> = React.memo(
           isIndoor,
           dispatch,
           isLoading,
-          isIndoorParameterInUrl
+          isIndoorParameterInUrl,
+          handleAfterSetExtremes // Pass the handler here
         ),
       [
         isMobile,
@@ -194,6 +248,7 @@ const Graph: React.FC<GraphProps> = React.memo(
         dispatch,
         isLoading,
         isIndoorParameterInUrl,
+        handleAfterSetExtremes,
       ]
     );
 
@@ -373,6 +428,19 @@ const Graph: React.FC<GraphProps> = React.memo(
       });
     }, [isLoading]);
 
+    // Maintain current extremes after data fetch
+    useEffect(() => {
+      if (chartComponentRef.current && earliestFetchedTime) {
+        const chart = chartComponentRef.current.chart;
+        // Optionally, set extremes or adjust view here
+        // For example, maintain the previous min and max
+        // This ensures the view doesn't jump after data fetch
+        // You can customize this based on your requirements
+        // Example:
+        // chart.xAxis[0].setExtremes(newMin, newMax, true, false);
+      }
+    }, [seriesData, earliestFetchedTime]);
+
     return (
       <S.Container
         ref={graphRef}
@@ -384,6 +452,7 @@ const Graph: React.FC<GraphProps> = React.memo(
             highcharts={Highcharts}
             constructorType={"stockChart"}
             options={options}
+            ref={chartComponentRef} // Attach the ref here
           />
         )}
       </S.Container>

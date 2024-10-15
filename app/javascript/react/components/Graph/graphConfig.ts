@@ -1,3 +1,5 @@
+// graphConfig.ts
+
 import {
   AlignValue,
   ChartOptions,
@@ -58,6 +60,7 @@ const getScrollbarOptions = (isCalendarPage: boolean, isMobile: boolean) => {
   };
 };
 
+// Updated getXAxisOptions to accept afterSetExtremesHandler
 const getXAxisOptions = (
   isMobile: boolean,
   rangeDisplayRef: React.RefObject<HTMLDivElement> | undefined,
@@ -65,7 +68,10 @@ const getXAxisOptions = (
   isIndoor: string | null,
   dispatch: any,
   isLoading: boolean,
-  isIndoorParameterInUrl: boolean
+  isIndoorParameterInUrl: boolean,
+  afterSetExtremesHandler?: (
+    event: Highcharts.AxisSetExtremesEventObject
+  ) => void // New optional parameter
 ): XAxisOptions => {
   const handleSetExtremes = debounce(
     (e: Highcharts.AxisSetExtremesEventObject) => {
@@ -125,7 +131,15 @@ const getXAxisOptions = (
     minRange: 10000,
     ordinal: false,
     events: {
-      afterSetExtremes: handleSetExtremes,
+      afterSetExtremes: function (
+        this: Highcharts.Axis,
+        e: Highcharts.AxisSetExtremesEventObject
+      ) {
+        handleSetExtremes(e);
+        if (afterSetExtremesHandler) {
+          afterSetExtremesHandler(e);
+        }
+      },
     },
   };
 };
@@ -223,7 +237,7 @@ const getPlotOptions = (
     series: {
       lineWidth: 2,
       color: blue,
-      turboThreshold: 9999999, //above that graph will not display
+      turboThreshold: 9999999, // above that graph will not display
       marker: {
         fillColor: blue,
         lineWidth: 0,
@@ -323,6 +337,7 @@ const getTooltipOptions = (
     fontFamily: "Roboto",
   },
 });
+
 const getRangeSelectorOptions = (
   isMobile: boolean,
   fixedSessionTypeSelected: boolean,
