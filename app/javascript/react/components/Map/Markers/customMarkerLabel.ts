@@ -1,5 +1,3 @@
-// LabelOverlay.ts
-
 import { gray400, white } from "../../../assets/styles/colors";
 
 export class LabelOverlay extends google.maps.OverlayView {
@@ -19,7 +17,7 @@ export class LabelOverlay extends google.maps.OverlayView {
     unitSymbol: string,
     isSelected: boolean,
     onClick: () => void,
-    zIndex: number = 1001 // Set higher zIndex than marker overlay
+    zIndex: number = 1000
   ) {
     super();
     this.position = position;
@@ -36,14 +34,14 @@ export class LabelOverlay extends google.maps.OverlayView {
     this.div.style.position = "absolute";
     this.div.style.transform = "translate(-13%, 0)";
     this.div.style.cursor = "pointer";
-    this.div.style.pointerEvents = "auto"; // Enable pointer events
+    this.div.style.zIndex = "3";
 
     this.applyStyles();
 
     this.div.addEventListener("click", this.onClick);
 
     const panes = this.getPanes();
-    panes && panes.floatPane.appendChild(this.div);
+    panes && panes.overlayMouseTarget.appendChild(this.div);
   }
 
   draw() {
@@ -53,7 +51,6 @@ export class LabelOverlay extends google.maps.OverlayView {
     if (pos) {
       this.div.style.left = `${pos.x}px`;
       this.div.style.top = `${pos.y}px`;
-      this.div.style.zIndex = this.zIndex.toString(); // Apply zIndex
     }
   }
 
@@ -83,14 +80,7 @@ export class LabelOverlay extends google.maps.OverlayView {
 
   public setZIndex(zIndex: number): void {
     this.zIndex = zIndex;
-    if (this.div) {
-      this.div.style.zIndex = zIndex.toString();
-    }
-  }
-
-  public setPosition(position: google.maps.LatLng): void {
-    this.position = position;
-    this.draw();
+    this.applyStyles();
   }
 
   private applyStyles() {
