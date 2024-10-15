@@ -306,7 +306,7 @@ export default [
     featureType: "road.arterial",
     stylers: [
       {
-        visibility: "simplified",
+        visibility: "on",
       },
     ],
   },
