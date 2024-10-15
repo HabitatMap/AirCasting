@@ -94,9 +94,7 @@ import { MobileMarkers } from "./Markers/MobileMarkers";
 import { StreamMarkers } from "./Markers/StreamMarkers";
 import { TimelapseMarkers } from "./Markers/TimelapseMarkers";
 import mapStyles from "./mapStyles";
-import { fetchMeasurements } from "../../store/fixedStreamSlice";
 import mapStylesZoomedIn from "./mapStylesZoomedIn";
-import { map } from "lodash";
 
 const Map = () => {
   const dispatch = useAppDispatch();
