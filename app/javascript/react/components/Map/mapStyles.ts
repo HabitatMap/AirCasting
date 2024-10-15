@@ -1,6 +1,6 @@
 import {
   administrativeRegionTextColor,
-  buildingtrokeColor,
+  buildingStrokeColor,
   internationalBorderFillColor,
   landscapeColor,
   provinceStrokeColor,
@@ -207,7 +207,7 @@ export default [
     elementType: "geometry.stroke",
     stylers: [
       {
-        color: buildingtrokeColor,
+        color: buildingStrokeColor,
       },
       {
         lightness: -5,

@@ -43,7 +43,7 @@ const strokeColor = "#ffffff";
 const administrativeRegionTextColor = "#afafaf";
 const internationalBorderFillColor = "#4e5256";
 const landscapeColor = "#f2f2f2";
-const buildingtrokeColor = "#d9dce8";
+const buildingStrokeColor = "#d9dce8";
 const provinceStrokeColor = "#5f6368";
 const roadColor = "#ffffff";
 const waterColor = "#e0f1f9";
@@ -54,7 +54,7 @@ export {
   administrativeRegionTextColor,
   black,
   blue,
-  buildingtrokeColor,
+  buildingStrokeColor,
   cta,
   darkBlue,
   darkBlueTransparent,
