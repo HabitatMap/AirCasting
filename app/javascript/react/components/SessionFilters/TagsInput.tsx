@@ -88,9 +88,6 @@ const TagsInput = () => {
           setFilter(UrlParamsTypes.tags, urlEncodedString.toString());
           reset();
           setSelectedItem("");
-          setTimeout(() => {
-            dispatch(setFetchingData(true));
-          }, 200);
         }
       },
     });
@@ -115,14 +112,17 @@ const TagsInput = () => {
       decodedTagsArray && decodedTagsArray.filter((el) => el !== itemToRemove);
     const decodedTagsString = tagsUpdated ? tagsUpdated.join(", ") : "";
     setFilter(UrlParamsTypes.tags, decodedTagsString.toString());
-    setTimeout(() => {
-      dispatch(setFetchingData(true));
-    }, 200);
   };
 
   useEffect(() => {
     setItems(tagsToSelect);
   }, [tagsToSelect]);
+
+  useEffect(() => {
+    setTimeout(() => {
+      dispatch(setFetchingData(true));
+    }, 200);
+  }, [tags]);
 
   return (
     <S.Wrapper>
