@@ -87,7 +87,7 @@ const CopyLinkComponent = ({
 
   useEffect(() => {
     updateButtonPosition();
-  }, [rect?.top]);
+  }, [rect?.top, rect?.left]);
 
   return (
     <S.WrapperButton ref={buttonRef}>

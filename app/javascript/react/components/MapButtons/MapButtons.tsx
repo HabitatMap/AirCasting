@@ -6,10 +6,12 @@ import copyLinkIcon from "../../assets/icons/copyLinkIcon.svg";
 import filterIcon from "../../assets/icons/filterIcon.svg";
 import { TRUE } from "../../const/booleans";
 import { selectFixedSessionsList } from "../../store/fixedSessionsSelectors";
-import { useAppSelector } from "../../store/hooks";
+import { useAppDispatch, useAppSelector } from "../../store/hooks";
 import {
+  selectFiltersButtonClosed,
   selectFixedSessionsType,
   selectIsDormantSessionsType,
+  setFiltersButtonClosed,
 } from "../../store/sessionFiltersSlice";
 import { SessionTypes } from "../../types/filters";
 import { UserSettings } from "../../types/userStates";
@@ -29,11 +31,13 @@ enum ButtonTypes {
 const MapButtons: React.FC = () => {
   const { goToUserSettings, currentUserSettings, sessionType, isIndoor } =
     useMapParams();
-  const [activeButtons, setActiveButtons] = useState<ButtonTypes[]>([]);
+  const [activeButtons, setActiveButtons] = useState<ButtonTypes[]>([
+    ButtonTypes.FILTER,
+  ]);
   const [activeCopyLinkButton, setActiveCopyLinkButton] = useState(false);
 
   const { t } = useTranslation();
-
+  const dispatch = useAppDispatch();
   const fixedSessionsType = useAppSelector(selectFixedSessionsType);
   const listSessions = useAppSelector((state) =>
     selectFixedSessionsList(state, fixedSessionsType)
@@ -49,25 +53,19 @@ const MapButtons: React.FC = () => {
   const isTimelapseButtonActive =
     activeButtons.includes(ButtonTypes.TIMELAPSE) &&
     currentUserSettings === UserSettings.TimelapseView;
-
-  useEffect(() => {
-    if (currentUserSettings === UserSettings.TimelapseView) {
-      setActiveButtons([ButtonTypes.TIMELAPSE]);
-    } else {
-      setActiveButtons([ButtonTypes.FILTER]);
-    }
-  }, [currentUserSettings]);
+  const filtersButtonClosed = useAppSelector(selectFiltersButtonClosed);
 
   const handleCopyLinkClick = () => {
     setActiveCopyLinkButton(true);
     if (activeButtons.includes(ButtonTypes.FILTER)) {
       setActiveButtons([]);
+      dispatch(setFiltersButtonClosed(true));
     }
   };
 
   const handleTimelapseClick = () => {
     if (activeButtons.includes(ButtonTypes.TIMELAPSE)) {
-      setActiveButtons([ButtonTypes.FILTER]);
+      setActiveButtons([]);
       goToUserSettings(UserSettings.MapView);
     } else {
       setActiveButtons([ButtonTypes.TIMELAPSE]);
@@ -79,16 +77,29 @@ const MapButtons: React.FC = () => {
   const handleFilterClick = () => {
     if (activeButtons.includes(ButtonTypes.FILTER)) {
       setActiveButtons([]);
+      dispatch(setFiltersButtonClosed(true));
     } else {
       setActiveButtons([ButtonTypes.FILTER]);
-      goToUserSettings(
-        currentUserSettings === UserSettings.CrowdMapView
-          ? UserSettings.CrowdMapView
-          : UserSettings.MapView
-      );
+      dispatch(setFiltersButtonClosed(false));
+      if (currentUserSettings === UserSettings.CrowdMapView) {
+        goToUserSettings(UserSettings.CrowdMapView);
+      }
+      if (currentUserSettings === UserSettings.TimelapseView) {
+        goToUserSettings(UserSettings.MapView);
+      }
     }
     setActiveCopyLinkButton(false);
   };
+
+  useEffect(() => {
+    if (currentUserSettings === UserSettings.TimelapseView) {
+      setActiveButtons([ButtonTypes.TIMELAPSE]);
+    } else {
+      filtersButtonClosed
+        ? setActiveButtons([])
+        : setActiveButtons([ButtonTypes.FILTER]);
+    }
+  }, [currentUserSettings, filtersButtonClosed]);
 
   return (
     <S.MapButtonsWrapper>
