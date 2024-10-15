@@ -1,9 +1,14 @@
 import {
-  mapLabels,
-  mapLandscape,
-  mapStroke,
-  mapWater,
-  white,
+  administrativeRegionTextColor,
+  buildingtrokeColor,
+  internationalBorderFillColor,
+  landscapeColor,
+  provinceStrokeColor,
+  reservationFillColor,
+  roadColor,
+  strokeColor,
+  textColor,
+  waterColor,
 } from "../../assets/styles/colors";
 
 export default [
@@ -12,7 +17,7 @@ export default [
     elementType: "geometry.fill",
     stylers: [
       {
-        color: "#e8ede9",
+        color: reservationFillColor,
       },
       {
         visibility: "simplified",
@@ -33,7 +38,10 @@ export default [
     elementType: "labels.text.fill",
     stylers: [
       {
-        color: "#acacac",
+        color: textColor,
+      },
+      {
+        weight: 0.125,
       },
     ],
   },
@@ -42,7 +50,7 @@ export default [
     elementType: "labels.text.stroke",
     stylers: [
       {
-        color: "#ffffff",
+        color: strokeColor,
       },
     ],
   },
@@ -60,7 +68,7 @@ export default [
     elementType: "labels.text.fill",
     stylers: [
       {
-        color: "#afafaf",
+        color: administrativeRegionTextColor,
       },
     ],
   },
@@ -78,7 +86,7 @@ export default [
     elementType: "geometry.fill",
     stylers: [
       {
-        color: "#4e5256",
+        color: internationalBorderFillColor,
       },
     ],
   },
@@ -121,20 +129,15 @@ export default [
     elementType: "labels.text.fill",
     stylers: [
       {
-        color: "#acacac",
+        color: textColor,
       },
     ],
   },
   {
-    featureType: "administrative.parcel",
-    elementType: "geometry",
-    stylers: [
-      {
-        visibility: "on",
-      },
-    ],
+    featureType: "administrative.province",
+    elementType: "geometry.stroke",
+    stylers: [{ color: provinceStrokeColor }],
   },
-
   {
     featureType: "administrative.reservation",
     elementType: "geometry.fill",
@@ -143,7 +146,7 @@ export default [
         visibility: "off",
       },
       {
-        color: "#e8ede9",
+        color: reservationFillColor,
       },
     ],
   },
@@ -161,7 +164,7 @@ export default [
     elementType: "labels.text.fill",
     stylers: [
       {
-        color: "#AFAFAF",
+        color: administrativeRegionTextColor,
       },
     ],
   },
@@ -169,7 +172,7 @@ export default [
     featureType: "landscape",
     stylers: [
       {
-        color: "#f2f2f2",
+        color: landscapeColor,
       },
     ],
   },
@@ -204,7 +207,7 @@ export default [
     elementType: "geometry.stroke",
     stylers: [
       {
-        color: "#d9dce8",
+        color: buildingtrokeColor,
       },
       {
         lightness: -5,
@@ -284,7 +287,7 @@ export default [
     featureType: "road",
     stylers: [
       {
-        color: "#ffffff",
+        color: roadColor,
       },
       {
         saturation: -100,
@@ -311,7 +314,7 @@ export default [
     elementType: "labels.text.fill",
     stylers: [
       {
-        color: "#acacac",
+        color: textColor,
       },
     ],
   },
@@ -319,7 +322,7 @@ export default [
     featureType: "road.highway",
     stylers: [
       {
-        visibility: "simplified",
+        visibility: "off",
       },
     ],
   },
@@ -328,7 +331,7 @@ export default [
     elementType: "geometry.fill",
     stylers: [
       {
-        color: "#ffffff",
+        color: roadColor,
       },
     ],
   },
@@ -346,7 +349,7 @@ export default [
     elementType: "labels",
     stylers: [
       {
-        visibility: "on",
+        visibility: "simplified",
       },
     ],
   },
@@ -355,7 +358,7 @@ export default [
     elementType: "labels.text.fill",
     stylers: [
       {
-        color: "#acacac",
+        color: textColor,
       },
     ],
   },
@@ -371,7 +374,7 @@ export default [
     featureType: "water",
     stylers: [
       {
-        color: "#e0f1f9",
+        color: waterColor,
       },
       {
         visibility: "on",

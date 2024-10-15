@@ -96,6 +96,7 @@ import { TimelapseMarkers } from "./Markers/TimelapseMarkers";
 import mapStyles from "./mapStyles";
 import { fetchMeasurements } from "../../store/fixedStreamSlice";
 import mapStylesZoomedIn from "./mapStylesZoomedIn";
+import { map } from "lodash";
 
 const Map = () => {
   const dispatch = useAppDispatch();
@@ -308,6 +309,26 @@ const Map = () => {
     return `${sensorName}?unit_symbol=${encodedUnitSymbol}`;
   }, [sensorName, encodedUnitSymbol]);
 
+  const applyMapStylesBasedOnZoom = (
+    mapInstance: google.maps.Map | null,
+    mapStylesZoomedIn: any,
+    defaultMapStyles: any
+  ) => {
+    if (!mapInstance) return;
+
+    const zoom = mapInstance.getZoom();
+
+    if (zoom && zoom >= 5.5) {
+      mapInstance.setOptions({
+        styles: mapStylesZoomedIn,
+      });
+    } else {
+      mapInstance.setOptions({
+        styles: defaultMapStyles,
+      });
+    }
+  };
+
   // Effects
   useEffect(() => {
     dispatch(fetchSensors(sessionType));
@@ -491,6 +512,8 @@ const Map = () => {
         });
       }
 
+      applyMapStylesBasedOnZoom(map, mapStylesZoomedIn, memoizedMapStyles);
+
       if (isFirstRender.current) {
         if (currentUserSettings === UserSettings.MapView) {
           newSearchParams.set(UrlParamsTypes.sessionType, sessionType);
@@ -650,21 +673,13 @@ const Map = () => {
     }
   };
 
-  // get map current zoom and if bigger than 5.5 then change map styles by removing administrative.reservation current setting and adding a changed one with visibility on
   const handleMapZoomStyles = useCallback(() => {
     if (mapInstance) {
-      const zoom = mapInstance.getZoom();
-      if (zoom && zoom >= 5.5) {
-        // Apply the zoomed-in styles when zoom level is 5.5 or greater
-        mapInstance.setOptions({
-          styles: mapStylesZoomedIn,
-        });
-      } else {
-        // Apply the default map styles when zoom level is less than 5.5
-        mapInstance.setOptions({
-          styles: memoizedMapStyles,
-        });
-      }
+      applyMapStylesBasedOnZoom(
+        mapInstance,
+        mapStylesZoomedIn,
+        memoizedMapStyles
+      );
     }
   }, [mapInstance, memoizedMapStyles]);
 

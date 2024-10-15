@@ -21,8 +21,8 @@ const red = "#E95F5F";
 const orange = "#FCA443";
 const yellow = "#FFD960";
 const green = "#96D788";
-const lightCrimson = '#ED6B86'
-const rose = '#FF38B5'
+const lightCrimson = "#ED6B86";
+const rose = "#FF38B5";
 const royalPurple = "#7D3EBE";
 const grey = "#a0a2ad";
 const black = "#000";
@@ -36,12 +36,25 @@ const lightBlue = "#9BCDDE";
 const grayStroke = "#DFE7F2";
 const lightBlueInfo = "#00b2ef1a";
 
+// Map styles colors
+const reservationFillColor = "#e8ede9";
+const textColor = "#acacac";
+const strokeColor = "#ffffff";
+const administrativeRegionTextColor = "#afafaf";
+const internationalBorderFillColor = "#4e5256";
+const landscapeColor = "#f2f2f2";
+const buildingtrokeColor = "#d9dce8";
+const provinceStrokeColor = "#5f6368";
+const roadColor = "#ffffff";
+const waterColor = "#e0f1f9";
+
 export {
   acBlue,
   acBlueTransparent,
+  administrativeRegionTextColor,
   black,
   blue,
-  lightCrimson,
+  buildingtrokeColor,
   cta,
   darkBlue,
   darkBlueTransparent,
@@ -58,8 +71,11 @@ export {
   grayStroke,
   green,
   grey,
+  internationalBorderFillColor,
+  landscapeColor,
   lightBlue,
   lightBlueInfo,
+  lightCrimson,
   mapLabels,
   mapLandscape,
   mapStroke,
@@ -67,10 +83,16 @@ export {
   mint,
   mobileStreamPath,
   orange,
+  provinceStrokeColor,
+  reservationFillColor,
   royalPurple,
   red,
+  roadColor,
   rose,
+  strokeColor,
+  textColor,
   theme,
+  waterColor,
   white,
   yellow,
 };
