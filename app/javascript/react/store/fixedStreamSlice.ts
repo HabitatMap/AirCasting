@@ -137,10 +137,12 @@ const fixedStreamSlice = createSlice({
         }
       );
       const values = measurementsInRange.map((m) => m.value);
-      const newMin = Math.min(...values);
-      const newMax = Math.max(...values);
+      const newMin = values.length > 0 ? Math.min(...values) : 0;
+      const newMax = values.length > 0 ? Math.max(...values) : 0;
       const newAvg =
-        values.reduce((sum, value) => sum + value, 0) / values.length;
+        values.length > 0
+          ? values.reduce((sum, value) => sum + value, 0) / values.length
+          : 0;
 
       state.minMeasurementValue = newMin;
       state.maxMeasurementValue = newMax;
@@ -184,11 +186,21 @@ const fixedStreamSlice = createSlice({
       (state, action: PayloadAction<Measurement[]>) => {
         state.status = StatusEnum.Fulfilled;
 
-        // **Prepend** new measurements to existing measurements
+        // **Prepend** new measurements after filtering out invalid ones
+        const validNewMeasurements = action.payload.filter(
+          (m) => m.time !== undefined && m.value !== undefined
+        );
+
+        if (validNewMeasurements.length === 0) {
+          console.warn(
+            "No valid measurements received from fetchMeasurements."
+          );
+        }
+
         state.data.measurements = [
-          ...action.payload,
+          ...validNewMeasurements,
           ...state.data.measurements,
-        ];
+        ].sort((a, b) => a.time - b.time); // Ensure ascending order
 
         state.isLoading = false;
         state.error = null;
