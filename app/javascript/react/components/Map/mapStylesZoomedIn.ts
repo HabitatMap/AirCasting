@@ -20,7 +20,25 @@ export default [
         color: reservationFillColor,
       },
       {
-        visibility: "simplified",
+        visibility: "on",
+      },
+    ],
+  },
+  {
+    featureType: "administrative",
+    elementType: "geometry.stroke",
+    stylers: [
+      {
+        visibility: "on",
+      },
+    ],
+  },
+  {
+    featureType: "administrative",
+    elementType: "labels.text.fill",
+    stylers: [
+      {
+        color: administrativeRegionTextColor,
       },
     ],
   },
@@ -70,17 +88,8 @@ export default [
     ],
   },
   {
-    featureType: "administrative.international_border",
-    elementType: "geometry",
-    stylers: [
-      {
-        visibility: "on",
-      },
-    ],
-  },
-  {
-    featureType: "administrative.international_border",
-    elementType: "geometry.fill",
+    featureType: "administrative.country",
+    elementType: "geometry.stroke",
     stylers: [
       {
         color: internationalBorderFillColor,
@@ -126,36 +135,6 @@ export default [
     featureType: "administrative.province",
     elementType: "geometry.stroke",
     stylers: [{ color: provinceStrokeColor }],
-  },
-  {
-    featureType: "administrative.reservation",
-    elementType: "geometry.fill",
-    stylers: [
-      {
-        visibility: "on",
-      },
-      {
-        color: reservationFillColor,
-      },
-    ],
-  },
-  {
-    featureType: "administrative.reservation",
-    elementType: "geometry.stroke",
-    stylers: [
-      {
-        visibility: "on",
-      },
-    ],
-  },
-  {
-    featureType: "administrative.reservation",
-    elementType: "labels.text.fill",
-    stylers: [
-      {
-        color: administrativeRegionTextColor,
-      },
-    ],
   },
   {
     featureType: "landscape",
