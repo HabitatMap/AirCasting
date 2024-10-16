@@ -28,6 +28,7 @@ import { useMapParams } from "../../utils/mapParamsHandler";
 import useMobileDetection from "../../utils/useScreenSizeDetection";
 
 import { gray300 } from "../../assets/styles/colors";
+import { MILLISECONDS_IN_A_DAY } from "../../utils/timeRanges";
 import { handleLoad } from "./chartEvents";
 import * as S from "./Graph.style";
 import {
@@ -99,15 +100,15 @@ const Graph: React.FC<GraphProps> = React.memo(
       [fixedSessionTypeSelected, fixedSeriesData, mobileSeriesData]
     );
 
-    // Initialize earliestFetchedTime
+    // Initialize or Update earliestFetchedTime
     useEffect(() => {
-      if (seriesData.length > 0 && !earliestFetchedTime) {
+      if (seriesData.length > 0) {
         const firstDataPoint = fixedSessionTypeSelected
-          ? (seriesData[0] as number[])[0]
+          ? (seriesData[0] as [number, number])[0]
           : (seriesData[0] as { x: number }).x;
         setEarliestFetchedTime(firstDataPoint);
       }
-    }, [seriesData, fixedSessionTypeSelected, earliestFetchedTime]);
+    }, [seriesData, fixedSessionTypeSelected]);
 
     // Helper Functions
     const getTimeRangeFromSelectedRange = useCallback(
@@ -115,7 +116,7 @@ const Graph: React.FC<GraphProps> = React.memo(
         const lastTimestamp =
           seriesData.length > 0
             ? fixedSessionTypeSelected
-              ? (seriesData[seriesData.length - 1] as number[])[0]
+              ? (seriesData[seriesData.length - 1] as [number, number])[0]
               : (seriesData[seriesData.length - 1] as { x: number }).x
             : Date.now();
 
@@ -146,7 +147,7 @@ const Graph: React.FC<GraphProps> = React.memo(
       if (seriesData.length === 0) return 0;
       const [first, last] = [seriesData[0], seriesData[seriesData.length - 1]];
       return fixedSessionTypeSelected
-        ? (last as number[])[0] - (first as number[])[0]
+        ? (last as [number, number])[0] - (first as [number, number])[0]
         : (last as { x: number }).x - (first as { x: number }).x;
     }, [seriesData, fixedSessionTypeSelected]);
 
@@ -195,17 +196,21 @@ const Graph: React.FC<GraphProps> = React.memo(
         // Check if already fetching to prevent duplicate requests
         if (isFetchingMore || !earliestFetchedTime) return;
 
-        // Define a threshold (e.g., within 1% of the earliestFetchedTime)
-        const threshold =
-          (earliestFetchedTime - event.min) / earliestFetchedTime;
+        // Define a small delta (e.g., 1 day in milliseconds)
+        const delta = MILLISECONDS_IN_A_DAY;
 
-        if (threshold >= 0 && threshold <= 0.01) {
-          // Adjust threshold as needed
+        if (event.min <= earliestFetchedTime + delta) {
           setIsFetchingMore(true);
 
-          const threeMonthsInMs = 3 * 30 * 24 * 60 * 60 * 1000; // Approximation
-          const newStartTime = earliestFetchedTime - threeMonthsInMs;
+          const newStartTime = earliestFetchedTime - MILLISECONDS_IN_A_DAY; // Fetch 1 day earlier
           const newEndTime = earliestFetchedTime;
+
+          console.log(
+            "Fetching additional data from:",
+            newStartTime,
+            "to:",
+            newEndTime
+          );
 
           dispatch(
             fetchMeasurements({
@@ -214,12 +219,13 @@ const Graph: React.FC<GraphProps> = React.memo(
               endTime: newEndTime.toString(),
             })
           )
+            .unwrap()
             .then(() => {
               setEarliestFetchedTime(newStartTime);
               setIsFetchingMore(false);
             })
-            .catch(() => {
-              // Handle errors appropriately
+            .catch((error) => {
+              console.error("Error fetching additional measurements:", error);
               setIsFetchingMore(false);
             });
         }
@@ -360,7 +366,9 @@ const Graph: React.FC<GraphProps> = React.memo(
         responsive,
         tooltip: tooltipOptions,
         scrollbar: scrollbarOptions,
-        navigator: { enabled: false },
+        navigator: {
+          enabled: true, // Enable navigator for better data navigation
+        },
         rangeSelector: {
           ...rangeSelectorOptions,
           buttons: rangeSelectorButtons,
@@ -428,19 +436,6 @@ const Graph: React.FC<GraphProps> = React.memo(
       });
     }, [isLoading]);
 
-    // Maintain current extremes after data fetch
-    useEffect(() => {
-      if (chartComponentRef.current && earliestFetchedTime) {
-        const chart = chartComponentRef.current.chart;
-        // Optionally, set extremes or adjust view here
-        // For example, maintain the previous min and max
-        // This ensures the view doesn't jump after data fetch
-        // You can customize this based on your requirements
-        // Example:
-        // chart.xAxis[0].setExtremes(newMin, newMax, true, false);
-      }
-    }, [seriesData, earliestFetchedTime]);
-
     return (
       <S.Container
         ref={graphRef}
@@ -453,6 +448,7 @@ const Graph: React.FC<GraphProps> = React.memo(
             constructorType={"stockChart"}
             options={options}
             ref={chartComponentRef} // Attach the ref here
+            immutable={false} // Ensure it's set to false for dynamic updates
           />
         )}
       </S.Container>
