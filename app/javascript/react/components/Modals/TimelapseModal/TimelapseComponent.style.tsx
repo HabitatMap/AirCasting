@@ -188,6 +188,7 @@ const ProgressFiller = styled.div`
   height: 6px;
   background-color: ${acBlue};
   border-radius: 1rem;
+  transition: width 0.2s ease-in-out;
 
   @media ${media.smallDesktop} {
     height: 4px;
