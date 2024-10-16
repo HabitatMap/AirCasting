@@ -141,10 +141,7 @@ const CrowdMapMarkers = ({ pulsatingSessionId, sessions }: Props) => {
     if (!mobileSessionsLoading || fetchingCrowdMapData) {
       setRectanglePoint(null); // Clear rectanglePoint when fetching new data
       dispatch(clearCrowdMap());
-      const timer = setTimeout(() => {
-        dispatch(fetchCrowdMapData(filters));
-      }, 100);
-      return () => clearTimeout(timer);
+      dispatch(fetchCrowdMapData(filters));
     }
   }, [dispatch, fetchingCrowdMapData, filters, mobileSessionsLoading]);
 
