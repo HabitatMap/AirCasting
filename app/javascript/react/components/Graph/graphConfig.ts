@@ -76,7 +76,7 @@ const getXAxisOptions = (
   const handleSetExtremes = debounce(
     (e: Highcharts.AxisSetExtremesEventObject) => {
       if (isIndoorParameterInUrl) return;
-      if (!isLoading && e.min && e.max) {
+      if (!isLoading && e.min !== undefined && e.max !== undefined) {
         dispatch(
           fixedSessionTypeSelected
             ? updateFixedMeasurementExtremes({ min: e.min, max: e.max })
@@ -519,8 +519,37 @@ const getChartOptions = (
   };
 };
 
+const getNavigatorOptions = () => {
+  return {
+    enabled: true,
+    height: 0,
+    handleWidth: 0,
+    maskFill: "none",
+    outlineColor: "none",
+    series: {
+      visible: false,
+    },
+    xAxis: {
+      labels: {
+        enabled: false,
+      },
+      lineWidth: 0,
+      tickLength: 0,
+      gridLineWidth: 0,
+      title: {
+        text: null,
+      },
+    },
+    handles: {
+      backgroundColor: "none",
+      borderColor: "none",
+    },
+  };
+};
+
 export {
   getChartOptions,
+  getNavigatorOptions,
   getPlotOptions,
   getRangeSelectorOptions,
   getResponsiveOptions,
