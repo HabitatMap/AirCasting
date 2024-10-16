@@ -94,6 +94,7 @@ import { MobileMarkers } from "./Markers/MobileMarkers";
 import { StreamMarkers } from "./Markers/StreamMarkers";
 import { TimelapseMarkers } from "./Markers/TimelapseMarkers";
 import mapStyles from "./mapStyles";
+import mapStylesZoomedIn from "./mapStylesZoomedIn";
 
 const Map = () => {
   const dispatch = useAppDispatch();
@@ -306,6 +307,26 @@ const Map = () => {
     return `${sensorName}?unit_symbol=${encodedUnitSymbol}`;
   }, [sensorName, encodedUnitSymbol]);
 
+  const applyMapStylesBasedOnZoom = (
+    mapInstance: google.maps.Map | null,
+    mapStylesZoomedIn: any,
+    defaultMapStyles: any
+  ) => {
+    if (!mapInstance) return;
+
+    const zoom = mapInstance.getZoom();
+
+    if (zoom && zoom >= 5.5) {
+      mapInstance.setOptions({
+        styles: mapStylesZoomedIn,
+      });
+    } else {
+      mapInstance.setOptions({
+        styles: defaultMapStyles,
+      });
+    }
+  };
+
   // Effects
   useEffect(() => {
     dispatch(fetchSensors(sessionType));
@@ -489,6 +510,8 @@ const Map = () => {
         });
       }
 
+      applyMapStylesBasedOnZoom(map, mapStylesZoomedIn, memoizedMapStyles);
+
       if (isFirstRender.current) {
         if (currentUserSettings === UserSettings.MapView) {
           newSearchParams.set(UrlParamsTypes.sessionType, sessionType);
@@ -648,6 +671,22 @@ const Map = () => {
     }
   };
 
+  const handleMapZoomStyles = useCallback(() => {
+    if (mapInstance) {
+      applyMapStylesBasedOnZoom(
+        mapInstance,
+        mapStylesZoomedIn,
+        memoizedMapStyles
+      );
+    }
+  }, [mapInstance, memoizedMapStyles]);
+
+  const handleZoomChanged = () => {
+    if (mapInstance) {
+      handleMapZoomStyles();
+    }
+  };
+
   const openFilters = () => {
     goToUserSettings(UserSettings.FiltersView);
   };
@@ -698,7 +737,8 @@ const Map = () => {
         onIdle={handleMapIdle}
         minZoom={MIN_ZOOM}
         isFractionalZoomEnabled={true}
-        mapId={mapId}
+        styles={memoizedMapStyles}
+        onZoomChanged={handleZoomChanged}
       >
         {fixedSessionsStatusFulfilled &&
           fixedSessionTypeSelected &&

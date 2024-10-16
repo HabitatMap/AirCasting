@@ -40,9 +40,6 @@ export default [
       {
         color: textColor,
       },
-      {
-        weight: 0.125,
-      },
     ],
   },
   {
@@ -91,15 +88,6 @@ export default [
     ],
   },
   {
-    featureType: "administrative.land_parcel",
-    elementType: "labels",
-    stylers: [
-      {
-        visibility: "off",
-      },
-    ],
-  },
-  {
     featureType: "administrative.locality",
     stylers: [
       {
@@ -133,6 +121,7 @@ export default [
       },
     ],
   },
+
   {
     featureType: "administrative.province",
     elementType: "geometry.stroke",
@@ -143,7 +132,7 @@ export default [
     elementType: "geometry.fill",
     stylers: [
       {
-        visibility: "off",
+        visibility: "on",
       },
       {
         color: reservationFillColor,
@@ -189,7 +178,7 @@ export default [
     elementType: "geometry",
     stylers: [
       {
-        visibility: "simplified",
+        visibility: "on",
       },
     ],
   },
@@ -198,7 +187,7 @@ export default [
     elementType: "geometry.fill",
     stylers: [
       {
-        visibility: "simplified",
+        visibility: "on",
       },
     ],
   },
@@ -210,13 +199,26 @@ export default [
         color: buildingStrokeColor,
       },
       {
-        lightness: -5,
+        lightness: -20,
       },
       {
         visibility: "on",
       },
     ],
   },
+  {
+    featureType: "landscape.man_made",
+    elementType: "labels.text.fill",
+    stylers: [
+      {
+        color: textColor,
+      },
+      {
+        visibility: "on",
+      },
+    ],
+  },
+
   {
     featureType: "landscape.natural",
     stylers: [
@@ -302,6 +304,14 @@ export default [
   },
   {
     featureType: "road.arterial",
+    stylers: [
+      {
+        visibility: "on",
+      },
+    ],
+  },
+  {
+    featureType: "road.arterial",
     elementType: "labels",
     stylers: [
       {
@@ -318,11 +328,12 @@ export default [
       },
     ],
   },
+
   {
     featureType: "road.highway",
     stylers: [
       {
-        visibility: "off",
+        visibility: "simplified",
       },
     ],
   },
@@ -349,7 +360,7 @@ export default [
     elementType: "labels",
     stylers: [
       {
-        visibility: "simplified",
+        visibility: "on",
       },
     ],
   },
