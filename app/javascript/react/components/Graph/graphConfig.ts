@@ -4,6 +4,7 @@ import {
   AlignValue,
   ChartOptions,
   ChartZoomingOptions,
+  NavigatorOptions,
   PlotOptions,
   RangeSelectorOptions,
   ResponsiveOptions,
@@ -519,16 +520,17 @@ const getChartOptions = (
   };
 };
 
-const getNavigatorOptions = () => {
+const getNavigatorOptions = (): NavigatorOptions => {
   return {
     enabled: true,
     height: 0,
-    handleWidth: 0,
     maskFill: "none",
     outlineColor: "none",
-    series: {
-      visible: false,
-    },
+    series: [
+      {
+        visible: false,
+      },
+    ] as Highcharts.SeriesOptionsType[],
     xAxis: {
       labels: {
         enabled: false,
