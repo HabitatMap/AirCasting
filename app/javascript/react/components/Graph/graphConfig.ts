@@ -66,17 +66,14 @@ const getXAxisOptions = (
   isMobile: boolean,
   rangeDisplayRef: React.RefObject<HTMLDivElement> | undefined,
   fixedSessionTypeSelected: boolean,
-  isIndoor: string | null,
   dispatch: any,
   isLoading: boolean,
-  isIndoorParameterInUrl: boolean,
   afterSetExtremesHandler?: (
     event: Highcharts.AxisSetExtremesEventObject
-  ) => void // New optional parameter
+  ) => void
 ): XAxisOptions => {
   const handleSetExtremes = debounce(
     (e: Highcharts.AxisSetExtremesEventObject) => {
-      if (isIndoorParameterInUrl) return;
       if (!isLoading && e.min !== undefined && e.max !== undefined) {
         dispatch(
           fixedSessionTypeSelected
