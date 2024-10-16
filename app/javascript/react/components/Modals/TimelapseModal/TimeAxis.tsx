@@ -25,6 +25,35 @@ const TimeAxis: React.FC<TimeAxisProps> = ({
     return (step / (totalSteps - 1)) * 100;
   }, [currentStep, totalSteps, isDragging, dragPosition]);
 
+  const calculateStepFromPosition = useCallback(
+    (clientX: number) => {
+      const progressBar = document.querySelector(
+        ".progress-bar"
+      ) as HTMLElement;
+      const progressBarRect = progressBar.getBoundingClientRect();
+      const mousePosition = clientX - progressBarRect.left;
+      const percentage = (mousePosition / progressBarRect.width) * 100;
+      const closestStep = Math.round((percentage / 100) * (totalSteps - 1));
+
+      return Math.max(0, Math.min(totalSteps - 1, closestStep));
+    },
+    [totalSteps]
+  );
+
+  const handleClick = useCallback(
+    (e: React.MouseEvent<Element> | React.TouchEvent<Element>) => {
+      let clientX: number;
+      if ("touches" in e) {
+        clientX = e.touches[0].clientX;
+      } else {
+        clientX = e.clientX;
+      }
+      const closestStep = calculateStepFromPosition(clientX);
+      onStepChange(closestStep);
+    },
+    [calculateStepFromPosition, onStepChange]
+  );
+
   const handleStart = useCallback((e: React.MouseEvent | React.TouchEvent) => {
     e.preventDefault();
     setIsDragging(true);
@@ -41,17 +70,10 @@ const TimeAxis: React.FC<TimeAxisProps> = ({
         clientX = e.clientX;
       }
 
-      const progressBar = document.querySelector(
-        ".progress-bar"
-      ) as HTMLElement;
-      const progressBarRect = progressBar.getBoundingClientRect();
-      const mousePosition = clientX - progressBarRect.left;
-      const percentage = (mousePosition / progressBarRect.width) * 100;
-      const closestStep = Math.round((percentage / 100) * (totalSteps - 1));
-
-      setDragPosition(Math.max(0, Math.min(totalSteps - 1, closestStep)));
+      const closestStep = calculateStepFromPosition(clientX);
+      setDragPosition(closestStep);
     },
-    [isDragging, totalSteps]
+    [isDragging, calculateStepFromPosition]
   );
 
   const handleEnd = useCallback(() => {
@@ -132,8 +154,8 @@ const TimeAxis: React.FC<TimeAxisProps> = ({
         </S.DateContainer>
         <S.ProgressBar
           className="progress-bar"
-          onMouseDown={handleStart}
-          onTouchStart={handleStart}
+          onMouseDown={handleClick}
+          onTouchStart={handleClick}
         >
           <S.ProgressFiller style={{ width: `${progressPercentage}%` }} />
           <S.RoundMarker
@@ -167,7 +189,7 @@ const TimeAxis: React.FC<TimeAxisProps> = ({
       </S.DesktopAxisContainer>
 
       <S.MobileAxisContainer>
-        <S.ProgressBar className="progress-bar" onTouchStart={handleStart}>
+        <S.ProgressBar className="progress-bar" onTouchStart={handleClick}>
           <S.ProgressFiller style={{ width: `${progressPercentage}%` }} />
           <S.RoundMarker
             $position={progressPercentage}
