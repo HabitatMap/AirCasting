@@ -12,7 +12,7 @@ import {
 } from "highcharts";
 import { debounce } from "lodash";
 
-import Highcharts from "highcharts";
+import Highcharts from "highcharts/highstock"; // Ensure Highcharts Stock is used
 import { TFunction } from "i18next";
 import {
   blue,
@@ -60,7 +60,7 @@ const getScrollbarOptions = (isCalendarPage: boolean, isMobile: boolean) => {
   };
 };
 
-// Updated getXAxisOptions to accept afterSetExtremesHandler
+// Simplified getXAxisOptions with optional afterSetExtremesHandler
 const getXAxisOptions = (
   isMobile: boolean,
   rangeDisplayRef: React.RefObject<HTMLDivElement> | undefined,
@@ -87,7 +87,7 @@ const getXAxisOptions = (
           e.min,
           e.max
         );
-        // Dirty workaround to update timerange display in the graph
+        // Update timerange display in the graph
         if (rangeDisplayRef?.current) {
           rangeDisplayRef.current.innerHTML = `
             <div class="time-container">
@@ -103,7 +103,7 @@ const getXAxisOptions = (
         }
       }
     },
-    100
+    300 // Increased debounce delay to 300ms
   );
 
   return {
@@ -128,7 +128,7 @@ const getXAxisOptions = (
       width: 2,
     },
     visible: true,
-    minRange: 10000,
+    minRange: MILLISECONDS_IN_A_DAY, // Set minRange to 1 day
     ordinal: false,
     events: {
       afterSetExtremes: function (
