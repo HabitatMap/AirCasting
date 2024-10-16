@@ -8,7 +8,6 @@ import React, {
 import moment from "moment";
 import { DateFormat } from "../../../types/dateFormat";
 import * as S from "./TimelapseComponent.style";
-import { use } from "i18next";
 import useScreenSizeDetection from "../../../utils/useScreenSizeDetection";
 
 interface TimeAxisProps {
@@ -24,7 +23,7 @@ const TimeAxis: React.FC<TimeAxisProps> = ({
   timestamps,
   onStepChange,
 }) => {
-  const isMobile2 = useScreenSizeDetection(768);
+  const isMobile = useScreenSizeDetection(768);
   const progressBarRef = useRef<HTMLDivElement | null>(null);
   const [isDragging, setIsDragging] = useState(false);
   const [dragPosition, setDragPosition] = useState<number | null>(null);
@@ -159,7 +158,7 @@ const TimeAxis: React.FC<TimeAxisProps> = ({
 
   return (
     <>
-      {!isMobile2 ? (
+      {!isMobile ? (
         <S.DesktopAxisContainer>
           <S.DateContainer>
             <S.Time>{firstFormattedTime}</S.Time>

@@ -6,7 +6,7 @@ const useScreenSizeDetection = (maxWidth = screenSizes.desktop) => {
 
   useEffect(() => {
     const handleResize = () => {
-      setIsMobile(window.innerWidth < maxWidth);
+      setIsMobile(window.innerWidth <= maxWidth);
     };
 
     window.addEventListener("resize", handleResize);
