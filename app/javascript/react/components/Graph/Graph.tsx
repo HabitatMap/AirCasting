@@ -251,8 +251,8 @@ const Graph: React.FC<GraphProps> = React.memo(
 
     useEffect(() => {
       setIsMaxRangeFetched(false);
-      setFetchCount(0); // Reset fetch count when streamId changes
-      setHasMoreData(true); // Reset hasMoreData when streamId changes
+      setFetchCount(0);
+      setHasMoreData(true);
     }, [streamId]);
 
     // Handler for afterSetExtremes to fetch more data
