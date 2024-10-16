@@ -126,7 +126,7 @@ const getXAxisOptions = (
       width: 2,
     },
     visible: true,
-    minRange: MILLISECONDS_IN_A_DAY, // Set minRange to 1 day
+    minRange: 10000,
     ordinal: false,
     events: {
       afterSetExtremes: function (
