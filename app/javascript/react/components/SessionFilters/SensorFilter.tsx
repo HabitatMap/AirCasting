@@ -186,7 +186,6 @@ export const MobileDeviceSensorFilter = ({
   const { t } = useTranslation();
   const {
     measurementType,
-    setUrlParams,
     sessionType,
     sensorName,
     currentUserSettings,
@@ -204,7 +203,14 @@ export const MobileDeviceSensorFilter = ({
       dispatch(setBasicSensorsModalOpen(false));
       dispatch(setFetchingData(true));
     },
-    [sensors, isMobile, currentUserSettings, isIndoor, setUrlParams, dispatch]
+    [
+      sensors,
+      isMobile,
+      currentUserSettings,
+      isIndoor,
+      setSensorParams,
+      dispatch,
+    ]
   );
 
   const handleShowMoreClick = () => {
