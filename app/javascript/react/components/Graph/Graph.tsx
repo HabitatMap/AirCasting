@@ -28,11 +28,15 @@ import { useMapParams } from "../../utils/mapParamsHandler";
 import useMobileDetection from "../../utils/useScreenSizeDetection";
 
 import { gray300 } from "../../assets/styles/colors";
-import { MILLISECONDS_IN_A_DAY } from "../../utils/timeRanges";
+import {
+  MILLISECONDS_IN_A_DAY,
+  MILLISECONDS_IN_A_THREE_MONTHS,
+} from "../../utils/timeRanges";
 import { handleLoad } from "./chartEvents";
 import * as S from "./Graph.style";
 import {
   getChartOptions,
+  getNavigatorOptions,
   getPlotOptions,
   getRangeSelectorOptions,
   getResponsiveOptions,
@@ -81,6 +85,7 @@ const Graph: React.FC<GraphProps> = React.memo(
       number | null
     >(null);
     const [isFetchingMore, setIsFetchingMore] = useState<boolean>(false);
+    const [hasMoreData, setHasMoreData] = useState<boolean>(true); // New State
 
     const isIndoorParameterInUrl = isIndoor === "true";
 
@@ -106,7 +111,13 @@ const Graph: React.FC<GraphProps> = React.memo(
         const firstDataPoint = fixedSessionTypeSelected
           ? (seriesData[0] as [number, number])[0]
           : (seriesData[0] as { x: number }).x;
-        setEarliestFetchedTime(firstDataPoint);
+
+        if (firstDataPoint !== undefined && firstDataPoint !== null) {
+          setEarliestFetchedTime(firstDataPoint);
+          console.log("Initialized earliestFetchedTime:", firstDataPoint);
+        } else {
+          console.warn("First data point is undefined or null:", seriesData[0]);
+        }
       }
     }, [seriesData, fixedSessionTypeSelected]);
 
@@ -193,20 +204,49 @@ const Graph: React.FC<GraphProps> = React.memo(
     // Handler for afterSetExtremes to fetch more data
     const handleAfterSetExtremes = useCallback(
       (event: Highcharts.AxisSetExtremesEventObject) => {
-        // Check if already fetching to prevent duplicate requests
-        if (isFetchingMore || !earliestFetchedTime) return;
+        // Check if already fetching, streamId is null, earliestFetchedTime is not set, or no more data to fetch
+        if (
+          isFetchingMore ||
+          !earliestFetchedTime ||
+          !streamId ||
+          !hasMoreData
+        ) {
+          console.log(
+            "Fetch aborted: isFetchingMore =",
+            isFetchingMore,
+            "earliestFetchedTime =",
+            earliestFetchedTime,
+            "streamId =",
+            streamId,
+            "hasMoreData =",
+            hasMoreData
+          );
+          return;
+        }
 
-        // Define a small delta (e.g., 1 day in milliseconds)
-        const delta = MILLISECONDS_IN_A_DAY;
+        // Define deltas
+        const deltaOneDay = MILLISECONDS_IN_A_DAY;
+        const deltaThreeMonths = MILLISECONDS_IN_A_THREE_MONTHS; // 3 months
 
-        if (event.min <= earliestFetchedTime + delta) {
+        // Condition to fetch additional data
+        if (event.min <= earliestFetchedTime + deltaOneDay) {
           setIsFetchingMore(true);
 
-          const newStartTime = earliestFetchedTime - MILLISECONDS_IN_A_DAY; // Fetch 1 day earlier
+          const newStartTime = earliestFetchedTime - deltaThreeMonths; // Fetch 3 months earlier
           const newEndTime = earliestFetchedTime;
 
+          if (isNaN(newStartTime) || isNaN(newEndTime)) {
+            console.error(
+              "Invalid newStartTime or newEndTime:",
+              newStartTime,
+              newEndTime
+            );
+            setIsFetchingMore(false);
+            return;
+          }
+
           console.log(
-            "Fetching additional data from:",
+            "Fetching additional 3 months data from:",
             newStartTime,
             "to:",
             newEndTime
@@ -214,14 +254,20 @@ const Graph: React.FC<GraphProps> = React.memo(
 
           dispatch(
             fetchMeasurements({
-              streamId: streamId as number,
+              streamId: streamId, // Already confirmed not null
               startTime: newStartTime.toString(),
               endTime: newEndTime.toString(),
             })
           )
             .unwrap()
-            .then(() => {
-              setEarliestFetchedTime(newStartTime);
+            .then((fetchedData) => {
+              if (fetchedData.length === 0) {
+                console.log("No more data to fetch.");
+                setHasMoreData(false);
+              } else {
+                setEarliestFetchedTime(newStartTime);
+                console.log("Successfully fetched 3 months of data.");
+              }
               setIsFetchingMore(false);
             })
             .catch((error) => {
@@ -230,7 +276,15 @@ const Graph: React.FC<GraphProps> = React.memo(
             });
         }
       },
-      [earliestFetchedTime, isFetchingMore, dispatch, streamId]
+      [
+        earliestFetchedTime,
+        isFetchingMore,
+        dispatch,
+        streamId,
+        hasMoreData,
+        MILLISECONDS_IN_A_DAY,
+        MILLISECONDS_IN_A_THREE_MONTHS,
+      ]
     );
 
     // Configuration Options
@@ -304,6 +358,8 @@ const Graph: React.FC<GraphProps> = React.memo(
       [thresholdsState, isMobile]
     );
 
+    const navigatorOptions = useMemo(() => getNavigatorOptions(), []);
+
     const scrollbarOptions = useMemo(
       () => getScrollbarOptions(isCalendarPage, isMobile),
       [isCalendarPage, isMobile]
@@ -366,9 +422,7 @@ const Graph: React.FC<GraphProps> = React.memo(
         responsive,
         tooltip: tooltipOptions,
         scrollbar: scrollbarOptions,
-        navigator: {
-          enabled: true, // Enable navigator for better data navigation
-        },
+        navigator: navigatorOptions,
         rangeSelector: {
           ...rangeSelectorOptions,
           buttons: rangeSelectorButtons,
@@ -400,6 +454,7 @@ const Graph: React.FC<GraphProps> = React.memo(
         scrollbarOptions,
         rangeSelectorOptions,
         rangeSelectorButtons,
+        navigatorOptions,
       ]
     );
 
