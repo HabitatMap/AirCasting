@@ -1,5 +1,5 @@
 import { useCombobox } from "downshift";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 
 import { TRUE } from "../../const/booleans";
@@ -38,6 +38,8 @@ const TagsInput = () => {
     isIndoor,
     isActive,
   } = useMapParams();
+
+  const isFirstRender = useRef(true);
 
   const tagsToSelect = useAppSelector(selectTags);
 
@@ -119,10 +121,16 @@ const TagsInput = () => {
   }, [tagsToSelect]);
 
   useEffect(() => {
-    setTimeout(() => {
+    if (isFirstRender.current) {
+      isFirstRender.current = false;
+      return;
+    }
+    const timer = setTimeout(() => {
       dispatch(setFetchingData(true));
     }, 200);
-  }, [tags]);
+
+    return () => clearTimeout(timer);
+  }, [tags, dispatch]);
 
   return (
     <S.Wrapper>

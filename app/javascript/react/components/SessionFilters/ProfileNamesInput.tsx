@@ -1,5 +1,5 @@
 import { useCombobox } from "downshift";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 
 import { TRUE } from "../../const/booleans";
@@ -38,6 +38,8 @@ const ProfileNamesInput = () => {
     isIndoor,
     isActive,
   } = useMapParams();
+
+  const isFirstRender = useRef(true);
 
   const profileNames = useAppSelector(selectUsernames);
   const isIndoorParameterInUrl = isIndoor === TRUE;
@@ -120,10 +122,16 @@ const ProfileNamesInput = () => {
   }, [profileNames]);
 
   useEffect(() => {
-    setTimeout(() => {
-      dispatch(setFetchingData(true));
-    }, 200);
-  }, [usernames]);
+    if (isFirstRender.current) {
+      isFirstRender.current = false;
+      return;
+    } else {
+      const timer = setTimeout(() => {
+        dispatch(setFetchingData(true));
+      }, 200);
+      return () => clearTimeout(timer);
+    }
+  }, [usernames, dispatch]);
 
   return (
     <S.Wrapper>
