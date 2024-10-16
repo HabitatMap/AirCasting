@@ -86,8 +86,8 @@ const Graph: React.FC<GraphProps> = React.memo(
         : selectMobileStreamShortInfo
     );
 
-    const startTimeStr = streamShortInfo.startTime; // e.g., '08/12/2022 13:58'
-    const endTimeStr = streamShortInfo.endTime; // e.g., '10/15/2024 13:23'
+    const startTimeStr = streamShortInfo.startTime;
+    const endTimeStr = streamShortInfo.endTime;
 
     const startTime = useMemo(
       () => parseDateString(startTimeStr),
@@ -359,7 +359,7 @@ const Graph: React.FC<GraphProps> = React.memo(
         isAirBeam,
         MILLISECONDS_IN_A_DAY,
         MILLISECONDS_IN_A_THREE_MONTHS,
-        startTime, // Added dependency
+        startTime,
       ]
     );
 
@@ -370,11 +370,9 @@ const Graph: React.FC<GraphProps> = React.memo(
           isMobile,
           rangeDisplayRef,
           fixedSessionTypeSelected,
-          isIndoor,
           dispatch,
           isLoading,
-          isIndoorParameterInUrl,
-          handleAfterSetExtremes // Pass the handler here
+          handleAfterSetExtremes
         ),
       [
         isMobile,
