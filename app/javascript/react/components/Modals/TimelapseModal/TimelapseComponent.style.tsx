@@ -223,7 +223,7 @@ const StepMarker = styled.div<{
   height: 0.6rem;
   background-color: ${({ $isActive }) => ($isActive ? acBlue : white)};
   transform: scale(1);
-  transition: transform 0.2s ease-in-out;
+  transition: background-color 0.4s ease-in-out;
   @media ${media.smallDesktop} {
     height: 1.4rem;
     background-color: ${({ $isActive }) => ($isActive ? acBlue : gray500)};

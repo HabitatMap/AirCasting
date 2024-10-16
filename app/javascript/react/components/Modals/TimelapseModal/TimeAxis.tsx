@@ -41,7 +41,6 @@ const TimeAxis: React.FC<TimeAxisProps> = ({
       const relativePosition = clientX - progressBarRect.left;
       const percentage = (relativePosition / progressBarRect.width) * 100;
       const closestStep = Math.round((percentage / 100) * (totalSteps - 1));
-
       return Math.max(0, Math.min(totalSteps - 1, closestStep));
     },
     [totalSteps]
@@ -153,7 +152,9 @@ const TimeAxis: React.FC<TimeAxisProps> = ({
   }, [lastTimestamp]);
 
   const isStepActive = (index: number) => {
-    return dragPosition !== null ? index <= dragPosition : index <= currentStep;
+    const stepPosition = (index / (totalSteps - 1)) * 100;
+    const margin = 0.5;
+    return progressPercentage >= stepPosition - margin;
   };
 
   return (
