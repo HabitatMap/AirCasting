@@ -1,7 +1,15 @@
-import React, { useState, useEffect, useCallback, useMemo } from "react";
+import React, {
+  useState,
+  useEffect,
+  useCallback,
+  useMemo,
+  useRef,
+} from "react";
 import moment from "moment";
 import { DateFormat } from "../../../types/dateFormat";
 import * as S from "./TimelapseComponent.style";
+import { use } from "i18next";
+import useScreenSizeDetection from "../../../utils/useScreenSizeDetection";
 
 interface TimeAxisProps {
   currentStep: number;
@@ -16,6 +24,8 @@ const TimeAxis: React.FC<TimeAxisProps> = ({
   timestamps,
   onStepChange,
 }) => {
+  const isMobile2 = useScreenSizeDetection(768);
+  const progressBarRef = useRef<HTMLDivElement | null>(null);
   const [isDragging, setIsDragging] = useState(false);
   const [dragPosition, setDragPosition] = useState<number | null>(null);
 
@@ -27,12 +37,10 @@ const TimeAxis: React.FC<TimeAxisProps> = ({
 
   const calculateStepFromPosition = useCallback(
     (clientX: number) => {
-      const progressBar = document.querySelector(
-        ".progress-bar"
-      ) as HTMLElement;
-      const progressBarRect = progressBar.getBoundingClientRect();
-      const mousePosition = clientX - progressBarRect.left;
-      const percentage = (mousePosition / progressBarRect.width) * 100;
+      if (!progressBarRef.current) return 0;
+      const progressBarRect = progressBarRef.current.getBoundingClientRect();
+      const relativePosition = clientX - progressBarRect.left;
+      const percentage = (relativePosition / progressBarRect.width) * 100;
       const closestStep = Math.round((percentage / 100) * (totalSteps - 1));
 
       return Math.max(0, Math.min(totalSteps - 1, closestStep));
@@ -88,8 +96,8 @@ const TimeAxis: React.FC<TimeAxisProps> = ({
     if (isDragging) {
       document.addEventListener("mousemove", handleMove);
       document.addEventListener("mouseup", handleEnd);
-      document.addEventListener("touchmove", handleMove);
-      document.addEventListener("touchend", handleEnd);
+      document.addEventListener("touchmove", handleMove, { passive: false });
+      document.addEventListener("touchend", handleEnd, { passive: false });
     } else {
       document.removeEventListener("mousemove", handleMove);
       document.removeEventListener("mouseup", handleEnd);
@@ -145,71 +153,87 @@ const TimeAxis: React.FC<TimeAxisProps> = ({
     );
   }, [lastTimestamp]);
 
+  const isStepActive = (index: number) => {
+    return dragPosition !== null ? index <= dragPosition : index <= currentStep;
+  };
+
   return (
     <>
-      <S.DesktopAxisContainer>
-        <S.DateContainer>
-          <S.Time>{firstFormattedTime}</S.Time>
-          <S.Date>{firstFormattedDate}</S.Date>
-        </S.DateContainer>
-        <S.ProgressBar
-          className="progress-bar"
-          onMouseDown={handleClick}
-          onTouchStart={handleClick}
-        >
-          <S.ProgressFiller style={{ width: `${progressPercentage}%` }} />
-          <S.RoundMarker
-            $position={progressPercentage}
-            onMouseDown={handleStart}
-            onTouchStart={handleStart}
+      {!isMobile2 ? (
+        <S.DesktopAxisContainer>
+          <S.DateContainer>
+            <S.Time>{firstFormattedTime}</S.Time>
+            <S.Date>{firstFormattedDate}</S.Date>
+          </S.DateContainer>
+          <S.ProgressBar
+            ref={progressBarRef}
+            onMouseDown={handleClick}
+            onTouchStart={handleClick}
           >
-            <S.Tooltip>
-              <span>{currentTime}</span>
-              <span>{currentDate}</span>
-            </S.Tooltip>
-          </S.RoundMarker>
-          <S.StepMarkers>
-            {timestamps.map((_, index) => {
-              const position = (index / (totalSteps - 1)) * 100;
-              return (
-                <S.StepMarker
-                  key={index}
-                  $isActive={index <= currentStep}
-                  $isCurrent={index === currentStep}
-                  $position={position}
-                />
-              );
-            })}
-          </S.StepMarkers>
-        </S.ProgressBar>
-        <S.DateContainer>
-          <S.Time>{lastFormattedTime}</S.Time>
-          <S.Date>{lastFormattedDate}</S.Date>
-        </S.DateContainer>
-      </S.DesktopAxisContainer>
-
-      <S.MobileAxisContainer>
-        <S.ProgressBar className="progress-bar" onTouchStart={handleClick}>
-          <S.ProgressFiller style={{ width: `${progressPercentage}%` }} />
-          <S.RoundMarker
-            $position={progressPercentage}
-            onTouchStart={handleStart}
-          />
-          <S.StepMarkers>
-            {timestamps.map((_, index) => {
-              const position = (index / (totalSteps - 1)) * 100;
-              return (
-                <S.StepMarker
-                  key={index}
-                  $isActive={index <= currentStep}
-                  $isCurrent={index === currentStep}
-                  $position={position}
-                />
-              );
-            })}
-          </S.StepMarkers>
-        </S.ProgressBar>
-      </S.MobileAxisContainer>
+            <S.ProgressFiller style={{ width: `${progressPercentage}%` }} />
+            <S.RoundMarker
+              $position={progressPercentage}
+              onMouseDown={handleStart}
+              onTouchStart={handleStart}
+            >
+              <S.Tooltip>
+                <span>{currentTime}</span>
+                <span>{currentDate}</span>
+              </S.Tooltip>
+            </S.RoundMarker>
+            <S.StepMarkers>
+              {timestamps.map((_, index) => {
+                const position = (index / (totalSteps - 1)) * 100;
+                return (
+                  <S.StepMarker
+                    key={index}
+                    $isActive={isStepActive(index)}
+                    $isCurrent={index === currentStep}
+                    $position={position}
+                  />
+                );
+              })}
+            </S.StepMarkers>
+          </S.ProgressBar>
+          <S.DateContainer>
+            <S.Time>{lastFormattedTime}</S.Time>
+            <S.Date>{lastFormattedDate}</S.Date>
+          </S.DateContainer>
+        </S.DesktopAxisContainer>
+      ) : (
+        <S.MobileAxisContainer>
+          <S.ProgressBar
+            ref={progressBarRef}
+            className="progress-bar"
+            onTouchStart={(e) => {
+              e.preventDefault();
+              handleClick(e);
+            }}
+          >
+            <S.ProgressFiller style={{ width: `${progressPercentage}%` }} />
+            <S.RoundMarker
+              $position={progressPercentage}
+              onTouchStart={(e) => {
+                e.preventDefault();
+                handleStart(e);
+              }}
+            />
+            <S.StepMarkers>
+              {timestamps.map((_, index) => {
+                const position = (index / (totalSteps - 1)) * 100;
+                return (
+                  <S.StepMarker
+                    key={index}
+                    $isActive={isStepActive(index)}
+                    $isCurrent={index === currentStep}
+                    $position={position}
+                  />
+                );
+              })}
+            </S.StepMarkers>
+          </S.ProgressBar>
+        </S.MobileAxisContainer>
+      )}
     </>
   );
 };
