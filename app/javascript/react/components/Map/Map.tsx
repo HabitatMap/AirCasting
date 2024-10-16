@@ -518,6 +518,8 @@ const Map = () => {
           newSearchParams.set(UrlParamsTypes.isActive, TRUE);
           map.setCenter(currentCenter);
           map.setZoom(currentZoom);
+          localStorage.setItem(UrlParamsTypes.sessionType, sessionType);
+          localStorage.setItem(UrlParamsTypes.isActive, TRUE);
         }
         isFirstRender.current = false;
       } else {
@@ -545,6 +547,12 @@ const Map = () => {
           newSearchParams.set(UrlParamsTypes.boundWest, west.toString());
           newSearchParams.set(UrlParamsTypes.currentCenter, currentCenter);
           newSearchParams.set(UrlParamsTypes.currentZoom, currentZoom);
+          localStorage.setItem(UrlParamsTypes.boundEast, east.toString());
+          localStorage.setItem(UrlParamsTypes.boundNorth, north.toString());
+          localStorage.setItem(UrlParamsTypes.boundSouth, south.toString());
+          localStorage.setItem(UrlParamsTypes.boundWest, west.toString());
+          localStorage.setItem(UrlParamsTypes.currentCenter, currentCenter);
+          localStorage.setItem(UrlParamsTypes.currentZoom, currentZoom);
           navigate(`?${newSearchParams.toString()}`);
         }
       }
@@ -582,6 +590,20 @@ const Map = () => {
           selectedStreamId?.toString() || ""
         );
 
+        localStorage.setItem(
+          UrlParamsTypes.previousUserSettings,
+          currentUserSettings
+        );
+        localStorage.setItem(
+          UrlParamsTypes.currentUserSettings,
+          UserSettings.CalendarView
+        );
+        localStorage.setItem(UrlParamsTypes.sessionId, id?.toString() || "");
+        localStorage.setItem(
+          UrlParamsTypes.streamId,
+          selectedStreamId?.toString() || ""
+        );
+
         navigate(`/fixed_stream?${newSearchParams.toString()}`, {
           replace: true,
         });
@@ -603,6 +625,21 @@ const Map = () => {
         UrlParamsTypes.currentUserSettings,
         UserSettings.ModalView
       );
+
+      localStorage.setItem(
+        UrlParamsTypes.previousUserSettings,
+        currentUserSettings
+      );
+      localStorage.setItem(
+        UrlParamsTypes.currentUserSettings,
+        UserSettings.ModalView
+      );
+      localStorage.setItem(UrlParamsTypes.sessionId, id?.toString() || "");
+      localStorage.setItem(
+        UrlParamsTypes.streamId,
+        selectedStreamId?.toString() || ""
+      );
+
       navigate(`?${newSearchParams.toString()}`);
     }
 
