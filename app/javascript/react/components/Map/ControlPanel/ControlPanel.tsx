@@ -21,6 +21,7 @@ const ControlPanel: React.FC = () => {
   const updateURLParams = (param: UrlParamsTypes, value: string) => {
     const newSearchParams = new URLSearchParams(searchParams);
     newSearchParams.set(param, value);
+    localStorage.setItem(param, value);
     navigate({ search: newSearchParams.toString() }, { replace: true });
   };
 

@@ -438,6 +438,10 @@ const Map = () => {
       newSearchParams.set(UrlParamsTypes.streamId, "");
       newSearchParams.set(UrlParamsTypes.isActive, isActive.toString());
       newSearchParams.set(UrlParamsTypes.sessionType, sessionType);
+      localStorage.setItem(UrlParamsTypes.sessionType, sessionType);
+      localStorage.setItem(UrlParamsTypes.isActive, isActive.toString());
+      localStorage.setItem(UrlParamsTypes.sessionId, "");
+      localStorage.setItem(UrlParamsTypes.streamId, "");
       navigate(`?${newSearchParams.toString()}`);
     }
     !isFirstRender.current && setPreviousZoomOnTheMap();
@@ -695,10 +699,18 @@ const Map = () => {
             UrlParamsTypes.previousCenter,
             JSON.stringify(newCenter || currentCenter)
           );
+          localStorage.setItem(
+            UrlParamsTypes.previousCenter,
+            JSON.stringify(newCenter || currentCenter)
+          );
         }
         const newZoom = mapInstance?.getZoom();
         if (newZoom !== previousZoom) {
           newSearchParams.set(
+            UrlParamsTypes.previousZoom,
+            newZoom?.toString() || currentZoom.toString()
+          );
+          localStorage.setItem(
             UrlParamsTypes.previousZoom,
             newZoom?.toString() || currentZoom.toString()
           );
