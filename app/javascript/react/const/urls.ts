@@ -10,6 +10,7 @@ const about = `${habitatMap}/about`;
 const airbeam = `${habitatMap}/airbeam`;
 const aircasting = `${habitatMap}/aircasting`;
 const map = "/";
+const oldMap = "/mobile_map";
 const blog = `${habitatMap}/blog`;
 const donate = `${habitatMap}/donate`;
 const press = `${habitatMap}/about/press`;
@@ -36,6 +37,7 @@ export const urls = {
   map,
   blog,
   donate,
+  oldMap,
   press,
   search,
   userStories,

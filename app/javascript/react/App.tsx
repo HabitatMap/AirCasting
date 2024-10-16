@@ -19,11 +19,14 @@ import store from "./store/index";
 
 const NEW_MAP = "/new_map";
 
+const MOBILE_MAP_PATH = "/mobile_map";
+const FIXED_MAP_PATH = "/fixed_map";
+
 const router = createBrowserRouter(
   createRoutesFromElements(
     <>
       <Route
-        path="/"
+        path={MOBILE_MAP_PATH || FIXED_MAP_PATH}
         element={
           <MapPage>
             <Navbar isMapPage={true} />

@@ -19,10 +19,10 @@ Rails.application.routes.draw do
                passwords: 'passwords',
              }
 
-  get 'map', to: redirect('/', status: 302)
-  get 'mobile_map', to: redirect('/new_map', status: 302)
-  get 'fixed_map', to: redirect('/new_map', status: 302)
-
+  get 'map', to: redirect('mobile_map', status: 302)
+get 'mobile_map' => 'maps#index'
+  get 'fixed_map' => 'maps#index'
+  
   get 's/:url_token' => 'measurement_sessions#show',
       :constraints => {
         query_string: /.+/,
