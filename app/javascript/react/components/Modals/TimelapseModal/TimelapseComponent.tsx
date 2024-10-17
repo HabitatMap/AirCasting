@@ -57,7 +57,7 @@ const TimelapseComponent: React.FC<
     if (filteredTimestamps.length > 0) {
       dispatch(setCurrentTimestamp(filteredTimestamps[0]));
     }
-  }, [timeRange, filteredTimestamps]);
+  }, [timeRange, filteredTimestamps, dispatch]);
 
   const closeHandler = useCallback(() => {
     resetTimelapse();
@@ -91,10 +91,17 @@ const TimelapseComponent: React.FC<
     dispatch(setCurrentTimestamp(filteredTimestamps[lastIndex]));
   }, [filteredTimestamps, dispatch]);
 
+  const handleStepChange = useCallback(
+    (newStep: number) => {
+      setCurrentStep(newStep);
+      dispatch(setCurrentTimestamp(filteredTimestamps[newStep]));
+    },
+    [filteredTimestamps, dispatch]
+  );
+
   const handleOverlayClick = useCallback(
     (event: MouseEvent) => {
       const targetElement = event.target as HTMLElement;
-
       const isMapButton = targetElement.closest(".active-overlay");
 
       if (
@@ -157,6 +164,7 @@ const TimelapseComponent: React.FC<
                 currentStep={currentStep}
                 totalSteps={filteredTimestamps.length}
                 timestamps={filteredTimestamps}
+                onStepChange={handleStepChange}
               />
             </S.TimeAxisContainer>
             <TimeRangeButtons />
