@@ -51,6 +51,7 @@ const CrowdMapMarkers = ({ pulsatingSessionId, sessions }: Props) => {
     boundNorth,
     boundSouth,
     boundWest,
+    currentZoom,
     gridSize,
     measurementType,
     sensorName,
@@ -95,12 +96,9 @@ const CrowdMapMarkers = ({ pulsatingSessionId, sessions }: Props) => {
         unit_symbol: encodedUnitSymbol,
         usernames: usernames,
         west: boundWest,
+        zoom: currentZoom,
       }),
     [
-      boundEast,
-      boundNorth,
-      boundSouth,
-      boundWest,
       gridSize,
       measurementType,
       mobileSessionsStreamIds,
@@ -110,6 +108,7 @@ const CrowdMapMarkers = ({ pulsatingSessionId, sessions }: Props) => {
       timeTo,
       unitSymbol,
       usernames,
+      currentZoom,
     ]
   );
 
