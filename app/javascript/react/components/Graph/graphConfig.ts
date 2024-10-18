@@ -1,3 +1,5 @@
+// graphConfig.ts
+
 import {
   AlignValue,
   ChartOptions,
@@ -10,7 +12,7 @@ import {
 } from "highcharts";
 import { debounce } from "lodash";
 
-import Highcharts from "highcharts";
+import Highcharts from "highcharts/highstock"; // Ensure Highcharts Stock is used
 import { TFunction } from "i18next";
 import {
   blue,
@@ -31,7 +33,6 @@ import { updateMobileMeasurementExtremes } from "../../store/mobileStreamSlice";
 import { LatLngLiteral } from "../../types/googleMaps";
 import { GraphData, GraphPoint } from "../../types/graph";
 import { Thresholds } from "../../types/thresholds";
-import { formatTimeExtremes } from "../../utils/measurementsCalc";
 import {
   MILLISECONDS_IN_A_5_MINUTES,
   MILLISECONDS_IN_A_DAY,
@@ -58,47 +59,34 @@ const getScrollbarOptions = (isCalendarPage: boolean, isMobile: boolean) => {
   };
 };
 
+// Simplified getXAxisOptions with optional afterSetExtremesHandler
 const getXAxisOptions = (
   isMobile: boolean,
   rangeDisplayRef: React.RefObject<HTMLDivElement> | undefined,
   fixedSessionTypeSelected: boolean,
-  isIndoor: string | null,
   dispatch: any,
   isLoading: boolean,
-  isIndoorParameterInUrl: boolean
+  afterSetExtremesHandler?: () => void // Adjusted type
 ): XAxisOptions => {
-  const handleSetExtremes = debounce(
-    (e: Highcharts.AxisSetExtremesEventObject) => {
-      if (isIndoorParameterInUrl) return;
-      if (!isLoading && e.min && e.max) {
-        dispatch(
-          fixedSessionTypeSelected
-            ? updateFixedMeasurementExtremes({ min: e.min, max: e.max })
-            : updateMobileMeasurementExtremes({ min: e.min, max: e.max })
-        );
+  const handleSetExtremes = debounce(() => {
+    if (Highcharts.charts.length === 0) return;
 
-        const { formattedMinTime, formattedMaxTime } = formatTimeExtremes(
-          e.min,
-          e.max
-        );
-        // Dirty workaround to update timerange display in the graph
-        if (rangeDisplayRef?.current) {
-          rangeDisplayRef.current.innerHTML = `
-            <div class="time-container">
-              <span class="date">${formattedMinTime.date ?? ""}</span>
-              <span class="time">${formattedMinTime.time ?? ""}</span>
-            </div>
-            <span>-</span>
-            <div class="time-container">
-              <span class="date">${formattedMaxTime.date ?? ""}</span>
-              <span class="time">${formattedMaxTime.time ?? ""}</span>
-            </div>
-          `;
-        }
-      }
-    },
-    100
-  );
+    const chart = Highcharts.charts[0];
+    if (!chart) return;
+
+    const xAxis = chart.xAxis[0];
+    const { min, max } = xAxis.getExtremes();
+
+    if (!isLoading && min !== undefined && max !== undefined) {
+      dispatch(
+        fixedSessionTypeSelected
+          ? updateFixedMeasurementExtremes({ min, max })
+          : updateMobileMeasurementExtremes({ min, max })
+      );
+
+      afterSetExtremesHandler?.();
+    }
+  }, 300); // Increased debounce delay to 300ms
 
   return {
     title: {
@@ -125,7 +113,12 @@ const getXAxisOptions = (
     minRange: 10000,
     ordinal: false,
     events: {
-      afterSetExtremes: handleSetExtremes,
+      afterSetExtremes: function (
+        this: Highcharts.Axis,
+        e: Highcharts.AxisSetExtremesEventObject
+      ) {
+        handleSetExtremes();
+      },
     },
   };
 };
@@ -223,7 +216,7 @@ const getPlotOptions = (
     series: {
       lineWidth: 2,
       color: blue,
-      turboThreshold: 9999999, //above that graph will not display
+      turboThreshold: 9999999, // above that graph will not display
       marker: {
         fillColor: blue,
         lineWidth: 0,
@@ -323,6 +316,7 @@ const getTooltipOptions = (
     fontFamily: "Roboto",
   },
 });
+
 const getRangeSelectorOptions = (
   isMobile: boolean,
   fixedSessionTypeSelected: boolean,

@@ -1,3 +1,5 @@
+// fixedStreamSlice.ts
+
 import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { AxiosResponse } from "axios";
 import { apiClient, oldApiClient } from "../api/apiClient";
@@ -103,7 +105,7 @@ export const fetchMeasurements = createAsyncThunk<
       const apiError: ApiError = {
         message,
         additionalInfo: {
-          action: "fetchFixedStreamById",
+          action: "fetchMeasurements",
           endpoint: API_ENDPOINTS.fetchMeasurements(
             streamId,
             startTime,
@@ -135,10 +137,12 @@ const fixedStreamSlice = createSlice({
         }
       );
       const values = measurementsInRange.map((m) => m.value);
-      const newMin = Math.min(...values);
-      const newMax = Math.max(...values);
+      const newMin = values.length > 0 ? Math.min(...values) : 0;
+      const newMax = values.length > 0 ? Math.max(...values) : 0;
       const newAvg =
-        values.reduce((sum, value) => sum + value, 0) / values.length;
+        values.length > 0
+          ? values.reduce((sum, value) => sum + value, 0) / values.length
+          : 0;
 
       state.minMeasurementValue = newMin;
       state.maxMeasurementValue = newMax;
@@ -181,12 +185,28 @@ const fixedStreamSlice = createSlice({
       fetchMeasurements.fulfilled,
       (state, action: PayloadAction<Measurement[]>) => {
         state.status = StatusEnum.Fulfilled;
-        state.data.measurements = action.payload;
+
+        // **Prepend** new measurements after filtering out invalid ones
+        const validNewMeasurements = action.payload.filter(
+          (m) => m.time !== undefined && m.value !== undefined
+        );
+
+        if (validNewMeasurements.length === 0) {
+          console.warn(
+            "No valid measurements received from fetchMeasurements."
+          );
+        }
+
+        state.data.measurements = [
+          ...validNewMeasurements,
+          ...state.data.measurements,
+        ].sort((a, b) => a.time - b.time); // Ensure ascending order
+
         state.isLoading = false;
         state.error = null;
 
-        if (action.payload.length > 0) {
-          const values = action.payload.map((m) => m.value);
+        if (state.data.measurements.length > 0) {
+          const values = state.data.measurements.map((m) => m.value);
           state.minMeasurementValue = Math.min(...values);
           state.maxMeasurementValue = Math.max(...values);
           state.averageMeasurementValue =
@@ -203,7 +223,8 @@ const fixedStreamSlice = createSlice({
       (state, action: PayloadAction<ApiError | undefined>) => {
         state.status = StatusEnum.Rejected;
         state.error = action.payload || { message: "Unknown error occurred" };
-        state.data = initialState.data;
+        // **Do not reset data on fetchMeasurements rejection**
+        // state.data = initialState.data; // Commented out to preserve existing data
         state.isLoading = false;
       }
     );
