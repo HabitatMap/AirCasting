@@ -1,3 +1,5 @@
+// Graph.tsx
+
 import HighchartsReact from "highcharts-react-official";
 import Highcharts, { Chart } from "highcharts/highstock";
 import NoDataToDisplay from "highcharts/modules/no-data-to-display";
@@ -31,6 +33,7 @@ import {
 import { parseDateString } from "../../utils/dateParser";
 import { useMapParams } from "../../utils/mapParamsHandler";
 import { formatTimeExtremes } from "../../utils/measurementsCalc";
+import { MILLISECONDS_IN_A_MONTH } from "../../utils/timeRanges";
 import useMobileDetection from "../../utils/useScreenSizeDetection";
 import { handleLoad } from "./chartEvents";
 import * as S from "./Graph.style";
@@ -81,7 +84,7 @@ const Graph: React.FC<GraphProps> = React.memo(
     const [fetchCount, setFetchCount] = useState(0);
     const MAX_FETCH_FETCHES = 10;
 
-    // New state to keep track of fetched ranges
+    // State to keep track of fetched ranges
     const [fetchedRanges, setFetchedRanges] = useState<
       Array<{ start: number; end: number }>
     >([]);
@@ -114,7 +117,7 @@ const Graph: React.FC<GraphProps> = React.memo(
       [startTime, endTime]
     );
 
-    // Function to check if the requested range is already fetched (adjusted for partial overlaps)
+    // Function to check if the requested range is already fetched (partial overlaps)
     const isRangeFetched = useCallback(
       (min: number, max: number) => {
         return fetchedRanges.some(
@@ -125,32 +128,40 @@ const Graph: React.FC<GraphProps> = React.memo(
     );
 
     // Function to merge new range into fetchedRanges (improved merging)
-    function mergeRanges(
-      ranges: Array<{ start: number; end: number }>,
-      newRange: { start: number; end: number }
-    ) {
-      const updatedRanges = [...ranges, newRange];
+    const mergeRanges = useCallback(
+      (
+        ranges: Array<{ start: number; end: number }>,
+        newRange: { start: number; end: number }
+      ): Array<{ start: number; end: number }> => {
+        if (ranges.length === 0) return [newRange];
 
-      // Sort ranges by start time
-      updatedRanges.sort((a, b) => a.start - b.start);
+        // Combine existing ranges with the new range
+        const updatedRanges = [...ranges, newRange];
 
-      const mergedRanges = [updatedRanges[0]];
+        // Sort ranges by start time
+        updatedRanges.sort((a, b) => a.start - b.start);
 
-      for (let i = 1; i < updatedRanges.length; i++) {
-        const lastRange = mergedRanges[mergedRanges.length - 1];
-        const currentRange = updatedRanges[i];
+        const mergedRanges: Array<{ start: number; end: number }> = [];
+        let currentRange = { ...updatedRanges[0] };
 
-        if (lastRange.end >= currentRange.start - 1) {
-          // Ranges overlap or are adjacent; merge them
-          lastRange.end = Math.max(lastRange.end, currentRange.end);
-        } else {
-          // No overlap; add the current range
-          mergedRanges.push(currentRange);
+        for (let i = 1; i < updatedRanges.length; i++) {
+          const range = updatedRanges[i];
+          if (currentRange.end >= range.start - 1) {
+            // Overlapping or adjacent ranges; merge them
+            currentRange.end = Math.max(currentRange.end, range.end);
+          } else {
+            // Non-overlapping range; push the current range and start a new one
+            mergedRanges.push(currentRange);
+            currentRange = { ...range };
+          }
         }
-      }
 
-      return mergedRanges;
-    }
+        // Push the last range
+        mergedRanges.push(currentRange);
+        return mergedRanges;
+      },
+      []
+    );
 
     const fetchDataForRange = useCallback(
       (min: number, max: number) => {
@@ -197,18 +208,26 @@ const Graph: React.FC<GraphProps> = React.memo(
         fetchCount,
         MAX_FETCH_FETCHES,
         isRangeFetched,
+        mergeRanges,
       ]
     );
 
     const handleAfterSetExtremes = useCallback(
       (e: Highcharts.AxisSetExtremesEventObject) => {
-        console.log("AfterSetExtremes:", e.min, e.max);
+        console.log("AfterSetExtremes:", e.min, e.max, "Trigger:", e.trigger);
 
-        if (e.trigger === "navigator" || e.trigger === "pan") {
+        // Include 'scrollbar' and 'undefined' triggers
+        if (
+          e.trigger === "navigator" ||
+          e.trigger === "pan" ||
+          e.trigger === "scrollbar" ||
+          e.trigger === undefined
+        ) {
           const { min, max } = e;
           fetchDataForRange(min, max);
         }
 
+        // Update time range display
         if (rangeDisplayRef?.current) {
           const { formattedMinTime, formattedMaxTime } = formatTimeExtremes(
             e.min,
@@ -264,6 +283,7 @@ const Graph: React.FC<GraphProps> = React.memo(
       },
       [isCalendarPage, isMobile]
     );
+
     const chartOptions = useMemo(
       () => getChartOptions(isCalendarPage, isMobile),
       [isCalendarPage, isMobile]
@@ -282,7 +302,6 @@ const Graph: React.FC<GraphProps> = React.memo(
           ...(fixedSessionTypeSelected
             ? {
                 min: startTime,
-                max: endTime,
               }
             : {}),
         },
@@ -311,7 +330,6 @@ const Graph: React.FC<GraphProps> = React.memo(
         navigator: {
           enabled: false,
         },
-
         responsive: getResponsiveOptions(thresholdsState, isMobile),
         legend: legendOption,
         noData: {
@@ -332,8 +350,6 @@ const Graph: React.FC<GraphProps> = React.memo(
         isCalendarPage,
         isMobile,
         xAxisOptions,
-        startTime,
-        endTime,
         thresholdsState,
         seriesData,
         measurementType,
@@ -355,10 +371,54 @@ const Graph: React.FC<GraphProps> = React.memo(
       setFetchedRanges([]);
     }, [streamId]);
 
-    // Optionally initialize fetchedRanges based on existing data
+    // Initial fetch on first render for AirBeam with fixed session type
+    useEffect(() => {
+      if (
+        streamId &&
+        fixedSessionTypeSelected &&
+        isAirBeam &&
+        fetchedRanges.length === 0
+      ) {
+        const now = Date.now();
+        const oneMonthAgo = now - MILLISECONDS_IN_A_MONTH;
+        console.log("Fetching initial one month of data:", oneMonthAgo, now);
+
+        dispatch(
+          fetchMeasurements({
+            streamId,
+            startTime: oneMonthAgo.toString(),
+            endTime: now.toString(),
+          })
+        )
+          .unwrap()
+          .then((fetchedData) => {
+            if (fetchedData.length === 0) {
+              setHasMoreData(false);
+            } else {
+              setFetchCount(1);
+              const timestamps = fetchedData.map((m) =>
+                Number(new Date(m.time).getTime())
+              );
+              const minTimestamp = Math.min(...timestamps);
+              const maxTimestamp = Math.max(...timestamps);
+              setFetchedRanges([{ start: minTimestamp, end: maxTimestamp }]);
+            }
+          })
+          .catch((error) => {
+            console.error("Error fetching initial measurements:", error);
+          });
+      }
+    }, [
+      streamId,
+      fixedSessionTypeSelected,
+      isAirBeam,
+      dispatch,
+      fetchedRanges.length,
+    ]);
+
+    // Initialize fetchedRanges based on existing data
     useEffect(() => {
       if (fixedGraphData?.measurements?.length) {
-        // Use the correct property, e.g., 'time' or 'timestamp'
         const timestamps = fixedGraphData.measurements.map((m) =>
           Number(new Date(m.time).getTime())
         );
