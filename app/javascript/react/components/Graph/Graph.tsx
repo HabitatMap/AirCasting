@@ -209,7 +209,6 @@ const Graph: React.FC<GraphProps> = React.memo(
           fetchDataForRange(min, max);
         }
 
-        // Update time range display
         if (rangeDisplayRef?.current) {
           const { formattedMinTime, formattedMaxTime } = formatTimeExtremes(
             e.min,
@@ -280,8 +279,12 @@ const Graph: React.FC<GraphProps> = React.memo(
         },
         xAxis: {
           ...xAxisOptions,
-          min: startTime,
-          max: endTime,
+          ...(fixedSessionTypeSelected
+            ? {
+                min: startTime,
+                max: endTime,
+              }
+            : {}),
         },
         yAxis: getYAxisOptions(thresholdsState, isMobile),
         series: [
