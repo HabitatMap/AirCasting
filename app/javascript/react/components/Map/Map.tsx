@@ -931,7 +931,7 @@ const Map = () => {
             JSON.stringify(newCenter || currentCenter)
           );
           Cookies.set(
-            UrlParamsTypes.currentCenter,
+            UrlParamsTypes.previousCenter,
             JSON.stringify(newCenter || currentCenter)
           );
 
@@ -951,7 +951,7 @@ const Map = () => {
             newZoom?.toString() || currentZoom.toString()
           );
           Cookies.set(
-            UrlParamsTypes.currentCenter,
+            UrlParamsTypes.previousZoom,
             newZoom?.toString() || currentZoom.toString()
           );
           // localStorage.setItem(
