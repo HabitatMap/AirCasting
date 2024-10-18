@@ -212,26 +212,22 @@ const Graph: React.FC<GraphProps> = React.memo(
       ]
     );
 
-    const handleAfterSetExtremes = useCallback(
-      (e: Highcharts.AxisSetExtremesEventObject) => {
-        console.log("AfterSetExtremes:", e.min, e.max, "Trigger:", e.trigger);
+    const handleAfterSetExtremes = useCallback(() => {
+      if (chartComponentRef.current) {
+        const chart = chartComponentRef.current.chart;
+        const xAxis = chart.xAxis[0];
+        const { min, max } = xAxis.getExtremes();
 
-        // Include 'scrollbar' and 'undefined' triggers
-        if (
-          e.trigger === "navigator" ||
-          e.trigger === "pan" ||
-          e.trigger === "scrollbar" ||
-          e.trigger === undefined
-        ) {
-          const { min, max } = e;
-          fetchDataForRange(min, max);
-        }
+        console.log("Current Extremes:", min, max);
+
+        // Fetch data for the current range
+        fetchDataForRange(min, max);
 
         // Update time range display
         if (rangeDisplayRef?.current) {
           const { formattedMinTime, formattedMaxTime } = formatTimeExtremes(
-            e.min,
-            e.max
+            min,
+            max
           );
           rangeDisplayRef.current.innerHTML = `
             <div class="time-container">
@@ -245,9 +241,8 @@ const Graph: React.FC<GraphProps> = React.memo(
             </div>
           `;
         }
-      },
-      [fetchDataForRange, rangeDisplayRef]
-    );
+      }
+    }, [fetchDataForRange, rangeDisplayRef]);
 
     const xAxisOptions = useMemo(
       () =>

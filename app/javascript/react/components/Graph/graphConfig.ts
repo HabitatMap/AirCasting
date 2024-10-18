@@ -33,7 +33,6 @@ import { updateMobileMeasurementExtremes } from "../../store/mobileStreamSlice";
 import { LatLngLiteral } from "../../types/googleMaps";
 import { GraphData, GraphPoint } from "../../types/graph";
 import { Thresholds } from "../../types/thresholds";
-import { formatTimeExtremes } from "../../utils/measurementsCalc";
 import {
   MILLISECONDS_IN_A_5_MINUTES,
   MILLISECONDS_IN_A_DAY,
@@ -67,41 +66,27 @@ const getXAxisOptions = (
   fixedSessionTypeSelected: boolean,
   dispatch: any,
   isLoading: boolean,
-  afterSetExtremesHandler?: (
-    event: Highcharts.AxisSetExtremesEventObject
-  ) => void
+  afterSetExtremesHandler?: () => void // Adjusted type
 ): XAxisOptions => {
-  const handleSetExtremes = debounce(
-    (e: Highcharts.AxisSetExtremesEventObject) => {
-      if (!isLoading && e.min !== undefined && e.max !== undefined) {
-        dispatch(
-          fixedSessionTypeSelected
-            ? updateFixedMeasurementExtremes({ min: e.min, max: e.max })
-            : updateMobileMeasurementExtremes({ min: e.min, max: e.max })
-        );
+  const handleSetExtremes = debounce(() => {
+    if (Highcharts.charts.length === 0) return;
 
-        const { formattedMinTime, formattedMaxTime } = formatTimeExtremes(
-          e.min,
-          e.max
-        );
-        // Update timerange display in the graph
-        if (rangeDisplayRef?.current) {
-          rangeDisplayRef.current.innerHTML = `
-            <div class="time-container">
-              <span class="date">${formattedMinTime.date ?? ""}</span>
-              <span class="time">${formattedMinTime.time ?? ""}</span>
-            </div>
-            <span>-</span>
-            <div class="time-container">
-              <span class="date">${formattedMaxTime.date ?? ""}</span>
-              <span class="time">${formattedMaxTime.time ?? ""}</span>
-            </div>
-          `;
-        }
-      }
-    },
-    300 // Increased debounce delay to 300ms
-  );
+    const chart = Highcharts.charts[0];
+    if (!chart) return;
+
+    const xAxis = chart.xAxis[0];
+    const { min, max } = xAxis.getExtremes();
+
+    if (!isLoading && min !== undefined && max !== undefined) {
+      dispatch(
+        fixedSessionTypeSelected
+          ? updateFixedMeasurementExtremes({ min, max })
+          : updateMobileMeasurementExtremes({ min, max })
+      );
+
+      afterSetExtremesHandler?.();
+    }
+  }, 300); // Increased debounce delay to 300ms
 
   return {
     title: {
@@ -132,10 +117,7 @@ const getXAxisOptions = (
         this: Highcharts.Axis,
         e: Highcharts.AxisSetExtremesEventObject
       ) {
-        handleSetExtremes(e);
-        if (afterSetExtremesHandler) {
-          afterSetExtremesHandler(e);
-        }
+        handleSetExtremes();
       },
     },
   };
