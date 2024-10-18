@@ -37,7 +37,7 @@ const LocationSearch: React.FC<LocationSearchProps> = ({
   const [inputValue, setInputValue] = useState("");
   const { t } = useTranslation();
   const map = useMap();
-  const { setUrlAndLocalStorageParams } = useMapParams();
+  const { setUrlParams } = useMapParams();
   const {
     setValue,
     suggestions: { status, data },
@@ -80,7 +80,7 @@ const LocationSearch: React.FC<LocationSearchProps> = ({
     const results = await getGeocode({ address: item.description });
     const { lat, lng } = await getLatLng(results[0]);
     const zoomLevel = determineZoomLevel(results);
-    setUrlAndLocalStorageParams([
+    setUrlParams([
       {
         key: UrlParamsTypes.currentCenter,
         value: JSON.stringify({ lat, lng }),

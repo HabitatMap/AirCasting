@@ -42,12 +42,8 @@ const CustomParameterFilter: React.FC<CustomParameterFilterProps> = ({
   const [inputValue, setInputValue] = useState<string>("");
   const [selectedItem, setSelectedItem] = useState<string>("");
 
-  const {
-    setUrlAndLocalStorageParams,
-    sessionType,
-    currentUserSettings,
-    measurementType,
-  } = useMapParams();
+  const { setUrlParams, sessionType, currentUserSettings, measurementType } =
+    useMapParams();
   const isMobile = useMobileDetection();
   const sensors = useAppSelector(selectSensors);
   const dispatch = useAppDispatch();
@@ -68,7 +64,7 @@ const CustomParameterFilter: React.FC<CustomParameterFilterProps> = ({
     onSelectedItemChange: ({ selectedItem: newSelectedItem }) => {
       if (newSelectedItem) {
         const sensorData = setSensor(newSelectedItem, sensors, sessionType);
-        setUrlAndLocalStorageParams([
+        setUrlParams([
           {
             key: UrlParamsTypes.previousUserSettings,
             value: currentUserSettings,
