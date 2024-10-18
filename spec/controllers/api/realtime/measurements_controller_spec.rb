@@ -137,5 +137,14 @@ describe Api::Realtime::MeasurementsController do
         expect { subject }.to_not change(Stream, :count)
       end
     end
+
+    context 'when session & stream already exists' do
+      let!(:session) { FactoryBot.create(:fixed_session, user: user, uuid: session_uuid) }
+      let!(:stream) { FactoryBot.create(:stream, session: session, sensor_name: 'Phone Microphone') }
+
+      it 'does not create new stream' do
+        expect { subject }.to_not change(Stream, :count)
+      end
+    end
   end
 end
