@@ -31,6 +31,7 @@ import {
 import { Sensor, SENSOR_NAMES, SensorPrefix } from "../types/sensors";
 import { UserSettings } from "../types/userStates";
 import useMobileDetection from "../utils/useScreenSizeDetection";
+import * as Cookies from "./cookies";
 import { setSensor } from "./setSensor";
 
 export enum UrlParamsTypes {
@@ -74,13 +75,44 @@ export const useMapParams = () => {
   const isMobile: boolean = useMobileDetection();
   const [searchParams, setSearchParams] = useSearchParams();
 
+  // const getStoredOrSearchParam = useCallback(
+  //   (param: UrlParamsTypes, defaultValue: string | null): string | null => {
+  //     const storedValue = localStorage.getItem(param);
+  //     const sessionStoredValue = sessionStorage.getItem(param);
+
+  //     if (searchParams.get(param)) {
+  //       return searchParams.get(param);
+  //       // } else if (sessionStoredValue === null && storedValue !== null) {
+  //       //   return storedValue;
+  //     } else if (sessionStoredValue == null && sessionStoredValue !== null) {
+  //       return storedValue;
+  //     }
+  //     // jeśli sessionStorage jest puste to weź z localStorage, a tak to z session
+  //     // else if (storedValue !== null) {
+  //     //   return storedValue;
+  //     // }
+  //     else {
+  //       return defaultValue;
+  //     }
+  //   },
+  //   [searchParams, setSearchParams]
+  // );
+
   const getStoredOrSearchParam = (
     param: UrlParamsTypes,
     defaultValue: string | null
+  ): string | null => searchParams.get(param) ?? defaultValue;
+
+  const getStoredParam = (
+    param: UrlParamsTypes,
+    defaultValue: string | null
   ): string | null => {
-    const storedValue = localStorage.getItem(param);
-    return storedValue !== null
-      ? storedValue
+    // const storedValue = localStorage.getItem(param);
+    const cookieValue = Cookies.get(param);
+    const isVisited = sessionStorage.getItem("isVisited");
+
+    return isVisited === null && cookieValue !== null
+      ? cookieValue
       : searchParams.get(param) ?? defaultValue;
   };
 
@@ -89,7 +121,8 @@ export const useMapParams = () => {
       const newSearchParams = new URLSearchParams(searchParams.toString());
       params.forEach(({ key, value }) => {
         newSearchParams.set(key, value);
-        localStorage.setItem(key, value);
+        // localStorage.setItem(key, value);
+        // sessionStorage.setItem(key, value);
       });
       setSearchParams(`?${newSearchParams.toString()}`);
     },
@@ -97,25 +130,25 @@ export const useMapParams = () => {
   );
 
   const boundEast = parseFloat(
-    getStoredOrSearchParam(
+    getStoredParam(
       UrlParamsTypes.boundEast,
       DEFAULT_MAP_BOUNDS.east.toString()
     )!
   );
   const boundNorth = parseFloat(
-    getStoredOrSearchParam(
+    getStoredParam(
       UrlParamsTypes.boundNorth,
       DEFAULT_MAP_BOUNDS.north.toString()
     )!
   );
   const boundSouth = parseFloat(
-    getStoredOrSearchParam(
+    getStoredParam(
       UrlParamsTypes.boundSouth,
       DEFAULT_MAP_BOUNDS.south.toString()
     )!
   );
   const boundWest = parseFloat(
-    getStoredOrSearchParam(
+    getStoredParam(
       UrlParamsTypes.boundWest,
       DEFAULT_MAP_BOUNDS.west.toString()
     )!
@@ -123,7 +156,7 @@ export const useMapParams = () => {
   const currentCenter = useMemo(
     () =>
       JSON.parse(
-        getStoredOrSearchParam(
+        getStoredParam(
           UrlParamsTypes.currentCenter,
           JSON.stringify(DEFAULT_MAP_CENTER)
         )!
@@ -135,7 +168,7 @@ export const useMapParams = () => {
     UserSettings.MapView
   ) as UserSettings;
   const currentZoom = parseFloat(
-    getStoredOrSearchParam(UrlParamsTypes.currentZoom, DEFAULT_ZOOM.toString())!
+    getStoredParam(UrlParamsTypes.currentZoom, DEFAULT_ZOOM.toString())!
   );
 
   const isIndoor = getStoredOrSearchParam(UrlParamsTypes.isIndoor, FALSE);
@@ -428,6 +461,7 @@ export const useMapParams = () => {
         UrlParamsTypes.thresholdMax,
         thresholdValues.max.toString()
       );
+
     debouncedUpdateURL(queryParams);
     localStorage.setItem(
       UrlParamsTypes.thresholdMin,
@@ -449,6 +483,26 @@ export const useMapParams = () => {
       UrlParamsTypes.thresholdMax,
       thresholdValues.max.toString()
     );
+    // sessionStorage.setItem(
+    //   UrlParamsTypes.thresholdMin,
+    //   thresholdValues.min.toString()
+    // );
+    // sessionStorage.setItem(
+    //   UrlParamsTypes.thresholdLow,
+    //   thresholdValues.low.toString()
+    // );
+    // sessionStorage.setItem(
+    //   UrlParamsTypes.thresholdMiddle,
+    //   thresholdValues.middle.toString()
+    // );
+    // sessionStorage.setItem(
+    //   UrlParamsTypes.thresholdHigh,
+    //   thresholdValues.high.toString()
+    // );
+    // sessionStorage.setItem(
+    //   UrlParamsTypes.thresholdMax,
+    //   thresholdValues.max.toString()
+    // );
   }, [thresholdValues]);
 
   const goToUserSettings = useCallback(

@@ -14,8 +14,13 @@ import clockIcon from "../../assets/icons/clockIcon.svg";
 import filterIcon from "../../assets/icons/filterIcon.svg";
 import mapLegend from "../../assets/icons/mapLegend.svg";
 import pinImage from "../../assets/icons/pinImage.svg";
-import { TRUE } from "../../const/booleans";
-import { MIN_ZOOM } from "../../const/coordinates";
+import { FALSE, TRUE } from "../../const/booleans";
+import {
+  DEFAULT_MAP_BOUNDS,
+  DEFAULT_MAP_CENTER,
+  DEFAULT_ZOOM,
+  MIN_ZOOM,
+} from "../../const/coordinates";
 import { RootState, selectIsLoading } from "../../store";
 import {
   selectFixedSessionsList,
@@ -70,9 +75,11 @@ import {
   selectTimelapseData,
 } from "../../store/timelapseSelectors";
 import { fetchTimelapseData } from "../../store/timelapseSlice";
-import { SessionTypes } from "../../types/filters";
+import { ParameterTypes, SessionTypes, UnitSymbols } from "../../types/filters";
+import { SENSOR_NAMES } from "../../types/sensors";
 import { SessionList } from "../../types/sessionType";
 import { UserSettings } from "../../types/userStates";
+import * as Cookies from "../../utils/cookies";
 import { UrlParamsTypes, useMapParams } from "../../utils/mapParamsHandler";
 import { useHandleScrollEnd } from "../../utils/scrollEnd";
 import useMobileDetection from "../../utils/useScreenSizeDetection";
@@ -80,7 +87,13 @@ import { Loader } from "../Loader/Loader";
 import { SessionDetailsModal } from "../Modals/SessionDetailsModal";
 import { TimelapseComponent } from "../Modals/TimelapseModal";
 import { SectionButton } from "../SectionButton/SectionButton";
+import { defaultGridSize } from "../SessionFilters/CrowdMapGridSize";
 import { MobileSessionFilters } from "../SessionFilters/MobileSessionFilters";
+import {
+  beginningOfTheYear,
+  endOfTheYear,
+  getLastFiveYears,
+} from "../SessionFilters/YearPickerButtons";
 import { MobileSessionList } from "../SessionsListView/MobileSessionList/MobileSessionList";
 import { SessionsListView } from "../SessionsListView/SessionsListView";
 import { ThresholdButtonVariant } from "../ThresholdConfigurator/ThresholdButtons/ThresholdButton";
@@ -93,6 +106,7 @@ import { FixedMarkers } from "./Markers/FixedMarkers";
 import { MobileMarkers } from "./Markers/MobileMarkers";
 import { StreamMarkers } from "./Markers/StreamMarkers";
 import { TimelapseMarkers } from "./Markers/TimelapseMarkers";
+import { MAP_CONFIGS } from "./mapConfigs";
 import mapStyles from "./mapStyles";
 import mapStylesZoomedIn from "./mapStylesZoomedIn";
 
@@ -347,6 +361,178 @@ const Map = () => {
   ]);
 
   useEffect(() => {
+    if (isFirstRender.current) {
+      const timer = setTimeout(() => {
+        sessionStorage.setItem("isVisited", "true");
+      }, 1000);
+      return () => clearTimeout(timer);
+
+      // localStorage.setItem(
+      //   UrlParamsTypes.sensorName,
+      //   sessionType === SessionTypes.FIXED
+      //     ? SENSOR_NAMES.PARTICULATE_MATTER.GOVERNMENT_PM25
+      //     : SENSOR_NAMES.PARTICULATE_MATTER.AIRBEAM_PM25
+      // );
+      // sessionStorage.setItem(
+      //   UrlParamsTypes.sensorName,
+      //   sessionType === SessionTypes.FIXED
+      //     ? SENSOR_NAMES.PARTICULATE_MATTER.GOVERNMENT_PM25
+      //     : SENSOR_NAMES.PARTICULATE_MATTER.AIRBEAM_PM25
+      // );
+    }
+
+    newSearchParams.set(
+      UrlParamsTypes.sensorName,
+      sessionType === SessionTypes.FIXED
+        ? SENSOR_NAMES.PARTICULATE_MATTER.GOVERNMENT_PM25
+        : SENSOR_NAMES.PARTICULATE_MATTER.AIRBEAM_PM25
+    );
+
+    // localStorage.setItem(
+    //   UrlParamsTypes.measurementType,
+    //   ParameterTypes.PARTICULATE_MATTER
+    // );
+    // sessionStorage.setItem(
+    //   UrlParamsTypes.measurementType,
+    //   ParameterTypes.PARTICULATE_MATTER
+    // );
+    newSearchParams.set(
+      UrlParamsTypes.measurementType,
+      ParameterTypes.PARTICULATE_MATTER
+    );
+
+    // localStorage.setItem(
+    //   UrlParamsTypes.timeFrom,
+    //   beginningOfTheYear(getLastFiveYears()[0]).toString()
+    // );
+    // sessionStorage.setItem(
+    //   UrlParamsTypes.timeFrom,
+    //   beginningOfTheYear(getLastFiveYears()[0]).toString()
+    // );
+    newSearchParams.set(
+      UrlParamsTypes.timeFrom,
+      beginningOfTheYear(getLastFiveYears()[0]).toString()
+    );
+
+    // localStorage.setItem(
+    //   UrlParamsTypes.timeTo,
+    //   endOfTheYear(getLastFiveYears()[0]).toString()
+    // );
+    // sessionStorage.setItem(
+    //   UrlParamsTypes.timeTo,
+    //   endOfTheYear(getLastFiveYears()[0]).toString()
+    // );
+    newSearchParams.set(
+      UrlParamsTypes.timeTo,
+      endOfTheYear(getLastFiveYears()[0]).toString()
+    );
+
+    // localStorage.setItem(UrlParamsTypes.tags, "");
+    // sessionStorage.setItem(UrlParamsTypes.tags, "");
+
+    newSearchParams.set(UrlParamsTypes.tags, "");
+
+    // localStorage.setItem(UrlParamsTypes.usernames, "");
+    // sessionStorage.setItem(UrlParamsTypes.usernames, "");
+
+    newSearchParams.set(UrlParamsTypes.usernames, "");
+
+    // localStorage.setItem(UrlParamsTypes.mapType, MAP_CONFIGS[0].mapTypeId);
+    // sessionStorage.setItem(UrlParamsTypes.mapType, MAP_CONFIGS[0].mapTypeId);
+    newSearchParams.set(UrlParamsTypes.mapType, MAP_CONFIGS[0].mapTypeId);
+
+    // localStorage.setItem(
+    //   UrlParamsTypes.currentUserSettings,
+    //   UserSettings.MapView
+    // );
+    // sessionStorage.setItem(
+    //   UrlParamsTypes.currentUserSettings,
+    //   UserSettings.MapView
+    // );
+    newSearchParams.set(
+      UrlParamsTypes.currentUserSettings,
+      UserSettings.MapView
+    );
+
+    // localStorage.setItem(
+    //   UrlParamsTypes.previousUserSettings,
+    //   UserSettings.MapView
+    // );
+    // sessionStorage.setItem(
+    //   UrlParamsTypes.previousUserSettings,
+    //   UserSettings.MapView
+    // );
+    newSearchParams.set(
+      UrlParamsTypes.previousUserSettings,
+      UserSettings.MapView
+    );
+
+    // localStorage.setItem(UrlParamsTypes.offset, "0");
+    // sessionStorage.setItem(UrlParamsTypes.offset, "0");
+    newSearchParams.set(UrlParamsTypes.offset, "0");
+
+    // localStorage.setItem(UrlParamsTypes.fetchedSessions, "0");
+    // sessionStorage.setItem(UrlParamsTypes.fetchedSessions, "0");
+    newSearchParams.set(UrlParamsTypes.fetchedSessions, "0");
+
+    // localStorage.setItem(UrlParamsTypes.gridSize, defaultGridSize.toString());
+    // sessionStorage.setItem(UrlParamsTypes.gridSize, defaultGridSize.toString());
+    newSearchParams.set(UrlParamsTypes.gridSize, defaultGridSize.toString());
+
+    // localStorage.setItem(UrlParamsTypes.isIndoor, FALSE);
+    // sessionStorage.setItem(UrlParamsTypes.isIndoor, FALSE);
+    newSearchParams.set(UrlParamsTypes.isIndoor, FALSE);
+
+    // localStorage.setItem(UrlParamsTypes.limit, "100");
+    // sessionStorage.setItem(UrlParamsTypes.limit, "100");
+    newSearchParams.set(UrlParamsTypes.limit, "100");
+
+    // localStorage.setItem(UrlParamsTypes.previousZoom, DEFAULT_ZOOM.toString());
+    // sessionStorage.setItem(
+    //   UrlParamsTypes.previousZoom,
+    //   DEFAULT_ZOOM.toString()
+    // );
+    newSearchParams.set(UrlParamsTypes.previousZoom, DEFAULT_ZOOM.toString());
+
+    // localStorage.setItem(
+    //   UrlParamsTypes.unitSymbol,
+    //   UnitSymbols.ParticulateMatter
+    // );
+    // sessionStorage.setItem(
+    //   UrlParamsTypes.unitSymbol,
+    //   UnitSymbols.ParticulateMatter
+    // );
+    newSearchParams.set(
+      UrlParamsTypes.unitSymbol,
+      UnitSymbols.ParticulateMatter
+    );
+    // sessionStorage.setItem("firstRender", "firstRender");
+    newSearchParams.set(
+      UrlParamsTypes.currentCenter,
+      JSON.stringify(DEFAULT_MAP_CENTER)
+    );
+    newSearchParams.set(UrlParamsTypes.currentZoom, DEFAULT_ZOOM.toString());
+    newSearchParams.set(
+      UrlParamsTypes.boundEast,
+      DEFAULT_MAP_BOUNDS.east.toString()
+    );
+    newSearchParams.set(
+      UrlParamsTypes.boundNorth,
+      DEFAULT_MAP_BOUNDS.north.toString()
+    );
+    newSearchParams.set(
+      UrlParamsTypes.boundSouth,
+      DEFAULT_MAP_BOUNDS.south.toString()
+    );
+    newSearchParams.set(
+      UrlParamsTypes.boundWest,
+      DEFAULT_MAP_BOUNDS.west.toString()
+    );
+
+    isFirstRender.current === false;
+  }, []);
+
+  useEffect(() => {
     const isFirstLoad = isFirstRender.current;
     if (isFirstLoad && fetchedSessions > 0 && !fixedSessionTypeSelected) {
       const originalLimit = limit;
@@ -438,10 +624,15 @@ const Map = () => {
       newSearchParams.set(UrlParamsTypes.streamId, "");
       newSearchParams.set(UrlParamsTypes.isActive, isActive.toString());
       newSearchParams.set(UrlParamsTypes.sessionType, sessionType);
-      localStorage.setItem(UrlParamsTypes.sessionType, sessionType);
-      localStorage.setItem(UrlParamsTypes.isActive, isActive.toString());
-      localStorage.setItem(UrlParamsTypes.sessionId, "");
-      localStorage.setItem(UrlParamsTypes.streamId, "");
+      // localStorage.setItem(UrlParamsTypes.sessionType, sessionType);
+      // localStorage.setItem(UrlParamsTypes.isActive, isActive.toString());
+      // localStorage.setItem(UrlParamsTypes.sessionId, "");
+      // localStorage.setItem(UrlParamsTypes.streamId, "");
+      // sessionStorage.setItem(UrlParamsTypes.sessionType, sessionType);
+      // sessionStorage.setItem(UrlParamsTypes.isActive, isActive.toString());
+      // sessionStorage.setItem(UrlParamsTypes.sessionId, "");
+      // sessionStorage.setItem(UrlParamsTypes.streamId, "");
+
       navigate(`?${newSearchParams.toString()}`);
     }
     !isFirstRender.current && setPreviousZoomOnTheMap();
@@ -520,10 +711,25 @@ const Map = () => {
         if (currentUserSettings === UserSettings.MapView) {
           newSearchParams.set(UrlParamsTypes.sessionType, sessionType);
           newSearchParams.set(UrlParamsTypes.isActive, TRUE);
-          map.setCenter(currentCenter);
-          map.setZoom(currentZoom);
-          localStorage.setItem(UrlParamsTypes.sessionType, sessionType);
-          localStorage.setItem(UrlParamsTypes.isActive, TRUE);
+          if (Cookies.get(UrlParamsTypes.currentCenter)) {
+            const currentCenter1 = JSON.parse(
+              Cookies.get(UrlParamsTypes.currentCenter) || ""
+            );
+            const currentZoom2 = JSON.parse(
+              Cookies.get(UrlParamsTypes.currentZoom) || ""
+            );
+            map.setCenter(currentCenter1);
+            map.setZoom(currentZoom2);
+          } else {
+            console.log("currentCenter tu", currentCenter);
+            console.log("currentZoom tu", currentZoom);
+            map.setCenter(currentCenter);
+            map.setZoom(currentZoom);
+          }
+          // localStorage.setItem(UrlParamsTypes.sessionType, sessionType);
+          // localStorage.setItem(UrlParamsTypes.isActive, TRUE);
+          // sessionStorage.setItem(UrlParamsTypes.sessionType, sessionType);
+          // sessionStorage.setItem(UrlParamsTypes.isActive, TRUE);
         }
         isFirstRender.current = false;
       } else {
@@ -551,12 +757,24 @@ const Map = () => {
           newSearchParams.set(UrlParamsTypes.boundWest, west.toString());
           newSearchParams.set(UrlParamsTypes.currentCenter, currentCenter);
           newSearchParams.set(UrlParamsTypes.currentZoom, currentZoom);
-          localStorage.setItem(UrlParamsTypes.boundEast, east.toString());
-          localStorage.setItem(UrlParamsTypes.boundNorth, north.toString());
-          localStorage.setItem(UrlParamsTypes.boundSouth, south.toString());
-          localStorage.setItem(UrlParamsTypes.boundWest, west.toString());
-          localStorage.setItem(UrlParamsTypes.currentCenter, currentCenter);
-          localStorage.setItem(UrlParamsTypes.currentZoom, currentZoom);
+          // localStorage.setItem(UrlParamsTypes.boundEast, east.toString());
+          // localStorage.setItem(UrlParamsTypes.boundNorth, north.toString());
+          // localStorage.setItem(UrlParamsTypes.boundSouth, south.toString());
+          // localStorage.setItem(UrlParamsTypes.boundWest, west.toString());
+          // localStorage.setItem(UrlParamsTypes.currentCenter, currentCenter);
+          // localStorage.setItem(UrlParamsTypes.currentZoom, currentZoom);
+          // sessionStorage.setItem(UrlParamsTypes.boundEast, east.toString());
+          // sessionStorage.setItem(UrlParamsTypes.boundNorth, north.toString());
+          // sessionStorage.setItem(UrlParamsTypes.boundSouth, south.toString());
+          // sessionStorage.setItem(UrlParamsTypes.boundWest, west.toString());
+          // sessionStorage.setItem(UrlParamsTypes.currentCenter, currentCenter);
+          // sessionStorage.setItem(UrlParamsTypes.currentZoom, currentZoom);
+          Cookies.set(UrlParamsTypes.boundEast, east.toString());
+          Cookies.set(UrlParamsTypes.boundNorth, north.toString());
+          Cookies.set(UrlParamsTypes.boundSouth, south.toString());
+          Cookies.set(UrlParamsTypes.boundWest, west.toString());
+          Cookies.set(UrlParamsTypes.currentCenter, currentCenter);
+          Cookies.set(UrlParamsTypes.currentZoom, currentZoom);
           navigate(`?${newSearchParams.toString()}`);
         }
       }
@@ -594,19 +812,32 @@ const Map = () => {
           selectedStreamId?.toString() || ""
         );
 
-        localStorage.setItem(
-          UrlParamsTypes.previousUserSettings,
-          currentUserSettings
-        );
-        localStorage.setItem(
-          UrlParamsTypes.currentUserSettings,
-          UserSettings.CalendarView
-        );
-        localStorage.setItem(UrlParamsTypes.sessionId, id?.toString() || "");
-        localStorage.setItem(
-          UrlParamsTypes.streamId,
-          selectedStreamId?.toString() || ""
-        );
+        // localStorage.setItem(
+        //   UrlParamsTypes.previousUserSettings,
+        //   currentUserSettings
+        // );
+        // localStorage.setItem(
+        //   UrlParamsTypes.currentUserSettings,
+        //   UserSettings.CalendarView
+        // );
+        // localStorage.setItem(UrlParamsTypes.sessionId, id?.toString() || "");
+        // localStorage.setItem(
+        //   UrlParamsTypes.streamId,
+        //   selectedStreamId?.toString() || ""
+        // );
+        // sessionStorage.setItem(
+        //   UrlParamsTypes.previousUserSettings,
+        //   currentUserSettings
+        // );
+        // sessionStorage.setItem(
+        //   UrlParamsTypes.currentUserSettings,
+        //   UserSettings.CalendarView
+        // );
+        // sessionStorage.setItem(UrlParamsTypes.sessionId, id?.toString() || "");
+        // sessionStorage.setItem(
+        //   UrlParamsTypes.streamId,
+        //   selectedStreamId?.toString() || ""
+        // );
 
         navigate(`/fixed_stream?${newSearchParams.toString()}`, {
           replace: true,
@@ -630,19 +861,32 @@ const Map = () => {
         UserSettings.ModalView
       );
 
-      localStorage.setItem(
-        UrlParamsTypes.previousUserSettings,
-        currentUserSettings
-      );
-      localStorage.setItem(
-        UrlParamsTypes.currentUserSettings,
-        UserSettings.ModalView
-      );
-      localStorage.setItem(UrlParamsTypes.sessionId, id?.toString() || "");
-      localStorage.setItem(
-        UrlParamsTypes.streamId,
-        selectedStreamId?.toString() || ""
-      );
+      // localStorage.setItem(
+      //   UrlParamsTypes.previousUserSettings,
+      //   currentUserSettings
+      // );
+      // localStorage.setItem(
+      //   UrlParamsTypes.currentUserSettings,
+      //   UserSettings.ModalView
+      // );
+      // localStorage.setItem(UrlParamsTypes.sessionId, id?.toString() || "");
+      // localStorage.setItem(
+      //   UrlParamsTypes.streamId,
+      //   selectedStreamId?.toString() || ""
+      // );
+      // sessionStorage.setItem(
+      //   UrlParamsTypes.previousUserSettings,
+      //   currentUserSettings
+      // );
+      // sessionStorage.setItem(
+      //   UrlParamsTypes.currentUserSettings,
+      //   UserSettings.ModalView
+      // );
+      // sessionStorage.setItem(UrlParamsTypes.sessionId, id?.toString() || "");
+      // sessionStorage.setItem(
+      //   UrlParamsTypes.streamId,
+      //   selectedStreamId?.toString() || ""
+      // );
 
       navigate(`?${newSearchParams.toString()}`);
     }
@@ -699,10 +943,19 @@ const Map = () => {
             UrlParamsTypes.previousCenter,
             JSON.stringify(newCenter || currentCenter)
           );
-          localStorage.setItem(
-            UrlParamsTypes.previousCenter,
+          Cookies.set(
+            UrlParamsTypes.currentCenter,
             JSON.stringify(newCenter || currentCenter)
           );
+
+          // localStorage.setItem(
+          //   UrlParamsTypes.previousCenter,
+          //   JSON.stringify(newCenter || currentCenter)
+          // );
+          // sessionStorage.setItem(
+          //   UrlParamsTypes.previousCenter,
+          //   JSON.stringify(newCenter || currentCenter)
+          // );
         }
         const newZoom = mapInstance?.getZoom();
         if (newZoom !== previousZoom) {
@@ -710,10 +963,18 @@ const Map = () => {
             UrlParamsTypes.previousZoom,
             newZoom?.toString() || currentZoom.toString()
           );
-          localStorage.setItem(
-            UrlParamsTypes.previousZoom,
+          Cookies.set(
+            UrlParamsTypes.currentCenter,
             newZoom?.toString() || currentZoom.toString()
           );
+          // localStorage.setItem(
+          //   UrlParamsTypes.previousZoom,
+          //   newZoom?.toString() || currentZoom.toString()
+          // );
+          // sessionStorage.setItem(
+          //   UrlParamsTypes.previousZoom,
+          //   newZoom?.toString() || currentZoom.toString()
+          // );
         }
         navigate(`?${newSearchParams.toString()}`);
       }

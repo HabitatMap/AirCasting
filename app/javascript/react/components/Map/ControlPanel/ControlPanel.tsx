@@ -22,6 +22,7 @@ const ControlPanel: React.FC = () => {
     const newSearchParams = new URLSearchParams(searchParams);
     newSearchParams.set(param, value);
     localStorage.setItem(param, value);
+    sessionStorage.setItem(param, value);
     navigate({ search: newSearchParams.toString() }, { replace: true });
   };
 
