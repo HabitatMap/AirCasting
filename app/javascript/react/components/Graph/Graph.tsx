@@ -293,6 +293,7 @@ const Graph: React.FC<GraphProps> = React.memo(
         totalDuration,
         scrollbarOptions,
         t,
+        handleChartLoad,
       ]
     );
 
@@ -305,7 +306,7 @@ const Graph: React.FC<GraphProps> = React.memo(
       Highcharts.charts.forEach((chart) => {
         if (chart) {
           if (isLoading) {
-            chart.showLoading();
+            chart.showLoading("Loading data from server...");
           } else {
             chart.hideLoading();
           }
