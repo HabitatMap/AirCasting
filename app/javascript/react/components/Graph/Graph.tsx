@@ -1,5 +1,5 @@
 import HighchartsReact from "highcharts-react-official";
-import Highcharts from "highcharts/highstock";
+import Highcharts, { Chart } from "highcharts/highstock";
 import NoDataToDisplay from "highcharts/modules/no-data-to-display";
 import React, {
   useCallback,
@@ -32,6 +32,7 @@ import { parseDateString } from "../../utils/dateParser";
 import { useMapParams } from "../../utils/mapParamsHandler";
 import { formatTimeExtremes } from "../../utils/measurementsCalc";
 import useMobileDetection from "../../utils/useScreenSizeDetection";
+import { handleLoad } from "./chartEvents";
 import * as S from "./Graph.style";
 import {
   getChartOptions,
@@ -207,9 +208,25 @@ const Graph: React.FC<GraphProps> = React.memo(
       [isCalendarPage, isMobile]
     );
 
+    const handleChartLoad = useCallback(
+      function (this: Chart) {
+        handleLoad.call(this, isCalendarPage, isMobile);
+      },
+      [isCalendarPage, isMobile]
+    );
+    const chartOptions = useMemo(
+      () => getChartOptions(isCalendarPage, isMobile),
+      [isCalendarPage, isMobile]
+    );
+
     const options: Highcharts.Options = useMemo(
       () => ({
-        chart: getChartOptions(isCalendarPage, isMobile),
+        chart: {
+          ...chartOptions,
+          events: {
+            load: handleChartLoad,
+          },
+        },
         xAxis: {
           ...xAxisOptions,
           min: startTime,
