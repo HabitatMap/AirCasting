@@ -219,7 +219,7 @@ const Graph: React.FC<GraphProps> = React.memo(
       [isCalendarPage, isMobile]
     );
 
-    const options: Highcharts.Options = useMemo(
+    const options = useMemo<Highcharts.Options>(
       () => ({
         chart: {
           ...chartOptions,
@@ -235,9 +235,8 @@ const Graph: React.FC<GraphProps> = React.memo(
         yAxis: getYAxisOptions(thresholdsState, isMobile),
         series: [
           {
-            ...seriesOptions(seriesData),
-            turboThreshold: 0,
-          },
+            ...seriesOptions(seriesData || []),
+          } as Highcharts.SeriesOptionsType,
         ],
         tooltip: getTooltipOptions(measurementType, unitSymbol),
         plotOptions: getPlotOptions(
@@ -317,13 +316,18 @@ const Graph: React.FC<GraphProps> = React.memo(
     useEffect(() => {
       if (chartComponentRef.current && chartComponentRef.current.chart) {
         const chart = chartComponentRef.current.chart;
-        chart.series[0].setData(seriesData, true);
+        if (seriesData) {
+          chart.series[0].setData(
+            seriesData as Highcharts.PointOptionsType[],
+            true
+          );
+        }
       }
     }, [seriesData]);
 
     return (
       <S.Container $isCalendarPage={isCalendarPage} $isMobile={isMobile}>
-        {seriesData.length > 0 && (
+        {seriesData && seriesData.length > 0 && (
           <HighchartsReact
             highcharts={Highcharts}
             constructorType={"stockChart"}
