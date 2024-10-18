@@ -60,29 +60,60 @@ const TimeAxis: React.FC<TimeAxisProps> = ({
     [calculateStepFromPosition, onStepChange]
   );
 
-  const handleStart = useCallback((e: React.MouseEvent | React.TouchEvent) => {
-    e.preventDefault();
+  const handleStart = useCallback((event: React.PointerEvent) => {
+    event.preventDefault();
+    (event.target as Element).setPointerCapture(event.pointerId);
     setIsDragging(true);
   }, []);
 
   const handleMove = useCallback(
-    (e: MouseEvent | TouchEvent) => {
+    (e: PointerEvent) => {
       if (!isDragging) return;
 
-      let clientX: number;
-      if (e instanceof TouchEvent) {
-        clientX = e.touches[0].clientX;
-      } else {
-        clientX = e.clientX;
-      }
+      e.preventDefault();
 
+      const clientX = e.clientX;
       const closestStep = calculateStepFromPosition(clientX);
       setDragPosition(closestStep);
+      onStepChange(closestStep);
     },
-    [isDragging, calculateStepFromPosition]
+    [isDragging, calculateStepFromPosition, onStepChange]
   );
 
-  const handleEnd = useCallback(() => {
+  const handleEnd = useCallback(
+    (event: PointerEvent) => {
+      event.preventDefault();
+      if (isDragging && dragPosition !== null) {
+        onStepChange(dragPosition);
+      }
+
+      (event.target as Element).releasePointerCapture(event.pointerId);
+      setIsDragging(false);
+      setDragPosition(null);
+    },
+    [isDragging, dragPosition, onStepChange]
+  );
+
+  const handleTouchStart = useCallback((e: React.TouchEvent<Element>) => {
+    e.preventDefault();
+    setIsDragging(true);
+  }, []);
+
+  const handleTouchMove = useCallback(
+    (e: TouchEvent) => {
+      if (!isDragging) return;
+      e.preventDefault();
+      if (e.touches.length > 0) {
+        const clientX = e.touches[0].clientX;
+        const closestStep = calculateStepFromPosition(clientX);
+        setDragPosition(closestStep);
+        onStepChange(closestStep);
+      }
+    },
+    [isDragging, calculateStepFromPosition, onStepChange]
+  );
+
+  const handleTouchEnd = useCallback(() => {
     if (isDragging && dragPosition !== null) {
       onStepChange(dragPosition);
     }
@@ -92,23 +123,43 @@ const TimeAxis: React.FC<TimeAxisProps> = ({
 
   useEffect(() => {
     if (isDragging) {
-      document.addEventListener("mousemove", handleMove);
-      document.addEventListener("mouseup", handleEnd);
-      document.addEventListener("touchmove", handleMove, { passive: false });
-      document.addEventListener("touchend", handleEnd, { passive: false });
+      if (isMobile) {
+        document.addEventListener("touchmove", handleTouchMove, {
+          passive: false,
+        });
+        document.addEventListener("touchend", handleTouchEnd);
+      } else {
+        window.addEventListener("pointermove", handleMove, {
+          passive: false,
+        });
+        window.addEventListener("pointerup", handleEnd);
+      }
     } else {
-      document.removeEventListener("mousemove", handleMove);
-      document.removeEventListener("mouseup", handleEnd);
-      document.removeEventListener("touchmove", handleMove);
-      document.removeEventListener("touchend", handleEnd);
+      if (isMobile) {
+        document.removeEventListener("touchmove", handleTouchMove);
+        document.removeEventListener("touchend", handleTouchEnd);
+      } else {
+        window.removeEventListener("pointermove", handleMove);
+        window.removeEventListener("pointerup", handleEnd);
+      }
     }
     return () => {
-      document.removeEventListener("mousemove", handleMove);
-      document.removeEventListener("mouseup", handleEnd);
-      document.removeEventListener("touchmove", handleMove);
-      document.removeEventListener("touchend", handleEnd);
+      if (isMobile) {
+        document.removeEventListener("touchmove", handleTouchMove);
+        document.removeEventListener("touchend", handleTouchEnd);
+      } else {
+        window.removeEventListener("pointermove", handleMove);
+        window.removeEventListener("pointerup", handleEnd);
+      }
     };
-  }, [isDragging, handleMove, handleEnd]);
+  }, [
+    isDragging,
+    isMobile,
+    handleTouchMove,
+    handleTouchEnd,
+    handleMove,
+    handleEnd,
+  ]);
 
   const currentTimestamp = timestamps[currentStep];
 
@@ -169,12 +220,16 @@ const TimeAxis: React.FC<TimeAxisProps> = ({
             ref={progressBarRef}
             onMouseDown={handleClick}
             onTouchStart={handleClick}
+            onPointerDown={handleClick}
           >
-            <S.ProgressFiller style={{ width: `${progressPercentage}%` }} />
+            <S.ProgressFiller
+              style={{ width: `${progressPercentage}%` }}
+              $isDragging={isDragging}
+            />
             <S.RoundMarker
               $position={progressPercentage}
-              onMouseDown={handleStart}
-              onTouchStart={handleStart}
+              $isDragging={isDragging}
+              onPointerDown={handleStart}
             >
               <S.Tooltip>
                 <span>{currentTime}</span>
@@ -189,6 +244,7 @@ const TimeAxis: React.FC<TimeAxisProps> = ({
                     key={index}
                     $isActive={isStepActive(index)}
                     $isCurrent={index === currentStep}
+                    $isDragging={isDragging}
                     $position={position}
                   />
                 );
@@ -209,14 +265,17 @@ const TimeAxis: React.FC<TimeAxisProps> = ({
               e.preventDefault();
               handleClick(e);
             }}
+            onPointerDown={handleStart}
           >
-            <S.ProgressFiller style={{ width: `${progressPercentage}%` }} />
+            <S.ProgressFiller
+              style={{ width: `${progressPercentage}%` }}
+              $isDragging={isDragging}
+            />
             <S.RoundMarker
               $position={progressPercentage}
-              onTouchStart={(e) => {
-                e.preventDefault();
-                handleStart(e);
-              }}
+              onTouchStart={handleTouchStart}
+              onPointerDown={handleStart}
+              $isDragging={isDragging}
             />
             <S.StepMarkers>
               {timestamps.map((_, index) => {
@@ -227,6 +286,7 @@ const TimeAxis: React.FC<TimeAxisProps> = ({
                     $isActive={isStepActive(index)}
                     $isCurrent={index === currentStep}
                     $position={position}
+                    $isDragging={isDragging}
                   />
                 );
               })}

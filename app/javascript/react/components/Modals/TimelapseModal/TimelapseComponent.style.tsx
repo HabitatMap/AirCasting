@@ -178,17 +178,23 @@ const ProgressBar = styled.div`
   background-color: ${gray500};
   position: relative;
   border-radius: 1rem;
+  cursor: pointer;
+  touch-action: none;
+  -webkit-user-select: none;
+  -webkit-tap-highlight-color: transparent;
+
   @media ${media.smallDesktop} {
     height: 2px;
     border-radius: 0;
   }
 `;
 
-const ProgressFiller = styled.div`
+const ProgressFiller = styled.div<{ $isDragging: boolean }>`
   height: 6px;
   background-color: ${acBlue};
   border-radius: 1rem;
-  transition: width 0.2s ease-in-out;
+  transition: width ${({ $isDragging }) => ($isDragging ? "0.05s" : "0.2s")}
+    ease-in-out;
 
   @media ${media.smallDesktop} {
     height: 4px;
@@ -216,6 +222,7 @@ const StepMarker = styled.div<{
   $isActive: boolean;
   $isCurrent: boolean;
   $position: number;
+  $isDragging: boolean;
 }>`
   left: ${({ $position }) => `${$position}%`};
   position: absolute;
@@ -223,7 +230,8 @@ const StepMarker = styled.div<{
   height: 0.6rem;
   background-color: ${({ $isActive }) => ($isActive ? acBlue : white)};
   transform: scale(1);
-  transition: background-color 0.4s ease-in-out;
+  transition: background-color
+    ${({ $isDragging }) => ($isDragging ? "0.05s" : "0.2s")} ease-in-out;
   @media ${media.smallDesktop} {
     height: 1.4rem;
     background-color: ${({ $isActive }) => ($isActive ? acBlue : gray500)};
@@ -273,7 +281,7 @@ const Date = styled.span`
   }
 `;
 
-const RoundMarker = styled.div<{ $position: number }>`
+const RoundMarker = styled.div<{ $position: number; $isDragging: boolean }>`
   position: absolute;
   top: -6px;
   left: ${({ $position }) => `${$position}%`};
@@ -282,8 +290,14 @@ const RoundMarker = styled.div<{ $position: number }>`
   background-color: ${acBlue};
   border-radius: 50%;
   transform: translateX(-50%);
-  transition: left 0.2s ease-in-out;
+  transition: left ${({ $isDragging }) => ($isDragging ? "0.05s" : "0.2s")}
+    ease-in-out;
   z-index: 1;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-tap-highlight-color: transparent;
+
   @media ${media.smallDesktop} {
     top: -8px;
   }
