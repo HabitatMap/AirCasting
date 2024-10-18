@@ -14,13 +14,8 @@ import clockIcon from "../../assets/icons/clockIcon.svg";
 import filterIcon from "../../assets/icons/filterIcon.svg";
 import mapLegend from "../../assets/icons/mapLegend.svg";
 import pinImage from "../../assets/icons/pinImage.svg";
-import { FALSE, TRUE } from "../../const/booleans";
-import {
-  DEFAULT_MAP_BOUNDS,
-  DEFAULT_MAP_CENTER,
-  DEFAULT_ZOOM,
-  MIN_ZOOM,
-} from "../../const/coordinates";
+import { TRUE } from "../../const/booleans";
+import { MIN_ZOOM } from "../../const/coordinates";
 import { RootState, selectIsLoading } from "../../store";
 import {
   selectFixedSessionsList,
@@ -75,8 +70,7 @@ import {
   selectTimelapseData,
 } from "../../store/timelapseSelectors";
 import { fetchTimelapseData } from "../../store/timelapseSlice";
-import { ParameterTypes, SessionTypes, UnitSymbols } from "../../types/filters";
-import { SENSOR_NAMES } from "../../types/sensors";
+import { SessionTypes } from "../../types/filters";
 import { SessionList } from "../../types/sessionType";
 import { UserSettings } from "../../types/userStates";
 import * as Cookies from "../../utils/cookies";
@@ -87,13 +81,7 @@ import { Loader } from "../Loader/Loader";
 import { SessionDetailsModal } from "../Modals/SessionDetailsModal";
 import { TimelapseComponent } from "../Modals/TimelapseModal";
 import { SectionButton } from "../SectionButton/SectionButton";
-import { defaultGridSize } from "../SessionFilters/CrowdMapGridSize";
 import { MobileSessionFilters } from "../SessionFilters/MobileSessionFilters";
-import {
-  beginningOfTheYear,
-  endOfTheYear,
-  getLastFiveYears,
-} from "../SessionFilters/YearPickerButtons";
 import { MobileSessionList } from "../SessionsListView/MobileSessionList/MobileSessionList";
 import { SessionsListView } from "../SessionsListView/SessionsListView";
 import { ThresholdButtonVariant } from "../ThresholdConfigurator/ThresholdButtons/ThresholdButton";
@@ -106,7 +94,6 @@ import { FixedMarkers } from "./Markers/FixedMarkers";
 import { MobileMarkers } from "./Markers/MobileMarkers";
 import { StreamMarkers } from "./Markers/StreamMarkers";
 import { TimelapseMarkers } from "./Markers/TimelapseMarkers";
-import { MAP_CONFIGS } from "./mapConfigs";
 import mapStyles from "./mapStyles";
 import mapStylesZoomedIn from "./mapStylesZoomedIn";
 
@@ -381,153 +368,153 @@ const Map = () => {
       // );
     }
 
-    newSearchParams.set(
-      UrlParamsTypes.sensorName,
-      sessionType === SessionTypes.FIXED
-        ? SENSOR_NAMES.PARTICULATE_MATTER.GOVERNMENT_PM25
-        : SENSOR_NAMES.PARTICULATE_MATTER.AIRBEAM_PM25
-    );
+    // newSearchParams.set(
+    //   UrlParamsTypes.sensorName,
+    //   sessionType === SessionTypes.FIXED
+    //     ? SENSOR_NAMES.PARTICULATE_MATTER.GOVERNMENT_PM25
+    //     : SENSOR_NAMES.PARTICULATE_MATTER.AIRBEAM_PM25
+    // );
 
-    // localStorage.setItem(
+    // // localStorage.setItem(
+    // //   UrlParamsTypes.measurementType,
+    // //   ParameterTypes.PARTICULATE_MATTER
+    // // );
+    // // sessionStorage.setItem(
+    // //   UrlParamsTypes.measurementType,
+    // //   ParameterTypes.PARTICULATE_MATTER
+    // // );
+    // newSearchParams.set(
     //   UrlParamsTypes.measurementType,
     //   ParameterTypes.PARTICULATE_MATTER
     // );
-    // sessionStorage.setItem(
-    //   UrlParamsTypes.measurementType,
-    //   ParameterTypes.PARTICULATE_MATTER
-    // );
-    newSearchParams.set(
-      UrlParamsTypes.measurementType,
-      ParameterTypes.PARTICULATE_MATTER
-    );
 
-    // localStorage.setItem(
+    // // localStorage.setItem(
+    // //   UrlParamsTypes.timeFrom,
+    // //   beginningOfTheYear(getLastFiveYears()[0]).toString()
+    // // );
+    // // sessionStorage.setItem(
+    // //   UrlParamsTypes.timeFrom,
+    // //   beginningOfTheYear(getLastFiveYears()[0]).toString()
+    // // );
+    // newSearchParams.set(
     //   UrlParamsTypes.timeFrom,
     //   beginningOfTheYear(getLastFiveYears()[0]).toString()
     // );
-    // sessionStorage.setItem(
-    //   UrlParamsTypes.timeFrom,
-    //   beginningOfTheYear(getLastFiveYears()[0]).toString()
-    // );
-    newSearchParams.set(
-      UrlParamsTypes.timeFrom,
-      beginningOfTheYear(getLastFiveYears()[0]).toString()
-    );
 
-    // localStorage.setItem(
+    // // localStorage.setItem(
+    // //   UrlParamsTypes.timeTo,
+    // //   endOfTheYear(getLastFiveYears()[0]).toString()
+    // // );
+    // // sessionStorage.setItem(
+    // //   UrlParamsTypes.timeTo,
+    // //   endOfTheYear(getLastFiveYears()[0]).toString()
+    // // );
+    // newSearchParams.set(
     //   UrlParamsTypes.timeTo,
     //   endOfTheYear(getLastFiveYears()[0]).toString()
     // );
-    // sessionStorage.setItem(
-    //   UrlParamsTypes.timeTo,
-    //   endOfTheYear(getLastFiveYears()[0]).toString()
-    // );
-    newSearchParams.set(
-      UrlParamsTypes.timeTo,
-      endOfTheYear(getLastFiveYears()[0]).toString()
-    );
 
-    // localStorage.setItem(UrlParamsTypes.tags, "");
-    // sessionStorage.setItem(UrlParamsTypes.tags, "");
+    // // localStorage.setItem(UrlParamsTypes.tags, "");
+    // // sessionStorage.setItem(UrlParamsTypes.tags, "");
 
-    newSearchParams.set(UrlParamsTypes.tags, "");
+    // newSearchParams.set(UrlParamsTypes.tags, "");
 
-    // localStorage.setItem(UrlParamsTypes.usernames, "");
-    // sessionStorage.setItem(UrlParamsTypes.usernames, "");
+    // // localStorage.setItem(UrlParamsTypes.usernames, "");
+    // // sessionStorage.setItem(UrlParamsTypes.usernames, "");
 
-    newSearchParams.set(UrlParamsTypes.usernames, "");
+    // newSearchParams.set(UrlParamsTypes.usernames, "");
 
-    // localStorage.setItem(UrlParamsTypes.mapType, MAP_CONFIGS[0].mapTypeId);
-    // sessionStorage.setItem(UrlParamsTypes.mapType, MAP_CONFIGS[0].mapTypeId);
-    newSearchParams.set(UrlParamsTypes.mapType, MAP_CONFIGS[0].mapTypeId);
+    // // localStorage.setItem(UrlParamsTypes.mapType, MAP_CONFIGS[0].mapTypeId);
+    // // sessionStorage.setItem(UrlParamsTypes.mapType, MAP_CONFIGS[0].mapTypeId);
+    // newSearchParams.set(UrlParamsTypes.mapType, MAP_CONFIGS[0].mapTypeId);
 
-    // localStorage.setItem(
+    // // localStorage.setItem(
+    // //   UrlParamsTypes.currentUserSettings,
+    // //   UserSettings.MapView
+    // // );
+    // // sessionStorage.setItem(
+    // //   UrlParamsTypes.currentUserSettings,
+    // //   UserSettings.MapView
+    // // );
+    // newSearchParams.set(
     //   UrlParamsTypes.currentUserSettings,
     //   UserSettings.MapView
     // );
-    // sessionStorage.setItem(
-    //   UrlParamsTypes.currentUserSettings,
-    //   UserSettings.MapView
-    // );
-    newSearchParams.set(
-      UrlParamsTypes.currentUserSettings,
-      UserSettings.MapView
-    );
 
-    // localStorage.setItem(
+    // // localStorage.setItem(
+    // //   UrlParamsTypes.previousUserSettings,
+    // //   UserSettings.MapView
+    // // );
+    // // sessionStorage.setItem(
+    // //   UrlParamsTypes.previousUserSettings,
+    // //   UserSettings.MapView
+    // // );
+    // newSearchParams.set(
     //   UrlParamsTypes.previousUserSettings,
     //   UserSettings.MapView
     // );
-    // sessionStorage.setItem(
-    //   UrlParamsTypes.previousUserSettings,
-    //   UserSettings.MapView
-    // );
-    newSearchParams.set(
-      UrlParamsTypes.previousUserSettings,
-      UserSettings.MapView
-    );
 
-    // localStorage.setItem(UrlParamsTypes.offset, "0");
-    // sessionStorage.setItem(UrlParamsTypes.offset, "0");
-    newSearchParams.set(UrlParamsTypes.offset, "0");
+    // // localStorage.setItem(UrlParamsTypes.offset, "0");
+    // // sessionStorage.setItem(UrlParamsTypes.offset, "0");
+    // newSearchParams.set(UrlParamsTypes.offset, "0");
 
-    // localStorage.setItem(UrlParamsTypes.fetchedSessions, "0");
-    // sessionStorage.setItem(UrlParamsTypes.fetchedSessions, "0");
-    newSearchParams.set(UrlParamsTypes.fetchedSessions, "0");
+    // // localStorage.setItem(UrlParamsTypes.fetchedSessions, "0");
+    // // sessionStorage.setItem(UrlParamsTypes.fetchedSessions, "0");
+    // newSearchParams.set(UrlParamsTypes.fetchedSessions, "0");
 
-    // localStorage.setItem(UrlParamsTypes.gridSize, defaultGridSize.toString());
-    // sessionStorage.setItem(UrlParamsTypes.gridSize, defaultGridSize.toString());
-    newSearchParams.set(UrlParamsTypes.gridSize, defaultGridSize.toString());
+    // // localStorage.setItem(UrlParamsTypes.gridSize, defaultGridSize.toString());
+    // // sessionStorage.setItem(UrlParamsTypes.gridSize, defaultGridSize.toString());
+    // newSearchParams.set(UrlParamsTypes.gridSize, defaultGridSize.toString());
 
-    // localStorage.setItem(UrlParamsTypes.isIndoor, FALSE);
-    // sessionStorage.setItem(UrlParamsTypes.isIndoor, FALSE);
-    newSearchParams.set(UrlParamsTypes.isIndoor, FALSE);
+    // // localStorage.setItem(UrlParamsTypes.isIndoor, FALSE);
+    // // sessionStorage.setItem(UrlParamsTypes.isIndoor, FALSE);
+    // newSearchParams.set(UrlParamsTypes.isIndoor, FALSE);
 
-    // localStorage.setItem(UrlParamsTypes.limit, "100");
-    // sessionStorage.setItem(UrlParamsTypes.limit, "100");
-    newSearchParams.set(UrlParamsTypes.limit, "100");
+    // // localStorage.setItem(UrlParamsTypes.limit, "100");
+    // // sessionStorage.setItem(UrlParamsTypes.limit, "100");
+    // newSearchParams.set(UrlParamsTypes.limit, "100");
 
-    // localStorage.setItem(UrlParamsTypes.previousZoom, DEFAULT_ZOOM.toString());
-    // sessionStorage.setItem(
-    //   UrlParamsTypes.previousZoom,
-    //   DEFAULT_ZOOM.toString()
-    // );
-    newSearchParams.set(UrlParamsTypes.previousZoom, DEFAULT_ZOOM.toString());
+    // // localStorage.setItem(UrlParamsTypes.previousZoom, DEFAULT_ZOOM.toString());
+    // // sessionStorage.setItem(
+    // //   UrlParamsTypes.previousZoom,
+    // //   DEFAULT_ZOOM.toString()
+    // // );
+    // newSearchParams.set(UrlParamsTypes.previousZoom, DEFAULT_ZOOM.toString());
 
-    // localStorage.setItem(
+    // // localStorage.setItem(
+    // //   UrlParamsTypes.unitSymbol,
+    // //   UnitSymbols.ParticulateMatter
+    // // );
+    // // sessionStorage.setItem(
+    // //   UrlParamsTypes.unitSymbol,
+    // //   UnitSymbols.ParticulateMatter
+    // // );
+    // newSearchParams.set(
     //   UrlParamsTypes.unitSymbol,
     //   UnitSymbols.ParticulateMatter
     // );
-    // sessionStorage.setItem(
-    //   UrlParamsTypes.unitSymbol,
-    //   UnitSymbols.ParticulateMatter
+    // // sessionStorage.setItem("firstRender", "firstRender");
+    // newSearchParams.set(
+    //   UrlParamsTypes.currentCenter,
+    //   JSON.stringify(DEFAULT_MAP_CENTER)
     // );
-    newSearchParams.set(
-      UrlParamsTypes.unitSymbol,
-      UnitSymbols.ParticulateMatter
-    );
-    // sessionStorage.setItem("firstRender", "firstRender");
-    newSearchParams.set(
-      UrlParamsTypes.currentCenter,
-      JSON.stringify(DEFAULT_MAP_CENTER)
-    );
-    newSearchParams.set(UrlParamsTypes.currentZoom, DEFAULT_ZOOM.toString());
-    newSearchParams.set(
-      UrlParamsTypes.boundEast,
-      DEFAULT_MAP_BOUNDS.east.toString()
-    );
-    newSearchParams.set(
-      UrlParamsTypes.boundNorth,
-      DEFAULT_MAP_BOUNDS.north.toString()
-    );
-    newSearchParams.set(
-      UrlParamsTypes.boundSouth,
-      DEFAULT_MAP_BOUNDS.south.toString()
-    );
-    newSearchParams.set(
-      UrlParamsTypes.boundWest,
-      DEFAULT_MAP_BOUNDS.west.toString()
-    );
+    // newSearchParams.set(UrlParamsTypes.currentZoom, DEFAULT_ZOOM.toString());
+    // newSearchParams.set(
+    //   UrlParamsTypes.boundEast,
+    //   DEFAULT_MAP_BOUNDS.east.toString()
+    // );
+    // newSearchParams.set(
+    //   UrlParamsTypes.boundNorth,
+    //   DEFAULT_MAP_BOUNDS.north.toString()
+    // );
+    // newSearchParams.set(
+    //   UrlParamsTypes.boundSouth,
+    //   DEFAULT_MAP_BOUNDS.south.toString()
+    // );
+    // newSearchParams.set(
+    //   UrlParamsTypes.boundWest,
+    //   DEFAULT_MAP_BOUNDS.west.toString()
+    // );
 
     isFirstRender.current === false;
   }, []);
