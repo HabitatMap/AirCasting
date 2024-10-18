@@ -36,7 +36,6 @@ import { handleLoad } from "./chartEvents";
 import * as S from "./Graph.style";
 import {
   getChartOptions,
-  getNavigatorOptions,
   getPlotOptions,
   getRangeSelectorOptions,
   getResponsiveOptions,
@@ -115,46 +114,42 @@ const Graph: React.FC<GraphProps> = React.memo(
       [startTime, endTime]
     );
 
-    // Function to check if the requested range is already fetched
+    // Function to check if the requested range is already fetched (adjusted for partial overlaps)
     const isRangeFetched = useCallback(
       (min: number, max: number) => {
-        for (const range of fetchedRanges) {
-          if (range.start <= min && range.end >= max) {
-            return true;
-          }
-        }
-        return false;
+        return fetchedRanges.some(
+          (range) => range.end >= min && range.start <= max
+        );
       },
       [fetchedRanges]
     );
 
-    // Function to merge new range into fetchedRanges
+    // Function to merge new range into fetchedRanges (improved merging)
     function mergeRanges(
       ranges: Array<{ start: number; end: number }>,
       newRange: { start: number; end: number }
     ) {
-      const result = [];
-      let added = false;
-      for (let range of ranges) {
-        if (range.end < newRange.start) {
-          result.push(range);
-        } else if (range.start > newRange.end) {
-          if (!added) {
-            result.push(newRange);
-            added = true;
-          }
-          result.push(range);
+      const updatedRanges = [...ranges, newRange];
+
+      // Sort ranges by start time
+      updatedRanges.sort((a, b) => a.start - b.start);
+
+      const mergedRanges = [updatedRanges[0]];
+
+      for (let i = 1; i < updatedRanges.length; i++) {
+        const lastRange = mergedRanges[mergedRanges.length - 1];
+        const currentRange = updatedRanges[i];
+
+        if (lastRange.end >= currentRange.start - 1) {
+          // Ranges overlap or are adjacent; merge them
+          lastRange.end = Math.max(lastRange.end, currentRange.end);
         } else {
-          newRange = {
-            start: Math.min(range.start, newRange.start),
-            end: Math.max(range.end, newRange.end),
-          };
+          // No overlap; add the current range
+          mergedRanges.push(currentRange);
         }
       }
-      if (!added) {
-        result.push(newRange);
-      }
-      return result;
+
+      return mergedRanges;
     }
 
     const fetchDataForRange = useCallback(
@@ -207,6 +202,8 @@ const Graph: React.FC<GraphProps> = React.memo(
 
     const handleAfterSetExtremes = useCallback(
       (e: Highcharts.AxisSetExtremesEventObject) => {
+        console.log("AfterSetExtremes:", e.min, e.max);
+
         if (e.trigger === "navigator" || e.trigger === "pan") {
           const { min, max } = e;
           fetchDataForRange(min, max);
@@ -309,12 +306,9 @@ const Graph: React.FC<GraphProps> = React.memo(
         ),
         scrollbar: scrollbarOptions,
         navigator: {
-          ...getNavigatorOptions(),
-          xAxis: {
-            min: startTime,
-            max: endTime,
-          },
+          enabled: false,
         },
+
         responsive: getResponsiveOptions(thresholdsState, isMobile),
         legend: legendOption,
         noData: {
@@ -358,10 +352,10 @@ const Graph: React.FC<GraphProps> = React.memo(
       setFetchedRanges([]);
     }, [streamId]);
 
-    // Adjusted useEffect to use the correct property
+    // Optionally initialize fetchedRanges based on existing data
     useEffect(() => {
       if (fixedGraphData?.measurements?.length) {
-        // Use the correct property, e.g., 'time'
+        // Use the correct property, e.g., 'time' or 'timestamp'
         const timestamps = fixedGraphData.measurements.map((m) =>
           Number(new Date(m.time).getTime())
         );
@@ -371,6 +365,27 @@ const Graph: React.FC<GraphProps> = React.memo(
       }
     }, [fixedGraphData]);
 
+    // Log fixedGraphData for debugging
+    useEffect(() => {
+      console.log("Fixed Graph Data:", fixedGraphData);
+    }, [fixedGraphData]);
+
+    // Ensure chart updates when new data is available
+    useEffect(() => {
+      if (chartComponentRef.current && chartComponentRef.current.chart) {
+        const chart = chartComponentRef.current.chart;
+        if (seriesData) {
+          chart.series[0].setData(
+            seriesData as Highcharts.PointOptionsType[],
+            true,
+            false,
+            false
+          );
+        }
+      }
+    }, [seriesData]);
+
+    // Show or hide loading indicator based on isLoading
     useEffect(() => {
       Highcharts.charts.forEach((chart) => {
         if (chart) {
@@ -382,18 +397,6 @@ const Graph: React.FC<GraphProps> = React.memo(
         }
       });
     }, [isLoading]);
-
-    useEffect(() => {
-      if (chartComponentRef.current && chartComponentRef.current.chart) {
-        const chart = chartComponentRef.current.chart;
-        if (seriesData) {
-          chart.series[0].setData(
-            seriesData as Highcharts.PointOptionsType[],
-            true
-          );
-        }
-      }
-    }, [seriesData]);
 
     return (
       <S.Container $isCalendarPage={isCalendarPage} $isMobile={isMobile}>
