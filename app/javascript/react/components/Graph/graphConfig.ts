@@ -519,7 +519,7 @@ const getChartOptions = (
 
 const getNavigatorOptions = (): NavigatorOptions => {
   return {
-    enabled: true,
+    enabled: false,
     height: 0,
     maskFill: "none",
     outlineColor: "none",
