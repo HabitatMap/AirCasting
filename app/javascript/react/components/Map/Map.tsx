@@ -73,6 +73,7 @@ import { fetchTimelapseData } from "../../store/timelapseSlice";
 import { SessionTypes } from "../../types/filters";
 import { SessionList } from "../../types/sessionType";
 import { UserSettings } from "../../types/userStates";
+import * as Cookies from "../../utils/cookies";
 import { UrlParamsTypes, useMapParams } from "../../utils/mapParamsHandler";
 import { useHandleScrollEnd } from "../../utils/scrollEnd";
 import useMobileDetection from "../../utils/useScreenSizeDetection";
@@ -347,7 +348,15 @@ const Map = () => {
   ]);
 
   useEffect(() => {
+    if (isFirstRender.current) {
+    }
+
+    isFirstRender.current === false;
+  }, []);
+
+  useEffect(() => {
     const isFirstLoad = isFirstRender.current;
+
     if (isFirstLoad && fetchedSessions > 0 && !fixedSessionTypeSelected) {
       const originalLimit = limit;
       updateLimit(fetchedSessions);
@@ -438,10 +447,7 @@ const Map = () => {
       newSearchParams.set(UrlParamsTypes.streamId, "");
       newSearchParams.set(UrlParamsTypes.isActive, isActive.toString());
       newSearchParams.set(UrlParamsTypes.sessionType, sessionType);
-      localStorage.setItem(UrlParamsTypes.sessionType, sessionType);
-      localStorage.setItem(UrlParamsTypes.isActive, isActive.toString());
-      localStorage.setItem(UrlParamsTypes.sessionId, "");
-      localStorage.setItem(UrlParamsTypes.streamId, "");
+
       navigate(`?${newSearchParams.toString()}`);
     }
     !isFirstRender.current && setPreviousZoomOnTheMap();
@@ -520,10 +526,21 @@ const Map = () => {
         if (currentUserSettings === UserSettings.MapView) {
           newSearchParams.set(UrlParamsTypes.sessionType, sessionType);
           newSearchParams.set(UrlParamsTypes.isActive, TRUE);
-          map.setCenter(currentCenter);
-          map.setZoom(currentZoom);
-          localStorage.setItem(UrlParamsTypes.sessionType, sessionType);
-          localStorage.setItem(UrlParamsTypes.isActive, TRUE);
+          if (Cookies.get(UrlParamsTypes.currentCenter)) {
+            const currentCenter1 = JSON.parse(
+              Cookies.get(UrlParamsTypes.currentCenter) || ""
+            );
+            const currentZoom2 = JSON.parse(
+              Cookies.get(UrlParamsTypes.currentZoom) || ""
+            );
+            map.setCenter(currentCenter1);
+            map.setZoom(currentZoom2);
+          } else {
+            console.log("currentCenter tu", currentCenter);
+            console.log("currentZoom tu", currentZoom);
+            map.setCenter(currentCenter);
+            map.setZoom(currentZoom);
+          }
         }
         isFirstRender.current = false;
       } else {
@@ -551,12 +568,12 @@ const Map = () => {
           newSearchParams.set(UrlParamsTypes.boundWest, west.toString());
           newSearchParams.set(UrlParamsTypes.currentCenter, currentCenter);
           newSearchParams.set(UrlParamsTypes.currentZoom, currentZoom);
-          localStorage.setItem(UrlParamsTypes.boundEast, east.toString());
-          localStorage.setItem(UrlParamsTypes.boundNorth, north.toString());
-          localStorage.setItem(UrlParamsTypes.boundSouth, south.toString());
-          localStorage.setItem(UrlParamsTypes.boundWest, west.toString());
-          localStorage.setItem(UrlParamsTypes.currentCenter, currentCenter);
-          localStorage.setItem(UrlParamsTypes.currentZoom, currentZoom);
+          Cookies.set(UrlParamsTypes.boundEast, east.toString());
+          Cookies.set(UrlParamsTypes.boundNorth, north.toString());
+          Cookies.set(UrlParamsTypes.boundSouth, south.toString());
+          Cookies.set(UrlParamsTypes.boundWest, west.toString());
+          Cookies.set(UrlParamsTypes.currentCenter, currentCenter);
+          Cookies.set(UrlParamsTypes.currentZoom, currentZoom);
           navigate(`?${newSearchParams.toString()}`);
         }
       }
@@ -594,20 +611,6 @@ const Map = () => {
           selectedStreamId?.toString() || ""
         );
 
-        localStorage.setItem(
-          UrlParamsTypes.previousUserSettings,
-          currentUserSettings
-        );
-        localStorage.setItem(
-          UrlParamsTypes.currentUserSettings,
-          UserSettings.CalendarView
-        );
-        localStorage.setItem(UrlParamsTypes.sessionId, id?.toString() || "");
-        localStorage.setItem(
-          UrlParamsTypes.streamId,
-          selectedStreamId?.toString() || ""
-        );
-
         navigate(`/fixed_stream?${newSearchParams.toString()}`, {
           replace: true,
         });
@@ -628,20 +631,6 @@ const Map = () => {
       newSearchParams.set(
         UrlParamsTypes.currentUserSettings,
         UserSettings.ModalView
-      );
-
-      localStorage.setItem(
-        UrlParamsTypes.previousUserSettings,
-        currentUserSettings
-      );
-      localStorage.setItem(
-        UrlParamsTypes.currentUserSettings,
-        UserSettings.ModalView
-      );
-      localStorage.setItem(UrlParamsTypes.sessionId, id?.toString() || "");
-      localStorage.setItem(
-        UrlParamsTypes.streamId,
-        selectedStreamId?.toString() || ""
       );
 
       navigate(`?${newSearchParams.toString()}`);
@@ -699,7 +688,7 @@ const Map = () => {
             UrlParamsTypes.previousCenter,
             JSON.stringify(newCenter || currentCenter)
           );
-          localStorage.setItem(
+          Cookies.set(
             UrlParamsTypes.previousCenter,
             JSON.stringify(newCenter || currentCenter)
           );
@@ -710,7 +699,7 @@ const Map = () => {
             UrlParamsTypes.previousZoom,
             newZoom?.toString() || currentZoom.toString()
           );
-          localStorage.setItem(
+          Cookies.set(
             UrlParamsTypes.previousZoom,
             newZoom?.toString() || currentZoom.toString()
           );

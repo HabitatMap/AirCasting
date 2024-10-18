@@ -14,7 +14,7 @@ const CrowdMapToggle = () => {
     currentUserSettings,
     goToUserSettings,
     previousUserSettings,
-    setUrlAndLocalStorageParams,
+    setUrlParams,
     updatePreviousUserSettings,
   } = useMapParams();
   const { t } = useTranslation();
@@ -83,7 +83,7 @@ const CrowdMapToggle = () => {
     isCrowdMapActive,
     isMobile,
     isFiltersViewActive,
-    setUrlAndLocalStorageParams,
+    setUrlParams,
     goToUserSettings,
   ]);
 
