@@ -82,6 +82,11 @@ const Graph: React.FC<GraphProps> = React.memo(
     const [fetchCount, setFetchCount] = useState(0);
     const MAX_FETCH_FETCHES = 10;
 
+    // New state to keep track of fetched ranges
+    const [fetchedRanges, setFetchedRanges] = useState<
+      Array<{ start: number; end: number }>
+    >([]);
+
     const isIndoorParameterInUrl = isIndoor === "true";
     const isAirBeam = sensorName.toLowerCase().includes("airbeam");
 
@@ -110,13 +115,56 @@ const Graph: React.FC<GraphProps> = React.memo(
       [startTime, endTime]
     );
 
+    // Function to check if the requested range is already fetched
+    const isRangeFetched = useCallback(
+      (min: number, max: number) => {
+        for (const range of fetchedRanges) {
+          if (range.start <= min && range.end >= max) {
+            return true;
+          }
+        }
+        return false;
+      },
+      [fetchedRanges]
+    );
+
+    // Function to merge new range into fetchedRanges
+    function mergeRanges(
+      ranges: Array<{ start: number; end: number }>,
+      newRange: { start: number; end: number }
+    ) {
+      const result = [];
+      let added = false;
+      for (let range of ranges) {
+        if (range.end < newRange.start) {
+          result.push(range);
+        } else if (range.start > newRange.end) {
+          if (!added) {
+            result.push(newRange);
+            added = true;
+          }
+          result.push(range);
+        } else {
+          newRange = {
+            start: Math.min(range.start, newRange.start),
+            end: Math.max(range.end, newRange.end),
+          };
+        }
+      }
+      if (!added) {
+        result.push(newRange);
+      }
+      return result;
+    }
+
     const fetchDataForRange = useCallback(
       (min: number, max: number) => {
         if (
           streamId &&
           !isFetchingMore &&
           hasMoreData &&
-          fetchCount < MAX_FETCH_FETCHES
+          fetchCount < MAX_FETCH_FETCHES &&
+          !isRangeFetched(min, max)
         ) {
           setIsFetchingMore(true);
           dispatch(
@@ -132,6 +180,11 @@ const Graph: React.FC<GraphProps> = React.memo(
                 setHasMoreData(false);
               } else {
                 setFetchCount((prev) => prev + 1);
+
+                // Merge the new range into fetchedRanges
+                setFetchedRanges((prevRanges) =>
+                  mergeRanges(prevRanges, { start: min, end: max })
+                );
               }
               setIsFetchingMore(false);
             })
@@ -148,6 +201,7 @@ const Graph: React.FC<GraphProps> = React.memo(
         hasMoreData,
         fetchCount,
         MAX_FETCH_FETCHES,
+        isRangeFetched,
       ]
     );
 
@@ -165,16 +219,16 @@ const Graph: React.FC<GraphProps> = React.memo(
             e.max
           );
           rangeDisplayRef.current.innerHTML = `
-        <div class="time-container">
-          <span class="date">${formattedMinTime.date ?? ""}</span>
-          <span class="time">${formattedMinTime.time ?? ""}</span>
-        </div>
-        <span>-</span>
-        <div class="time-container">
-          <span class="date">${formattedMaxTime.date ?? ""}</span>
-          <span class="time">${formattedMaxTime.time ?? ""}</span>
-        </div>
-      `;
+            <div class="time-container">
+              <span class="date">${formattedMinTime.date ?? ""}</span>
+              <span class="time">${formattedMinTime.time ?? ""}</span>
+            </div>
+            <span>-</span>
+            <div class="time-container">
+              <span class="date">${formattedMaxTime.date ?? ""}</span>
+              <span class="time">${formattedMaxTime.time ?? ""}</span>
+            </div>
+          `;
         }
       },
       [fetchDataForRange, rangeDisplayRef]
@@ -297,10 +351,25 @@ const Graph: React.FC<GraphProps> = React.memo(
       ]
     );
 
+    // Reset fetchedRanges when streamId changes
     useEffect(() => {
       setFetchCount(0);
       setHasMoreData(true);
+      setFetchedRanges([]);
     }, [streamId]);
+
+    // Adjusted useEffect to use the correct property
+    useEffect(() => {
+      if (fixedGraphData?.measurements?.length) {
+        // Use the correct property, e.g., 'time'
+        const timestamps = fixedGraphData.measurements.map((m) =>
+          Number(new Date(m.time).getTime())
+        );
+        const minTimestamp = Math.min(...timestamps);
+        const maxTimestamp = Math.max(...timestamps);
+        setFetchedRanges([{ start: minTimestamp, end: maxTimestamp }]);
+      }
+    }, [fixedGraphData]);
 
     useEffect(() => {
       Highcharts.charts.forEach((chart) => {
