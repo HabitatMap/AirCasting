@@ -1,5 +1,6 @@
 // Graph.tsx
 
+import { RangeSelectorButtonsOptions } from "highcharts";
 import HighchartsReact from "highcharts-react-official";
 import Highcharts, { Chart } from "highcharts/highstock";
 import NoDataToDisplay from "highcharts/modules/no-data-to-display";
@@ -257,6 +258,18 @@ const Graph: React.FC<GraphProps> = React.memo(
       [isCalendarPage, isMobile]
     );
 
+    const [selectedRangeButtonIndex, setSelectedRangeButtonIndex] =
+      useState<RangeSelectorButtonsOptions | null>(null);
+
+    const handleRangeSelection = useCallback(
+      (event: {
+        rangeSelectorButton: { index: RangeSelectorButtonsOptions };
+      }) => {
+        setSelectedRangeButtonIndex(event.rangeSelectorButton.index);
+      },
+      []
+    );
+
     const options = useMemo<Highcharts.Options>(
       () => ({
         chart: {
@@ -296,6 +309,10 @@ const Graph: React.FC<GraphProps> = React.memo(
             isCalendarPage,
             t
           ),
+          selected:
+            typeof selectedRangeButtonIndex === "number"
+              ? selectedRangeButtonIndex
+              : 0,
         },
         scrollbar: {
           ...scrollbarOptions,
@@ -334,6 +351,7 @@ const Graph: React.FC<GraphProps> = React.memo(
         scrollbarOptions,
         t,
         handleChartLoad,
+        selectedRangeButtonIndex,
       ]
     );
 
@@ -367,9 +385,17 @@ const Graph: React.FC<GraphProps> = React.memo(
             false,
             false
           );
+
+          // Reapply the selected range after updating the data
+          if (selectedRangeButtonIndex !== null) {
+            (chart as any).rangeSelector?.clickButton(
+              selectedRangeButtonIndex,
+              true
+            );
+          }
         }
       }
-    }, [seriesData]);
+    }, [seriesData, selectedRangeButtonIndex]);
 
     // Show or hide loading indicator based on isLoading
     useEffect(() => {
@@ -389,7 +415,41 @@ const Graph: React.FC<GraphProps> = React.memo(
           <HighchartsReact
             highcharts={Highcharts}
             constructorType={"stockChart"}
-            options={options}
+            options={{
+              ...options,
+              chart: {
+                ...options.chart,
+                events: {
+                  ...options.chart?.events,
+                  load: function (this: Highcharts.Chart) {
+                    handleChartLoad.call(this);
+                    (this as any).rangeSelector?.dropdown?.addEventListener(
+                      "click",
+                      (event: MouseEvent) => {
+                        const button = (event.target as HTMLElement).closest(
+                          ".highcharts-button"
+                        );
+                        if (button) {
+                          const index = Array.from(
+                            button.parentElement?.children || []
+                          ).indexOf(button);
+                          setSelectedRangeButtonIndex(
+                            index as RangeSelectorButtonsOptions
+                          );
+                        }
+                      }
+                    );
+                  },
+                  redraw: function (this: Highcharts.Chart) {
+                    const chart = this as unknown as Highcharts.StockChart;
+                    const selectedButton = chart.rangeSelector?.selected;
+                    if (selectedButton !== undefined) {
+                      setSelectedRangeButtonIndex(selectedButton);
+                    }
+                  },
+                },
+              },
+            }}
             ref={chartComponentRef}
             immutable={false}
           />
