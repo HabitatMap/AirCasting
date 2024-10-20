@@ -67,9 +67,7 @@ const getXAxisOptions = (
   fixedSessionTypeSelected: boolean,
   dispatch: any,
   isLoading: boolean,
-  afterSetExtremesHandler?: (
-    event: Highcharts.AxisSetExtremesEventObject
-  ) => void
+  fetchMeasurementsIfNeeded: (start: number, end: number) => void
 ): XAxisOptions => {
   const handleSetExtremes = debounce(
     (e: Highcharts.AxisSetExtremesEventObject) => {
@@ -133,8 +131,8 @@ const getXAxisOptions = (
         e: Highcharts.AxisSetExtremesEventObject
       ) {
         handleSetExtremes(e);
-        if (afterSetExtremesHandler) {
-          afterSetExtremesHandler(e);
+        if (e.min !== undefined && e.max !== undefined) {
+          fetchMeasurementsIfNeeded(e.min, e.max);
         }
       },
     },
