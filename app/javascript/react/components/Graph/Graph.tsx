@@ -117,11 +117,11 @@ const Graph: React.FC<GraphProps> = React.memo(
       [startTime, endTime]
     );
 
-    // Function to check if the requested range is already fetched (partial overlaps)
+    // Function to check if the requested range is already fetched (full containment)
     const isRangeFetched = useCallback(
       (min: number, max: number) => {
         return fetchedRanges.some(
-          (range) => range.end >= min && range.start <= max
+          (range) => range.start <= min && range.end >= max
         );
       },
       [fetchedRanges]
@@ -224,6 +224,8 @@ const Graph: React.FC<GraphProps> = React.memo(
           e.trigger === undefined
         ) {
           const { min, max } = e;
+
+          console.log("Fetching data for range:", min, max);
           fetchDataForRange(min, max);
         }
 
