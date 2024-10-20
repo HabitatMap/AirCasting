@@ -186,7 +186,7 @@ const fixedStreamSlice = createSlice({
       (state, action: PayloadAction<Measurement[]>) => {
         state.status = StatusEnum.Fulfilled;
 
-        // **Prepend** new measurements after filtering out invalid ones
+        // Filter out invalid measurements
         const validNewMeasurements = action.payload.filter(
           (m) => m.time !== undefined && m.value !== undefined
         );
@@ -197,24 +197,26 @@ const fixedStreamSlice = createSlice({
           );
         }
 
-        state.data.measurements = [
+        // Merge new measurements with existing ones, ensuring no duplicates
+        const mergedMeasurements = [
           ...validNewMeasurements,
           ...state.data.measurements,
-        ].sort((a, b) => a.time - b.time); // Ensure ascending order
+        ].sort((a, b) => a.time - b.time);
+
+        state.data.measurements = Array.from(
+          new Map(mergedMeasurements.map((m) => [m.time, m])).values()
+        );
 
         state.isLoading = false;
         state.error = null;
 
+        // Update min, max, and average values
         if (state.data.measurements.length > 0) {
           const values = state.data.measurements.map((m) => m.value);
           state.minMeasurementValue = Math.min(...values);
           state.maxMeasurementValue = Math.max(...values);
           state.averageMeasurementValue =
             values.reduce((sum, value) => sum + value, 0) / values.length;
-        } else {
-          state.minMeasurementValue = 0;
-          state.maxMeasurementValue = 0;
-          state.averageMeasurementValue = 0;
         }
       }
     );

@@ -3,6 +3,7 @@
 import HighchartsReact from "highcharts-react-official";
 import Highcharts, { Chart } from "highcharts/highstock";
 import NoDataToDisplay from "highcharts/modules/no-data-to-display";
+import { debounce } from "lodash";
 import React, {
   useCallback,
   useEffect,
@@ -25,6 +26,7 @@ import {
 } from "../../store/mobileStreamSelectors";
 import { selectThresholds } from "../../store/thresholdSlice";
 import { SessionType, SessionTypes } from "../../types/filters";
+import { GraphData } from "../../types/graph";
 import { MobileStreamShortInfo as StreamShortInfo } from "../../types/mobileStream";
 import {
   createFixedSeriesData,
@@ -32,7 +34,6 @@ import {
 } from "../../utils/createGraphData";
 import { parseDateString } from "../../utils/dateParser";
 import { useMapParams } from "../../utils/mapParamsHandler";
-import { formatTimeExtremes } from "../../utils/measurementsCalc";
 import { MILLISECONDS_IN_A_MONTH } from "../../utils/timeRanges";
 import useMobileDetection from "../../utils/useScreenSizeDetection";
 import { handleLoad } from "./chartEvents";
@@ -60,6 +61,9 @@ interface GraphProps {
   rangeDisplayRef?: React.RefObject<HTMLDivElement>;
 }
 
+const MAX_FETCH_ATTEMPTS = 5;
+const FETCH_COOLDOWN = 2000; // 2 seconds
+
 const Graph: React.FC<GraphProps> = React.memo(
   ({ streamId, sessionType, isCalendarPage, rangeDisplayRef }) => {
     const dispatch = useAppDispatch();
@@ -79,19 +83,6 @@ const Graph: React.FC<GraphProps> = React.memo(
     const { unitSymbol, measurementType, isIndoor, sensorName } =
       useMapParams();
 
-    const [isFetchingMore, setIsFetchingMore] = useState(false);
-    const [hasMoreData, setHasMoreData] = useState(true);
-    const [fetchCount, setFetchCount] = useState(0);
-    const MAX_FETCH_FETCHES = 10;
-
-    // State to keep track of fetched ranges
-    const [fetchedRanges, setFetchedRanges] = useState<
-      Array<{ start: number; end: number }>
-    >([]);
-
-    const isIndoorParameterInUrl = isIndoor === "true";
-    const isAirBeam = sensorName.toLowerCase().includes("airbeam");
-
     const startTime = useMemo(
       () => parseDateString(streamShortInfo.startTime),
       [streamShortInfo.startTime]
@@ -103,6 +94,27 @@ const Graph: React.FC<GraphProps> = React.memo(
           : Date.now(),
       [streamShortInfo.endTime]
     );
+
+    const lastFetchedRangeRef = useRef<{
+      start: number | null;
+      end: number | null;
+    }>({
+      start: null,
+      end: null,
+    });
+    const isCurrentlyFetchingRef = useRef(false);
+    const fetchAttemptsRef = useRef(0);
+
+    const [selectedTimeRange, setSelectedTimeRange] = useState<{
+      start: number;
+      end: number;
+    }>({
+      start: startTime,
+      end: endTime,
+    });
+
+    const isIndoorParameterInUrl = isIndoor === "true";
+    const isAirBeam = sensorName.toLowerCase().includes("airbeam");
 
     const seriesData = useMemo(() => {
       return fixedSessionTypeSelected
@@ -117,139 +129,100 @@ const Graph: React.FC<GraphProps> = React.memo(
       [startTime, endTime]
     );
 
-    // Function to check if the requested range is already fetched (full containment)
-    const isRangeFetched = useCallback(
-      (min: number, max: number) => {
-        return fetchedRanges.some(
-          (range) => range.start <= min && range.end >= max
-        );
-      },
-      [fetchedRanges]
-    );
-
-    // Function to merge new range into fetchedRanges (improved merging)
-    const mergeRanges = useCallback(
-      (
-        ranges: Array<{ start: number; end: number }>,
-        newRange: { start: number; end: number }
-      ): Array<{ start: number; end: number }> => {
-        if (ranges.length === 0) return [newRange];
-
-        // Combine existing ranges with the new range
-        const updatedRanges = [...ranges, newRange];
-
-        // Sort ranges by start time
-        updatedRanges.sort((a, b) => a.start - b.start);
-
-        const mergedRanges: Array<{ start: number; end: number }> = [];
-        let currentRange = { ...updatedRanges[0] };
-
-        for (let i = 1; i < updatedRanges.length; i++) {
-          const range = updatedRanges[i];
-          if (currentRange.end >= range.start - 1) {
-            // Overlapping or adjacent ranges; merge them
-            currentRange.end = Math.max(currentRange.end, range.end);
-          } else {
-            // Non-overlapping range; push the current range and start a new one
-            mergedRanges.push(currentRange);
-            currentRange = { ...range };
-          }
+    const fetchMeasurementsIfNeeded = useCallback(
+      debounce(async (start: number, end: number) => {
+        if (!streamId || isCurrentlyFetchingRef.current) {
+          console.log(
+            `Skipping fetch: ${!streamId ? "No streamId" : "Already fetching"}`
+          );
+          return;
         }
 
-        // Push the last range
-        mergedRanges.push(currentRange);
-        return mergedRanges;
-      },
-      []
-    );
+        const now = Date.now();
+        if (end > now) {
+          console.log(
+            `Adjusting end time from ${new Date(end)} to current time`
+          );
+          end = now;
+        }
 
-    const fetchDataForRange = useCallback(
-      (min: number, max: number) => {
-        if (
-          streamId &&
-          !isFetchingMore &&
-          hasMoreData &&
-          fetchCount < MAX_FETCH_FETCHES &&
-          !isRangeFetched(min, max)
-        ) {
-          setIsFetchingMore(true);
-          dispatch(
+        if (start >= end) {
+          console.log(
+            `Invalid time range: start (${new Date(start)}) >= end (${new Date(
+              end
+            )})`
+          );
+          return;
+        }
+
+        const { start: lastStart, end: lastEnd } = lastFetchedRangeRef.current;
+        if (lastStart !== null && lastEnd !== null) {
+          if (start >= lastStart && end <= lastEnd) {
+            console.log(
+              `Data already fetched for range ${new Date(start)} to ${new Date(
+                end
+              )}`
+            );
+            return;
+          }
+          // Adjust fetch range to include any gaps
+          start = Math.min(start, lastStart);
+          end = Math.max(end, lastEnd);
+        }
+
+        if (fetchAttemptsRef.current >= MAX_FETCH_ATTEMPTS) {
+          console.log(
+            `Max fetch attempts (${MAX_FETCH_ATTEMPTS}) reached. Cooling down.`
+          );
+          setTimeout(() => {
+            fetchAttemptsRef.current = 0;
+          }, FETCH_COOLDOWN);
+          return;
+        }
+
+        console.log(
+          `Fetching data from ${new Date(start)} to ${new Date(end)}`
+        );
+        console.log(`Timestamps: ${start} to ${end}`);
+
+        isCurrentlyFetchingRef.current = true;
+        fetchAttemptsRef.current++;
+
+        try {
+          await dispatch(
             fetchMeasurements({
               streamId,
-              startTime: min.toString(),
-              endTime: max.toString(),
+              startTime: Math.floor(start).toString(),
+              endTime: Math.floor(end).toString(),
             })
-          )
-            .unwrap()
-            .then((fetchedData) => {
-              if (fetchedData.length === 0) {
-                setHasMoreData(false);
-              } else {
-                setFetchCount((prev) => prev + 1);
+          ).unwrap();
 
-                // Merge the new range into fetchedRanges
-                setFetchedRanges((prevRanges) =>
-                  mergeRanges(prevRanges, { start: min, end: max })
-                );
-              }
-              setIsFetchingMore(false);
-            })
-            .catch((error) => {
-              console.error("Error fetching measurements:", error);
-              setIsFetchingMore(false);
-            });
-        }
-      },
-      [
-        dispatch,
-        streamId,
-        isFetchingMore,
-        hasMoreData,
-        fetchCount,
-        MAX_FETCH_FETCHES,
-        isRangeFetched,
-        mergeRanges,
-      ]
-    );
-
-    const handleAfterSetExtremes = useCallback(
-      (e: Highcharts.AxisSetExtremesEventObject) => {
-        console.log("AfterSetExtremes:", e.min, e.max, "Trigger:", e.trigger);
-
-        // Include 'scrollbar' and 'undefined' triggers
-        if (
-          e.trigger === "navigator" ||
-          e.trigger === "pan" ||
-          e.trigger === "scrollbar" ||
-          e.trigger === undefined
-        ) {
-          const { min, max } = e;
-
-          console.log("Fetching data for range:", min, max);
-          fetchDataForRange(min, max);
-        }
-
-        // Update time range display
-        if (rangeDisplayRef?.current) {
-          const { formattedMinTime, formattedMaxTime } = formatTimeExtremes(
-            e.min,
-            e.max
+          lastFetchedRangeRef.current = {
+            start: Math.min(start, lastStart ?? Infinity),
+            end: Math.max(end, lastEnd ?? -Infinity),
+          };
+          console.log(
+            `Updated fetched time range: ${new Date(
+              lastFetchedRangeRef.current.start ?? 0
+            )} to ${new Date(lastFetchedRangeRef.current.end ?? 0)}`
           );
-          rangeDisplayRef.current.innerHTML = `
-            <div class="time-container">
-              <span class="date">${formattedMinTime.date ?? ""}</span>
-              <span class="time">${formattedMinTime.time ?? ""}</span>
-            </div>
-            <span>-</span>
-            <div class="time-container">
-              <span class="date">${formattedMaxTime.date ?? ""}</span>
-              <span class="time">${formattedMaxTime.time ?? ""}</span>
-            </div>
-          `;
+        } catch (error) {
+          console.error("Error fetching measurements:", error);
+        } finally {
+          isCurrentlyFetchingRef.current = false;
         }
-      },
-      [fetchDataForRange, rangeDisplayRef]
+      }, 500),
+      [dispatch, streamId]
     );
+
+    useEffect(() => {
+      if (selectedTimeRange.start !== null && selectedTimeRange.end !== null) {
+        fetchMeasurementsIfNeeded(
+          selectedTimeRange.start,
+          selectedTimeRange.end
+        );
+      }
+    }, [selectedTimeRange, fetchMeasurementsIfNeeded]);
 
     const xAxisOptions = useMemo(
       () =>
@@ -259,16 +232,9 @@ const Graph: React.FC<GraphProps> = React.memo(
           fixedSessionTypeSelected,
           dispatch,
           isLoading,
-          handleAfterSetExtremes
+          fetchMeasurementsIfNeeded
         ),
-      [
-        isMobile,
-        rangeDisplayRef,
-        fixedSessionTypeSelected,
-        dispatch,
-        isLoading,
-        handleAfterSetExtremes,
-      ]
+      [isMobile, rangeDisplayRef, fixedSessionTypeSelected, dispatch, isLoading]
     );
 
     const scrollbarOptions = useMemo(
@@ -304,13 +270,14 @@ const Graph: React.FC<GraphProps> = React.memo(
           ...(fixedSessionTypeSelected
             ? {
                 min: startTime,
+                max: endTime,
               }
             : {}),
         },
         yAxis: getYAxisOptions(thresholdsState, isMobile),
         series: [
           {
-            ...seriesOptions(seriesData || []),
+            ...seriesOptions(seriesData as GraphData),
           } as Highcharts.SeriesOptionsType,
         ],
         tooltip: getTooltipOptions(measurementType, unitSymbol),
@@ -320,17 +287,21 @@ const Graph: React.FC<GraphProps> = React.memo(
           dispatch,
           isIndoorParameterInUrl
         ),
-        rangeSelector: getRangeSelectorOptions(
-          isMobile,
-          fixedSessionTypeSelected,
-          totalDuration,
-          0,
-          isCalendarPage,
-          t
-        ),
-        scrollbar: scrollbarOptions,
+        rangeSelector: {
+          ...getRangeSelectorOptions(
+            isMobile,
+            fixedSessionTypeSelected,
+            totalDuration,
+            0,
+            isCalendarPage,
+            t
+          ),
+        },
+        scrollbar: {
+          ...scrollbarOptions,
+        },
         navigator: {
-          enabled: false,
+          enabled: true,
         },
         responsive: getResponsiveOptions(thresholdsState, isMobile),
         legend: legendOption,
@@ -366,74 +337,24 @@ const Graph: React.FC<GraphProps> = React.memo(
       ]
     );
 
-    // Reset fetchedRanges when streamId changes
-    useEffect(() => {
-      setFetchCount(0);
-      setHasMoreData(true);
-      setFetchedRanges([]);
-    }, [streamId]);
-
-    // Initial fetch on first render for AirBeam with fixed session type
     useEffect(() => {
       if (
         streamId &&
         fixedSessionTypeSelected &&
         isAirBeam &&
-        fetchedRanges.length === 0
+        lastFetchedRangeRef.current.start === null &&
+        lastFetchedRangeRef.current.end === null
       ) {
         const now = Date.now();
         const oneMonthAgo = now - MILLISECONDS_IN_A_MONTH;
-        console.log("Fetching initial one month of data:", oneMonthAgo, now);
-
-        dispatch(
-          fetchMeasurements({
-            streamId,
-            startTime: oneMonthAgo.toString(),
-            endTime: now.toString(),
-          })
-        )
-          .unwrap()
-          .then((fetchedData) => {
-            if (fetchedData.length === 0) {
-              setHasMoreData(false);
-            } else {
-              setFetchCount(1);
-              const timestamps = fetchedData.map((m) =>
-                Number(new Date(m.time).getTime())
-              );
-              const minTimestamp = Math.min(...timestamps);
-              const maxTimestamp = Math.max(...timestamps);
-              setFetchedRanges([{ start: minTimestamp, end: maxTimestamp }]);
-            }
-          })
-          .catch((error) => {
-            console.error("Error fetching initial measurements:", error);
-          });
-      }
-    }, [
-      streamId,
-      fixedSessionTypeSelected,
-      isAirBeam,
-      dispatch,
-      fetchedRanges.length,
-    ]);
-
-    // Initialize fetchedRanges based on existing data
-    useEffect(() => {
-      if (fixedGraphData?.measurements?.length) {
-        const timestamps = fixedGraphData.measurements.map((m) =>
-          Number(new Date(m.time).getTime())
+        console.log(
+          "Setting initial time range:",
+          new Date(oneMonthAgo),
+          new Date(now)
         );
-        const minTimestamp = Math.min(...timestamps);
-        const maxTimestamp = Math.max(...timestamps);
-        setFetchedRanges([{ start: minTimestamp, end: maxTimestamp }]);
+        setSelectedTimeRange({ start: oneMonthAgo, end: now });
       }
-    }, [fixedGraphData]);
-
-    // Log fixedGraphData for debugging
-    useEffect(() => {
-      console.log("Fixed Graph Data:", fixedGraphData);
-    }, [fixedGraphData]);
+    }, [streamId, fixedSessionTypeSelected, isAirBeam]);
 
     // Ensure chart updates when new data is available
     useEffect(() => {
@@ -452,15 +373,14 @@ const Graph: React.FC<GraphProps> = React.memo(
 
     // Show or hide loading indicator based on isLoading
     useEffect(() => {
-      Highcharts.charts.forEach((chart) => {
-        if (chart) {
-          if (isLoading) {
-            chart.showLoading("Loading data from server...");
-          } else {
-            chart.hideLoading();
-          }
+      if (chartComponentRef.current && chartComponentRef.current.chart) {
+        const chart = chartComponentRef.current.chart;
+        if (isLoading) {
+          chart.showLoading("Loading data from server...");
+        } else {
+          chart.hideLoading();
         }
-      });
+      }
     }, [isLoading]);
 
     return (
