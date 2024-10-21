@@ -519,21 +519,8 @@ const Map = () => {
         if (currentUserSettings === UserSettings.MapView) {
           newSearchParams.set(UrlParamsTypes.sessionType, sessionType);
           newSearchParams.set(UrlParamsTypes.isActive, TRUE);
-          if (Cookies.get(UrlParamsTypes.currentCenter)) {
-            const currentCenter1 = JSON.parse(
-              Cookies.get(UrlParamsTypes.currentCenter) || ""
-            );
-            const currentZoom2 = JSON.parse(
-              Cookies.get(UrlParamsTypes.currentZoom) || ""
-            );
-            map.setCenter(currentCenter1);
-            map.setZoom(currentZoom2);
-          } else {
-            console.log("currentCenter tu", currentCenter);
-            console.log("currentZoom tu", currentZoom);
-            map.setCenter(currentCenter);
-            map.setZoom(currentZoom);
-          }
+          map.setCenter(currentCenter);
+          map.setZoom(currentZoom);
         }
         isFirstRender.current = false;
       } else {
