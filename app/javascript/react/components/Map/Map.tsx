@@ -348,13 +348,6 @@ const Map = () => {
   ]);
 
   useEffect(() => {
-    if (isFirstRender.current) {
-    }
-
-    isFirstRender.current === false;
-  }, []);
-
-  useEffect(() => {
     const isFirstLoad = isFirstRender.current;
 
     if (isFirstLoad && fetchedSessions > 0 && !fixedSessionTypeSelected) {
