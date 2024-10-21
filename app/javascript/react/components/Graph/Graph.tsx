@@ -13,6 +13,7 @@ import React, {
   useState,
 } from "react";
 import { useTranslation } from "react-i18next";
+import { white } from "../../assets/styles/colors";
 import { selectFixedStreamShortInfo } from "../../store/fixedStreamSelectors";
 import {
   fetchMeasurements,
@@ -312,7 +313,9 @@ const Graph: React.FC<GraphProps> = React.memo(
           selected:
             typeof selectedRangeButtonIndex === "number"
               ? selectedRangeButtonIndex
-              : 0,
+              : fixedSessionTypeSelected
+              ? 0
+              : 2,
         },
         scrollbar: {
           ...scrollbarOptions,
@@ -326,7 +329,7 @@ const Graph: React.FC<GraphProps> = React.memo(
           style: {
             fontWeight: "bold",
             fontSize: "15px",
-            color: "#cccccc",
+            color: white,
           },
           position: {
             align: "center",
@@ -442,9 +445,12 @@ const Graph: React.FC<GraphProps> = React.memo(
                   },
                   redraw: function (this: Highcharts.Chart) {
                     const chart = this as unknown as Highcharts.StockChart;
-                    const selectedButton = chart.rangeSelector?.selected;
+                    const selectedButton =
+                      chart.options.rangeSelector?.selected;
                     if (selectedButton !== undefined) {
-                      setSelectedRangeButtonIndex(selectedButton);
+                      setSelectedRangeButtonIndex(
+                        (prev) => selectedButton as RangeSelectorButtonsOptions
+                      );
                     }
                   },
                 },
