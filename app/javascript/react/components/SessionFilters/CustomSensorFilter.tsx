@@ -42,12 +42,8 @@ const CustomSensorFilter: React.FC<CustomSensorFilterProps> = ({
   const [inputValue, setInputValue] = useState<string>("");
   const [selectedItem, setSelectedItem] = useState<string>("");
   const sensors = useAppSelector(selectSensors);
-  const {
-    setUrlAndLocalStorageParams,
-    currentUserSettings,
-    sensorName,
-    sessionType,
-  } = useMapParams();
+  const { setUrlParams, currentUserSettings, sensorName, sessionType } =
+    useMapParams();
   const isMobile = useMobileDetection();
   const dispatch = useAppDispatch();
   const { t } = useTranslation();
@@ -64,7 +60,7 @@ const CustomSensorFilter: React.FC<CustomSensorFilterProps> = ({
     },
     onSelectedItemChange: ({ selectedItem: newSelectedItem }) => {
       if (newSelectedItem) {
-        setUrlAndLocalStorageParams([
+        setUrlParams([
           {
             key: UrlParamsTypes.previousUserSettings,
             value: currentUserSettings,

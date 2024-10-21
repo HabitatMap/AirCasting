@@ -31,6 +31,7 @@ import {
 import { Sensor, SENSOR_NAMES, SensorPrefix } from "../types/sensors";
 import { UserSettings } from "../types/userStates";
 import useMobileDetection from "../utils/useScreenSizeDetection";
+import * as Cookies from "./cookies";
 import { setSensor } from "./setSensor";
 
 export enum UrlParamsTypes {
@@ -74,22 +75,26 @@ export const useMapParams = () => {
   const isMobile: boolean = useMobileDetection();
   const [searchParams, setSearchParams] = useSearchParams();
 
-  const getStoredOrSearchParam = (
-    param: UrlParamsTypes,
-    defaultValue: string | null
-  ): string | null => {
-    const storedValue = localStorage.getItem(param);
-    return storedValue !== null
-      ? storedValue
-      : searchParams.get(param) ?? defaultValue;
-  };
+  const getParam = useCallback(
+    (param: UrlParamsTypes, defaultValue: string | null): string | null => {
+      const cookieValue = Cookies.get(param);
 
-  const setUrlAndLocalStorageParams = useCallback(
+      if (searchParams.get(param)) {
+        return searchParams.get(param);
+      } else if (cookieValue !== null) {
+        return cookieValue;
+      } else {
+        return defaultValue;
+      }
+    },
+    [searchParams, setSearchParams]
+  );
+
+  const setUrlParams = useCallback(
     (params: Array<{ key: UrlParamsTypes; value: string }>) => {
       const newSearchParams = new URLSearchParams(searchParams.toString());
       params.forEach(({ key, value }) => {
         newSearchParams.set(key, value);
-        localStorage.setItem(key, value);
       });
       setSearchParams(`?${newSearchParams.toString()}`);
     },
@@ -97,147 +102,127 @@ export const useMapParams = () => {
   );
 
   const boundEast = parseFloat(
-    getStoredOrSearchParam(
-      UrlParamsTypes.boundEast,
-      DEFAULT_MAP_BOUNDS.east.toString()
-    )!
+    getParam(UrlParamsTypes.boundEast, DEFAULT_MAP_BOUNDS.east.toString())!
   );
   const boundNorth = parseFloat(
-    getStoredOrSearchParam(
-      UrlParamsTypes.boundNorth,
-      DEFAULT_MAP_BOUNDS.north.toString()
-    )!
+    getParam(UrlParamsTypes.boundNorth, DEFAULT_MAP_BOUNDS.north.toString())!
   );
   const boundSouth = parseFloat(
-    getStoredOrSearchParam(
-      UrlParamsTypes.boundSouth,
-      DEFAULT_MAP_BOUNDS.south.toString()
-    )!
+    getParam(UrlParamsTypes.boundSouth, DEFAULT_MAP_BOUNDS.south.toString())!
   );
   const boundWest = parseFloat(
-    getStoredOrSearchParam(
-      UrlParamsTypes.boundWest,
-      DEFAULT_MAP_BOUNDS.west.toString()
-    )!
+    getParam(UrlParamsTypes.boundWest, DEFAULT_MAP_BOUNDS.west.toString())!
   );
   const currentCenter = useMemo(
     () =>
       JSON.parse(
-        getStoredOrSearchParam(
+        getParam(
           UrlParamsTypes.currentCenter,
           JSON.stringify(DEFAULT_MAP_CENTER)
         )!
       ),
     [searchParams]
   );
-  const currentUserSettings = getStoredOrSearchParam(
+  const currentUserSettings = getParam(
     UrlParamsTypes.currentUserSettings,
     UserSettings.MapView
   ) as UserSettings;
   const currentZoom = parseFloat(
-    getStoredOrSearchParam(UrlParamsTypes.currentZoom, DEFAULT_ZOOM.toString())!
+    getParam(UrlParamsTypes.currentZoom, DEFAULT_ZOOM.toString())!
   );
 
-  const isIndoor = getStoredOrSearchParam(UrlParamsTypes.isIndoor, FALSE);
+  const isIndoor = getParam(UrlParamsTypes.isIndoor, FALSE);
   const currentYear = new Date().getFullYear();
 
   const gridSize = parseInt(
-    getStoredOrSearchParam(UrlParamsTypes.gridSize, defaultGridSize.toString())!
+    getParam(UrlParamsTypes.gridSize, defaultGridSize.toString())!
   );
-  const limit = parseInt(getStoredOrSearchParam(UrlParamsTypes.limit, "100")!);
+  const limit = parseInt(getParam(UrlParamsTypes.limit, "100")!);
   const updateLimit = useCallback(
     (newLimit: number) => {
-      setUrlAndLocalStorageParams([
-        { key: UrlParamsTypes.limit, value: newLimit.toString() },
-      ]);
+      setUrlParams([{ key: UrlParamsTypes.limit, value: newLimit.toString() }]);
     },
-    [setUrlAndLocalStorageParams]
+    [setUrlParams]
   );
 
   const mapTypeId =
-    getStoredOrSearchParam(UrlParamsTypes.mapType, MAP_CONFIGS[0].mapTypeId) ||
+    getParam(UrlParamsTypes.mapType, MAP_CONFIGS[0].mapTypeId) ||
     MAP_CONFIGS[0].mapTypeId;
 
-  const measurementType = getStoredOrSearchParam(
+  const measurementType = getParam(
     UrlParamsTypes.measurementType,
     ParameterTypes.PARTICULATE_MATTER
   )!;
 
-  const offset = parseInt(getStoredOrSearchParam(UrlParamsTypes.offset, "0")!);
+  const offset = parseInt(getParam(UrlParamsTypes.offset, "0")!);
   const updateOffset = useCallback(
     (newOffset: number) => {
-      setUrlAndLocalStorageParams([
+      setUrlParams([
         { key: UrlParamsTypes.offset, value: newOffset.toString() },
       ]);
     },
-    [setUrlAndLocalStorageParams]
+    [setUrlParams]
   );
 
   const fetchedSessions = parseInt(
-    getStoredOrSearchParam(UrlParamsTypes.fetchedSessions, "0")!
+    getParam(UrlParamsTypes.fetchedSessions, "0")!
   );
   const updateFetchedSessions = useCallback(
     (newFetchedSessions: number) => {
-      setUrlAndLocalStorageParams([
+      setUrlParams([
         {
           key: UrlParamsTypes.fetchedSessions,
           value: newFetchedSessions.toString(),
         },
       ]);
     },
-    [setUrlAndLocalStorageParams]
+    [setUrlParams]
   );
   const previousCenter = useMemo(
     () =>
       JSON.parse(
-        getStoredOrSearchParam(
+        getParam(
           UrlParamsTypes.previousCenter,
           JSON.stringify(DEFAULT_MAP_CENTER)
         )!
       ),
     [searchParams]
   );
-  const previousUserSettings = getStoredOrSearchParam(
+  const previousUserSettings = getParam(
     UrlParamsTypes.previousUserSettings,
     UserSettings.MapView
   ) as UserSettings;
 
   const updatePreviousUserSettings = useCallback(
     (selectedPreviousUserSettings: UserSettings) => {
-      setUrlAndLocalStorageParams([
+      setUrlParams([
         {
           key: UrlParamsTypes.previousUserSettings,
           value: selectedPreviousUserSettings,
         },
       ]);
     },
-    [setUrlAndLocalStorageParams]
+    [setUrlParams]
   );
   const previousZoom = parseFloat(
-    getStoredOrSearchParam(
-      UrlParamsTypes.previousZoom,
-      DEFAULT_ZOOM.toString()
-    )!
+    getParam(UrlParamsTypes.previousZoom, DEFAULT_ZOOM.toString())!
   );
-  const sensorName = getStoredOrSearchParam(
+  const sensorName = getParam(
     UrlParamsTypes.sensorName,
     SENSOR_NAMES.PARTICULATE_MATTER.GOVERNMENT_PM25
   )!;
   const sessionId =
-    getStoredOrSearchParam(UrlParamsTypes.sessionId, null) !== null
-      ? parseInt(getStoredOrSearchParam(UrlParamsTypes.sessionId, "0")!)
+    getParam(UrlParamsTypes.sessionId, null) !== null
+      ? parseInt(getParam(UrlParamsTypes.sessionId, "0")!)
       : null;
   const sessionType = useMemo(
     () =>
-      getStoredOrSearchParam(
-        UrlParamsTypes.sessionType,
-        SessionTypes.FIXED
-      ) as SessionType,
+      getParam(UrlParamsTypes.sessionType, SessionTypes.FIXED) as SessionType,
     [searchParams]
   );
   const updateSessionType = useCallback(
     (selectedSessionType: SessionType) => {
-      setUrlAndLocalStorageParams([
+      setUrlParams([
         { key: UrlParamsTypes.sessionType, value: selectedSessionType },
         {
           key: UrlParamsTypes.previousUserSettings,
@@ -293,11 +278,11 @@ export const useMapParams = () => {
         },
       ]);
     },
-    [currentUserSettings, setUrlAndLocalStorageParams]
+    [currentUserSettings, setUrlParams]
   );
 
   const isActive = useMemo(() => {
-    const activeParam = getStoredOrSearchParam(UrlParamsTypes.isActive, TRUE);
+    const activeParam = getParam(UrlParamsTypes.isActive, TRUE);
 
     if (sessionType === SessionTypes.MOBILE) {
       return true;
@@ -311,7 +296,7 @@ export const useMapParams = () => {
       if (sessionType === SessionTypes.MOBILE) {
         newIsActive = true;
       }
-      setUrlAndLocalStorageParams([
+      setUrlParams([
         {
           key: UrlParamsTypes.previousUserSettings,
           value: currentUserSettings,
@@ -343,62 +328,53 @@ export const useMapParams = () => {
         { key: UrlParamsTypes.isActive, value: newIsActive.toString() },
       ]);
     },
-    [sessionType, setUrlAndLocalStorageParams, currentYear]
+    [sessionType, setUrlParams, currentYear]
   );
 
   const streamId =
-    getStoredOrSearchParam(UrlParamsTypes.streamId, null) !== null
-      ? parseInt(getStoredOrSearchParam(UrlParamsTypes.streamId, "0")!)
+    getParam(UrlParamsTypes.streamId, null) !== null
+      ? parseInt(getParam(UrlParamsTypes.streamId, "0")!)
       : null;
-  const tags = getStoredOrSearchParam(UrlParamsTypes.tags, "");
+  const tags = getParam(UrlParamsTypes.tags, "");
   const initialThresholds = useMemo(
     () => ({
       min: parseFloat(
-        getStoredOrSearchParam(
-          UrlParamsTypes.thresholdMin,
-          defaultThresholds.min.toString()
-        )!
+        getParam(UrlParamsTypes.thresholdMin, defaultThresholds.min.toString())!
       ),
       low: parseFloat(
-        getStoredOrSearchParam(
-          UrlParamsTypes.thresholdLow,
-          defaultThresholds.low.toString()
-        )!
+        getParam(UrlParamsTypes.thresholdLow, defaultThresholds.low.toString())!
       ),
       middle: parseFloat(
-        getStoredOrSearchParam(
+        getParam(
           UrlParamsTypes.thresholdMiddle,
           defaultThresholds.middle.toString()
         )!
       ),
       high: parseFloat(
-        getStoredOrSearchParam(
+        getParam(
           UrlParamsTypes.thresholdHigh,
           defaultThresholds.high.toString()
         )!
       ),
       max: parseFloat(
-        getStoredOrSearchParam(
-          UrlParamsTypes.thresholdMax,
-          defaultThresholds.max.toString()
-        )!
+        getParam(UrlParamsTypes.thresholdMax, defaultThresholds.max.toString())!
       ),
     }),
     [defaultThresholds]
   );
-  const timeFrom = getStoredOrSearchParam(
+  const timeFrom = getParam(
     UrlParamsTypes.timeFrom,
     beginningOfTheYear(getLastFiveYears()[0]).toString()
   )!;
-  const timeTo = getStoredOrSearchParam(
+  const timeTo = getParam(
     UrlParamsTypes.timeTo,
     endOfTheYear(getLastFiveYears()[0]).toString()
   )!;
-  const unitSymbol = getStoredOrSearchParam(
+  const unitSymbol = getParam(
     UrlParamsTypes.unitSymbol,
     UnitSymbols.ParticulateMatter
   )!;
-  const usernames = getStoredOrSearchParam(UrlParamsTypes.usernames, "");
+  const usernames = getParam(UrlParamsTypes.usernames, "");
 
   useEffect(() => {
     const queryParams = new URLSearchParams(searchParams.toString());
@@ -428,32 +404,13 @@ export const useMapParams = () => {
         UrlParamsTypes.thresholdMax,
         thresholdValues.max.toString()
       );
+
     debouncedUpdateURL(queryParams);
-    localStorage.setItem(
-      UrlParamsTypes.thresholdMin,
-      thresholdValues.min.toString()
-    );
-    localStorage.setItem(
-      UrlParamsTypes.thresholdLow,
-      thresholdValues.low.toString()
-    );
-    localStorage.setItem(
-      UrlParamsTypes.thresholdMiddle,
-      thresholdValues.middle.toString()
-    );
-    localStorage.setItem(
-      UrlParamsTypes.thresholdHigh,
-      thresholdValues.high.toString()
-    );
-    localStorage.setItem(
-      UrlParamsTypes.thresholdMax,
-      thresholdValues.max.toString()
-    );
   }, [thresholdValues]);
 
   const goToUserSettings = useCallback(
     (newUserSettings: UserSettings) => {
-      setUrlAndLocalStorageParams([
+      setUrlParams([
         {
           key: UrlParamsTypes.previousUserSettings,
           value: currentUserSettings,
@@ -473,7 +430,7 @@ export const useMapParams = () => {
         ? UserSettings.MapView
         : previousUserSettings;
 
-    setUrlAndLocalStorageParams([
+    setUrlParams([
       { key: UrlParamsTypes.sessionId, value: "" },
       { key: UrlParamsTypes.streamId, value: "" },
       {
@@ -485,24 +442,19 @@ export const useMapParams = () => {
         value: finalPreviousUserSettings,
       },
     ]);
-  }, [
-    searchParams,
-    previousUserSettings,
-    currentUserSettings,
-    setUrlAndLocalStorageParams,
-  ]);
+  }, [searchParams, previousUserSettings, currentUserSettings, setUrlParams]);
 
   const setFilter = useCallback(
     (key: UrlParamsTypes, value: string) => {
       if (isMobile) {
-        setUrlAndLocalStorageParams([
+        setUrlParams([
           {
             key: key,
             value: value,
           },
         ]);
       } else {
-        setUrlAndLocalStorageParams([
+        setUrlParams([
           {
             key: key,
             value: value,
@@ -535,7 +487,7 @@ export const useMapParams = () => {
   const updateIndoorFilters = useCallback(
     (isIndoor: string) => {
       if (isMobile) {
-        setUrlAndLocalStorageParams([
+        setUrlParams([
           {
             key: UrlParamsTypes.isIndoor,
             value: isIndoor,
@@ -543,7 +495,7 @@ export const useMapParams = () => {
           { key: UrlParamsTypes.usernames, value: "" },
         ]);
       } else {
-        setUrlAndLocalStorageParams([
+        setUrlParams([
           {
             key: UrlParamsTypes.isIndoor,
             value: isIndoor,
@@ -576,7 +528,7 @@ export const useMapParams = () => {
 
   const updateTime = useCallback(
     (selectedYear: number) => {
-      setUrlAndLocalStorageParams([
+      setUrlParams([
         {
           key: UrlParamsTypes.previousUserSettings,
           value: isMobile ? previousUserSettings : currentUserSettings,
@@ -607,12 +559,7 @@ export const useMapParams = () => {
         },
       ]);
     },
-    [
-      beginningOfTheYear,
-      currentUserSettings,
-      endOfTheYear,
-      setUrlAndLocalStorageParams,
-    ]
+    [beginningOfTheYear, currentUserSettings, endOfTheYear, setUrlParams]
   );
 
   const debouncedUpdateURL = useCallback(
@@ -660,13 +607,13 @@ export const useMapParams = () => {
         },
       ];
 
-      setUrlAndLocalStorageParams(commonParams);
+      setUrlParams(commonParams);
 
       if (
         isIndoor === TRUE &&
         sensorData.sensorName.startsWith(SensorPrefix.GOVERNMENT)
       ) {
-        setUrlAndLocalStorageParams([
+        setUrlParams([
           ...commonParams,
           {
             key: UrlParamsTypes.isIndoor,
@@ -675,7 +622,7 @@ export const useMapParams = () => {
         ]);
       }
     },
-    [setUrlAndLocalStorageParams, setSensor]
+    [setUrlParams, setSensor]
   );
 
   const setSensorParams = useCallback(
@@ -711,13 +658,13 @@ export const useMapParams = () => {
         },
       ];
 
-      setUrlAndLocalStorageParams(commonParams);
+      setUrlParams(commonParams);
 
       if (
         isIndoor === TRUE &&
         selectedSensor.startsWith(SensorPrefix.GOVERNMENT)
       ) {
-        setUrlAndLocalStorageParams([
+        setUrlParams([
           ...commonParams,
           {
             key: UrlParamsTypes.isIndoor,
@@ -726,7 +673,7 @@ export const useMapParams = () => {
         ]);
       }
     },
-    [setUrlAndLocalStorageParams, getSensorUnitSymbol]
+    [setUrlParams, getSensorUnitSymbol]
   );
 
   return {
@@ -756,7 +703,7 @@ export const useMapParams = () => {
     sessionType,
     updateSessionType,
     setFilter,
-    setUrlAndLocalStorageParams,
+    setUrlParams,
     streamId,
     initialThresholds,
     searchParams,
