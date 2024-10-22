@@ -1,5 +1,3 @@
-// fixedStreamSlice.ts
-
 import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { AxiosResponse } from "axios";
 import { apiClient, oldApiClient } from "../api/apiClient";
@@ -12,6 +10,7 @@ import { RootState } from "./index";
 
 export interface FixedStreamState {
   data: FixedStream;
+  fetchedStartTime: number | null; // Similar to Elm's fetchedStartTime
   minMeasurementValue: number | null;
   maxMeasurementValue: number | null;
   averageMeasurementValue: number | null;
@@ -44,9 +43,10 @@ const initialState: FixedStreamState = {
     measurements: [],
     streamDailyAverages: [],
   },
-  minMeasurementValue: 0,
-  maxMeasurementValue: 0,
-  averageMeasurementValue: 0,
+  fetchedStartTime: null, // To track the earliest fetched data
+  minMeasurementValue: null,
+  maxMeasurementValue: null,
+  averageMeasurementValue: null,
   status: StatusEnum.Idle,
   error: null,
   isLoading: false,
@@ -59,6 +59,7 @@ export interface Measurement {
   longitude: number;
 }
 
+// Thunk for fetching stream data by ID
 export const fetchFixedStreamById = createAsyncThunk<
   FixedStream,
   number,
@@ -86,6 +87,7 @@ export const fetchFixedStreamById = createAsyncThunk<
   }
 });
 
+// Thunk for fetching measurements
 export const fetchMeasurements = createAsyncThunk<
   Measurement[],
   { streamId: number; startTime: string; endTime: string },
@@ -121,6 +123,7 @@ export const fetchMeasurements = createAsyncThunk<
   }
 );
 
+// Reducer
 const fixedStreamSlice = createSlice({
   name: "fixedStream",
   initialState,
@@ -186,15 +189,19 @@ const fixedStreamSlice = createSlice({
       (state, action: PayloadAction<Measurement[]>) => {
         state.status = StatusEnum.Fulfilled;
 
-        // Filter out invalid measurements
         const validNewMeasurements = action.payload.filter(
           (m) => m.time !== undefined && m.value !== undefined
         );
 
-        if (validNewMeasurements.length === 0) {
-          console.warn(
-            "No valid measurements received from fetchMeasurements."
-          );
+        // Check if new measurements cover a time range earlier than previously fetched
+        const earliestNewTime = Math.min(
+          ...validNewMeasurements.map((m) => m.time)
+        );
+        if (
+          state.fetchedStartTime === null ||
+          earliestNewTime < state.fetchedStartTime
+        ) {
+          state.fetchedStartTime = earliestNewTime;
         }
 
         // Merge new measurements with existing ones, ensuring no duplicates
@@ -210,9 +217,9 @@ const fixedStreamSlice = createSlice({
         state.isLoading = false;
         state.error = null;
 
-        // Update min, max, and average values
-        if (state.data.measurements.length > 0) {
-          const values = state.data.measurements.map((m) => m.value);
+        // Update min, max, and average values based on new measurements
+        const values = state.data.measurements.map((m) => m.value);
+        if (values.length > 0) {
           state.minMeasurementValue = Math.min(...values);
           state.maxMeasurementValue = Math.max(...values);
           state.averageMeasurementValue =
@@ -225,8 +232,6 @@ const fixedStreamSlice = createSlice({
       (state, action: PayloadAction<ApiError | undefined>) => {
         state.status = StatusEnum.Rejected;
         state.error = action.payload || { message: "Unknown error occurred" };
-        // **Do not reset data on fetchMeasurements rejection**
-        // state.data = initialState.data; // Commented out to preserve existing data
         state.isLoading = false;
       }
     );
@@ -237,6 +242,7 @@ export default fixedStreamSlice.reducer;
 
 export const { updateFixedMeasurementExtremes, resetFixedStreamState } =
   fixedStreamSlice.actions;
+
 export const selectFixedData = (state: RootState) => state.fixedStream.data;
 export const selectIsLoading = (state: RootState) =>
   state.fixedStream.isLoading;
