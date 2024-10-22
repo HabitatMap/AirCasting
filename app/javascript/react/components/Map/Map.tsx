@@ -440,6 +440,10 @@ const Map = () => {
       newSearchParams.set(UrlParamsTypes.streamId, "");
       newSearchParams.set(UrlParamsTypes.isActive, isActive.toString());
       newSearchParams.set(UrlParamsTypes.sessionType, sessionType);
+      newSearchParams.set(UrlParamsTypes.boundEast, boundEast.toString());
+      newSearchParams.set(UrlParamsTypes.boundNorth, boundNorth.toString());
+      newSearchParams.set(UrlParamsTypes.boundSouth, boundSouth.toString());
+      newSearchParams.set(UrlParamsTypes.boundWest, boundWest.toString());
 
       navigate(`?${newSearchParams.toString()}`);
     }
