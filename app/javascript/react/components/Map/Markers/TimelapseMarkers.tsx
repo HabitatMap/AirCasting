@@ -112,6 +112,18 @@ export function TimelapseMarkers({ sessions }: Props) {
           timelapseMarker.labelOverlay = labelOverlay;
         } else {
           if (timelapseMarker.markerOverlay instanceof ClusterOverlay) {
+            const clusterOverlay = new ClusterOverlay(
+              {
+                id: key,
+                position: position,
+                count: session.sessions,
+              } as CustomCluster,
+              color,
+              false,
+              map,
+              () => {}
+            );
+            timelapseMarker.markerOverlay = clusterOverlay;
           } else {
             timelapseMarker.markerOverlay.setColor(color);
           }
