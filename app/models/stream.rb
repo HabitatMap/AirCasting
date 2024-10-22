@@ -99,7 +99,9 @@ class Stream < ApplicationRecord
   def self.build_or_update!(data = {})
     measurements_attributes = data.delete(:measurements)
     data = threshold_set_from_stream(data)
-    stream = where(data).first_or_initialize
+    stream =
+      find_by(session_id: data[:session_id], sensor_name: data[:sensor_name]) || Stream.new(data)
+
     latitude = measurements_attributes.first.fetch(:latitude)
     longitude = measurements_attributes.first.fetch(:longitude)
 
