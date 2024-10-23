@@ -3,7 +3,6 @@
 import HighchartsReact from "highcharts-react-official";
 import Highcharts, { Chart } from "highcharts/highstock";
 import NoDataToDisplay from "highcharts/modules/no-data-to-display";
-import { debounce } from "lodash";
 import React, { useCallback, useEffect, useMemo, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import { white } from "../../assets/styles/colors";
@@ -127,7 +126,8 @@ const Graph: React.FC<GraphProps> = React.memo(
     );
 
     const fetchMeasurementsIfNeeded = useCallback(
-      debounce(async (start: number, end: number) => {
+      async (start: number, end: number) => {
+        // Exit early if there's no streamId or if already fetching
         if (!streamId || isCurrentlyFetchingRef.current) {
           console.log(
             `Skipping fetch: ${!streamId ? "No streamId" : "Already fetching"}`
@@ -136,12 +136,7 @@ const Graph: React.FC<GraphProps> = React.memo(
         }
 
         const now = Date.now();
-        if (end > now) {
-          console.log(
-            `Adjusting end time from ${new Date(end)} to current time`
-          );
-          end = now;
-        }
+        end = Math.min(end, now); // Limit end time to the current time
 
         if (start >= end) {
           console.log(
@@ -153,6 +148,8 @@ const Graph: React.FC<GraphProps> = React.memo(
         }
 
         const { start: lastStart, end: lastEnd } = lastFetchedRangeRef.current;
+
+        // Check if the requested range is already fetched
         if (lastStart !== null && lastEnd !== null) {
           if (start >= lastStart && end <= lastEnd) {
             console.log(
@@ -162,51 +159,55 @@ const Graph: React.FC<GraphProps> = React.memo(
             );
             return;
           }
-
-          start = Math.min(start, lastStart);
-          end = Math.max(end, lastEnd);
         }
 
-        console.log(
-          `Fetching data from ${new Date(start)} to ${new Date(end)}`
-        );
-        console.log(`Timestamps: ${start} to ${end}`);
+        // Adjust fetch range to avoid gaps
+        const fetchStart =
+          lastStart !== null ? Math.min(start, lastStart) : start;
+        const fetchEnd = lastEnd !== null ? Math.max(end, lastEnd) : end;
 
+        console.log(
+          `Fetching data from ${new Date(fetchStart)} to ${new Date(fetchEnd)}`
+        );
+
+        // Set fetching state to prevent duplicates
         isCurrentlyFetchingRef.current = true;
 
         try {
           await dispatch(
             fetchMeasurements({
               streamId,
-              startTime: Math.floor(start).toString(),
-              endTime: Math.floor(end).toString(),
+              startTime: Math.floor(fetchStart).toString(),
+              endTime: Math.floor(fetchEnd).toString(),
             })
           ).unwrap();
 
+          // Update the fetched range
           lastFetchedRangeRef.current = {
-            start: Math.min(start, lastStart ?? Infinity),
-            end: Math.max(end, lastEnd ?? -Infinity),
+            start: fetchStart,
+            end: fetchEnd,
           };
+
           console.log(
-            `Updated fetched time range: ${new Date(
-              lastFetchedRangeRef.current.start ?? 0
-            )} to ${new Date(lastFetchedRangeRef.current.end ?? 0)}`
+            `Updated fetched time range: ${new Date(fetchStart)} to ${new Date(
+              fetchEnd
+            )}`
           );
         } catch (error) {
           console.error("Error fetching measurements:", error);
         } finally {
+          // Reset fetching state
           isCurrentlyFetchingRef.current = false;
         }
-      }, 500),
+      },
       [dispatch, streamId]
     );
 
-    // Fetch measurements based on the selected time range
     useEffect(() => {
       if (!streamId) return;
 
-      let computedStartTime: number;
       const currentEndTime = Date.now();
+      let computedStartTime: number;
 
       switch (lastSelectedTimeRange) {
         case TimeRange.Hour:
@@ -228,29 +229,11 @@ const Graph: React.FC<GraphProps> = React.memo(
           computedStartTime = currentEndTime - MILLISECONDS_IN_AN_HOUR;
       }
 
-      // Check if the data for this range has already been fetched
-      const { start: lastStart, end: lastEnd } = lastFetchedRangeRef.current;
-      if (lastStart !== null && lastEnd !== null) {
-        if (computedStartTime >= lastStart && currentEndTime <= lastEnd) {
-          console.log("Data already fetched for this range");
-          return;
-        }
+      // Run the fetch only if there's no ongoing fetch
+      if (!isCurrentlyFetchingRef.current) {
+        fetchMeasurementsIfNeeded(computedStartTime, currentEndTime);
       }
-
-      // Update the last fetched range
-      lastFetchedRangeRef.current = {
-        start: computedStartTime,
-        end: currentEndTime,
-      };
-
-      dispatch(
-        fetchMeasurements({
-          streamId,
-          startTime: Math.floor(computedStartTime).toString(),
-          endTime: Math.floor(currentEndTime).toString(),
-        })
-      );
-    }, [dispatch, lastSelectedTimeRange, streamId, startTime]);
+    }, [lastSelectedTimeRange, streamId, startTime, fetchMeasurementsIfNeeded]);
 
     const xAxisOptions = useMemo(
       () =>
