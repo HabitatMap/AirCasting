@@ -1,23 +1,31 @@
+// src/store/fixedStreamSlice.ts
 import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { AxiosResponse } from "axios";
 import { apiClient, oldApiClient } from "../api/apiClient";
 import { API_ENDPOINTS } from "../api/apiEndpoints";
 import { ApiError, StatusEnum } from "../types/api";
 import { FixedStream } from "../types/fixedStream";
+
+import { TimeRange } from "../types/timeRange";
 import { getErrorMessage } from "../utils/getErrorMessage";
 import { logError } from "../utils/logController";
 import { RootState } from "./index";
 
 export interface FixedStreamState {
   data: FixedStream;
-  fetchedStartTime: number | null; // Similar to Elm's fetchedStartTime
+  fetchedStartTime: number | null;
   minMeasurementValue: number | null;
   maxMeasurementValue: number | null;
   averageMeasurementValue: number | null;
   status: StatusEnum;
   error: ApiError | null;
   isLoading: boolean;
+  lastSelectedTimeRange: TimeRange;
 }
+
+const persistedTimeRange = localStorage.getItem(
+  "lastSelectedTimeRange"
+) as TimeRange | null;
 
 const initialState: FixedStreamState = {
   data: {
@@ -42,14 +50,16 @@ const initialState: FixedStreamState = {
     },
     measurements: [],
     streamDailyAverages: [],
+    lastMonthMeasurements: [],
   },
-  fetchedStartTime: null, // To track the earliest fetched data
+  fetchedStartTime: null,
   minMeasurementValue: null,
   maxMeasurementValue: null,
   averageMeasurementValue: null,
   status: StatusEnum.Idle,
   error: null,
   isLoading: false,
+  lastSelectedTimeRange: persistedTimeRange || TimeRange.Day,
 };
 
 export interface Measurement {
@@ -133,6 +143,8 @@ const fixedStreamSlice = createSlice({
       action: PayloadAction<{ min: number; max: number }>
     ) {
       const { min, max } = action.payload;
+
+      console.log(min, max, "min, max");
       const measurementsInRange = state.data.measurements.filter(
         (measurement) => {
           const time = measurement.time;
@@ -153,6 +165,10 @@ const fixedStreamSlice = createSlice({
     },
     resetFixedStreamState(state) {
       return initialState;
+    },
+    setLastSelectedTimeRange(state, action: PayloadAction<TimeRange>) {
+      state.lastSelectedTimeRange = action.payload;
+      localStorage.setItem("lastSelectedTimeRange", action.payload); // Persist the selection
     },
   },
   extraReducers: (builder) => {
@@ -210,21 +226,16 @@ const fixedStreamSlice = createSlice({
           ...state.data.measurements,
         ].sort((a, b) => a.time - b.time);
 
-        state.data.measurements = Array.from(
+        const allMeasurements = Array.from(
           new Map(mergedMeasurements.map((m) => [m.time, m])).values()
         );
 
+        state.data.measurements = allMeasurements;
+
+        state.data.lastMonthMeasurements;
+
         state.isLoading = false;
         state.error = null;
-
-        // Update min, max, and average values based on new measurements
-        const values = state.data.measurements.map((m) => m.value);
-        if (values.length > 0) {
-          state.minMeasurementValue = Math.min(...values);
-          state.maxMeasurementValue = Math.max(...values);
-          state.averageMeasurementValue =
-            values.reduce((sum, value) => sum + value, 0) / values.length;
-        }
       }
     );
     builder.addCase(
@@ -240,9 +251,14 @@ const fixedStreamSlice = createSlice({
 
 export default fixedStreamSlice.reducer;
 
-export const { updateFixedMeasurementExtremes, resetFixedStreamState } =
-  fixedStreamSlice.actions;
+export const {
+  updateFixedMeasurementExtremes,
+  resetFixedStreamState,
+  setLastSelectedTimeRange,
+} = fixedStreamSlice.actions;
 
 export const selectFixedData = (state: RootState) => state.fixedStream.data;
 export const selectIsLoading = (state: RootState) =>
   state.fixedStream.isLoading;
+export const selectLastSelectedTimeRange = (state: RootState) =>
+  state.fixedStream.lastSelectedTimeRange; // New selector

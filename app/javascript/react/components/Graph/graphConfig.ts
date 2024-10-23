@@ -11,7 +11,7 @@ import {
 } from "highcharts";
 import { debounce } from "lodash";
 
-import Highcharts, { chart, XAxisOptions } from "highcharts/highstock"; // Ensure Highcharts Stock is used
+import Highcharts, { XAxisOptions } from "highcharts/highstock"; // Ensure Highcharts Stock is used
 import { TFunction } from "i18next";
 import {
   blue,
@@ -70,7 +70,6 @@ const getXAxisOptions = (
 ): XAxisOptions => {
   const handleSetExtremes = debounce(
     (e: Highcharts.AxisSetExtremesEventObject) => {
-      if (!chart || Object.keys(chart).length === 0) return;
       if (!isLoading && e.min !== undefined && e.max !== undefined) {
         dispatch(
           fixedSessionTypeSelected

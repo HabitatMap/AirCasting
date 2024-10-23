@@ -38,6 +38,7 @@ interface FixedStream {
   stream: FixedStreamStationInfo;
   measurements: FixedMeasurement[];
   streamDailyAverages: StreamDailyAverage[];
+  lastMonthMeasurements: FixedMeasurement[];
 }
 
 interface FixedStreamShortInfo extends FixedStreamStationInfo {
