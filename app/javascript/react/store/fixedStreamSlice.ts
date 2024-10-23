@@ -64,7 +64,7 @@ const initialState: FixedStreamState = {
   status: StatusEnum.Idle,
   error: null,
   isLoading: false,
-  lastSelectedTimeRange: persistedTimeRange || TimeRange.Day,
+  lastSelectedTimeRange: TimeRange.Day,
 };
 
 export interface Measurement {
