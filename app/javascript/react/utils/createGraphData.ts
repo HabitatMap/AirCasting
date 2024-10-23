@@ -1,10 +1,7 @@
-// utils/createGraphData.ts
-
 import { Measurement } from "../store/fixedStreamSlice";
 import { LatLngLiteral } from "../types/googleMaps";
 import { Session } from "../types/sessionType";
 
-// Type Guard to Ensure Measurement Validity
 export const isValidMeasurement = (m: Measurement): m is Measurement => {
   return m.time !== undefined && m.value !== undefined;
 };
@@ -13,9 +10,9 @@ export const createFixedSeriesData = (
   measurements: Measurement[] | undefined
 ) =>
   measurements
-    ?.filter(isValidMeasurement) // Use type guard
+    ?.filter(isValidMeasurement)
     .map(({ time, value }) => [time, value] as [number, number])
-    .sort((a, b) => a[0] - b[0]); // Ensure ascending order
+    .sort((a, b) => a[0] - b[0]);
 
 export const createMobileSeriesData = (
   data: Session[] | Measurement[],
@@ -43,4 +40,4 @@ export const createMobileSeriesData = (
       (point): point is { x: number; y: number; position: LatLngLiteral } =>
         point.x !== undefined && point.y !== undefined
     )
-    .sort((a, b) => a.x - b.x); // Ensure ascending order
+    .sort((a, b) => a.x - b.x);

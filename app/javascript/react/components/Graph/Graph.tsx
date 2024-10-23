@@ -1,5 +1,3 @@
-// Graph.tsx
-
 import HighchartsReact from "highcharts-react-official";
 import Highcharts, { Chart } from "highcharts/highstock";
 import NoDataToDisplay from "highcharts/modules/no-data-to-display";
@@ -132,7 +130,6 @@ const Graph: React.FC<GraphProps> = React.memo(
 
     const fetchMeasurementsIfNeeded = useCallback(
       debounce(async (start: number, end: number) => {
-        console.log("fetch if needed");
         if (!streamId || isCurrentlyFetchingRef.current) return;
 
         const now = Date.now();
@@ -145,9 +142,6 @@ const Graph: React.FC<GraphProps> = React.memo(
         // Check if we already have the required data
         if (lastStart !== null && lastEnd !== null) {
           if (start >= lastStart && end <= lastEnd) {
-            // We already have all the data we need
-            console.log("We already have all the data we need");
-            console.log(lastStart !== null && lastEnd !== null);
             return;
           }
 
@@ -189,7 +183,6 @@ const Graph: React.FC<GraphProps> = React.memo(
     // Update the useEffect to use this function
     useEffect(() => {
       if (!streamId) return;
-      console.log("useEffect");
       const currentEndTime = Date.now();
       let computedStartTime: number;
 
@@ -246,8 +239,6 @@ const Graph: React.FC<GraphProps> = React.memo(
             false
           );
 
-          console.log("test");
-
           // Reapply the selected range after updating the data
           if (lastSelectedTimeRange) {
             if (chart && "rangeSelector" in chart) {
@@ -284,6 +275,7 @@ const Graph: React.FC<GraphProps> = React.memo(
       }
     }, [streamId, dispatch, fixedSessionTypeSelected]);
 
+    // Apply touch action to the graph container for mobile devices in Calendar page
     useEffect(() => {
       const applyStyles = () => {
         const graphElement = graphRef.current;
@@ -304,7 +296,6 @@ const Graph: React.FC<GraphProps> = React.memo(
         }
       };
 
-      // Apply styles immediately
       applyStyles();
 
       // Set up a MutationObserver to watch for changes in the DOM

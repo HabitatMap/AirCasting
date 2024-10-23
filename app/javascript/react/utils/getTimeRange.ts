@@ -57,7 +57,7 @@ export const mapIndexToTimeRange = (
       case 2:
         return MobileTimeRange.All;
       default:
-        return MobileTimeRange.All; // Changed this to MobileTimeRange.All as default
+        return MobileTimeRange.All;
     }
   }
 };

@@ -1,5 +1,3 @@
-// graphConfig.ts
-
 import {
   AlignValue,
   ChartOptions,

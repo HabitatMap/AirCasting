@@ -17,7 +17,6 @@ const addNavigationArrows = (
   if (isMobile && !isCalendarPage) {
     return;
   }
-  console.log("test");
   if (
     chart.renderer.boxWrapper.element.querySelectorAll(".custom-arrow").length >
     0
