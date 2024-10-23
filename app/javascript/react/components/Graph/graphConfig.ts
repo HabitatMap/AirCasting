@@ -432,6 +432,7 @@ const getRangeSelectorOptions = (
   };
 
   if (isCalendarPage && isMobile) {
+    console.log("range", selectedRange);
     return {
       ...baseMobileCalendarOptions,
       buttons: [

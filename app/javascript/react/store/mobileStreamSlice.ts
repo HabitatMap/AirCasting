@@ -89,7 +89,6 @@ export const mobileStreamSlice = createSlice({
     ) {
       const { min, max } = action.payload;
 
-      console.log(min, max, "min, max");
       let startTime = min;
       let endTime: number;
 
@@ -135,6 +134,11 @@ export const mobileStreamSlice = createSlice({
       state.lastSelectedTimeRange = action.payload;
       localStorage.setItem("lastSelectedMobileTimeRange", action.payload);
     },
+
+    resetLastSelectedMobileTimeRange(state) {
+      state.lastSelectedTimeRange = MobileTimeRange.All;
+      localStorage.setItem("lastSelectedMobileTimeRange", MobileTimeRange.All);
+    },
   },
   extraReducers: (builder) => {
     builder.addCase(fetchMobileStreamById.pending, (state) => {
@@ -167,6 +171,7 @@ export const {
   updateMobileMeasurementExtremes,
   resetMobileStreamState,
   setLastSelectedMobileTimeRange,
+  resetLastSelectedMobileTimeRange,
 } = mobileStreamSlice.actions;
 
 export default mobileStreamSlice.reducer;
