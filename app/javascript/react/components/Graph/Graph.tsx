@@ -1,15 +1,10 @@
-import { RangeSelectorButtonsOptions } from "highcharts";
+// Graph.tsx
+
 import HighchartsReact from "highcharts-react-official";
 import Highcharts, { Chart } from "highcharts/highstock";
 import NoDataToDisplay from "highcharts/modules/no-data-to-display";
 import { debounce } from "lodash";
-import React, {
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
+import React, { useCallback, useEffect, useMemo, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import { white } from "../../assets/styles/colors";
 import { selectFixedStreamShortInfo } from "../../store/fixedStreamSelectors";
@@ -18,6 +13,8 @@ import {
   Measurement,
   selectFixedData,
   selectIsLoading,
+  selectLastSelectedTimeRange,
+  setLastSelectedTimeRange,
 } from "../../store/fixedStreamSlice";
 import { useAppDispatch, useAppSelector } from "../../store/hooks";
 import {
@@ -28,13 +25,17 @@ import { selectThresholds } from "../../store/thresholdSlice";
 import { SessionType, SessionTypes } from "../../types/filters";
 import { GraphData } from "../../types/graph";
 import { MobileStreamShortInfo as StreamShortInfo } from "../../types/mobileStream";
+import { TimeRange } from "../../types/timeRange"; // Import TimeRange enum
 import {
   createFixedSeriesData,
   createMobileSeriesData,
 } from "../../utils/createGraphData";
 import { parseDateString } from "../../utils/dateParser";
+import {
+  getSelectedRangeIndex,
+  mapIndexToTimeRange,
+} from "../../utils/getTimeRange";
 import { useMapParams } from "../../utils/mapParamsHandler";
-import { MILLISECONDS_IN_A_MONTH } from "../../utils/timeRanges";
 import useMobileDetection from "../../utils/useScreenSizeDetection";
 import { handleLoad } from "./chartEvents";
 import * as S from "./Graph.style";
@@ -83,6 +84,9 @@ const Graph: React.FC<GraphProps> = React.memo(
     const { unitSymbol, measurementType, isIndoor, sensorName } =
       useMapParams();
 
+    // Use Redux state for selected time range
+    const lastSelectedTimeRange = useAppSelector(selectLastSelectedTimeRange);
+
     const startTime = useMemo(
       () => parseDateString(streamShortInfo.startTime),
       [streamShortInfo.startTime]
@@ -105,18 +109,8 @@ const Graph: React.FC<GraphProps> = React.memo(
     const isCurrentlyFetchingRef = useRef(false);
     const fetchAttemptsRef = useRef(0);
 
-    const [selectedTimeRange, setSelectedTimeRange] = useState<{
-      start: number;
-      end: number;
-    }>({
-      start: startTime,
-      end: endTime,
-    });
-
     const isIndoorParameterInUrl = isIndoor === "true";
-    const isAirBeam = sensorName.toLowerCase().includes("airbeam");
 
-    // Create series data (for graph rendering)
     const seriesData = useMemo(() => {
       return fixedSessionTypeSelected
         ? createFixedSeriesData(
@@ -130,66 +124,126 @@ const Graph: React.FC<GraphProps> = React.memo(
       [startTime, endTime]
     );
 
-    // Debounced function to fetch measurements
-    const debouncedFetchMeasurements = useMemo(
-      () =>
-        debounce(async (start: number, end: number) => {
-          if (!streamId || isCurrentlyFetchingRef.current || start >= end)
-            return;
+    const fetchMeasurementsIfNeeded = useCallback(
+      debounce(async (start: number, end: number) => {
+        if (!streamId || isCurrentlyFetchingRef.current) {
+          console.log(
+            `Skipping fetch: ${!streamId ? "No streamId" : "Already fetching"}`
+          );
+          return;
+        }
 
-          const now = Date.now();
-          if (end > now) end = now;
+        const now = Date.now();
+        if (end > now) {
+          console.log(
+            `Adjusting end time from ${new Date(end)} to current time`
+          );
+          end = now;
+        }
 
-          const { start: lastStart, end: lastEnd } =
-            lastFetchedRangeRef.current;
+        if (start >= end) {
+          console.log(
+            `Invalid time range: start (${new Date(start)}) >= end (${new Date(
+              end
+            )})`
+          );
+          return;
+        }
 
-          // Fetch only if the new range extends beyond the last fetched range
-          if (
-            lastStart !== null &&
-            lastEnd !== null &&
-            start >= lastStart &&
-            end <= lastEnd
-          ) {
+        const { start: lastStart, end: lastEnd } = lastFetchedRangeRef.current;
+        if (lastStart !== null && lastEnd !== null) {
+          if (start >= lastStart && end <= lastEnd) {
+            console.log(
+              `Data already fetched for range ${new Date(start)} to ${new Date(
+                end
+              )}`
+            );
             return;
           }
+          // Adjust fetch range to include any gaps
+          start = Math.min(start, lastStart);
+          end = Math.max(end, lastEnd);
+        }
 
-          isCurrentlyFetchingRef.current = true;
-          fetchAttemptsRef.current++;
+        if (fetchAttemptsRef.current >= MAX_FETCH_ATTEMPTS) {
+          console.log(
+            `Max fetch attempts (${MAX_FETCH_ATTEMPTS}) reached. Cooling down.`
+          );
+          setTimeout(() => {
+            fetchAttemptsRef.current = 0;
+          }, FETCH_COOLDOWN);
+          return;
+        }
 
-          try {
-            await dispatch(
-              fetchMeasurements({
-                streamId,
-                startTime: String(Math.floor(start)),
-                endTime: String(Math.floor(end)),
-              })
-            ).unwrap();
+        console.log(
+          `Fetching data from ${new Date(start)} to ${new Date(end)}`
+        );
+        console.log(`Timestamps: ${start} to ${end}`);
 
-            lastFetchedRangeRef.current = {
-              start: Math.min(start, lastStart ?? start),
-              end: Math.max(end, lastEnd ?? end),
-            };
-          } catch (error) {
-            console.error("Error fetching measurements:", error);
-          } finally {
-            isCurrentlyFetchingRef.current = false;
-          }
-        }, 500),
+        isCurrentlyFetchingRef.current = true;
+        fetchAttemptsRef.current++;
+
+        try {
+          await dispatch(
+            fetchMeasurements({
+              streamId,
+              startTime: Math.floor(start).toString(),
+              endTime: Math.floor(end).toString(),
+            })
+          ).unwrap();
+
+          lastFetchedRangeRef.current = {
+            start: Math.min(start, lastStart ?? Infinity),
+            end: Math.max(end, lastEnd ?? -Infinity),
+          };
+          console.log(
+            `Updated fetched time range: ${new Date(
+              lastFetchedRangeRef.current.start ?? 0
+            )} to ${new Date(lastFetchedRangeRef.current.end ?? 0)}`
+          );
+        } catch (error) {
+          console.error("Error fetching measurements:", error);
+        } finally {
+          isCurrentlyFetchingRef.current = false;
+        }
+      }, 500),
       [dispatch, streamId]
     );
 
-    // Fetch measurements based on selected time range
+    // Fetch measurements based on the selected time range
     useEffect(() => {
-      if (
-        selectedTimeRange.start !== lastFetchedRangeRef.current.start ||
-        selectedTimeRange.end !== lastFetchedRangeRef.current.end
-      ) {
-        debouncedFetchMeasurements(
-          selectedTimeRange.start,
-          selectedTimeRange.end
-        );
+      let computedStartTime: number;
+      const currentEndTime = Date.now();
+
+      switch (lastSelectedTimeRange) {
+        case TimeRange.Hour:
+          computedStartTime = currentEndTime - 60 * 60 * 1000;
+          break;
+        case TimeRange.Day:
+          computedStartTime = currentEndTime - 24 * 60 * 60 * 1000;
+          break;
+        case TimeRange.Week:
+          computedStartTime = currentEndTime - 7 * 24 * 60 * 60 * 1000;
+          break;
+        case TimeRange.Month:
+          computedStartTime = currentEndTime - 30 * 24 * 60 * 60 * 1000;
+          break;
+        case TimeRange.Custom:
+          // Handle custom range if applicable
+          computedStartTime = startTime; // Replace with actual custom start time if available
+          break;
+        default:
+          computedStartTime = currentEndTime - 24 * 60 * 60 * 1000;
       }
-    }, [selectedTimeRange, debouncedFetchMeasurements]);
+
+      dispatch(
+        fetchMeasurements({
+          streamId: streamId ?? 0,
+          startTime: Math.floor(computedStartTime).toString(),
+          endTime: Math.floor(currentEndTime).toString(),
+        })
+      );
+    }, [dispatch, lastSelectedTimeRange, streamId, startTime]);
 
     const xAxisOptions = useMemo(
       () =>
@@ -199,9 +253,16 @@ const Graph: React.FC<GraphProps> = React.memo(
           fixedSessionTypeSelected,
           dispatch,
           isLoading,
-          debouncedFetchMeasurements
+          fetchMeasurementsIfNeeded
         ),
-      [isMobile, rangeDisplayRef, fixedSessionTypeSelected, dispatch, isLoading]
+      [
+        isMobile,
+        rangeDisplayRef,
+        fixedSessionTypeSelected,
+        dispatch,
+        isLoading,
+        fetchMeasurementsIfNeeded,
+      ]
     );
 
     const scrollbarOptions = useMemo(
@@ -212,7 +273,6 @@ const Graph: React.FC<GraphProps> = React.memo(
       [isCalendarPage, isMobile]
     );
 
-    // Handle chart load event
     const handleChartLoad = useCallback(
       function (this: Chart) {
         handleLoad.call(this, isCalendarPage, isMobile);
@@ -220,31 +280,9 @@ const Graph: React.FC<GraphProps> = React.memo(
       [isCalendarPage, isMobile]
     );
 
-    const handleChartRedraw = useCallback(function (this: Chart) {
-      const chart = this as Highcharts.StockChart;
-      const selectedButton = chart.options.rangeSelector?.selected;
-      if (selectedButton !== undefined) {
-        setSelectedRangeButtonIndex(
-          selectedButton as RangeSelectorButtonsOptions
-        );
-      }
-    }, []);
-
     const chartOptions = useMemo(
       () => getChartOptions(isCalendarPage, isMobile),
       [isCalendarPage, isMobile]
-    );
-
-    const [selectedRangeButtonIndex, setSelectedRangeButtonIndex] =
-      useState<RangeSelectorButtonsOptions | null>(null);
-
-    const handleRangeSelection = useCallback(
-      (event: {
-        rangeSelectorButton: { index: RangeSelectorButtonsOptions };
-      }) => {
-        setSelectedRangeButtonIndex(event.rangeSelectorButton.index);
-      },
-      []
     );
 
     const options = useMemo<Highcharts.Options>(
@@ -253,7 +291,14 @@ const Graph: React.FC<GraphProps> = React.memo(
           ...chartOptions,
           events: {
             load: handleChartLoad,
-            redraw: handleChartRedraw,
+            redraw: function (this: Highcharts.Chart) {
+              const chart = this as unknown as Highcharts.StockChart;
+              const selectedButton = chart.options.rangeSelector?.selected;
+              if (selectedButton !== undefined) {
+                const timeRange = mapIndexToTimeRange(selectedButton);
+                dispatch(setLastSelectedTimeRange(timeRange));
+              }
+            },
           },
         },
         xAxis: {
@@ -287,12 +332,7 @@ const Graph: React.FC<GraphProps> = React.memo(
             isCalendarPage,
             t
           ),
-          selected:
-            typeof selectedRangeButtonIndex === "number"
-              ? selectedRangeButtonIndex
-              : fixedSessionTypeSelected
-              ? 0
-              : 2,
+          selected: getSelectedRangeIndex(lastSelectedTimeRange),
         },
         scrollbar: {
           ...scrollbarOptions,
@@ -331,49 +371,35 @@ const Graph: React.FC<GraphProps> = React.memo(
         scrollbarOptions,
         t,
         handleChartLoad,
-        handleChartRedraw,
-        selectedRangeButtonIndex,
+        lastSelectedTimeRange,
+        dispatch,
       ]
     );
 
-    useEffect(() => {
-      if (
-        streamId &&
-        fixedSessionTypeSelected &&
-        isAirBeam &&
-        lastFetchedRangeRef.current.start === null &&
-        lastFetchedRangeRef.current.end === null
-      ) {
-        const now = Date.now();
-        const oneMonthAgo = now - MILLISECONDS_IN_A_MONTH;
-        setSelectedTimeRange({ start: oneMonthAgo, end: now });
-      }
-    }, [streamId, fixedSessionTypeSelected, isAirBeam]);
-
-    // Ensure chart updates when new data is available
+    // Ensure chart updates when new data or selected range changes
     useEffect(() => {
       if (chartComponentRef.current && chartComponentRef.current.chart) {
         const chart = chartComponentRef.current.chart;
         if (seriesData) {
           chart.series[0].setData(
             seriesData as Highcharts.PointOptionsType[],
-            true, // redraw
-            false, // animation
-            false // no update animation to prevent call stack issue
+            true,
+            false,
+            false
           );
 
-          if (
-            selectedRangeButtonIndex !== null &&
-            (chart as any).rangeSelector
-          ) {
-            (chart as any).rangeSelector.clickButton(
-              selectedRangeButtonIndex,
-              true
-            );
+          // Reapply the selected range after updating the data
+          if (lastSelectedTimeRange) {
+            if (chart && "rangeSelector" in chart) {
+              const selectedIndex = getSelectedRangeIndex(
+                lastSelectedTimeRange
+              );
+              (chart as any).rangeSelector.clickButton(selectedIndex, true);
+            }
           }
         }
       }
-    }, [seriesData, selectedRangeButtonIndex]);
+    }, [seriesData, lastSelectedTimeRange]);
 
     // Show or hide loading indicator based on isLoading
     useEffect(() => {

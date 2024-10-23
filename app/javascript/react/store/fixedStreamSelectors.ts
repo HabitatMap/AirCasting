@@ -80,10 +80,7 @@ const selectFixedStreamShortInfo = createSelector(
       ? Number(newestAverageObject.value)
       : 0;
 
-    const newestDate =
-      fixedStreamData.measurements.length > 0
-        ? moment(Math.max(...fixedStreamData.measurements.map((m) => m.time)))
-        : moment();
+    const newestDate = 0;
 
     const newestDayMeasurements = fixedStreamData.measurements.filter((m) =>
       moment(m.time).isSame(newestDate, "day")
