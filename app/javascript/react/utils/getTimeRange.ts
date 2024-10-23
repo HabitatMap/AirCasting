@@ -26,7 +26,7 @@ export const getSelectedRangeIndex = (
       case MobileTimeRange.All:
         return 2;
       default:
-        return 0;
+        return 2;
     }
   }
 };
@@ -57,7 +57,7 @@ export const mapIndexToTimeRange = (
       case 2:
         return MobileTimeRange.All;
       default:
-        return MobileTimeRange.FiveMinutes;
+        return MobileTimeRange.All; // Changed this to MobileTimeRange.All as default
     }
   }
 };

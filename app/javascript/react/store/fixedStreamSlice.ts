@@ -143,9 +143,7 @@ const fixedStreamSlice = createSlice({
       state,
       action: PayloadAction<{ min: number; max: number }>
     ) {
-      const { min, max } = action.payload;
-
-      console.log(min, max, "min, max");
+      const { min } = action.payload;
       let startTime = min;
       let endTime: number;
 
@@ -160,8 +158,6 @@ const fixedStreamSlice = createSlice({
           endTime = startTime + MILLISECONDS_IN_A_MONTH;
           break;
         case FixedTimeRange.Custom:
-          // For custom range, you might need to store the custom start time separately
-          // For now, we'll use the last 24 hours as a fallback
           endTime = startTime + MILLISECONDS_IN_A_DAY;
           break;
         default:
@@ -192,6 +188,10 @@ const fixedStreamSlice = createSlice({
     setLastSelectedTimeRange(state, action: PayloadAction<FixedTimeRange>) {
       state.lastSelectedTimeRange = action.payload;
       localStorage.setItem("lastSelectedTimeRange", action.payload);
+    },
+    resetLastSelectedTimeRange(state) {
+      state.lastSelectedTimeRange = FixedTimeRange.Day; // Or whatever your default is
+      localStorage.setItem("lastSelectedTimeRange", FixedTimeRange.Day);
     },
   },
   extraReducers: (builder) => {
@@ -267,6 +267,7 @@ export const {
   updateFixedMeasurementExtremes,
   resetFixedStreamState,
   setLastSelectedTimeRange,
+  resetLastSelectedTimeRange,
 } = fixedStreamSlice.actions;
 
 export const selectFixedData = (state: RootState) => state.fixedStream.data;
