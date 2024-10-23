@@ -22,6 +22,7 @@ import useMapEventListeners from "../../../utils/mapEventListeners";
 import { useMapParams } from "../../../utils/mapParamsHandler";
 import { getColorForValue } from "../../../utils/thresholdColors";
 
+import { selectFetchingData } from "../../../store/mapSlice";
 import { CustomMarker } from "./CustomMarker";
 import MapOverlay from "./MapOverlay";
 import {
@@ -44,6 +45,7 @@ const CrowdMapMarkers = ({ pulsatingSessionId, sessions }: Props) => {
   const rectangleData = useAppSelector(selectRectangleData);
   const rectangleLoading = useAppSelector(selectRectangleLoading);
   const thresholds = useAppSelector(selectThresholds);
+  const fetchingData = useAppSelector(selectFetchingData);
 
   const map = useMap();
   const {
@@ -145,7 +147,11 @@ const CrowdMapMarkers = ({ pulsatingSessionId, sessions }: Props) => {
   }, [dispatch, fetchingCrowdMapData, filters, mobileSessionsLoading]);
 
   useEffect(() => {
-    if (!mobileSessionsLoading && crowdMapRectanglesLength > 0) {
+    if (
+      !mobileSessionsLoading &&
+      crowdMapRectanglesLength > 0 &&
+      !fetchingData
+    ) {
       const newRectangles = crowdMapRectangles.map((rectangle) => {
         const newRectangle = new google.maps.Rectangle({
           bounds: new google.maps.LatLngBounds(
@@ -222,6 +228,7 @@ const CrowdMapMarkers = ({ pulsatingSessionId, sessions }: Props) => {
     timeTo,
     unitSymbol,
     usernames,
+    fetchingData,
   ]);
 
   useEffect(() => {
