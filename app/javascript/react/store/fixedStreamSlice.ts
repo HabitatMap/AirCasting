@@ -6,7 +6,7 @@ import { API_ENDPOINTS } from "../api/apiEndpoints";
 import { ApiError, StatusEnum } from "../types/api";
 import { FixedStream } from "../types/fixedStream";
 
-import { TimeRange } from "../types/timeRange";
+import { FixedTimeRange } from "../types/timeRange";
 import { getErrorMessage } from "../utils/getErrorMessage";
 import { logError } from "../utils/logController";
 import {
@@ -25,12 +25,8 @@ export interface FixedStreamState {
   status: StatusEnum;
   error: ApiError | null;
   isLoading: boolean;
-  lastSelectedTimeRange: TimeRange;
+  lastSelectedTimeRange: FixedTimeRange;
 }
-
-const persistedTimeRange = localStorage.getItem(
-  "lastSelectedTimeRange"
-) as TimeRange | null;
 
 const initialState: FixedStreamState = {
   data: {
@@ -64,7 +60,7 @@ const initialState: FixedStreamState = {
   status: StatusEnum.Idle,
   error: null,
   isLoading: false,
-  lastSelectedTimeRange: TimeRange.Day,
+  lastSelectedTimeRange: FixedTimeRange.Day,
 };
 
 export interface Measurement {
@@ -154,16 +150,16 @@ const fixedStreamSlice = createSlice({
       let endTime: number;
 
       switch (state.lastSelectedTimeRange) {
-        case TimeRange.Day:
+        case FixedTimeRange.Day:
           endTime = startTime + MILLISECONDS_IN_A_DAY;
           break;
-        case TimeRange.Week:
+        case FixedTimeRange.Week:
           endTime = startTime + MILLISECONDS_IN_A_WEEK;
           break;
-        case TimeRange.Month:
+        case FixedTimeRange.Month:
           endTime = startTime + MILLISECONDS_IN_A_MONTH;
           break;
-        case TimeRange.Custom:
+        case FixedTimeRange.Custom:
           // For custom range, you might need to store the custom start time separately
           // For now, we'll use the last 24 hours as a fallback
           endTime = startTime + MILLISECONDS_IN_A_DAY;
@@ -193,7 +189,7 @@ const fixedStreamSlice = createSlice({
     resetFixedStreamState(state) {
       return initialState;
     },
-    setLastSelectedTimeRange(state, action: PayloadAction<TimeRange>) {
+    setLastSelectedTimeRange(state, action: PayloadAction<FixedTimeRange>) {
       state.lastSelectedTimeRange = action.payload;
       localStorage.setItem("lastSelectedTimeRange", action.payload);
     },

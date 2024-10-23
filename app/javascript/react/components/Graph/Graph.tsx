@@ -25,7 +25,7 @@ import { selectThresholds } from "../../store/thresholdSlice";
 import { SessionType, SessionTypes } from "../../types/filters";
 import { GraphData } from "../../types/graph";
 import { MobileStreamShortInfo as StreamShortInfo } from "../../types/mobileStream";
-import { TimeRange } from "../../types/timeRange"; // Import TimeRange enum
+import { FixedTimeRange, MobileTimeRange } from "../../types/timeRange";
 import {
   createFixedSeriesData,
   createMobileSeriesData,
@@ -37,6 +37,7 @@ import {
 } from "../../utils/getTimeRange";
 import { useMapParams } from "../../utils/mapParamsHandler";
 import {
+  MILLISECONDS_IN_A_5_MINUTES,
   MILLISECONDS_IN_A_DAY,
   MILLISECONDS_IN_A_MONTH,
   MILLISECONDS_IN_A_WEEK,
@@ -212,28 +213,50 @@ const Graph: React.FC<GraphProps> = React.memo(
       const currentEndTime = Date.now();
       let computedStartTime: number;
 
-      switch (lastSelectedTimeRange) {
-        case TimeRange.Hour:
-          computedStartTime = currentEndTime - MILLISECONDS_IN_AN_HOUR;
-          break;
-        case TimeRange.Day:
-          computedStartTime = currentEndTime - MILLISECONDS_IN_A_DAY;
-          break;
-        case TimeRange.Week:
-          computedStartTime = currentEndTime - MILLISECONDS_IN_A_WEEK;
-          break;
-        case TimeRange.Month:
-          computedStartTime = currentEndTime - MILLISECONDS_IN_A_MONTH;
-          break;
-        case TimeRange.Custom:
-          computedStartTime = startTime;
-          break;
-        default:
-          computedStartTime = currentEndTime - MILLISECONDS_IN_AN_HOUR;
+      if (fixedSessionTypeSelected) {
+        switch (lastSelectedTimeRange as FixedTimeRange) {
+          case FixedTimeRange.Hour:
+            computedStartTime = currentEndTime - MILLISECONDS_IN_AN_HOUR;
+            break;
+          case FixedTimeRange.Day:
+            computedStartTime = currentEndTime - MILLISECONDS_IN_A_DAY;
+            break;
+          case FixedTimeRange.Week:
+            computedStartTime = currentEndTime - MILLISECONDS_IN_A_WEEK;
+            break;
+          case FixedTimeRange.Month:
+            computedStartTime = currentEndTime - MILLISECONDS_IN_A_MONTH;
+            break;
+          case FixedTimeRange.Custom:
+            computedStartTime = startTime;
+            break;
+          default:
+            computedStartTime = currentEndTime - MILLISECONDS_IN_AN_HOUR;
+        }
+      } else {
+        switch (lastSelectedTimeRange as unknown as MobileTimeRange) {
+          case MobileTimeRange.FiveMinutes:
+            computedStartTime = currentEndTime - MILLISECONDS_IN_A_5_MINUTES;
+            break;
+          case MobileTimeRange.Hour:
+            computedStartTime = currentEndTime - MILLISECONDS_IN_AN_HOUR;
+            break;
+          case MobileTimeRange.All:
+            computedStartTime = startTime;
+            break;
+          default:
+            computedStartTime = currentEndTime - MILLISECONDS_IN_A_5_MINUTES;
+        }
       }
 
       fetchMeasurementsIfNeeded(computedStartTime, currentEndTime);
-    }, [lastSelectedTimeRange, streamId, startTime, fetchMeasurementsIfNeeded]);
+    }, [
+      lastSelectedTimeRange,
+      streamId,
+      startTime,
+      fetchMeasurementsIfNeeded,
+      fixedSessionTypeSelected,
+    ]);
 
     const xAxisOptions = useMemo(
       () =>
@@ -285,8 +308,11 @@ const Graph: React.FC<GraphProps> = React.memo(
               const chart = this as unknown as Highcharts.StockChart;
               const selectedButton = chart.options.rangeSelector?.selected;
               if (selectedButton !== undefined) {
-                const timeRange = mapIndexToTimeRange(selectedButton);
-                dispatch(setLastSelectedTimeRange(timeRange));
+                const timeRange = mapIndexToTimeRange(
+                  selectedButton,
+                  fixedSessionTypeSelected
+                );
+                dispatch(setLastSelectedTimeRange(timeRange as FixedTimeRange));
               }
             },
           },
@@ -322,7 +348,10 @@ const Graph: React.FC<GraphProps> = React.memo(
             isCalendarPage,
             t
           ),
-          selected: getSelectedRangeIndex(lastSelectedTimeRange),
+          selected: getSelectedRangeIndex(
+            lastSelectedTimeRange as FixedTimeRange | MobileTimeRange,
+            fixedSessionTypeSelected
+          ),
         },
         scrollbar: {
           ...scrollbarOptions,
@@ -382,7 +411,8 @@ const Graph: React.FC<GraphProps> = React.memo(
           if (lastSelectedTimeRange) {
             if (chart && "rangeSelector" in chart) {
               const selectedIndex = getSelectedRangeIndex(
-                lastSelectedTimeRange
+                lastSelectedTimeRange,
+                fixedSessionTypeSelected
               );
               (chart as any).rangeSelector.clickButton(selectedIndex, true);
             }
