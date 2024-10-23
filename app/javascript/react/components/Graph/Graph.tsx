@@ -372,6 +372,8 @@ const Graph: React.FC<GraphProps> = React.memo(
         },
         xAxis: {
           ...xAxisOptions,
+
+          // Set the min and max for the x-axis based on the selected time range to show proper scrollbar
           ...(fixedSessionTypeSelected
             ? {
                 min: startTime,

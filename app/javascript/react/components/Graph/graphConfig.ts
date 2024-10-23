@@ -9,7 +9,7 @@ import {
 } from "highcharts";
 import { debounce } from "lodash";
 
-import Highcharts, { XAxisOptions } from "highcharts/highstock"; // Ensure Highcharts Stock is used
+import Highcharts, { XAxisOptions } from "highcharts/highstock";
 import { TFunction } from "i18next";
 import {
   blue,
@@ -57,7 +57,6 @@ const getScrollbarOptions = (isCalendarPage: boolean, isMobile: boolean) => {
   };
 };
 
-// Simplified getXAxisOptions with optional afterSetExtremesHandler
 const getXAxisOptions = (
   isMobile: boolean,
   rangeDisplayRef: React.RefObject<HTMLDivElement> | undefined,
@@ -79,7 +78,7 @@ const getXAxisOptions = (
           e.min,
           e.max
         );
-        // Update timerange display in the graph
+        // Dirty way to update the range display in Calendar Page
         if (rangeDisplayRef?.current) {
           rangeDisplayRef.current.innerHTML = `
             <div class="time-container">
@@ -95,7 +94,7 @@ const getXAxisOptions = (
         }
       }
     },
-    300 // Increased debounce delay to 300ms
+    300
   );
 
   return {
