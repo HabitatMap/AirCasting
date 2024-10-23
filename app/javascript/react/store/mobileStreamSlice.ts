@@ -88,7 +88,6 @@ export const mobileStreamSlice = createSlice({
       action: PayloadAction<{ min: number; max: number }>
     ) {
       const { min, max } = action.payload;
-
       let startTime = min;
       let endTime: number;
 

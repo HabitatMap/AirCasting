@@ -26,10 +26,7 @@ interface MobileStream {
 }
 
 interface MobileStreamShortInfo {
-  averageValue: number;
   endTime: string | null;
-  maxMeasurementValue: number;
-  minMeasurementValue: number;
   profile: string;
   sensorName: string;
   sessionId: number;
@@ -44,4 +41,4 @@ interface MobileGraphData {
   measurementType: string;
 }
 
-export type { MobileStream, MobileStreamShortInfo, MobileGraphData };
+export type { MobileGraphData, MobileStream, MobileStreamShortInfo };

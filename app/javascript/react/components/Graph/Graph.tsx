@@ -90,7 +90,16 @@ const Graph: React.FC<GraphProps> = React.memo(
       useMapParams();
 
     // Use Redux state for selected time range
-    const lastSelectedTimeRange = useAppSelector(selectLastSelectedTimeRange);
+    const fixedLastSelectedTimeRange = useAppSelector(
+      selectLastSelectedTimeRange
+    );
+    const mobileLastSelectedTimeRange = useAppSelector(
+      selectLastSelectedTimeRange
+    );
+
+    const lastSelectedTimeRange = fixedSessionTypeSelected
+      ? fixedLastSelectedTimeRange
+      : mobileLastSelectedTimeRange || MobileTimeRange.All;
 
     const startTime = useMemo(
       () => parseDateString(streamShortInfo.startTime),
@@ -334,7 +343,7 @@ const Graph: React.FC<GraphProps> = React.memo(
     const scrollbarOptions = useMemo(
       () => ({
         ...getScrollbarOptions(isCalendarPage, isMobile),
-        liveRedraw: true,
+        liveRedraw: false,
       }),
       [isCalendarPage, isMobile]
     );
@@ -404,7 +413,7 @@ const Graph: React.FC<GraphProps> = React.memo(
             t
           ),
           selected: getSelectedRangeIndex(
-            lastSelectedTimeRange as FixedTimeRange | MobileTimeRange,
+            lastSelectedTimeRange,
             fixedSessionTypeSelected
           ),
         },
