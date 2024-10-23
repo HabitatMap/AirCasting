@@ -4,7 +4,7 @@ import { H6 } from "../Typography";
 
 const StyledSectionButton = styled.button<{
   $isNotTimelapseButton: boolean;
-  $isActive: boolean;
+  $isActive?: boolean;
   $isDisabled?: boolean;
 }>`
   background-color: ${(props) => (props.$isActive ? blue : white)};
@@ -36,12 +36,12 @@ const StyledSectionButton = styled.button<{
   }
 `;
 
-const Title = styled(H6)<{ $isActive: boolean }>`
+const Title = styled(H6)<{ $isActive?: boolean }>`
   text-transform: capitalize;
   ${(props) => props.$isActive && `color: ${white};`}
 `;
 
-const Image = styled.img<{ $isActive: boolean }>`
+const Image = styled.img<{ $isActive?: boolean }>`
   width: 1.2rem;
   height: 1.2rem;
   margin-bottom: 0.25rem;

@@ -845,45 +845,45 @@ const Map = () => {
         />
       )}
       <S.MobileContainer>
-        {currentUserSettings !== UserSettings.ModalView && (
-          <S.MobileButtons $isTimelapseView={isTimelapseView}>
-            <SectionButton
-              title={t("map.listSessions")}
-              image={pinImage}
-              alt={t("map.altListSessions")}
-              onClick={() => goToUserSettings(UserSettings.SessionListView)}
-              isNotTimelapseButton={isTimelapseView}
-              isActive={currentUserSettings === UserSettings.SessionListView}
-            />
-            <SectionButton
-              title={t("map.legendTile")}
-              image={mapLegend}
-              alt={t("map.altlegendTile")}
-              onClick={() => goToUserSettings(UserSettings.MapLegendView)}
-              isNotTimelapseButton={isTimelapseView}
-              isActive={currentUserSettings === UserSettings.MapLegendView}
-            />
-            {fixedSessionTypeSelected && (
+        {currentUserSettings !== UserSettings.ModalView &&
+          currentUserSettings !== UserSettings.FiltersView && (
+            <S.MobileButtons $isTimelapseView={isTimelapseView}>
               <SectionButton
-                title={t("map.timelapsTile")}
-                image={clockIcon}
-                alt={t("map.altTimelapstile")}
-                onClick={openTimelapse}
-                isNotTimelapseButton={false}
-                isActive={currentUserSettings === UserSettings.TimelapseView}
-                isDisabled={isTimelapseDisabled}
+                title={t("map.listSessions")}
+                image={pinImage}
+                alt={t("map.altListSessions")}
+                onClick={() => goToUserSettings(UserSettings.SessionListView)}
+                isNotTimelapseButton={isTimelapseView}
+                isActive={currentUserSettings === UserSettings.SessionListView}
               />
-            )}
-            <SectionButton
-              title={t("filters.filters")}
-              image={filterIcon}
-              alt={t("filters.altFiltersIcon")}
-              onClick={openFilters}
-              isNotTimelapseButton={false}
-              isActive={currentUserSettings === UserSettings.FiltersView}
-            />
-          </S.MobileButtons>
-        )}
+              <SectionButton
+                title={t("map.legendTile")}
+                image={mapLegend}
+                alt={t("map.altlegendTile")}
+                onClick={() => goToUserSettings(UserSettings.MapLegendView)}
+                isNotTimelapseButton={isTimelapseView}
+                isActive={currentUserSettings === UserSettings.MapLegendView}
+              />
+              {fixedSessionTypeSelected && (
+                <SectionButton
+                  title={t("map.timelapsTile")}
+                  image={clockIcon}
+                  alt={t("map.altTimelapstile")}
+                  onClick={openTimelapse}
+                  isNotTimelapseButton={false}
+                  isActive={currentUserSettings === UserSettings.TimelapseView}
+                  isDisabled={isTimelapseDisabled}
+                />
+              )}
+              <SectionButton
+                title={t("filters.filters")}
+                image={filterIcon}
+                alt={t("filters.altFiltersIcon")}
+                onClick={openFilters}
+                isNotTimelapseButton={false}
+              />
+            </S.MobileButtons>
+          )}
         {currentUserSettings === UserSettings.MapLegendView && (
           <Legend onClose={() => goToUserSettings(previousUserSettings)} />
         )}
