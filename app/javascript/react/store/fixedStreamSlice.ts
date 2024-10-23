@@ -151,7 +151,7 @@ const fixedStreamSlice = createSlice({
 
       console.log(min, max, "min, max");
       let startTime = min;
-      let endTime;
+      let endTime: number;
 
       switch (state.lastSelectedTimeRange) {
         case TimeRange.Day:
