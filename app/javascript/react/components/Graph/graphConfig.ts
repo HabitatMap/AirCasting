@@ -5,12 +5,11 @@ import {
   PlotOptions,
   RangeSelectorOptions,
   ResponsiveOptions,
-  XAxisOptions,
   YAxisOptions,
 } from "highcharts";
 import { debounce } from "lodash";
 
-import Highcharts from "highcharts";
+import Highcharts, { XAxisOptions } from "highcharts/highstock";
 import { TFunction } from "i18next";
 import {
   blue,
@@ -62,15 +61,13 @@ const getXAxisOptions = (
   isMobile: boolean,
   rangeDisplayRef: React.RefObject<HTMLDivElement> | undefined,
   fixedSessionTypeSelected: boolean,
-  isIndoor: string | null,
   dispatch: any,
   isLoading: boolean,
-  isIndoorParameterInUrl: boolean
+  fetchMeasurementsIfNeeded: (start: number, end: number) => void
 ): XAxisOptions => {
   const handleSetExtremes = debounce(
     (e: Highcharts.AxisSetExtremesEventObject) => {
-      if (isIndoorParameterInUrl) return;
-      if (!isLoading && e.min && e.max) {
+      if (e.min !== undefined && e.max !== undefined) {
         dispatch(
           fixedSessionTypeSelected
             ? updateFixedMeasurementExtremes({ min: e.min, max: e.max })
@@ -81,7 +78,7 @@ const getXAxisOptions = (
           e.min,
           e.max
         );
-        // Dirty workaround to update timerange display in the graph
+        // Dirty workaround to update timerange display in the graph on Calendar Page
         if (rangeDisplayRef?.current) {
           rangeDisplayRef.current.innerHTML = `
             <div class="time-container">
@@ -97,7 +94,7 @@ const getXAxisOptions = (
         }
       }
     },
-    100
+    300
   );
 
   return {
@@ -125,7 +122,15 @@ const getXAxisOptions = (
     minRange: 10000,
     ordinal: false,
     events: {
-      afterSetExtremes: handleSetExtremes,
+      afterSetExtremes: function (
+        this: Highcharts.Axis,
+        e: Highcharts.AxisSetExtremesEventObject
+      ) {
+        handleSetExtremes(e);
+        if (e.min !== undefined && e.max !== undefined) {
+          fetchMeasurementsIfNeeded(e.min, e.max);
+        }
+      },
     },
   };
 };
@@ -223,7 +228,7 @@ const getPlotOptions = (
     series: {
       lineWidth: 2,
       color: blue,
-      turboThreshold: 9999999, //above that graph will not display
+      turboThreshold: 9999999, // above that graph will not display
       marker: {
         fillColor: blue,
         lineWidth: 0,
@@ -323,6 +328,7 @@ const getTooltipOptions = (
     fontFamily: "Roboto",
   },
 });
+
 const getRangeSelectorOptions = (
   isMobile: boolean,
   fixedSessionTypeSelected: boolean,
@@ -339,7 +345,7 @@ const getRangeSelectorOptions = (
     },
     buttonTheme: {
       fill: "none",
-      width: 95,
+      width: 80,
       height: 34,
       r: 20,
       stroke: "none",

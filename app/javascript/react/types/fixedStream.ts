@@ -38,14 +38,12 @@ interface FixedStream {
   stream: FixedStreamStationInfo;
   measurements: FixedMeasurement[];
   streamDailyAverages: StreamDailyAverage[];
+  lastMonthMeasurements: FixedMeasurement[];
 }
 
 interface FixedStreamShortInfo extends FixedStreamStationInfo {
-  averageValue: number;
   lastMeasurementValue: number | undefined;
   lastMeasurementDateLabel: string | undefined;
-  maxMeasurementValue: number;
-  minMeasurementValue: number;
 }
 
 export type {
