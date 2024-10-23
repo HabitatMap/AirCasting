@@ -5,6 +5,7 @@ import {
   selectFixedExtremes,
   selectFixedStreamShortInfo,
 } from "../../../../store/fixedStreamSelectors";
+import { useAppSelector } from "../../../../store/hooks";
 import {
   selectMobileExtremes,
   selectMobileStreamShortInfo,
@@ -41,10 +42,10 @@ const SessionInfo: React.FC<SessionInfoProps> = ({
       ? selectFixedStreamShortInfo
       : selectMobileStreamShortInfo
   );
-  const extremes = useSelector(
+  const extremes = useAppSelector(
     fixedSessionTypeSelected ? selectFixedExtremes : selectMobileExtremes
   );
-  const thresholds = useSelector(selectThresholds);
+  const thresholds = useAppSelector(selectThresholds);
 
   const toggleVisibility = () => setIsVisible(!isVisible);
 

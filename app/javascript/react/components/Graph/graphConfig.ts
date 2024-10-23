@@ -67,7 +67,7 @@ const getXAxisOptions = (
 ): XAxisOptions => {
   const handleSetExtremes = debounce(
     (e: Highcharts.AxisSetExtremesEventObject) => {
-      if (!isLoading && e.min !== undefined && e.max !== undefined) {
+      if (e.min !== undefined && e.max !== undefined) {
         dispatch(
           fixedSessionTypeSelected
             ? updateFixedMeasurementExtremes({ min: e.min, max: e.max })
@@ -78,7 +78,7 @@ const getXAxisOptions = (
           e.min,
           e.max
         );
-        // Dirty way to update the range display in Calendar Page
+        // Dirty workaround to update timerange display in the graph on Calendar Page
         if (rangeDisplayRef?.current) {
           rangeDisplayRef.current.innerHTML = `
             <div class="time-container">
@@ -429,7 +429,6 @@ const getRangeSelectorOptions = (
   };
 
   if (isCalendarPage && isMobile) {
-    console.log("range", selectedRange);
     return {
       ...baseMobileCalendarOptions,
       buttons: [
