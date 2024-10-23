@@ -3,6 +3,7 @@
 import HighchartsReact from "highcharts-react-official";
 import Highcharts, { Chart } from "highcharts/highstock";
 import NoDataToDisplay from "highcharts/modules/no-data-to-display";
+import { debounce } from "lodash";
 import React, { useCallback, useEffect, useMemo, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import { white } from "../../assets/styles/colors";
@@ -126,8 +127,8 @@ const Graph: React.FC<GraphProps> = React.memo(
     );
 
     const fetchMeasurementsIfNeeded = useCallback(
-      async (start: number, end: number) => {
-        // Exit early if there's no streamId or if already fetching
+      debounce(async (start: number, end: number) => {
+        // Early exit if there's no stream ID or if already fetching
         if (!streamId || isCurrentlyFetchingRef.current) {
           console.log(
             `Skipping fetch: ${!streamId ? "No streamId" : "Already fetching"}`
@@ -136,7 +137,7 @@ const Graph: React.FC<GraphProps> = React.memo(
         }
 
         const now = Date.now();
-        end = Math.min(end, now); // Limit end time to the current time
+        end = Math.min(end, now);
 
         if (start >= end) {
           console.log(
@@ -149,7 +150,7 @@ const Graph: React.FC<GraphProps> = React.memo(
 
         const { start: lastStart, end: lastEnd } = lastFetchedRangeRef.current;
 
-        // Check if the requested range is already fetched
+        // Check if the requested range is already fully covered
         if (lastStart !== null && lastEnd !== null) {
           if (start >= lastStart && end <= lastEnd) {
             console.log(
@@ -161,7 +162,7 @@ const Graph: React.FC<GraphProps> = React.memo(
           }
         }
 
-        // Adjust fetch range to avoid gaps
+        // Adjust the fetch range to include any gaps
         const fetchStart =
           lastStart !== null ? Math.min(start, lastStart) : start;
         const fetchEnd = lastEnd !== null ? Math.max(end, lastEnd) : end;
@@ -169,8 +170,9 @@ const Graph: React.FC<GraphProps> = React.memo(
         console.log(
           `Fetching data from ${new Date(fetchStart)} to ${new Date(fetchEnd)}`
         );
+        console.log(`Timestamps: ${fetchStart} to ${fetchEnd}`);
 
-        // Set fetching state to prevent duplicates
+        // Set flag to true to prevent concurrent fetches
         isCurrentlyFetchingRef.current = true;
 
         try {
@@ -182,7 +184,7 @@ const Graph: React.FC<GraphProps> = React.memo(
             })
           ).unwrap();
 
-          // Update the fetched range
+          // Update the last fetched range
           lastFetchedRangeRef.current = {
             start: fetchStart,
             end: fetchEnd,
@@ -196,13 +198,14 @@ const Graph: React.FC<GraphProps> = React.memo(
         } catch (error) {
           console.error("Error fetching measurements:", error);
         } finally {
-          // Reset fetching state
+          // Reset flag after the fetch completes
           isCurrentlyFetchingRef.current = false;
         }
-      },
+      }, 500), // Adjust debounce delay here
       [dispatch, streamId]
     );
 
+    // Use the fetchMeasurementsIfNeeded function in the useEffect
     useEffect(() => {
       if (!streamId) return;
 
@@ -229,10 +232,7 @@ const Graph: React.FC<GraphProps> = React.memo(
           computedStartTime = currentEndTime - MILLISECONDS_IN_AN_HOUR;
       }
 
-      // Run the fetch only if there's no ongoing fetch
-      if (!isCurrentlyFetchingRef.current) {
-        fetchMeasurementsIfNeeded(computedStartTime, currentEndTime);
-      }
+      fetchMeasurementsIfNeeded(computedStartTime, currentEndTime);
     }, [lastSelectedTimeRange, streamId, startTime, fetchMeasurementsIfNeeded]);
 
     const xAxisOptions = useMemo(
