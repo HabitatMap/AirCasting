@@ -36,6 +36,12 @@ import {
   mapIndexToTimeRange,
 } from "../../utils/getTimeRange";
 import { useMapParams } from "../../utils/mapParamsHandler";
+import {
+  MILLISECONDS_IN_A_DAY,
+  MILLISECONDS_IN_A_MONTH,
+  MILLISECONDS_IN_A_WEEK,
+  MILLISECONDS_IN_AN_HOUR,
+} from "../../utils/timeRanges";
 import useMobileDetection from "../../utils/useScreenSizeDetection";
 import { handleLoad } from "./chartEvents";
 import * as S from "./Graph.style";
@@ -61,9 +67,6 @@ interface GraphProps {
   isCalendarPage: boolean;
   rangeDisplayRef?: React.RefObject<HTMLDivElement>;
 }
-
-const MAX_FETCH_ATTEMPTS = 5;
-const FETCH_COOLDOWN = 2000; // 2 seconds
 
 const Graph: React.FC<GraphProps> = React.memo(
   ({ streamId, sessionType, isCalendarPage, rangeDisplayRef }) => {
@@ -107,7 +110,6 @@ const Graph: React.FC<GraphProps> = React.memo(
       end: null,
     });
     const isCurrentlyFetchingRef = useRef(false);
-    const fetchAttemptsRef = useRef(0);
 
     const isIndoorParameterInUrl = isIndoor === "true";
 
@@ -160,19 +162,9 @@ const Graph: React.FC<GraphProps> = React.memo(
             );
             return;
           }
-          // Adjust fetch range to include any gaps
+
           start = Math.min(start, lastStart);
           end = Math.max(end, lastEnd);
-        }
-
-        if (fetchAttemptsRef.current >= MAX_FETCH_ATTEMPTS) {
-          console.log(
-            `Max fetch attempts (${MAX_FETCH_ATTEMPTS}) reached. Cooling down.`
-          );
-          setTimeout(() => {
-            fetchAttemptsRef.current = 0;
-          }, FETCH_COOLDOWN);
-          return;
         }
 
         console.log(
@@ -181,7 +173,6 @@ const Graph: React.FC<GraphProps> = React.memo(
         console.log(`Timestamps: ${start} to ${end}`);
 
         isCurrentlyFetchingRef.current = true;
-        fetchAttemptsRef.current++;
 
         try {
           await dispatch(
@@ -212,33 +203,49 @@ const Graph: React.FC<GraphProps> = React.memo(
 
     // Fetch measurements based on the selected time range
     useEffect(() => {
+      if (!streamId) return;
+
       let computedStartTime: number;
       const currentEndTime = Date.now();
 
       switch (lastSelectedTimeRange) {
         case TimeRange.Hour:
-          computedStartTime = currentEndTime - 60 * 60 * 1000;
+          computedStartTime = currentEndTime - MILLISECONDS_IN_AN_HOUR;
           break;
         case TimeRange.Day:
-          computedStartTime = currentEndTime - 24 * 60 * 60 * 1000;
+          computedStartTime = currentEndTime - MILLISECONDS_IN_A_DAY;
           break;
         case TimeRange.Week:
-          computedStartTime = currentEndTime - 7 * 24 * 60 * 60 * 1000;
+          computedStartTime = currentEndTime - MILLISECONDS_IN_A_WEEK;
           break;
         case TimeRange.Month:
-          computedStartTime = currentEndTime - 30 * 24 * 60 * 60 * 1000;
+          computedStartTime = currentEndTime - MILLISECONDS_IN_A_MONTH;
           break;
         case TimeRange.Custom:
-          // Handle custom range if applicable
-          computedStartTime = startTime; // Replace with actual custom start time if available
+          computedStartTime = startTime;
           break;
         default:
-          computedStartTime = currentEndTime - 24 * 60 * 60 * 1000;
+          computedStartTime = currentEndTime - MILLISECONDS_IN_AN_HOUR;
       }
+
+      // Check if the data for this range has already been fetched
+      const { start: lastStart, end: lastEnd } = lastFetchedRangeRef.current;
+      if (lastStart !== null && lastEnd !== null) {
+        if (computedStartTime >= lastStart && currentEndTime <= lastEnd) {
+          console.log("Data already fetched for this range");
+          return;
+        }
+      }
+
+      // Update the last fetched range
+      lastFetchedRangeRef.current = {
+        start: computedStartTime,
+        end: currentEndTime,
+      };
 
       dispatch(
         fetchMeasurements({
-          streamId: streamId ?? 0,
+          streamId,
           startTime: Math.floor(computedStartTime).toString(),
           endTime: Math.floor(currentEndTime).toString(),
         })

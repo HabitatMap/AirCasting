@@ -9,6 +9,11 @@ import { FixedStream } from "../types/fixedStream";
 import { TimeRange } from "../types/timeRange";
 import { getErrorMessage } from "../utils/getErrorMessage";
 import { logError } from "../utils/logController";
+import {
+  MILLISECONDS_IN_A_DAY,
+  MILLISECONDS_IN_A_MONTH,
+  MILLISECONDS_IN_A_WEEK,
+} from "../utils/timeRanges";
 import { RootState } from "./index";
 
 export interface FixedStreamState {
@@ -145,13 +150,35 @@ const fixedStreamSlice = createSlice({
       const { min, max } = action.payload;
 
       console.log(min, max, "min, max");
-      const measurementsInRange = state.data.measurements.filter(
-        (measurement) => {
-          const time = measurement.time;
-          return time >= min && time <= max;
-        }
-      );
-      const values = measurementsInRange.map((m) => m.value);
+      let startTime = min;
+      let endTime;
+
+      switch (state.lastSelectedTimeRange) {
+        case TimeRange.Day:
+          endTime = startTime + MILLISECONDS_IN_A_DAY;
+          break;
+        case TimeRange.Week:
+          endTime = startTime + MILLISECONDS_IN_A_WEEK;
+          break;
+        case TimeRange.Month:
+          endTime = startTime + MILLISECONDS_IN_A_MONTH;
+          break;
+        case TimeRange.Custom:
+          // For custom range, you might need to store the custom start time separately
+          // For now, we'll use the last 24 hours as a fallback
+          endTime = startTime + MILLISECONDS_IN_A_DAY;
+          break;
+        default:
+          endTime = startTime + MILLISECONDS_IN_A_DAY;
+      }
+
+      const values = state.data.measurements
+        .filter(
+          (measurement) =>
+            measurement.time >= startTime && measurement.time <= endTime
+        )
+        .map((m) => m.value);
+
       const newMin = values.length > 0 ? Math.min(...values) : 0;
       const newMax = values.length > 0 ? Math.max(...values) : 0;
       const newAvg =
@@ -168,7 +195,7 @@ const fixedStreamSlice = createSlice({
     },
     setLastSelectedTimeRange(state, action: PayloadAction<TimeRange>) {
       state.lastSelectedTimeRange = action.payload;
-      localStorage.setItem("lastSelectedTimeRange", action.payload); // Persist the selection
+      localStorage.setItem("lastSelectedTimeRange", action.payload);
     },
   },
   extraReducers: (builder) => {
@@ -208,17 +235,6 @@ const fixedStreamSlice = createSlice({
         const validNewMeasurements = action.payload.filter(
           (m) => m.time !== undefined && m.value !== undefined
         );
-
-        // Check if new measurements cover a time range earlier than previously fetched
-        const earliestNewTime = Math.min(
-          ...validNewMeasurements.map((m) => m.time)
-        );
-        if (
-          state.fetchedStartTime === null ||
-          earliestNewTime < state.fetchedStartTime
-        ) {
-          state.fetchedStartTime = earliestNewTime;
-        }
 
         // Merge new measurements with existing ones, ensuring no duplicates
         const mergedMeasurements = [
@@ -261,4 +277,4 @@ export const selectFixedData = (state: RootState) => state.fixedStream.data;
 export const selectIsLoading = (state: RootState) =>
   state.fixedStream.isLoading;
 export const selectLastSelectedTimeRange = (state: RootState) =>
-  state.fixedStream.lastSelectedTimeRange; // New selector
+  state.fixedStream.lastSelectedTimeRange;
