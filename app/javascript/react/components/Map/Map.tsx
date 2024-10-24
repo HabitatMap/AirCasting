@@ -565,6 +565,13 @@ const Map = () => {
     [currentUserSettings, mapInstance, searchParams, dispatch]
   );
 
+  // ref to currentUserSettings to get the current value from URL
+  const currentUserSettingsRef = useRef(currentUserSettings);
+
+  useEffect(() => {
+    currentUserSettingsRef.current = currentUserSettings;
+  }, [currentUserSettings]);
+
   const handleMarkerClick = (
     selectedStreamId: number | null,
     id: number | null
@@ -583,7 +590,7 @@ const Map = () => {
       if (fixedSessionTypeSelected) {
         newSearchParams.set(
           UrlParamsTypes.previousUserSettings,
-          UserSettings.MapView
+          currentUserSettingsRef.current
         );
         newSearchParams.set(
           UrlParamsTypes.currentUserSettings,
@@ -610,7 +617,7 @@ const Map = () => {
       );
       newSearchParams.set(
         UrlParamsTypes.previousUserSettings,
-        isMobile ? UserSettings.MapView : currentUserSettings
+        currentUserSettingsRef.current
       );
       newSearchParams.set(
         UrlParamsTypes.currentUserSettings,
@@ -912,11 +919,11 @@ const Map = () => {
         )}
         {currentUserSettings === UserSettings.FiltersView && (
           <MobileSessionFilters
-            onClose={() => {
+            onClose={() =>
               [UserSettings.CrowdMapView].includes(previousUserSettings)
                 ? goToUserSettings(UserSettings.CrowdMapView)
-                : goToUserSettings(UserSettings.MapView);
-            }}
+                : goToUserSettings(UserSettings.MapView)
+            }
             fetchableSessionsCount={fetchableSessionsCount}
           />
         )}
