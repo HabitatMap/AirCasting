@@ -583,7 +583,7 @@ const Map = () => {
       if (fixedSessionTypeSelected) {
         newSearchParams.set(
           UrlParamsTypes.previousUserSettings,
-          currentUserSettings
+          UserSettings.MapView
         );
         newSearchParams.set(
           UrlParamsTypes.currentUserSettings,
@@ -610,7 +610,7 @@ const Map = () => {
       );
       newSearchParams.set(
         UrlParamsTypes.previousUserSettings,
-        currentUserSettings
+        isMobile ? UserSettings.MapView : currentUserSettings
       );
       newSearchParams.set(
         UrlParamsTypes.currentUserSettings,
@@ -912,11 +912,11 @@ const Map = () => {
         )}
         {currentUserSettings === UserSettings.FiltersView && (
           <MobileSessionFilters
-            onClose={() =>
+            onClose={() => {
               [UserSettings.CrowdMapView].includes(previousUserSettings)
                 ? goToUserSettings(UserSettings.CrowdMapView)
-                : goToUserSettings(UserSettings.MapView)
-            }
+                : goToUserSettings(UserSettings.MapView);
+            }}
             fetchableSessionsCount={fetchableSessionsCount}
           />
         )}
