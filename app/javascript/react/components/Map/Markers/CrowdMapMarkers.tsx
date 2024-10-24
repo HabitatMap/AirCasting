@@ -22,7 +22,6 @@ import useMapEventListeners from "../../../utils/mapEventListeners";
 import { useMapParams } from "../../../utils/mapParamsHandler";
 import { getColorForValue } from "../../../utils/thresholdColors";
 
-import { selectFetchingData } from "../../../store/mapSlice";
 import { CustomMarker } from "./CustomMarker";
 import MapOverlay from "./MapOverlay";
 import {
@@ -37,15 +36,6 @@ type Props = {
 
 const CrowdMapMarkers = ({ pulsatingSessionId, sessions }: Props) => {
   const dispatch = useAppDispatch();
-
-  const crowdMapRectangles = useAppSelector(selectCrowdMapRectangles);
-  const fetchingCrowdMapData = useAppSelector(selectFetchingCrowdMapData);
-  const mobileSessionsLoading = useAppSelector(selectMobileSessionsLoading);
-  const mobileSessionsStreamIds = useAppSelector(selectMobileSessionsStreamIds);
-  const rectangleData = useAppSelector(selectRectangleData);
-  const rectangleLoading = useAppSelector(selectRectangleLoading);
-  const thresholds = useAppSelector(selectThresholds);
-  const fetchingData = useAppSelector(selectFetchingData);
 
   const map = useMap();
   const {
@@ -64,6 +54,13 @@ const CrowdMapMarkers = ({ pulsatingSessionId, sessions }: Props) => {
     usernames,
   } = useMapParams();
 
+  const crowdMapRectangles = useAppSelector(selectCrowdMapRectangles);
+  const fetchingCrowdMapData = useAppSelector(selectFetchingCrowdMapData);
+  const mobileSessionsLoading = useAppSelector(selectMobileSessionsLoading);
+  const mobileSessionsStreamIds = useAppSelector(selectMobileSessionsStreamIds);
+  const rectangleData = useAppSelector(selectRectangleData);
+  const rectangleLoading = useAppSelector(selectRectangleLoading);
+  const thresholds = useAppSelector(selectThresholds);
   const preparedUnitSymbol = unitSymbol.replace(/"/g, "");
   const encodedUnitSymbol = encodeURIComponent(preparedUnitSymbol);
 
@@ -124,7 +121,6 @@ const CrowdMapMarkers = ({ pulsatingSessionId, sessions }: Props) => {
   const displayedSession: Session | undefined = sessions.find(
     (session) => session.id === pulsatingSessionId
   );
-
   const displayedSessionMarkerRef = useRef<CustomMarker | null>(null);
 
   const cleanupMarker = () => {
@@ -144,14 +140,10 @@ const CrowdMapMarkers = ({ pulsatingSessionId, sessions }: Props) => {
       dispatch(clearCrowdMap());
       dispatch(fetchCrowdMapData(filters));
     }
-  }, [dispatch, fetchingCrowdMapData, filters, mobileSessionsLoading]);
+  }, [dispatch, fetchingCrowdMapData, mobileSessionsLoading, currentZoom]);
 
   useEffect(() => {
-    if (
-      !mobileSessionsLoading &&
-      crowdMapRectanglesLength > 0 &&
-      !fetchingData
-    ) {
+    if (!mobileSessionsLoading && crowdMapRectanglesLength > 0) {
       const newRectangles = crowdMapRectangles.map((rectangle) => {
         const newRectangle = new google.maps.Rectangle({
           bounds: new google.maps.LatLngBounds(
@@ -228,7 +220,6 @@ const CrowdMapMarkers = ({ pulsatingSessionId, sessions }: Props) => {
     timeTo,
     unitSymbol,
     usernames,
-    fetchingData,
   ]);
 
   useEffect(() => {
