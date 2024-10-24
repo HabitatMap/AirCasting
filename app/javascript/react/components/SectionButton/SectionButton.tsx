@@ -7,7 +7,7 @@ interface SectionButtonProps {
   alt: string;
   onClick: () => void;
   isNotTimelapseButton: boolean;
-  isActive: boolean;
+  isActive?: boolean;
   isDisabled?: boolean;
 }
 

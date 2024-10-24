@@ -109,22 +109,21 @@ const IconWrapper = styled.div<{ $isActive: boolean; $src: string }>`
 `;
 
 const MobileSessionFilters = styled(SessionFilters)`
-  display: fixed;
+  display: flex;
+  flex-direction: column;
+  overflow-x: hidden;
   bottom: 0;
   top: 0;
   z-index: 6;
   margin: 0;
   width: 100%;
-  height: 100%;
 `;
 
 const ModalContent = styled.div`
   display: flex;
   flex-direction: column;
   position: sticky;
-  top: 0;
   background-color: ${white};
-  height: 10.5rem;
 `;
 
 const Header = styled.div`
@@ -152,6 +151,7 @@ const ShowSessionsButton = styled(Button)`
   color: ${white};
   font-size: 1.4rem;
   text-transform: uppercase;
+  margin-top: 1rem;
 `;
 
 const InputWrapper = styled.div`
@@ -441,7 +441,7 @@ const ButtonsWrapper = styled.div`
   display: flex;
   justify-content: space-between;
   position: sticky;
-  bottom: 1.6rem;
+  /* bottom: 1.6rem; */
   height: 4.2rem;
 `;
 
@@ -460,6 +460,7 @@ const BackButton = styled(Button)`
 const MinorShowSessionsButton = styled(ShowSessionsButton)`
   width: fit-content;
   flex-grow: 3;
+  margin-top: 0;
 `;
 
 const BasicParameterButtonsWrapper = styled.div`
@@ -552,6 +553,7 @@ const CustomParameterList = styled.ul`
     max-height: 40rem;
     margin-top: 0.8rem;
     padding-top: 0;
+    overflow-x: hidden;
   }
 `;
 
