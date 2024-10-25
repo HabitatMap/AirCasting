@@ -92,8 +92,6 @@ export const mobileStreamSlice = createSlice({
       let startTime = min;
       let endTime: number;
 
-      console.log(min, max);
-
       switch (state.lastSelectedTimeRange) {
         case MobileTimeRange.FiveMinutes:
           endTime = startTime + MILLISECONDS_IN_A_5_MINUTES;

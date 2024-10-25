@@ -70,8 +70,6 @@ const getXAxisOptions = (
   const handleSetExtremes = debounce(
     (e: Highcharts.AxisSetExtremesEventObject) => {
       if (!isLoading && e.min !== undefined && e.max !== undefined) {
-        console.log("handle set");
-
         dispatch(
           fixedSessionTypeSelected
             ? updateFixedMeasurementExtremes({ min: e.min, max: e.max })

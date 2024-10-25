@@ -80,6 +80,8 @@ const Graph: React.FC<GraphProps> = React.memo(
         ? selectFixedStreamShortInfo
         : selectMobileStreamShortInfo
     );
+
+    // const isFetchingMeasurements = useAppSelector(selectIsFetchingMeasurements);
     const { unitSymbol, measurementType, isIndoor, sensorName } =
       useMapParams();
 
@@ -225,7 +227,7 @@ const Graph: React.FC<GraphProps> = React.memo(
       }
     }, [seriesData, lastSelectedTimeRange]);
 
-    // Show or hide loading indicator based on isLoading
+    // // Show or hide loading indicator based on isLoading
     useEffect(() => {
       if (chartComponentRef.current && chartComponentRef.current.chart) {
         const chart = chartComponentRef.current.chart;
@@ -322,21 +324,6 @@ const Graph: React.FC<GraphProps> = React.memo(
       [isCalendarPage, isMobile]
     );
 
-    const earliestTimestamp = useMemo(() => {
-      if (seriesData && seriesData.length > 0) {
-        const firstDataPoint = seriesData[0];
-        if (Array.isArray(firstDataPoint)) {
-          return firstDataPoint[0];
-        } else if (
-          typeof firstDataPoint === "object" &&
-          "x" in firstDataPoint
-        ) {
-          return firstDataPoint.x;
-        }
-      }
-      return startTime;
-    }, [seriesData, startTime]);
-
     const options = useMemo<Highcharts.Options>(
       () => ({
         chart: {
@@ -362,7 +349,7 @@ const Graph: React.FC<GraphProps> = React.memo(
           // Set the min and max for the x-axis based on the selected time range to show proper scrollbar
           ...(fixedSessionTypeSelected
             ? {
-                min: earliestTimestamp,
+                min: startTime,
                 max: endTime,
               }
             : {}),
