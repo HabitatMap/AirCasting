@@ -103,6 +103,7 @@ const getXAxisOptions = (
     title: {
       text: undefined,
     },
+    showEmpty: false,
     showLastLabel: isMobile ? false : true,
     tickColor: gray200,
     lineColor: white,
@@ -234,6 +235,8 @@ const getPlotOptions = (
       lineWidth: 2,
       color: blue,
       turboThreshold: 9999999, // above that graph will not display
+      cropThreshold: 9999999,
+
       marker: {
         fillColor: blue,
         lineWidth: 0,
