@@ -4,5 +4,10 @@ export const parseDateString = (dateStr: string): number => {
     console.error(`Invalid date string: ${dateStr}`);
     return 0;
   }
-  return parsedDate.getTime();
+
+  // Convert to local time
+  const localDate = new Date(
+    parsedDate.getTime() - parsedDate.getTimezoneOffset() * 60000
+  );
+  return localDate.getTime();
 };

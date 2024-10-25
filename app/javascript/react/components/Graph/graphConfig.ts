@@ -134,12 +134,8 @@ const getXAxisOptions = (
         // Only dispatch when not loading and measurements are available
         if (!isLoading && this.series[0].points.length > 0) {
           setTimeout(() => {
-            dispatch(
-              fixedSessionTypeSelected
-                ? updateFixedMeasurementExtremes({ min: e.min, max: e.max })
-                : updateMobileMeasurementExtremes({ min: e.min, max: e.max })
-            );
-          }, 300);
+            handleSetExtremes(e);
+          }, 100);
         }
       },
     },
