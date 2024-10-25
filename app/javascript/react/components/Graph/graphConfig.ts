@@ -54,7 +54,7 @@ const getScrollbarOptions = (isCalendarPage: boolean, isMobile: boolean) => {
     autoHide: false,
     showFull: true,
     enabled: isMobile && isCalendarPage ? true : !isMobile,
-    liveRedraw: false,
+    liveRedraw: true,
     minWidth: isMobile ? 30 : 8,
   };
 };
