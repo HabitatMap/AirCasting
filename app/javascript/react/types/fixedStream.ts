@@ -44,6 +44,9 @@ interface FixedStream {
 interface FixedStreamShortInfo extends FixedStreamStationInfo {
   lastMeasurementValue: number | undefined;
   lastMeasurementDateLabel: string | undefined;
+  minMeasurementValue: number;
+  maxMeasurementValue: number;
+  averageValue: number;
 }
 
 export type {

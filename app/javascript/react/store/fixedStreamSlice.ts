@@ -170,6 +170,8 @@ const fixedStreamSlice = createSlice({
         )
         .map((m) => m.value);
 
+      console.log(values.length, "values");
+
       const newMin = values.length > 0 ? Math.min(...values) : 0;
       const newMax = values.length > 0 ? Math.max(...values) : 0;
       const newAvg =
@@ -177,6 +179,9 @@ const fixedStreamSlice = createSlice({
           ? values.reduce((sum, value) => sum + value, 0) / values.length
           : 0;
 
+      console.log("newMin", newMin);
+      console.log("newMax", newMax);
+      console.log("newAvg", newAvg);
       state.minMeasurementValue = newMin;
       state.maxMeasurementValue = newMax;
       state.averageMeasurementValue = newAvg;

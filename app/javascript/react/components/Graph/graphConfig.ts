@@ -9,7 +9,7 @@ import {
 } from "highcharts";
 import { debounce } from "lodash";
 
-import Highcharts, { XAxisOptions } from "highcharts/highstock";
+import Highcharts from "highcharts/highstock";
 import { TFunction } from "i18next";
 import {
   blue,
@@ -24,6 +24,7 @@ import {
   white,
   yellow,
 } from "../../assets/styles/colors";
+import { AppDispatch } from "../../store";
 import { updateFixedMeasurementExtremes } from "../../store/fixedStreamSlice";
 import { setHoverPosition, setHoverStreamId } from "../../store/mapSlice";
 import { updateMobileMeasurementExtremes } from "../../store/mobileStreamSlice";
@@ -35,6 +36,7 @@ import {
   MILLISECONDS_IN_A_5_MINUTES,
   MILLISECONDS_IN_A_DAY,
   MILLISECONDS_IN_A_MONTH,
+  MILLISECONDS_IN_A_SECOND,
   MILLISECONDS_IN_A_WEEK,
   MILLISECONDS_IN_AN_HOUR,
 } from "../../utils/timeRanges";
@@ -52,7 +54,7 @@ const getScrollbarOptions = (isCalendarPage: boolean, isMobile: boolean) => {
     autoHide: false,
     showFull: true,
     enabled: isMobile && isCalendarPage ? true : !isMobile,
-    liveRedraw: true,
+    liveRedraw: false,
     minWidth: isMobile ? 30 : 8,
   };
 };
@@ -61,13 +63,15 @@ const getXAxisOptions = (
   isMobile: boolean,
   rangeDisplayRef: React.RefObject<HTMLDivElement> | undefined,
   fixedSessionTypeSelected: boolean,
-  dispatch: any,
+  dispatch: AppDispatch,
   isLoading: boolean,
   fetchMeasurementsIfNeeded: (start: number, end: number) => void
-): XAxisOptions => {
+): Highcharts.XAxisOptions => {
   const handleSetExtremes = debounce(
     (e: Highcharts.AxisSetExtremesEventObject) => {
-      if (e.min !== undefined && e.max !== undefined) {
+      if (!isLoading && e.min !== undefined && e.max !== undefined) {
+        console.log("handle set");
+
         dispatch(
           fixedSessionTypeSelected
             ? updateFixedMeasurementExtremes({ min: e.min, max: e.max })
@@ -119,16 +123,23 @@ const getXAxisOptions = (
       width: 2,
     },
     visible: true,
-    minRange: 10000,
+    minRange: MILLISECONDS_IN_A_SECOND,
     ordinal: false,
     events: {
-      afterSetExtremes: function (
-        this: Highcharts.Axis,
-        e: Highcharts.AxisSetExtremesEventObject
-      ) {
-        handleSetExtremes(e);
-        if (e.min !== undefined && e.max !== undefined) {
+      afterSetExtremes: function (e: Highcharts.AxisSetExtremesEventObject) {
+        if (!isLoading) {
           fetchMeasurementsIfNeeded(e.min, e.max);
+        }
+
+        // Only dispatch when not loading and measurements are available
+        if (!isLoading && this.series[0].points.length > 0) {
+          setTimeout(() => {
+            dispatch(
+              fixedSessionTypeSelected
+                ? updateFixedMeasurementExtremes({ min: e.min, max: e.max })
+                : updateMobileMeasurementExtremes({ min: e.min, max: e.max })
+            );
+          }, 300);
         }
       },
     },

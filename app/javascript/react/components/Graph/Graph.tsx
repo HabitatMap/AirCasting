@@ -36,13 +36,7 @@ import {
   mapIndexToTimeRange,
 } from "../../utils/getTimeRange";
 import { useMapParams } from "../../utils/mapParamsHandler";
-import {
-  MILLISECONDS_IN_A_5_MINUTES,
-  MILLISECONDS_IN_A_DAY,
-  MILLISECONDS_IN_A_MONTH,
-  MILLISECONDS_IN_A_WEEK,
-  MILLISECONDS_IN_AN_HOUR,
-} from "../../utils/timeRanges";
+import { MILLISECONDS_IN_A_MONTH } from "../../utils/timeRanges";
 import useMobileDetection from "../../utils/useScreenSizeDetection";
 import { handleLoad } from "./chartEvents";
 import * as S from "./Graph.style";
@@ -195,38 +189,7 @@ const Graph: React.FC<GraphProps> = React.memo(
       const currentEndTime = Date.now();
       let computedStartTime: number;
 
-      if (fixedSessionTypeSelected) {
-        switch (lastSelectedTimeRange as FixedTimeRange) {
-          case FixedTimeRange.Day:
-            computedStartTime = currentEndTime - MILLISECONDS_IN_A_DAY;
-            break;
-          case FixedTimeRange.Week:
-            computedStartTime = currentEndTime - MILLISECONDS_IN_A_WEEK;
-            break;
-          case FixedTimeRange.Month:
-            computedStartTime = currentEndTime - MILLISECONDS_IN_A_MONTH;
-            break;
-          case FixedTimeRange.Custom:
-            computedStartTime = startTime;
-            break;
-          default:
-            computedStartTime = currentEndTime - MILLISECONDS_IN_A_DAY;
-        }
-      } else {
-        switch (lastSelectedTimeRange as unknown as MobileTimeRange) {
-          case MobileTimeRange.FiveMinutes:
-            computedStartTime = currentEndTime - MILLISECONDS_IN_A_5_MINUTES;
-            break;
-          case MobileTimeRange.Hour:
-            computedStartTime = currentEndTime - MILLISECONDS_IN_AN_HOUR;
-            break;
-          case MobileTimeRange.All:
-            computedStartTime = startTime;
-            break;
-          default:
-            computedStartTime = currentEndTime - MILLISECONDS_IN_A_5_MINUTES;
-        }
-      }
+      computedStartTime = currentEndTime - MILLISECONDS_IN_A_MONTH;
 
       fetchMeasurementsIfNeeded(computedStartTime, currentEndTime);
     }, [
@@ -343,7 +306,6 @@ const Graph: React.FC<GraphProps> = React.memo(
     const scrollbarOptions = useMemo(
       () => ({
         ...getScrollbarOptions(isCalendarPage, isMobile),
-        liveRedraw: false,
       }),
       [isCalendarPage, isMobile]
     );

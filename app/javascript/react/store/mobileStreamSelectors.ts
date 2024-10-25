@@ -32,9 +32,18 @@ const selectMobileStreamPoints = createSelector(
 const selectMobileStreamShortInfo = createSelector(
   [selectMobileStreamData, selectMobileSessionsState],
   (mobileStreamData, mobileSessionState): MobileStreamShortInfo => {
+    const maxMeasurementValue = Math.max(
+      ...mobileStreamData.measurements.map((m) => m.value)
+    );
+    const minMeasurementValue = Math.min(
+      ...mobileStreamData.measurements.map((m) => m.value)
+    );
+
     const mobileSession = mobileSessionState.sessions.find(
       (session) => session.id === mobileStreamData.id
     );
+    const sessionStreamData =
+      mobileSession?.streams[Object.keys(mobileSession.streams)[0]];
 
     const formattedStartTime = mobileSession?.startTimeLocal
       ? moment.utc(mobileSession.startTimeLocal).format("MM/DD/YYYY HH:mm")
@@ -45,7 +54,12 @@ const selectMobileStreamShortInfo = createSelector(
       : mobileStreamInitialState.data.endTime;
 
     return {
+      averageValue:
+        sessionStreamData?.averageValue ||
+        mobileStreamInitialState.data.averageValue,
       endTime: formattedEndTime,
+      maxMeasurementValue,
+      minMeasurementValue,
       profile: mobileStreamData.username,
       sensorName: mobileStreamData.sensorName,
       sessionId: mobileStreamData.id,

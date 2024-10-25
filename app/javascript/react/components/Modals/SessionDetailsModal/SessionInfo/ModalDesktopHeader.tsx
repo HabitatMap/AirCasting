@@ -46,10 +46,11 @@ const ModalDesktopHeader: React.FC<ModalDesktopHeaderProps> = ({
   const newSearchParams = new URLSearchParams(searchParams.toString());
 
   const { minMeasurementValue, maxMeasurementValue, averageValue } = extremes;
+
   const noData = isNoData(
-    extremes.minMeasurementValue,
-    extremes.maxMeasurementValue,
-    extremes.averageValue
+    minMeasurementValue || streamShortInfo.minMeasurementValue,
+    maxMeasurementValue || streamShortInfo.maxMeasurementValue,
+    averageValue || streamShortInfo.averageValue
   );
 
   newSearchParams.set(UrlParamsTypes.previousUserSettings, currentUserSettings);
