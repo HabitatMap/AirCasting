@@ -441,7 +441,6 @@ const ButtonsWrapper = styled.div`
   display: flex;
   justify-content: space-between;
   position: sticky;
-  /* bottom: 1.6rem; */
   height: 4.2rem;
 `;
 
