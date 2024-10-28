@@ -3,8 +3,7 @@ class StreamSerializer
     update_frequency =
       stream.session.username == 'US EPA AirNow' ? '1 hour' : '1 minute'
     thresholds = Stream.thresholds(stream.sensor_name, stream.unit_symbol)
-    first_measurement =
-      Measurement.where(stream_id: stream.id).reorder(time: :desc).first
+    first_measurement = Measurement.where(stream_id: stream.id).first
 
     {
       active: stream.session.is_active,
