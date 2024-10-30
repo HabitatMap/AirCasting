@@ -96,10 +96,16 @@ const Graph: React.FC<GraphProps> = React.memo(
     const lastSelectedTimeRange = fixedSessionTypeSelected
       ? fixedLastSelectedTimeRange
       : mobileLastSelectedTimeRange || MobileTimeRange.All;
-
+    console.log(
+      streamShortInfo.firstMeasurementTime,
+      streamShortInfo.startTime
+    );
     const startTime = useMemo(
-      () => parseDateString(streamShortInfo.startTime),
-      [streamShortInfo.startTime]
+      () =>
+        fixedSessionTypeSelected
+          ? parseDateString(streamShortInfo.firstMeasurementTime)
+          : parseDateString(streamShortInfo.startTime),
+      [streamShortInfo.startTime, fixedSessionTypeSelected]
     );
     const endTime = useMemo(
       () =>

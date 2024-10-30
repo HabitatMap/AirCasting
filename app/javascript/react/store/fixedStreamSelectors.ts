@@ -98,6 +98,10 @@ const selectFixedStreamShortInfo = createSelector(
       ...newestDayMeasurements.map((m) => m.value)
     );
 
+    const firstMeasurementTime = moment(
+      fixedStreamData.stream.firstMeasurementTime
+    ).format(DateFormat.us_with_time);
+
     return {
       ...fixedStreamData.stream,
       lastMeasurementValue,
@@ -114,6 +118,7 @@ const selectFixedStreamShortInfo = createSelector(
       averageValue: newestAverageValue,
       startTime,
       endTime,
+      firstMeasurementTime,
     };
   }
 );

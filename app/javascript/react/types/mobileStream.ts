@@ -38,6 +38,7 @@ interface MobileStreamShortInfo {
   minMeasurementValue: number;
   maxMeasurementValue: number;
   averageValue: number;
+  firstMeasurementTime: string;
 }
 
 interface MobileGraphData {

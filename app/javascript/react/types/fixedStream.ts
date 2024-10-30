@@ -3,6 +3,7 @@ interface StreamUpdate {
   updateFrequency: string;
   startTime: string;
   endTime: string | null;
+  firstMeasurementTime: string;
 }
 
 interface DataSource {
