@@ -23,8 +23,9 @@ import {
 import { resetLastSelectedMobileTimeRange } from "../../store/mobileStreamSlice";
 import { selectThresholds } from "../../store/thresholdSlice";
 import { SessionType, SessionTypes } from "../../types/filters";
+import { FixedStreamShortInfo } from "../../types/fixedStream";
 import { GraphData } from "../../types/graph";
-import { MobileStreamShortInfo as StreamShortInfo } from "../../types/mobileStream";
+import { MobileStreamShortInfo } from "../../types/mobileStream";
 import { FixedTimeRange, MobileTimeRange } from "../../types/timeRange";
 import {
   createFixedSeriesData,
@@ -75,10 +76,11 @@ const Graph: React.FC<GraphProps> = React.memo(
     const isLoading = useAppSelector(selectIsLoading);
     const fixedGraphData = useAppSelector(selectFixedData);
     const mobileGraphData = useAppSelector(selectMobileStreamPoints);
-    const streamShortInfo: StreamShortInfo = useAppSelector(
-      fixedSessionTypeSelected
-        ? selectFixedStreamShortInfo
-        : selectMobileStreamShortInfo
+    const mobileStreamShortInfo: MobileStreamShortInfo = useAppSelector(
+      selectMobileStreamShortInfo
+    );
+    const fixedStreamShortInfo: FixedStreamShortInfo = useAppSelector(
+      selectFixedStreamShortInfo
     );
 
     // const isFetchingMeasurements = useAppSelector(selectIsFetchingMeasurements);
@@ -96,23 +98,29 @@ const Graph: React.FC<GraphProps> = React.memo(
     const lastSelectedTimeRange = fixedSessionTypeSelected
       ? fixedLastSelectedTimeRange
       : mobileLastSelectedTimeRange || MobileTimeRange.All;
-    console.log(
-      streamShortInfo.firstMeasurementTime,
-      streamShortInfo.startTime
-    );
+
     const startTime = useMemo(
       () =>
         fixedSessionTypeSelected
-          ? parseDateString(streamShortInfo.firstMeasurementTime)
-          : parseDateString(streamShortInfo.startTime),
-      [streamShortInfo.startTime, fixedSessionTypeSelected]
+          ? fixedStreamShortInfo.firstMeasurementTime
+          : parseDateString(mobileStreamShortInfo.startTime),
+      [
+        mobileStreamShortInfo.startTime,
+        fixedStreamShortInfo.firstMeasurementTime,
+        fixedSessionTypeSelected,
+      ]
     );
+
     const endTime = useMemo(
       () =>
-        streamShortInfo.endTime
-          ? parseDateString(streamShortInfo.endTime)
+        fixedSessionTypeSelected
+          ? fixedStreamShortInfo.endTime
+            ? parseDateString(fixedStreamShortInfo.endTime)
+            : Date.now()
+          : mobileStreamShortInfo.endTime
+          ? parseDateString(mobileStreamShortInfo.endTime)
           : Date.now(),
-      [streamShortInfo.endTime]
+      [mobileStreamShortInfo.endTime, fixedStreamShortInfo.endTime]
     );
 
     const lastFetchedRangeRef = useRef<{

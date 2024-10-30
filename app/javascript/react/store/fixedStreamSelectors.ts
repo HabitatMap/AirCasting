@@ -98,9 +98,7 @@ const selectFixedStreamShortInfo = createSelector(
       ...newestDayMeasurements.map((m) => m.value)
     );
 
-    const firstMeasurementTime = moment(
-      fixedStreamData.stream.firstMeasurementTime
-    ).format(DateFormat.us_with_time);
+    const firstMeasurementTime = fixedStreamData.stream.firstMeasurementTime;
 
     return {
       ...fixedStreamData.stream,

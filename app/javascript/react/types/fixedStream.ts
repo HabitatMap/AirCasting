@@ -3,7 +3,6 @@ interface StreamUpdate {
   updateFrequency: string;
   startTime: string;
   endTime: string | null;
-  firstMeasurementTime: string;
 }
 
 interface DataSource {
@@ -23,6 +22,7 @@ interface FixedStreamStationInfo extends StreamUpdate, DataSource {
   max: number;
   latitude: number;
   longitude: number;
+  firstMeasurementTime: number;
 }
 
 interface FixedMeasurement {
