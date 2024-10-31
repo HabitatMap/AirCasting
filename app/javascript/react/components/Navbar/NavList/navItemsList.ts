@@ -23,6 +23,10 @@ export const navItems = [
         label: "navbar.sections.usersGuide",
       },
       {
+        href: urls.airbeamMiniUsersGuide,
+        label: "navbar.sections.airbeamMiniUsersGuide",
+      },
+      {
         href: urls.airbeamBuyNow,
         label: "navbar.sections.airbeamBuyNow",
       },
