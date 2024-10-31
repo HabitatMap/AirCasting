@@ -1,3 +1,5 @@
+import { Note } from "./note";
+
 interface Measurement {
   latitude: number;
   longitude: number;
@@ -14,7 +16,7 @@ interface MobileStream {
   measurements: Measurement[];
   minLatitude: number;
   minLongitude: number;
-  notes: any[];
+  notes: Note[];
   sensorName: string;
   sensorUnit: string;
   startLatitude: number;
@@ -44,4 +46,4 @@ interface MobileGraphData {
   measurementType: string;
 }
 
-export type { MobileStream, MobileStreamShortInfo, MobileGraphData };
+export type { MobileGraphData, MobileStream, MobileStreamShortInfo };

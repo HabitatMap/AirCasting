@@ -1,4 +1,5 @@
 import { LatLngLiteral } from "./googleMaps";
+import { Note } from "./note";
 
 export type Point = LatLngLiteral & {
   maxLatitude?: number;
@@ -13,6 +14,7 @@ export type Session = {
   lastMeasurementValue: number;
   point: Point;
   time?: number;
+  notes?: Note[];
 };
 
 export type IndoorSession = Omit<Session, "point">;

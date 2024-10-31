@@ -2,6 +2,8 @@ import React from "react";
 import { unstable_batchedUpdates } from "react-dom";
 import { createRoot, Root } from "react-dom/client";
 import { Provider } from "react-redux";
+import attachmentIcon from "../../../assets/icons/attachmentIcon.svg";
+import { blue } from "../../../assets/styles/colors";
 import store from "../../../store/index";
 
 export class CustomMarker extends google.maps.OverlayView {
@@ -17,6 +19,15 @@ export class CustomMarker extends google.maps.OverlayView {
   private clickableAreaSize: number;
   private zIndex: number = 0;
   private paneName: keyof google.maps.MapPanes;
+  private noteButtons: Map<string, HTMLButtonElement> = new Map();
+  private noteInfoWindows: Map<string, google.maps.InfoWindow> = new Map();
+  private notes: {
+    id: string;
+    latitude: number;
+    longitude: number;
+    text: string;
+    date: string;
+  }[] = [];
 
   constructor(
     position: google.maps.LatLngLiteral,
@@ -26,7 +37,14 @@ export class CustomMarker extends google.maps.OverlayView {
     content?: React.ReactNode,
     onClick?: () => void,
     clickableAreaSize: number = 20,
-    paneName: keyof google.maps.MapPanes = "overlayMouseTarget"
+    paneName: keyof google.maps.MapPanes = "overlayMouseTarget",
+    notes: {
+      id: string;
+      latitude: number;
+      longitude: number;
+      text: string;
+      date: string;
+    }[] = []
   ) {
     super();
     this.position = new google.maps.LatLng(position);
@@ -37,6 +55,94 @@ export class CustomMarker extends google.maps.OverlayView {
     this.onClick = onClick;
     this.clickableAreaSize = clickableAreaSize;
     this.paneName = paneName;
+    this.notes = notes;
+    notes.forEach((note) => this.createNoteButton(note));
+  }
+
+  private createNoteButton(note: {
+    id: string;
+    latitude: number;
+    longitude: number;
+    text: string;
+    date: string;
+  }) {
+    const button = document.createElement("button");
+    button.style.position = "absolute";
+    button.style.padding = "3px 6px";
+    button.style.fontSize = "12px";
+    button.style.backgroundColor = "#ffffff";
+    button.style.border = `1px solid ${blue}`;
+    button.style.borderRadius = "4px";
+    button.style.cursor = "pointer";
+
+    const icon = document.createElement("img");
+    icon.src = attachmentIcon;
+    icon.style.width = "15px";
+    icon.style.height = "15px";
+
+    button.appendChild(icon);
+
+    button.addEventListener("click", (e) => {
+      e.stopPropagation();
+      this.showNoteInfo(note);
+    });
+
+    this.noteButtons.set(note.id, button);
+
+    const infoWindow = new google.maps.InfoWindow({
+      maxWidth: 200,
+    });
+    this.noteInfoWindows.set(note.id, infoWindow);
+  }
+
+  private updateNoteContent(note: { id: string; text: string; date: string }) {
+    const infoWindow = this.noteInfoWindows.get(note.id);
+    if (infoWindow) {
+      infoWindow.setContent(this.createNoteContent(note));
+    }
+  }
+
+  private createNoteContent(note: { text: string; date: string }): string {
+    const dateStr = new Date(note.date).toLocaleString();
+    return `<div><strong>Date:</strong> ${dateStr}<br><strong>Note:</strong> ${note.text}</div>`;
+  }
+
+  private showNoteInfo(note: {
+    id: string;
+    latitude: number;
+    longitude: number;
+    text: string;
+    date: string;
+  }) {
+    const infoWindow = this.noteInfoWindows.get(note.id);
+    const button = this.noteButtons.get(note.id);
+
+    if (infoWindow && button) {
+      this.updateNoteContent(note);
+
+      // Get the position of the button
+      const buttonRect = button.getBoundingClientRect();
+      const map = this.getMap();
+      const mapDiv = map instanceof google.maps.Map ? map.getDiv() : null;
+      const mapRect = mapDiv ? mapDiv.getBoundingClientRect() : null;
+
+      // Calculate the position relative to the map
+      const x = mapRect
+        ? buttonRect.left - mapRect.left + buttonRect.width / 2
+        : 0;
+      const y = mapRect ? buttonRect.top - mapRect.top : 0;
+
+      // Convert pixel coordinates to LatLng
+      const latLng = mapRect
+        ? this.getProjection().fromContainerPixelToLatLng(
+            new google.maps.Point(x, y)
+          )
+        : null;
+      if (latLng) {
+        infoWindow.setPosition(latLng);
+        infoWindow.open(this.getMap());
+      }
+    }
   }
 
   onAdd() {
@@ -76,6 +182,10 @@ export class CustomMarker extends google.maps.OverlayView {
     const panes = this.getPanes();
     const pane = panes ? panes[this.paneName] : null;
     pane && pane.appendChild(this.div);
+
+    this.noteButtons.forEach((button) => {
+      this.getPanes()![this.paneName].appendChild(button);
+    });
   }
 
   draw() {
@@ -90,6 +200,19 @@ export class CustomMarker extends google.maps.OverlayView {
       this.div.style.left = `${position.x - offsetX}px`;
       this.div.style.top = `${position.y - offsetY}px`;
     }
+
+    this.notes.forEach((note) => {
+      const notePosition = overlayProjection.fromLatLngToDivPixel(
+        new google.maps.LatLng(note.latitude, note.longitude)
+      )!;
+      const button = this.noteButtons.get(note.id);
+      if (button) {
+        const buttonOffsetX = 15;
+        const buttonOffsetY = 40;
+        button.style.left = `${notePosition.x - buttonOffsetX}px`;
+        button.style.top = `${notePosition.y - buttonOffsetY}px`;
+      }
+    });
   }
 
   onRemove() {
@@ -105,6 +228,14 @@ export class CustomMarker extends google.maps.OverlayView {
       }
       this.div.parentNode?.removeChild(this.div);
       this.div = null;
+      this.noteButtons.forEach((button) => {
+        button.parentNode?.removeChild(button);
+      });
+      this.noteButtons.clear();
+      this.noteInfoWindows.forEach((infoWindow) => {
+        infoWindow.close();
+      });
+      this.noteInfoWindows.clear();
     }
   }
 
@@ -193,5 +324,53 @@ export class CustomMarker extends google.maps.OverlayView {
 
   isPulsating(): boolean {
     return this.pulsating;
+  }
+
+  setNotes(
+    notes: {
+      id: string;
+      latitude: number;
+      longitude: number;
+      text: string;
+      date: string;
+    }[]
+  ) {
+    this.noteButtons.forEach((button, noteId) => {
+      if (!notes.some((note) => note.id === noteId)) {
+        button.parentNode?.removeChild(button);
+        this.noteButtons.delete(noteId);
+        const infoWindow = this.noteInfoWindows.get(noteId);
+        if (infoWindow) {
+          infoWindow.close();
+          this.noteInfoWindows.delete(noteId);
+        }
+      }
+    });
+
+    notes.forEach((note) => {
+      if (this.noteButtons.has(note.id)) {
+        // Update existing button position and info window content
+        const button = this.noteButtons.get(note.id)!;
+        const position = this.getProjection().fromLatLngToDivPixel(
+          new google.maps.LatLng(note.latitude, note.longitude)
+        )!;
+        button.style.left = `${position.x - 30}px`;
+        button.style.top = `${position.y - 30}px`;
+        this.updateNoteContent(note);
+      } else {
+        // Create new button for new note
+        this.createNoteButton(note);
+        this.getPanes()![this.paneName].appendChild(
+          this.noteButtons.get(note.id)!
+        );
+      }
+    });
+
+    this.notes = notes;
+    this.draw();
+  }
+
+  getNotes() {
+    return this.notes;
   }
 }
