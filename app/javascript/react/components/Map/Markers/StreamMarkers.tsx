@@ -65,14 +65,7 @@ const StreamMarkers = ({ sessions, unitSymbol }: Props) => {
       const position = { lat: session.point.lat, lng: session.point.lng };
       const markerId = session.id.toString();
       const title = `${session.lastMeasurementValue} ${unitSymbol}`;
-      const notes =
-        session.notes?.map((note) => ({
-          id: note.id.toString(),
-          latitude: note.latitude,
-          longitude: note.longitude,
-          text: note.text,
-          date: note.date,
-        })) || [];
+      const notes = session.notes || [];
 
       let marker = markersRef.current.get(markerId);
       if (!marker) {
@@ -85,12 +78,13 @@ const StreamMarkers = ({ sessions, unitSymbol }: Props) => {
           color,
           title,
           12,
-          undefined,
-          undefined,
+
           20,
           "overlayMouseTarget",
           // onNoteClick,
-          notes
+          notes,
+          undefined,
+          undefined
         );
         marker.setMap(map);
         markersRef.current.set(markerId, marker);

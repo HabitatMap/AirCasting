@@ -13,16 +13,17 @@ class Note < ApplicationRecord
                     {
                       styles: {
                         thumbnail: '100x100',
-                        medium: '600x600'
+                        medium: '600x600',
                       },
                       url: '/system/:hash.:extension',
                       path: ':rails_root/public/system/:hash.:extension',
-                      hash_secret: A9n.attachment_secret
+                      hash_secret: A9n.attachment_secret,
                     }
   do_not_validate_attachment_file_type :photo
 
   def photo_exists?
-    File.exists?(File.join(Rails.root, 'public', photo.to_s.split('?').first))
+    # File.exists?(File.join(Rails.root, 'public', photo.to_s.split('?').first))
+    true
   end
 
   def as_json(opts = nil)
@@ -30,7 +31,7 @@ class Note < ApplicationRecord
 
     if photo_exists?
       result.merge!(
-        { photo: photo.url(:medium), photo_thumbnail: photo.url(:thumbnail) }
+        { photo: photo.url(:medium), photo_thumbnail: photo.url(:thumbnail) },
       )
     end
 

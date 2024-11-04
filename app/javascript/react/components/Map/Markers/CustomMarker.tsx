@@ -5,6 +5,7 @@ import { Provider } from "react-redux";
 import attachmentIcon from "../../../assets/icons/attachmentIcon.svg";
 import { blue } from "../../../assets/styles/colors";
 import store from "../../../store/index";
+import { Note } from "../../../types/note";
 
 export class CustomMarker extends google.maps.OverlayView {
   private div: HTMLDivElement | null = null;
@@ -21,31 +22,20 @@ export class CustomMarker extends google.maps.OverlayView {
   private paneName: keyof google.maps.MapPanes;
   private noteButtons: Map<string, HTMLButtonElement> = new Map();
   private noteInfoWindows: Map<string, google.maps.InfoWindow> = new Map();
-  private notes: {
-    id: string;
-    latitude: number;
-    longitude: number;
-    text: string;
-    date: string;
-  }[] = [];
+  private notes: Note[];
 
   constructor(
     position: google.maps.LatLngLiteral,
     color: string,
     title: string,
     size: number = 12,
-    content?: React.ReactNode,
-    onClick?: () => void,
     clickableAreaSize: number = 20,
     paneName: keyof google.maps.MapPanes = "overlayMouseTarget",
-    notes: {
-      id: string;
-      latitude: number;
-      longitude: number;
-      text: string;
-      date: string;
-    }[] = []
+    notes: Note[] = [],
+    content?: React.ReactNode,
+    onClick?: () => void
   ) {
+    console.log("notes w constr", notes);
     super();
     this.position = new google.maps.LatLng(position);
     this.color = color;
@@ -59,13 +49,7 @@ export class CustomMarker extends google.maps.OverlayView {
     notes.forEach((note) => this.createNoteButton(note));
   }
 
-  private createNoteButton(note: {
-    id: string;
-    latitude: number;
-    longitude: number;
-    text: string;
-    date: string;
-  }) {
+  private createNoteButton(note: Note) {
     const button = document.createElement("button");
     button.style.position = "absolute";
     button.style.padding = "3px 6px";
@@ -87,35 +71,31 @@ export class CustomMarker extends google.maps.OverlayView {
       this.showNoteInfo(note);
     });
 
-    this.noteButtons.set(note.id, button);
+    this.noteButtons.set(note.id.toString(), button);
 
     const infoWindow = new google.maps.InfoWindow({
       maxWidth: 200,
     });
-    this.noteInfoWindows.set(note.id, infoWindow);
+    this.noteInfoWindows.set(note.id.toString(), infoWindow);
   }
 
-  private updateNoteContent(note: { id: string; text: string; date: string }) {
-    const infoWindow = this.noteInfoWindows.get(note.id);
+  private updateNoteContent(note: Note) {
+    const infoWindow = this.noteInfoWindows.get(note.id.toString());
     if (infoWindow) {
       infoWindow.setContent(this.createNoteContent(note));
     }
   }
 
-  private createNoteContent(note: { text: string; date: string }): string {
+  private createNoteContent(note: Note): string {
     const dateStr = new Date(note.date).toLocaleString();
-    return `<div><strong>Date:</strong> ${dateStr}<br><strong>Note:</strong> ${note.text}</div>`;
+    return `<div style="display: flex; flex-direction: column; align-items: center"><div style="display: flex; flex-direction: column; align-items: flex-start; margin-bottom: 10px"><div style="display: flex"><strong>Date:</strong> ${dateStr}</div><div style="display: flex"><strong>Note:</strong> ${note.text}</div></div>
+    <a href=${process.env.BASE_URL}${note.photo} target="_blank">
+    <img src=${process.env.BASE_URL}${note.photoThumbnail} alt="Note photo"> </a></div>`;
   }
 
-  private showNoteInfo(note: {
-    id: string;
-    latitude: number;
-    longitude: number;
-    text: string;
-    date: string;
-  }) {
-    const infoWindow = this.noteInfoWindows.get(note.id);
-    const button = this.noteButtons.get(note.id);
+  private showNoteInfo(note: Note) {
+    const infoWindow = this.noteInfoWindows.get(note.id.toString());
+    const button = this.noteButtons.get(note.id.toString());
 
     if (infoWindow && button) {
       this.updateNoteContent(note);
@@ -205,7 +185,7 @@ export class CustomMarker extends google.maps.OverlayView {
       const notePosition = overlayProjection.fromLatLngToDivPixel(
         new google.maps.LatLng(note.latitude, note.longitude)
       )!;
-      const button = this.noteButtons.get(note.id);
+      const button = this.noteButtons.get(note.id.toString());
       if (button) {
         const buttonOffsetX = 15;
         const buttonOffsetY = 40;
@@ -326,17 +306,10 @@ export class CustomMarker extends google.maps.OverlayView {
     return this.pulsating;
   }
 
-  setNotes(
-    notes: {
-      id: string;
-      latitude: number;
-      longitude: number;
-      text: string;
-      date: string;
-    }[]
-  ) {
+  setNotes(notes: Note[]) {
+    console.log("notes", notes);
     this.noteButtons.forEach((button, noteId) => {
-      if (!notes.some((note) => note.id === noteId)) {
+      if (!notes.some((note) => note.id === Number(noteId))) {
         button.parentNode?.removeChild(button);
         this.noteButtons.delete(noteId);
         const infoWindow = this.noteInfoWindows.get(noteId);
@@ -348,9 +321,9 @@ export class CustomMarker extends google.maps.OverlayView {
     });
 
     notes.forEach((note) => {
-      if (this.noteButtons.has(note.id)) {
+      if (this.noteButtons.has(note.id.toString())) {
         // Update existing button position and info window content
-        const button = this.noteButtons.get(note.id)!;
+        const button = this.noteButtons.get(note.id.toString())!;
         const position = this.getProjection().fromLatLngToDivPixel(
           new google.maps.LatLng(note.latitude, note.longitude)
         )!;
@@ -361,7 +334,7 @@ export class CustomMarker extends google.maps.OverlayView {
         // Create new button for new note
         this.createNoteButton(note);
         this.getPanes()![this.paneName].appendChild(
-          this.noteButtons.get(note.id)!
+          this.noteButtons.get(note.id.toString())!
         );
       }
     });

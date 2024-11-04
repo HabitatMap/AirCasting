@@ -12,6 +12,8 @@ type Note = {
   sessionId: number;
   text: string;
   updatedAt: string;
+  photo: string;
+  photoThumbnail: string;
 };
 
 export type { Note };
