@@ -7,10 +7,14 @@ RSpec.describe FixedStreamSerializer do
     let!(:measurement_1) { create_measurement!({ stream: stream }) }
     let!(:measurement_2) { create_measurement!({ stream: stream }) }
     let!(:stream_daily_average_1) do
-      create_stream_daily_average!({ stream: stream, date: Date.current, value: 10 })
+      create_stream_daily_average!(
+        { stream: stream, date: Date.current, value: 10 },
+      )
     end
     let!(:stream_daily_average_2) do
-      create_stream_daily_average!({ stream: stream, date: Date.current.prev_day, value: 9 })
+      create_stream_daily_average!(
+        { stream: stream, date: Date.current.prev_day, value: 9 },
+      )
     end
 
     context 'username is not US EPA AirNow' do
@@ -20,6 +24,8 @@ RSpec.describe FixedStreamSerializer do
             session_id: session.id,
             active: session.is_active,
             title: session.title,
+            latitude: session.latitude,
+            longitude: session.longitude,
             profile: session.username,
             sensor_name: stream.sensor_name,
             unit_symbol: stream.unit_symbol,
@@ -34,8 +40,14 @@ RSpec.describe FixedStreamSerializer do
             max: stream.threshold_set.threshold_very_high,
           },
           measurements: [
-            { time: measurement_1.time.to_i * 1_000, value: measurement_1.value },
-            { time: measurement_2.time.to_i * 1_000, value: measurement_2.value },
+            {
+              time: measurement_1.time.to_i * 1_000,
+              value: measurement_1.value,
+            },
+            {
+              time: measurement_2.time.to_i * 1_000,
+              value: measurement_2.value,
+            },
           ],
           stream_daily_averages: [
             {
@@ -49,11 +61,16 @@ RSpec.describe FixedStreamSerializer do
           ],
         }
 
-        expect(described_class.new.call(
-          stream: stream,
-          measurements: [measurement_1, measurement_2],
-          stream_daily_averages: [stream_daily_average_1, stream_daily_average_2],
-        )).to eq(expected_response)
+        expect(
+          described_class.new.call(
+            stream: stream,
+            measurements: [measurement_1, measurement_2],
+            stream_daily_averages: [
+              stream_daily_average_1,
+              stream_daily_average_2,
+            ],
+          ),
+        ).to eq(expected_response)
       end
     end
 
@@ -65,6 +82,8 @@ RSpec.describe FixedStreamSerializer do
             session_id: session.id,
             active: session.is_active,
             title: session.title,
+            latitude: session.latitude,
+            longitude: session.longitude,
             profile: session.username,
             sensor_name: stream.sensor_name,
             unit_symbol: stream.unit_symbol,
@@ -79,8 +98,14 @@ RSpec.describe FixedStreamSerializer do
             max: stream.threshold_set.threshold_very_high,
           },
           measurements: [
-            { time: measurement_1.time.to_i * 1_000, value: measurement_1.value },
-            { time: measurement_2.time.to_i * 1_000, value: measurement_2.value },
+            {
+              time: measurement_1.time.to_i * 1_000,
+              value: measurement_1.value,
+            },
+            {
+              time: measurement_2.time.to_i * 1_000,
+              value: measurement_2.value,
+            },
           ],
           stream_daily_averages: [
             {
@@ -94,11 +119,16 @@ RSpec.describe FixedStreamSerializer do
           ],
         }
 
-        expect(described_class.new.call(
-          stream: stream,
-          measurements: [measurement_1, measurement_2],
-          stream_daily_averages: [stream_daily_average_1, stream_daily_average_2],
-        )).to eq(expected_response)
+        expect(
+          described_class.new.call(
+            stream: stream,
+            measurements: [measurement_1, measurement_2],
+            stream_daily_averages: [
+              stream_daily_average_1,
+              stream_daily_average_2,
+            ],
+          ),
+        ).to eq(expected_response)
       end
     end
   end
