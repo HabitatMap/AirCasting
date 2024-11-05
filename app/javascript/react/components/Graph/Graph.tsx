@@ -141,29 +141,13 @@ const Graph: React.FC<GraphProps> = React.memo(
 
     const { fetchMeasurementsIfNeeded } = useMeasurementsFetcher(streamId);
 
-    const isFirstRender = useRef(true);
-
-    const { updateChartData, applySelectedRange } = useChartUpdater({
+    useChartUpdater({
       chartComponentRef,
       seriesData,
       isLoading,
       lastSelectedTimeRange,
       fixedSessionTypeSelected,
     });
-
-    useEffect(() => {
-      if (!seriesData || isLoading || !chartComponentRef.current?.chart) return;
-
-      const chart = chartComponentRef.current.chart;
-      chartData = seriesData;
-
-      if (isFirstRender.current) {
-        updateChartData(chart, chartData as Highcharts.PointOptionsType[]);
-        isFirstRender.current = false;
-      }
-
-      applySelectedRange(chart);
-    }, [seriesData, isLoading, updateChartData, applySelectedRange]);
 
     // Show or hide loading indicator based on isLoading
     useEffect(() => {

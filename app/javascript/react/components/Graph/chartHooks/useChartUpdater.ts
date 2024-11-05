@@ -19,10 +19,20 @@ interface UseChartUpdaterProps {
 
 interface ChartOperations {
   updateData: (
-    chart: Highcharts.Chart,
+    chart: Highcharts.Chart & {
+      rangeSelector?: {
+        clickButton: (index: number, redraw?: boolean) => void;
+      };
+    },
     data: Highcharts.PointOptionsType[]
   ) => void;
-  applyRange: (chart: Highcharts.Chart) => void;
+  applyRange: (
+    chart: Highcharts.Chart & {
+      rangeSelector?: {
+        clickButton: (index: number, redraw?: boolean) => void;
+      };
+    }
+  ) => void;
 }
 
 export const useChartUpdater = ({
@@ -43,12 +53,13 @@ export const useChartUpdater = ({
 
   const applySelectedRange: ChartOperations["applyRange"] = useCallback(
     (chart) => {
-      if (!lastSelectedTimeRange || !("rangeSelector" in chart)) return;
+      if (!lastSelectedTimeRange || !chart.rangeSelector) return;
+
       const selectedIndex = getSelectedRangeIndex(
-        lastSelectedTimeRange as FixedTimeRange | MobileTimeRange,
+        lastSelectedTimeRange,
         fixedSessionTypeSelected
       );
-      (chart as any).rangeSelector.clickButton(selectedIndex, true);
+      chart.rangeSelector.clickButton(selectedIndex, true);
     },
     [lastSelectedTimeRange, fixedSessionTypeSelected]
   );
