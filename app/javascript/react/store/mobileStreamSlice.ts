@@ -90,21 +90,21 @@ export const mobileStreamSlice = createSlice({
     ) {
       const { min, max } = action.payload;
 
-      let startTime = min;
-      let endTime: number;
+      let endTime = max;
+      let startTime: number;
 
       switch (state.lastSelectedTimeRange) {
         case MobileTimeRange.FiveMinutes:
-          endTime = startTime + MILLISECONDS_IN_A_5_MINUTES;
+          startTime = endTime - MILLISECONDS_IN_A_5_MINUTES;
           break;
         case MobileTimeRange.Hour:
-          endTime = startTime + MILLISECONDS_IN_AN_HOUR;
+          startTime = endTime - MILLISECONDS_IN_AN_HOUR;
           break;
         case MobileTimeRange.All:
-          endTime = max;
+          startTime = min;
           break;
         default:
-          endTime = startTime + MILLISECONDS_IN_A_5_MINUTES;
+          startTime = endTime - MILLISECONDS_IN_A_5_MINUTES;
       }
 
       const values = state.data.measurements
@@ -125,6 +125,7 @@ export const mobileStreamSlice = createSlice({
       state.maxMeasurementValue = newMax;
       state.averageMeasurementValue = newAvg;
     },
+
     resetMobileStreamState(state) {
       return initialState;
     },
@@ -137,7 +138,6 @@ export const mobileStreamSlice = createSlice({
     },
 
     resetLastSelectedMobileTimeRange(state) {
-      console.log("reset");
       state.lastSelectedTimeRange = MobileTimeRange.All;
       localStorage.setItem("lastSelectedMobileTimeRange", MobileTimeRange.All);
     },

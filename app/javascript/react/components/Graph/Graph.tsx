@@ -7,6 +7,7 @@ import { white } from "../../assets/styles/colors";
 import { selectFixedStreamShortInfo } from "../../store/fixedStreamSelectors";
 import {
   Measurement,
+  resetLastSelectedTimeRange,
   selectFixedData,
   selectIsLoading,
   selectLastSelectedFixedTimeRange,
@@ -17,7 +18,11 @@ import {
   selectMobileStreamPoints,
   selectMobileStreamShortInfo,
 } from "../../store/mobileStreamSelectors";
-import { selectLastSelectedMobileTimeRange } from "../../store/mobileStreamSlice";
+import {
+  resetLastSelectedMobileTimeRange,
+  selectLastSelectedMobileTimeRange,
+  setLastSelectedMobileTimeRange,
+} from "../../store/mobileStreamSlice";
 import { selectThresholds } from "../../store/thresholdSlice";
 import { SessionType, SessionTypes } from "../../types/filters";
 import { FixedStreamShortInfo } from "../../types/fixedStream";
@@ -92,7 +97,7 @@ const Graph: React.FC<GraphProps> = React.memo(
     const lastSelectedTimeRange = fixedSessionTypeSelected
       ? fixedLastSelectedTimeRange
       : mobileLastSelectedTimeRange || MobileTimeRange.All;
-    console.log(lastSelectedTimeRange, "lastSelectedTimeRange, graph");
+
     const startTime = useMemo(
       () =>
         fixedSessionTypeSelected
@@ -172,16 +177,13 @@ const Graph: React.FC<GraphProps> = React.memo(
       }
     }, [isLoading]);
 
-    // useEffect(() => {
-    //   // if (streamId) {
-    //   if (fixedSessionTypeSelected) {
-    //     dispatch(resetLastSelectedTimeRange());
-    //   } else {
-    //     console.log("test");
-    //     dispatch(resetLastSelectedMobileTimeRange());
-    //   }
-    //   // }
-    // }, []);
+    useEffect(() => {
+      if (fixedSessionTypeSelected) {
+        dispatch(resetLastSelectedTimeRange());
+      } else {
+        dispatch(resetLastSelectedMobileTimeRange());
+      }
+    }, []);
 
     // Apply touch action to the graph container for mobile devices in Calendar page
     useEffect(() => {
@@ -272,7 +274,15 @@ const Graph: React.FC<GraphProps> = React.memo(
                   selectedButton,
                   fixedSessionTypeSelected
                 );
-                dispatch(setLastSelectedTimeRange(timeRange as FixedTimeRange));
+                if (fixedSessionTypeSelected) {
+                  dispatch(
+                    setLastSelectedTimeRange(timeRange as FixedTimeRange)
+                  );
+                } else {
+                  dispatch(
+                    setLastSelectedMobileTimeRange(timeRange as MobileTimeRange)
+                  );
+                }
               }
             },
           },

@@ -4,7 +4,13 @@ import { FixedTimeRange, MobileTimeRange } from "../../../types/timeRange";
 import { getSelectedRangeIndex } from "../../../utils/getTimeRange";
 
 interface UseChartUpdaterProps {
-  chartComponentRef: React.RefObject<any>;
+  chartComponentRef: React.RefObject<{
+    chart: Highcharts.Chart & {
+      rangeSelector?: {
+        clickButton: (index: number, redraw?: boolean) => void;
+      };
+    };
+  }>;
   seriesData: Highcharts.PointOptionsType[] | undefined;
   isLoading: boolean;
   lastSelectedTimeRange: FixedTimeRange | MobileTimeRange | null;
@@ -38,7 +44,6 @@ export const useChartUpdater = ({
   const applySelectedRange: ChartOperations["applyRange"] = useCallback(
     (chart) => {
       if (!lastSelectedTimeRange || !("rangeSelector" in chart)) return;
-      console.log(lastSelectedTimeRange, "lastSelectedTimeRange");
       const selectedIndex = getSelectedRangeIndex(
         lastSelectedTimeRange as FixedTimeRange | MobileTimeRange,
         fixedSessionTypeSelected
