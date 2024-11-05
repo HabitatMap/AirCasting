@@ -1,6 +1,6 @@
-import { Measurement } from "../store/fixedStreamSlice";
-import { LatLngLiteral } from "../types/googleMaps";
-import { Session } from "../types/sessionType";
+import { Measurement } from "../../../store/fixedStreamSlice";
+import { LatLngLiteral } from "../../../types/googleMaps";
+import { Session } from "../../../types/sessionType";
 
 export const isValidMeasurement = (m: Measurement): m is Measurement => {
   return m.time !== undefined && m.value !== undefined;

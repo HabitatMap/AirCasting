@@ -29,10 +29,6 @@ import { FixedStreamShortInfo } from "../../types/fixedStream";
 import { GraphData } from "../../types/graph";
 import { MobileStreamShortInfo } from "../../types/mobileStream";
 import { FixedTimeRange, MobileTimeRange } from "../../types/timeRange";
-import {
-  createFixedSeriesData,
-  createMobileSeriesData,
-} from "../../utils/createGraphData";
 import { parseDateString } from "../../utils/dateParser";
 import {
   getSelectedRangeIndex,
@@ -41,6 +37,10 @@ import {
 import { useMapParams } from "../../utils/mapParamsHandler";
 import useMobileDetection from "../../utils/useScreenSizeDetection";
 import { handleLoad } from "./chartEvents";
+import {
+  createFixedSeriesData,
+  createMobileSeriesData,
+} from "./chartHooks/createGraphData";
 import { useChartUpdater } from "./chartHooks/useChartUpdater";
 import { useMeasurementsFetcher } from "./chartHooks/useMeasurementsFetcher";
 import * as S from "./Graph.style";
