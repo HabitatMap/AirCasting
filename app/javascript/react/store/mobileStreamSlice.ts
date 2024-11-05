@@ -1,5 +1,6 @@
 import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { AxiosResponse } from "axios";
+import { RootState } from ".";
 import { oldApiClient } from "../api/apiClient";
 import { API_ENDPOINTS } from "../api/apiEndpoints";
 import { ApiError, StatusEnum } from "../types/api";
@@ -136,6 +137,7 @@ export const mobileStreamSlice = createSlice({
     },
 
     resetLastSelectedMobileTimeRange(state) {
+      console.log("reset");
       state.lastSelectedTimeRange = MobileTimeRange.All;
       localStorage.setItem("lastSelectedMobileTimeRange", MobileTimeRange.All);
     },
@@ -175,3 +177,6 @@ export const {
 } = mobileStreamSlice.actions;
 
 export default mobileStreamSlice.reducer;
+
+export const selectLastSelectedMobileTimeRange = (state: RootState) =>
+  state.mobileStream.lastSelectedTimeRange;

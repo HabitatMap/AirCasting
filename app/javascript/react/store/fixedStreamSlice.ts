@@ -228,23 +228,23 @@ const fixedStreamSlice = createSlice({
       (state, action: PayloadAction<Measurement[]>) => {
         state.status = StatusEnum.Fulfilled;
 
-        const validNewMeasurements = action.payload.filter(
-          (m) => m.time !== undefined && m.value !== undefined
+        const existingTimestamps = new Set(
+          state.data.measurements.map((m) => m.time)
         );
 
-        // Merge new measurements with existing ones, ensuring no duplicates
-        const mergedMeasurements = [
-          ...validNewMeasurements,
+        // Filter out measurements that already exist and ensure they're valid
+        const uniqueNewMeasurements = action.payload.filter(
+          (m) =>
+            m.time !== undefined &&
+            m.value !== undefined &&
+            !existingTimestamps.has(m.time)
+        );
+
+        // Add only unique new measurements to existing ones
+        state.data.measurements = [
           ...state.data.measurements,
+          ...uniqueNewMeasurements,
         ].sort((a, b) => a.time - b.time);
-
-        const allMeasurements = Array.from(
-          new Map(mergedMeasurements.map((m) => [m.time, m])).values()
-        );
-
-        state.data.measurements = allMeasurements;
-
-        state.data.lastMonthMeasurements;
 
         state.isLoading = false;
         state.error = null;
@@ -273,5 +273,5 @@ export const {
 export const selectFixedData = (state: RootState) => state.fixedStream.data;
 export const selectIsLoading = (state: RootState) =>
   state.fixedStream.isLoading;
-export const selectLastSelectedTimeRange = (state: RootState) =>
+export const selectLastSelectedFixedTimeRange = (state: RootState) =>
   state.fixedStream.lastSelectedTimeRange;

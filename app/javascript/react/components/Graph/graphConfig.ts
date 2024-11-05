@@ -54,7 +54,7 @@ const getScrollbarOptions = (isCalendarPage: boolean, isMobile: boolean) => {
     autoHide: false,
     showFull: true,
     enabled: isMobile && isCalendarPage ? true : !isMobile,
-    liveRedraw: false,
+    liveRedraw: true,
     minWidth: isMobile ? 30 : 8,
   };
 };
@@ -67,6 +67,8 @@ const getXAxisOptions = (
   isLoading: boolean,
   fetchMeasurementsIfNeeded: (start: number, end: number) => void
 ): Highcharts.XAxisOptions => {
+  let fetchTimeout: NodeJS.Timeout;
+
   const handleSetExtremes = debounce(
     (e: Highcharts.AxisSetExtremesEventObject) => {
       if (!isLoading && e.min !== undefined && e.max !== undefined) {
@@ -127,7 +129,15 @@ const getXAxisOptions = (
     events: {
       afterSetExtremes: function (e: Highcharts.AxisSetExtremesEventObject) {
         if (!isLoading) {
-          fetchMeasurementsIfNeeded(e.min, e.max);
+          if (e.min === e.dataMin) {
+            // Clear any existing timeout
+            if (fetchTimeout) clearTimeout(fetchTimeout);
+
+            fetchTimeout = setTimeout(() => {
+              const newStart = e.min - MILLISECONDS_IN_A_MONTH;
+              fetchMeasurementsIfNeeded(newStart, e.min);
+            }, 500);
+          }
         }
 
         // Only dispatch when not loading and measurements are available
