@@ -145,7 +145,11 @@
       "measurements": "measurements"
     },
     "timelapsTile": "Timelapse",
-    "altTimelapseTile": "Show the timelapse for the map"
+    "altTimelapseTile": "Show the timelapse for the map",
+    "note": {
+      "date": "Date:",
+      "note": "Note:"
+    }
   },
   "sessionDetailsModal": {
     "calendar": "Calendar",

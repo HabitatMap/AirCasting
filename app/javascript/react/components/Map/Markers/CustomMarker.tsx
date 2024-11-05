@@ -6,6 +6,7 @@ import attachmentIcon from "../../../assets/icons/attachmentIcon.svg";
 import { blue } from "../../../assets/styles/colors";
 import store from "../../../store/index";
 import { Note } from "../../../types/note";
+import { NotesPopover } from "./NotesPopover/NotesPopover";
 
 export class CustomMarker extends google.maps.OverlayView {
   private div: HTMLDivElement | null = null;
@@ -21,8 +22,9 @@ export class CustomMarker extends google.maps.OverlayView {
   private zIndex: number = 0;
   private paneName: keyof google.maps.MapPanes;
   private noteButtons: Map<string, HTMLButtonElement> = new Map();
-  private noteInfoWindows: Map<string, google.maps.InfoWindow> = new Map();
+  private noteInfoWindows: Map<string, Root> = new Map();
   private notes: Note[];
+  private activeInfoWindow: string | null = null;
 
   constructor(
     position: google.maps.LatLngLiteral,
@@ -35,7 +37,6 @@ export class CustomMarker extends google.maps.OverlayView {
     content?: React.ReactNode,
     onClick?: () => void
   ) {
-    console.log("notes w constr", notes);
     super();
     this.position = new google.maps.LatLng(position);
     this.color = color;
@@ -73,54 +74,54 @@ export class CustomMarker extends google.maps.OverlayView {
 
     this.noteButtons.set(note.id.toString(), button);
 
-    const infoWindow = new google.maps.InfoWindow({
-      maxWidth: 200,
-    });
-    this.noteInfoWindows.set(note.id.toString(), infoWindow);
-  }
-
-  private updateNoteContent(note: Note) {
-    const infoWindow = this.noteInfoWindows.get(note.id.toString());
-    if (infoWindow) {
-      infoWindow.setContent(this.createNoteContent(note));
-    }
-  }
-
-  private createNoteContent(note: Note): string {
-    const dateStr = new Date(note.date).toLocaleString();
-    return `<div style="display: flex; flex-direction: column; align-items: center"><div style="display: flex; flex-direction: column; align-items: flex-start; margin-bottom: 10px"><div style="display: flex"><strong>Date:</strong> ${dateStr}</div><div style="display: flex"><strong>Note:</strong> ${note.text}</div></div>
-    <a href=${process.env.BASE_URL}${note.photo} target="_blank">
-    <img src=${process.env.BASE_URL}${note.photoThumbnail} alt="Note photo"> </a></div>`;
+    this.noteInfoWindows.set(note.id.toString());
   }
 
   private showNoteInfo(note: Note) {
-    const infoWindow = this.noteInfoWindows.get(note.id.toString());
-    const button = this.noteButtons.get(note.id.toString());
+    if (this.activeInfoWindow) {
+      this.hideNoteInfo(this.activeInfoWindow);
+    }
 
-    if (infoWindow && button) {
-      this.updateNoteContent(note);
+    // const position = overlayProjection.fromLatLngToDivPixel(this.position);
+    // if (!position) return;
 
-      // Get the position of the button
-      const buttonRect = button.getBoundingClientRect();
-      const map = this.getMap();
-      const mapDiv = map instanceof google.maps.Map ? map.getDiv() : null;
-      const mapRect = mapDiv ? mapDiv.getBoundingClientRect() : null;
+    const overlayProjection = this.getProjection();
+    const notePosition = overlayProjection.fromLatLngToDivPixel(
+      new google.maps.LatLng(note.latitude, note.longitude)
+    );
+    if (!notePosition) return;
 
-      // Calculate the position relative to the map
-      const x = mapRect
-        ? buttonRect.left - mapRect.left + buttonRect.width / 2
-        : 0;
-      const y = mapRect ? buttonRect.top - mapRect.top : 0;
+    const buttonOffsetX = 15;
+    const buttonOffsetY = 40;
 
-      // Convert pixel coordinates to LatLng
-      const latLng = mapRect
-        ? this.getProjection().fromContainerPixelToLatLng(
-            new google.maps.Point(x, y)
-          )
-        : null;
-      if (latLng) {
-        infoWindow.setPosition(latLng);
-        infoWindow.open(this.getMap());
+    const container = document.createElement("div");
+    const root = createRoot(container);
+    console.log(notePosition);
+    root.render(
+      <Provider store={store}>
+        <NotesPopover
+          note={note}
+          position={{
+            bottom: `${notePosition.y - buttonOffsetY + 45}px`, // 45px below the button
+            left: `${notePosition.x - buttonOffsetX}px`,
+          }}
+          onClose={() => this.hideNoteInfo(note.id.toString())}
+        />
+      </Provider>
+    );
+
+    this.getPanes()![this.paneName].appendChild(container);
+    this.noteInfoWindows.set(note.id.toString(), root);
+    this.activeInfoWindow = note.id.toString();
+  }
+
+  private hideNoteInfo(noteId: string) {
+    const root = this.noteInfoWindows.get(noteId);
+    if (root) {
+      root.unmount();
+      this.noteInfoWindows.delete(noteId);
+      if (this.activeInfoWindow === noteId) {
+        this.activeInfoWindow = null;
       }
     }
   }
@@ -191,6 +192,18 @@ export class CustomMarker extends google.maps.OverlayView {
         const buttonOffsetY = 40;
         button.style.left = `${notePosition.x - buttonOffsetX}px`;
         button.style.top = `${notePosition.y - buttonOffsetY}px`;
+
+        if (this.activeInfoWindow) {
+          const root = this.noteInfoWindows.get(this.activeInfoWindow);
+          if (root) {
+            const projection = this.getProjection();
+            const position = projection.fromLatLngToDivPixel(this.position);
+
+            const container = root.container as HTMLElement;
+            container.style.top = `${position.y + 30}px`;
+            container.style.left = `${position.x - 100}px`;
+          }
+        }
       }
     });
   }
@@ -212,10 +225,11 @@ export class CustomMarker extends google.maps.OverlayView {
         button.parentNode?.removeChild(button);
       });
       this.noteButtons.clear();
-      this.noteInfoWindows.forEach((infoWindow) => {
-        infoWindow.close();
+      this.noteInfoWindows.forEach((root) => {
+        root.unmount();
       });
       this.noteInfoWindows.clear();
+      this.activeInfoWindow = null;
     }
   }
 
@@ -313,10 +327,10 @@ export class CustomMarker extends google.maps.OverlayView {
         button.parentNode?.removeChild(button);
         this.noteButtons.delete(noteId);
         const infoWindow = this.noteInfoWindows.get(noteId);
-        if (infoWindow) {
-          infoWindow.close();
-          this.noteInfoWindows.delete(noteId);
-        }
+        // if (infoWindow) {
+        //   infoWindow.close();
+        //   this.noteInfoWindows.delete(noteId);
+        // }
       }
     });
 
@@ -329,7 +343,7 @@ export class CustomMarker extends google.maps.OverlayView {
         )!;
         button.style.left = `${position.x - 30}px`;
         button.style.top = `${position.y - 30}px`;
-        this.updateNoteContent(note);
+        // this.updateNoteContent(note);
       } else {
         // Create new button for new note
         this.createNoteButton(note);

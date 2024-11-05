@@ -22,8 +22,7 @@ class Note < ApplicationRecord
   do_not_validate_attachment_file_type :photo
 
   def photo_exists?
-    # File.exists?(File.join(Rails.root, 'public', photo.to_s.split('?').first))
-    true
+    File.exists?(File.join(Rails.root, 'public', photo.to_s.split('?').first))
   end
 
   def as_json(opts = nil)

@@ -11,7 +11,10 @@ import { useSelector } from "react-redux";
 import { mobileStreamPath } from "../../../assets/styles/colors";
 import { useAppDispatch } from "../../../store/hooks";
 import { selectHoverPosition } from "../../../store/mapSlice";
-import { setMarkersLoading } from "../../../store/markersLoadingSlice";
+import {
+  setMarkersLoading,
+  setTotalMarkers,
+} from "../../../store/markersLoadingSlice";
 import { selectThresholds } from "../../../store/thresholdSlice";
 import { Session } from "../../../types/sessionType";
 import { getColorForValue } from "../../../utils/thresholdColors";
@@ -78,10 +81,8 @@ const StreamMarkers = ({ sessions, unitSymbol }: Props) => {
           color,
           title,
           12,
-
           20,
           "overlayMouseTarget",
-          // onNoteClick,
           notes,
           undefined,
           undefined
@@ -94,7 +95,6 @@ const StreamMarkers = ({ sessions, unitSymbol }: Props) => {
         if (JSON.stringify(marker.getNotes()) !== JSON.stringify(notes)) {
           marker.setNotes(notes);
         }
-        // marker.setOnNoteClick(onNoteClick);
       }
 
       return marker;
@@ -111,8 +111,8 @@ const StreamMarkers = ({ sessions, unitSymbol }: Props) => {
   useEffect(() => {
     if (!map || !CustomOverlay) return;
 
-    // dispatch(setMarkersLoading(true));
-    // dispatch(setTotalMarkers(sortedSessions.length));
+    dispatch(setMarkersLoading(true));
+    dispatch(setTotalMarkers(sortedSessions.length));
 
     const path = sortedSessions.map((session) => ({
       lat: session.point.lat,
