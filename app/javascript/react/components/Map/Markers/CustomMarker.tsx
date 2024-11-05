@@ -8,6 +8,11 @@ import store from "../../../store/index";
 import { Note } from "../../../types/note";
 import { NotesPopover } from "./NotesPopover/NotesPopover";
 
+const buttonOffsetX = 15;
+const buttonOffsetY = 40;
+const portalOffsetX = 90;
+const portalOffsetY = 300;
+
 export class CustomMarker extends google.maps.OverlayView {
   private div: HTMLDivElement | null = null;
   private position: google.maps.LatLng;
@@ -73,8 +78,6 @@ export class CustomMarker extends google.maps.OverlayView {
     });
 
     this.noteButtons.set(note.id.toString(), button);
-
-    this.noteInfoWindows.set(note.id.toString());
   }
 
   private showNoteInfo(note: Note) {
@@ -82,35 +85,27 @@ export class CustomMarker extends google.maps.OverlayView {
       this.hideNoteInfo(this.activeInfoWindow);
     }
 
-    // const position = overlayProjection.fromLatLngToDivPixel(this.position);
-    // if (!position) return;
-
     const overlayProjection = this.getProjection();
     const notePosition = overlayProjection.fromLatLngToDivPixel(
       new google.maps.LatLng(note.latitude, note.longitude)
     );
     if (!notePosition) return;
 
-    const buttonOffsetX = 15;
-    const buttonOffsetY = 40;
+    const portalContainer = document.createElement("div");
+    portalContainer.style.position = "absolute";
+    portalContainer.style.zIndex = "1000";
+    portalContainer.style.top = `${notePosition.y - portalOffsetY}px`;
+    portalContainer.style.left = `${notePosition.x - portalOffsetX}px`;
+    const root = createRoot(portalContainer);
 
-    const container = document.createElement("div");
-    const root = createRoot(container);
-    console.log(notePosition);
     root.render(
-      <Provider store={store}>
-        <NotesPopover
-          note={note}
-          position={{
-            bottom: `${notePosition.y - buttonOffsetY + 45}px`, // 45px below the button
-            left: `${notePosition.x - buttonOffsetX}px`,
-          }}
-          onClose={() => this.hideNoteInfo(note.id.toString())}
-        />
-      </Provider>
+      <NotesPopover
+        note={note}
+        onClose={() => this.hideNoteInfo(note.id.toString())}
+      />
     );
 
-    this.getPanes()![this.paneName].appendChild(container);
+    this.getPanes()![this.paneName].appendChild(portalContainer);
     this.noteInfoWindows.set(note.id.toString(), root);
     this.activeInfoWindow = note.id.toString();
   }
@@ -188,20 +183,17 @@ export class CustomMarker extends google.maps.OverlayView {
       )!;
       const button = this.noteButtons.get(note.id.toString());
       if (button) {
-        const buttonOffsetX = 15;
-        const buttonOffsetY = 40;
         button.style.left = `${notePosition.x - buttonOffsetX}px`;
         button.style.top = `${notePosition.y - buttonOffsetY}px`;
+      }
 
-        if (this.activeInfoWindow) {
-          const root = this.noteInfoWindows.get(this.activeInfoWindow);
-          if (root) {
-            const projection = this.getProjection();
-            const position = projection.fromLatLngToDivPixel(this.position);
-
-            const container = root.container as HTMLElement;
-            container.style.top = `${position.y + 30}px`;
-            container.style.left = `${position.x - 100}px`;
+      if (this.activeInfoWindow === note.id.toString()) {
+        const root = this.noteInfoWindows.get(note.id.toString());
+        if (root) {
+          const portalContainer = (root as any)._internalRoot.containerInfo;
+          if (portalContainer) {
+            portalContainer.style.top = `${notePosition.y - portalOffsetY}px`;
+            portalContainer.style.left = `${notePosition.x - portalOffsetX}px`;
           }
         }
       }
@@ -321,38 +313,30 @@ export class CustomMarker extends google.maps.OverlayView {
   }
 
   setNotes(notes: Note[]) {
-    console.log("notes", notes);
     this.noteButtons.forEach((button, noteId) => {
       if (!notes.some((note) => note.id === Number(noteId))) {
         button.parentNode?.removeChild(button);
         this.noteButtons.delete(noteId);
-        const infoWindow = this.noteInfoWindows.get(noteId);
-        // if (infoWindow) {
-        //   infoWindow.close();
-        //   this.noteInfoWindows.delete(noteId);
-        // }
       }
     });
-
     notes.forEach((note) => {
       if (this.noteButtons.has(note.id.toString())) {
-        // Update existing button position and info window content
-        const button = this.noteButtons.get(note.id.toString())!;
-        const position = this.getProjection().fromLatLngToDivPixel(
+        const overlayProjection = this.getProjection();
+        const notePosition = overlayProjection.fromLatLngToDivPixel(
           new google.maps.LatLng(note.latitude, note.longitude)
         )!;
-        button.style.left = `${position.x - 30}px`;
-        button.style.top = `${position.y - 30}px`;
-        // this.updateNoteContent(note);
+        const button = this.noteButtons.get(note.id.toString());
+        if (button) {
+          button.style.left = `${notePosition.x - buttonOffsetX}px`;
+          button.style.top = `${notePosition.y - buttonOffsetY - 100}px`;
+        }
       } else {
-        // Create new button for new note
         this.createNoteButton(note);
         this.getPanes()![this.paneName].appendChild(
           this.noteButtons.get(note.id.toString())!
         );
       }
     });
-
     this.notes = notes;
     this.draw();
   }

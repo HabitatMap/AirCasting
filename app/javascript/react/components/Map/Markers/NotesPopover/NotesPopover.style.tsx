@@ -3,14 +3,7 @@ import styled from "styled-components";
 import { blue, gray400, white } from "../../../../assets/styles/colors";
 import { CloseButton } from "../../Legend/Legend.style";
 
-const NoteContainer = styled.div<{ $bottom: string; $left: string }>`
-  display: grid;
-  position: absolute;
-  bottom: ${({ $bottom }) => $bottom};
-  left: ${({ $left }) => $left};
-`;
-
-const DataContainer = styled.div`
+const NoteContainer = styled.div`
   background-color: ${white};
   border: 1px solid ${blue};
   border-radius: 2rem;
@@ -20,6 +13,10 @@ const DataContainer = styled.div`
   font-weight: 400;
   padding: 1rem;
   z-index: 20;
+`;
+
+const DataContainer = styled.div`
+  margin: 2rem 0;
 `;
 
 const ClosePopoverButton = styled(CloseButton)`
