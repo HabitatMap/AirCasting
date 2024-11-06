@@ -8,10 +8,6 @@ import { MobileStream } from "../types/mobileStream";
 import { MobileTimeRange } from "../types/timeRange";
 import { getErrorMessage } from "../utils/getErrorMessage";
 import { logError } from "../utils/logController";
-import {
-  MILLISECONDS_IN_A_5_MINUTES,
-  MILLISECONDS_IN_AN_HOUR,
-} from "../utils/timeRanges";
 
 export interface MobileStreamState {
   data: MobileStream;
@@ -91,21 +87,7 @@ export const mobileStreamSlice = createSlice({
       const { min, max } = action.payload;
 
       let endTime = max;
-      let startTime: number;
-
-      switch (state.lastSelectedTimeRange) {
-        case MobileTimeRange.FiveMinutes:
-          startTime = endTime - MILLISECONDS_IN_A_5_MINUTES;
-          break;
-        case MobileTimeRange.Hour:
-          startTime = endTime - MILLISECONDS_IN_AN_HOUR;
-          break;
-        case MobileTimeRange.All:
-          startTime = min;
-          break;
-        default:
-          startTime = endTime - MILLISECONDS_IN_A_5_MINUTES;
-      }
+      let startTime = min;
 
       const values = state.data.measurements
         .filter(
