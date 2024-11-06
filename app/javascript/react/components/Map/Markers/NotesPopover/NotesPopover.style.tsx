@@ -12,11 +12,10 @@ const NoteContainer = styled.div`
   font-size: 1.4rem;
   font-weight: 400;
   padding: 1rem;
-  z-index: 20;
 `;
 
 const DataContainer = styled.div`
-  margin: 2rem 0;
+  margin: 1rem 0 2rem 0;
 `;
 
 const ClosePopoverButton = styled(CloseButton)`

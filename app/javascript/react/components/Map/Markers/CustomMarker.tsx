@@ -6,12 +6,12 @@ import attachmentIcon from "../../../assets/icons/attachmentIcon.svg";
 import { blue } from "../../../assets/styles/colors";
 import store from "../../../store/index";
 import { Note } from "../../../types/note";
+import { getNotesAtSamePosition } from "../../../utils/groupNotes";
 import { NotesPopover } from "./NotesPopover/NotesPopover";
 
 const buttonOffsetX = 15;
 const buttonOffsetY = 40;
 const portalOffsetX = 90;
-const portalOffsetY = 300;
 
 export class CustomMarker extends google.maps.OverlayView {
   private div: HTMLDivElement | null = null;
@@ -93,14 +93,16 @@ export class CustomMarker extends google.maps.OverlayView {
 
     const portalContainer = document.createElement("div");
     portalContainer.style.position = "absolute";
-    portalContainer.style.zIndex = "1000";
-    portalContainer.style.top = `${notePosition.y - portalOffsetY}px`;
+    portalContainer.style.zIndex = "3";
+    portalContainer.style.top = `${notePosition.y}px`;
     portalContainer.style.left = `${notePosition.x - portalOffsetX}px`;
     const root = createRoot(portalContainer);
 
+    const notesAtPosition = getNotesAtSamePosition(this.notes, note);
+
     root.render(
       <NotesPopover
-        note={note}
+        notes={notesAtPosition}
         onClose={() => this.hideNoteInfo(note.id.toString())}
       />
     );
@@ -192,7 +194,7 @@ export class CustomMarker extends google.maps.OverlayView {
         if (root) {
           const portalContainer = (root as any)._internalRoot.containerInfo;
           if (portalContainer) {
-            portalContainer.style.top = `${notePosition.y - portalOffsetY}px`;
+            portalContainer.style.top = `${notePosition.y}px`;
             portalContainer.style.left = `${notePosition.x - portalOffsetX}px`;
           }
         }
