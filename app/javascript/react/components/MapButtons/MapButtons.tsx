@@ -57,10 +57,6 @@ const MapButtons: React.FC = () => {
 
   const handleCopyLinkClick = () => {
     setActiveCopyLinkButton(true);
-    if (activeButtons.includes(ButtonTypes.FILTER)) {
-      setActiveButtons([]);
-      dispatch(setFiltersButtonClosed(true));
-    }
   };
 
   const handleTimelapseClick = () => {
