@@ -8,11 +8,6 @@ import { FixedStream } from "../types/fixedStream";
 import { FixedTimeRange } from "../types/timeRange";
 import { getErrorMessage } from "../utils/getErrorMessage";
 import { logError } from "../utils/logController";
-import {
-  MILLISECONDS_IN_A_DAY,
-  MILLISECONDS_IN_A_MONTH,
-  MILLISECONDS_IN_A_WEEK,
-} from "../utils/timeRanges";
 import { RootState } from "./index";
 
 export interface FixedStreamState {
@@ -143,26 +138,9 @@ const fixedStreamSlice = createSlice({
       state,
       action: PayloadAction<{ min: number; max: number }>
     ) {
-      const { min } = action.payload;
+      const { min, max } = action.payload;
       let startTime = min;
-      let endTime: number;
-
-      switch (state.lastSelectedTimeRange) {
-        case FixedTimeRange.Day:
-          endTime = startTime + MILLISECONDS_IN_A_DAY;
-          break;
-        case FixedTimeRange.Week:
-          endTime = startTime + MILLISECONDS_IN_A_WEEK;
-          break;
-        case FixedTimeRange.Month:
-          endTime = startTime + MILLISECONDS_IN_A_MONTH;
-          break;
-        case FixedTimeRange.Custom:
-          endTime = startTime + MILLISECONDS_IN_A_DAY;
-          break;
-        default:
-          endTime = startTime + MILLISECONDS_IN_A_DAY;
-      }
+      let endTime = max;
 
       const values = state.data.measurements
         .filter(

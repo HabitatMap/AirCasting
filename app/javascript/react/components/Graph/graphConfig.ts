@@ -128,6 +128,7 @@ const getXAxisOptions = (
     ordinal: false,
     events: {
       afterSetExtremes: function (e: Highcharts.AxisSetExtremesEventObject) {
+        // Dirty workaround to prevent scrollbar from disappearing while fetching data
         if (!isLoading) {
           if (e.min === e.dataMin) {
             // Clear any existing timeout
@@ -136,7 +137,7 @@ const getXAxisOptions = (
             fetchTimeout = setTimeout(() => {
               const newStart = e.min - MILLISECONDS_IN_A_MONTH;
               fetchMeasurementsIfNeeded(newStart, e.min);
-            }, 500);
+            }, 800);
           }
         }
 
@@ -245,7 +246,6 @@ const getPlotOptions = (
       lineWidth: 2,
       color: blue,
       turboThreshold: 9999999, // above that graph will not display
-      cropThreshold: 9999999,
 
       marker: {
         fillColor: blue,
