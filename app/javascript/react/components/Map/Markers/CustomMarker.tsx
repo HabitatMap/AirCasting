@@ -101,12 +101,7 @@ export class CustomMarker extends google.maps.OverlayView {
         const root = createRoot(noteContainer);
         root.render(
           <Provider store={store}>
-            <NotesPopover
-              notes={notesAtMarkerPosition}
-              onClose={() => {
-                // Handle close if needed
-              }}
-            />
+            <NotesPopover notes={notesAtMarkerPosition} />
           </Provider>
         );
 
@@ -280,12 +275,7 @@ export class CustomMarker extends google.maps.OverlayView {
           const root = createRoot(noteContainer);
           root.render(
             <Provider store={store}>
-              <NotesPopover
-                notes={notesAtMarkerPosition}
-                onClose={() => {
-                  // Handle close if needed
-                }}
-              />
+              <NotesPopover notes={notesAtMarkerPosition} />
             </Provider>
           );
 

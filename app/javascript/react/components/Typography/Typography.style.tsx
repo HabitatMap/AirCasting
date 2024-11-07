@@ -16,8 +16,8 @@ const H3 = styled.h3<{ bold?: boolean }>`
   font-size: 18px;
 `;
 
-const H4 = styled.h4<{ bold?: boolean }>`
-  font-weight: ${(p) => (p.bold ? "600" : "400")};
+const H4 = styled.h4<{ $bold?: boolean }>`
+  font-weight: ${(p) => (p.$bold ? "700" : "400")};
   font-size: 14px;
   letter-spacing: 0.14px;
 `;
