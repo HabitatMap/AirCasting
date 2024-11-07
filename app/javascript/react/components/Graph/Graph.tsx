@@ -101,7 +101,7 @@ const Graph: React.FC<GraphProps> = React.memo(
     const startTime = useMemo(
       () =>
         fixedSessionTypeSelected
-          ? fixedStreamShortInfo.firstMeasurementTime
+          ? parseDateString(fixedStreamShortInfo.startTime)
           : parseDateString(mobileStreamShortInfo.startTime),
       [
         mobileStreamShortInfo.startTime,
