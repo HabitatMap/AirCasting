@@ -69,6 +69,8 @@ const getXAxisOptions = (
 ): Highcharts.XAxisOptions => {
   let fetchTimeout: NodeJS.Timeout;
 
+  let wasScrolling = false;
+
   const handleSetExtremes = debounce(
     (e: Highcharts.AxisSetExtremesEventObject) => {
       if (!isLoading && e.min !== undefined && e.max !== undefined) {
@@ -128,17 +130,44 @@ const getXAxisOptions = (
     ordinal: false,
     events: {
       afterSetExtremes: function (e: Highcharts.AxisSetExtremesEventObject) {
-        // Dirty workaround to prevent scrollbar from disappearing while fetching data
-        if (!isLoading) {
-          if (e.min === e.dataMin) {
-            // Clear any existing timeout
-            if (fetchTimeout) clearTimeout(fetchTimeout);
+        if (isLoading) return;
+
+        // Handle navigator dragging
+        if (e.trigger === "navigator") {
+          const isCurrentlyScrolling = e.DOMEvent?.buttons === 1;
+
+          // User is actively scrolling
+          if (isCurrentlyScrolling) {
+            wasScrolling = true;
+            return;
+          }
+
+          // User just released the scrollbar
+          if (wasScrolling && !isCurrentlyScrolling) {
+            wasScrolling = false;
+
+            if (fetchTimeout) {
+              clearTimeout(fetchTimeout);
+            }
 
             fetchTimeout = setTimeout(() => {
               const newStart = e.min - MILLISECONDS_IN_A_MONTH;
               fetchMeasurementsIfNeeded(newStart, e.min);
-            }, 800);
+            }, 100);
+            return;
           }
+
+          return;
+        }
+
+        // Normal fetching for all other interactions
+        if (e.min === e.dataMin) {
+          if (fetchTimeout) {
+            clearTimeout(fetchTimeout);
+          }
+
+          const newStart = e.min - MILLISECONDS_IN_A_MONTH;
+          fetchMeasurementsIfNeeded(newStart, e.min);
         }
 
         // Only dispatch when not loading and measurements are available
