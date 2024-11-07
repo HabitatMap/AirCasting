@@ -46,6 +46,7 @@ import { useMeasurementsFetcher } from "./chartHooks/useMeasurementsFetcher";
 import * as S from "./Graph.style";
 import {
   getChartOptions,
+  getNavigatorOptions,
   getPlotOptions,
   getRangeSelectorOptions,
   getResponsiveOptions,
@@ -303,7 +304,7 @@ const Graph: React.FC<GraphProps> = React.memo(
           ...scrollbarOptions,
         },
         navigator: {
-          enabled: false,
+          ...getNavigatorOptions(),
         },
         responsive: getResponsiveOptions(thresholdsState, isMobile),
         legend: legendOption,

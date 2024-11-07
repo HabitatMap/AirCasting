@@ -2,6 +2,7 @@ import {
   AlignValue,
   ChartOptions,
   ChartZoomingOptions,
+  NavigatorOptions,
   PlotOptions,
   RangeSelectorOptions,
   ResponsiveOptions,
@@ -65,11 +66,11 @@ const getXAxisOptions = (
   fixedSessionTypeSelected: boolean,
   dispatch: AppDispatch,
   isLoading: boolean,
-  fetchMeasurementsIfNeeded: (start: number, end: number) => void
+  fetchMeasurementsIfNeeded: (start: number, end: number) => Promise<void>
 ): Highcharts.XAxisOptions => {
-  let fetchTimeout: NodeJS.Timeout;
-
-  let wasScrolling = false;
+  let fetchTimeout: NodeJS.Timeout | null = null;
+  let isFetchingData = false; // Flag to prevent multiple fetches
+  let initialDataMin: number | null = null; // Store the initial dataMin
 
   const handleSetExtremes = debounce(
     (e: Highcharts.AxisSetExtremesEventObject) => {
@@ -84,7 +85,8 @@ const getXAxisOptions = (
           e.min,
           e.max
         );
-        // Dirty workaround to update timerange display in the graph on Calendar Page
+
+        // Update the time range display in the graph on the Calendar Page
         if (rangeDisplayRef?.current) {
           rangeDisplayRef.current.innerHTML = `
             <div class="time-container">
@@ -108,7 +110,7 @@ const getXAxisOptions = (
       text: undefined,
     },
     showEmpty: false,
-    showLastLabel: isMobile ? false : true,
+    showLastLabel: !isMobile,
     tickColor: gray200,
     lineColor: white,
     type: "datetime",
@@ -130,53 +132,50 @@ const getXAxisOptions = (
     ordinal: false,
     events: {
       afterSetExtremes: function (e: Highcharts.AxisSetExtremesEventObject) {
-        if (isLoading) return;
+        const axis = this;
+        const chart = axis.chart as Highcharts.StockChart;
 
-        // Handle navigator dragging
-        if (e.trigger === "navigator") {
-          // @ts-ignore
-          const isCurrentlyScrolling = e.DOMEvent?.buttons === 1;
+        console.log("chart", chart);
 
-          // User is actively scrolling
-          if (isCurrentlyScrolling) {
-            wasScrolling = true;
-            return;
-          }
-
-          // User just released the scrollbar
-          if (wasScrolling && !isCurrentlyScrolling) {
-            wasScrolling = false;
-
-            if (fetchTimeout) {
-              clearTimeout(fetchTimeout);
-            }
-
-            fetchTimeout = setTimeout(() => {
-              const newStart = e.min - MILLISECONDS_IN_A_MONTH;
-              fetchMeasurementsIfNeeded(newStart, e.min);
-            }, 100);
-            return;
-          }
-
+        // Ignore if chart is loading or navigator is being dragged
+        if (isLoading || (chart as Highcharts.StockChart).scroller.isMoving)
           return;
+
+        // Store the initial dataMin if not already stored
+        if (initialDataMin === null && e.dataMin !== undefined) {
+          initialDataMin = e.dataMin;
+        }
+        // Clear any existing timeout
+        if (fetchTimeout) {
+          clearTimeout(fetchTimeout);
         }
 
-        // Normal fetching for all other interactions
-        if (e.min === e.dataMin) {
-          if (fetchTimeout) {
-            clearTimeout(fetchTimeout);
+        // Set a timeout to ensure min and max values are stable
+        fetchTimeout = setTimeout(async () => {
+          // Check if we're already fetching data
+          if (isFetchingData) return;
+
+          // Fetch data if the user has scrolled to the initial dataMin
+          if (e.min <= (initialDataMin ?? e.dataMin)) {
+            isFetchingData = true;
+
+            const newStart = e.min - MILLISECONDS_IN_A_MONTH;
+
+            // Fetch data and wait for it to complete
+            await fetchMeasurementsIfNeeded(newStart, e.min);
+
+            isFetchingData = false;
+
+            // Update the chart after data fetch
+            // axis.update({}, true);
+
+            // Reset the timeout
+            fetchTimeout = null;
           }
 
-          const newStart = e.min - MILLISECONDS_IN_A_MONTH;
-          fetchMeasurementsIfNeeded(newStart, e.min);
-        }
-
-        // Only dispatch when not loading and measurements are available
-        if (!isLoading && this.series[0].points.length > 0) {
-          setTimeout(() => {
-            handleSetExtremes(e);
-          }, 100);
-        }
+          // Update the extremes and UI elements
+          handleSetExtremes(e);
+        }, 800); // Adjust the delay as needed
       },
     },
   };
@@ -558,8 +557,38 @@ const getChartOptions = (
   };
 };
 
+const getNavigatorOptions = (): NavigatorOptions => {
+  return {
+    enabled: true,
+    height: 0,
+    // maskFill: "none",
+    // outlineColor: "none",
+    // series: [
+    //   {
+    //     visible: true,
+    //   },
+    // ] as Highcharts.SeriesOptionsType[],
+    // xAxis: {
+    //   labels: {
+    //     enabled: false,
+    //   },
+    //   lineWidth: 0,
+    //   tickLength: 0,
+    //   gridLineWidth: 0,
+    //   title: {
+    //     text: null,
+    //   },
+    // },
+    // handles: {
+    //   backgroundColor: "none",
+    //   borderColor: "none",
+    // },
+  };
+};
+
 export {
   getChartOptions,
+  getNavigatorOptions,
   getPlotOptions,
   getRangeSelectorOptions,
   getResponsiveOptions,

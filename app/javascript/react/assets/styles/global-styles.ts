@@ -63,6 +63,13 @@ const GlobalStyles = createGlobalStyle`
         ${pulseAnimation} 2s infinite
       `};
   }
+  .highcharts-navigator {
+    display: none;
+  }
+
+  .highcharts-navigator-xaxis {
+    display: none;
+  }
 
   /* Scroll bar stylings */
 ::-webkit-scrollbar {
