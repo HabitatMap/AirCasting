@@ -134,6 +134,7 @@ const getXAxisOptions = (
 
         // Handle navigator dragging
         if (e.trigger === "navigator") {
+          // @ts-ignore
           const isCurrentlyScrolling = e.DOMEvent?.buttons === 1;
 
           // User is actively scrolling
