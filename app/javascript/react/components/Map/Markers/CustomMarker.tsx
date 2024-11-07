@@ -2,16 +2,11 @@ import React from "react";
 import { unstable_batchedUpdates } from "react-dom";
 import { createRoot, Root } from "react-dom/client";
 import { Provider } from "react-redux";
-import attachmentIcon from "../../../assets/icons/attachmentIcon.svg";
-import { blue } from "../../../assets/styles/colors";
 import store from "../../../store/index";
 import { Note } from "../../../types/note";
-import { getNotesAtSamePosition } from "../../../utils/groupNotes";
 import { NotesPopover } from "./NotesPopover/NotesPopover";
 
-const buttonOffsetX = 15;
-const buttonOffsetY = 40;
-const portalOffsetX = 90;
+const noteButtonOffsetX = 90;
 
 export class CustomMarker extends google.maps.OverlayView {
   private div: HTMLDivElement | null = null;
@@ -26,10 +21,8 @@ export class CustomMarker extends google.maps.OverlayView {
   private clickableAreaSize: number;
   private zIndex: number = 0;
   private paneName: keyof google.maps.MapPanes;
-  private noteButtons: Map<string, HTMLButtonElement> = new Map();
-  private noteInfoWindows: Map<string, Root> = new Map();
   private notes: Note[];
-  private activeInfoWindow: string | null = null;
+  private noteContainers: Map<string, Root> = new Map();
 
   constructor(
     position: google.maps.LatLngLiteral,
@@ -52,75 +45,6 @@ export class CustomMarker extends google.maps.OverlayView {
     this.clickableAreaSize = clickableAreaSize;
     this.paneName = paneName;
     this.notes = notes;
-    notes.forEach((note) => this.createNoteButton(note));
-  }
-
-  private createNoteButton(note: Note) {
-    const button = document.createElement("button");
-    button.style.position = "absolute";
-    button.style.padding = "3px 6px";
-    button.style.fontSize = "12px";
-    button.style.backgroundColor = "#ffffff";
-    button.style.border = `1px solid ${blue}`;
-    button.style.borderRadius = "4px";
-    button.style.cursor = "pointer";
-
-    const icon = document.createElement("img");
-    icon.src = attachmentIcon;
-    icon.style.width = "15px";
-    icon.style.height = "15px";
-
-    button.appendChild(icon);
-
-    button.addEventListener("click", (e) => {
-      e.stopPropagation();
-      this.showNoteInfo(note);
-    });
-
-    this.noteButtons.set(note.id.toString(), button);
-  }
-
-  private showNoteInfo(note: Note) {
-    if (this.activeInfoWindow) {
-      this.hideNoteInfo(this.activeInfoWindow);
-    }
-
-    const overlayProjection = this.getProjection();
-    const notePosition = overlayProjection.fromLatLngToDivPixel(
-      new google.maps.LatLng(note.latitude, note.longitude)
-    );
-    if (!notePosition) return;
-
-    const portalContainer = document.createElement("div");
-    portalContainer.style.position = "absolute";
-    portalContainer.style.zIndex = "3";
-    portalContainer.style.top = `${notePosition.y}px`;
-    portalContainer.style.left = `${notePosition.x - portalOffsetX}px`;
-    const root = createRoot(portalContainer);
-
-    const notesAtPosition = getNotesAtSamePosition(this.notes, note);
-
-    root.render(
-      <NotesPopover
-        notes={notesAtPosition}
-        onClose={() => this.hideNoteInfo(note.id.toString())}
-      />
-    );
-
-    this.getPanes()![this.paneName].appendChild(portalContainer);
-    this.noteInfoWindows.set(note.id.toString(), root);
-    this.activeInfoWindow = note.id.toString();
-  }
-
-  private hideNoteInfo(noteId: string) {
-    const root = this.noteInfoWindows.get(noteId);
-    if (root) {
-      root.unmount();
-      this.noteInfoWindows.delete(noteId);
-      if (this.activeInfoWindow === noteId) {
-        this.activeInfoWindow = null;
-      }
-    }
   }
 
   onAdd() {
@@ -130,7 +54,7 @@ export class CustomMarker extends google.maps.OverlayView {
     this.div.title = this.title;
     this.div.style.width = `${this.clickableAreaSize}px`;
     this.div.style.height = `${this.clickableAreaSize}px`;
-    this.div.style.zIndex = this.zIndex.toString();
+    // this.div.style.zIndex = this.zIndex.toString();
 
     const innerDiv = document.createElement("div");
     innerDiv.style.width = `${this.size}px`;
@@ -157,13 +81,43 @@ export class CustomMarker extends google.maps.OverlayView {
       this.div.classList.add("pulsating-marker");
     }
 
+    if (this.notes && this.notes.length > 0) {
+      const markerLat = this.position.lat();
+      const markerLng = this.position.lng();
+
+      const notesAtMarkerPosition = this.notes.filter(
+        (note) =>
+          Math.abs(note.latitude - markerLat) < 0.0000001 &&
+          Math.abs(note.longitude - markerLng) < 0.0000001
+      );
+
+      if (notesAtMarkerPosition.length > 0) {
+        const noteContainer = document.createElement("div");
+        noteContainer.setAttribute("data-note-container", "marker");
+        noteContainer.style.position = "absolute";
+        noteContainer.style.top = "-35px";
+        noteContainer.style.left = "0px";
+
+        const root = createRoot(noteContainer);
+        root.render(
+          <Provider store={store}>
+            <NotesPopover
+              notes={notesAtMarkerPosition}
+              onClose={() => {
+                // Handle close if needed
+              }}
+            />
+          </Provider>
+        );
+
+        this.div.appendChild(noteContainer);
+        this.noteContainers.set("marker", root);
+      }
+    }
+
     const panes = this.getPanes();
     const pane = panes ? panes[this.paneName] : null;
     pane && pane.appendChild(this.div);
-
-    this.noteButtons.forEach((button) => {
-      this.getPanes()![this.paneName].appendChild(button);
-    });
   }
 
   draw() {
@@ -178,53 +132,28 @@ export class CustomMarker extends google.maps.OverlayView {
       this.div.style.left = `${position.x - offsetX}px`;
       this.div.style.top = `${position.y - offsetY}px`;
     }
-
-    this.notes.forEach((note) => {
-      const notePosition = overlayProjection.fromLatLngToDivPixel(
-        new google.maps.LatLng(note.latitude, note.longitude)
-      )!;
-      const button = this.noteButtons.get(note.id.toString());
-      if (button) {
-        button.style.left = `${notePosition.x - buttonOffsetX}px`;
-        button.style.top = `${notePosition.y - buttonOffsetY}px`;
-      }
-
-      if (this.activeInfoWindow === note.id.toString()) {
-        const root = this.noteInfoWindows.get(note.id.toString());
-        if (root) {
-          const portalContainer = (root as any)._internalRoot.containerInfo;
-          if (portalContainer) {
-            portalContainer.style.top = `${notePosition.y}px`;
-            portalContainer.style.left = `${notePosition.x - portalOffsetX}px`;
-          }
-        }
-      }
-    });
   }
 
   onRemove() {
-    if (this.div) {
-      if (this.root) {
-        setTimeout(() => {
-          this.root?.unmount();
-          this.root = undefined;
-        }, 0);
+    setTimeout(() => {
+      if (this.div) {
+        if (this.onClick) {
+          this.div.removeEventListener("click", this.onClick);
+        }
+        this.div.parentNode?.removeChild(this.div);
+        this.div = null;
       }
-      if (this.onClick) {
-        this.div.removeEventListener("click", this.onClick);
-      }
-      this.div.parentNode?.removeChild(this.div);
-      this.div = null;
-      this.noteButtons.forEach((button) => {
-        button.parentNode?.removeChild(button);
+
+      // Clean up note containers
+      this.noteContainers.forEach((root) => {
+        try {
+          root.unmount();
+        } catch (e) {
+          console.warn("Error unmounting note container:", e);
+        }
       });
-      this.noteButtons.clear();
-      this.noteInfoWindows.forEach((root) => {
-        root.unmount();
-      });
-      this.noteInfoWindows.clear();
-      this.activeInfoWindow = null;
-    }
+      this.noteContainers.clear();
+    }, 0);
   }
 
   setPosition(position: google.maps.LatLngLiteral | google.maps.LatLng) {
@@ -315,35 +244,82 @@ export class CustomMarker extends google.maps.OverlayView {
   }
 
   setNotes(notes: Note[]) {
-    this.noteButtons.forEach((button, noteId) => {
-      if (!notes.some((note) => note.id === Number(noteId))) {
-        button.parentNode?.removeChild(button);
-        this.noteButtons.delete(noteId);
-      }
-    });
-    notes.forEach((note) => {
-      if (this.noteButtons.has(note.id.toString())) {
-        const overlayProjection = this.getProjection();
-        const notePosition = overlayProjection.fromLatLngToDivPixel(
-          new google.maps.LatLng(note.latitude, note.longitude)
-        )!;
-        const button = this.noteButtons.get(note.id.toString());
-        if (button) {
-          button.style.left = `${notePosition.x - buttonOffsetX}px`;
-          button.style.top = `${notePosition.y - buttonOffsetY - 100}px`;
-        }
-      } else {
-        this.createNoteButton(note);
-        this.getPanes()![this.paneName].appendChild(
-          this.noteButtons.get(note.id.toString())!
-        );
-      }
-    });
+    const existingNotes = this.notes;
     this.notes = notes;
-    this.draw();
+
+    // Schedule cleanup and update for next tick
+    setTimeout(() => {
+      // Clean up existing note containers
+      this.noteContainers.forEach((root) => {
+        try {
+          root.unmount();
+        } catch (e) {
+          console.warn("Error unmounting note container:", e);
+        }
+      });
+      this.noteContainers.clear();
+
+      // Only add new note container if there are notes at this marker's position
+      if (this.notes && this.notes.length > 0 && this.div) {
+        const markerLat = this.position.lat();
+        const markerLng = this.position.lng();
+
+        const notesAtMarkerPosition = this.notes.filter(
+          (note) =>
+            Math.abs(note.latitude - markerLat) < 0.0000001 &&
+            Math.abs(note.longitude - markerLng) < 0.0000001
+        );
+
+        if (notesAtMarkerPosition.length > 0) {
+          const noteContainer = document.createElement("div");
+          noteContainer.setAttribute("data-note-container", "marker");
+          noteContainer.style.position = "absolute";
+          noteContainer.style.top = "-45px";
+          noteContainer.style.left = "15px";
+
+          const root = createRoot(noteContainer);
+          root.render(
+            <Provider store={store}>
+              <NotesPopover
+                notes={notesAtMarkerPosition}
+                onClose={() => {
+                  // Handle close if needed
+                }}
+              />
+            </Provider>
+          );
+
+          this.div.appendChild(noteContainer);
+          this.noteContainers.set("marker", root);
+        }
+      }
+
+      this.draw();
+    }, 0);
   }
 
-  getNotes() {
-    return this.notes;
+  cleanup() {
+    if (this.div) {
+      if (this.onClick) {
+        this.div.removeEventListener("click", this.onClick);
+      }
+
+      // Schedule unmount for next tick
+      setTimeout(() => {
+        this.noteContainers.forEach((root) => {
+          try {
+            root.unmount();
+          } catch (e) {
+            console.warn("Error unmounting note container:", e);
+          }
+        });
+        this.noteContainers.clear();
+
+        if (this.div && this.div.parentNode) {
+          this.div.parentNode.removeChild(this.div);
+        }
+        this.div = null;
+      }, 0);
+    }
   }
 }

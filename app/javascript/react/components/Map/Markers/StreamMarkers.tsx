@@ -92,9 +92,6 @@ const StreamMarkers = ({ sessions, unitSymbol }: Props) => {
       } else {
         marker.setPosition(position);
         marker.setTitle(title);
-        if (JSON.stringify(marker.getNotes()) !== JSON.stringify(notes)) {
-          marker.setNotes(notes);
-        }
       }
 
       return marker;
