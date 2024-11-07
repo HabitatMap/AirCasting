@@ -7,11 +7,13 @@ interface ClusterInfoContainerProps {
   $left: number;
   $isMobile?: boolean;
   $visible?: boolean;
+  $loading?: boolean;
 }
 
 interface ClusterInfoProps {
   $color: string;
   $isMobile?: boolean;
+  $loading?: boolean;
 }
 
 const ClusterInfoContainer = styled.div<ClusterInfoContainerProps>`
@@ -22,7 +24,7 @@ const ClusterInfoContainer = styled.div<ClusterInfoContainerProps>`
   z-index: 100;
   top: ${(props) => `${props.$top}px`};
   left: ${(props) => `${props.$left}px`};
-
+  padding: ${(props) => (props.$loading ? "0.1rem 0" : "0")};
   height: ${(props) => (props.$isMobile ? "auto" : "2.8rem")};
   ${(props) =>
     props.$isMobile
@@ -76,8 +78,8 @@ const ClusterInfoDataAndZoomIn = styled.div`
 `;
 
 const ClusterCircle = styled.div<ClusterInfoProps>`
-  width: 2rem;
-  height: 2rem;
+  width: ${(props) => (props.$loading ? "1rem" : "2rem")};
+  height: ${(props) => (props.$loading ? "1rem" : "2rem")};
   border-radius: 50%;
   background-color: ${(props) => props.$color};
   pointer-events: none;

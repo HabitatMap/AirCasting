@@ -4,6 +4,7 @@ import { gray400, white } from "../../../../assets/styles/colors";
 
 interface RectangleInfoProps {
   $color: string;
+  $loading?: boolean;
 }
 
 const RectangleInfoContainer = styled.div`
@@ -20,15 +21,15 @@ const DataContainer = styled.div<RectangleInfoProps>`
   flex-direction: column;
   font-size: 1.4rem;
   font-weight: 400;
-  padding: 1rem;
+  padding: ${(props) => (props.$loading ? "0.1rem 0.5rem" : "1rem")};
   z-index: 20;
 `;
 
-const RectangleInfoHeader = styled.span`
+const RectangleInfoHeader = styled.span<Pick<RectangleInfoProps, "$loading">>`
   align-items: center;
   display: flex;
   gap: 5px;
-  margin-bottom: 4px;
+  margin-bottom: ${(props) => (props.$loading ? "0.2rem" : "4px")};
 `;
 
 const RectangleCircle = styled.div<RectangleInfoProps>`

@@ -142,6 +142,42 @@ const CrowdMapMarkers = ({ pulsatingSessionId, sessions }: Props) => {
     }
   }, [dispatch, fetchingCrowdMapData, mobileSessionsLoading, currentZoom]);
 
+  const handleRectangleClick = (rectangleBounds: google.maps.LatLngBounds) => {
+    const rectangleBoundEast = rectangleBounds.getNorthEast().lng();
+    const rectangleBoundWest = rectangleBounds.getSouthWest().lng();
+    const rectangleBoundNorth = rectangleBounds.getNorthEast().lat();
+    const rectangleBoundSouth = rectangleBounds.getSouthWest().lat();
+
+    dispatch(clearRectangles());
+
+    setRectanglePoint({
+      lat: rectangleBoundNorth,
+      lng: rectangleBoundEast,
+    });
+
+    const rectangleFilters = {
+      west: rectangleBoundWest.toString(),
+      east: rectangleBoundEast.toString(),
+      south: rectangleBoundSouth.toString(),
+      north: rectangleBoundNorth.toString(),
+      time_from: timeFrom,
+      time_to: timeTo,
+      grid_size_x: gridSizeX(gridSize).toString(),
+      grid_size_y: gridSize.toString(),
+      tags: tags || "",
+      usernames: usernames || "",
+      sensor_name: sensorName,
+      measurement_type: measurementType,
+      unit_symbol: encodeURIComponent(unitSymbol),
+      stream_ids: mobileSessionsStreamIds.join(","),
+    };
+
+    setTimeout(() => {
+      const queryString = new URLSearchParams(rectangleFilters).toString();
+      dispatch(fetchRectangleData(queryString));
+    }, 100);
+  };
+
   useEffect(() => {
     if (!mobileSessionsLoading && crowdMapRectanglesLength > 0) {
       const newRectangles = crowdMapRectangles.map((rectangle) => {
@@ -159,38 +195,8 @@ const CrowdMapMarkers = ({ pulsatingSessionId, sessions }: Props) => {
 
         google.maps.event.addListener(newRectangle, "click", () => {
           const rectangleBounds = newRectangle.getBounds();
-
           if (rectangleBounds) {
-            const rectangleBoundEast = rectangleBounds.getNorthEast().lng();
-            const rectangleBoundWest = rectangleBounds.getSouthWest().lng();
-            const rectangleBoundNorth = rectangleBounds.getNorthEast().lat();
-            const rectangleBoundSouth = rectangleBounds.getSouthWest().lat();
-
-            const rectangleFilters = {
-              west: rectangleBoundWest.toString(),
-              east: rectangleBoundEast.toString(),
-              south: rectangleBoundSouth.toString(),
-              north: rectangleBoundNorth.toString(),
-              time_from: timeFrom,
-              time_to: timeTo,
-              grid_size_x: gridSizeX(gridSize).toString(),
-              grid_size_y: gridSize.toString(),
-              tags: tags || "",
-              usernames: usernames || "",
-              sensor_name: sensorName,
-              measurement_type: measurementType,
-              unit_symbol: encodeURIComponent(unitSymbol),
-              stream_ids: mobileSessionsStreamIds.join(","),
-            };
-            const queryString = new URLSearchParams(
-              rectangleFilters
-            ).toString();
-
-            dispatch(fetchRectangleData(queryString));
-            setRectanglePoint({
-              lat: rectangleBoundNorth,
-              lng: rectangleBoundEast,
-            });
+            handleRectangleClick(rectangleBounds);
           }
         });
 
@@ -275,15 +281,15 @@ const CrowdMapMarkers = ({ pulsatingSessionId, sessions }: Props) => {
 
   return (
     <>
-      {rectanglePoint && (rectangleLoading || rectangleData) && (
+      {rectanglePoint && (
         <MapOverlay position={rectanglePoint}>
-          {rectangleData && !rectangleLoading ? (
+          {rectangleLoading || !rectangleData ? (
+            <RectangleInfoLoading />
+          ) : (
             <RectangleInfo
               color={getColorForValue(thresholds, rectangleData.average)}
               rectangleData={rectangleData}
             />
-          ) : (
-            <RectangleInfoLoading />
           )}
         </MapOverlay>
       )}

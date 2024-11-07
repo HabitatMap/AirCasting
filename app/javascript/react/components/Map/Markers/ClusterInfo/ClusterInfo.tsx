@@ -1,6 +1,7 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
 
+import { grey } from "../../../../assets/styles/colors";
 import { useMapParams } from "../../../../utils/mapParamsHandler";
 import useScreenSizeDetection from "../../../../utils/useScreenSizeDetection";
 import {
@@ -81,4 +82,48 @@ const ClusterInfo = ({
   );
 };
 
-export { ClusterInfo };
+interface ClusterInfoLoadingProps {
+  position: { top: number; left: number };
+  visible: boolean;
+}
+
+const ClusterInfoLoading = ({ position, visible }: ClusterInfoLoadingProps) => {
+  const isMobile = useScreenSizeDetection();
+  const { t } = useTranslation();
+
+  return isMobile ? (
+    <ClusterInfoContainer
+      $color={grey}
+      $top={position.top - 6}
+      $left={position.left}
+      $isMobile={isMobile}
+      $visible={visible}
+      $loading={true}
+    >
+      <MobileDataContainer $color={grey}>
+        <MobileClusterInfoText>
+          {`${t("map.rectangleInfo.loading")}`}
+        </MobileClusterInfoText>
+      </MobileDataContainer>
+    </ClusterInfoContainer>
+  ) : (
+    <ClusterInfoContainer
+      $color={grey}
+      $top={position.top}
+      $left={position.left - 8}
+      $isMobile={isMobile}
+      $visible={visible}
+      $loading={true}
+    >
+      <ClusterInfoDataAndZoomIn>
+        <DataContainer $color={grey}>
+          <ClusterCircle $color={grey} $loading={true} />
+          <ClusterInfoColorText $color={grey}>
+            {`${t("map.rectangleInfo.loading")}`}
+          </ClusterInfoColorText>
+        </DataContainer>
+      </ClusterInfoDataAndZoomIn>
+    </ClusterInfoContainer>
+  );
+};
+export { ClusterInfo, ClusterInfoLoading };

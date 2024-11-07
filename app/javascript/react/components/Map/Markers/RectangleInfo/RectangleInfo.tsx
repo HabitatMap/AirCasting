@@ -53,8 +53,8 @@ const RectangleInfoLoading = () => {
 
   return (
     <RectangleInfoContainer>
-      <DataContainer $color={grey}>
-        <RectangleInfoHeader>
+      <DataContainer $color={grey} $loading={true}>
+        <RectangleInfoHeader $loading={true}>
           <RectangleCircle $color={grey} />
           <RectangleInfoColorText $color={grey}>
             {`${t("map.rectangleInfo.loading")}`}

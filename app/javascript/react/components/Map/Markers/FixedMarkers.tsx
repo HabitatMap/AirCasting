@@ -28,11 +28,12 @@ import { getClusterPixelPosition } from "../../../utils/getClusterPixelPosition"
 import useMapEventListeners from "../../../utils/mapEventListeners";
 import { useMapParams } from "../../../utils/mapParamsHandler";
 import { getColorForValue } from "../../../utils/thresholdColors";
-import { ClusterInfo } from "./ClusterInfo/ClusterInfo";
+import { ClusterInfo, ClusterInfoLoading } from "./ClusterInfo/ClusterInfo";
+
 import HoverMarker from "./HoverMarker/HoverMarker";
-import { CustomMarkerOverlay } from "./customMarkerOverlay";
-import { LabelOverlay } from "./customMarkerLabel";
 import { ClusterOverlay } from "./clusterOverlay";
+import { LabelOverlay } from "./customMarkerLabel";
+import { CustomMarkerOverlay } from "./customMarkerOverlay";
 
 type CustomMarker = google.maps.Marker & {
   value: number;
@@ -95,6 +96,7 @@ export function FixedMarkers({
     top: number;
     left: number;
   } | null>(null);
+  const [clusterDataLoading, setClusterDataLoading] = useState<boolean>(false);
 
   const memoizedSessions = useMemo(() => sessions, [sessions]);
 
@@ -113,6 +115,13 @@ export function FixedMarkers({
     async (event: google.maps.MapMouseEvent, cluster: CustomCluster) => {
       dispatch(setVisibility(false));
 
+      if (map) {
+        const pixelPosition = getClusterPixelPosition(map, cluster.position);
+        setClusterPosition({ top: pixelPosition.y, left: pixelPosition.x });
+      }
+      setClusterDataLoading(true);
+      setSelectedCluster(cluster);
+
       const markerStreamIds = cluster.markers
         ?.map((marker) => (marker as CustomMarker).userData?.streamId)
         .filter((id): id is string => typeof id === "string" && id.length > 0);
@@ -120,14 +129,8 @@ export function FixedMarkers({
       if (markerStreamIds && markerStreamIds.length > 0) {
         await dispatch(fetchClusterData(markerStreamIds));
       }
-
-      if (map) {
-        const pixelPosition = getClusterPixelPosition(map, cluster.position);
-        setClusterPosition({ top: pixelPosition.y, left: pixelPosition.x });
-      }
-      setSelectedCluster(cluster);
+      setClusterDataLoading(false);
       dispatch(setVisibility(true));
-
       onClusterClick?.(cluster);
     },
     [dispatch, map, onClusterClick]
@@ -726,16 +729,22 @@ export function FixedMarkers({
   return (
     <>
       {hoverPosition && <HoverMarker position={hoverPosition} />}
-      {selectedCluster && clusterPosition && clusterVisible && clusterData && (
-        <ClusterInfo
-          color={getColorForValue(thresholds, clusterData.average)}
-          average={clusterData.average}
-          numberOfSessions={clusterData.numberOfInstruments}
-          handleZoomIn={handleZoomIn}
-          position={clusterPosition}
-          visible={clusterVisible}
-        />
-      )}
+      {clusterPosition &&
+        selectedCluster &&
+        (clusterDataLoading ? (
+          <ClusterInfoLoading position={clusterPosition} visible={true} />
+        ) : (
+          clusterData && (
+            <ClusterInfo
+              color={getColorForValue(thresholds, clusterData.average)}
+              average={clusterData.average}
+              numberOfSessions={clusterData.numberOfInstruments}
+              handleZoomIn={handleZoomIn}
+              position={clusterPosition}
+              visible={clusterVisible}
+            />
+          )
+        ))}
     </>
   );
 }
