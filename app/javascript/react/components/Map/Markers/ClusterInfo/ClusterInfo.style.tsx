@@ -22,7 +22,7 @@ const ClusterInfoContainer = styled.div<ClusterInfoContainerProps>`
   gap: 0.5rem;
   width: fit-content;
   z-index: 100;
-  top: ${(props) => `${props.$top}px`};
+  top: ${(props) => `${props.$top - 2}px`};
   left: ${(props) => `${props.$left}px`};
   padding: ${(props) => (props.$loading ? "0.1rem 0" : "0")};
   height: ${(props) => (props.$isMobile ? "auto" : "2.8rem")};

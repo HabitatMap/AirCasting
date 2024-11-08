@@ -39,18 +39,34 @@ const StreamMarkers = ({ sessions, unitSymbol }: Props) => {
   >(null);
 
   const sortedSessions = useMemo(() => {
-    return [...sessions]
-      .filter(
-        (session) =>
-          session.point &&
-          typeof session.point.lat === "number" &&
-          typeof session.point.lng === "number"
-      )
-      .sort((a, b) => {
-        const timeA = a.time ? new Date(a.time.toString()).getTime() : 0;
-        const timeB = b.time ? new Date(b.time.toString()).getTime() : 0;
-        return timeA - timeB;
-      });
+    const validSessions = sessions.filter(
+      (session) =>
+        session.point &&
+        typeof session.point.lat === "number" &&
+        typeof session.point.lng === "number"
+    );
+
+    const locationMap = new Map<string, Session>();
+    validSessions.forEach((session) => {
+      const locationKey = `${session.point.lat},${session.point.lng}`;
+      const existingSession = locationMap.get(locationKey);
+
+      if (
+        !existingSession ||
+        (session.time &&
+          existingSession.time &&
+          new Date(session.time.toString()) >
+            new Date(existingSession.time.toString()))
+      ) {
+        locationMap.set(locationKey, session);
+      }
+    });
+
+    return Array.from(locationMap.values()).sort((a, b) => {
+      const timeA = a.time ? new Date(a.time.toString()).getTime() : 0;
+      const timeB = b.time ? new Date(b.time.toString()).getTime() : 0;
+      return timeA - timeB;
+    });
   }, [sessions]);
 
   const handleIdle = useCallback(() => {
@@ -71,6 +87,7 @@ const StreamMarkers = ({ sessions, unitSymbol }: Props) => {
       const notes = session.notes || [];
 
       let marker = markersRef.current.get(markerId);
+
       if (!marker) {
         const color = getColorForValue(
           thresholds,
@@ -83,10 +100,9 @@ const StreamMarkers = ({ sessions, unitSymbol }: Props) => {
           12,
           20,
           "overlayMouseTarget",
-          notes,
-          undefined,
-          undefined
+          notes
         );
+
         marker.setMap(map);
         markersRef.current.set(markerId, marker);
       } else {
@@ -178,7 +194,6 @@ const StreamMarkers = ({ sessions, unitSymbol }: Props) => {
   useEffect(() => {
     markersRef.current.forEach((marker, markerId) => {
       const session = sortedSessions.find((s) => s.id.toString() === markerId);
-
       if (session) {
         const newColor = getColorForValue(
           thresholds,

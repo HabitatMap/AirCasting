@@ -6,8 +6,6 @@ import store from "../../../store/index";
 import { Note } from "../../../types/note";
 import { NotesPopover } from "./NotesPopover/NotesPopover";
 
-const noteButtonOffsetX = 90;
-
 export class CustomMarker extends google.maps.OverlayView {
   private div: HTMLDivElement | null = null;
   private position: google.maps.LatLng;
@@ -54,7 +52,6 @@ export class CustomMarker extends google.maps.OverlayView {
     this.div.title = this.title;
     this.div.style.width = `${this.clickableAreaSize}px`;
     this.div.style.height = `${this.clickableAreaSize}px`;
-    // this.div.style.zIndex = this.zIndex.toString();
 
     const innerDiv = document.createElement("div");
     innerDiv.style.width = `${this.size}px`;

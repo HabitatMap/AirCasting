@@ -725,7 +725,7 @@ export function FixedMarkers({
       labelOverlays.current.clear();
     };
   }, []);
-  console.log(clusterDataLoading);
+
   return (
     <>
       {hoverPosition && <HoverMarker position={hoverPosition} />}
