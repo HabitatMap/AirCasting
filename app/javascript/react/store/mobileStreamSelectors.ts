@@ -24,6 +24,7 @@ const selectMobileStreamPoints = createSelector(
           lng: longitude,
           streamId: mobileStreamState.streamId.toString(),
         },
+        notes: mobileStreamState.notes,
       })
     )
 );

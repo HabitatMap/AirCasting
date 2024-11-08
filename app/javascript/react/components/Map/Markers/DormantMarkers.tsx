@@ -75,13 +75,15 @@ const DormantMarkers: React.FC<DormantMarkersProps> = ({
         color,
         title,
         size,
+        CLICKABLE_AREA_SIZE,
+        undefined,
+        undefined,
         undefined,
         () => {
           onMarkerClick(Number(session.point.streamId), Number(session.id));
           centerMapOnMarker(position);
           hideOtherMarkers(session.point.streamId);
-        },
-        CLICKABLE_AREA_SIZE
+        }
       );
 
       marker.setPulsating(shouldPulse);

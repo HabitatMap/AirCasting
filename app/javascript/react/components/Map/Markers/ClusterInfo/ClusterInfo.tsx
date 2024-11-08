@@ -94,7 +94,7 @@ const ClusterInfoLoading = ({ position, visible }: ClusterInfoLoadingProps) => {
   return isMobile ? (
     <ClusterInfoContainer
       $color={grey}
-      $top={position.top - 6}
+      $top={position.top}
       $left={position.left}
       $isMobile={isMobile}
       $visible={visible}

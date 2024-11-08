@@ -129,13 +129,14 @@ const MobileMarkers = ({
         color,
         "",
         size,
+        size,
+        "overlayMouseTarget",
+        undefined,
         undefined,
         () => {
           onMarkerClick(Number(session.point.streamId), Number(session.id));
           centerMapOnMarker(session.point);
-        },
-        size,
-        "overlayMouseTarget"
+        }
       );
 
       marker.setPulsating(shouldPulse);

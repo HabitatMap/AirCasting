@@ -39,18 +39,34 @@ const StreamMarkers = ({ sessions, unitSymbol }: Props) => {
   >(null);
 
   const sortedSessions = useMemo(() => {
-    return [...sessions]
-      .filter(
-        (session) =>
-          session.point &&
-          typeof session.point.lat === "number" &&
-          typeof session.point.lng === "number"
-      )
-      .sort((a, b) => {
-        const timeA = a.time ? new Date(a.time.toString()).getTime() : 0;
-        const timeB = b.time ? new Date(b.time.toString()).getTime() : 0;
-        return timeA - timeB;
-      });
+    const validSessions = sessions.filter(
+      (session) =>
+        session.point &&
+        typeof session.point.lat === "number" &&
+        typeof session.point.lng === "number"
+    );
+
+    const locationMap = new Map<string, Session>();
+    validSessions.forEach((session) => {
+      const locationKey = `${session.point.lat},${session.point.lng}`;
+      const existingSession = locationMap.get(locationKey);
+
+      if (
+        !existingSession ||
+        (session.time &&
+          existingSession.time &&
+          new Date(session.time.toString()) >
+            new Date(existingSession.time.toString()))
+      ) {
+        locationMap.set(locationKey, session);
+      }
+    });
+
+    return Array.from(locationMap.values()).sort((a, b) => {
+      const timeA = a.time ? new Date(a.time.toString()).getTime() : 0;
+      const timeB = b.time ? new Date(b.time.toString()).getTime() : 0;
+      return timeA - timeB;
+    });
   }, [sessions]);
 
   const handleIdle = useCallback(() => {
@@ -68,6 +84,7 @@ const StreamMarkers = ({ sessions, unitSymbol }: Props) => {
       const position = { lat: session.point.lat, lng: session.point.lng };
       const markerId = session.id.toString();
       const title = `${session.lastMeasurementValue} ${unitSymbol}`;
+      const notes = session.notes || [];
 
       let marker = markersRef.current.get(markerId);
 
@@ -76,7 +93,16 @@ const StreamMarkers = ({ sessions, unitSymbol }: Props) => {
           thresholds,
           session.lastMeasurementValue
         );
-        marker = new CustomOverlay(position, color, title, 12);
+        marker = new CustomOverlay(
+          position,
+          color,
+          title,
+          12,
+          20,
+          "overlayMouseTarget",
+          notes
+        );
+
         marker.setMap(map);
         markersRef.current.set(markerId, marker);
       } else {
