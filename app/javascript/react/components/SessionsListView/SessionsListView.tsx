@@ -1,6 +1,7 @@
 import { debounce } from "lodash"; // Ensure lodash is installed
 import React, {
   useCallback,
+  useEffect,
   useLayoutEffect,
   useMemo,
   useRef,
@@ -100,6 +101,13 @@ const SessionsListView: React.FC<SessionsListViewProps> = ({
   }, [updateButtonPosition, debouncedUpdateButtonPosition]);
 
   useScrollEndListener(sessionListRef, onScrollEnd);
+
+  useEffect(() => {
+    // Clear saved scroll position when sessions list is collapsed
+    if (!sessionsListExpanded) {
+      localStorage.removeItem("sessionsListScrollPosition");
+    }
+  }, [sessionsListExpanded]);
 
   const calculatePopupLeftPosition = () => {
     return `${buttonPosition.left - 185}px`;
