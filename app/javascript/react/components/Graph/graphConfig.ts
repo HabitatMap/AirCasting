@@ -42,6 +42,12 @@ import {
   MILLISECONDS_IN_AN_HOUR,
 } from "../../utils/timeRanges";
 
+let hasInitialFetch = false;
+
+const isGovernmentSensor = (sensorName?: string) => {
+  return sensorName?.toLowerCase().includes("government");
+};
+
 const getScrollbarOptions = (isCalendarPage: boolean, isMobile: boolean) => {
   return {
     barBackgroundColor: gray200,
@@ -72,19 +78,6 @@ const getXAxisOptions = (
   let isFetchingData = false;
   let initialDataMin: number | null = null;
   let fetchTimeout: NodeJS.Timeout | null = null;
-  let hasInitialFetch = false;
-
-  const handleInitialFetch = async (min: number, dataMin: number) => {
-    // Set initial data min one month before the actual data min
-    initialDataMin = dataMin - MILLISECONDS_IN_A_MONTH;
-
-    // Perform initial fetch if not done yet
-    if (!hasInitialFetch) {
-      hasInitialFetch = true;
-      const newStart = min - MILLISECONDS_IN_A_MONTH;
-      await fetchMeasurementsIfNeeded(newStart, min);
-    }
-  };
 
   const handleSetExtremes = debounce(
     (e: Highcharts.AxisSetExtremesEventObject) => {
@@ -149,15 +142,23 @@ const getXAxisOptions = (
         e: Highcharts.AxisSetExtremesEventObject
       ) {
         const axis = this;
+        const chart = axis.chart as Highcharts.StockChart;
+        const sensorName = chart.series[0]?.name;
 
-        // Handle initialization
-        if (
-          initialDataMin === null &&
-          e.dataMin !== undefined &&
-          e.min !== undefined
-        ) {
-          await handleInitialFetch(e.min, e.dataMin);
-          return;
+        // Initialize initialDataMin and handle first render
+        if (initialDataMin === null && e.dataMin !== undefined) {
+          initialDataMin = e.dataMin - MILLISECONDS_IN_A_MONTH;
+
+          if (
+            !hasInitialFetch &&
+            isGovernmentSensor(sensorName) &&
+            e.min !== undefined
+          ) {
+            hasInitialFetch = true;
+            const newStart = e.min - MILLISECONDS_IN_A_MONTH;
+            await fetchMeasurementsIfNeeded(newStart, e.min);
+            return;
+          }
         }
 
         // Set up the scrollbar release callback
@@ -200,8 +201,8 @@ const getXAxisOptions = (
             }
           }, 800);
         };
-
         onScrollbarRelease();
+
         // Update the extremes and UI elements
         handleSetExtremes(e);
       },
