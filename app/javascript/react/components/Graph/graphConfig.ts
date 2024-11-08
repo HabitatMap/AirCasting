@@ -182,7 +182,7 @@ const getXAxisOptions = (
               return;
 
             const viewRange = max - min;
-            const buffer = viewRange * 0.09;
+            const buffer = viewRange * 0.02;
 
             const isAtDataMin = min <= dataMin + buffer;
             const isAtInitialMin = min <= initialDataMin + buffer;
