@@ -93,7 +93,8 @@ const Graph: React.FC<GraphProps> = React.memo(
       selectLastSelectedMobileTimeRange
     );
 
-    const { unitSymbol, measurementType, isIndoor } = useMapParams();
+    const { unitSymbol, measurementType, isIndoor, sensorName } =
+      useMapParams();
 
     const lastSelectedTimeRange = fixedSessionTypeSelected
       ? fixedLastSelectedTimeRange
@@ -214,7 +215,8 @@ const Graph: React.FC<GraphProps> = React.memo(
           fixedSessionTypeSelected,
           dispatch,
           isLoading,
-          fetchMeasurementsIfNeeded
+          fetchMeasurementsIfNeeded,
+          sensorName
         ),
       [
         isMobile,
@@ -223,6 +225,7 @@ const Graph: React.FC<GraphProps> = React.memo(
         dispatch,
         isLoading,
         fetchMeasurementsIfNeeded,
+        sensorName,
       ]
     );
 

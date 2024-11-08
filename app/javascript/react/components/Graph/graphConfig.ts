@@ -66,11 +66,25 @@ const getXAxisOptions = (
   fixedSessionTypeSelected: boolean,
   dispatch: AppDispatch,
   isLoading: boolean,
-  fetchMeasurementsIfNeeded: (start: number, end: number) => Promise<void>
+  fetchMeasurementsIfNeeded: (start: number, end: number) => Promise<void>,
+  sensorName: string | undefined
 ): Highcharts.XAxisOptions => {
+  let isFetchingData = false;
+  let initialDataMin: number | null = null;
   let fetchTimeout: NodeJS.Timeout | null = null;
-  let isFetchingData = false; // Flag to prevent multiple fetches
-  let initialDataMin: number | null = null; // Store the initial dataMin
+  let hasInitialFetch = false;
+
+  const handleInitialFetch = async (min: number, dataMin: number) => {
+    // Set initial data min one month before the actual data min
+    initialDataMin = dataMin - MILLISECONDS_IN_A_MONTH;
+
+    // Perform initial fetch if not done yet
+    if (!hasInitialFetch) {
+      hasInitialFetch = true;
+      const newStart = min - MILLISECONDS_IN_A_MONTH;
+      await fetchMeasurementsIfNeeded(newStart, min);
+    }
+  };
 
   const handleSetExtremes = debounce(
     (e: Highcharts.AxisSetExtremesEventObject) => {
@@ -131,51 +145,65 @@ const getXAxisOptions = (
     minRange: MILLISECONDS_IN_A_SECOND,
     ordinal: false,
     events: {
-      afterSetExtremes: function (e: Highcharts.AxisSetExtremesEventObject) {
+      afterSetExtremes: async function (
+        e: Highcharts.AxisSetExtremesEventObject
+      ) {
         const axis = this;
-        const chart = axis.chart as Highcharts.StockChart;
 
-        console.log("chart", chart);
-
-        // Ignore if chart is loading or navigator is being dragged
-        if (isLoading || (chart as Highcharts.StockChart).scroller.isMoving)
+        // Handle initialization
+        if (
+          initialDataMin === null &&
+          e.dataMin !== undefined &&
+          e.min !== undefined
+        ) {
+          await handleInitialFetch(e.min, e.dataMin);
           return;
-
-        // Store the initial dataMin if not already stored
-        if (initialDataMin === null && e.dataMin !== undefined) {
-          initialDataMin = e.dataMin;
-        }
-        // Clear any existing timeout
-        if (fetchTimeout) {
-          clearTimeout(fetchTimeout);
         }
 
-        // Set a timeout to ensure min and max values are stable
-        fetchTimeout = setTimeout(async () => {
-          // Check if we're already fetching data
-          if (isFetchingData) return;
-
-          // Fetch data if the user has scrolled to the initial dataMin
-          if (e.min <= (initialDataMin ?? e.dataMin)) {
-            isFetchingData = true;
-
-            const newStart = e.min - MILLISECONDS_IN_A_MONTH;
-
-            // Fetch data and wait for it to complete
-            await fetchMeasurementsIfNeeded(newStart, e.min);
-
-            isFetchingData = false;
-
-            // Update the chart after data fetch
-            // axis.update({}, true);
-
-            // Reset the timeout
-            fetchTimeout = null;
+        // Set up the scrollbar release callback
+        const onScrollbarRelease = () => {
+          // Clear any existing timeout
+          if (fetchTimeout) {
+            clearTimeout(fetchTimeout);
           }
 
-          // Update the extremes and UI elements
-          handleSetExtremes(e);
-        }, 800); // Adjust the delay as needed
+          // Set new timeout
+          fetchTimeout = setTimeout(async () => {
+            if (isLoading || isFetchingData) return;
+
+            const { min, max, dataMin } = axis.getExtremes();
+
+            if (
+              min === undefined ||
+              dataMin === undefined ||
+              initialDataMin === null
+            )
+              return;
+
+            const viewRange = max - min;
+            const buffer = viewRange * 0.09;
+
+            const isAtDataMin = min <= dataMin + buffer;
+            const isAtInitialMin = min <= initialDataMin + buffer;
+
+            if (isAtDataMin || isAtInitialMin) {
+              isFetchingData = true;
+              try {
+                const newStart = min - MILLISECONDS_IN_A_MONTH;
+                await fetchMeasurementsIfNeeded(newStart, min);
+              } catch (error) {
+                console.error("Error fetching data:", error);
+              } finally {
+                isFetchingData = false;
+                fetchTimeout = null;
+              }
+            }
+          }, 800);
+        };
+
+        onScrollbarRelease();
+        // Update the extremes and UI elements
+        handleSetExtremes(e);
       },
     },
   };
