@@ -20,6 +20,7 @@ interface SessionListTile {
   startTime: string;
   endTime: string;
   streamId: number;
+  lastMeasurementValue: number;
   onClick?: (id: number, streamId: number) => void;
   onMouseEnter?: (id: number) => void;
   onMouseLeave?: () => void;
@@ -33,6 +34,7 @@ const SessionsListTile: React.FC<SessionListTile> = ({
   startTime,
   endTime,
   streamId,
+  lastMeasurementValue,
   onClick,
   onMouseEnter,
   onMouseLeave,
@@ -76,7 +78,7 @@ const SessionsListTile: React.FC<SessionListTile> = ({
 
   const dotColor = isDormant
     ? gray300
-    : getColorForValue(thresholds, averageValue);
+    : getColorForValue(thresholds, lastMeasurementValue);
 
   return (
     <S.SessionListTile
@@ -87,8 +89,8 @@ const SessionsListTile: React.FC<SessionListTile> = ({
       <S.HorizontalSpacingContainer>
         <S.HorizontalGroup>
           <S.ColorDot $color={dotColor} />
-          {typeof averageValue === "number" && (
-            <S.Subtitle>avg. {averageValue}</S.Subtitle>
+          {typeof lastMeasurementValue === "number" && (
+            <S.Subtitle>avg. {lastMeasurementValue}</S.Subtitle>
           )}
         </S.HorizontalGroup>
         <S.ArrowImageContainer>

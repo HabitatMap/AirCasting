@@ -904,6 +904,7 @@ const Map = () => {
               startTime: session.startTime,
               endTime: session.endTime,
               streamId: session.streamId,
+              lastMeasurementValue: session.lastMeasurementValue,
             }))}
             onCellClick={(id, streamId) => {
               handleMarkerClick(streamId, id);
@@ -942,6 +943,7 @@ const Map = () => {
                 startTime: session.startTime,
                 endTime: session.endTime,
                 streamId: session.streamId,
+                lastMeasurementValue: session.lastMeasurementValue,
               }))}
               onCellClick={(id, streamId) => {
                 setPulsatingSessionId(null);
