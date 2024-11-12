@@ -171,10 +171,10 @@ const ReadMore = styled.span`
   margin-top: 0.4rem;
 `;
 
-const NoteTextContainer = styled.div`
+const NoteTextContainer = styled.div<{ $isScrollable: boolean }>`
   max-height: 10rem;
   max-width: 30rem;
-  overflow-y: scroll;
+  overflow-y: ${(props) => (props.$isScrollable ? "auto" : "hidden")};
 
   @media ${media.desktop} {
     max-height: 25rem;
@@ -184,7 +184,6 @@ const NoteTextContainer = styled.div`
 
 const NoteText = styled(H4)`
   margin-left: 0.8rem;
-  height: 100%;
 `;
 
 const NoteDate = styled(NoteText)`
