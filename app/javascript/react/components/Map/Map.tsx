@@ -566,15 +566,21 @@ const Map = () => {
 
   // ref to currentUserSettings to get the current value from URL
   const currentUserSettingsRef = useRef(currentUserSettings);
+  const currentStreamIdRef = useRef(streamId);
 
   useEffect(() => {
     currentUserSettingsRef.current = currentUserSettings;
   }, [currentUserSettings]);
 
+  useEffect(() => {
+    currentStreamIdRef.current = streamId;
+  }, [streamId]);
+
   const handleMarkerClick = (
     selectedStreamId: number | null,
     id: number | null
   ) => {
+    console.log("currentStreamIdRef", currentStreamIdRef);
     if (currentUserSettings !== UserSettings.SessionListView) {
       setPreviousZoomInTheURL();
     }
@@ -608,7 +614,7 @@ const Map = () => {
       }
     }
 
-    if (!streamId) {
+    if (!currentStreamIdRef.current) {
       newSearchParams.set(UrlParamsTypes.sessionId, id?.toString() || "");
       newSearchParams.set(
         UrlParamsTypes.streamId,
@@ -622,11 +628,12 @@ const Map = () => {
         UrlParamsTypes.currentUserSettings,
         UserSettings.ModalView
       );
-
+      console.log(streamId);
       navigate(`?${newSearchParams.toString()}`);
     }
 
-    if (streamId) {
+    if (currentStreamIdRef.current) {
+      console.log(" jest stream streamId", streamId);
       revertUserSettingsAndResetIds();
       fixedSessionTypeSelected
         ? dispatch(resetFixedStreamState())
