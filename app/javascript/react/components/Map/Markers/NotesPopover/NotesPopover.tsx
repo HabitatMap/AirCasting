@@ -15,6 +15,8 @@ interface NotesPopoverProps {
 const NotesPopover = ({ notes }: NotesPopoverProps) => {
   const [currentSlide, setCurrentSlide] = useState(0);
   const { t } = useTranslation();
+  const isOneNote = notes.length === 1;
+  const isMultipleNotes = notes.length > 1;
 
   const handlePrevSlide = () => {
     setCurrentSlide((prev) => (prev > 0 ? prev - 1 : notes.length - 1));
@@ -44,8 +46,8 @@ const NotesPopover = ({ notes }: NotesPopoverProps) => {
         offsetY={10}
       >
         {notes.length > 0 && (
-          <S.NoteContainer $oneNote={notes.length === 1}>
-            {notes.length > 1 && (
+          <S.NoteContainer $oneNote={isOneNote}>
+            {isMultipleNotes && (
               <S.SliderControls>
                 <S.SliderDots>
                   {notes.map((_, index) => (
@@ -59,11 +61,11 @@ const NotesPopover = ({ notes }: NotesPopoverProps) => {
               </S.SliderControls>
             )}
             <S.SlideContainer>
-              {notes.length > 1 && (
+              {isMultipleNotes && (
                 <S.SliderButton onClick={handlePrevSlide}>
                   <S.SliderButtonIcon
                     src={arrowRightIcon}
-                    alt="Previous"
+                    alt={t("map.note.altPrevious")}
                     $left
                   />
                 </S.SliderButton>
@@ -76,7 +78,7 @@ const NotesPopover = ({ notes }: NotesPopoverProps) => {
                   >
                     <S.Photo
                       src={`${process.env.BASE_URL}${notes[currentSlide].photoThumbnail}`}
-                      alt="Note photo"
+                      alt={t("map.note.altPhoto")}
                     />
                   </a>
                 )}
@@ -92,14 +94,17 @@ const NotesPopover = ({ notes }: NotesPopoverProps) => {
                   <S.NoteInfoContainer>
                     <H4 $bold>{t("map.note.note")}</H4>
                     <S.NoteTextContainer>
-                      <S.NoteText>t{notes[currentSlide].text}</S.NoteText>
+                      <S.NoteText>{notes[currentSlide].text}</S.NoteText>
                     </S.NoteTextContainer>
                   </S.NoteInfoContainer>
                 </S.DataContainer>
               </S.SlideContent>
-              {notes.length > 1 && (
+              {isMultipleNotes && (
                 <S.SliderButton onClick={handleNextSlide}>
-                  <S.SliderButtonIcon src={arrowRightIcon} alt="Next" />
+                  <S.SliderButtonIcon
+                    src={arrowRightIcon}
+                    alt={t("map.note.altNext")}
+                  />
                 </S.SliderButton>
               )}
             </S.SlideContainer>

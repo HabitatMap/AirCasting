@@ -149,7 +149,10 @@
     "note": {
       "date": "Date",
       "note": "Note",
-      "altOpenNote": "Open note"
+      "altOpenNote": "Open note",
+      "altNext": "Next note",
+      "altPrevious": "Previous note",
+      "altPhoto": "Note photo"
     }
   },
   "sessionDetailsModal": {
