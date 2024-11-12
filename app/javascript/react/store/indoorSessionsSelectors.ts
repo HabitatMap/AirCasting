@@ -52,6 +52,8 @@ const selectIndoorSessionsList = (isDormant: boolean) =>
         ({ id, title, startTimeLocal, endTimeLocal, streams }) => {
           const firstStream = streams[Object.keys(streams)[0]];
 
+          console.log(firstStream);
+
           return {
             id,
             title,
