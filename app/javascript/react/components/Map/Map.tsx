@@ -567,6 +567,8 @@ const Map = () => {
   // ref to currentUserSettings to get the current value from URL
   const currentUserSettingsRef = useRef(currentUserSettings);
   const currentStreamIdRef = useRef(streamId);
+  const previousZoomRef = useRef(previousZoom);
+  const previousCenterRef = useRef(previousCenter);
 
   useEffect(() => {
     currentUserSettingsRef.current = currentUserSettings;
@@ -576,11 +578,15 @@ const Map = () => {
     currentStreamIdRef.current = streamId;
   }, [streamId]);
 
+  useEffect(() => {
+    previousZoomRef.current = previousZoom;
+    previousCenterRef.current = previousCenter;
+  }, [previousZoom, previousCenter]);
+
   const handleMarkerClick = (
     selectedStreamId: number | null,
     id: number | null
   ) => {
-    console.log("currentStreamIdRef", currentStreamIdRef);
     if (currentUserSettings !== UserSettings.SessionListView) {
       setPreviousZoomInTheURL();
     }
@@ -628,16 +634,22 @@ const Map = () => {
         UrlParamsTypes.currentUserSettings,
         UserSettings.ModalView
       );
-      console.log(streamId);
+
       navigate(`?${newSearchParams.toString()}`);
     }
 
     if (currentStreamIdRef.current) {
-      console.log(" jest stream streamId", streamId);
       revertUserSettingsAndResetIds();
       fixedSessionTypeSelected
         ? dispatch(resetFixedStreamState())
         : dispatch(resetMobileStreamState());
+
+      setTimeout(() => {
+        if (mapInstance) {
+          mapInstance.setZoom(previousZoomRef.current);
+          mapInstance.setCenter(previousCenterRef.current);
+        }
+      }, 0);
     }
   };
 
@@ -680,6 +692,7 @@ const Map = () => {
         mobileConditionForSessionList
       ) {
         const newCenter = mapInstance.getCenter()?.toJSON();
+
         if (newCenter !== previousCenter) {
           newSearchParams.set(
             UrlParamsTypes.previousCenter,
