@@ -16,33 +16,18 @@ interface NotesPopoverProps {
 const NotesPopover = ({ notes }: NotesPopoverProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const [currentSlide, setCurrentSlide] = useState(0);
-  const [showFullText, setShowFullText] = useState(false);
   const { t } = useTranslation();
-  const MAX_TEXT_LENGTH = 50;
 
   const handlePrevSlide = () => {
     setCurrentSlide((prev) => (prev > 0 ? prev - 1 : notes.length - 1));
-    setShowFullText(false);
   };
 
   const handleNextSlide = () => {
     setCurrentSlide((prev) => (prev < notes.length - 1 ? prev + 1 : 0));
-    setShowFullText(false);
-  };
-
-  const toggleText = () => {
-    setShowFullText((prev) => !prev);
-  };
-
-  const renderText = (text: string) => {
-    if (text.length <= MAX_TEXT_LENGTH || showFullText) {
-      return text;
-    }
-    return `${text.substring(0, MAX_TEXT_LENGTH)}...`;
   };
 
   return (
-    <>
+    <S.NoteWrapper>
       <S.NoteButton onClick={() => setIsOpen(!isOpen)}>
         {isOpen ? (
           <S.NoteButtonIcon src={closeIcon} alt="Close popover" />
@@ -95,16 +80,9 @@ const NotesPopover = ({ notes }: NotesPopoverProps) => {
                 </S.NoteInfoContainer>
                 <S.NoteInfoContainer>
                   <H4 $bold>{t("map.note.note")}</H4>
-                  <S.NoteText>
-                    {renderText(notes[currentSlide].text)}
-                    {notes[currentSlide].text.length > MAX_TEXT_LENGTH && (
-                      <S.ReadMore onClick={toggleText}>
-                        {showFullText
-                          ? t("map.note.showLess")
-                          : t("map.note.readMore")}
-                      </S.ReadMore>
-                    )}
-                  </S.NoteText>
+                  <S.NoteTextContainer>
+                    <S.NoteText>{notes[currentSlide].text}</S.NoteText>
+                  </S.NoteTextContainer>
                 </S.NoteInfoContainer>
               </S.DataContainer>
             </S.SlideContent>
@@ -116,7 +94,7 @@ const NotesPopover = ({ notes }: NotesPopoverProps) => {
           </S.SlideContainer>
         </S.NoteContainer>
       )}
-    </>
+    </S.NoteWrapper>
   );
 };
 

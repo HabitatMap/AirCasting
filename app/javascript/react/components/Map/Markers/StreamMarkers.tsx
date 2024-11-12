@@ -77,6 +77,12 @@ const StreamMarkers = ({ sessions, unitSymbol }: Props) => {
     }
   }, [dispatch]);
 
+  const firstSessionWithNotes = useMemo(() => {
+    return sortedSessions.find(
+      (session) => session.notes && session.notes?.length > 0
+    );
+  }, [sortedSessions]);
+
   const createOrUpdateMarker = useCallback(
     (session: Session) => {
       if (!CustomOverlay) return;
@@ -84,7 +90,12 @@ const StreamMarkers = ({ sessions, unitSymbol }: Props) => {
       const position = { lat: session.point.lat, lng: session.point.lng };
       const markerId = session.id.toString();
       const title = `${session.lastMeasurementValue} ${unitSymbol}`;
-      const notes = session.notes || [];
+
+      const shouldShowNotes =
+        firstSessionWithNotes &&
+        session.point.lat === firstSessionWithNotes.point.lat &&
+        session.point.lng === firstSessionWithNotes.point.lng;
+      const notes = shouldShowNotes ? session.notes || [] : [];
 
       let marker = markersRef.current.get(markerId);
 
@@ -108,11 +119,12 @@ const StreamMarkers = ({ sessions, unitSymbol }: Props) => {
       } else {
         marker.setPosition(position);
         marker.setTitle(title);
+        marker.setNotes(notes);
       }
 
       return marker;
     },
-    [map, unitSymbol, CustomOverlay]
+    [map, unitSymbol, CustomOverlay, firstSessionWithNotes]
   );
 
   useEffect(() => {

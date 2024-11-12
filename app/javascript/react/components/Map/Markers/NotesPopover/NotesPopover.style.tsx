@@ -8,6 +8,11 @@ import {
 import { media } from "../../../../utils/media";
 import { H4 } from "../../../Typography";
 
+const NoteWrapper = styled.div`
+  position: relative;
+  width: fit-content;
+`;
+
 const NoteButton = styled.button`
   position: absolute;
   background-color: ${white};
@@ -32,28 +37,34 @@ const NoteContainer = styled.div<{ $oneNote?: boolean }>`
   position: absolute;
   display: flex;
   flex-direction: column;
-  top: 4rem;
-  left: 0;
+  top: calc(100% + 3.5rem);
+  transform: translateX(-50%);
   background: ${white};
   border-radius: 1rem;
   padding: 1.8rem 0.8rem;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   z-index: 4;
+  width: max-content;
+  max-width: 90vw;
+
+  @media ${media.desktop} {
+    top: 3.5rem;
+    left: 0;
+    transform: translateX(0);
+    width: max-content;
+  }
 `;
 
 const SlideContainer = styled.div`
-  width: 100%;
   display: flex;
   justify-content: space-between;
   align-items: center;
 `;
 
 const SlideContent = styled.div`
-  width: 100%;
   display: flex;
   flex-direction: column-reverse;
   align-items: center;
-
   margin: 0 1.4rem;
 
   @media ${media.desktop} {
@@ -66,6 +77,7 @@ const DataContainer = styled.div`
   display: flex;
   flex-direction: column;
   gap: 1.2rem;
+  max-width: 40rem;
 `;
 
 const NoteInfoContainer = styled.div`
@@ -153,8 +165,20 @@ const ReadMore = styled.span`
   margin-top: 0.4rem;
 `;
 
+const NoteTextContainer = styled.div`
+  max-height: 10rem;
+  max-width: 30rem;
+  overflow-y: scroll;
+
+  @media ${media.desktop} {
+    max-height: 25rem;
+    max-width: 30rem;
+  }
+`;
+
 const NoteText = styled(H4)`
   margin-left: 0.8rem;
+  height: 100%;
 `;
 
 const NoteDate = styled(NoteText)`
@@ -169,6 +193,8 @@ export {
   NoteDate,
   NoteInfoContainer,
   NoteText,
+  NoteTextContainer,
+  NoteWrapper,
   Photo,
   ReadMore,
   SlideContainer,
