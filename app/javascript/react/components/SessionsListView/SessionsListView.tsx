@@ -29,7 +29,7 @@ export interface SessionListEntity {
   startTime: string;
   endTime: string;
   streamId: number;
-  lastMeasurementValue: number;
+  lastMeasurementValue?: number;
 }
 
 interface SessionsListViewProps {
