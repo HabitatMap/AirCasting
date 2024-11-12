@@ -79,32 +79,21 @@ export class CustomMarker extends google.maps.OverlayView {
     }
 
     if (this.notes && this.notes.length > 0) {
-      const markerLat = this.position.lat();
-      const markerLng = this.position.lng();
+      const noteContainer = document.createElement("div");
+      noteContainer.setAttribute("data-note-container", "marker");
+      noteContainer.style.position = "absolute";
+      noteContainer.style.top = "-35px";
+      noteContainer.style.left = "0px";
 
-      const notesAtMarkerPosition = this.notes.filter(
-        (note) =>
-          Math.abs(note.latitude - markerLat) < 0.0000001 &&
-          Math.abs(note.longitude - markerLng) < 0.0000001
+      const root = createRoot(noteContainer);
+      root.render(
+        <Provider store={store}>
+          <NotesPopover notes={this.notes} />
+        </Provider>
       );
 
-      if (notesAtMarkerPosition.length > 0) {
-        const noteContainer = document.createElement("div");
-        noteContainer.setAttribute("data-note-container", "marker");
-        noteContainer.style.position = "absolute";
-        noteContainer.style.top = "-35px";
-        noteContainer.style.left = "0px";
-
-        const root = createRoot(noteContainer);
-        root.render(
-          <Provider store={store}>
-            <NotesPopover notes={notesAtMarkerPosition} />
-          </Provider>
-        );
-
-        this.div.appendChild(noteContainer);
-        this.noteContainers.set("marker", root);
-      }
+      this.div.appendChild(noteContainer);
+      this.noteContainers.set("marker", root);
     }
 
     const panes = this.getPanes();
@@ -236,7 +225,6 @@ export class CustomMarker extends google.maps.OverlayView {
   }
 
   setNotes(notes: Note[]) {
-    const existingNotes = this.notes;
     this.notes = notes;
 
     // Schedule cleanup and update for next tick
@@ -253,32 +241,21 @@ export class CustomMarker extends google.maps.OverlayView {
 
       // Only add new note container if there are notes at this marker's position
       if (this.notes && this.notes.length > 0 && this.div) {
-        const markerLat = this.position.lat();
-        const markerLng = this.position.lng();
+        const noteContainer = document.createElement("div");
+        noteContainer.setAttribute("data-note-container", "marker");
+        noteContainer.style.position = "absolute";
+        noteContainer.style.top = "-45px";
+        noteContainer.style.left = "15px";
 
-        const notesAtMarkerPosition = this.notes.filter(
-          (note) =>
-            Math.abs(note.latitude - markerLat) < 0.0000001 &&
-            Math.abs(note.longitude - markerLng) < 0.0000001
+        const root = createRoot(noteContainer);
+        root.render(
+          <Provider store={store}>
+            <NotesPopover notes={this.notes} />
+          </Provider>
         );
 
-        if (notesAtMarkerPosition.length > 0) {
-          const noteContainer = document.createElement("div");
-          noteContainer.setAttribute("data-note-container", "marker");
-          noteContainer.style.position = "absolute";
-          noteContainer.style.top = "-45px";
-          noteContainer.style.left = "15px";
-
-          const root = createRoot(noteContainer);
-          root.render(
-            <Provider store={store}>
-              <NotesPopover notes={notesAtMarkerPosition} />
-            </Provider>
-          );
-
-          this.div.appendChild(noteContainer);
-          this.noteContainers.set("marker", root);
-        }
+        this.div.appendChild(noteContainer);
+        this.noteContainers.set("marker", root);
       }
 
       this.draw();

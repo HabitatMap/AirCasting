@@ -1,3 +1,4 @@
+import Popup from "reactjs-popup";
 import styled from "styled-components";
 import {
   gray100,
@@ -7,6 +8,11 @@ import {
 } from "../../../../assets/styles/colors";
 import { media } from "../../../../utils/media";
 import { H4 } from "../../../Typography";
+
+const NoteWrapper = styled.div`
+  position: relative;
+  width: fit-content;
+`;
 
 const NoteButton = styled.button`
   position: absolute;
@@ -28,32 +34,43 @@ const NoteButtonIcon = styled.img`
   height: 2rem;
 `;
 
+const NotesPopup = styled(Popup)`
+  &-content {
+    padding: 0;
+    border: none;
+    background: transparent;
+    width: auto;
+    margin: 0;
+  }
+`;
+
 const NoteContainer = styled.div<{ $oneNote?: boolean }>`
-  position: absolute;
+  position: relative;
   display: flex;
   flex-direction: column;
-  top: 4rem;
-  left: 0;
   background: ${white};
   border-radius: 1rem;
   padding: 1.8rem 0.8rem;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   z-index: 4;
+  width: min-content;
+
+  @media ${media.desktop} {
+    max-width: 60vw;
+    width: max-content;
+  }
 `;
 
 const SlideContainer = styled.div`
-  width: 100%;
   display: flex;
   justify-content: space-between;
   align-items: center;
 `;
 
 const SlideContent = styled.div`
-  width: 100%;
   display: flex;
   flex-direction: column-reverse;
   align-items: center;
-
   margin: 0 1.4rem;
 
   @media ${media.desktop} {
@@ -66,6 +83,7 @@ const DataContainer = styled.div`
   display: flex;
   flex-direction: column;
   gap: 1.2rem;
+  max-width: 40rem;
 `;
 
 const NoteInfoContainer = styled.div`
@@ -153,8 +171,20 @@ const ReadMore = styled.span`
   margin-top: 0.4rem;
 `;
 
+const NoteTextContainer = styled.div`
+  max-height: 10rem;
+  max-width: 30rem;
+  overflow-y: scroll;
+
+  @media ${media.desktop} {
+    max-height: 25rem;
+    max-width: 30rem;
+  }
+`;
+
 const NoteText = styled(H4)`
   margin-left: 0.8rem;
+  height: 100%;
 `;
 
 const NoteDate = styled(NoteText)`
@@ -168,7 +198,10 @@ export {
   NoteContainer,
   NoteDate,
   NoteInfoContainer,
+  NotesPopup,
   NoteText,
+  NoteTextContainer,
+  NoteWrapper,
   Photo,
   ReadMore,
   SlideContainer,
