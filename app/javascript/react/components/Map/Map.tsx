@@ -667,8 +667,8 @@ const Map = () => {
       ].includes(previousUserSettings)
     ) {
       if (mapInstance) {
-        mapInstance.setCenter(previousCenter);
-        mapInstance.setZoom(previousZoom);
+        mapInstance.setZoom(previousZoomRef.current);
+        mapInstance.setCenter(previousCenterRef.current);
       }
     }
   };
