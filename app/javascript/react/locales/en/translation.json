@@ -150,7 +150,8 @@
       "date": "Date",
       "note": "Note",
       "readMore": "Read more",
-      "showLess": "Show less"
+      "showLess": "Show less",
+      "altOpenNote": "Open note"
     }
   },
   "sessionDetailsModal": {

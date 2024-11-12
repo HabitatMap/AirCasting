@@ -29,7 +29,10 @@ const NotesPopover = ({ notes }: NotesPopoverProps) => {
       <S.NotesPopup
         trigger={
           <S.NoteButton>
-            <S.NoteButtonIcon src={attachmentIcon} alt="Open note" />
+            <S.NoteButtonIcon
+              src={attachmentIcon}
+              alt={t("map.note.altOpenNote")}
+            />
           </S.NoteButton>
         }
         position="top center"
@@ -90,7 +93,7 @@ const NotesPopover = ({ notes }: NotesPopoverProps) => {
                     <H4 $bold>{t("map.note.note")}</H4>
                     <S.NoteTextContainer>
                       <S.NoteText>
-                        It is a long established fact that a reader will be
+                        {/* It is a long established fact that a reader will be
                         distracted by the readable content of a page when
                         looking at its layout. The point of using Lorem Ipsum is
                         that it has a more-or-less normal distribution of
@@ -101,8 +104,8 @@ const NotesPopover = ({ notes }: NotesPopoverProps) => {
                         for 'lorem ipsum' will uncover many web sites still in
                         their infancy. Various versions have evolved over the
                         years, sometimes by accident, sometimes on purpose
-                        (injected humour and the like).
-                        {/* {notes[currentSlide].text} */}
+                        (injected humour and the like). */}
+                        {notes[currentSlide].text}
                       </S.NoteText>
                     </S.NoteTextContainer>
                   </S.NoteInfoContainer>
