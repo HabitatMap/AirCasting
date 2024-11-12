@@ -174,7 +174,6 @@ const ReadMore = styled.span`
 const NoteTextContainer = styled.div`
   max-height: 10rem;
   max-width: 30rem;
-  overflow-y: auto;
 
   @media ${media.desktop} {
     max-height: 25rem;
@@ -185,6 +184,7 @@ const NoteTextContainer = styled.div`
 const NoteText = styled(H4)`
   margin-left: 0.8rem;
   height: 100%;
+  overflow-y: auto;
 `;
 
 const NoteDate = styled(NoteText)`
