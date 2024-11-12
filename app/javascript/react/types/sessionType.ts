@@ -27,4 +27,5 @@ export type SessionList = {
   startTime: string;
   endTime: string;
   streamId: number;
+  lastMeasurementValue?: number;
 };

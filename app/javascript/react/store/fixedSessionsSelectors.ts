@@ -112,6 +112,7 @@ const selectFixedSessionsList = createSelector(
         startTime,
         endTime,
         streamId,
+        lastMeasurementValue,
       }) => ({
         id,
         title,
@@ -120,6 +121,7 @@ const selectFixedSessionsList = createSelector(
         startTime,
         endTime,
         streamId,
+        lastMeasurementValue,
       })
     );
   }

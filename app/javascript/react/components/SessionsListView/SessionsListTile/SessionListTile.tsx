@@ -9,6 +9,7 @@ import { useAppSelector } from "../../../store/hooks";
 import { selectIsDormantSessionsType } from "../../../store/sessionFiltersSlice";
 import { selectThresholds } from "../../../store/thresholdSlice";
 import { DateFormat } from "../../../types/dateFormat";
+import { SensorPrefix } from "../../../types/sensors";
 import { getColorForValue } from "../../../utils/thresholdColors";
 import * as S from "./SessionListTile.style";
 
@@ -20,6 +21,7 @@ interface SessionListTile {
   startTime: string;
   endTime: string;
   streamId: number;
+  lastMeasurementValue?: number;
   onClick?: (id: number, streamId: number) => void;
   onMouseEnter?: (id: number) => void;
   onMouseLeave?: () => void;
@@ -33,6 +35,7 @@ const SessionsListTile: React.FC<SessionListTile> = ({
   startTime,
   endTime,
   streamId,
+  lastMeasurementValue,
   onClick,
   onMouseEnter,
   onMouseLeave,
@@ -73,10 +76,11 @@ const SessionsListTile: React.FC<SessionListTile> = ({
   };
 
   const isDormant = useAppSelector(selectIsDormantSessionsType);
+  const avg = sensorName.includes(SensorPrefix.AIR)
+    ? averageValue
+    : lastMeasurementValue;
 
-  const dotColor = isDormant
-    ? gray300
-    : getColorForValue(thresholds, averageValue);
+  const dotColor = isDormant ? gray300 : getColorForValue(thresholds, avg);
 
   return (
     <S.SessionListTile
@@ -87,9 +91,7 @@ const SessionsListTile: React.FC<SessionListTile> = ({
       <S.HorizontalSpacingContainer>
         <S.HorizontalGroup>
           <S.ColorDot $color={dotColor} />
-          {typeof averageValue === "number" && (
-            <S.Subtitle>avg. {averageValue}</S.Subtitle>
-          )}
+          {typeof avg === "number" && <S.Subtitle>avg. {avg}</S.Subtitle>}
         </S.HorizontalGroup>
         <S.ArrowImageContainer>
           <img src={rightVector} alt={t("map.altDirect")} />

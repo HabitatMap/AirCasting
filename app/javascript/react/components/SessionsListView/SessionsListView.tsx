@@ -29,6 +29,7 @@ export interface SessionListEntity {
   startTime: string;
   endTime: string;
   streamId: number;
+  lastMeasurementValue?: number;
 }
 
 interface SessionsListViewProps {
@@ -188,6 +189,7 @@ const SessionsListView: React.FC<SessionsListViewProps> = ({
                 startTime={session.startTime}
                 endTime={session.endTime}
                 streamId={session.streamId}
+                lastMeasurementValue={session.lastMeasurementValue}
                 onClick={(id, streamId) => handleClick(id, streamId)}
                 onMouseEnter={(id) => handleMouseEnter(id)}
                 onMouseLeave={handleMouseLeave}
