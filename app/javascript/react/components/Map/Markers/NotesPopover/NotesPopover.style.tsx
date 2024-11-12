@@ -174,7 +174,7 @@ const ReadMore = styled.span`
 const NoteTextContainer = styled.div`
   max-height: 10rem;
   max-width: 30rem;
-  overflow-y: scroll;
+  overflow-y: auto;
 
   @media ${media.desktop} {
     max-height: 25rem;
