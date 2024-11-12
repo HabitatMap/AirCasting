@@ -174,6 +174,7 @@ const ReadMore = styled.span`
 const NoteTextContainer = styled.div`
   max-height: 10rem;
   max-width: 30rem;
+  overflow: hidden;
 
   @media ${media.desktop} {
     max-height: 25rem;
@@ -183,8 +184,22 @@ const NoteTextContainer = styled.div`
 
 const NoteText = styled(H4)`
   margin-left: 0.8rem;
-  height: 100%;
+  height: auto;
   overflow-y: auto;
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+
+  @supports (-webkit-overflow-scrolling: touch) {
+    overflow-y: visible;
+    &::-webkit-scrollbar {
+      width: 0;
+      height: 0;
+    }
+  }
 `;
 
 const NoteDate = styled(NoteText)`
