@@ -4,18 +4,22 @@ import { apiClient, oldApiClient } from "../api/apiClient";
 import { API_ENDPOINTS } from "../api/apiEndpoints";
 import { ApiError, StatusEnum } from "../types/api";
 import { FixedStream } from "../types/fixedStream";
+
+import { FixedTimeRange } from "../types/timeRange";
 import { getErrorMessage } from "../utils/getErrorMessage";
 import { logError } from "../utils/logController";
 import { RootState } from "./index";
 
 export interface FixedStreamState {
   data: FixedStream;
+  fetchedStartTime: number | null;
   minMeasurementValue: number | null;
   maxMeasurementValue: number | null;
   averageMeasurementValue: number | null;
   status: StatusEnum;
   error: ApiError | null;
   isLoading: boolean;
+  lastSelectedTimeRange: FixedTimeRange;
 }
 
 const initialState: FixedStreamState = {
@@ -38,16 +42,20 @@ const initialState: FixedStreamState = {
       max: 0,
       latitude: 0,
       longitude: 0,
+      firstMeasurementTime: 0,
     },
     measurements: [],
     streamDailyAverages: [],
+    lastMonthMeasurements: [],
   },
-  minMeasurementValue: 0,
-  maxMeasurementValue: 0,
-  averageMeasurementValue: 0,
+  fetchedStartTime: null,
+  minMeasurementValue: null,
+  maxMeasurementValue: null,
+  averageMeasurementValue: null,
   status: StatusEnum.Idle,
   error: null,
   isLoading: false,
+  lastSelectedTimeRange: FixedTimeRange.Day,
 };
 
 export interface Measurement {
@@ -57,6 +65,7 @@ export interface Measurement {
   longitude: number;
 }
 
+// Thunk for fetching stream data by ID
 export const fetchFixedStreamById = createAsyncThunk<
   FixedStream,
   number,
@@ -84,6 +93,7 @@ export const fetchFixedStreamById = createAsyncThunk<
   }
 });
 
+// Thunk for fetching measurements
 export const fetchMeasurements = createAsyncThunk<
   Measurement[],
   { streamId: number; startTime: string; endTime: string },
@@ -103,7 +113,7 @@ export const fetchMeasurements = createAsyncThunk<
       const apiError: ApiError = {
         message,
         additionalInfo: {
-          action: "fetchFixedStreamById",
+          action: "fetchMeasurements",
           endpoint: API_ENDPOINTS.fetchMeasurements(
             streamId,
             startTime,
@@ -119,6 +129,7 @@ export const fetchMeasurements = createAsyncThunk<
   }
 );
 
+// Reducer
 const fixedStreamSlice = createSlice({
   name: "fixedStream",
   initialState,
@@ -128,17 +139,22 @@ const fixedStreamSlice = createSlice({
       action: PayloadAction<{ min: number; max: number }>
     ) {
       const { min, max } = action.payload;
-      const measurementsInRange = state.data.measurements.filter(
-        (measurement) => {
-          const time = measurement.time;
-          return time >= min && time <= max;
-        }
-      );
-      const values = measurementsInRange.map((m) => m.value);
-      const newMin = Math.min(...values);
-      const newMax = Math.max(...values);
+      let startTime = min;
+      let endTime = max;
+
+      const values = state.data.measurements
+        .filter(
+          (measurement) =>
+            measurement.time >= startTime && measurement.time <= endTime
+        )
+        .map((m) => m.value);
+
+      const newMin = values.length > 0 ? Math.min(...values) : 0;
+      const newMax = values.length > 0 ? Math.max(...values) : 0;
       const newAvg =
-        values.reduce((sum, value) => sum + value, 0) / values.length;
+        values.length > 0
+          ? values.reduce((sum, value) => sum + value, 0) / values.length
+          : 0;
 
       state.minMeasurementValue = newMin;
       state.maxMeasurementValue = newMax;
@@ -146,6 +162,14 @@ const fixedStreamSlice = createSlice({
     },
     resetFixedStreamState(state) {
       return initialState;
+    },
+    setLastSelectedTimeRange(state, action: PayloadAction<FixedTimeRange>) {
+      state.lastSelectedTimeRange = action.payload;
+      localStorage.setItem("lastSelectedTimeRange", action.payload);
+    },
+    resetLastSelectedTimeRange(state) {
+      state.lastSelectedTimeRange = FixedTimeRange.Day;
+      localStorage.setItem("lastSelectedTimeRange", FixedTimeRange.Day);
     },
   },
   extraReducers: (builder) => {
@@ -181,21 +205,27 @@ const fixedStreamSlice = createSlice({
       fetchMeasurements.fulfilled,
       (state, action: PayloadAction<Measurement[]>) => {
         state.status = StatusEnum.Fulfilled;
-        state.data.measurements = action.payload;
+
+        const existingTimestamps = new Set(
+          state.data.measurements.map((m) => m.time)
+        );
+
+        // Filter out measurements that already exist and ensure they're valid
+        const uniqueNewMeasurements = action.payload.filter(
+          (m) =>
+            m.time !== undefined &&
+            m.value !== undefined &&
+            !existingTimestamps.has(m.time)
+        );
+
+        // Add only unique new measurements to existing ones
+        state.data.measurements = [
+          ...state.data.measurements,
+          ...uniqueNewMeasurements,
+        ].sort((a, b) => a.time - b.time);
+
         state.isLoading = false;
         state.error = null;
-
-        if (action.payload.length > 0) {
-          const values = action.payload.map((m) => m.value);
-          state.minMeasurementValue = Math.min(...values);
-          state.maxMeasurementValue = Math.max(...values);
-          state.averageMeasurementValue =
-            values.reduce((sum, value) => sum + value, 0) / values.length;
-        } else {
-          state.minMeasurementValue = 0;
-          state.maxMeasurementValue = 0;
-          state.averageMeasurementValue = 0;
-        }
       }
     );
     builder.addCase(
@@ -203,7 +233,6 @@ const fixedStreamSlice = createSlice({
       (state, action: PayloadAction<ApiError | undefined>) => {
         state.status = StatusEnum.Rejected;
         state.error = action.payload || { message: "Unknown error occurred" };
-        state.data = initialState.data;
         state.isLoading = false;
       }
     );
@@ -212,8 +241,15 @@ const fixedStreamSlice = createSlice({
 
 export default fixedStreamSlice.reducer;
 
-export const { updateFixedMeasurementExtremes, resetFixedStreamState } =
-  fixedStreamSlice.actions;
+export const {
+  updateFixedMeasurementExtremes,
+  resetFixedStreamState,
+  setLastSelectedTimeRange,
+  resetLastSelectedTimeRange,
+} = fixedStreamSlice.actions;
+
 export const selectFixedData = (state: RootState) => state.fixedStream.data;
 export const selectIsLoading = (state: RootState) =>
   state.fixedStream.isLoading;
+export const selectLastSelectedFixedTimeRange = (state: RootState) =>
+  state.fixedStream.lastSelectedTimeRange;

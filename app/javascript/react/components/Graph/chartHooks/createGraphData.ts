@@ -1,12 +1,17 @@
-import { FixedMeasurement } from "../types/fixedStream";
-import { LatLngLiteral } from "../types/googleMaps";
-import { Session } from "../types/sessionType";
+import { Measurement } from "../../../store/fixedStreamSlice";
+import { LatLngLiteral } from "../../../types/googleMaps";
+import { Session } from "../../../types/sessionType";
 
-import { Measurement } from "../store/fixedStreamSlice";
+export const isValidMeasurement = (m: Measurement): m is Measurement => {
+  return m.time !== undefined && m.value !== undefined;
+};
 
-export const createFixedSeriesData = (data: FixedMeasurement[]) =>
-  (data || [])
-    .map(({ time, value }: { time: number; value: number }) => [time, value])
+export const createFixedSeriesData = (
+  measurements: Measurement[] | undefined
+) =>
+  measurements
+    ?.filter(isValidMeasurement)
+    .map(({ time, value }) => [time, value] as [number, number])
     .sort((a, b) => a[0] - b[0]);
 
 export const createMobileSeriesData = (
@@ -33,6 +38,6 @@ export const createMobileSeriesData = (
     }))
     .filter(
       (point): point is { x: number; y: number; position: LatLngLiteral } =>
-        point.x !== undefined
+        point.x !== undefined && point.y !== undefined
     )
     .sort((a, b) => a.x - b.x);

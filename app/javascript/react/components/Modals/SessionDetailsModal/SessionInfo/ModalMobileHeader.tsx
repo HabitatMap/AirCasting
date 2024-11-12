@@ -2,6 +2,8 @@ import React from "react";
 import { useTranslation } from "react-i18next";
 
 import toggleIcon from "../../../../assets/icons/toggleIcon.svg";
+import { selectIsLoading } from "../../../../store";
+import { useAppSelector } from "../../../../store/hooks";
 import { MobileStreamShortInfo as StreamShortInfo } from "../../../../types/mobileStream";
 import { Thresholds } from "../../../../types/thresholds";
 import { isNoData } from "../../../../utils/measurementsCalc";
@@ -32,6 +34,7 @@ const ModalMobileHeader: React.FC<ModalMobileHeaderProps> = ({
   isMobile,
 }) => {
   const { t } = useTranslation();
+  const isLoading = useAppSelector(selectIsLoading);
 
   const { minMeasurementValue, maxMeasurementValue, averageValue } = extremes;
   const noData = isNoData(

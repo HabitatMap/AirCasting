@@ -2,15 +2,15 @@ import {
   AlignValue,
   ChartOptions,
   ChartZoomingOptions,
+  NavigatorOptions,
   PlotOptions,
   RangeSelectorOptions,
   ResponsiveOptions,
-  XAxisOptions,
   YAxisOptions,
 } from "highcharts";
 import { debounce } from "lodash";
 
-import Highcharts from "highcharts";
+import Highcharts from "highcharts/highstock";
 import { TFunction } from "i18next";
 import {
   blue,
@@ -25,6 +25,7 @@ import {
   white,
   yellow,
 } from "../../assets/styles/colors";
+import { AppDispatch } from "../../store";
 import { updateFixedMeasurementExtremes } from "../../store/fixedStreamSlice";
 import { setHoverPosition, setHoverStreamId } from "../../store/mapSlice";
 import { updateMobileMeasurementExtremes } from "../../store/mobileStreamSlice";
@@ -36,9 +37,16 @@ import {
   MILLISECONDS_IN_A_5_MINUTES,
   MILLISECONDS_IN_A_DAY,
   MILLISECONDS_IN_A_MONTH,
+  MILLISECONDS_IN_A_SECOND,
   MILLISECONDS_IN_A_WEEK,
   MILLISECONDS_IN_AN_HOUR,
 } from "../../utils/timeRanges";
+
+let hasInitialFetch = false;
+
+const isGovernmentSensor = (sensorName?: string) => {
+  return sensorName?.toLowerCase().includes("government");
+};
 
 const getScrollbarOptions = (isCalendarPage: boolean, isMobile: boolean) => {
   return {
@@ -62,15 +70,18 @@ const getXAxisOptions = (
   isMobile: boolean,
   rangeDisplayRef: React.RefObject<HTMLDivElement> | undefined,
   fixedSessionTypeSelected: boolean,
-  isIndoor: string | null,
-  dispatch: any,
+  dispatch: AppDispatch,
   isLoading: boolean,
-  isIndoorParameterInUrl: boolean
-): XAxisOptions => {
+  fetchMeasurementsIfNeeded: (start: number, end: number) => Promise<void>,
+  sensorName: string | undefined
+): Highcharts.XAxisOptions => {
+  let isFetchingData = false;
+  let initialDataMin: number | null = null;
+  let fetchTimeout: NodeJS.Timeout | null = null;
+
   const handleSetExtremes = debounce(
     (e: Highcharts.AxisSetExtremesEventObject) => {
-      if (isIndoorParameterInUrl) return;
-      if (!isLoading && e.min && e.max) {
+      if (!isLoading && e.min !== undefined && e.max !== undefined) {
         dispatch(
           fixedSessionTypeSelected
             ? updateFixedMeasurementExtremes({ min: e.min, max: e.max })
@@ -81,7 +92,8 @@ const getXAxisOptions = (
           e.min,
           e.max
         );
-        // Dirty workaround to update timerange display in the graph
+
+        // Update the time range display in the graph on the Calendar Page
         if (rangeDisplayRef?.current) {
           rangeDisplayRef.current.innerHTML = `
             <div class="time-container">
@@ -97,14 +109,15 @@ const getXAxisOptions = (
         }
       }
     },
-    100
+    300
   );
 
   return {
     title: {
       text: undefined,
     },
-    showLastLabel: isMobile ? false : true,
+    showEmpty: false,
+    showLastLabel: !isMobile,
     tickColor: gray200,
     lineColor: white,
     type: "datetime",
@@ -122,10 +135,79 @@ const getXAxisOptions = (
       width: 2,
     },
     visible: true,
-    minRange: 10000,
+    minRange: MILLISECONDS_IN_A_SECOND,
     ordinal: false,
     events: {
-      afterSetExtremes: handleSetExtremes,
+      afterSetExtremes: async function (
+        e: Highcharts.AxisSetExtremesEventObject
+      ) {
+        const axis = this;
+        const chart = axis.chart as Highcharts.StockChart;
+        const sensorName = chart.series[0]?.name;
+
+        // Initialize initialDataMin and handle first render
+        if (initialDataMin === null && e.dataMin !== undefined) {
+          initialDataMin = e.dataMin - MILLISECONDS_IN_A_MONTH;
+
+          if (
+            !hasInitialFetch &&
+            isGovernmentSensor(sensorName) &&
+            e.min !== undefined
+          ) {
+            hasInitialFetch = true;
+            const newStart = e.min - MILLISECONDS_IN_A_MONTH;
+            await fetchMeasurementsIfNeeded(newStart, e.min);
+            return;
+          }
+        }
+
+        // Set up the scrollbar release event.
+        // This is used to fetch data when the user scrolls to the end of the graph.
+        // It prevents from disappearing scrollbar when the user scrolls to the end of the graph and liveRedraw is true
+        const onScrollbarRelease = () => {
+          // Clear any existing timeout
+          if (fetchTimeout) {
+            clearTimeout(fetchTimeout);
+          }
+
+          // Set new timeout
+          fetchTimeout = setTimeout(async () => {
+            if (isLoading || isFetchingData) return;
+
+            const { min, max, dataMin } = axis.getExtremes();
+
+            if (
+              min === undefined ||
+              dataMin === undefined ||
+              initialDataMin === null
+            )
+              return;
+
+            const viewRange = max - min;
+            const buffer = viewRange * 0.02;
+
+            const isAtDataMin = min <= dataMin + buffer;
+            const isAtInitialMin = min <= initialDataMin + buffer;
+
+            if (isAtDataMin || isAtInitialMin) {
+              isFetchingData = true;
+              try {
+                const newStart = min - MILLISECONDS_IN_A_MONTH;
+                await fetchMeasurementsIfNeeded(newStart, min);
+              } catch (error) {
+                console.error("Error fetching data:", error);
+              } finally {
+                isFetchingData = false;
+                fetchTimeout = null;
+              }
+            }
+          }, 800);
+        };
+        onScrollbarRelease();
+
+        // Update the extremes and UI elements
+        handleSetExtremes(e);
+      },
     },
   };
 };
@@ -223,7 +305,8 @@ const getPlotOptions = (
     series: {
       lineWidth: 2,
       color: blue,
-      turboThreshold: 9999999, //above that graph will not display
+      turboThreshold: 9999999, // above that graph will not display
+
       marker: {
         fillColor: blue,
         lineWidth: 0,
@@ -323,6 +406,7 @@ const getTooltipOptions = (
     fontFamily: "Roboto",
   },
 });
+
 const getRangeSelectorOptions = (
   isMobile: boolean,
   fixedSessionTypeSelected: boolean,
@@ -339,7 +423,7 @@ const getRangeSelectorOptions = (
     },
     buttonTheme: {
       fill: "none",
-      width: 95,
+      width: 80,
       height: 34,
       r: 20,
       stroke: "none",
@@ -504,8 +588,18 @@ const getChartOptions = (
   };
 };
 
+const getNavigatorOptions = (): NavigatorOptions => {
+  // The navigator is not visible in the graph component.
+  // However it is important to keep it to make sure that scrollbar will not disapear forever while fetching data.
+  return {
+    enabled: true,
+    height: 0,
+  };
+};
+
 export {
   getChartOptions,
+  getNavigatorOptions,
   getPlotOptions,
   getRangeSelectorOptions,
   getResponsiveOptions,

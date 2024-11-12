@@ -8,6 +8,52 @@ import mobileChevronRight from "../../assets/icons/mobileChevronRight.svg";
 
 const DIRECTION_LEFT = "left";
 const DIRECTION_RIGHT = "right";
+let onScrollbarRelease: (() => void) | null = null;
+
+let isDragging = false;
+const addScrollbarDragDetection = (chart: Highcharts.Chart) => {
+  // Detect when the mouse is down on the scrollbar
+  Highcharts.addEvent(chart.container, "mousedown", function (e) {
+    const target = e?.target as HTMLElement;
+    const classNames = target?.className?.toString() || "";
+
+    if (
+      classNames.includes("highcharts-scrollbar") ||
+      classNames.includes("highcharts-navigator") ||
+      classNames.includes("highcharts-navigator-handle") ||
+      classNames.includes("highcharts-navigator-mask") ||
+      classNames.includes("highcharts-navigator-track") ||
+      classNames.includes("highcharts-navigator-series") ||
+      target?.closest(".highcharts-scrollbar") ||
+      target?.closest(".highcharts-navigator")
+    ) {
+      isDragging = true;
+    }
+  });
+
+  // Handle mouseup event
+  const handleMouseUp = function () {
+    if (isDragging) {
+      isDragging = false;
+      // Execute callback when scrollbar is released
+      if (onScrollbarRelease) {
+        onScrollbarRelease();
+      }
+    }
+  };
+
+  // Add mouseup listeners
+  Highcharts.addEvent(document, "mouseup", handleMouseUp);
+  Highcharts.addEvent(chart.container, "mouseup", handleMouseUp);
+  Highcharts.addEvent(chart.container, "mouseleave", handleMouseUp);
+  // "Any" type is because of a bug in highcharts. If you log chart you will see that is has a scroller propertie.
+  if ((chart as any).scroller) {
+    Highcharts.addEvent((chart as any).scroller, "mouseup", handleMouseUp);
+  }
+  if ((chart as any).navigator) {
+    Highcharts.addEvent((chart as any).navigator, "mouseup", handleMouseUp);
+  }
+};
 
 const addNavigationArrows = (
   chart: Highcharts.Chart,
@@ -17,13 +63,13 @@ const addNavigationArrows = (
   if (isMobile && !isCalendarPage) {
     return;
   }
-
   if (
     chart.renderer.boxWrapper.element.querySelectorAll(".custom-arrow").length >
     0
   ) {
     return;
   }
+
   let leftArrow: Highcharts.SVGElement;
   let rightArrow: Highcharts.SVGElement;
 
@@ -167,6 +213,7 @@ const handleLoad = function (
   isMobile: boolean
 ) {
   addNavigationArrows(this, isCalendarPage, isMobile);
+  addScrollbarDragDetection(this);
 };
 
-export { handleLoad };
+export { handleLoad, isDragging, onScrollbarRelease };

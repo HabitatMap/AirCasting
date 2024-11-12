@@ -1,9 +1,11 @@
 import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { AxiosResponse } from "axios";
+import { RootState } from ".";
 import { oldApiClient } from "../api/apiClient";
 import { API_ENDPOINTS } from "../api/apiEndpoints";
 import { ApiError, StatusEnum } from "../types/api";
 import { MobileStream } from "../types/mobileStream";
+import { MobileTimeRange } from "../types/timeRange";
 import { getErrorMessage } from "../utils/getErrorMessage";
 import { logError } from "../utils/logController";
 
@@ -15,6 +17,7 @@ export interface MobileStreamState {
   status: StatusEnum;
   error: ApiError | null;
   isLoading: boolean;
+  lastSelectedTimeRange: MobileTimeRange;
 }
 
 export const initialState: MobileStreamState = {
@@ -43,6 +46,7 @@ export const initialState: MobileStreamState = {
   status: StatusEnum.Idle,
   error: null,
   isLoading: false,
+  lastSelectedTimeRange: MobileTimeRange.All,
 };
 
 export const fetchMobileStreamById = createAsyncThunk<
@@ -81,25 +85,43 @@ export const mobileStreamSlice = createSlice({
       action: PayloadAction<{ min: number; max: number }>
     ) {
       const { min, max } = action.payload;
-      const measurementsInRange = state.data.measurements.filter(
-        (measurement) => {
-          const time = measurement.time;
-          return time >= min && time <= max;
-        }
-      );
 
-      const values = measurementsInRange.map((m) => m.value);
-      const newMin = Math.min(...values);
-      const newMax = Math.max(...values);
+      let endTime = max;
+      let startTime = min;
+
+      const values = state.data.measurements
+        .filter(
+          (measurement) =>
+            measurement.time >= startTime && measurement.time <= endTime
+        )
+        .map((m) => m.value);
+
+      const newMin = values.length > 0 ? Math.min(...values) : 0;
+      const newMax = values.length > 0 ? Math.max(...values) : 0;
       const newAvg =
-        values.reduce((sum, value) => sum + value, 0) / values.length;
+        values.length > 0
+          ? values.reduce((sum, value) => sum + value, 0) / values.length
+          : 0;
 
       state.minMeasurementValue = newMin;
       state.maxMeasurementValue = newMax;
       state.averageMeasurementValue = newAvg;
     },
+
     resetMobileStreamState(state) {
       return initialState;
+    },
+    setLastSelectedMobileTimeRange(
+      state,
+      action: PayloadAction<MobileTimeRange>
+    ) {
+      state.lastSelectedTimeRange = action.payload;
+      localStorage.setItem("lastSelectedMobileTimeRange", action.payload);
+    },
+
+    resetLastSelectedMobileTimeRange(state) {
+      state.lastSelectedTimeRange = MobileTimeRange.All;
+      localStorage.setItem("lastSelectedMobileTimeRange", MobileTimeRange.All);
     },
   },
   extraReducers: (builder) => {
@@ -129,7 +151,14 @@ export const mobileStreamSlice = createSlice({
   },
 });
 
-export const { updateMobileMeasurementExtremes, resetMobileStreamState } =
-  mobileStreamSlice.actions;
+export const {
+  updateMobileMeasurementExtremes,
+  resetMobileStreamState,
+  setLastSelectedMobileTimeRange,
+  resetLastSelectedMobileTimeRange,
+} = mobileStreamSlice.actions;
 
 export default mobileStreamSlice.reducer;
+
+export const selectLastSelectedMobileTimeRange = (state: RootState) =>
+  state.mobileStream.lastSelectedTimeRange;

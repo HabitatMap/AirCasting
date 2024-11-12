@@ -1,37 +1,52 @@
-// Graph.tsx
-
 import HighchartsReact from "highcharts-react-official";
 import Highcharts, { Chart } from "highcharts/highstock";
 import NoDataToDisplay from "highcharts/modules/no-data-to-display";
-import React, {
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
+import React, { useCallback, useEffect, useMemo, useRef } from "react";
 import { useTranslation } from "react-i18next";
+import { white } from "../../assets/styles/colors";
+import { selectFixedStreamShortInfo } from "../../store/fixedStreamSelectors";
 import {
-  fetchMeasurements,
+  Measurement,
+  resetLastSelectedTimeRange,
   selectFixedData,
   selectIsLoading,
+  selectLastSelectedFixedTimeRange,
+  setLastSelectedTimeRange,
 } from "../../store/fixedStreamSlice";
 import { useAppDispatch, useAppSelector } from "../../store/hooks";
-import { selectMobileStreamPoints } from "../../store/mobileStreamSelectors";
+import {
+  selectMobileStreamPoints,
+  selectMobileStreamShortInfo,
+} from "../../store/mobileStreamSelectors";
+import {
+  resetLastSelectedMobileTimeRange,
+  selectLastSelectedMobileTimeRange,
+  setLastSelectedMobileTimeRange,
+} from "../../store/mobileStreamSlice";
 import { selectThresholds } from "../../store/thresholdSlice";
 import { SessionType, SessionTypes } from "../../types/filters";
+import { FixedStreamShortInfo } from "../../types/fixedStream";
+import { GraphData } from "../../types/graph";
+import { MobileStreamShortInfo } from "../../types/mobileStream";
+import { FixedTimeRange, MobileTimeRange } from "../../types/timeRange";
+import { parseDateString } from "../../utils/dateParser";
+import {
+  getSelectedRangeIndex,
+  mapIndexToTimeRange,
+} from "../../utils/getTimeRange";
+import { useMapParams } from "../../utils/mapParamsHandler";
+import useMobileDetection from "../../utils/useScreenSizeDetection";
+import { handleLoad } from "./chartEvents";
 import {
   createFixedSeriesData,
   createMobileSeriesData,
-} from "../../utils/createGraphData";
-import { useMapParams } from "../../utils/mapParamsHandler";
-import useMobileDetection from "../../utils/useScreenSizeDetection";
-
-import { gray300 } from "../../assets/styles/colors";
-import { handleLoad } from "./chartEvents";
+} from "./chartHooks/createGraphData";
+import { useChartUpdater } from "./chartHooks/useChartUpdater";
+import { useMeasurementsFetcher } from "./chartHooks/useMeasurementsFetcher";
 import * as S from "./Graph.style";
 import {
   getChartOptions,
+  getNavigatorOptions,
   getPlotOptions,
   getRangeSelectorOptions,
   getResponsiveOptions,
@@ -55,202 +70,169 @@ interface GraphProps {
 
 const Graph: React.FC<GraphProps> = React.memo(
   ({ streamId, sessionType, isCalendarPage, rangeDisplayRef }) => {
-    const graphRef = useRef<HTMLDivElement>(null);
-
-    // Hooks
     const dispatch = useAppDispatch();
     const { t } = useTranslation();
+    const graphRef = useRef<HTMLDivElement>(null);
+    const chartComponentRef = useRef<HighchartsReact.RefObject>(null);
     const isMobile = useMobileDetection();
-
+    const fixedSessionTypeSelected = sessionType === SessionTypes.FIXED;
     const thresholdsState = useAppSelector(selectThresholds);
     const isLoading = useAppSelector(selectIsLoading);
     const fixedGraphData = useAppSelector(selectFixedData);
     const mobileGraphData = useAppSelector(selectMobileStreamPoints);
-
-    const { unitSymbol, measurementType, isIndoor } = useMapParams();
-
-    // Local States
-    const fixedSessionTypeSelected = sessionType === SessionTypes.FIXED;
-    const [selectedRange, setSelectedRange] = useState(
-      fixedSessionTypeSelected ? 0 : 2
+    const mobileStreamShortInfo: MobileStreamShortInfo = useAppSelector(
+      selectMobileStreamShortInfo
     );
-    const [isMaxRangeFetched, setIsMaxRangeFetched] = useState(false);
-
-    const isIndoorParameterInUrl = isIndoor === "true";
-
-    // Memoized Data
-    const fixedSeriesData = useMemo(
-      () => createFixedSeriesData(fixedGraphData?.measurements) || [],
-      [fixedGraphData]
+    const fixedStreamShortInfo: FixedStreamShortInfo = useAppSelector(
+      selectFixedStreamShortInfo
+    );
+    const fixedLastSelectedTimeRange = useAppSelector(
+      selectLastSelectedFixedTimeRange
+    );
+    const mobileLastSelectedTimeRange = useAppSelector(
+      selectLastSelectedMobileTimeRange
     );
 
-    const mobileSeriesData = useMemo(
-      () => createMobileSeriesData(mobileGraphData, true) || [],
-      [mobileGraphData]
-    );
+    const { unitSymbol, measurementType, isIndoor, sensorName } =
+      useMapParams();
 
-    const seriesData = useMemo(
-      () => (fixedSessionTypeSelected ? fixedSeriesData : mobileSeriesData),
-      [fixedSessionTypeSelected, fixedSeriesData, mobileSeriesData]
-    );
+    const lastSelectedTimeRange = fixedSessionTypeSelected
+      ? fixedLastSelectedTimeRange
+      : mobileLastSelectedTimeRange || MobileTimeRange.All;
 
-    // Helper Functions
-    const getTimeRangeFromSelectedRange = useCallback(
-      (range: number) => {
-        const lastTimestamp =
-          seriesData.length > 0
-            ? fixedSessionTypeSelected
-              ? (seriesData[seriesData.length - 1] as number[])[0]
-              : (seriesData[seriesData.length - 1] as { x: number }).x
-            : Date.now();
-
-        let startTime = new Date(lastTimestamp);
-        switch (range) {
-          case 0:
-            startTime.setHours(startTime.getHours() - 24);
-            break;
-          case 1:
-            startTime.setDate(startTime.getDate() - 7);
-            break;
-          case 2:
-            startTime.setDate(startTime.getDate() - 30);
-            break;
-          default:
-            startTime = new Date(0);
-        }
-
-        return {
-          startTime: startTime.getTime(),
-          endTime: lastTimestamp,
-        };
-      },
-      [seriesData, fixedSessionTypeSelected]
-    );
-
-    const totalDuration = useMemo(() => {
-      if (seriesData.length === 0) return 0;
-      const [first, last] = [seriesData[0], seriesData[seriesData.length - 1]];
-      return fixedSessionTypeSelected
-        ? (last as number[])[0] - (first as number[])[0]
-        : (last as { x: number }).x - (first as { x: number }).x;
-    }, [seriesData, fixedSessionTypeSelected]);
-
-    const fetchDataForRange = useCallback(
-      (range: number) => {
-        if (streamId && !isMaxRangeFetched) {
-          if (range === 2) {
-            setIsMaxRangeFetched(true);
-          }
-
-          const { startTime, endTime } = getTimeRangeFromSelectedRange(range);
-          const requiredDuration = endTime - startTime;
-
-          if (totalDuration < requiredDuration) {
-            const newStartTime = Math.min(
-              startTime,
-              Date.now() - totalDuration
-            );
-
-            dispatch(
-              fetchMeasurements({
-                streamId,
-                startTime: newStartTime.toString(),
-                endTime: endTime.toString(),
-              })
-            );
-          }
-        }
-      },
+    const startTime = useMemo(
+      () =>
+        fixedSessionTypeSelected
+          ? parseDateString(fixedStreamShortInfo.startTime)
+          : parseDateString(mobileStreamShortInfo.startTime),
       [
-        streamId,
-        isMaxRangeFetched,
-        totalDuration,
-        dispatch,
-        getTimeRangeFromSelectedRange,
+        mobileStreamShortInfo.startTime,
+        fixedStreamShortInfo.firstMeasurementTime,
+        fixedSessionTypeSelected,
       ]
     );
 
-    useEffect(() => {
-      setIsMaxRangeFetched(false);
-    }, [streamId]);
+    const endTime = useMemo(
+      () =>
+        fixedSessionTypeSelected
+          ? fixedStreamShortInfo.endTime
+            ? parseDateString(fixedStreamShortInfo.endTime)
+            : Date.now()
+          : mobileStreamShortInfo.endTime
+          ? parseDateString(mobileStreamShortInfo.endTime)
+          : Date.now(),
+      [mobileStreamShortInfo.endTime, fixedStreamShortInfo.endTime]
+    );
 
-    // Configuration Options
+    const isIndoorParameterInUrl = isIndoor === "true";
+
+    const seriesData = useMemo(() => {
+      return fixedSessionTypeSelected
+        ? createFixedSeriesData(
+            (fixedGraphData?.measurements as Measurement[]) || []
+          )
+        : createMobileSeriesData(mobileGraphData, true);
+    }, [fixedSessionTypeSelected, fixedGraphData, mobileGraphData]);
+
+    const totalDuration = useMemo(
+      () => endTime - startTime,
+      [startTime, endTime]
+    );
+
+    let chartData: GraphData = seriesData as GraphData;
+
+    const { fetchMeasurementsIfNeeded } = useMeasurementsFetcher(streamId);
+
+    useChartUpdater({
+      chartComponentRef,
+      seriesData,
+      isLoading,
+      lastSelectedTimeRange,
+      fixedSessionTypeSelected,
+    });
+
+    useEffect(() => {
+      if (chartComponentRef.current && chartComponentRef.current.chart) {
+        const chart = chartComponentRef.current.chart;
+        if (isLoading) {
+          chart.showLoading("Loading data from server...");
+        } else {
+          chart.hideLoading();
+        }
+      }
+    }, [isLoading]);
+
+    useEffect(() => {
+      if (fixedSessionTypeSelected) {
+        dispatch(resetLastSelectedTimeRange());
+      } else {
+        dispatch(resetLastSelectedMobileTimeRange());
+      }
+    }, []);
+
+    // Apply touch action to the graph container for mobile devices in Calendar page
+    useEffect(() => {
+      const applyStyles = () => {
+        const graphElement = graphRef.current;
+        if (graphElement) {
+          graphElement.style.touchAction = "pan-x";
+          const highchartsContainer = graphElement.querySelector(
+            ".highcharts-container"
+          ) as HTMLDivElement | null;
+          if (highchartsContainer) {
+            highchartsContainer.style.overflow = "visible";
+          }
+          const highchartsChartContainer = graphElement.querySelector(
+            "[data-highcharts-chart]"
+          ) as HTMLDivElement | null;
+          if (highchartsChartContainer) {
+            highchartsChartContainer.style.overflow = "visible";
+          }
+        }
+      };
+
+      applyStyles();
+
+      // Set up a MutationObserver to watch for changes in the DOM
+      const observer = new MutationObserver(applyStyles);
+
+      if (graphRef.current) {
+        observer.observe(graphRef.current, { childList: true, subtree: true });
+      }
+
+      // Cleanup function
+      return () => {
+        observer.disconnect();
+      };
+    }, []);
+
     const xAxisOptions = useMemo(
       () =>
         getXAxisOptions(
           isMobile,
           rangeDisplayRef,
           fixedSessionTypeSelected,
-          isIndoor,
           dispatch,
           isLoading,
-          isIndoorParameterInUrl
+          fetchMeasurementsIfNeeded,
+          sensorName
         ),
       [
         isMobile,
         rangeDisplayRef,
         fixedSessionTypeSelected,
-        isIndoor,
         dispatch,
         isLoading,
-        isIndoorParameterInUrl,
+        fetchMeasurementsIfNeeded,
+        sensorName,
       ]
-    );
-
-    const yAxisOption = useMemo(
-      () => getYAxisOptions(thresholdsState, isMobile),
-      [thresholdsState, isMobile]
-    );
-
-    const tooltipOptions = useMemo(
-      () => getTooltipOptions(measurementType, unitSymbol),
-      [measurementType, unitSymbol]
-    );
-
-    const rangeSelectorOptions = useMemo(
-      () =>
-        getRangeSelectorOptions(
-          isMobile,
-          fixedSessionTypeSelected,
-          totalDuration,
-          selectedRange,
-          isCalendarPage,
-          t
-        ),
-      [
-        isMobile,
-        fixedSessionTypeSelected,
-        totalDuration,
-        selectedRange,
-        isCalendarPage,
-        t,
-      ]
-    );
-
-    const plotOptions = useMemo(
-      () =>
-        getPlotOptions(
-          fixedSessionTypeSelected,
-          streamId,
-          dispatch,
-          isIndoorParameterInUrl
-        ),
-      [fixedSessionTypeSelected, streamId, dispatch, isIndoorParameterInUrl]
-    );
-
-    const responsive = useMemo(
-      () => getResponsiveOptions(thresholdsState, isMobile),
-      [thresholdsState, isMobile]
     );
 
     const scrollbarOptions = useMemo(
-      () => getScrollbarOptions(isCalendarPage, isMobile),
-      [isCalendarPage, isMobile]
-    );
-
-    const chartOptions = useMemo(
-      () => getChartOptions(isCalendarPage, isMobile),
-      [isCalendarPage, isMobile]
+      () => ({
+        ...getScrollbarOptions(isCalendarPage, isMobile),
+      }),
+      [isCalendarPage, isMobile, isLoading, seriesData]
     );
 
     const handleChartLoad = useCallback(
@@ -260,61 +242,79 @@ const Graph: React.FC<GraphProps> = React.memo(
       [isCalendarPage, isMobile]
     );
 
-    const rangeSelectorButtons = useMemo(
-      () =>
-        rangeSelectorOptions.buttons?.map((button, i) => ({
-          ...button,
-          events: {
-            click: () => {
-              setSelectedRange(i);
-              fetchDataForRange(i);
-            },
-          },
-        })),
-      [rangeSelectorOptions.buttons, fetchDataForRange]
+    const chartOptions = useMemo(
+      () => getChartOptions(isCalendarPage, isMobile),
+      [isCalendarPage, isMobile]
     );
 
-    const options: Highcharts.Options = useMemo(
+    const options = useMemo<Highcharts.Options>(
       () => ({
-        title: undefined,
-        xAxis: xAxisOptions,
-        yAxis: yAxisOption,
-        loading: {
-          hideDuration: 1000,
-          showDuration: 1000,
-          labelStyle: {
-            display: "block",
-            fontWeight: "bold",
-            color: "gray",
-          },
-        },
-        plotOptions: plotOptions,
-        series: [
-          {
-            ...(seriesOptions(seriesData) as Highcharts.SeriesOptionsType),
-            turboThreshold: 10000,
-          },
-        ],
-        legend: legendOption,
         chart: {
           ...chartOptions,
           events: {
             load: handleChartLoad,
+            redraw: function (this: Chart) {
+              const chart = this as Highcharts.StockChart;
+              const selectedButton = chart.options.rangeSelector?.selected;
+              if (selectedButton !== undefined) {
+                const timeRange = mapIndexToTimeRange(
+                  selectedButton,
+                  fixedSessionTypeSelected
+                );
+                if (fixedSessionTypeSelected) {
+                  dispatch(
+                    setLastSelectedTimeRange(timeRange as FixedTimeRange)
+                  );
+                } else {
+                  dispatch(
+                    setLastSelectedMobileTimeRange(timeRange as MobileTimeRange)
+                  );
+                }
+              }
+            },
           },
         },
-        responsive,
-        tooltip: tooltipOptions,
-        scrollbar: scrollbarOptions,
-        navigator: { enabled: false },
+        xAxis: xAxisOptions,
+        yAxis: getYAxisOptions(thresholdsState, isMobile),
+        series: [
+          {
+            ...seriesOptions(chartData as GraphData),
+          } as Highcharts.SeriesOptionsType,
+        ],
+        tooltip: getTooltipOptions(measurementType, unitSymbol),
+        plotOptions: getPlotOptions(
+          fixedSessionTypeSelected,
+          streamId,
+          dispatch,
+          isIndoorParameterInUrl
+        ),
         rangeSelector: {
-          ...rangeSelectorOptions,
-          buttons: rangeSelectorButtons,
+          ...getRangeSelectorOptions(
+            isMobile,
+            fixedSessionTypeSelected,
+            totalDuration,
+            0,
+            isCalendarPage,
+            t
+          ),
+          selected: getSelectedRangeIndex(
+            lastSelectedTimeRange,
+            fixedSessionTypeSelected
+          ),
         },
+        scrollbar: {
+          ...scrollbarOptions,
+        },
+        navigator: {
+          ...getNavigatorOptions(),
+        },
+        responsive: getResponsiveOptions(thresholdsState, isMobile),
+        legend: legendOption,
         noData: {
           style: {
             fontWeight: "bold",
             fontSize: "15px",
-            color: gray300,
+            color: white,
           },
           position: {
             align: "center",
@@ -325,65 +325,38 @@ const Graph: React.FC<GraphProps> = React.memo(
         },
       }),
       [
+        isCalendarPage,
+        isMobile,
         xAxisOptions,
-        yAxisOption,
-        plotOptions,
+        thresholdsState,
         seriesData,
-        legendOption,
-        chartOptions,
-        handleChartLoad,
-        responsive,
-        tooltipOptions,
+        measurementType,
+        unitSymbol,
+        fixedSessionTypeSelected,
+        streamId,
+        isIndoorParameterInUrl,
+        totalDuration,
         scrollbarOptions,
-        rangeSelectorOptions,
-        rangeSelectorButtons,
+        t,
+        handleChartLoad,
+        lastSelectedTimeRange,
+        dispatch,
       ]
     );
 
-    useEffect(() => {
-      const graphElement = graphRef.current;
-
-      if (graphElement) {
-        graphElement.style.touchAction = "pan-x";
-        const highchartsContainer = graphElement.querySelector(
-          ".highcharts-container"
-        ) as HTMLDivElement | null;
-        if (highchartsContainer) {
-          highchartsContainer.style.overflow = "visible";
-        }
-        const highchartsChartContainer = graphElement.querySelector(
-          "[data-highcharts-chart]"
-        ) as HTMLDivElement | null;
-        if (highchartsChartContainer) {
-          highchartsChartContainer.style.overflow = "visible";
-        }
-      }
-    }, []);
-
-    // Manage Highcharts loading state
-    useEffect(() => {
-      Highcharts.charts.forEach((chart) => {
-        if (chart) {
-          if (isLoading) {
-            chart.showLoading();
-          } else {
-            chart.hideLoading();
-          }
-        }
-      });
-    }, [isLoading]);
-
     return (
       <S.Container
-        ref={graphRef}
         $isCalendarPage={isCalendarPage}
         $isMobile={isMobile}
+        ref={graphRef}
       >
-        {seriesData.length > 0 && (
+        {seriesData && seriesData.length > 0 && (
           <HighchartsReact
             highcharts={Highcharts}
             constructorType={"stockChart"}
             options={options}
+            ref={chartComponentRef}
+            immutable={false}
           />
         )}
       </S.Container>

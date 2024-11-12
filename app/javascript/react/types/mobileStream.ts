@@ -28,16 +28,16 @@ interface MobileStream {
 }
 
 interface MobileStreamShortInfo {
-  averageValue: number;
   endTime: string | null;
-  maxMeasurementValue: number;
-  minMeasurementValue: number;
   profile: string;
   sensorName: string;
   sessionId: number;
   startTime: string;
   title: string;
   unitSymbol: string;
+  minMeasurementValue: number;
+  maxMeasurementValue: number;
+  averageValue: number;
 }
 
 interface MobileGraphData {
