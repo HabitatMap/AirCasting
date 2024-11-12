@@ -161,7 +161,9 @@ const getXAxisOptions = (
           }
         }
 
-        // Set up the scrollbar release callback
+        // Set up the scrollbar release event.
+        // This is used to fetch data when the user scrolls to the end of the graph.
+        // It prevents from disappearing scrollbar when the user scrolls to the end of the graph and liveRedraw is true
         const onScrollbarRelease = () => {
           // Clear any existing timeout
           if (fetchTimeout) {
@@ -587,31 +589,11 @@ const getChartOptions = (
 };
 
 const getNavigatorOptions = (): NavigatorOptions => {
+  // The navigator is not visible in the graph component.
+  // However it is important to keep it to make sure that scrollbar will not disapear forever while fetching data.
   return {
     enabled: true,
     height: 0,
-    // maskFill: "none",
-    // outlineColor: "none",
-    // series: [
-    //   {
-    //     visible: true,
-    //   },
-    // ] as Highcharts.SeriesOptionsType[],
-    // xAxis: {
-    //   labels: {
-    //     enabled: false,
-    //   },
-    //   lineWidth: 0,
-    //   tickLength: 0,
-    //   gridLineWidth: 0,
-    //   title: {
-    //     text: null,
-    //   },
-    // },
-    // handles: {
-    //   backgroundColor: "none",
-    //   borderColor: "none",
-    // },
   };
 };
 

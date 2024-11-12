@@ -151,7 +151,6 @@ const Graph: React.FC<GraphProps> = React.memo(
       fixedSessionTypeSelected,
     });
 
-    // Show or hide loading indicator based on isLoading
     useEffect(() => {
       if (chartComponentRef.current && chartComponentRef.current.chart) {
         const chart = chartComponentRef.current.chart;

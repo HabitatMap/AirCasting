@@ -46,7 +46,7 @@ const addScrollbarDragDetection = (chart: Highcharts.Chart) => {
   Highcharts.addEvent(document, "mouseup", handleMouseUp);
   Highcharts.addEvent(chart.container, "mouseup", handleMouseUp);
   Highcharts.addEvent(chart.container, "mouseleave", handleMouseUp);
-  // "Any" type is because of a bug in highcharts.If you log chart you will see that is has a scroller propertie.
+  // "Any" type is because of a bug in highcharts. If you log chart you will see that is has a scroller propertie.
   if ((chart as any).scroller) {
     Highcharts.addEvent((chart as any).scroller, "mouseup", handleMouseUp);
   }
