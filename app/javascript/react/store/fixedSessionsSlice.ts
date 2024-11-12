@@ -77,8 +77,6 @@ const createSessionFetchThunk = (
         const response: AxiosResponse<SessionsResponse> =
           await oldApiClient.get(endpoint(sessionsData.filters));
 
-        console.log(response.data);
-
         return response.data;
       } catch (error) {
         const message = getErrorMessage(error);
