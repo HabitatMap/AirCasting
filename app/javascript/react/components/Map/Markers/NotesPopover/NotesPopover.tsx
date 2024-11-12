@@ -17,6 +17,7 @@ const NotesPopover = ({ notes }: NotesPopoverProps) => {
   const { t } = useTranslation();
   const isOneNote = notes.length === 1;
   const isMultipleNotes = notes.length > 1;
+  const NOTE_CHARACTER_LIMIT = 60;
 
   const handlePrevSlide = () => {
     setCurrentSlide((prev) => (prev > 0 ? prev - 1 : notes.length - 1));
@@ -93,7 +94,11 @@ const NotesPopover = ({ notes }: NotesPopoverProps) => {
                   </S.NoteInfoContainer>
                   <S.NoteInfoContainer>
                     <H4 $bold>{t("map.note.note")}</H4>
-                    <S.NoteTextContainer>
+                    <S.NoteTextContainer
+                      $isScrollable={
+                        notes[currentSlide].text.length > NOTE_CHARACTER_LIMIT
+                      }
+                    >
                       <S.NoteText>{notes[currentSlide].text}</S.NoteText>
                     </S.NoteTextContainer>
                   </S.NoteInfoContainer>
