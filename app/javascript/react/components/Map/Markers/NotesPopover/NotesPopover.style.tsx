@@ -54,7 +54,6 @@ const NoteContainer = styled.div<{ $oneNote?: boolean }>`
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   z-index: 4;
   width: min-content;
-  /* max-width: 90vw; */
 
   @media ${media.desktop} {
     max-width: 60vw;
