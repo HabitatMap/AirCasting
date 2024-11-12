@@ -1,3 +1,4 @@
+import Popup from "reactjs-popup";
 import styled from "styled-components";
 import {
   gray100,
@@ -33,12 +34,20 @@ const NoteButtonIcon = styled.img`
   height: 2rem;
 `;
 
+const NotesPopup = styled(Popup)`
+  &-content {
+    padding: 0;
+    border: none;
+    background: transparent;
+    width: auto;
+    margin: 0;
+  }
+`;
+
 const NoteContainer = styled.div<{ $oneNote?: boolean }>`
-  position: absolute;
+  position: relative;
   display: flex;
   flex-direction: column;
-  top: calc(100% + 3.5rem);
-  transform: translateX(-50%);
   background: ${white};
   border-radius: 1rem;
   padding: 1.8rem 0.8rem;
@@ -48,10 +57,7 @@ const NoteContainer = styled.div<{ $oneNote?: boolean }>`
   max-width: 90vw;
 
   @media ${media.desktop} {
-    top: 3.5rem;
-    left: 0;
-    transform: translateX(0);
-    width: max-content;
+    max-width: 60vw;
   }
 `;
 
@@ -192,6 +198,7 @@ export {
   NoteContainer,
   NoteDate,
   NoteInfoContainer,
+  NotesPopup,
   NoteText,
   NoteTextContainer,
   NoteWrapper,
