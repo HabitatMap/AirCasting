@@ -222,13 +222,7 @@ export function FixedMarkers({
 
       return marker;
     },
-    [
-      thresholds,
-      unitSymbol,
-      pulsatingSessionId,
-      onMarkerClick,
-      centerMapOnMarker,
-    ]
+    [onMarkerClick, centerMapOnMarker]
   );
 
   const handleMapInteraction = useCallback(() => {
@@ -292,15 +286,7 @@ export function FixedMarkers({
 
       overlay.setShouldPulse(hasPulsatingSession);
     });
-  }, [
-    map,
-    selectedStreamId,
-    pulsatingSessionId,
-    thresholds,
-    unitSymbol,
-    onMarkerClick,
-    centerMapOnMarker,
-  ]);
+  }, [pulsatingSessionId]);
 
   const updateMarkerOverlays = useCallback(() => {
     markerRefs.current.forEach((marker, streamId) => {
@@ -379,6 +365,145 @@ export function FixedMarkers({
     onMarkerClick,
     centerMapOnMarker,
   ]);
+
+  const handleSelectedStreamIdChange = useCallback(
+    (streamId: number | null) => {
+      if (fixedStreamStatus === StatusEnum.Pending) return;
+
+      if (streamId === null) {
+        // Reinitialize markers and clusters
+        if (!clustererRef.current && map) {
+          clustererRef.current = new MarkerClusterer({
+            map,
+            markers: [],
+            renderer: customRenderer,
+            algorithm: new SuperClusterAlgorithm({
+              maxZoom: 21,
+              radius: CLUSTER_RADIUS,
+            }),
+          });
+
+          clustererRef.current.addListener(
+            "clusteringend",
+            handleClusteringEnd
+          );
+        }
+
+        // Re-add all markers to the clusterer
+        const allMarkers = Array.from(markerRefs.current.values());
+        clustererRef.current!.addMarkers(allMarkers);
+
+        // Force clusterer update
+        clustererRef.current!.render();
+
+        // Update overlays for all markers
+        updateMarkerOverlays();
+        updateClusterOverlays();
+      } else {
+        // Handle single selected stream
+        if (fixedStreamData?.stream) {
+          const { latitude, longitude } = fixedStreamData.stream;
+          if (latitude && longitude) {
+            const fixedStreamPosition = { lat: latitude, lng: longitude };
+            centerMapOnMarker(fixedStreamPosition);
+
+            // Clear the clusterer
+            if (clustererRef.current) {
+              clustererRef.current.clearMarkers();
+              clustererRef.current.setMap(null);
+              clustererRef.current = null;
+            }
+
+            // Remove markers and overlays not related to selected stream
+            markerRefs.current.forEach((marker, streamIdKey) => {
+              if (streamIdKey !== streamId.toString()) {
+                marker.setMap(null);
+                markerRefs.current.delete(streamIdKey);
+
+                const markerOverlay = markerOverlays.current.get(streamIdKey);
+                if (markerOverlay) {
+                  markerOverlay.setMap(null);
+                  markerOverlays.current.delete(streamIdKey);
+                }
+                const labelOverlay = labelOverlays.current.get(streamIdKey);
+                if (labelOverlay) {
+                  labelOverlay.setMap(null);
+                  labelOverlays.current.delete(streamIdKey);
+                }
+              }
+            });
+
+            // Ensure the selected stream's marker and overlays are present
+            const selectedMarker = markerRefs.current.get(streamId.toString());
+            if (!selectedMarker) {
+              const session = memoizedSessions.find(
+                (session) => session.point.streamId === streamId.toString()
+              );
+              if (session) {
+                const newMarker = createMarker(session);
+                markerRefs.current.set(session.point.streamId, newMarker);
+                newMarker.setMap(map);
+
+                const newOverlay = new CustomMarkerOverlay(
+                  new google.maps.LatLng(latitude, longitude),
+                  getColorForValue(thresholds, session.lastMeasurementValue),
+                  true,
+                  false
+                );
+                newOverlay.setMap(map);
+                markerOverlays.current.set(session.point.streamId, newOverlay);
+
+                const newLabelOverlay = new LabelOverlay(
+                  new google.maps.LatLng(latitude, longitude),
+                  getColorForValue(thresholds, session.lastMeasurementValue),
+                  session.lastMeasurementValue,
+                  unitSymbol,
+                  true,
+                  () => {
+                    onMarkerClick(
+                      Number(session.point.streamId),
+                      Number(session.id)
+                    );
+                    centerMapOnMarker(fixedStreamPosition);
+                  }
+                );
+                newLabelOverlay.setMap(map);
+                labelOverlays.current.set(
+                  session.point.streamId,
+                  newLabelOverlay
+                );
+              }
+            }
+
+            // Remove all cluster overlays
+            clusterOverlaysRef.current.forEach((overlay) =>
+              overlay.setMap(null)
+            );
+            clusterOverlaysRef.current.clear();
+          }
+        }
+      }
+    },
+    [
+      fixedStreamStatus,
+      fixedStreamData,
+      map,
+      customRenderer,
+      handleClusteringEnd,
+      updateMarkerOverlays,
+      updateClusterOverlays,
+      memoizedSessions,
+      createMarker,
+      thresholds,
+      unitSymbol,
+      onMarkerClick,
+      centerMapOnMarker,
+    ]
+  );
+
+  useEffect(() => {
+    handleSelectedStreamIdChange(selectedStreamId);
+  }, [selectedStreamId, handleSelectedStreamIdChange]);
 
   // Effect to manage markers: create, update, and remove markers based on sessions data
 
