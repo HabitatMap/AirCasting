@@ -100,6 +100,13 @@ export function FixedMarkers({
 
   const memoizedSessions = useMemo(() => sessions, [sessions]);
 
+  // Ref for onMarkerClick to avoid stale closures
+  const onMarkerClickRef = useRef(onMarkerClick);
+
+  useEffect(() => {
+    onMarkerClickRef.current = onMarkerClick;
+  }, [onMarkerClick]);
+
   // Utility functions and event handlers for map interactions, marker creation, and cluster management
   const centerMapOnMarker = useCallback(
     (position: LatLngLiteral) => {
@@ -216,13 +223,16 @@ export function FixedMarkers({
       marker.clustered = false;
 
       marker.addListener("click", () => {
-        onMarkerClick(Number(session.point.streamId), Number(session.id));
+        onMarkerClickRef.current(
+          Number(session.point.streamId),
+          Number(session.id)
+        );
         centerMapOnMarker(session.point);
       });
 
       return marker;
     },
-    [onMarkerClick, centerMapOnMarker]
+    [centerMapOnMarker] // Removed onMarkerClick from dependencies
   );
 
   const handleMapInteraction = useCallback(() => {
@@ -335,7 +345,7 @@ export function FixedMarkers({
             unitSymbol,
             isSelected,
             () => {
-              onMarkerClick(
+              onMarkerClickRef.current(
                 Number(marker.userData.streamId),
                 Number(marker.sessionId)
               );
@@ -362,7 +372,6 @@ export function FixedMarkers({
     pulsatingSessionId,
     thresholds,
     unitSymbol,
-    onMarkerClick,
     centerMapOnMarker,
   ]);
 
@@ -405,6 +414,7 @@ export function FixedMarkers({
           const { latitude, longitude } = fixedStreamData.stream;
           if (latitude && longitude) {
             const fixedStreamPosition = { lat: latitude, lng: longitude };
+
             centerMapOnMarker(fixedStreamPosition);
 
             // Clear the clusterer
@@ -460,7 +470,7 @@ export function FixedMarkers({
                   unitSymbol,
                   true,
                   () => {
-                    onMarkerClick(
+                    onMarkerClickRef.current(
                       Number(session.point.streamId),
                       Number(session.id)
                     );
@@ -496,7 +506,6 @@ export function FixedMarkers({
       createMarker,
       thresholds,
       unitSymbol,
-      onMarkerClick,
       centerMapOnMarker,
     ]
   );
@@ -506,7 +515,6 @@ export function FixedMarkers({
   }, [selectedStreamId, handleSelectedStreamIdChange]);
 
   // Effect to manage markers: create, update, and remove markers based on sessions data
-
   useEffect(() => {
     if (!map || !clustererRef.current) return;
 
@@ -678,7 +686,7 @@ export function FixedMarkers({
         handleClusteringEnd();
       });
     }
-  }, [map, customRenderer, handleClusterClickInternal]);
+  }, [map, customRenderer, handleClusteringEnd]);
 
   // Needed to handle fixed session opened in a new tab - otherwise markers won't appear
   useEffect(() => {
@@ -752,7 +760,7 @@ export function FixedMarkers({
                 unitSymbol,
                 true,
                 () => {
-                  onMarkerClick(
+                  onMarkerClickRef.current(
                     Number(session.point.streamId),
                     Number(session.id)
                   );
@@ -830,6 +838,8 @@ export function FixedMarkers({
     createMarker,
     handleClusteringEnd,
     customRenderer,
+    updateMarkerOverlays,
+    updateClusterOverlays,
   ]);
 
   useEffect(() => {

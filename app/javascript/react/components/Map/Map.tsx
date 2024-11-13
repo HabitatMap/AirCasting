@@ -517,7 +517,20 @@ const Map = () => {
       }
 
       applyMapStylesBasedOnZoom(map, mapStylesZoomedIn, memoizedMapStyles);
+      if (!isFirstRender.current) {
+        if (
+          [UserSettings.MapView, UserSettings.CrowdMapView].includes(
+            currentUserSettings
+          )
+        ) {
+          const currentCenter = map.getCenter()?.toJSON() || previousCenter;
+          const currentZoom = map.getZoom() || previousZoom;
 
+          // Update refs
+          previousZoomRef.current = currentZoom;
+          previousCenterRef.current = currentCenter;
+        }
+      }
       if (isFirstRender.current) {
         if (currentUserSettings === UserSettings.MapView) {
           newSearchParams.set(UrlParamsTypes.sessionType, sessionType);
