@@ -214,8 +214,7 @@ const Graph: React.FC<GraphProps> = React.memo(
           fixedSessionTypeSelected,
           dispatch,
           isLoading,
-          fetchMeasurementsIfNeeded,
-          sensorName
+          fetchMeasurementsIfNeeded
         ),
       [
         isMobile,
@@ -224,7 +223,6 @@ const Graph: React.FC<GraphProps> = React.memo(
         dispatch,
         isLoading,
         fetchMeasurementsIfNeeded,
-        sensorName,
       ]
     );
 

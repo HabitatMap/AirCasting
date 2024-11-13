@@ -72,8 +72,7 @@ const getXAxisOptions = (
   fixedSessionTypeSelected: boolean,
   dispatch: AppDispatch,
   isLoading: boolean,
-  fetchMeasurementsIfNeeded: (start: number, end: number) => Promise<void>,
-  sensorName: string | undefined
+  fetchMeasurementsIfNeeded: (start: number, end: number) => Promise<void>
 ): Highcharts.XAxisOptions => {
   let isFetchingData = false;
   let initialDataMin: number | null = null;
@@ -145,6 +144,10 @@ const getXAxisOptions = (
         const chart = axis.chart as Highcharts.StockChart;
         const sensorName = chart.series[0]?.name;
 
+        handleSetExtremes(e);
+
+        if (!fixedSessionTypeSelected) return;
+
         // Initialize initialDataMin and handle first render
         if (initialDataMin === null && e.dataMin !== undefined) {
           initialDataMin = e.dataMin - MILLISECONDS_IN_A_MONTH;
@@ -162,15 +165,11 @@ const getXAxisOptions = (
         }
 
         // Set up the scrollbar release event.
-        // This is used to fetch data when the user scrolls to the end of the graph.
-        // It prevents from disappearing scrollbar when the user scrolls to the end of the graph and liveRedraw is true
         const onScrollbarRelease = () => {
-          // Clear any existing timeout
           if (fetchTimeout) {
             clearTimeout(fetchTimeout);
           }
 
-          // Set new timeout
           fetchTimeout = setTimeout(async () => {
             if (isLoading || isFetchingData) return;
 
@@ -204,9 +203,6 @@ const getXAxisOptions = (
           }, 800);
         };
         onScrollbarRelease();
-
-        // Update the extremes and UI elements
-        handleSetExtremes(e);
       },
     },
   };
