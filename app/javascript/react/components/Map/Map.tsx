@@ -517,20 +517,7 @@ const Map = () => {
       }
 
       applyMapStylesBasedOnZoom(map, mapStylesZoomedIn, memoizedMapStyles);
-      if (!isFirstRender.current) {
-        if (
-          [UserSettings.MapView, UserSettings.CrowdMapView].includes(
-            currentUserSettings
-          )
-        ) {
-          const currentCenter = map.getCenter()?.toJSON() || previousCenter;
-          const currentZoom = map.getZoom() || previousZoom;
 
-          // Update refs
-          previousZoomRef.current = currentZoom;
-          previousCenterRef.current = currentCenter;
-        }
-      }
       if (isFirstRender.current) {
         if (currentUserSettings === UserSettings.MapView) {
           newSearchParams.set(UrlParamsTypes.sessionType, sessionType);
@@ -579,22 +566,10 @@ const Map = () => {
 
   // ref to currentUserSettings to get the current value from URL
   const currentUserSettingsRef = useRef(currentUserSettings);
-  const currentStreamIdRef = useRef(streamId);
-  const previousZoomRef = useRef(previousZoom);
-  const previousCenterRef = useRef(previousCenter);
 
   useEffect(() => {
     currentUserSettingsRef.current = currentUserSettings;
   }, [currentUserSettings]);
-
-  useEffect(() => {
-    currentStreamIdRef.current = streamId;
-  }, [streamId]);
-
-  useEffect(() => {
-    previousZoomRef.current = previousZoom;
-    previousCenterRef.current = previousCenter;
-  }, [previousZoom, previousCenter]);
 
   const handleMarkerClick = (
     selectedStreamId: number | null,
@@ -633,7 +608,7 @@ const Map = () => {
       }
     }
 
-    if (!currentStreamIdRef.current) {
+    if (!streamId) {
       newSearchParams.set(UrlParamsTypes.sessionId, id?.toString() || "");
       newSearchParams.set(
         UrlParamsTypes.streamId,
@@ -651,18 +626,11 @@ const Map = () => {
       navigate(`?${newSearchParams.toString()}`);
     }
 
-    if (currentStreamIdRef.current) {
+    if (streamId) {
       revertUserSettingsAndResetIds();
       fixedSessionTypeSelected
         ? dispatch(resetFixedStreamState())
         : dispatch(resetMobileStreamState());
-
-      setTimeout(() => {
-        if (mapInstance) {
-          mapInstance.setZoom(previousZoomRef.current);
-          mapInstance.setCenter(previousCenterRef.current);
-        }
-      }, 0);
     }
   };
 
@@ -680,8 +648,8 @@ const Map = () => {
       ].includes(previousUserSettings)
     ) {
       if (mapInstance) {
-        mapInstance.setZoom(previousZoomRef.current);
-        mapInstance.setCenter(previousCenterRef.current);
+        mapInstance.setCenter(previousCenter);
+        mapInstance.setZoom(previousZoom);
       }
     }
   };
@@ -705,7 +673,6 @@ const Map = () => {
         mobileConditionForSessionList
       ) {
         const newCenter = mapInstance.getCenter()?.toJSON();
-
         if (newCenter !== previousCenter) {
           newSearchParams.set(
             UrlParamsTypes.previousCenter,
