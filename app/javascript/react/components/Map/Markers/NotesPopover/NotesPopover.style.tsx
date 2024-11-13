@@ -177,8 +177,10 @@ const NoteTextContainer = styled.div<{ $isScrollable: boolean }>`
   overflow-y: ${(props) => (props.$isScrollable ? "auto" : "hidden")};
 
   @media ${media.desktop} {
+    min-height: 5.1rem;
     max-height: 25rem;
     max-width: 30rem;
+    overflow-y: auto;
   }
 `;
 
