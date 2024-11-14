@@ -1,6 +1,7 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
 import { PopupProps } from "reactjs-popup/dist/types";
+import useMobileDetection from "../../utils/useScreenSizeDetection";
 
 import questionMark from "../../assets/icons/questionMark.svg";
 import * as S from "./SessionFilters.style";
@@ -23,6 +24,7 @@ interface FilterInfoPopupProps {
 
 const FilterInfoPopup = ({ filterTranslationLabel }: FilterInfoPopupProps) => {
   const { t } = useTranslation();
+  const isMobile = useMobileDetection();
 
   return (
     <InfoPopup
@@ -31,11 +33,12 @@ const FilterInfoPopup = ({ filterTranslationLabel }: FilterInfoPopupProps) => {
           <S.InfoIcon src={questionMark} />
         </S.InfoButton>
       }
-      position="left center"
+      position={isMobile ? "left center" : "right center"}
       repositionOnResize={true}
       keepTooltipInside={true}
       arrow={false}
       on={["hover", "focus"]}
+      offsetX={isMobile ? 5 : 10}
     >
       <S.Info>{t(filterTranslationLabel)}</S.Info>
     </InfoPopup>
