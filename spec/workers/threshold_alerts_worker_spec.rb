@@ -30,6 +30,7 @@ describe ThresholdAlertsWorker do
         create_measurement!(
           stream: stream,
           time: Time.current + timezone_offset,
+          time_with_time_zone: Time.current - 20.minutes,
           value: 20,
         )
       end
@@ -58,6 +59,7 @@ describe ThresholdAlertsWorker do
         create_measurement!(
           stream: stream,
           time: Time.current + timezone_offset,
+          time_with_time_zone: Time.current - 20.minutes,
           value: 20,
         )
       end
@@ -68,6 +70,34 @@ describe ThresholdAlertsWorker do
           :threshold_exceeded_email,
         )
       end
+    end
+  end
+  context 'when measurements do not exceed threshold value' do
+    let!(:alert) do
+      ThresholdAlert.create(
+        user: user,
+        session_uuid: session.uuid,
+        sensor_name: stream.sensor_name,
+        threshold_value: 30,
+        frequency: 1,
+        last_email_at: Time.current - 70.minutes,
+        timezone_offset: timezone_offset,
+      )
+    end
+    let!(:measurement) do
+      create_measurement!(
+        stream: stream,
+        time: Time.current + timezone_offset,
+        time_with_time_zone: Time.current - 20.minutes,
+        value: 20,
+      )
+    end
+
+    it 'does not send alert email' do
+      expect { subject.perform }.not_to have_enqueued_mail(
+        UserMailer,
+        :threshold_exceeded_email,
+      )
     end
   end
 end
