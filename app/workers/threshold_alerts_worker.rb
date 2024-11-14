@@ -4,6 +4,8 @@ class ThresholdAlertsWorker
   include Sidekiq::Worker
 
   def perform
+    return unless A9n.sidekiq_threshold_exceeded_alerts_enabled
+
     alerts = ThresholdAlert.all
     start_time = Time.current
     Sidekiq.logger.info "Starting ThresholdAlertsWorker at #{start_time}"

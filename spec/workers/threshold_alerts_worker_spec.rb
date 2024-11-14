@@ -8,6 +8,11 @@ describe ThresholdAlertsWorker do
   let(:stream) { create_stream!(session: session, sensor_name: 'PM2.5') }
   let(:timezone_offset) { -18_000 }
 
+  before do
+    allow(A9n).to receive(:sidekiq_threshold_exceeded_alerts_enabled)
+      .and_return(true)
+  end
+
   context 'when measurement exceeds threshold value' do
     context 'when time passed since last email > frequency' do
       let!(:alert) do
