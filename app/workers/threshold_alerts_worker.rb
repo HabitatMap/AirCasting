@@ -6,88 +6,58 @@ class ThresholdAlertsWorker
   def perform
     return unless A9n.sidekiq_threshold_exceeded_alerts_enabled
 
-    alerts = ThresholdAlert.all
-    start_time = Time.current
-    Sidekiq.logger.info "Starting ThresholdAlertsWorker at #{start_time}"
-
-    Sidekiq
-      .logger.info "[TRSHLD] #{alerts.count} alerts found: #{alerts.inspect}"
+    current_time = Time.current
+    alerts = ThresholdAlert.joins(:user).all
 
     alerts.each do |alert|
-      if was_recently_sent?(alert)
-        Sidekiq
-          .logger.warn "[TRSHLD] Alert ##{alert.id} skipped, recently sent: #{alert.inspect}"
-        next
-      end
-
-      # next if was_recently_sent?(alert)
+      next if was_recently_sent?(alert, current_time)
 
       session = Session.joins(:streams).find_by_uuid(alert.session_uuid)
-      unless session
-        Sidekiq
-          .logger.warn "[TRSHLD] Alert ##{alert.id} skipped, session with UUID ##{alert.session_uuid} not found: #{alert.inspect}"
-        next
-      end
-
-      # next unless session
+      next unless session
 
       stream =
         session
           .streams
           .select { |stream| stream.sensor_name == alert.sensor_name }
           .first
-      unless stream
-        Sidekiq
-          .logger.warn "[TRSHLD] Alert ##{alert.id} skipped, stream with sensor name '#{alert.sensor_name}' not found: #{alert.inspect}"
-        next
+
+      threshold_exceeded = measurements_above_threshold?(stream.id, alert)
+
+      ActiveRecord::Base.transaction do
+        alert.update!(last_check_at: current_time)
+
+        alert.update!(last_email_at: current_time) if threshold_exceeded
       end
 
-      # next unless stream
-
-      date_to_compare = alert.last_email_at || alert.created_at # Those are in UTC
-      date_to_compare_local = date_to_compare + alert.timezone_offset
-
-      measurements =
-        stream
-          .measurements
-          .where('time > ?', date_to_compare_local)
-          .order('time ASC') # Measurement#time is local
-      Sidekiq
-        .logger.info "[TRSHLD] Found #{measurements.count} measurements since #{date_to_compare}: #{measurements.inspect} for alert ##{alert.id}."
-
-      measurements_above_threshold =
-        measurements&.select { |m| m.value > alert.threshold_value }
-
-      unless measurements_above_threshold.empty?
-        UserMailer
-          .with(
-            user: session.user,
-            title: session.title,
-            sensor: stream.sensor_name,
-          )
-          .threshold_exceeded_email
-          .deliver_later
-
-        alert.update(last_email_at: Time.current)
-        Sidekiq.logger.info(
-          "[TRSHLD] Alert ##{alert.id} sent: #{alert.inspect}",
-        )
-      else
-        Sidekiq
-          .logger.warn "[TRSHLD] Alert ##{alert.id} skipped, no new measurements above threshold: #{alert.inspect}"
+      if threshold_exceeded
+        send_email(alert.user, session.title, stream.sensor_name)
       end
     end
-
-    end_time = Time.current
-    Sidekiq.logger.info "Finished ThresholdAlertsWorker at #{end_time}"
-    Sidekiq.logger.info "Total time taken: #{end_time - start_time} seconds"
   end
 
   private
 
-  def was_recently_sent?(alert)
+  def was_recently_sent?(alert, current_time)
     return false unless alert.last_email_at
 
-    (alert.last_email_at + alert.frequency.hours) > Time.current
+    (alert.last_email_at + alert.frequency.hours) > current_time
+  end
+
+  def measurements_above_threshold?(stream_id, alert)
+    time_to_compare =
+      alert.last_email_at || alert.last_check_at || alert.created_at
+
+    Measurement
+      .where(stream_id: stream_id)
+      .where('time_with_time_zone >= ?', time_to_compare)
+      .where('value > ?', alert.threshold_value)
+      .exists?
+  end
+
+  def send_email(user, title, sensor)
+    UserMailer
+      .with(user: user, title: title, sensor: sensor)
+      .threshold_exceeded_email
+      .deliver_later
   end
 end
