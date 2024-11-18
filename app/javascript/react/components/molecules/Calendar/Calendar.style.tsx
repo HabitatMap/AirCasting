@@ -26,7 +26,7 @@ const DesktopSwipeLeftContainer = styled.div`
   position: absolute;
   display: flex;
   left: 3rem;
-  top: 50%;
+  top: 25rem;
   transform: translateY(-50%);
 `;
 
@@ -34,7 +34,7 @@ const DesktopSwipeRightContainer = styled.div`
   position: absolute;
   display: flex;
   right: 3rem;
-  top: 50%;
+  top: 25rem;
   transform: translateY(-50%);
 `;
 
