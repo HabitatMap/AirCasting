@@ -1,8 +1,66 @@
-const determineZoomLevel = (results: google.maps.GeocoderResult[]) => {
+interface ZoomAndBounds {
+  zoom: number;
+  bounds?: google.maps.LatLngBounds;
+}
+
+const determineZoomLevel = (
+  results: google.maps.GeocoderResult[]
+): ZoomAndBounds => {
   const locationTypes = results[0].types;
   const primaryType = locationTypes[0];
+  const viewport = results[0].geometry.viewport;
 
-  // Based on: https://developers.google.com/maps/documentation/places/web-service/supported_types
+  // Helper function to get bounds for specific countries
+  const getCountryBounds = (
+    countryCode: string
+  ): google.maps.LatLngBounds | undefined => {
+    switch (countryCode) {
+      case "US":
+        return new google.maps.LatLngBounds(
+          { lat: 25.82, lng: -124.39 }, // SW corner
+          { lat: 49.38, lng: -66.94 } // NE corner
+        );
+      case "RU":
+        return new google.maps.LatLngBounds(
+          { lat: 41.18, lng: 19.64 },
+          { lat: 81.85, lng: 180.0 }
+        );
+      case "CA":
+        return new google.maps.LatLngBounds(
+          { lat: 45.0, lng: -125.0 }, // Adjusted SW corner
+          { lat: 70.0, lng: -60.0 }
+        );
+      // Add more countries as needed
+      default:
+        return viewport;
+    }
+  };
+
+  // Helper function to get bounds for large US states
+  const getStateBounds = (
+    state: string
+  ): google.maps.LatLngBounds | undefined => {
+    switch (state) {
+      case "AK":
+        return new google.maps.LatLngBounds(
+          { lat: 51.17, lng: -179.15 },
+          { lat: 71.44, lng: -129.99 }
+        );
+      case "TX":
+        return new google.maps.LatLngBounds(
+          { lat: 25.84, lng: -106.65 },
+          { lat: 36.5, lng: -93.51 }
+        );
+      case "CA":
+        return new google.maps.LatLngBounds(
+          { lat: 32.53, lng: -124.48 },
+          { lat: 42.01, lng: -114.13 }
+        );
+      default:
+        return viewport;
+    }
+  };
+
   switch (primaryType) {
     // Very detailed zoom for specific addresses and rooms
     case "street_address":
@@ -10,12 +68,18 @@ const determineZoomLevel = (results: google.maps.GeocoderResult[]) => {
     case "subpremise":
     case "street_number":
     case "room":
-      return 18;
+      return {
+        zoom: 18,
+        bounds: viewport,
+      };
 
     // Detailed zoom for routes and intersections
     case "route":
     case "intersection":
-      return 17;
+      return {
+        zoom: 17,
+        bounds: viewport,
+      };
 
     // Detailed zoom for various businesses and points of interest
     case "accounting":
@@ -116,7 +180,10 @@ const determineZoomLevel = (results: google.maps.GeocoderResult[]) => {
     case "veterinary_care":
     case "zoo":
     case "town_square":
-      return 15;
+      return {
+        zoom: 15,
+        bounds: viewport,
+      };
 
     // Less detailed zoom for larger areas and general places
     case "airport":
@@ -139,14 +206,20 @@ const determineZoomLevel = (results: google.maps.GeocoderResult[]) => {
     case "point_of_interest":
     case "post_box":
     case "postal_town":
-      return 14;
+      return {
+        zoom: 14,
+        bounds: viewport,
+      };
 
     // City level zoom
     case "locality":
     case "postal_code":
     case "postal_code_prefix":
     case "postal_code_suffix":
-      return 11;
+      return {
+        zoom: 11,
+        bounds: viewport,
+      };
 
     // Regional level zoom
     case "administrative_area_level_3":
@@ -154,33 +227,113 @@ const determineZoomLevel = (results: google.maps.GeocoderResult[]) => {
     case "administrative_area_level_5":
     case "administrative_area_level_6":
     case "administrative_area_level_7":
-      return 12;
+      return {
+        zoom: 12,
+        bounds: viewport,
+      };
 
     // County level zoom
     case "administrative_area_level_2":
-      return 11;
+      return {
+        zoom: 11,
+        bounds: viewport,
+      };
 
     // State level zoom
     case "administrative_area_level_1":
-      return 10;
+      const country = results[0].address_components.find((component) =>
+        component.types.includes("country")
+      )?.short_name;
 
-    // Place code level zoom
-    case "place_code":
-      return 8;
+      if (country === "US") {
+        const state = results[0].address_components.find((component) =>
+          component.types.includes("administrative_area_level_1")
+        )?.short_name;
 
-    // Country level zoom
+        switch (state) {
+          case "AK":
+          case "TX":
+          case "CA":
+            return {
+              zoom: 6,
+              bounds: getStateBounds(state),
+            };
+          case "MT":
+          case "NM":
+          case "AZ":
+          case "NV":
+            return {
+              zoom: 7,
+              bounds: viewport,
+            };
+          default:
+            return {
+              zoom: 7,
+              bounds: viewport,
+            };
+        }
+      }
+      return {
+        zoom: 7,
+        bounds: viewport,
+      };
+
+    // Country level zoom - adjusted based on country size
     case "country":
-      return 6;
+      const countryCode = results[0].address_components.find((component) =>
+        component.types.includes("country")
+      )?.short_name;
 
-    // Very broad level zoom
+      switch (countryCode) {
+        case "RU":
+        case "CA":
+          return {
+            zoom: 4,
+            bounds: getCountryBounds(countryCode),
+          };
+        case "US":
+        case "CN":
+        case "BR":
+        case "AU":
+          return {
+            zoom: 5,
+            bounds: getCountryBounds(countryCode),
+          };
+        case "IN":
+        case "AR":
+          return {
+            zoom: 6,
+            bounds: getCountryBounds(countryCode),
+          };
+        default:
+          return {
+            zoom: 6,
+            bounds: viewport,
+          };
+      }
+
+    // Very broad level zoom - adjusted
     case "archipelago":
     case "colloquial_area":
     case "continent":
-      return 5;
+      return {
+        zoom: 3,
+        bounds: viewport,
+      };
+
+    // Place code level zoom
+    case "place_code":
+      return {
+        zoom: 8,
+        bounds: viewport,
+      };
 
     // Default zoom level if type is unknown
     default:
-      return 10;
+      return {
+        zoom: 10,
+        bounds: viewport,
+      };
   }
 };
 
