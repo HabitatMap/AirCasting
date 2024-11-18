@@ -79,7 +79,8 @@ const LocationSearch: React.FC<LocationSearchProps> = ({
     clearSuggestions();
     const results = await getGeocode({ address: item.description });
     const { lat, lng } = await getLatLng(results[0]);
-    const zoomLevel = determineZoomLevel(results);
+    const { zoom, bounds } = determineZoomLevel(results);
+
     setUrlParams([
       {
         key: UrlParamsTypes.currentCenter,
@@ -87,12 +88,16 @@ const LocationSearch: React.FC<LocationSearchProps> = ({
       },
       {
         key: UrlParamsTypes.currentZoom,
-        value: zoomLevel.toString(),
+        value: zoom.toString(),
       },
     ]);
 
-    map?.setZoom(zoomLevel);
-    map?.panTo({ lat, lng });
+    if (bounds && map) {
+      map.fitBounds(bounds);
+    } else {
+      map?.setZoom(zoom);
+      map?.panTo({ lat, lng });
+    }
 
     setTimeout(() => {
       dispatch(setFetchingData(true));
