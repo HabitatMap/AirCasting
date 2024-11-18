@@ -21,6 +21,8 @@ class ThresholdAlertsWorker
           .select { |stream| stream.sensor_name == alert.sensor_name }
           .first
 
+      next unless stream
+
       threshold_exceeded = measurements_above_threshold?(stream.id, alert)
 
       ActiveRecord::Base.transaction do
