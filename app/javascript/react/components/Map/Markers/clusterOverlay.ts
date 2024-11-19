@@ -1,4 +1,4 @@
-import { Cluster } from "@googlemaps/markerclusterer";
+import { Cluster, ClusterStats, Renderer } from "@googlemaps/markerclusterer";
 import { CustomMarker } from "../../../types/googleMaps";
 import { Thresholds } from "../../../types/thresholds";
 import { getColorForValue } from "../../../utils/thresholdColors";
@@ -164,7 +164,7 @@ export class ClusterOverlay extends google.maps.OverlayView {
   }
 }
 
-export const createFixedMarkersRenderer = ({
+export const createClusterMarkersRenderer = ({
   thresholds,
   onClusterClick,
 }: {
@@ -177,7 +177,7 @@ export const createFixedMarkersRenderer = ({
   return {
     render: (
       { count, position, markers = [] }: Cluster,
-
+      stats: ClusterStats,
       map: google.maps.Map
     ) => {
       const customMarkers = markers as CustomMarker[];
@@ -201,22 +201,22 @@ export const createFixedMarkersRenderer = ({
         marker.get("shouldPulse")
       );
 
-      const clusterOverlay = new ClusterOverlay(
-        cluster,
-        color,
-        shouldPulse,
-        map,
-        onClusterClick
-      );
+      class ExtendedClusterOverlay extends google.maps.Marker {
+        private overlay: ClusterOverlay;
 
-      // Create a dummy Marker to satisfy the Renderer type
-      const dummyMarker = new google.maps.Marker({ position });
+        constructor() {
+          super({ position, visible: false });
+          this.overlay = new ClusterOverlay(
+            cluster,
+            color,
+            shouldPulse,
+            map,
+            onClusterClick
+          );
+        }
+      }
 
-      // Use the ClusterOverlay to render the cluster visually
-      clusterOverlay.setMap(map);
-
-      // Return the dummy Marker to satisfy the Renderer type
-      return dummyMarker;
+      return new ExtendedClusterOverlay();
     },
   };
 };

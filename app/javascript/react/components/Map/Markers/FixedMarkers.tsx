@@ -31,7 +31,11 @@ import { getColorForValue } from "../../../utils/thresholdColors";
 import { ClusterInfo, ClusterInfoLoading } from "./ClusterInfo/ClusterInfo";
 
 import HoverMarker from "./HoverMarker/HoverMarker";
-import { ClusterOverlay, createFixedMarkersRenderer } from "./clusterOverlay";
+import {
+  ClusterOverlay,
+  createClusterMarkersRenderer,
+  CustomCluster,
+} from "./clusterOverlay";
 import { LabelOverlay } from "./customMarkerLabel";
 import { CustomMarkerOverlay } from "./customMarkerOverlay";
 
@@ -40,10 +44,6 @@ type CustomMarker = google.maps.Marker & {
   sessionId: number;
   userData: { streamId: string };
   clustered: boolean;
-};
-
-export type CustomCluster = Cluster & {
-  id: string;
 };
 
 type FixedMarkersProps = {
@@ -375,7 +375,7 @@ export function FixedMarkers({
   ]);
   const createClusterer = useCallback(() => {
     if (map) {
-      const renderer = createFixedMarkersRenderer({
+      const renderer = createClusterMarkersRenderer({
         thresholds,
         onClusterClick: handleClusterClickInternal,
       });
