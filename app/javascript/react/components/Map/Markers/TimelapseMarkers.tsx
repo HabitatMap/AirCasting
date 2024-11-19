@@ -4,8 +4,7 @@ import { useSelector } from "react-redux";
 import { selectThresholds } from "../../../store/thresholdSlice";
 import { useMapParams } from "../../../utils/mapParamsHandler";
 import { getColorForValue } from "../../../utils/thresholdColors";
-import { CustomCluster } from "./FixedMarkers";
-import { ClusterOverlay } from "./clusterOverlay";
+import { ClusterOverlay, CustomCluster } from "./clusterOverlay";
 import { LabelOverlay } from "./customMarkerLabel";
 import { CustomMarkerOverlay } from "./customMarkerOverlay";
 
