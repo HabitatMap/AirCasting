@@ -1,11 +1,4 @@
-import { Cluster, ClusterStats, Renderer } from "@googlemaps/markerclusterer";
-import { CustomMarker } from "../../../types/googleMaps";
-import { Thresholds } from "../../../types/thresholds";
-import { getColorForValue } from "../../../utils/thresholdColors";
-
-export interface CustomCluster extends Cluster {
-  id: string;
-}
+import { CustomCluster } from "./FixedMarkers";
 
 export class ClusterOverlay extends google.maps.OverlayView {
   private div: HTMLElement | null = null;
@@ -18,7 +11,6 @@ export class ClusterOverlay extends google.maps.OverlayView {
     event: google.maps.MapMouseEvent,
     cluster: CustomCluster
   ) => void;
-  private count: number;
 
   constructor(
     cluster: CustomCluster,
@@ -34,20 +26,23 @@ export class ClusterOverlay extends google.maps.OverlayView {
     this.shouldPulse = shouldPulse;
     this.map = map;
     this.onClick = onClick;
-    this.count = cluster.count;
     this.setMap(map);
   }
 
   onAdd() {
     this.div = document.createElement("div");
     this.div.style.position = "absolute";
+    this.div.style.transform = "translate(-50%, -100%)";
     this.div.style.cursor = "pointer";
+    this.div.style.display = "flex";
+    this.div.style.alignItems = "center";
+    this.div.style.justifyContent = "center";
+    this.div.style.borderRadius = "50%";
     this.div.style.width = "30px";
     this.div.style.height = "30px";
-    this.div.style.borderRadius = "50%";
-    this.div.style.display = "flex";
-    this.div.style.justifyContent = "center";
-    this.div.style.alignItems = "center";
+    this.div.style.backgroundColor = "transparent";
+    this.div.style.border = "none";
+    this.div.style.color = "transparent";
     this.div.style.zIndex = "1";
 
     this.applyStyles();
@@ -56,17 +51,27 @@ export class ClusterOverlay extends google.maps.OverlayView {
 
     const panes = this.getPanes();
     if (panes) {
-      panes.overlayMouseTarget.appendChild(this.div);
+      if (this.shouldPulse) {
+        panes.floatPane.appendChild(this.div);
+      } else {
+        panes.overlayMouseTarget.appendChild(this.div);
+      }
     }
   }
 
   draw() {
     if (!this.div) return;
+
     const overlayProjection = this.getProjection();
-    const pos = overlayProjection.fromLatLngToDivPixel(this.position);
-    if (pos) {
-      this.div.style.left = `${pos.x - 15}px`;
-      this.div.style.top = `${pos.y - 15}px`;
+    const point = overlayProjection.fromLatLngToDivPixel(this.position);
+
+    if (point) {
+      const offsetX = -14;
+      const offsetY = -14;
+
+      this.div.style.left = `${point.x + offsetX}px`;
+      this.div.style.top = `${point.y + offsetY}px`;
+      this.div.style.transform = "none";
     }
   }
 
@@ -106,40 +111,37 @@ export class ClusterOverlay extends google.maps.OverlayView {
     this.div.appendChild(outerCircle);
 
     if (this.shouldPulse) {
-      this.applyPulseAnimation();
+      const animationName = `pulse-animation-${this.cluster.id}`;
+      const styleSheetId = `cluster-overlay-styles-${this.cluster.id}`;
+
+      if (!document.getElementById(styleSheetId)) {
+        const styleSheet = document.createElement("style");
+        styleSheet.type = "text/css";
+        styleSheet.id = styleSheetId;
+        styleSheet.innerText = `
+          @keyframes ${animationName} {
+            0% {
+              transform: translate(-50%, -100%) scale(1);
+              opacity: 1;
+            }
+            50% {
+              transform: translate(-50%, -100%) scale(2);
+              opacity: 0.7;
+            }
+            100% {
+              transform: translate(-50%, -100%) scale(1);
+              opacity: 1;
+            }
+          }
+        `;
+        document.head.appendChild(styleSheet);
+      }
+
+      this.div.style.animation = `${animationName} 2s infinite`;
+      this.div.style.zIndex = "2";
+    } else {
+      this.div.style.animation = "";
     }
-  }
-
-  private applyPulseAnimation() {
-    if (!this.div) return;
-
-    const animationName = `pulse-animation-${this.cluster.id}`;
-    const styleSheetId = `cluster-overlay-styles-${this.cluster.id}`;
-
-    if (!document.getElementById(styleSheetId)) {
-      const styleSheet = document.createElement("style");
-      styleSheet.type = "text/css";
-      styleSheet.id = styleSheetId;
-      styleSheet.innerText = `
-        @keyframes ${animationName} {
-          0% {
-            transform: scale(1);
-            opacity: 1;
-          }
-          50% {
-            transform: scale(1.5);
-            opacity: 0.7;
-          }
-          100% {
-            transform: scale(1);
-            opacity: 1;
-          }
-        }
-      `;
-      document.head.appendChild(styleSheet);
-    }
-
-    this.div.style.animation = `${animationName} 2s infinite`;
   }
 
   private handleClick = (event: MouseEvent) => {
@@ -147,76 +149,27 @@ export class ClusterOverlay extends google.maps.OverlayView {
     this.onClick(event as unknown as google.maps.MapMouseEvent, this.cluster);
   };
 
-  public setShouldPulse(shouldPulse: boolean) {
-    if (this.shouldPulse !== shouldPulse) {
-      this.shouldPulse = shouldPulse;
-      this.applyStyles();
+  private updatePane() {
+    if (!this.div) return;
+    const panes = this.getPanes();
+    if (panes) {
+      if (this.div.parentElement) {
+        this.div.parentElement.removeChild(this.div);
+      }
+
+      if (this.shouldPulse) {
+        panes.floatPane.appendChild(this.div);
+      } else {
+        panes.overlayLayer.appendChild(this.div);
+      }
     }
   }
 
-  public updateCluster(cluster: CustomCluster, color: string) {
-    this.cluster = cluster;
-    this.position = cluster.position;
-    this.color = color;
-    this.count = cluster.count;
-    this.applyStyles();
-    this.draw();
+  public setShouldPulse(shouldPulse: boolean) {
+    if (this.shouldPulse !== shouldPulse) {
+      this.shouldPulse = shouldPulse;
+      this.updatePane();
+      this.applyStyles();
+    }
   }
 }
-
-export const createClusterMarkersRenderer = ({
-  thresholds,
-  onClusterClick,
-}: {
-  thresholds: Thresholds;
-  onClusterClick: (
-    event: google.maps.MapMouseEvent,
-    cluster: CustomCluster
-  ) => void;
-}): Renderer => {
-  return {
-    render: (
-      { count, position, markers = [] }: Cluster,
-      stats: ClusterStats,
-      map: google.maps.Map
-    ) => {
-      const customMarkers = markers as CustomMarker[];
-
-      const sum = customMarkers.reduce(
-        (acc, marker) => acc + Number(marker.get("value") || 0),
-        0
-      );
-      const average = sum / customMarkers.length;
-
-      const color = getColorForValue(thresholds, average);
-
-      const cluster = {
-        count,
-        position,
-        markers,
-        id: `${position.lat()}-${position.lng()}-${count}`,
-      } as CustomCluster;
-
-      const shouldPulse = customMarkers.some((marker) =>
-        marker.get("shouldPulse")
-      );
-
-      class ExtendedClusterOverlay extends google.maps.Marker {
-        private overlay: ClusterOverlay;
-
-        constructor() {
-          super({ position, visible: false });
-          this.overlay = new ClusterOverlay(
-            cluster,
-            color,
-            shouldPulse,
-            map,
-            onClusterClick
-          );
-        }
-      }
-
-      return new ExtendedClusterOverlay();
-    },
-  };
-};

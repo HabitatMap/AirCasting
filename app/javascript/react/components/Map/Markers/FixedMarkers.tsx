@@ -31,11 +31,7 @@ import { getColorForValue } from "../../../utils/thresholdColors";
 import { ClusterInfo, ClusterInfoLoading } from "./ClusterInfo/ClusterInfo";
 
 import HoverMarker from "./HoverMarker/HoverMarker";
-import {
-  ClusterOverlay,
-  createClusterMarkersRenderer,
-  CustomCluster,
-} from "./clusterOverlay";
+import { ClusterOverlay } from "./clusterOverlay";
 import { LabelOverlay } from "./customMarkerLabel";
 import { CustomMarkerOverlay } from "./customMarkerOverlay";
 
@@ -44,6 +40,10 @@ type CustomMarker = google.maps.Marker & {
   sessionId: number;
   userData: { streamId: string };
   clustered: boolean;
+};
+
+export type CustomCluster = Cluster & {
+  id: string;
 };
 
 type FixedMarkersProps = {
@@ -107,6 +107,7 @@ export function FixedMarkers({
     onMarkerClickRef.current = onMarkerClick;
   }, [onMarkerClick]);
 
+  // Utility functions and event handlers for map interactions, marker creation, and cluster management
   const centerMapOnMarker = useCallback(
     (position: LatLngLiteral) => {
       if (map) {
@@ -231,7 +232,7 @@ export function FixedMarkers({
 
       return marker;
     },
-    [centerMapOnMarker]
+    [centerMapOnMarker] // Removed onMarkerClick from dependencies
   );
 
   const handleMapInteraction = useCallback(() => {
@@ -373,32 +374,6 @@ export function FixedMarkers({
     unitSymbol,
     centerMapOnMarker,
   ]);
-  const createClusterer = useCallback(() => {
-    if (map) {
-      const renderer = createClusterMarkersRenderer({
-        thresholds,
-        onClusterClick: handleClusterClickInternal,
-      });
-
-      clustererRef.current = new MarkerClusterer({
-        map,
-        markers: [],
-        renderer,
-        algorithm: new SuperClusterAlgorithm({
-          maxZoom: 21,
-          radius: CLUSTER_RADIUS,
-        }),
-      });
-
-      clustererRef.current.addListener("clusteringend", handleClusteringEnd);
-    }
-  }, [map, thresholds, handleClusterClickInternal, handleClusteringEnd]);
-
-  useEffect(() => {
-    if (map && !clustererRef.current) {
-      createClusterer();
-    }
-  }, [map, createClusterer]);
 
   const handleSelectedStreamIdChange = useCallback(
     (streamId: number | null) => {
