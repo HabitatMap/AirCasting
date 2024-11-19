@@ -4,9 +4,10 @@ import { useSelector } from "react-redux";
 import { selectThresholds } from "../../../store/thresholdSlice";
 import { useMapParams } from "../../../utils/mapParamsHandler";
 import { getColorForValue } from "../../../utils/thresholdColors";
-import { ClusterOverlay, CustomCluster } from "./clusterOverlay";
+import { ClusterOverlay } from "./clusterOverlay";
 import { LabelOverlay } from "./customMarkerLabel";
 import { CustomMarkerOverlay } from "./customMarkerOverlay";
+import { CustomCluster } from "./FixedMarkers";
 
 type SessionData = {
   value: number;
