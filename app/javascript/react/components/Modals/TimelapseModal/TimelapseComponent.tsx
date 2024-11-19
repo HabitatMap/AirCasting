@@ -125,14 +125,12 @@ const TimelapseComponent: React.FC<
   }, [handleOverlayClick]);
 
   const currentTimestamp = filteredTimestamps[currentStep];
-  const currentDate = moment(
-    currentTimestamp,
-    DateFormat.us_with_time_seconds_utc
-  ).format(DateFormat.us_without_year);
-  const currentTime = moment(
-    currentTimestamp,
-    DateFormat.us_with_time_seconds_utc
-  ).format(DateFormat.time);
+  const currentDate = moment(currentTimestamp, DateFormat.us_timestamp).format(
+    DateFormat.us_without_year
+  );
+  const currentTime = moment(currentTimestamp, DateFormat.us_timestamp).format(
+    DateFormat.time
+  );
 
   return (
     <>
