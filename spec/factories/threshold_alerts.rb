@@ -7,5 +7,6 @@ FactoryBot.define do
     frequency { 1 }
     last_email_at { 1.hour.ago }
     timezone_offset { -18_000 }
+    stream
   end
 end

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2024_11_15_135405) do
+ActiveRecord::Schema.define(version: 2024_11_19_133112) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -187,7 +187,7 @@ ActiveRecord::Schema.define(version: 2024_11_15_135405) do
   end
 
   create_table "threshold_alerts", force: :cascade do |t|
-    t.integer "user_id"
+    t.integer "user_id", null: false
     t.string "session_uuid"
     t.string "sensor_name"
     t.float "threshold_value"
@@ -197,9 +197,10 @@ ActiveRecord::Schema.define(version: 2024_11_15_135405) do
     t.datetime "updated_at", precision: 6, null: false
     t.integer "timezone_offset", default: 0
     t.datetime "last_check_at"
-    t.bigint "stream_id"
+    t.bigint "stream_id", null: false
     t.index ["session_uuid", "sensor_name"], name: "index_threshold_alerts_on_session_uuid_and_sensor_name"
     t.index ["stream_id"], name: "index_threshold_alerts_on_stream_id"
+    t.index ["user_id", "stream_id"], name: "index_threshold_alerts_on_user_id_and_stream_id", unique: true
   end
 
   create_table "threshold_sets", force: :cascade do |t|

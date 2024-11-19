@@ -28,6 +28,7 @@ describe ThresholdAlertsWorker do
           last_email_at: current_time - 70.minutes,
           last_check_at: current_time - 10.minutes,
           timezone_offset: timezone_offset,
+          stream: stream,
         )
       end
       let!(:measurement) do
@@ -57,6 +58,7 @@ describe ThresholdAlertsWorker do
             last_email_at: current_time - 70.minutes,
             last_check_at: current_time - 10.minutes,
             timezone_offset: timezone_offset,
+            stream: stream,
           )
         end
         let!(:measurement) do
@@ -87,6 +89,7 @@ describe ThresholdAlertsWorker do
             last_email_at: current_time - 70.minutes,
             last_check_at: current_time - 10.minutes,
             timezone_offset: timezone_offset,
+            stream: stream,
           )
         end
         let!(:measurement) do
@@ -118,6 +121,7 @@ describe ThresholdAlertsWorker do
           last_email_at: current_time - 10.minutes,
           last_check_at: current_time - 5.minutes,
           timezone_offset: timezone_offset,
+          stream: stream,
         )
       end
       let!(:measurement) do
@@ -148,6 +152,7 @@ describe ThresholdAlertsWorker do
           last_email_at: current_time - 60.minutes,
           last_check_at: current_time - 10.minutes,
           timezone_offset: timezone_offset,
+          stream: stream,
         )
       end
       let!(:measurement) do
@@ -179,6 +184,7 @@ describe ThresholdAlertsWorker do
         last_email_at: current_time - 70.minutes,
         last_check_at: current_time - 10.minutes,
         timezone_offset: timezone_offset,
+        stream: stream,
       )
     end
     let!(:measurement) do

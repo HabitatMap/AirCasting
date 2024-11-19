@@ -4,6 +4,7 @@ class Stream < ApplicationRecord
 
   has_many :measurements, dependent: :delete_all
   has_many :stream_daily_averages, dependent: :delete_all
+  has_many :threshold_alerts, dependent: :destroy
 
   delegate :size, to: :measurements
 
@@ -28,7 +29,9 @@ class Stream < ApplicationRecord
         stream_box =
           'ST_MakeEnvelope(min_longitude, min_latitude, max_longitude, max_latitude, 4326)'
 
-        where("ST_Contains(#{west_box}, #{stream_box}) OR ST_Contains(#{east_box}, #{stream_box})")
+        where(
+          "ST_Contains(#{west_box}, #{stream_box}) OR ST_Contains(#{east_box}, #{stream_box})",
+        )
       else
         window_box =
           "ST_MakeEnvelope(#{data[:west]}, #{data[:south]}, #{data[:east]}, #{data[:north]}, 4326)"
@@ -100,7 +103,8 @@ class Stream < ApplicationRecord
     measurements_attributes = data.delete(:measurements)
     data = threshold_set_from_stream(data)
     stream =
-      find_by(session_id: data[:session_id], sensor_name: data[:sensor_name]) || Stream.new(data)
+      find_by(session_id: data[:session_id], sensor_name: data[:sensor_name]) ||
+        Stream.new(data)
 
     latitude = measurements_attributes.first.fetch(:latitude)
     longitude = measurements_attributes.first.fetch(:longitude)
@@ -123,15 +127,16 @@ class Stream < ApplicationRecord
   end
 
   def self.threshold_set_from_stream(data)
-    threshold_set = ThresholdSet.find_or_create_by(
-      sensor_name: data.fetch(:sensor_name),
-      unit_symbol: data.fetch(:unit_symbol),
-      threshold_very_low: data.delete(:threshold_very_low),
-      threshold_low: data.delete(:threshold_low),
-      threshold_medium: data.delete(:threshold_medium),
-      threshold_high: data.delete(:threshold_high),
-      threshold_very_high: data.delete(:threshold_very_high),
-    )
+    threshold_set =
+      ThresholdSet.find_or_create_by(
+        sensor_name: data.fetch(:sensor_name),
+        unit_symbol: data.fetch(:unit_symbol),
+        threshold_very_low: data.delete(:threshold_very_low),
+        threshold_low: data.delete(:threshold_low),
+        threshold_medium: data.delete(:threshold_medium),
+        threshold_high: data.delete(:threshold_high),
+        threshold_very_high: data.delete(:threshold_very_high),
+      )
     data.merge(threshold_set_id: threshold_set.id)
   end
 
@@ -169,27 +174,32 @@ class Stream < ApplicationRecord
   end
 
   def self.thresholds(sensor_name, unit_symbol)
-    default = ThresholdSet.find_by(
-      sensor_name: sensor_name,
-      unit_symbol: unit_symbol,
-      is_default: true,
-    )
+    default =
+      ThresholdSet.find_by(
+        sensor_name: sensor_name,
+        unit_symbol: unit_symbol,
+        is_default: true,
+      )
 
     return default if default
 
-    sets = ThresholdSet.where(
-      'sensor_name = ? AND unit_symbol = ?',
-      sensor_name,
-      unit_symbol
-    )
+    sets =
+      ThresholdSet.where(
+        'sensor_name = ? AND unit_symbol = ?',
+        sensor_name,
+        unit_symbol,
+      )
 
     return nil if sets.empty?
 
-    most_popular_threshold_set_id = Stream.where(threshold_set_id: sets.pluck(:id))
-                                      .group(:threshold_set_id)
-                                      .order('count_id DESC')
-                                      .count(:id)
-                                      .first&.first
+    most_popular_threshold_set_id =
+      Stream
+        .where(threshold_set_id: sets.pluck(:id))
+        .group(:threshold_set_id)
+        .order('count_id DESC')
+        .count(:id)
+        .first
+        &.first
 
     most_popular = sets.find_by(id: most_popular_threshold_set_id) || sets.first
     most_popular
