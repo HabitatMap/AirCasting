@@ -55,6 +55,7 @@ const CalendarPage: React.FC<CalendarPageProps> = ({ children }) => {
   const rangeDisplayRef = useRef(null);
   const { formattedMinTime, formattedMaxTime } = formatTime(startTime, endTime);
   const [errorMessage, setErrorMessage] = useState("");
+  const [initialDataFetched, setInitialDataFetched] = useState(false);
 
   const calendarIsVisible =
     movingCalendarData.data.length &&
@@ -66,8 +67,10 @@ const CalendarPage: React.FC<CalendarPageProps> = ({ children }) => {
     moment().format("YYYY-MM-DD");
 
   useEffect(() => {
-    streamId && dispatch(fetchFixedStreamById(streamId));
-  }, []);
+    if (streamId) {
+      dispatch(fetchFixedStreamById(streamId));
+    }
+  }, [streamId]);
 
   useEffect(() => {
     window.addEventListener("popstate", handleCalendarGoBack);
@@ -76,6 +79,7 @@ const CalendarPage: React.FC<CalendarPageProps> = ({ children }) => {
 
   useEffect(() => {
     if (
+      !initialDataFetched &&
       streamId &&
       !isLoading &&
       fixedStreamData.stream.startTime &&
@@ -99,10 +103,19 @@ const CalendarPage: React.FC<CalendarPageProps> = ({ children }) => {
             endDate: formattedEndDate,
           })
         );
+
+        setInitialDataFetched(true);
       }
     }
-    dispatch(setDefaultThresholdsValues(fixedStreamData.stream));
-  }, [fixedStreamData, streamId, isLoading, streamEndTime]);
+
+    if (fixedStreamData.stream) {
+      dispatch(setDefaultThresholdsValues(fixedStreamData.stream));
+    }
+  }, [fixedStreamData, streamId, isLoading, streamEndTime, initialDataFetched]);
+
+  useEffect(() => {
+    setInitialDataFetched(false);
+  }, [streamId]);
 
   const renderMobileGraph = () => (
     <S.GraphContainer $isMobile={isMobile}>
