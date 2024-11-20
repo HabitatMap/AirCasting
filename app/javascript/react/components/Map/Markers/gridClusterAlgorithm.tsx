@@ -38,7 +38,7 @@ export class CustomAlgorithm implements Algorithm {
   private minimumClusterSize: number;
 
   constructor({
-    gridSize = 80,
+    gridSize = 40,
     minimumClusterSize = 2,
   }: {
     gridSize?: number;
