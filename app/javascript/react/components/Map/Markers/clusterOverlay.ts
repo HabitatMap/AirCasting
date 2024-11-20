@@ -61,11 +61,17 @@ export class ClusterOverlay extends google.maps.OverlayView {
 
   draw() {
     if (!this.div) return;
+
     const overlayProjection = this.getProjection();
-    const pos = overlayProjection.fromLatLngToDivPixel(this.position);
-    if (pos) {
-      this.div.style.left = `${pos.x}px`;
-      this.div.style.top = `${pos.y}px`;
+    const point = overlayProjection.fromLatLngToDivPixel(this.position);
+
+    if (point) {
+      const offsetX = -14;
+      const offsetY = -14;
+
+      this.div.style.left = `${point.x + offsetX}px`;
+      this.div.style.top = `${point.y + offsetY}px`;
+      this.div.style.transform = "none";
     }
   }
 
