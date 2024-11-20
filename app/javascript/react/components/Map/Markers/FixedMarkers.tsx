@@ -1,8 +1,4 @@
-import {
-  Cluster,
-  MarkerClusterer,
-  SuperClusterAlgorithm,
-} from "@googlemaps/markerclusterer";
+import { Cluster, MarkerClusterer } from "@googlemaps/markerclusterer";
 import { useMap } from "@vis.gl/react-google-maps";
 import React, {
   useCallback,
@@ -11,6 +7,7 @@ import React, {
   useRef,
   useState,
 } from "react";
+import { CustomAlgorithm } from "./gridClusterAlgorithm";
 
 import { fetchClusterData, setVisibility } from "../../../store/clusterSlice";
 import {
@@ -386,9 +383,9 @@ export function FixedMarkers({
             map,
             markers: [],
             renderer: customRenderer,
-            algorithm: new SuperClusterAlgorithm({
-              maxZoom: 21,
-              radius: CLUSTER_RADIUS,
+            algorithm: new CustomAlgorithm({
+              gridSize: 80,
+              minimumClusterSize: 2,
             }),
           });
 
@@ -663,9 +660,9 @@ export function FixedMarkers({
         map,
         markers: [],
         renderer: customRenderer,
-        algorithm: new SuperClusterAlgorithm({
-          maxZoom: 21,
-          radius: CLUSTER_RADIUS,
+        algorithm: new CustomAlgorithm({
+          gridSize: 80,
+          minimumClusterSize: 2,
         }),
       });
 
@@ -788,9 +785,9 @@ export function FixedMarkers({
             map,
             markers: [],
             renderer: customRenderer,
-            algorithm: new SuperClusterAlgorithm({
-              maxZoom: 21,
-              radius: CLUSTER_RADIUS,
+            algorithm: new CustomAlgorithm({
+              gridSize: 80,
+              minimumClusterSize: 2,
             }),
           });
 
