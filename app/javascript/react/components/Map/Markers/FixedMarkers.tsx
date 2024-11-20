@@ -70,7 +70,7 @@ export function FixedMarkers({
 }: FixedMarkersProps) {
   const dispatch = useAppDispatch();
   const map = useMap();
-  const { unitSymbol, currentUserSettings } = useMapParams();
+  const { unitSymbol } = useMapParams();
 
   const hoverStreamId = useAppSelector(selectHoverStreamId);
   const thresholds = useAppSelector(selectThresholds);
