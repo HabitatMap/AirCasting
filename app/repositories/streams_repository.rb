@@ -9,7 +9,7 @@ class StreamsRepository
 
   def find_fixed_stream!(id:)
     Stream
-      .includes( :threshold_set, session: :user)
+      .includes(:threshold_set, session: :user)
       .joins(:session)
       .where('sessions.type = ?', 'FixedSession')
       .find(id)
@@ -17,6 +17,12 @@ class StreamsRepository
 
   def find_by_session_id(session_id)
     Stream.where(session_id: session_id).includes(:session)
+  end
+
+  def find_by_session_uuid_and_sensor_name(session_uuid:, sensor_name:)
+    Stream
+      .joins(:session)
+      .find_by(sessions: { uuid: session_uuid }, sensor_name: sensor_name)
   end
 
   def calculate_bounding_box!(

@@ -74,10 +74,13 @@ describe Api::Fixed::ThresholdAlertsController do
       before { sign_in user }
 
       it do
+        session_uuid = '123-456'
+        session = create_session!(uuid: session_uuid, type: 'FixedSession')
+        stream = create_stream!(session: session, sensor_name: 'PM2.5')
         alert =
           FactoryBot.create(
             :threshold_alert,
-            session_uuid: '123-456',
+            session_uuid: session_uuid,
             sensor_name: 'PM2.5',
             user: user,
             timezone_offset: timezone_offset,

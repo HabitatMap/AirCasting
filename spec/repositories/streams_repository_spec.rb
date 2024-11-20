@@ -17,6 +17,26 @@ describe StreamsRepository do
     end
   end
 
+  describe '#find_by_session_uuid_and_sensor_name' do
+    it 'returns streams matching session uuid and sensor name' do
+      session = create_fixed_session!(uuid: 'test-uuid')
+      matching_stream =
+        create_stream!(session: session, sensor_name: 'sensor-1')
+
+      other_session = create_fixed_session!(uuid: 'other-uuid')
+      create_stream!(session: other_session, sensor_name: 'sensor-1')
+      create_stream!(session: session, sensor_name: 'sensor-2')
+
+      result =
+        subject.find_by_session_uuid_and_sensor_name(
+          session_uuid: 'test-uuid',
+          sensor_name: 'sensor-1',
+        )
+
+      expect(result).to eq(matching_stream)
+    end
+  end
+
   it '#calculate_bounding_box! recalculates the bounding box and saves to database' do
     stream =
       create_stream!(
