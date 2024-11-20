@@ -30,6 +30,7 @@ import { useMapParams } from "../../../utils/mapParamsHandler";
 import { getColorForValue } from "../../../utils/thresholdColors";
 import { ClusterInfo, ClusterInfoLoading } from "./ClusterInfo/ClusterInfo";
 
+import { UserSettings } from "../../../types/userStates";
 import HoverMarker from "./HoverMarker/HoverMarker";
 import { ClusterOverlay } from "./clusterOverlay";
 import { LabelOverlay } from "./customMarkerLabel";
@@ -70,7 +71,7 @@ export function FixedMarkers({
 }: FixedMarkersProps) {
   const dispatch = useAppDispatch();
   const map = useMap();
-  const { unitSymbol } = useMapParams();
+  const { unitSymbol, currentUserSettings } = useMapParams();
 
   const hoverStreamId = useAppSelector(selectHoverStreamId);
   const thresholds = useAppSelector(selectThresholds);
@@ -860,6 +861,30 @@ export function FixedMarkers({
       labelOverlays.current.clear();
     };
   }, []);
+
+  // Modified effect to use currentUserSettings from props
+  useEffect(() => {
+    if (currentUserSettings === UserSettings.TimelapseView) {
+      // Clear the clusterer
+      if (clustererRef.current) {
+        clustererRef.current.clearMarkers();
+        clustererRef.current.setMap(null);
+        clustererRef.current = null;
+      }
+
+      // Clear all markers
+      markerRefs.current.forEach((marker) => marker.setMap(null));
+      markerRefs.current.clear();
+
+      // Clear all overlays
+      clusterOverlaysRef.current.forEach((overlay) => overlay.setMap(null));
+      clusterOverlaysRef.current.clear();
+      markerOverlays.current.forEach((overlay) => overlay.setMap(null));
+      markerOverlays.current.clear();
+      labelOverlays.current.forEach((overlay) => overlay.setMap(null));
+      labelOverlays.current.clear();
+    }
+  }, [currentUserSettings]);
 
   return (
     <>

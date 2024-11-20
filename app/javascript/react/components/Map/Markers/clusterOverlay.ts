@@ -121,15 +121,15 @@ export class ClusterOverlay extends google.maps.OverlayView {
         styleSheet.innerText = `
           @keyframes ${animationName} {
             0% {
-              transform: translate(-50%, -100%) scale(1);
+              transform: scale(1);
               opacity: 1;
             }
             50% {
-              transform: translate(-50%, -100%) scale(2);
+              transform: scale(2);
               opacity: 0.7;
             }
             100% {
-              transform: translate(-50%, -100%) scale(1);
+              transform: scale(1);
               opacity: 1;
             }
           }
