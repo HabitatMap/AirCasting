@@ -69,7 +69,7 @@ describe Api::Fixed::ThresholdAlertsController do
           timezone_offset: timezone_offset,
         }
       end
-      errors = ['alert already exists']
+      errors = ['something went wrong']
 
       before { sign_in user }
 
@@ -84,6 +84,7 @@ describe Api::Fixed::ThresholdAlertsController do
             sensor_name: 'PM2.5',
             user: user,
             timezone_offset: timezone_offset,
+            stream: stream,
           )
 
         post :create, params: { data: params }, format: :json
