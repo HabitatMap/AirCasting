@@ -862,7 +862,6 @@ export function FixedMarkers({
     };
   }, []);
 
-  // Modified effect to use currentUserSettings from props
   useEffect(() => {
     if (currentUserSettings === UserSettings.TimelapseView) {
       // Clear the clusterer
