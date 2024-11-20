@@ -96,9 +96,7 @@ const TagsInput = () => {
 
   const handleOnInputClick = () => {
     const queryParams = getQueryParams(inputValue);
-    if (tagsToSelect.length === 0) {
-      dispatch(fetchTags(queryParams));
-    }
+    dispatch(fetchTags(queryParams));
   };
 
   const decodedTagsArray =
