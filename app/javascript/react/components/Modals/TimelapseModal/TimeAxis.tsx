@@ -1,14 +1,14 @@
+import moment from "moment";
 import React, {
-  useState,
-  useEffect,
   useCallback,
+  useEffect,
   useMemo,
   useRef,
+  useState,
 } from "react";
-import moment from "moment";
 import { DateFormat } from "../../../types/dateFormat";
-import * as S from "./TimelapseComponent.style";
 import useScreenSizeDetection from "../../../utils/useScreenSizeDetection";
+import * as S from "./TimelapseComponent.style";
 
 interface TimeAxisProps {
   currentStep: number;
