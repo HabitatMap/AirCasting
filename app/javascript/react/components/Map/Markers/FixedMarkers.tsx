@@ -147,6 +147,7 @@ export function FixedMarkers({
       return;
     }
     previousZoomRef.current = currentZoom;
+
     markerRefs.current.forEach((marker) => {
       (marker as CustomMarker).clustered = false;
     });

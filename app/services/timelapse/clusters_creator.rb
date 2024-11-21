@@ -72,8 +72,18 @@ module Timelapse
 
     def determine_grid_cell_size(zoom_level)
       base_cell_size = 15
-      cell_size = base_cell_size / (1.7**zoom_level)
-      minimum_cell_size = 0.0001
+      zoom_level = zoom_level.to_i
+
+      # More aggressive reduction in cell size after zoom level 12
+      cell_size = if zoom_level >= 12
+        base_cell_size / (1.5**zoom_level)
+      else
+        # Faster reduction for closer zoom levels
+        base_cell_size / (2.2**zoom_level)
+      end
+
+      # Smaller minimum cell size to allow more individual markers
+      minimum_cell_size = 0.00005 # Reduced from 0.0001
       [cell_size, minimum_cell_size].max
     end
 

@@ -36,6 +36,8 @@ function getMarkerPosition(marker: Marker): google.maps.LatLngLiteral {
 export class CustomAlgorithm implements Algorithm {
   private gridSize: number;
   private minimumClusterSize: number;
+  private lastZoomLevel: number | null = null;
+  private cachedClusters: AlgorithmOutput | null = null;
 
   constructor({
     gridSize = 40,
@@ -53,9 +55,15 @@ export class CustomAlgorithm implements Algorithm {
     map,
     mapCanvasProjection,
   }: AlgorithmInput): AlgorithmOutput {
+    const currentZoom = map.getZoom() || 0;
+
+    // Return cached clusters if zoom hasn't changed
+    if (this.lastZoomLevel === currentZoom && this.cachedClusters) {
+      return this.cachedClusters;
+    }
+
     if (!mapCanvasProjection) {
-      // Return single-marker clusters if projection is not available
-      return {
+      const singleMarkerClusters = {
         clusters: markers.map(
           (marker) =>
             new Cluster({
@@ -64,13 +72,21 @@ export class CustomAlgorithm implements Algorithm {
             })
         ),
       };
+      this.cachedClusters = singleMarkerClusters;
+      this.lastZoomLevel = currentZoom;
+      return singleMarkerClusters;
     }
 
     const clusters: Cluster[] = [];
     const markersByCell = new Map<string, Marker[]>();
+    const gridCellSize = this.determineGridCellSize(currentZoom);
 
-    const zoomLevel = map.getZoom() || 0;
-    const gridCellSize = this.determineGridCellSize(zoomLevel);
+    // Calculate viewport bounds
+    const bounds = map.getBounds();
+    if (!bounds) {
+      this.cachedClusters = { clusters: [] };
+      return { clusters: [] };
+    }
 
     markers.forEach((marker) => {
       const position = getMarkerPosition(marker);
@@ -79,9 +95,7 @@ export class CustomAlgorithm implements Algorithm {
       );
 
       if (!point) {
-        throw new Error(
-          "Could not project marker position to pixel coordinates"
-        );
+        return;
       }
 
       const cellX = Math.floor(point.x / gridCellSize);
@@ -116,15 +130,41 @@ export class CustomAlgorithm implements Algorithm {
       }
     });
 
+    // Cache the results
+    this.cachedClusters = { clusters };
+    this.lastZoomLevel = currentZoom;
+
     return { clusters };
   }
 
+  // Reset cache when markers change
+  public clearCache() {
+    this.lastZoomLevel = null;
+    this.cachedClusters = null;
+  }
+
   private determineGridCellSize(zoomLevel: number): number {
-    const baseCellSize = 100; // Adjust this value as needed
-    const cellSize = baseCellSize / Math.pow(2, zoomLevel / 2);
-    const minimumCellSize = 20; // Minimum size in pixels
+    const baseCellSize = 100; // Starting size in pixels
+
+    let cellSize;
+    if (zoomLevel >= 12) {
+      console.log("zoom level if", zoomLevel);
+      cellSize = baseCellSize / Math.pow(3, Math.max(0, zoomLevel - 1.2));
+    } else {
+      console.log("zoom level else", zoomLevel);
+      cellSize = baseCellSize / Math.pow(1.2, Math.max(0, zoomLevel - 8));
+    }
+    // Smaller minimum cell size to allow more individual markers
+    const minimumCellSize = 20; // Reduced from 40
     return Math.max(cellSize, minimumCellSize);
   }
+
+  // private determineGridCellSize(zoomLevel: number): number {
+  //   const baseCellSize = 100; // Adjust this value as needed
+  //   const cellSize = baseCellSize / Math.pow(2, zoomLevel / 2);
+  //   const minimumCellSize = 20; // Minimum size in pixels
+  //   return Math.max(cellSize, minimumCellSize);
+  // }
 
   private calculateCentroid(markers: Marker[]): google.maps.LatLng {
     let sumLat = 0;
