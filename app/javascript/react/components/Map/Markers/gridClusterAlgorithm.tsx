@@ -1,4 +1,3 @@
-// CustomAlgorithm.ts
 import {
   Algorithm,
   AlgorithmInput,
@@ -34,19 +33,19 @@ function getMarkerPosition(marker: Marker): google.maps.LatLngLiteral {
 }
 
 export class CustomAlgorithm implements Algorithm {
-  private gridSize: number;
+  private baseCellSize: number;
   private minimumClusterSize: number;
   private lastZoomLevel: number | null = null;
   private cachedClusters: AlgorithmOutput | null = null;
 
   constructor({
-    gridSize = 40,
+    baseCellSize = 100,
     minimumClusterSize = 2,
   }: {
-    gridSize?: number;
+    baseCellSize?: number;
     minimumClusterSize?: number;
   } = {}) {
-    this.gridSize = gridSize;
+    this.baseCellSize = baseCellSize;
     this.minimumClusterSize = minimumClusterSize;
   }
 
@@ -57,10 +56,21 @@ export class CustomAlgorithm implements Algorithm {
   }: AlgorithmInput): AlgorithmOutput {
     const currentZoom = map.getZoom() || 0;
 
-    // Return cached clusters if zoom hasn't changed
-    if (this.lastZoomLevel === currentZoom && this.cachedClusters) {
+    // Always process on first render
+    const isFirstRender = this.lastZoomLevel === null;
+
+    // Skip cache on first render or zoom change
+    if (
+      !isFirstRender &&
+      this.lastZoomLevel === currentZoom &&
+      this.cachedClusters
+    ) {
       return this.cachedClusters;
     }
+
+    // Force processing for first render
+    this.lastZoomLevel = currentZoom;
+    this.cachedClusters = null;
 
     if (!mapCanvasProjection) {
       const singleMarkerClusters = {
@@ -144,27 +154,19 @@ export class CustomAlgorithm implements Algorithm {
   }
 
   private determineGridCellSize(zoomLevel: number): number {
-    const baseCellSize = 100; // Starting size in pixels
-
+    const adjustedBaseCellSize = 25;
+    console.log(zoomLevel, "zoomLevel");
     let cellSize;
     if (zoomLevel >= 12) {
-      console.log("zoom level if", zoomLevel);
-      cellSize = baseCellSize / Math.pow(3, Math.max(0, zoomLevel - 1.2));
+      cellSize = adjustedBaseCellSize / Math.pow(3, Math.max(0, zoomLevel - 5));
     } else {
-      console.log("zoom level else", zoomLevel);
-      cellSize = baseCellSize / Math.pow(1.2, Math.max(0, zoomLevel - 8));
+      cellSize =
+        adjustedBaseCellSize / Math.pow(1.3, Math.max(0, zoomLevel - 8));
     }
-    // Smaller minimum cell size to allow more individual markers
-    const minimumCellSize = 20; // Reduced from 40
+
+    const minimumCellSize = 3;
     return Math.max(cellSize, minimumCellSize);
   }
-
-  // private determineGridCellSize(zoomLevel: number): number {
-  //   const baseCellSize = 100; // Adjust this value as needed
-  //   const cellSize = baseCellSize / Math.pow(2, zoomLevel / 2);
-  //   const minimumCellSize = 20; // Minimum size in pixels
-  //   return Math.max(cellSize, minimumCellSize);
-  // }
 
   private calculateCentroid(markers: Marker[]): google.maps.LatLng {
     let sumLat = 0;
@@ -180,5 +182,11 @@ export class CustomAlgorithm implements Algorithm {
     const centroidLng = sumLng / markers.length;
 
     return new google.maps.LatLng(centroidLat, centroidLng);
+  }
+
+  // Add method to force recalculation
+  public forceRecalculate(): void {
+    this.lastZoomLevel = null;
+    this.cachedClusters = null;
   }
 }

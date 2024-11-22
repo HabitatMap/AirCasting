@@ -7,7 +7,6 @@ import React, {
   useRef,
   useState,
 } from "react";
-import { CustomAlgorithm } from "./gridClusterAlgorithm";
 
 import { fetchClusterData, setVisibility } from "../../../store/clusterSlice";
 import {
@@ -31,6 +30,7 @@ import HoverMarker from "./HoverMarker/HoverMarker";
 import { ClusterOverlay } from "./clusterOverlay";
 import { LabelOverlay } from "./customMarkerLabel";
 import { CustomMarkerOverlay } from "./customMarkerOverlay";
+import { CustomAlgorithm } from "./gridClusterAlgorithm";
 
 type CustomMarker = google.maps.Marker & {
   value: number;
@@ -147,7 +147,6 @@ export function FixedMarkers({
       return;
     }
     previousZoomRef.current = currentZoom;
-
     markerRefs.current.forEach((marker) => {
       (marker as CustomMarker).clustered = false;
     });
@@ -384,10 +383,7 @@ export function FixedMarkers({
             map,
             markers: [],
             renderer: customRenderer,
-            algorithm: new CustomAlgorithm({
-              gridSize: 80,
-              minimumClusterSize: 2,
-            }),
+            algorithm: new CustomAlgorithm({}),
           });
 
           clustererRef.current.addListener(
@@ -661,10 +657,7 @@ export function FixedMarkers({
         map,
         markers: [],
         renderer: customRenderer,
-        algorithm: new CustomAlgorithm({
-          gridSize: 80,
-          minimumClusterSize: 2,
-        }),
+        algorithm: new CustomAlgorithm({}),
       });
 
       clustererRef.current.addListener("clusteringend", () => {
@@ -786,10 +779,7 @@ export function FixedMarkers({
             map,
             markers: [],
             renderer: customRenderer,
-            algorithm: new CustomAlgorithm({
-              gridSize: 80,
-              minimumClusterSize: 2,
-            }),
+            algorithm: new CustomAlgorithm({}),
           });
 
           clustererRef.current.addListener(
