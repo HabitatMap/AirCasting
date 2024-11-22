@@ -69,7 +69,7 @@ const TagsInput = () => {
 
   const { isOpen, getMenuProps, getInputProps, getItemProps, reset } =
     useCombobox({
-      items: tagsToSelect,
+      items: items,
       inputValue,
       selectedItem,
       onInputValueChange: ({ inputValue }) => {
@@ -96,7 +96,9 @@ const TagsInput = () => {
 
   const handleOnInputClick = () => {
     const queryParams = getQueryParams(inputValue);
-    dispatch(fetchTags(queryParams));
+    if (tagsToSelect.length === 0) {
+      dispatch(fetchTags(queryParams));
+    }
   };
 
   const decodedTagsArray =
@@ -110,12 +112,22 @@ const TagsInput = () => {
   const handleOnClose = (itemToRemove: string) => {
     const tagsUpdated =
       decodedTagsArray && decodedTagsArray.filter((el) => el !== itemToRemove);
+
     const decodedTagsString = tagsUpdated ? tagsUpdated.join(", ") : "";
     setFilter(UrlParamsTypes.tags, decodedTagsString.toString());
+
+    const tagsToSelectFiltered = tagsUpdated
+      ? tagsToSelect.filter((tag) => !tagsUpdated.includes(tag))
+      : tagsToSelect;
+
+    setItems(tagsToSelectFiltered);
   };
 
   useEffect(() => {
-    setItems(tagsToSelect);
+    const tagsToSelectFiltered = decodedTagsArray
+      ? tagsToSelect.filter((tag) => !decodedTagsArray.includes(tag))
+      : tagsToSelect;
+    setItems(tagsToSelectFiltered);
   }, [tagsToSelect]);
 
   useEffect(() => {
