@@ -67,16 +67,31 @@ const TagsInput = () => {
     };
   };
 
+  const getTagsToSelectFiltered = (tagsToBeExcluded: "" | string[] | null) => {
+    return tagsToBeExcluded
+      ? tagsToSelect.filter((tag) => !tagsToBeExcluded.includes(tag))
+      : tagsToSelect;
+  };
+
   const { isOpen, getMenuProps, getInputProps, getItemProps, reset } =
     useCombobox({
       items: items,
       inputValue,
       selectedItem,
       onInputValueChange: ({ inputValue }) => {
-        const queryParams = getQueryParams(inputValue);
-        dispatch(fetchTags(queryParams));
-
         setInputValue(inputValue);
+
+        const tagsToSelectFiltered = getTagsToSelectFiltered(decodedTagsArray);
+
+        const filteredTags = inputValue
+          ? tagsToSelectFiltered.filter((tag) =>
+              tag.toLowerCase().startsWith(inputValue.toLowerCase())
+            )
+          : decodedTagsArray
+          ? tagsToSelect.filter((tag) => !decodedTagsArray.includes(tag))
+          : tagsToSelect;
+
+        setItems(filteredTags);
       },
       onSelectedItemChange: ({ selectedItem: newSelectedItem }) => {
         if (
@@ -90,15 +105,16 @@ const TagsInput = () => {
           setFilter(UrlParamsTypes.tags, urlEncodedString.toString());
           reset();
           setSelectedItem("");
+          const tagsToSelectFiltered =
+            getTagsToSelectFiltered(decodedTagsArray);
+          setItems(tagsToSelectFiltered);
         }
       },
     });
 
   const handleOnInputClick = () => {
     const queryParams = getQueryParams(inputValue);
-    if (tagsToSelect.length === 0) {
-      dispatch(fetchTags(queryParams));
-    }
+    dispatch(fetchTags(queryParams));
   };
 
   const decodedTagsArray =
@@ -116,17 +132,13 @@ const TagsInput = () => {
     const decodedTagsString = tagsUpdated ? tagsUpdated.join(", ") : "";
     setFilter(UrlParamsTypes.tags, decodedTagsString.toString());
 
-    const tagsToSelectFiltered = tagsUpdated
-      ? tagsToSelect.filter((tag) => !tagsUpdated.includes(tag))
-      : tagsToSelect;
+    const tagsToSelectFiltered = getTagsToSelectFiltered(tagsUpdated);
 
     setItems(tagsToSelectFiltered);
   };
 
   useEffect(() => {
-    const tagsToSelectFiltered = decodedTagsArray
-      ? tagsToSelect.filter((tag) => !decodedTagsArray.includes(tag))
-      : tagsToSelect;
+    const tagsToSelectFiltered = getTagsToSelectFiltered(decodedTagsArray);
     setItems(tagsToSelectFiltered);
   }, [tagsToSelect]);
 
