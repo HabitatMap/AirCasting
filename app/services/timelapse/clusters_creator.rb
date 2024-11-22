@@ -12,17 +12,24 @@ module Timelapse
       zoom_level = params[:zoom_level] || 1
       sensor_name = params[:sensor_name]
       streams = streams_repository.find_by_session_id(sessions.pluck(:id))
-      selected_sensor_streams = streams.select { |stream| Sensor.sensor_name(sensor_name).include? stream.sensor_name.downcase }
-      streams_with_coordinates = streams_with_coordinates(selected_sensor_streams)
+      selected_sensor_streams =
+        streams.select do |stream|
+          Sensor.sensor_name(sensor_name).include? stream.sensor_name.downcase
+        end
+      streams_with_coordinates =
+        streams_with_coordinates(selected_sensor_streams)
 
       clusters = cluster_measurements(streams_with_coordinates, zoom_level)
       clusters = calculate_centroids_for_clusters(clusters)
-      cluster_processor.call(clusters: clusters)
+      cluster_processor.call(clusters: clusters, sensor_name: sensor_name)
     end
 
     private
 
-    attr_reader :measurements_repository, :streams_repository, :cluster_processor, :sessions_repository
+    attr_reader :measurements_repository,
+                :streams_repository,
+                :cluster_processor,
+                :sessions_repository
 
     def filtered_sessions(params)
       sessions_active_in_last_7_days = sessions_repository.active_in_last_7_days
@@ -34,7 +41,7 @@ module Timelapse
         {
           stream_id: stream.id,
           latitude: stream.session.latitude,
-          longitude: stream.session.longitude
+          longitude: stream.session.longitude,
         }
       end
     end
@@ -46,16 +53,16 @@ module Timelapse
 
       streams_with_coordinates.each do |stream_with_coordinates|
         stream_id, latitude, longitude =
-          stream_with_coordinates.values_at(
-            :stream_id,
-            :latitude,
-            :longitude
-          )
+          stream_with_coordinates.values_at(:stream_id, :latitude, :longitude)
 
         cell_x = (longitude.to_f / grid_cell_size).floor
         cell_y = (latitude.to_f / grid_cell_size).floor
 
-        grid[[cell_x, cell_y]] << { stream_id: stream_id, latitude: latitude.to_f, longitude: longitude.to_f }
+        grid[[cell_x, cell_y]] << {
+          stream_id: stream_id,
+          latitude: latitude.to_f,
+          longitude: longitude.to_f,
+        }
       end
 
       clusters = grid.values
@@ -84,7 +91,7 @@ module Timelapse
           latitude: centroid_latitude,
           longitude: centroid_longitude,
           stream_ids: streams.map { |stream| stream[:stream_id] },
-          session_count: streams.size
+          session_count: streams.size,
         }
       end.compact
     end
