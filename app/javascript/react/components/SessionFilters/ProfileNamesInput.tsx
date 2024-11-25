@@ -41,7 +41,7 @@ const ProfileNamesInput = () => {
 
   const isFirstRender = useRef(true);
 
-  const profileNames = useAppSelector(selectUsernames);
+  const usernamesToSelect = useAppSelector(selectUsernames);
   const isIndoorParameterInUrl = isIndoor === TRUE;
   const isUsernamesInputFetching = useAppSelector(
     selectIsUsernamesInputFetching
@@ -68,15 +68,38 @@ const ProfileNamesInput = () => {
     };
   };
 
+  const getUsernamesToSelectFiltered = (
+    usernamesToBeExcluded: "" | string[] | null
+  ) => {
+    return usernamesToBeExcluded
+      ? usernamesToSelect.filter(
+          (username) => !usernamesToBeExcluded.includes(username)
+        )
+      : usernamesToSelect;
+  };
+
   const { isOpen, getMenuProps, getInputProps, getItemProps, reset } =
     useCombobox({
-      items: profileNames,
+      items: items,
       inputValue,
       selectedItem,
       onInputValueChange: ({ inputValue }) => {
-        const queryParams = getQueryParams(inputValue);
-        dispatch(fetchUsernames(queryParams));
         setInputValue(inputValue);
+
+        const usernamesToSelectFiltered = getUsernamesToSelectFiltered(
+          decodedUsernamesArray
+        );
+
+        const filteredUsernames = inputValue
+          ? usernamesToSelectFiltered.filter((username) =>
+              username.toLowerCase().startsWith(inputValue.toLowerCase())
+            )
+          : decodedUsernamesArray
+          ? usernamesToSelect.filter(
+              (username) => !decodedUsernamesArray.includes(username)
+            )
+          : usernamesToSelect;
+        setItems(filteredUsernames);
       },
       onSelectedItemChange: ({ selectedItem: newSelectedItem }) => {
         if (
@@ -90,6 +113,10 @@ const ProfileNamesInput = () => {
           setFilter(UrlParamsTypes.usernames, urlEncodedString.toString());
           reset();
           setSelectedItem("");
+          const usernamesToSelectFiltered = getUsernamesToSelectFiltered(
+            decodedUsernamesArray
+          );
+          setItems(usernamesToSelectFiltered);
         }
       },
     });
@@ -115,11 +142,18 @@ const ProfileNamesInput = () => {
       ? usernamesUpdated.join(", ")
       : "";
     setFilter(UrlParamsTypes.usernames, decodedUsernamesString.toString());
+
+    const usernamesToSelectFiltered =
+      getUsernamesToSelectFiltered(usernamesUpdated);
+    setItems(usernamesToSelectFiltered);
   };
 
   useEffect(() => {
-    setItems(profileNames);
-  }, [profileNames]);
+    const usernamesToSelectFiltered = getUsernamesToSelectFiltered(
+      decodedUsernamesArray
+    );
+    setItems(usernamesToSelectFiltered);
+  }, [usernamesToSelect]);
 
   useEffect(() => {
     if (isFirstRender.current) {
