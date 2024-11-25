@@ -56,37 +56,62 @@ export class CustomAlgorithm implements Algorithm {
   }: AlgorithmInput): AlgorithmOutput {
     const currentZoom = map.getZoom() || 0;
 
-    // Force processing for first render
+    // Return cached clusters if nothing has changed
+    if (this.lastZoomLevel === currentZoom && this.cachedClusters) {
+      return this.cachedClusters;
+    }
+
     this.lastZoomLevel = currentZoom;
     this.cachedClusters = null;
 
-    if (!mapCanvasProjection) {
-      const singleMarkerClusters = {
-        clusters: markers.map(
-          (marker) =>
-            new Cluster({
-              markers: [marker],
-              position: new google.maps.LatLng(getMarkerPosition(marker)),
-            })
-        ),
-      };
+    // If map is not ready yet, create basic clustering based on coordinates
+    if (!mapCanvasProjection || !map.getBounds()) {
+      const clusters: Cluster[] = [];
+      const markersByRegion = new Map<string, Marker[]>();
 
-      console.log(singleMarkerClusters, "singleMarkerClusters");
-      this.cachedClusters = singleMarkerClusters;
-      this.lastZoomLevel = currentZoom;
-      return singleMarkerClusters;
+      // Use a simpler grid based on coordinates
+      markers.forEach((marker) => {
+        const position = getMarkerPosition(marker);
+        // Create larger grid cells for initial clustering
+        const cellX = Math.floor(position.lat * 10);
+        const cellY = Math.floor(position.lng * 10);
+        const cellKey = `${cellX}_${cellY}`;
+
+        if (!markersByRegion.has(cellKey)) {
+          markersByRegion.set(cellKey, []);
+        }
+        markersByRegion.get(cellKey)!.push(marker);
+      });
+
+      markersByRegion.forEach((cellMarkers) => {
+        if (cellMarkers.length < this.minimumClusterSize) {
+          cellMarkers.forEach((marker) => {
+            clusters.push(
+              new Cluster({
+                markers: [marker],
+                position: new google.maps.LatLng(getMarkerPosition(marker)),
+              })
+            );
+          });
+        } else {
+          const centroid = this.calculateCentroid(cellMarkers);
+          clusters.push(
+            new Cluster({
+              markers: cellMarkers,
+              position: centroid,
+            })
+          );
+        }
+      });
+
+      this.cachedClusters = { clusters };
+      return { clusters };
     }
 
+    // Regular clustering logic for when map is ready
     const clusters: Cluster[] = [];
     const markersByCell = new Map<string, Marker[]>();
     const gridCellSize = this.determineGridCellSize(currentZoom);
-
-    // Calculate viewport bounds
-    const bounds = map.getBounds();
-    if (!bounds) {
-      this.cachedClusters = { clusters: [] };
-      return { clusters: [] };
-    }
 
     markers.forEach((marker) => {
       const position = getMarkerPosition(marker);
