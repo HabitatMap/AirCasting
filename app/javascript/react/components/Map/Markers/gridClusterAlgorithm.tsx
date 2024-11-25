@@ -56,23 +56,6 @@ export class CustomAlgorithm implements Algorithm {
   }: AlgorithmInput): AlgorithmOutput {
     const currentZoom = map.getZoom() || 0;
 
-    // Always process on first render
-    const isFirstRender = this.lastZoomLevel === null;
-
-    // console.log(isFirstRender, "isFirstRender");
-
-    // console.log(this.cachedClusters, "this.cachedClusters");
-    // console.log(this.lastZoomLevel === currentZoom, "currentZoom");
-
-    // Skip cache on first render or zoom change
-    // if (
-    //   !isFirstRender &&
-    //   this.lastZoomLevel === currentZoom &&
-    //   this.cachedClusters
-    // ) {
-    //   return this.cachedClusters;
-    // }
-
     // Force processing for first render
     this.lastZoomLevel = currentZoom;
     this.cachedClusters = null;
@@ -162,13 +145,10 @@ export class CustomAlgorithm implements Algorithm {
 
   private determineGridCellSize(zoomLevel: number): number {
     const adjustedBaseCellSize = 25;
-    console.log(zoomLevel, "zoomLevel");
     let cellSize;
     if (zoomLevel >= 12) {
-      console.log("zoomLevel >=12");
       cellSize = adjustedBaseCellSize / Math.pow(3, Math.max(0, zoomLevel - 5));
     } else {
-      console.log("else");
       cellSize =
         adjustedBaseCellSize / Math.pow(1.3, Math.max(0, zoomLevel - 8));
     }
