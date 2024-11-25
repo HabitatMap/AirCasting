@@ -59,6 +59,8 @@ export class CustomAlgorithm implements Algorithm {
     // Always process on first render
     const isFirstRender = this.lastZoomLevel === null;
 
+    console.log(isFirstRender, "isFirstRender");
+
     // Skip cache on first render or zoom change
     if (
       !isFirstRender &&
@@ -158,13 +160,16 @@ export class CustomAlgorithm implements Algorithm {
     console.log(zoomLevel, "zoomLevel");
     let cellSize;
     if (zoomLevel >= 12) {
+      console.log("zoomLevel >=12");
       cellSize = adjustedBaseCellSize / Math.pow(3, Math.max(0, zoomLevel - 5));
     } else {
+      console.log("else");
       cellSize =
         adjustedBaseCellSize / Math.pow(1.3, Math.max(0, zoomLevel - 8));
     }
 
-    const minimumCellSize = 3;
+    const minimumCellSize = 5;
+
     return Math.max(cellSize, minimumCellSize);
   }
 

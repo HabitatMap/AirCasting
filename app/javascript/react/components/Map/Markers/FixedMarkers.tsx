@@ -657,7 +657,16 @@ export function FixedMarkers({
         map,
         markers: [],
         renderer: customRenderer,
-        algorithm: new CustomAlgorithm({}),
+        algorithm: new CustomAlgorithm({
+          // Add options to reduce unnecessary recalculations
+          baseCellSize: 100,
+          minimumClusterSize: 2,
+        }),
+      });
+
+      // Only recalculate clusters on zoom changes
+      map.addListener("zoom_changed", () => {
+        clustererRef.current?.render();
       });
 
       clustererRef.current.addListener("clusteringend", () => {
