@@ -59,16 +59,19 @@ export class CustomAlgorithm implements Algorithm {
     // Always process on first render
     const isFirstRender = this.lastZoomLevel === null;
 
-    console.log(isFirstRender, "isFirstRender");
+    // console.log(isFirstRender, "isFirstRender");
+
+    // console.log(this.cachedClusters, "this.cachedClusters");
+    // console.log(this.lastZoomLevel === currentZoom, "currentZoom");
 
     // Skip cache on first render or zoom change
-    if (
-      !isFirstRender &&
-      this.lastZoomLevel === currentZoom &&
-      this.cachedClusters
-    ) {
-      return this.cachedClusters;
-    }
+    // if (
+    //   !isFirstRender &&
+    //   this.lastZoomLevel === currentZoom &&
+    //   this.cachedClusters
+    // ) {
+    //   return this.cachedClusters;
+    // }
 
     // Force processing for first render
     this.lastZoomLevel = currentZoom;
@@ -84,6 +87,8 @@ export class CustomAlgorithm implements Algorithm {
             })
         ),
       };
+
+      console.log(singleMarkerClusters, "singleMarkerClusters");
       this.cachedClusters = singleMarkerClusters;
       this.lastZoomLevel = currentZoom;
       return singleMarkerClusters;

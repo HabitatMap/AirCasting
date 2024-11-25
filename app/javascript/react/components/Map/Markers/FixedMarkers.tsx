@@ -143,12 +143,17 @@ export function FixedMarkers({
   const handleClusteringEnd = useCallback(() => {
     const currentZoom = map?.getZoom() ?? null;
 
-    if (currentZoom === previousZoomRef.current) {
-      return;
-    }
     previousZoomRef.current = currentZoom;
+
     markerRefs.current.forEach((marker) => {
       (marker as CustomMarker).clustered = false;
+
+      const streamId = marker.userData.streamId;
+      const markerOverlay = markerOverlays.current.get(streamId);
+      const labelOverlay = labelOverlays.current.get(streamId);
+
+      if (markerOverlay) markerOverlay.setMap(null);
+      if (labelOverlay) labelOverlay.setMap(null);
     });
 
     const clusters =
@@ -191,6 +196,17 @@ export function FixedMarkers({
           .lat()
           .toFixed(6)}_${cluster.position.lng().toFixed(6)}`;
         clusterOverlaysRef.current.set(clusterKey, overlay);
+      }
+    });
+
+    markerRefs.current.forEach((marker) => {
+      if (!marker.clustered) {
+        const streamId = marker.userData.streamId;
+        const existingOverlay = markerOverlays.current.get(streamId);
+        const existingLabelOverlay = labelOverlays.current.get(streamId);
+
+        if (existingOverlay) existingOverlay.setMap(map);
+        if (existingLabelOverlay) existingLabelOverlay.setMap(map);
       }
     });
   }, [map, thresholds, pulsatingSessionId, handleClusterClickInternal]);
