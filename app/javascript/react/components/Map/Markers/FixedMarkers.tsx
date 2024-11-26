@@ -1,6 +1,5 @@
 import { Cluster, MarkerClusterer } from "@googlemaps/markerclusterer";
 import { useMap } from "@vis.gl/react-google-maps";
-import debounce from "lodash/debounce";
 import React, {
   useCallback,
   useEffect,
@@ -57,7 +56,6 @@ interface CustomRendererProps {
 }
 
 const ZOOM_FOR_SELECTED_SESSION = 15;
-const CLUSTER_RADIUS = 40;
 
 export function FixedMarkers({
   sessions,
@@ -66,73 +64,27 @@ export function FixedMarkers({
   pulsatingSessionId,
   onClusterClick,
 }: FixedMarkersProps) {
-  console.log("FixedMarkers component rendering", {
-    sessionCount: sessions.length,
-    selectedStreamId,
-    pulsatingSessionId,
-  });
-
-  // Add initial useEffect to track mounting
-  useEffect(() => {
-    console.log("FixedMarkers component mounted");
-
-    return () => {
-      console.log("FixedMarkers component unmounting");
-    };
-  }, []);
-
-  // Add log to track map availability
-  const map = useMap();
-  useEffect(() => {
-    console.log("Map status changed:", {
-      isMapAvailable: !!map,
-      zoom: map?.getZoom(),
-      center: map?.getCenter()?.toJSON(),
-    });
-  }, [map]);
-
-  // Add log to track sessions changes
-  useEffect(() => {
-    console.log("Sessions updated:", {
-      count: sessions.length,
-      firstSessionId: sessions[0]?.id,
-      lastSessionId: sessions[sessions.length - 1]?.id,
-    });
-  }, [sessions]);
-
-  // Add log to clusterer initialization
-  useEffect(() => {
-    console.log("Checking clusterer initialization:", {
-      hasMap: !!map,
-      hasClusterer: !!clustererRef.current,
-      sessionCount: sessions.length,
-    });
-
-    if (map && !clustererRef.current) {
-      console.log("Creating new clusterer");
-      // ... rest of clusterer initialization
-    }
-  }, [map]);
-
   const dispatch = useAppDispatch();
   const { unitSymbol } = useMapParams();
+  const map = useMap();
 
+  // Redux selectors
   const hoverStreamId = useAppSelector(selectHoverStreamId);
   const thresholds = useAppSelector(selectThresholds);
   const clusterData = useAppSelector((state) => state.cluster.data);
   const clusterVisible = useAppSelector((state) => state.cluster.visible);
-
   const fixedStreamData = useAppSelector(selectFixedStreamData);
   const fixedStreamStatus = useAppSelector(selectFixedStreamStatus);
 
+  // Refs
   const clustererRef = useRef<MarkerClusterer | null>(null);
   const markerRefs = useRef<Map<string, CustomMarker>>(new Map());
-
   const markerOverlays = useRef<Map<string, CustomMarkerOverlay>>(new Map());
   const labelOverlays = useRef<Map<string, LabelOverlay>>(new Map());
   const clusterOverlaysRef = useRef<Map<string, ClusterOverlay>>(new Map());
   const previousZoomRef = useRef<number | null>(null);
 
+  // State variables
   const [hoverPosition, setHoverPosition] = useState<LatLngLiteral | null>(
     null
   );
@@ -143,16 +95,17 @@ export function FixedMarkers({
   } | null>(null);
   const [clusterDataLoading, setClusterDataLoading] = useState<boolean>(false);
 
+  // Memoized values
   const memoizedSessions = useMemo(() => sessions, [sessions]);
 
-  // Ref for onMarkerClick to avoid stale closures
+  // Refs for event handlers
   const onMarkerClickRef = useRef(onMarkerClick);
-
   useEffect(() => {
     onMarkerClickRef.current = onMarkerClick;
   }, [onMarkerClick]);
 
-  // Utility functions and event handlers for map interactions, marker creation, and cluster management
+  // Utility functions
+
   const centerMapOnMarker = useCallback(
     (position: LatLngLiteral) => {
       if (map) {
@@ -166,7 +119,6 @@ export function FixedMarkers({
   const handleClusterClickInternal = useCallback(
     async (event: google.maps.MapMouseEvent, cluster: CustomCluster) => {
       dispatch(setVisibility(false));
-
       if (map) {
         const pixelPosition = getClusterPixelPosition(map, cluster.position);
         setClusterPosition({ top: pixelPosition.y, left: pixelPosition.x });
@@ -190,7 +142,6 @@ export function FixedMarkers({
 
   const handleClusteringEnd = useCallback(() => {
     const currentZoom = map?.getZoom() ?? null;
-
     if (currentZoom === previousZoomRef.current) {
       return;
     }
@@ -234,7 +185,6 @@ export function FixedMarkers({
           map!,
           handleClusterClickInternal
         );
-
         const clusterKey = `${cluster.position
           .lat()
           .toFixed(6)}_${cluster.position.lng().toFixed(6)}`;
@@ -257,7 +207,7 @@ export function FixedMarkers({
       const marker = new google.maps.Marker({
         position: session.point,
         icon: {
-          url: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAAEklEQVR4nGMAAQAABQABDQottAAAAABJRU5ErkJggg==", // Transparent 1x1 pixel
+          url: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAAEklEQVR4nGMAAQAABQABDQottAAAAABJRU5ErkJggg==",
         },
         zIndex: Number(google.maps.Marker.MAX_ZINDEX) + 1,
       }) as CustomMarker;
@@ -277,7 +227,7 @@ export function FixedMarkers({
 
       return marker;
     },
-    [centerMapOnMarker] // Removed onMarkerClick from dependencies
+    [centerMapOnMarker]
   );
 
   const handleMapInteraction = useCallback(() => {
@@ -306,7 +256,6 @@ export function FixedMarkers({
   const handleZoomIn = useCallback(() => {
     if (map && selectedCluster) {
       const bounds = new google.maps.LatLngBounds();
-
       selectedCluster.markers?.forEach((marker) => {
         const position =
           "getPosition" in marker ? marker.getPosition() : marker.position;
@@ -420,235 +369,124 @@ export function FixedMarkers({
     centerMapOnMarker,
   ]);
 
-  const handleSelectedStreamIdChange = useCallback(
-    (streamId: number | null) => {
-      if (fixedStreamStatus === StatusEnum.Pending) return;
+  useEffect(() => {
+    if (fixedStreamStatus === StatusEnum.Pending) return;
 
-      if (streamId === null) {
-        // Reinitialize markers and clusters
-        if (!clustererRef.current && map) {
-          clustererRef.current = new MarkerClusterer({
-            map,
-            markers: [],
-            renderer: customRenderer,
-            algorithm: new CustomAlgorithm(),
+    if (selectedStreamId === null) {
+      if (!clustererRef.current && map) {
+        clustererRef.current = new MarkerClusterer({
+          map,
+          markers: [],
+          renderer: customRenderer,
+          algorithm: new CustomAlgorithm(),
+        });
+
+        clustererRef.current.addListener("clusteringend", handleClusteringEnd);
+      }
+
+      const allMarkers = Array.from(markerRefs.current.values());
+      clustererRef.current!.addMarkers(allMarkers);
+      clustererRef.current!.render();
+
+      updateMarkerOverlays();
+      updateClusterOverlays();
+    } else {
+      if (fixedStreamData?.stream) {
+        const { latitude, longitude } = fixedStreamData.stream;
+        if (latitude && longitude) {
+          const fixedStreamPosition = { lat: latitude, lng: longitude };
+
+          centerMapOnMarker(fixedStreamPosition);
+
+          if (clustererRef.current) {
+            clustererRef.current.clearMarkers();
+            clustererRef.current.setMap(null);
+            clustererRef.current = null;
+          }
+
+          markerRefs.current.forEach((marker, streamIdKey) => {
+            if (streamIdKey !== selectedStreamId.toString()) {
+              marker.setMap(null);
+              markerRefs.current.delete(streamIdKey);
+
+              const markerOverlay = markerOverlays.current.get(streamIdKey);
+              if (markerOverlay) {
+                markerOverlay.setMap(null);
+                markerOverlays.current.delete(streamIdKey);
+              }
+              const labelOverlay = labelOverlays.current.get(streamIdKey);
+              if (labelOverlay) {
+                labelOverlay.setMap(null);
+                labelOverlays.current.delete(streamIdKey);
+              }
+            }
           });
 
-          clustererRef.current.addListener(
-            "clusteringend",
-            handleClusteringEnd
+          const selectedMarker = markerRefs.current.get(
+            selectedStreamId.toString()
           );
-        }
-
-        // Re-add all markers to the clusterer
-        const allMarkers = Array.from(markerRefs.current.values());
-        clustererRef.current!.addMarkers(allMarkers);
-
-        // Force clusterer update
-        clustererRef.current!.render();
-
-        // Update overlays for all markers
-        updateMarkerOverlays();
-        updateClusterOverlays();
-      } else {
-        // Handle single selected stream
-        if (fixedStreamData?.stream) {
-          const { latitude, longitude } = fixedStreamData.stream;
-          if (latitude && longitude) {
-            const fixedStreamPosition = { lat: latitude, lng: longitude };
-
-            centerMapOnMarker(fixedStreamPosition);
-
-            // Clear the clusterer
-            if (clustererRef.current) {
-              clustererRef.current.clearMarkers();
-              clustererRef.current.setMap(null);
-              clustererRef.current = null;
-            }
-
-            // Remove markers and overlays not related to selected stream
-            markerRefs.current.forEach((marker, streamIdKey) => {
-              if (streamIdKey !== streamId.toString()) {
-                marker.setMap(null);
-                markerRefs.current.delete(streamIdKey);
-
-                const markerOverlay = markerOverlays.current.get(streamIdKey);
-                if (markerOverlay) {
-                  markerOverlay.setMap(null);
-                  markerOverlays.current.delete(streamIdKey);
-                }
-                const labelOverlay = labelOverlays.current.get(streamIdKey);
-                if (labelOverlay) {
-                  labelOverlay.setMap(null);
-                  labelOverlays.current.delete(streamIdKey);
-                }
-              }
-            });
-
-            // Ensure the selected stream's marker and overlays are present
-            const selectedMarker = markerRefs.current.get(streamId.toString());
-            if (!selectedMarker) {
-              const session = memoizedSessions.find(
-                (session) => session.point.streamId === streamId.toString()
-              );
-              if (session) {
-                const newMarker = createMarker(session);
-                markerRefs.current.set(session.point.streamId, newMarker);
-                newMarker.setMap(map);
-
-                const newOverlay = new CustomMarkerOverlay(
-                  new google.maps.LatLng(latitude, longitude),
-                  getColorForValue(thresholds, session.lastMeasurementValue),
-                  true,
-                  false
-                );
-                newOverlay.setMap(map);
-                markerOverlays.current.set(session.point.streamId, newOverlay);
-
-                const newLabelOverlay = new LabelOverlay(
-                  new google.maps.LatLng(latitude, longitude),
-                  getColorForValue(thresholds, session.lastMeasurementValue),
-                  session.lastMeasurementValue,
-                  unitSymbol,
-                  true,
-                  () => {
-                    onMarkerClickRef.current(
-                      Number(session.point.streamId),
-                      Number(session.id)
-                    );
-                    centerMapOnMarker(fixedStreamPosition);
-                  }
-                );
-                newLabelOverlay.setMap(map);
-                labelOverlays.current.set(
-                  session.point.streamId,
-                  newLabelOverlay
-                );
-              }
-            }
-
-            // Remove all cluster overlays
-            clusterOverlaysRef.current.forEach((overlay) =>
-              overlay.setMap(null)
+          if (!selectedMarker) {
+            const session = memoizedSessions.find(
+              (session) =>
+                session.point.streamId === selectedStreamId.toString()
             );
-            clusterOverlaysRef.current.clear();
+            if (session) {
+              const newMarker = createMarker(session);
+              markerRefs.current.set(session.point.streamId, newMarker);
+              newMarker.setMap(map);
+
+              const newOverlay = new CustomMarkerOverlay(
+                new google.maps.LatLng(latitude, longitude),
+                getColorForValue(thresholds, session.lastMeasurementValue),
+                true,
+                false
+              );
+              newOverlay.setMap(map);
+              markerOverlays.current.set(session.point.streamId, newOverlay);
+
+              const newLabelOverlay = new LabelOverlay(
+                new google.maps.LatLng(latitude, longitude),
+                getColorForValue(thresholds, session.lastMeasurementValue),
+                session.lastMeasurementValue,
+                unitSymbol,
+                true,
+                () => {
+                  onMarkerClickRef.current(
+                    Number(session.point.streamId),
+                    Number(session.id)
+                  );
+                  centerMapOnMarker(fixedStreamPosition);
+                }
+              );
+              newLabelOverlay.setMap(map);
+              labelOverlays.current.set(
+                session.point.streamId,
+                newLabelOverlay
+              );
+            }
           }
+
+          clusterOverlaysRef.current.forEach((overlay) => overlay.setMap(null));
+          clusterOverlaysRef.current.clear();
         }
       }
-    },
-    [
-      fixedStreamStatus,
-      fixedStreamData,
-      map,
-      customRenderer,
-      handleClusteringEnd,
-      updateMarkerOverlays,
-      updateClusterOverlays,
-      memoizedSessions,
-      createMarker,
-      thresholds,
-      unitSymbol,
-      centerMapOnMarker,
-    ]
-  );
-
-  useEffect(() => {
-    handleSelectedStreamIdChange(selectedStreamId);
-  }, [selectedStreamId, handleSelectedStreamIdChange]);
-
-  // Add new state to track marker loading
-  const [markersLoaded, setMarkersLoaded] = useState(false);
-  const markerLoadingCheckRef = useRef<NodeJS.Timeout | null>(null);
-
-  // Add function to check if all markers are loaded
-  const checkMarkersLoaded = useCallback(() => {
-    const allMarkersLoaded = memoizedSessions.every((session) =>
-      markerRefs.current.has(session.point.streamId)
-    );
-
-    if (allMarkersLoaded) {
-      setMarkersLoaded(true);
-      if (markerLoadingCheckRef.current) {
-        clearInterval(markerLoadingCheckRef.current);
-      }
     }
-  }, [memoizedSessions]);
+  }, [
+    selectedStreamId,
+    fixedStreamStatus,
+    fixedStreamData,
+    map,
+    customRenderer,
+    handleClusteringEnd,
+    updateMarkerOverlays,
+    updateClusterOverlays,
+    memoizedSessions,
+    createMarker,
+    thresholds,
+    unitSymbol,
+    centerMapOnMarker,
+  ]);
 
-  // Add ref to track projection availability
-  const projectionAvailableRef = useRef(false);
-
-  // Modify the projection check effect
-  useEffect(() => {
-    if (!map || !clustererRef.current || projectionAvailableRef.current) {
-      return;
-    }
-
-    const checkProjection = () => {
-      if (map.getProjection() && !projectionAvailableRef.current) {
-        console.log(
-          "Projection became available, forcing one-time recalculation"
-        );
-        projectionAvailableRef.current = true;
-        if (algorithmRef.current && clustererRef.current) {
-          algorithmRef.current.clearCache();
-          clustererRef.current.render();
-        }
-        return true; // Projection is now available
-      }
-      return false;
-    };
-
-    // Check immediately
-    if (checkProjection()) {
-      return; // If projection is available immediately, don't set up interval
-    }
-
-    // Set up interval only if needed
-    const projectionCheckInterval = setInterval(() => {
-      if (checkProjection()) {
-        clearInterval(projectionCheckInterval);
-      }
-    }, 100);
-
-    // Safety cleanup after 5 seconds
-    const projectionTimeout = setTimeout(() => {
-      clearInterval(projectionCheckInterval);
-    }, 5000);
-
-    return () => {
-      clearInterval(projectionCheckInterval);
-      clearTimeout(projectionTimeout);
-    };
-  }, [map]);
-
-  // Add effect to check marker loading status
-  useEffect(() => {
-    if (!markersLoaded && sessions.length > 0) {
-      markerLoadingCheckRef.current = setInterval(checkMarkersLoaded, 100);
-
-      // Safety timeout after 5 seconds
-      const safetyTimeout = setTimeout(() => {
-        if (markerLoadingCheckRef.current) {
-          clearInterval(markerLoadingCheckRef.current);
-        }
-        setMarkersLoaded(true);
-      }, 5000);
-
-      return () => {
-        if (markerLoadingCheckRef.current) {
-          clearInterval(markerLoadingCheckRef.current);
-        }
-        clearTimeout(safetyTimeout);
-      };
-    }
-  }, [sessions.length, markersLoaded, checkMarkersLoaded]);
-
-  // Reset markers loaded state when sessions change
-  useEffect(() => {
-    setMarkersLoaded(false);
-  }, [sessions]);
-
-  // Effect to manage markers: create, update, and remove markers based on sessions data
   useEffect(() => {
     if (!map || !clustererRef.current) return;
 
@@ -668,19 +506,18 @@ export function FixedMarkers({
       }
     });
 
-    // Identify markers to remove
     markerRefs.current.forEach((marker, streamId) => {
       if (!sessions.some((session) => session.point.streamId === streamId)) {
         markersToRemove.push(marker);
         markerRefs.current.delete(streamId);
       }
     });
-    // Remove markers no longer in the sessions array
+
     if (markersToRemove.length > 0) {
       clustererRef.current.removeMarkers(markersToRemove);
       markersToRemove.forEach((marker) => marker.setMap(null));
     }
-    // Add new markers
+
     if (updatedMarkers.length > 0) {
       clustererRef.current.addMarkers(updatedMarkers);
     }
@@ -699,17 +536,26 @@ export function FixedMarkers({
       }
       marker.setMap(null);
     });
-    // Force clusterer update
+
     clustererRef.current.render();
 
     updateMarkerOverlays();
     updateClusterOverlays();
-  }, [sessions, map, createMarker, thresholds, unitSymbol, pulsatingSessionId]);
+  }, [
+    sessions,
+    map,
+    createMarker,
+    thresholds,
+    unitSymbol,
+    pulsatingSessionId,
+    updateMarkerOverlays,
+    updateClusterOverlays,
+    memoizedSessions,
+  ]);
 
   useEffect(() => {
     if (clustererRef.current) {
       clustererRef.current.addListener("clusteringend", () => {
-        // Update clustered status for markers
         markerRefs.current.forEach((marker) => {
           (marker as CustomMarker).clustered = false;
         });
@@ -719,7 +565,6 @@ export function FixedMarkers({
           // @ts-ignore - clusters
           (clustererRef.current.clusters as CustomCluster[]);
 
-        // Remove existing cluster overlays
         clusterOverlaysRef.current.forEach((overlay) => {
           overlay.setMap(null);
         });
@@ -770,7 +615,13 @@ export function FixedMarkers({
   useEffect(() => {
     updateMarkerOverlays();
     updateClusterOverlays();
-  }, [pulsatingSessionId, selectedStreamId, markerRefs.current, sessions]);
+  }, [
+    pulsatingSessionId,
+    selectedStreamId,
+    sessions,
+    updateMarkerOverlays,
+    updateClusterOverlays,
+  ]);
 
   useEffect(() => {
     if (hoverStreamId) {
@@ -789,175 +640,7 @@ export function FixedMarkers({
     if (markerRefs.current.size >= memoizedSessions.length) {
       dispatch(setMarkersLoading(false));
     }
-  }, [dispatch, sessions.length]);
-
-  // Add new ref to track initial clustering
-  const initialClusteringTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-  const hasInitializedRef = useRef(false);
-
-  // Add ref for algorithm instance
-  const algorithmRef = useRef<CustomAlgorithm | null>(null);
-
-  // Add debounced render function
-  const debouncedRender = useMemo(
-    () =>
-      debounce(() => {
-        if (clustererRef.current) {
-          console.log("Executing debounced render");
-          clustererRef.current.render();
-        }
-      }, 500),
-    []
-  );
-
-  // Modify clusterer initialization
-  useEffect(() => {
-    if (map && !clustererRef.current) {
-      console.log("Initializing clusterer");
-
-      algorithmRef.current = new CustomAlgorithm({});
-
-      clustererRef.current = new MarkerClusterer({
-        map,
-        markers: [],
-        renderer: customRenderer,
-        algorithm: algorithmRef.current,
-
-        // Add these options to reduce unnecessary updates
-      });
-
-      // Use debounced render for clustering end
-      clustererRef.current.addListener("clusteringend", () => {
-        console.log("Clustering end event fired");
-        handleClusteringEnd();
-      });
-    }
-
-    return () => {
-      debouncedRender.cancel();
-    };
-  }, [map, customRenderer, handleClusteringEnd, debouncedRender]);
-
-  // Modify marker update effect
-  useEffect(() => {
-    if (!map || !clustererRef.current) return;
-
-    console.log("Updating markers");
-
-    // Batch marker updates
-    const batchSize = 100;
-    const markers = [...markerRefs.current.values()];
-
-    const updateBatch = (startIndex: number) => {
-      const batch = markers.slice(startIndex, startIndex + batchSize);
-      if (batch.length === 0) return;
-
-      batch.forEach((marker) => {
-        const session = memoizedSessions.find(
-          (s) => s.point.streamId === (marker as CustomMarker).userData.streamId
-        );
-        if (session) {
-          marker.setPosition(session.point);
-          (marker as CustomMarker).value = session.lastMeasurementValue;
-        }
-      });
-
-      if (startIndex + batchSize < markers.length) {
-        requestAnimationFrame(() => updateBatch(startIndex + batchSize));
-      } else {
-        // Only render once all updates are complete
-        debouncedRender();
-      }
-    };
-
-    updateBatch(0);
-  }, [memoizedSessions, debouncedRender]);
-
-  // Cleanup effect
-  useEffect(() => {
-    return () => {
-      debouncedRender.cancel();
-      if (algorithmRef.current) {
-        algorithmRef.current.clearCache();
-      }
-      if (clustererRef.current) {
-        clustererRef.current.setMap(null);
-      }
-    };
-  }, [debouncedRender]);
-
-  // Add marker batch processing state
-  const [isProcessingMarkers, setIsProcessingMarkers] = useState(false);
-  const markerBatchSize = 200; // Increased batch size for better performance
-
-  // Modify marker creation effect
-  useEffect(() => {
-    if (!map || !clustererRef.current || isProcessingMarkers) return;
-
-    const createMarkerBatch = async (startIndex: number) => {
-      setIsProcessingMarkers(true);
-
-      return new Promise<void>((resolve) => {
-        requestAnimationFrame(() => {
-          const endIndex = Math.min(
-            startIndex + markerBatchSize,
-            memoizedSessions.length
-          );
-          const batch = memoizedSessions.slice(startIndex, endIndex);
-
-          batch.forEach((session) => {
-            if (!markerRefs.current.has(session.point.streamId)) {
-              const marker = createMarker(session);
-              markerRefs.current.set(session.point.streamId, marker);
-            }
-          });
-
-          if (endIndex < memoizedSessions.length) {
-            createMarkerBatch(endIndex).then(resolve);
-          } else {
-            resolve();
-          }
-        });
-      });
-    };
-
-    const initializeMarkers = async () => {
-      console.log("Starting marker initialization");
-      await createMarkerBatch(0);
-
-      // Add all markers to clusterer at once
-      const allMarkers = Array.from(markerRefs.current.values());
-      console.log("Adding markers to clusterer", { count: allMarkers.length });
-
-      if (clustererRef.current) {
-        clustererRef.current.clearMarkers();
-        clustererRef.current.addMarkers(allMarkers);
-      }
-
-      setIsProcessingMarkers(false);
-    };
-
-    initializeMarkers();
-  }, [map, memoizedSessions, createMarker]);
-
-  // Optimize clusterer initialization
-  useEffect(() => {
-    if (map && !clustererRef.current) {
-      console.log("Initializing clusterer");
-
-      algorithmRef.current = new CustomAlgorithm({
-        batchSize: markerBatchSize,
-        gridSizeInitial: 60, // Larger initial grid for better performance
-      });
-
-      clustererRef.current = new MarkerClusterer({
-        map,
-        markers: [],
-        renderer: customRenderer,
-        algorithm: algorithmRef.current,
-      });
-    }
-  }, [map]);
+  }, [dispatch, sessions.length, memoizedSessions.length]);
 
   return (
     <>
