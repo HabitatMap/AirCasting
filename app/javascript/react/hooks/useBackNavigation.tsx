@@ -1,18 +1,25 @@
 import { useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 
+import { urls } from "../const/urls";
+import { useAppDispatch } from "../store/hooks";
+import { resetMovingStreamData } from "../store/movingCalendarStreamSlice";
+import { UserSettings } from "../types/userStates";
 import { UrlParamsTypes, useMapParams } from "../utils/mapParamsHandler";
 import useMobileDetection from "../utils/useScreenSizeDetection";
-import { urls } from "../const/urls";
 
 const useCalendarBackNavigation = () => {
   const navigate = useNavigate();
   const isMobile = useMobileDetection();
+  const dispatch = useAppDispatch();
 
   const { currentUserSettings, previousUserSettings, searchParams } =
     useMapParams();
 
   const handleCalendarGoBack = useCallback(() => {
+    if (currentUserSettings === UserSettings.CalendarView) {
+      dispatch(resetMovingStreamData());
+    }
     const newSearchParams = new URLSearchParams(searchParams.toString());
     newSearchParams.set(
       UrlParamsTypes.previousUserSettings,

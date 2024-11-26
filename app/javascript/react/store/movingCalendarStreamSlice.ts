@@ -64,7 +64,13 @@ export const fetchNewMovingStream = createAsyncThunk<
 export const movingStreamSlice = createSlice({
   name: "movingCalendarStream",
   initialState,
-  reducers: {},
+  reducers: {
+    resetMovingStreamData: (state) => {
+      state.data = [];
+      state.status = StatusEnum.Idle;
+      state.error = null;
+    },
+  },
   extraReducers: (builder) => {
     builder
       .addCase(
@@ -91,3 +97,4 @@ export const movingStreamSlice = createSlice({
 
 export default movingStreamSlice.reducer;
 export const movingData = (state: RootState) => state.movingCalendarStream;
+export const { resetMovingStreamData } = movingStreamSlice.actions;
