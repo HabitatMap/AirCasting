@@ -71,19 +71,21 @@ module Timelapse
     end
 
     def determine_grid_cell_size(zoom_level)
-      base_cell_size = 15
+      # Base size in coordinate degrees (roughly 1 degree = 111km at equator)
+      adjusted_base_cell_size = 0.1
       zoom_level = zoom_level.to_i
 
-      # More aggressive reduction in cell size after zoom level 12
       cell_size = if zoom_level >= 12
-        base_cell_size / (1.5**zoom_level)
+        # More aggressive reduction for detailed zoom levels
+        adjusted_base_cell_size / (3 ** [0, zoom_level - 5].max)
       else
-        # Faster reduction for closer zoom levels
-        base_cell_size / (2.2**zoom_level)
+        # Gentler reduction for broader zoom levels
+        adjusted_base_cell_size / (1.3 ** [0, zoom_level - 8].max)
       end
 
-      # Smaller minimum cell size to allow more individual markers
-      minimum_cell_size = 0.00005 # Reduced from 0.0001
+      # Minimum cell size in coordinate degrees
+      # About 5 meters at equator (0.00005 degrees ≈ 5.5m)
+      minimum_cell_size = 0.00005
       [cell_size, minimum_cell_size].max
     end
 

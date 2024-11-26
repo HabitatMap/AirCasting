@@ -26,6 +26,7 @@ import { useMapParams } from "../../../utils/mapParamsHandler";
 import { getColorForValue } from "../../../utils/thresholdColors";
 import { ClusterInfo, ClusterInfoLoading } from "./ClusterInfo/ClusterInfo";
 
+import { UserSettings } from "../../../types/userStates";
 import HoverMarker from "./HoverMarker/HoverMarker";
 import { ClusterOverlay } from "./clusterOverlay";
 import { LabelOverlay } from "./customMarkerLabel";
@@ -65,7 +66,7 @@ export function FixedMarkers({
   onClusterClick,
 }: FixedMarkersProps) {
   const dispatch = useAppDispatch();
-  const { unitSymbol } = useMapParams();
+  const { unitSymbol, currentUserSettings } = useMapParams();
   const map = useMap();
 
   // Redux selectors
@@ -83,6 +84,7 @@ export function FixedMarkers({
   const labelOverlays = useRef<Map<string, LabelOverlay>>(new Map());
   const clusterOverlaysRef = useRef<Map<string, ClusterOverlay>>(new Map());
   const previousZoomRef = useRef<number | null>(null);
+  const previousModeRef = useRef<string | null>(null);
 
   // State variables
   const [hoverPosition, setHoverPosition] = useState<LatLngLiteral | null>(
@@ -641,6 +643,71 @@ export function FixedMarkers({
       dispatch(setMarkersLoading(false));
     }
   }, [dispatch, sessions.length, memoizedSessions.length]);
+
+  // Add cleanup function
+  const clearAllMarkersAndClusters = useCallback(() => {
+    // Clear clusterer
+    if (clustererRef.current) {
+      clustererRef.current.clearMarkers();
+      clustererRef.current.setMap(null);
+      clustererRef.current = null;
+    }
+
+    // Clear all marker overlays
+    markerOverlays.current.forEach((overlay) => {
+      overlay.setMap(null);
+    });
+    markerOverlays.current.clear();
+
+    // Clear all label overlays
+    labelOverlays.current.forEach((overlay) => {
+      overlay.setMap(null);
+    });
+    labelOverlays.current.clear();
+
+    // Clear all cluster overlays
+    clusterOverlaysRef.current.forEach((overlay) => {
+      overlay.setMap(null);
+    });
+    clusterOverlaysRef.current.clear();
+
+    // Clear all markers
+    markerRefs.current.forEach((marker) => {
+      marker.setMap(null);
+    });
+    markerRefs.current.clear();
+
+    // Reset state
+    setSelectedCluster(null);
+    setClusterPosition(null);
+    setHoverPosition(null);
+  }, []);
+
+  // Watch for mode changes using currentUserSettings
+  const previousUserSettingsRef = useRef<string | null>(null);
+
+  useEffect(() => {
+    const currentMode = currentUserSettings;
+    const previousMode = previousUserSettingsRef.current;
+
+    // Clear markers when switching to/from timelapse view
+    if (
+      previousMode &&
+      ((previousMode === UserSettings.TimelapseView &&
+        currentMode !== UserSettings.TimelapseView) ||
+        (previousMode !== UserSettings.TimelapseView &&
+          currentMode === UserSettings.TimelapseView))
+    ) {
+      clearAllMarkersAndClusters();
+    }
+
+    previousUserSettingsRef.current = currentMode;
+
+    // Cleanup on unmount
+    return () => {
+      clearAllMarkersAndClusters();
+    };
+  }, [currentUserSettings, clearAllMarkersAndClusters]);
 
   return (
     <>
