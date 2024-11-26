@@ -33,6 +33,10 @@ function getMarkerPosition(marker: Marker): google.maps.LatLngLiteral {
 }
 
 export class CustomAlgorithm implements Algorithm {
+  private readonly batchSize: number;
+  private readonly gridSizeInitial: number;
+  private workerPool: Array<Promise<any>> = [];
+  private isProcessing: boolean = false;
   private baseCellSize: number;
   private minimumClusterSize: number;
   private lastZoomLevel: number | null = null;
@@ -45,17 +49,25 @@ export class CustomAlgorithm implements Algorithm {
   private calculationThrottle: number = 50; // ms
 
   constructor({
+    batchSize = 200,
+    gridSizeInitial = 60,
     baseCellSize = 100,
     minimumClusterSize = 2,
   }: {
+    batchSize?: number;
+    gridSizeInitial?: number;
     baseCellSize?: number;
     minimumClusterSize?: number;
   } = {}) {
     console.log("CustomAlgorithm instantiated", {
+      batchSize,
+      gridSizeInitial,
       baseCellSize,
       minimumClusterSize,
     });
 
+    this.batchSize = batchSize;
+    this.gridSizeInitial = gridSizeInitial;
     this.baseCellSize = baseCellSize;
     this.minimumClusterSize = minimumClusterSize;
     this.clearCache();
@@ -92,6 +104,16 @@ export class CustomAlgorithm implements Algorithm {
       hasInitialized: this.hasInitialized,
       hadProjection: this.hadProjection,
     });
+
+    // Return cached results if processing
+    if (this.isProcessing && this.cachedClusters) {
+      return this.cachedClusters;
+    }
+
+    // Use simplified clustering for initial load
+    if (!this.hasInitialized && markers.length > 0) {
+      return this.performInitialClustering(markers);
+    }
 
     // Only recalculate if necessary
     const shouldRecalculate =
@@ -285,5 +307,90 @@ export class CustomAlgorithm implements Algorithm {
   public forceRecalculate(): void {
     this.lastZoomLevel = null;
     this.cachedClusters = null;
+  }
+
+  private performInitialClustering(markers: Marker[]): AlgorithmOutput {
+    this.isProcessing = true;
+
+    // Use a simpler grid system for initial clustering
+    const grid = new Map<string, Marker[]>();
+    const gridSize = this.gridSizeInitial;
+
+    markers.forEach((marker) => {
+      const pos = getMarkerPosition(marker);
+      const cellKey = `${Math.floor(pos.lat / gridSize)}_${Math.floor(
+        pos.lng / gridSize
+      )}`;
+
+      if (!grid.has(cellKey)) {
+        grid.set(cellKey, []);
+      }
+      grid.get(cellKey)!.push(marker);
+    });
+
+    const clusters = Array.from(grid.values())
+      .map((cellMarkers) => {
+        if (cellMarkers.length < 2) {
+          return cellMarkers.map(
+            (m) =>
+              new Cluster({
+                position: new google.maps.LatLng(getMarkerPosition(m)),
+                markers: [m],
+              })
+          );
+        }
+        return [
+          new Cluster({
+            position: this.calculateCentroid(cellMarkers),
+            markers: cellMarkers,
+          }),
+        ];
+      })
+      .flat();
+
+    this.isProcessing = false;
+    this.hasInitialized = true;
+    this.cachedClusters = { clusters };
+
+    return { clusters };
+  }
+
+  private processBatch(
+    markers: Marker[],
+    startIndex: number,
+    grid: Map<string, Marker[]>,
+    gridSize: number,
+    mapCanvasProjection?: google.maps.Map
+  ): Promise<void> {
+    return new Promise((resolve) => {
+      requestAnimationFrame(() => {
+        const endIndex = Math.min(startIndex + this.batchSize, markers.length);
+        const batch = markers.slice(startIndex, endIndex);
+
+        batch.forEach((marker) => {
+          const pos = getMarkerPosition(marker);
+          const cellKey = `${Math.floor(pos.lat / gridSize)}_${Math.floor(
+            pos.lng / gridSize
+          )}`;
+
+          if (!grid.has(cellKey)) {
+            grid.set(cellKey, []);
+          }
+          grid.get(cellKey)!.push(marker);
+        });
+
+        if (endIndex < markers.length) {
+          this.processBatch(
+            markers,
+            endIndex,
+            grid,
+            gridSize,
+            mapCanvasProjection
+          ).then(resolve);
+        } else {
+          resolve();
+        }
+      });
+    });
   }
 }

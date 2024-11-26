@@ -806,7 +806,7 @@ export function FixedMarkers({
           console.log("Executing debounced render");
           clustererRef.current.render();
         }
-      }, 100),
+      }, 500),
     []
   );
 
@@ -885,6 +885,79 @@ export function FixedMarkers({
       }
     };
   }, [debouncedRender]);
+
+  // Add marker batch processing state
+  const [isProcessingMarkers, setIsProcessingMarkers] = useState(false);
+  const markerBatchSize = 200; // Increased batch size for better performance
+
+  // Modify marker creation effect
+  useEffect(() => {
+    if (!map || !clustererRef.current || isProcessingMarkers) return;
+
+    const createMarkerBatch = async (startIndex: number) => {
+      setIsProcessingMarkers(true);
+
+      return new Promise<void>((resolve) => {
+        requestAnimationFrame(() => {
+          const endIndex = Math.min(
+            startIndex + markerBatchSize,
+            memoizedSessions.length
+          );
+          const batch = memoizedSessions.slice(startIndex, endIndex);
+
+          batch.forEach((session) => {
+            if (!markerRefs.current.has(session.point.streamId)) {
+              const marker = createMarker(session);
+              markerRefs.current.set(session.point.streamId, marker);
+            }
+          });
+
+          if (endIndex < memoizedSessions.length) {
+            createMarkerBatch(endIndex).then(resolve);
+          } else {
+            resolve();
+          }
+        });
+      });
+    };
+
+    const initializeMarkers = async () => {
+      console.log("Starting marker initialization");
+      await createMarkerBatch(0);
+
+      // Add all markers to clusterer at once
+      const allMarkers = Array.from(markerRefs.current.values());
+      console.log("Adding markers to clusterer", { count: allMarkers.length });
+
+      if (clustererRef.current) {
+        clustererRef.current.clearMarkers();
+        clustererRef.current.addMarkers(allMarkers);
+      }
+
+      setIsProcessingMarkers(false);
+    };
+
+    initializeMarkers();
+  }, [map, memoizedSessions, createMarker]);
+
+  // Optimize clusterer initialization
+  useEffect(() => {
+    if (map && !clustererRef.current) {
+      console.log("Initializing clusterer");
+
+      algorithmRef.current = new CustomAlgorithm({
+        batchSize: markerBatchSize,
+        gridSizeInitial: 60, // Larger initial grid for better performance
+      });
+
+      clustererRef.current = new MarkerClusterer({
+        map,
+        markers: [],
+        renderer: customRenderer,
+        algorithm: algorithmRef.current,
+      });
+    }
+  }, [map]);
 
   return (
     <>
