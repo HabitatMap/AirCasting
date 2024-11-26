@@ -110,7 +110,7 @@ const ClusterInfoLoading = ({ position, visible }: ClusterInfoLoadingProps) => {
     <ClusterInfoContainer
       $color={grey}
       $top={position.top}
-      $left={position.left - 8}
+      $left={position.left}
       $isMobile={isMobile}
       $visible={visible}
       $loading={true}

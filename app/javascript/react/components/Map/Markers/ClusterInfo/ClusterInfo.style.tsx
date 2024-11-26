@@ -22,14 +22,19 @@ const ClusterInfoContainer = styled.div<ClusterInfoContainerProps>`
   gap: 0.5rem;
   width: fit-content;
   z-index: 100;
-  top: ${(props) => `${props.$top - 2}px`};
+
+  top: ${(props) => `${props.$top}px`};
   left: ${(props) => `${props.$left}px`};
   padding: ${(props) => (props.$loading ? "0.1rem 0" : "0")};
   height: ${(props) => (props.$isMobile ? "auto" : "2.8rem")};
   ${(props) =>
     props.$isMobile
-      ? "transform: translate(-15%, -90%);"
-      : "transform: translate(-6%, -100%);"}
+      ? props.$loading
+        ? "transform: translate(-12%, -45%);"
+        : "transform: translate(-15%, -45%);"
+      : props.$loading
+      ? "transform: translate(-15%, -50%);"
+      : "transform: translate(-6%, -52%);"}
 
   opacity: ${(props) => (props.$visible ? 1 : 0)};
   transition: opacity 0.3s ease-in-out, transform 0.3s ease-in-out;
@@ -116,7 +121,7 @@ const MobileDataContainer = styled(DataContainer)`
   border-radius: 2rem;
   gap: 0.8rem;
   height: auto;
-  padding: 0.4rem 1.6rem;
+  padding: 0.6rem 1.6rem;
   z-index: 20;
   pointer-events: auto;
 `;
