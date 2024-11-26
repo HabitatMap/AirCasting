@@ -37,6 +37,12 @@ export class CustomAlgorithm implements Algorithm {
   private minimumClusterSize: number;
   private lastZoomLevel: number | null = null;
   private cachedClusters: AlgorithmOutput | null = null;
+  private hasInitialized: boolean = false;
+  private markerCount: number = 0;
+  private hadProjection: boolean = false;
+  private lastBounds: google.maps.LatLngBounds | null = null;
+  private lastCalculationTime: number = 0;
+  private calculationThrottle: number = 50; // ms
 
   constructor({
     baseCellSize = 100,
@@ -45,8 +51,14 @@ export class CustomAlgorithm implements Algorithm {
     baseCellSize?: number;
     minimumClusterSize?: number;
   } = {}) {
+    console.log("CustomAlgorithm instantiated", {
+      baseCellSize,
+      minimumClusterSize,
+    });
+
     this.baseCellSize = baseCellSize;
     this.minimumClusterSize = minimumClusterSize;
+    this.clearCache();
   }
 
   public calculate({
@@ -54,87 +66,102 @@ export class CustomAlgorithm implements Algorithm {
     map,
     mapCanvasProjection,
   }: AlgorithmInput): AlgorithmOutput {
-    const currentZoom = map.getZoom() || 0;
+    const now = Date.now();
 
-    // Return cached clusters if nothing has changed
-    if (this.lastZoomLevel === currentZoom && this.cachedClusters) {
+    // Throttle calculations
+    if (
+      this.cachedClusters &&
+      now - this.lastCalculationTime < this.calculationThrottle
+    ) {
       return this.cachedClusters;
     }
 
+    this.lastCalculationTime = now;
+
+    const currentZoom = map.getZoom() || 0;
+    const hasProjection = !!mapCanvasProjection;
+    const currentBounds = map.getBounds();
+
+    console.log("Algorithm calculate called", {
+      markerCount: markers.length,
+      previousMarkerCount: this.markerCount,
+      zoom: currentZoom,
+      hasProjection,
+      hasBounds: !!currentBounds,
+      hasCachedClusters: !!this.cachedClusters,
+      hasInitialized: this.hasInitialized,
+      hadProjection: this.hadProjection,
+    });
+
+    // Only recalculate if necessary
+    const shouldRecalculate =
+      !this.hasInitialized ||
+      markers.length !== this.markerCount ||
+      (hasProjection && !this.hadProjection) ||
+      this.lastZoomLevel !== currentZoom;
+
+    if (!shouldRecalculate && this.cachedClusters) {
+      return this.cachedClusters;
+    }
+
+    this.hadProjection = hasProjection;
+    this.markerCount = markers.length;
     this.lastZoomLevel = currentZoom;
-    this.cachedClusters = null;
+
+    // If no markers, return empty clusters
+    if (markers.length === 0) {
+      console.log("No markers, returning empty clusters");
+      return { clusters: [] };
+    }
 
     // If map is not ready yet, create basic clustering based on coordinates
-    if (!mapCanvasProjection || !map.getBounds()) {
-      const clusters: Cluster[] = [];
-      const markersByRegion = new Map<string, Marker[]>();
-
-      // Use a simpler grid based on coordinates
-      markers.forEach((marker) => {
-        const position = getMarkerPosition(marker);
-        // Create larger grid cells for initial clustering
-        const cellX = Math.floor(position.lat * 10);
-        const cellY = Math.floor(position.lng * 10);
-        const cellKey = `${cellX}_${cellY}`;
-
-        if (!markersByRegion.has(cellKey)) {
-          markersByRegion.set(cellKey, []);
-        }
-        markersByRegion.get(cellKey)!.push(marker);
-      });
-
-      markersByRegion.forEach((cellMarkers) => {
-        if (cellMarkers.length < this.minimumClusterSize) {
-          cellMarkers.forEach((marker) => {
-            clusters.push(
-              new Cluster({
-                markers: [marker],
-                position: new google.maps.LatLng(getMarkerPosition(marker)),
-              })
-            );
-          });
-        } else {
-          const centroid = this.calculateCentroid(cellMarkers);
-          clusters.push(
-            new Cluster({
-              markers: cellMarkers,
-              position: centroid,
-            })
-          );
-        }
-      });
-
+    if (!mapCanvasProjection || !currentBounds) {
+      console.log("Map not ready, using basic clustering");
+      const clusters = this.performBasicClustering(markers);
       this.cachedClusters = { clusters };
+      this.hasInitialized = true;
       return { clusters };
     }
 
-    // Regular clustering logic for when map is ready
+    console.log("Performing regular clustering");
+    const clusters = this.performRegularClustering(
+      markers,
+      currentZoom,
+      mapCanvasProjection
+    );
+
+    this.cachedClusters = { clusters };
+    this.hasInitialized = true;
+
+    return { clusters };
+  }
+
+  public clearCache() {
+    console.log("Clearing algorithm cache and initialization state");
+    this.lastZoomLevel = null;
+    this.cachedClusters = null;
+    this.hasInitialized = false;
+    this.markerCount = 0;
+    this.hadProjection = false;
+  }
+
+  private performBasicClustering(markers: Marker[]): Cluster[] {
     const clusters: Cluster[] = [];
-    const markersByCell = new Map<string, Marker[]>();
-    const gridCellSize = this.determineGridCellSize(currentZoom);
+    const markersByRegion = new Map<string, Marker[]>();
 
     markers.forEach((marker) => {
       const position = getMarkerPosition(marker);
-      const point = mapCanvasProjection.fromLatLngToContainerPixel(
-        new google.maps.LatLng(position)
-      );
-
-      if (!point) {
-        return;
-      }
-
-      const cellX = Math.floor(point.x / gridCellSize);
-      const cellY = Math.floor(point.y / gridCellSize);
+      const cellX = Math.floor(position.lat * 10);
+      const cellY = Math.floor(position.lng * 10);
       const cellKey = `${cellX}_${cellY}`;
 
-      if (!markersByCell.has(cellKey)) {
-        markersByCell.set(cellKey, []);
+      if (!markersByRegion.has(cellKey)) {
+        markersByRegion.set(cellKey, []);
       }
-
-      markersByCell.get(cellKey)!.push(marker);
+      markersByRegion.get(cellKey)!.push(marker);
     });
 
-    markersByCell.forEach((cellMarkers) => {
+    markersByRegion.forEach((cellMarkers) => {
       if (cellMarkers.length < this.minimumClusterSize) {
         cellMarkers.forEach((marker) => {
           clusters.push(
@@ -155,17 +182,73 @@ export class CustomAlgorithm implements Algorithm {
       }
     });
 
-    // Cache the results
-    this.cachedClusters = { clusters };
-    this.lastZoomLevel = currentZoom;
+    console.log("Basic clustering complete", {
+      resultingClusters: clusters.length,
+      markersInRegions: markersByRegion.size,
+    });
 
-    return { clusters };
+    return clusters;
   }
 
-  // Reset cache when markers change
-  public clearCache() {
-    this.lastZoomLevel = null;
-    this.cachedClusters = null;
+  private performRegularClustering(
+    markers: Marker[],
+    currentZoom: number,
+    mapCanvasProjection: google.maps.MapCanvasProjection
+  ): Cluster[] {
+    const clusters: Cluster[] = [];
+    const grid = new Map<string, Marker[]>();
+    const gridSize = this.determineGridCellSize(currentZoom);
+
+    // Batch process markers
+    for (let i = 0; i < markers.length; i += 100) {
+      const batch = markers.slice(i, i + 100);
+      batch.forEach((marker) => {
+        const position = getMarkerPosition(marker);
+        const point = mapCanvasProjection.fromLatLngToContainerPixel(
+          new google.maps.LatLng(position)
+        );
+
+        if (!point) return;
+
+        const cellKey = `${Math.floor(point.x / gridSize)}_${Math.floor(
+          point.y / gridSize
+        )}`;
+
+        if (!grid.has(cellKey)) {
+          grid.set(cellKey, []);
+        }
+        grid.get(cellKey)!.push(marker);
+      });
+    }
+
+    grid.forEach((cellMarkers) => {
+      if (cellMarkers.length < this.minimumClusterSize) {
+        cellMarkers.forEach((marker) => {
+          clusters.push(
+            new Cluster({
+              markers: [marker],
+              position: new google.maps.LatLng(getMarkerPosition(marker)),
+            })
+          );
+        });
+      } else {
+        const centroid = this.calculateCentroid(cellMarkers);
+        clusters.push(
+          new Cluster({
+            markers: cellMarkers,
+            position: centroid,
+          })
+        );
+      }
+    });
+
+    console.log("Regular clustering complete", {
+      resultingClusters: clusters.length,
+      markersInCells: grid.size,
+      gridCellSize: gridSize,
+    });
+
+    return clusters;
   }
 
   private determineGridCellSize(zoomLevel: number): number {
@@ -179,7 +262,6 @@ export class CustomAlgorithm implements Algorithm {
     }
 
     const minimumCellSize = 5;
-
     return Math.max(cellSize, minimumCellSize);
   }
 

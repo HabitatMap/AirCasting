@@ -1,5 +1,6 @@
 import { Cluster, MarkerClusterer } from "@googlemaps/markerclusterer";
 import { useMap } from "@vis.gl/react-google-maps";
+import debounce from "lodash/debounce";
 import React, {
   useCallback,
   useEffect,
@@ -65,8 +66,55 @@ export function FixedMarkers({
   pulsatingSessionId,
   onClusterClick,
 }: FixedMarkersProps) {
-  const dispatch = useAppDispatch();
+  console.log("FixedMarkers component rendering", {
+    sessionCount: sessions.length,
+    selectedStreamId,
+    pulsatingSessionId,
+  });
+
+  // Add initial useEffect to track mounting
+  useEffect(() => {
+    console.log("FixedMarkers component mounted");
+
+    return () => {
+      console.log("FixedMarkers component unmounting");
+    };
+  }, []);
+
+  // Add log to track map availability
   const map = useMap();
+  useEffect(() => {
+    console.log("Map status changed:", {
+      isMapAvailable: !!map,
+      zoom: map?.getZoom(),
+      center: map?.getCenter()?.toJSON(),
+    });
+  }, [map]);
+
+  // Add log to track sessions changes
+  useEffect(() => {
+    console.log("Sessions updated:", {
+      count: sessions.length,
+      firstSessionId: sessions[0]?.id,
+      lastSessionId: sessions[sessions.length - 1]?.id,
+    });
+  }, [sessions]);
+
+  // Add log to clusterer initialization
+  useEffect(() => {
+    console.log("Checking clusterer initialization:", {
+      hasMap: !!map,
+      hasClusterer: !!clustererRef.current,
+      sessionCount: sessions.length,
+    });
+
+    if (map && !clustererRef.current) {
+      console.log("Creating new clusterer");
+      // ... rest of clusterer initialization
+    }
+  }, [map]);
+
+  const dispatch = useAppDispatch();
   const { unitSymbol } = useMapParams();
 
   const hoverStreamId = useAppSelector(selectHoverStreamId);
@@ -508,6 +556,98 @@ export function FixedMarkers({
     handleSelectedStreamIdChange(selectedStreamId);
   }, [selectedStreamId, handleSelectedStreamIdChange]);
 
+  // Add new state to track marker loading
+  const [markersLoaded, setMarkersLoaded] = useState(false);
+  const markerLoadingCheckRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Add function to check if all markers are loaded
+  const checkMarkersLoaded = useCallback(() => {
+    const allMarkersLoaded = memoizedSessions.every((session) =>
+      markerRefs.current.has(session.point.streamId)
+    );
+
+    if (allMarkersLoaded) {
+      setMarkersLoaded(true);
+      if (markerLoadingCheckRef.current) {
+        clearInterval(markerLoadingCheckRef.current);
+      }
+    }
+  }, [memoizedSessions]);
+
+  // Add ref to track projection availability
+  const projectionAvailableRef = useRef(false);
+
+  // Modify the projection check effect
+  useEffect(() => {
+    if (!map || !clustererRef.current || projectionAvailableRef.current) {
+      return;
+    }
+
+    const checkProjection = () => {
+      if (map.getProjection() && !projectionAvailableRef.current) {
+        console.log(
+          "Projection became available, forcing one-time recalculation"
+        );
+        projectionAvailableRef.current = true;
+        if (algorithmRef.current && clustererRef.current) {
+          algorithmRef.current.clearCache();
+          clustererRef.current.render();
+        }
+        return true; // Projection is now available
+      }
+      return false;
+    };
+
+    // Check immediately
+    if (checkProjection()) {
+      return; // If projection is available immediately, don't set up interval
+    }
+
+    // Set up interval only if needed
+    const projectionCheckInterval = setInterval(() => {
+      if (checkProjection()) {
+        clearInterval(projectionCheckInterval);
+      }
+    }, 100);
+
+    // Safety cleanup after 5 seconds
+    const projectionTimeout = setTimeout(() => {
+      clearInterval(projectionCheckInterval);
+    }, 5000);
+
+    return () => {
+      clearInterval(projectionCheckInterval);
+      clearTimeout(projectionTimeout);
+    };
+  }, [map]);
+
+  // Add effect to check marker loading status
+  useEffect(() => {
+    if (!markersLoaded && sessions.length > 0) {
+      markerLoadingCheckRef.current = setInterval(checkMarkersLoaded, 100);
+
+      // Safety timeout after 5 seconds
+      const safetyTimeout = setTimeout(() => {
+        if (markerLoadingCheckRef.current) {
+          clearInterval(markerLoadingCheckRef.current);
+        }
+        setMarkersLoaded(true);
+      }, 5000);
+
+      return () => {
+        if (markerLoadingCheckRef.current) {
+          clearInterval(markerLoadingCheckRef.current);
+        }
+        clearTimeout(safetyTimeout);
+      };
+    }
+  }, [sessions.length, markersLoaded, checkMarkersLoaded]);
+
+  // Reset markers loaded state when sessions change
+  useEffect(() => {
+    setMarkersLoaded(false);
+  }, [sessions]);
+
   // Effect to manage markers: create, update, and remove markers based on sessions data
   useEffect(() => {
     if (!map || !clustererRef.current) return;
@@ -651,203 +791,100 @@ export function FixedMarkers({
     }
   }, [dispatch, sessions.length]);
 
+  // Add new ref to track initial clustering
+  const initialClusteringTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const hasInitializedRef = useRef(false);
+
+  // Add ref for algorithm instance
+  const algorithmRef = useRef<CustomAlgorithm | null>(null);
+
+  // Add debounced render function
+  const debouncedRender = useMemo(
+    () =>
+      debounce(() => {
+        if (clustererRef.current) {
+          console.log("Executing debounced render");
+          clustererRef.current.render();
+        }
+      }, 100),
+    []
+  );
+
+  // Modify clusterer initialization
   useEffect(() => {
     if (map && !clustererRef.current) {
+      console.log("Initializing clusterer");
+
+      algorithmRef.current = new CustomAlgorithm({});
+
       clustererRef.current = new MarkerClusterer({
         map,
         markers: [],
         renderer: customRenderer,
-        algorithm: new CustomAlgorithm({}),
+        algorithm: algorithmRef.current,
+
+        // Add these options to reduce unnecessary updates
       });
 
+      // Use debounced render for clustering end
       clustererRef.current.addListener("clusteringend", () => {
-        // Update clustered status for markers
-        markerRefs.current.forEach((marker) => {
-          (marker as CustomMarker).clustered = false;
-        });
-
-        // @ts-ignore
-        clustererRef.current.clusters.forEach((cluster) => {
-          if (cluster.markers && cluster.markers.length > 1) {
-            cluster.markers.forEach((marker) => {
-              (marker as CustomMarker).clustered = true;
-            });
-          }
-        });
+        console.log("Clustering end event fired");
         handleClusteringEnd();
       });
     }
-  }, [map, customRenderer, handleClusteringEnd]);
 
-  // Needed to handle fixed session opened in a new tab - otherwise markers won't appear
+    return () => {
+      debouncedRender.cancel();
+    };
+  }, [map, customRenderer, handleClusteringEnd, debouncedRender]);
+
+  // Modify marker update effect
   useEffect(() => {
-    const handleSelectedStreamId = (streamId: number | null) => {
-      if (fixedStreamStatus === StatusEnum.Pending) return;
-      if (streamId) {
-        const { latitude, longitude } = fixedStreamData?.stream ?? {};
+    if (!map || !clustererRef.current) return;
 
-        if (latitude && longitude) {
-          const fixedStreamPosition = { lat: latitude, lng: longitude };
-          const fixedStreamPosition2 = new google.maps.LatLng(
-            latitude,
-            longitude
-          );
-          centerMapOnMarker(fixedStreamPosition);
+    console.log("Updating markers");
 
-          // Clear the clusterer
-          if (clustererRef.current) {
-            clustererRef.current.clearMarkers();
-            clustererRef.current.setMap(null);
-            clustererRef.current = null;
-          }
+    // Batch marker updates
+    const batchSize = 100;
+    const markers = [...markerRefs.current.values()];
 
-          // Remove markers not related to selected stream
-          markerRefs.current.forEach((marker, streamIdKey) => {
-            if (streamIdKey !== streamId.toString()) {
-              marker.setMap(null);
-              markerRefs.current.delete(streamIdKey);
-            }
-          });
+    const updateBatch = (startIndex: number) => {
+      const batch = markers.slice(startIndex, startIndex + batchSize);
+      if (batch.length === 0) return;
 
-          // Remove marker overlays not related to selected stream
-          markerOverlays.current.forEach((overlay, streamIdKey) => {
-            if (streamIdKey !== streamId.toString()) {
-              overlay.setMap(null);
-              markerOverlays.current.delete(streamIdKey);
-            }
-          });
-
-          // Remove label overlays not related to selected stream
-          labelOverlays.current.forEach((overlay, streamIdKey) => {
-            if (streamIdKey !== streamId.toString()) {
-              overlay.setMap(null);
-              labelOverlays.current.delete(streamIdKey);
-            }
-          });
-
-          // On an initial selected stream load, remember to add marker and label overlays
-          if (!markerRefs.current.has(streamId.toString())) {
-            const session = memoizedSessions.find(
-              (session) => session.point.streamId === streamId.toString()
-            );
-            if (session) {
-              const marker = createMarker(session);
-              markerRefs.current.set(session.point.streamId, marker);
-              marker.setMap(map);
-
-              const overlay = new CustomMarkerOverlay(
-                fixedStreamPosition2,
-                getColorForValue(thresholds, session.lastMeasurementValue),
-                true,
-                false
-              );
-              overlay.setMap(map);
-              markerOverlays.current.set(session.point.streamId, overlay);
-
-              const labelOverlay = new LabelOverlay(
-                fixedStreamPosition2,
-                getColorForValue(thresholds, session.lastMeasurementValue),
-                session.lastMeasurementValue,
-                unitSymbol,
-                true,
-                () => {
-                  onMarkerClickRef.current(
-                    Number(session.point.streamId),
-                    Number(session.id)
-                  );
-                  centerMapOnMarker(fixedStreamPosition);
-                }
-              );
-              labelOverlay.setMap(map);
-              labelOverlays.current.set(session.point.streamId, labelOverlay);
-            }
-          }
-
-          // Remove all cluster overlays
-          clusterOverlaysRef.current.forEach((overlay) => overlay.setMap(null));
-          clusterOverlaysRef.current.clear();
-        } else {
-          console.error(
-            `Stream ID ${streamId} not found or missing latitude/longitude in fixedStream data.`
-          );
+      batch.forEach((marker) => {
+        const session = memoizedSessions.find(
+          (s) => s.point.streamId === (marker as CustomMarker).userData.streamId
+        );
+        if (session) {
+          marker.setPosition(session.point);
+          (marker as CustomMarker).value = session.lastMeasurementValue;
         }
+      });
+
+      if (startIndex + batchSize < markers.length) {
+        requestAnimationFrame(() => updateBatch(startIndex + batchSize));
       } else {
-        // If selectedStreamId is null, reinitialize markers and clusters
-        // Re-add the clusterer if it's not present
-        if (!clustererRef.current && map) {
-          clustererRef.current = new MarkerClusterer({
-            map,
-            markers: [],
-            renderer: customRenderer,
-            algorithm: new CustomAlgorithm({}),
-          });
-
-          clustererRef.current.addListener(
-            "clusteringend",
-            handleClusteringEnd
-          );
-        }
-
-        // Re-add markers
-        const updatedMarkers: CustomMarker[] = [];
-        memoizedSessions.forEach((session) => {
-          let marker = markerRefs.current.get(session.point.streamId);
-          if (!marker) {
-            marker = createMarker(session);
-            markerRefs.current.set(session.point.streamId, marker);
-            updatedMarkers.push(marker);
-          } else {
-            marker.setPosition(session.point);
-            marker.value = session.lastMeasurementValue;
-            marker.sessionId = session.id;
-          }
-        });
-
-        // Add new markers to clusterer
-        if (updatedMarkers.length > 0) {
-          clustererRef.current!.addMarkers(updatedMarkers);
-        }
-
-        // Force clusterer update
-        clustererRef.current!.render();
+        // Only render once all updates are complete
+        debouncedRender();
       }
     };
-    updateMarkerOverlays();
-    handleSelectedStreamId(selectedStreamId);
 
-    updateClusterOverlays();
-  }, [
-    selectedStreamId,
-    fixedStreamData,
-    fixedStreamStatus,
-    centerMapOnMarker,
-    map,
-    memoizedSessions,
-    createMarker,
-    handleClusteringEnd,
-    customRenderer,
-    updateMarkerOverlays,
-    updateClusterOverlays,
-  ]);
+    updateBatch(0);
+  }, [memoizedSessions, debouncedRender]);
 
+  // Cleanup effect
   useEffect(() => {
     return () => {
-      if (clustererRef.current) {
-        google.maps.event.clearInstanceListeners(clustererRef.current);
-        clustererRef.current.clearMarkers();
-        clustererRef.current.setMap(null);
-        clustererRef.current = null;
+      debouncedRender.cancel();
+      if (algorithmRef.current) {
+        algorithmRef.current.clearCache();
       }
-      markerRefs.current.forEach((marker) => marker.setMap(null));
-      markerRefs.current.clear();
-      clusterOverlaysRef.current.forEach((overlay) => overlay.setMap(null));
-      clusterOverlaysRef.current.clear();
-      markerOverlays.current.forEach((overlay) => overlay.setMap(null));
-      markerOverlays.current.clear();
-      labelOverlays.current.forEach((overlay) => overlay.setMap(null));
-      labelOverlays.current.clear();
+      if (clustererRef.current) {
+        clustererRef.current.setMap(null);
+      }
     };
-  }, []);
+  }, [debouncedRender]);
 
   return (
     <>
