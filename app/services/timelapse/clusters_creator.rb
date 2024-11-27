@@ -70,22 +70,32 @@ module Timelapse
       clusters
     end
 
+    # def determine_grid_cell_size(zoom_level)
+    #   base_cell_size = 15
+    #   cell_size = base_cell_size / (1.7**zoom_level)
+    #   minimum_cell_size = 0.0001
+    #   [cell_size, minimum_cell_size].max
+    # end
+
+
     def determine_grid_cell_size(zoom_level)
       # Base size in coordinate degrees (roughly 1 degree = 111km at equator)
-      adjusted_base_cell_size = 0.1
+
       zoom_level = zoom_level.to_i
 
       cell_size = if zoom_level >= 12
+        adjusted_base_cell_size = 0.01
         # More aggressive reduction for detailed zoom levels
-        adjusted_base_cell_size / (3 ** [0, zoom_level - 5].max)
+        adjusted_base_cell_size /  (1.7**zoom_level)
       else
         # Gentler reduction for broader zoom levels
-        adjusted_base_cell_size / (1.3 ** [0, zoom_level - 8].max)
+        adjusted_base_cell_size = 0.1
+        adjusted_base_cell_size / (1.7**zoom_level)
       end
 
       # Minimum cell size in coordinate degrees
       # About 5 meters at equator (0.00005 degrees ≈ 5.5m)
-      minimum_cell_size = 0.00005
+      minimum_cell_size = 0.00001
       [cell_size, minimum_cell_size].max
     end
 
