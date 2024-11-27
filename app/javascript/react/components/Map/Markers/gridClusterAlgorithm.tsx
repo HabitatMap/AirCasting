@@ -274,13 +274,12 @@ export class CustomAlgorithm implements Algorithm {
   }
 
   private determineGridCellSize(zoomLevel: number): number {
-    const adjustedBaseCellSize = 25;
+    const baseCellSize = 25;
     let cellSize;
     if (zoomLevel >= 12) {
-      cellSize = adjustedBaseCellSize / Math.pow(3, Math.max(0, zoomLevel - 5));
+      cellSize = baseCellSize / Math.pow(3, Math.max(0, zoomLevel - 5));
     } else {
-      cellSize =
-        adjustedBaseCellSize / Math.pow(1.3, Math.max(0, zoomLevel - 8));
+      cellSize = baseCellSize / Math.pow(1.3, Math.max(0, zoomLevel - 8));
     }
 
     const minimumCellSize = 5;

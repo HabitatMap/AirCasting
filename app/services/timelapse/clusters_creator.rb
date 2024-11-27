@@ -70,14 +70,39 @@ module Timelapse
       clusters
     end
 
-    def determine_grid_cell_size(zoom_level)
-      base_cell_size = 15
-      base_cell_size = 0.01 if zoom_level >= 12
 
-      cell_size = base_cell_size / (3**zoom_level)
+    def determine_grid_cell_size(zoom_level)
+      if zoom_level >= 12
+        base_cell_size = 0.01
+        multiplier = 3
+      else
+        base_cell_size  = 14
+        multiplier = 1.7
+      end
+
+      cell_size = base_cell_size / (multiplier**zoom_level)
       minimum_cell_size = 0.0001
       [cell_size, minimum_cell_size].max
     end
+
+
+    # def determine_grid_cell_size(zoom_level)
+
+    #   zoom_level = zoom_level.to_i
+
+    #   cell_size = if zoom_level >= 12
+    #     base_cell_size = 0.01
+
+    #   base_cell_size /  (1.7**zoom_level)
+    #   else
+
+    #     base_cell_size = 15
+    #     base_cell_size / (1.7**zoom_level)
+    #   end
+
+    #   minimum_cell_size = 0.00001
+    #   [cell_size, minimum_cell_size].max
+    # end
 
     def calculate_centroids_for_clusters(clusters)
       clusters.map do |streams|
