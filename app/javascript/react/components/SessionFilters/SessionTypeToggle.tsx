@@ -1,6 +1,8 @@
 import React, { useCallback } from "react";
 import { useTranslation } from "react-i18next";
 
+import { useMap } from "@vis.gl/react-google-maps";
+import { useNavigate } from "react-router-dom";
 import mobileIcon from "../../assets/icons/mobileIcon.svg";
 import pinIcon from "../../assets/icons/pin.svg";
 import { useAppDispatch } from "../../store/hooks";
@@ -15,17 +17,36 @@ import {
 } from "../../store/sessionFiltersSlice";
 import { resetUserThresholds } from "../../store/thresholdSlice";
 import { SessionType, SessionTypes } from "../../types/filters";
+import { updateMapBounds } from "../../utils/mapBoundsHandler";
 import { useMapParams } from "../../utils/mapParamsHandler";
 import { FilterInfoPopup } from "./FilterInfoPopup";
 import * as S from "./SessionFilters.style";
 
 const SessionTypeToggle = () => {
   const dispatch = useAppDispatch();
-  const { searchParams, sessionType, updateSessionType } = useMapParams();
+  const {
+    searchParams,
+    sessionType,
+    updateSessionType,
+    previousCenter,
+    previousZoom,
+  } = useMapParams();
   const { t } = useTranslation();
+  const map = useMap();
+  const navigate = useNavigate();
+  const newSearchParams = new URLSearchParams(searchParams.toString());
 
   const handleClick = useCallback(
     (type: SessionType) => {
+      const updatedParams = updateMapBounds(
+        map,
+        newSearchParams,
+        previousCenter,
+        previousZoom
+      );
+      if (updatedParams) {
+        navigate(`?${updatedParams.toString()}`);
+      }
       dispatch(resetUserThresholds());
       dispatch(setBasicParametersModalOpen(false));
       dispatch(setCustomParametersModalOpen(false));
@@ -35,7 +56,7 @@ const SessionTypeToggle = () => {
       dispatch(setFetchingData(true));
       dispatch(setFixedSessionsType(FixedSessionsTypes.ACTIVE));
     },
-    [dispatch, searchParams, updateSessionType]
+    [dispatch, searchParams, updateSessionType, map]
   );
 
   return (
