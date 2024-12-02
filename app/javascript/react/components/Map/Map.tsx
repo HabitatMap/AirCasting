@@ -537,15 +537,6 @@ const Map = () => {
           if (updatedParams) {
             navigate(`?${updatedParams.toString()}`);
           }
-          const currentCenter = JSON.stringify(
-            map?.getCenter()?.toJSON() || previousCenter
-          );
-          const currentZoom = (map?.getZoom() || previousZoom).toString();
-
-          newSearchParams.set(UrlParamsTypes.currentCenter, currentCenter);
-          newSearchParams.set(UrlParamsTypes.currentZoom, currentZoom);
-          Cookies.set(UrlParamsTypes.currentCenter, currentCenter);
-          Cookies.set(UrlParamsTypes.currentZoom, currentZoom);
           navigate(`?${newSearchParams.toString()}`);
         } else if (
           [UserSettings.MapView].includes(currentUserSettings) ||
