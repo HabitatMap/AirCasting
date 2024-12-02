@@ -7,33 +7,36 @@ import { cleanSessions } from "../../store/fixedSessionsSlice";
 import { useAppDispatch } from "../../store/hooks";
 import { setFetchingData } from "../../store/mapSlice";
 import { clearMobileSessions } from "../../store/mobileSessionsSlice";
+import * as Cookies from "../../utils/cookies";
 import { updateMapBounds } from "../../utils/mapBoundsHandler";
-import { useMapParams } from "../../utils/mapParamsHandler";
+import { UrlParamsTypes, useMapParams } from "../../utils/mapParamsHandler";
 import * as S from "./RefreshMapButton.style";
 
 const RefreshMapButton = () => {
   const { t } = useTranslation();
   const dispatch = useAppDispatch();
   const map = useMap();
-  const { previousCenter, previousZoom, searchParams } = useMapParams();
+  const { searchParams, previousCenter, previousZoom } = useMapParams();
   const navigate = useNavigate();
 
   const newSearchParams = new URLSearchParams(searchParams.toString());
 
   const handleClick = () => {
-    dispatch(clearMobileSessions());
-    dispatch(cleanSessions());
-    dispatch(setFetchingData(true));
-
-    const updatedParams = updateMapBounds(
-      map,
-      newSearchParams,
-      previousCenter,
-      previousZoom
-    );
+    const updatedParams = updateMapBounds(map, newSearchParams);
     if (updatedParams) {
       navigate(`?${updatedParams.toString()}`);
     }
+    const currentCenter = JSON.stringify(
+      map?.getCenter()?.toJSON() || previousCenter
+    );
+    const currentZoom = (map?.getZoom() || previousZoom).toString();
+    newSearchParams.set(UrlParamsTypes.currentCenter, currentCenter);
+    newSearchParams.set(UrlParamsTypes.currentZoom, currentZoom);
+    Cookies.set(UrlParamsTypes.currentCenter, currentCenter);
+    Cookies.set(UrlParamsTypes.currentZoom, currentZoom);
+    dispatch(clearMobileSessions());
+    dispatch(cleanSessions());
+    dispatch(setFetchingData(true));
   };
 
   return (

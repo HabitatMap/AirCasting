@@ -533,16 +533,34 @@ const Map = () => {
             realtimeMapUpdates) ||
           [UserSettings.CrowdMapView].includes(currentUserSettings)
         ) {
-          const updatedParams = updateMapBounds(
-            map,
-            newSearchParams,
-            previousCenter,
-            previousZoom
-          );
+          const updatedParams = updateMapBounds(map, newSearchParams);
           if (updatedParams) {
             navigate(`?${updatedParams.toString()}`);
           }
-        } else {
+          const currentCenter = JSON.stringify(
+            map?.getCenter()?.toJSON() || previousCenter
+          );
+          const currentZoom = (map?.getZoom() || previousZoom).toString();
+
+          newSearchParams.set(UrlParamsTypes.currentCenter, currentCenter);
+          newSearchParams.set(UrlParamsTypes.currentZoom, currentZoom);
+          Cookies.set(UrlParamsTypes.currentCenter, currentCenter);
+          Cookies.set(UrlParamsTypes.currentZoom, currentZoom);
+          navigate(`?${newSearchParams.toString()}`);
+        } else if (
+          [UserSettings.MapView].includes(currentUserSettings) ||
+          [UserSettings.CrowdMapView].includes(currentUserSettings)
+        ) {
+          const currentCenter = JSON.stringify(
+            map?.getCenter()?.toJSON() || previousCenter
+          );
+          const currentZoom = (map?.getZoom() || previousZoom).toString();
+
+          newSearchParams.set(UrlParamsTypes.currentCenter, currentCenter);
+          newSearchParams.set(UrlParamsTypes.currentZoom, currentZoom);
+          Cookies.set(UrlParamsTypes.currentCenter, currentCenter);
+          Cookies.set(UrlParamsTypes.currentZoom, currentZoom);
+
           navigate(`?${newSearchParams.toString()}`);
         }
       }
