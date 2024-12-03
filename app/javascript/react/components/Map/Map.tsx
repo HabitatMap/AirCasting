@@ -529,16 +529,6 @@ const Map = () => {
         isFirstRender.current = false;
       } else {
         if (
-          ([UserSettings.MapView].includes(currentUserSettings) &&
-            realtimeMapUpdates) ||
-          [UserSettings.CrowdMapView].includes(currentUserSettings)
-        ) {
-          const updatedParams = updateMapBounds(map, newSearchParams);
-          if (updatedParams) {
-            navigate(`?${updatedParams.toString()}`);
-          }
-          navigate(`?${newSearchParams.toString()}`);
-        } else if (
           [UserSettings.MapView].includes(currentUserSettings) ||
           [UserSettings.CrowdMapView].includes(currentUserSettings)
         ) {
@@ -551,8 +541,15 @@ const Map = () => {
           newSearchParams.set(UrlParamsTypes.currentZoom, currentZoom);
           Cookies.set(UrlParamsTypes.currentCenter, currentCenter);
           Cookies.set(UrlParamsTypes.currentZoom, currentZoom);
-
           navigate(`?${newSearchParams.toString()}`);
+
+          if (realtimeMapUpdates) {
+            const updatedParams = updateMapBounds(map, newSearchParams);
+            if (updatedParams) {
+              navigate(`?${updatedParams.toString()}`);
+            }
+            navigate(`?${newSearchParams.toString()}`);
+          }
         }
       }
     },
