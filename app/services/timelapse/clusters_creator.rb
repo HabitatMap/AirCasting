@@ -48,17 +48,26 @@ module Timelapse
 
     def cluster_measurements(streams_with_coordinates, zoom_level)
       grid_cell_size = determine_grid_cell_size(zoom_level)
-
       grid = Hash.new { |hash, key| hash[key] = [] }
+
+      # Calculate pixels per degree (same as frontend's mapCanvasProjection)
+      TILE_SIZE = 256
+      pixels_per_degree = (TILE_SIZE * (2 ** zoom_level)) / 360.0
 
       streams_with_coordinates.each do |stream_with_coordinates|
         stream_id, latitude, longitude =
           stream_with_coordinates.values_at(:stream_id, :latitude, :longitude)
 
-        cell_x = (longitude.to_f / grid_cell_size).floor
-        cell_y = (latitude.to_f / grid_cell_size).floor
+        # Convert lat/lng to pixel coordinates (x, y)
+        point_x = (longitude.to_f + 180) * pixels_per_degree
+        point_y = (180 - (Math.log(Math.tan((latitude.to_f + 90) * Math::PI / 360)) * 180 / Math::PI + 180)) * pixels_per_degree
 
-        grid[[cell_x, cell_y]] << {
+        # Create grid cell key using pixel coordinates
+        cell_x = (point_x / grid_cell_size).floor
+        cell_y = (point_y / grid_cell_size).floor
+        cell_key = "#{cell_x}_#{cell_y}"
+
+        grid[cell_key] << {
           stream_id: stream_id,
           latitude: latitude.to_f,
           longitude: longitude.to_f,
@@ -66,30 +75,8 @@ module Timelapse
       end
 
       clusters = grid.values
-
       clusters
     end
-
-
-    # def determine_grid_cell_size(zoom_level)
-    #   zoom_level = zoom_level.to_i
-
-    #   if zoom_level >= 12
-    #     base_cell_size = 0.001
-    #     cluster_reduction_rate = 3
-    #     zoom_offset = 5
-    #   else
-
-    #     base_cell_size = 0.07
-    #     cluster_reduction_rate = 1.3
-    #     zoom_offset = 8
-    #     binding.pry
-    #   end
-
-    #   cell_size = base_cell_size / (cluster_reduction_rate ** [0, zoom_level - zoom_offset].max)
-    #   minimum_cell_size = 0.0001
-    #   [cell_size, minimum_cell_size].max
-    # end
 
     def determine_grid_cell_size(zoom_level)
       zoom_level = zoom_level.to_i
