@@ -71,38 +71,51 @@ module Timelapse
     end
 
 
-    def determine_grid_cell_size(zoom_level)
-      if zoom_level >= 12
-        base_cell_size = 0.01
-        multiplier = 3
-      else
-        base_cell_size  = 14
-        multiplier = 1.7
-      end
-
-      cell_size = base_cell_size / (multiplier**zoom_level)
-      minimum_cell_size = 0.0001
-      [cell_size, minimum_cell_size].max
-    end
-
-
     # def determine_grid_cell_size(zoom_level)
-
     #   zoom_level = zoom_level.to_i
 
-    #   cell_size = if zoom_level >= 12
-    #     base_cell_size = 0.01
-
-    #   base_cell_size /  (1.7**zoom_level)
+    #   if zoom_level >= 12
+    #     base_cell_size = 0.001
+    #     cluster_reduction_rate = 3
+    #     zoom_offset = 5
     #   else
 
-    #     base_cell_size = 15
-    #     base_cell_size / (1.7**zoom_level)
+    #     base_cell_size = 0.07
+    #     cluster_reduction_rate = 1.3
+    #     zoom_offset = 8
+    #     binding.pry
     #   end
 
-    #   minimum_cell_size = 0.00001
+    #   cell_size = base_cell_size / (cluster_reduction_rate ** [0, zoom_level - zoom_offset].max)
+    #   minimum_cell_size = 0.0001
     #   [cell_size, minimum_cell_size].max
     # end
+
+    def determine_grid_cell_size(zoom_level)
+      zoom_level = zoom_level.to_i
+      base_cell_size_in_pixels = 25.0
+      minimum_cell_size_in_pixels = 5.0
+
+      # Calculate degrees per pixel at the current zoom level
+      degrees_per_pixel = 360.0 / (256 * (2 ** zoom_level))
+
+      # Convert base cell size and minimum cell size from pixels to degrees
+      base_cell_size = base_cell_size_in_pixels * degrees_per_pixel
+      minimum_cell_size = minimum_cell_size_in_pixels * degrees_per_pixel
+
+      if zoom_level >= 12
+        cluster_reduction_rate = 3.0
+        zoom_offset = 5
+      else
+        cluster_reduction_rate = 1.3
+        zoom_offset = 8
+      end
+
+      exponent = [0, zoom_level - zoom_offset].max
+      cell_size = base_cell_size / (cluster_reduction_rate ** exponent)
+
+      [cell_size, minimum_cell_size].max
+    end
 
     def calculate_centroids_for_clusters(clusters)
       clusters.map do |streams|

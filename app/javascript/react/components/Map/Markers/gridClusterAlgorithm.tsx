@@ -274,6 +274,7 @@ export class CustomAlgorithm implements Algorithm {
   }
 
   private determineGridCellSize(zoomLevel: number): number {
+    console.log("Determining grid cell size", zoomLevel);
     const baseCellSize = 25;
     let cellSize;
     if (zoomLevel >= 12) {
