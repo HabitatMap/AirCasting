@@ -124,6 +124,13 @@ const TimelapseComponent: React.FC<
     };
   }, [handleOverlayClick]);
 
+  useEffect(() => {
+    return () => {
+      // Reset the current timestamp when the component unmounts
+      dispatch(setCurrentTimestamp(""));
+    };
+  }, [dispatch]);
+
   const currentTimestamp = filteredTimestamps[currentStep];
   const currentDate = moment(currentTimestamp, DateFormat.us_timestamp).format(
     DateFormat.us_without_year
