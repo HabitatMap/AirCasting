@@ -47,6 +47,7 @@ export class CustomAlgorithm implements Algorithm {
   private lastBounds: google.maps.LatLngBounds | null = null;
   private lastCalculationTime: number = 0;
   private calculationThrottle: number = 50; // ms
+  private TILE_SIZE = 256; // Match backend's TILE_SIZE
 
   constructor({
     batchSize = 200,
@@ -274,17 +275,37 @@ export class CustomAlgorithm implements Algorithm {
   }
 
   private determineGridCellSize(zoomLevel: number): number {
-    console.log("Determining grid cell size", zoomLevel);
+    // Round zoom level to match backend integer zoom
+    const roundedZoom = Math.round(zoomLevel);
+
+    console.log("Determining grid cell size:");
     const baseCellSize = 25;
-    let cellSize;
-    if (zoomLevel >= 12) {
-      cellSize = baseCellSize / Math.pow(3, Math.max(0, zoomLevel - 5));
+    let reductionRate;
+    let zoomOffset;
+
+    if (roundedZoom >= 12) {
+      reductionRate = 3.0;
+      zoomOffset = 5;
     } else {
-      cellSize = baseCellSize / Math.pow(1.3, Math.max(0, zoomLevel - 8));
+      reductionRate = 1.3;
+      zoomOffset = 8;
     }
 
-    const minimumCellSize = 5;
-    return Math.max(cellSize, minimumCellSize);
+    const exponent = Math.max(0, roundedZoom - zoomOffset);
+    const cellSize = baseCellSize / Math.pow(reductionRate, exponent);
+    const finalSize = Math.max(cellSize, 5);
+
+    console.log({
+      "  Base size (pixels)": baseCellSize,
+      "  Reduction rate": reductionRate,
+      "  Zoom offset": zoomOffset,
+      "  Original zoom": zoomLevel,
+      "  Rounded zoom": roundedZoom,
+      "  Exponent": exponent,
+      "  Final size (pixels)": finalSize,
+    });
+
+    return finalSize;
   }
 
   private calculateCentroid(markers: Marker[]): google.maps.LatLng {
@@ -358,7 +379,7 @@ export class CustomAlgorithm implements Algorithm {
   private processBatch(
     markers: Marker[],
     startIndex: number,
-    grid: Map<string, Marker[]>,
+    clusters: Marker[][],
     gridSize: number,
     mapCanvasProjection?: google.maps.Map
   ): Promise<void> {
@@ -366,24 +387,54 @@ export class CustomAlgorithm implements Algorithm {
       requestAnimationFrame(() => {
         const endIndex = Math.min(startIndex + this.batchSize, markers.length);
         const batch = markers.slice(startIndex, endIndex);
+        const remainingMarkers = [...batch];
 
-        batch.forEach((marker) => {
-          const pos = getMarkerPosition(marker);
-          const cellKey = `${Math.floor(pos.lat / gridSize)}_${Math.floor(
-            pos.lng / gridSize
-          )}`;
+        while (remainingMarkers.length > 0) {
+          const currentMarker = remainingMarkers.shift()!;
+          const currentPos = getMarkerPosition(currentMarker);
+          const cluster = [currentMarker];
 
-          if (!grid.has(cellKey)) {
-            grid.set(cellKey, []);
+          // Use array filter to match backend's reject! approach
+          let i = 0;
+          while (i < remainingMarkers.length) {
+            const marker = remainingMarkers[i];
+            const pos = getMarkerPosition(marker);
+
+            // Calculate pixel distance like backend
+            const distance = Math.sqrt(
+              Math.pow((currentPos.lat - pos.lat) * this.pixelsPerDegree, 2) +
+                Math.pow((currentPos.lng - pos.lng) * this.pixelsPerDegree, 2)
+            );
+
+            console.log("Distance calculation:", {
+              marker1: currentPos,
+              marker2: pos,
+              distance: distance,
+              threshold: gridSize,
+            });
+
+            if (distance <= gridSize) {
+              cluster.push(marker);
+              remainingMarkers.splice(i, 1);
+            } else {
+              i++;
+            }
           }
-          grid.get(cellKey)!.push(marker);
+
+          clusters.push(cluster);
+        }
+
+        console.log("Clustering stats:", {
+          processedMarkers: batch.length,
+          resultingClusters: clusters.length,
+          gridSize: gridSize,
         });
 
         if (endIndex < markers.length) {
           this.processBatch(
             markers,
             endIndex,
-            grid,
+            clusters,
             gridSize,
             mapCanvasProjection
           ).then(resolve);
@@ -392,5 +443,10 @@ export class CustomAlgorithm implements Algorithm {
         }
       });
     });
+  }
+
+  // Add helper property for pixel conversion
+  private get pixelsPerDegree(): number {
+    return (this.TILE_SIZE * Math.pow(2, this.lastZoomLevel || 0)) / 360.0;
   }
 }

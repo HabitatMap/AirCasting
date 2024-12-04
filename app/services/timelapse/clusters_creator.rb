@@ -1,5 +1,7 @@
 module Timelapse
   class ClustersCreator
+    TILE_SIZE = 256
+
     def initialize
       @measurements_repository = MeasurementsRepository.new
       @streams_repository = StreamsRepository.new
@@ -8,19 +10,28 @@ module Timelapse
     end
 
     def call(params:)
+      Rails.logger.info "Starting clustering process with params: #{params.inspect}"
+
       sessions = filtered_sessions(params)
       zoom_level = params[:zoom_level] || 1
       sensor_name = params[:sensor_name]
+
+      Rails.logger.info "Found #{sessions.count} sessions, zoom_level: #{zoom_level}"
+
       streams = streams_repository.find_by_session_id(sessions.pluck(:id))
       selected_sensor_streams =
         streams.select do |stream|
           Sensor.sensor_name(sensor_name).include? stream.sensor_name.downcase
         end
-      streams_with_coordinates =
-        streams_with_coordinates(selected_sensor_streams)
 
+      Rails.logger.info "Selected #{selected_sensor_streams.count} streams for sensor: #{sensor_name}"
+
+      streams_with_coordinates = streams_with_coordinates(selected_sensor_streams)
       clusters = cluster_measurements(streams_with_coordinates, zoom_level)
       clusters = calculate_centroids_for_clusters(clusters)
+
+      Rails.logger.info "Final cluster count: #{clusters.count}"
+
       cluster_processor.call(clusters: clusters, sensor_name: sensor_name)
     end
 
@@ -48,63 +59,66 @@ module Timelapse
 
     def cluster_measurements(streams_with_coordinates, zoom_level)
       grid_cell_size = determine_grid_cell_size(zoom_level)
-      grid = Hash.new { |hash, key| hash[key] = [] }
-
-      # Calculate pixels per degree (same as frontend's mapCanvasProjection)
-      TILE_SIZE = 256
       pixels_per_degree = (TILE_SIZE * (2 ** zoom_level)) / 360.0
 
-      streams_with_coordinates.each do |stream_with_coordinates|
-        stream_id, latitude, longitude =
-          stream_with_coordinates.values_at(:stream_id, :latitude, :longitude)
+      Rails.logger.info "Clustering parameters:"
+      Rails.logger.info "  Zoom level: #{zoom_level}"
+      Rails.logger.info "  Grid cell size: #{grid_cell_size}"
+      Rails.logger.info "  Total streams to cluster: #{streams_with_coordinates.size}"
+      Rails.logger.info "  Pixels per degree: #{pixels_per_degree}"
 
-        # Convert lat/lng to pixel coordinates (x, y)
-        point_x = (longitude.to_f + 180) * pixels_per_degree
-        point_y = (180 - (Math.log(Math.tan((latitude.to_f + 90) * Math::PI / 360)) * 180 / Math::PI + 180)) * pixels_per_degree
+      # Group by grid cells instead of distance-based clustering
+      grid = {}
 
-        # Create grid cell key using pixel coordinates
-        cell_x = (point_x / grid_cell_size).floor
-        cell_y = (point_y / grid_cell_size).floor
+      streams_with_coordinates.each do |stream|
+        cell_x = (stream[:longitude].to_f * pixels_per_degree).floor / grid_cell_size.floor
+        cell_y = (stream[:latitude].to_f * pixels_per_degree).floor / grid_cell_size.floor
         cell_key = "#{cell_x}_#{cell_y}"
 
-        grid[cell_key] << {
-          stream_id: stream_id,
-          latitude: latitude.to_f,
-          longitude: longitude.to_f,
-        }
+        grid[cell_key] ||= []
+        grid[cell_key] << stream
       end
 
-      clusters = grid.values
+      # Convert grid cells to clusters
+      clusters = grid.values.map do |cell_streams|
+        cell_streams.map { |s| s.slice(:stream_id, :latitude, :longitude) }
+      end
+
+      Rails.logger.info "Created #{clusters.size} clusters"
+      Rails.logger.info "Cluster sizes: #{clusters.map(&:size)}"
+
       clusters
     end
 
     def determine_grid_cell_size(zoom_level)
       zoom_level = zoom_level.to_i
-      base_cell_size_in_pixels = 25.0
-      minimum_cell_size_in_pixels = 5.0
+      base_size = 25  # Match frontend's baseCellSize
 
-      # Calculate degrees per pixel at the current zoom level
-      degrees_per_pixel = 360.0 / (256 * (2 ** zoom_level))
-
-      # Convert base cell size and minimum cell size from pixels to degrees
-      base_cell_size = base_cell_size_in_pixels * degrees_per_pixel
-      minimum_cell_size = minimum_cell_size_in_pixels * degrees_per_pixel
-
+      # Match frontend's logic
       if zoom_level >= 12
-        cluster_reduction_rate = 3.0
-        zoom_offset = 5
+        reduction_rate = 3.0  # Math.pow(3, ...)
+        zoom_offset = 5      # zoomLevel - 5
       else
-        cluster_reduction_rate = 1.3
-        zoom_offset = 8
+        reduction_rate = 1.3  # Math.pow(1.3, ...)
+        zoom_offset = 8      # zoomLevel - 8
       end
 
       exponent = [0, zoom_level - zoom_offset].max
-      cell_size = base_cell_size / (cluster_reduction_rate ** exponent)
+      cell_size = base_size / (reduction_rate ** exponent)
+      final_size = [cell_size, 10].max  # Match frontend's minimumCellSize
 
-      [cell_size, minimum_cell_size].max
+      Rails.logger.info "Determining grid cell size:"
+      Rails.logger.info "  Base size (pixels): #{base_size}"
+      Rails.logger.info "  Reduction rate: #{reduction_rate}"
+      Rails.logger.info "  Zoom offset: #{zoom_offset}"
+      Rails.logger.info "  Final size (pixels): #{final_size}"
+
+      final_size
     end
 
     def calculate_centroids_for_clusters(clusters)
+      Rails.logger.info "Calculating centroids for #{clusters.size} clusters"
+
       clusters.map do |streams|
         latitudes = streams.map { |stream| stream[:latitude] }
         longitudes = streams.map { |stream| stream[:longitude] }
@@ -113,6 +127,10 @@ module Timelapse
 
         centroid_latitude = latitudes.sum / latitudes.size
         centroid_longitude = longitudes.sum / longitudes.size
+
+        Rails.logger.debug "Cluster centroid:"
+        Rails.logger.debug "  Streams: #{streams.size}"
+        Rails.logger.debug "  Centroid position: #{centroid_latitude}, #{centroid_longitude}"
 
         {
           latitude: centroid_latitude,
