@@ -74,7 +74,6 @@ import { SessionTypes } from "../../types/filters";
 import { SessionList } from "../../types/sessionType";
 import { UserSettings } from "../../types/userStates";
 import * as Cookies from "../../utils/cookies";
-import { updateMapBounds } from "../../utils/mapBoundsHandler";
 import { UrlParamsTypes, useMapParams } from "../../utils/mapParamsHandler";
 import { useHandleScrollEnd } from "../../utils/scrollEnd";
 import useMobileDetection from "../../utils/useScreenSizeDetection";
@@ -529,37 +528,40 @@ const Map = () => {
         isFirstRender.current = false;
       } else {
         if (
-          [UserSettings.MapView].includes(currentUserSettings) ||
-          [UserSettings.CrowdMapView].includes(currentUserSettings)
+          [UserSettings.MapView, UserSettings.CrowdMapView].includes(
+            currentUserSettings
+          )
         ) {
           const currentCenter = JSON.stringify(
-            map?.getCenter()?.toJSON() || previousCenter
+            map.getCenter()?.toJSON() || previousCenter
           );
-          const currentZoom = (map?.getZoom() || previousZoom).toString();
+          const currentZoom = (map.getZoom() || previousZoom).toString();
+          const bounds = map?.getBounds();
+          if (!bounds) {
+            return;
+          }
+          const north = bounds.getNorthEast().lat();
+          const south = bounds.getSouthWest().lat();
+          const east = bounds.getNorthEast().lng();
+          const west = bounds.getSouthWest().lng();
 
+          newSearchParams.set(UrlParamsTypes.boundEast, east.toString());
+          newSearchParams.set(UrlParamsTypes.boundNorth, north.toString());
+          newSearchParams.set(UrlParamsTypes.boundSouth, south.toString());
+          newSearchParams.set(UrlParamsTypes.boundWest, west.toString());
           newSearchParams.set(UrlParamsTypes.currentCenter, currentCenter);
           newSearchParams.set(UrlParamsTypes.currentZoom, currentZoom);
+          Cookies.set(UrlParamsTypes.boundEast, east.toString());
+          Cookies.set(UrlParamsTypes.boundNorth, north.toString());
+          Cookies.set(UrlParamsTypes.boundSouth, south.toString());
+          Cookies.set(UrlParamsTypes.boundWest, west.toString());
           Cookies.set(UrlParamsTypes.currentCenter, currentCenter);
           Cookies.set(UrlParamsTypes.currentZoom, currentZoom);
           navigate(`?${newSearchParams.toString()}`);
-
-          if (realtimeMapUpdates) {
-            const updatedParams = updateMapBounds(map, newSearchParams);
-            if (updatedParams) {
-              navigate(`?${updatedParams.toString()}`);
-            }
-            navigate(`?${newSearchParams.toString()}`);
-          }
         }
       }
     },
-    [
-      currentUserSettings,
-      mapInstance,
-      searchParams,
-      dispatch,
-      realtimeMapUpdates,
-    ]
+    [currentUserSettings, mapInstance, searchParams, dispatch]
   );
 
   // ref to currentUserSettings to get the current value from URL
