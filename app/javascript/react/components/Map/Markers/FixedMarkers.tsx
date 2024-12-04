@@ -376,14 +376,20 @@ export function FixedMarkers({
 
     if (selectedStreamId === null) {
       if (!clustererRef.current && map) {
+        const algorithm = new CustomAlgorithm();
         clustererRef.current = new MarkerClusterer({
           map,
           markers: [],
           renderer: customRenderer,
-          algorithm: new CustomAlgorithm(),
+          algorithm,
         });
 
         clustererRef.current.addListener("clusteringend", handleClusteringEnd);
+
+        // Force initial clustering
+        const allMarkers = Array.from(markerRefs.current.values());
+        clustererRef.current.addMarkers(allMarkers);
+        clustererRef.current.render();
       }
 
       const allMarkers = Array.from(markerRefs.current.values());
@@ -708,6 +714,14 @@ export function FixedMarkers({
       clearAllMarkersAndClusters();
     };
   }, [currentUserSettings, clearAllMarkersAndClusters]);
+
+  useEffect(() => {
+    if (clustererRef.current && map) {
+      // Force re-clustering
+      clustererRef.current.render();
+      handleClusteringEnd();
+    }
+  }, [map?.getZoom(), currentUserSettings, handleClusteringEnd]);
 
   return (
     <>

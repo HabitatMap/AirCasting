@@ -18,18 +18,6 @@ export class CustomAlgorithm implements Algorithm {
   public calculate({ markers, map }: AlgorithmInput): AlgorithmOutput {
     const zoom = Math.round(map.getZoom() || INITIAL_ZOOM);
 
-    if (!this.hasInitialized) {
-      console.log("Performing initial clustering");
-      this.hasInitialized = true;
-      const clusters = this.clusterMarkers(markers, INITIAL_ZOOM);
-      this.cachedClusters = { clusters };
-      return this.cachedClusters;
-    }
-
-    if (this.lastZoom === zoom && this.cachedClusters) {
-      return this.cachedClusters;
-    }
-
     console.log(`Clustering at zoom level: ${zoom}`);
     this.lastZoom = zoom;
     const clusters = this.clusterMarkers(markers, zoom);
