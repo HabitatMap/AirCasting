@@ -6,447 +6,118 @@ import {
   Marker,
 } from "@googlemaps/markerclusterer";
 
-function getMarkerPosition(marker: Marker): google.maps.LatLngLiteral {
-  if (marker instanceof google.maps.Marker) {
-    const position = marker.getPosition();
-    if (position) {
-      return position.toJSON();
-    } else {
-      throw new Error("Marker position is undefined.");
-    }
-  } else {
-    // Assuming FeatureMarker has a 'position' property of type LatLngLiteral
-    if (!marker.position) {
-      throw new Error("Marker position is undefined.");
-    }
-    return {
-      lat:
-        typeof marker.position.lat === "function"
-          ? marker.position.lat()
-          : marker.position.lat,
-      lng:
-        typeof marker.position.lng === "function"
-          ? marker.position.lng()
-          : marker.position.lng,
-    };
-  }
-}
+const TILE_SIZE = 256;
+const MINIMUM_CLUSTER_SIZE = 2;
+const INITIAL_ZOOM = 7;
 
 export class CustomAlgorithm implements Algorithm {
-  private readonly batchSize: number;
-  private readonly gridSizeInitial: number;
-  private workerPool: Array<Promise<any>> = [];
-  private isProcessing: boolean = false;
-  private baseCellSize: number;
-  private minimumClusterSize: number;
-  private lastZoomLevel: number | null = null;
+  private lastZoom: number | null = null;
   private cachedClusters: AlgorithmOutput | null = null;
   private hasInitialized: boolean = false;
-  private markerCount: number = 0;
-  private hadProjection: boolean = false;
-  private lastBounds: google.maps.LatLngBounds | null = null;
-  private lastCalculationTime: number = 0;
-  private calculationThrottle: number = 50; // ms
-  private TILE_SIZE = 256; // Match backend's TILE_SIZE
 
-  constructor({
-    batchSize = 200,
-    gridSizeInitial = 60,
-    baseCellSize = 100,
-    minimumClusterSize = 2,
-  }: {
-    batchSize?: number;
-    gridSizeInitial?: number;
-    baseCellSize?: number;
-    minimumClusterSize?: number;
-  } = {}) {
-    console.log("CustomAlgorithm instantiated", {
-      batchSize,
-      gridSizeInitial,
-      baseCellSize,
-      minimumClusterSize,
-    });
+  public calculate({ markers, map }: AlgorithmInput): AlgorithmOutput {
+    const zoom = Math.round(map.getZoom() || INITIAL_ZOOM);
 
-    this.batchSize = batchSize;
-    this.gridSizeInitial = gridSizeInitial;
-    this.baseCellSize = baseCellSize;
-    this.minimumClusterSize = minimumClusterSize;
-    this.clearCache();
-  }
-
-  public calculate({
-    markers,
-    map,
-    mapCanvasProjection,
-  }: AlgorithmInput): AlgorithmOutput {
-    const now = Date.now();
-
-    // Throttle calculations
-    if (
-      this.cachedClusters &&
-      now - this.lastCalculationTime < this.calculationThrottle
-    ) {
-      return this.cachedClusters;
-    }
-
-    this.lastCalculationTime = now;
-
-    const currentZoom = map.getZoom() || 0;
-    const hasProjection = !!mapCanvasProjection;
-    const currentBounds = map.getBounds();
-
-    console.log("Algorithm calculate called", {
-      markerCount: markers.length,
-      previousMarkerCount: this.markerCount,
-      zoom: currentZoom,
-      hasProjection,
-      hasBounds: !!currentBounds,
-      hasCachedClusters: !!this.cachedClusters,
-      hasInitialized: this.hasInitialized,
-      hadProjection: this.hadProjection,
-    });
-
-    // Return cached results if processing
-    if (this.isProcessing && this.cachedClusters) {
-      return this.cachedClusters;
-    }
-
-    // Use simplified clustering for initial load
-    if (!this.hasInitialized && markers.length > 0) {
-      return this.performInitialClustering(markers);
-    }
-
-    // Only recalculate if necessary
-    const shouldRecalculate =
-      !this.hasInitialized ||
-      markers.length !== this.markerCount ||
-      (hasProjection && !this.hadProjection) ||
-      this.lastZoomLevel !== currentZoom;
-
-    if (!shouldRecalculate && this.cachedClusters) {
-      return this.cachedClusters;
-    }
-
-    this.hadProjection = hasProjection;
-    this.markerCount = markers.length;
-    this.lastZoomLevel = currentZoom;
-
-    // If no markers, return empty clusters
-    if (markers.length === 0) {
-      console.log("No markers, returning empty clusters");
-      return { clusters: [] };
-    }
-
-    // If map is not ready yet, create basic clustering based on coordinates
-    if (!mapCanvasProjection || !currentBounds) {
-      console.log("Map not ready, using basic clustering");
-      const clusters = this.performBasicClustering(markers);
-      this.cachedClusters = { clusters };
+    if (!this.hasInitialized) {
+      console.log("Performing initial clustering");
       this.hasInitialized = true;
-      return { clusters };
+      const clusters = this.clusterMarkers(markers, INITIAL_ZOOM);
+      this.cachedClusters = { clusters };
+      return this.cachedClusters;
     }
 
-    console.log("Performing regular clustering");
-    const clusters = this.performRegularClustering(
-      markers,
-      currentZoom,
-      mapCanvasProjection
-    );
+    if (this.lastZoom === zoom && this.cachedClusters) {
+      return this.cachedClusters;
+    }
 
+    console.log(`Clustering at zoom level: ${zoom}`);
+    this.lastZoom = zoom;
+    const clusters = this.clusterMarkers(markers, zoom);
     this.cachedClusters = { clusters };
-    this.hasInitialized = true;
-
-    return { clusters };
+    return this.cachedClusters;
   }
 
-  public clearCache() {
-    console.log("Clearing algorithm cache and initialization state");
-    this.lastZoomLevel = null;
-    this.cachedClusters = null;
-    this.hasInitialized = false;
-    this.markerCount = 0;
-    this.hadProjection = false;
-  }
-
-  private performBasicClustering(markers: Marker[]): Cluster[] {
-    const clusters: Cluster[] = [];
-    const markersByRegion = new Map<string, Marker[]>();
+  private clusterMarkers(markers: Marker[], zoom: number): Cluster[] {
+    const grid: { [key: string]: Marker[] } = {};
+    const gridSize = this.calculateGridSize(zoom);
 
     markers.forEach((marker) => {
-      const position = getMarkerPosition(marker);
-      const cellX = Math.floor(position.lat * 10);
-      const cellY = Math.floor(position.lng * 10);
+      const position = this.getMarkerPosition(marker);
+      const point = this.projectPoint(position.lat, position.lng, zoom);
+      const cellX = Math.floor(point.x / gridSize);
+      const cellY = Math.floor(point.y / gridSize);
       const cellKey = `${cellX}_${cellY}`;
 
-      if (!markersByRegion.has(cellKey)) {
-        markersByRegion.set(cellKey, []);
+      if (!grid[cellKey]) {
+        grid[cellKey] = [];
       }
-      markersByRegion.get(cellKey)!.push(marker);
+      grid[cellKey].push(marker);
     });
 
-    markersByRegion.forEach((cellMarkers) => {
-      if (cellMarkers.length < this.minimumClusterSize) {
-        cellMarkers.forEach((marker) => {
-          clusters.push(
-            new Cluster({
-              markers: [marker],
-              position: new google.maps.LatLng(getMarkerPosition(marker)),
-            })
-          );
-        });
+    const clusters = Object.values(grid).flatMap((cellMarkers) => {
+      if (cellMarkers.length >= MINIMUM_CLUSTER_SIZE) {
+        return [this.createCluster(cellMarkers)];
       } else {
-        const centroid = this.calculateCentroid(cellMarkers);
-        clusters.push(
-          new Cluster({
-            markers: cellMarkers,
-            position: centroid,
-          })
-        );
+        return cellMarkers.map((marker) => this.createCluster([marker]));
       }
     });
 
-    console.log("Basic clustering complete", {
-      resultingClusters: clusters.length,
-      markersInRegions: markersByRegion.size,
-    });
-
-    return clusters;
+    return clusters.sort((a, b) => b.markers!.length - a.markers!.length);
   }
 
-  private performRegularClustering(
-    markers: Marker[],
-    currentZoom: number,
-    mapCanvasProjection: google.maps.MapCanvasProjection
-  ): Cluster[] {
-    const clusters: Cluster[] = [];
-    const grid = new Map<string, Marker[]>();
-    const gridSize = this.determineGridCellSize(currentZoom);
-
-    // Batch process markers
-    for (let i = 0; i < markers.length; i += 100) {
-      const batch = markers.slice(i, i + 100);
-      batch.forEach((marker) => {
-        const position = getMarkerPosition(marker);
-        const point = mapCanvasProjection.fromLatLngToContainerPixel(
-          new google.maps.LatLng(position)
-        );
-
-        if (!point) return;
-
-        const cellKey = `${Math.floor(point.x / gridSize)}_${Math.floor(
-          point.y / gridSize
-        )}`;
-
-        if (!grid.has(cellKey)) {
-          grid.set(cellKey, []);
-        }
-        grid.get(cellKey)!.push(marker);
-      });
-    }
-
-    grid.forEach((cellMarkers) => {
-      if (cellMarkers.length < this.minimumClusterSize) {
-        cellMarkers.forEach((marker) => {
-          clusters.push(
-            new Cluster({
-              markers: [marker],
-              position: new google.maps.LatLng(getMarkerPosition(marker)),
-            })
-          );
-        });
-      } else {
-        const centroid = this.calculateCentroid(cellMarkers);
-        clusters.push(
-          new Cluster({
-            markers: cellMarkers,
-            position: centroid,
-          })
-        );
-      }
-    });
-
-    console.log("Regular clustering complete", {
-      resultingClusters: clusters.length,
-      markersInCells: grid.size,
-      gridCellSize: gridSize,
-    });
-
-    return clusters;
+  private projectPoint(lat: number, lng: number, zoom: number) {
+    const scale = Math.pow(2, zoom);
+    const x = ((lng + 180) / 360) * TILE_SIZE * scale;
+    const latRad = (lat * Math.PI) / 180;
+    const y =
+      ((1 - Math.log(Math.tan(latRad) + 1 / Math.cos(latRad)) / Math.PI) / 2) *
+      TILE_SIZE *
+      scale;
+    return { x, y };
   }
 
-  private determineGridCellSize(zoomLevel: number): number {
-    // Round zoom level to match backend integer zoom
-    const roundedZoom = Math.round(zoomLevel);
+  private calculateGridSize(zoom: number): number {
+    const baseSize = 25;
+    if (zoom <= 7) return baseSize;
 
-    console.log("Determining grid cell size:");
-    const baseCellSize = 25;
-    let reductionRate;
-    let zoomOffset;
+    const reductionRate = zoom >= 12 ? 3.0 : 1.3;
+    const zoomOffset = zoom >= 12 ? 5 : 8;
+    const exponent = Math.max(0, zoom - zoomOffset);
+    return Math.max(baseSize / Math.pow(reductionRate, exponent), 5);
+  }
 
-    if (roundedZoom >= 12) {
-      reductionRate = 3.0;
-      zoomOffset = 5;
+  private createCluster(markers: Marker[]): Cluster {
+    const positions = markers.map(this.getMarkerPosition);
+    const lat =
+      positions.reduce((sum, pos) => sum + pos.lat, 0) / markers.length;
+    const lng =
+      positions.reduce((sum, pos) => sum + pos.lng, 0) / markers.length;
+    return new Cluster({ position: new google.maps.LatLng(lat, lng), markers });
+  }
+
+  private getMarkerPosition(marker: Marker): google.maps.LatLngLiteral {
+    if (marker instanceof google.maps.Marker) {
+      const position = marker.getPosition();
+      return position ? position.toJSON() : { lat: 0, lng: 0 };
     } else {
-      reductionRate = 1.3;
-      zoomOffset = 8;
+      if (!marker.position) return { lat: 0, lng: 0 };
+
+      return {
+        lat:
+          typeof marker.position.lat === "function"
+            ? marker.position.lat()
+            : marker.position.lat,
+        lng:
+          typeof marker.position.lng === "function"
+            ? marker.position.lng()
+            : marker.position.lng,
+      };
     }
-
-    const exponent = Math.max(0, roundedZoom - zoomOffset);
-    const cellSize = baseCellSize / Math.pow(reductionRate, exponent);
-    const finalSize = Math.max(cellSize, 5);
-
-    console.log({
-      "  Base size (pixels)": baseCellSize,
-      "  Reduction rate": reductionRate,
-      "  Zoom offset": zoomOffset,
-      "  Original zoom": zoomLevel,
-      "  Rounded zoom": roundedZoom,
-      "  Exponent": exponent,
-      "  Final size (pixels)": finalSize,
-    });
-
-    return finalSize;
   }
 
-  private calculateCentroid(markers: Marker[]): google.maps.LatLng {
-    let sumLat = 0;
-    let sumLng = 0;
-
-    markers.forEach((marker) => {
-      const position = getMarkerPosition(marker);
-      sumLat += position.lat;
-      sumLng += position.lng;
-    });
-
-    const centroidLat = sumLat / markers.length;
-    const centroidLng = sumLng / markers.length;
-
-    return new google.maps.LatLng(centroidLat, centroidLng);
-  }
-
-  // Add method to force recalculation
-  public forceRecalculate(): void {
-    this.lastZoomLevel = null;
+  public clearCache(): void {
+    this.lastZoom = null;
     this.cachedClusters = null;
-  }
-
-  private performInitialClustering(markers: Marker[]): AlgorithmOutput {
-    this.isProcessing = true;
-
-    // Use a simpler grid system for initial clustering
-    const grid = new Map<string, Marker[]>();
-    const gridSize = this.gridSizeInitial;
-
-    markers.forEach((marker) => {
-      const pos = getMarkerPosition(marker);
-      const cellKey = `${Math.floor(pos.lat / gridSize)}_${Math.floor(
-        pos.lng / gridSize
-      )}`;
-
-      if (!grid.has(cellKey)) {
-        grid.set(cellKey, []);
-      }
-      grid.get(cellKey)!.push(marker);
-    });
-
-    const clusters = Array.from(grid.values())
-      .map((cellMarkers) => {
-        if (cellMarkers.length < 2) {
-          return cellMarkers.map(
-            (m) =>
-              new Cluster({
-                position: new google.maps.LatLng(getMarkerPosition(m)),
-                markers: [m],
-              })
-          );
-        }
-        return [
-          new Cluster({
-            position: this.calculateCentroid(cellMarkers),
-            markers: cellMarkers,
-          }),
-        ];
-      })
-      .flat();
-
-    this.isProcessing = false;
-    this.hasInitialized = true;
-    this.cachedClusters = { clusters };
-
-    return { clusters };
-  }
-
-  private processBatch(
-    markers: Marker[],
-    startIndex: number,
-    clusters: Marker[][],
-    gridSize: number,
-    mapCanvasProjection?: google.maps.Map
-  ): Promise<void> {
-    return new Promise((resolve) => {
-      requestAnimationFrame(() => {
-        const endIndex = Math.min(startIndex + this.batchSize, markers.length);
-        const batch = markers.slice(startIndex, endIndex);
-        const remainingMarkers = [...batch];
-
-        while (remainingMarkers.length > 0) {
-          const currentMarker = remainingMarkers.shift()!;
-          const currentPos = getMarkerPosition(currentMarker);
-          const cluster = [currentMarker];
-
-          // Use array filter to match backend's reject! approach
-          let i = 0;
-          while (i < remainingMarkers.length) {
-            const marker = remainingMarkers[i];
-            const pos = getMarkerPosition(marker);
-
-            // Calculate pixel distance like backend
-            const distance = Math.sqrt(
-              Math.pow((currentPos.lat - pos.lat) * this.pixelsPerDegree, 2) +
-                Math.pow((currentPos.lng - pos.lng) * this.pixelsPerDegree, 2)
-            );
-
-            console.log("Distance calculation:", {
-              marker1: currentPos,
-              marker2: pos,
-              distance: distance,
-              threshold: gridSize,
-            });
-
-            if (distance <= gridSize) {
-              cluster.push(marker);
-              remainingMarkers.splice(i, 1);
-            } else {
-              i++;
-            }
-          }
-
-          clusters.push(cluster);
-        }
-
-        console.log("Clustering stats:", {
-          processedMarkers: batch.length,
-          resultingClusters: clusters.length,
-          gridSize: gridSize,
-        });
-
-        if (endIndex < markers.length) {
-          this.processBatch(
-            markers,
-            endIndex,
-            clusters,
-            gridSize,
-            mapCanvasProjection
-          ).then(resolve);
-        } else {
-          resolve();
-        }
-      });
-    });
-  }
-
-  // Add helper property for pixel conversion
-  private get pixelsPerDegree(): number {
-    return (this.TILE_SIZE * Math.pow(2, this.lastZoomLevel || 0)) / 360.0;
+    this.hasInitialized = false;
   }
 }
