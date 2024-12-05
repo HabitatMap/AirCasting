@@ -514,6 +514,7 @@ export function FixedMarkers({
       }
     });
 
+    // Identify markers to remove
     markerRefs.current.forEach((marker, streamId) => {
       if (!sessions.some((session) => session.point.streamId === streamId)) {
         markersToRemove.push(marker);
@@ -521,15 +522,18 @@ export function FixedMarkers({
       }
     });
 
+    // Remove markers no longer in the sessions array
     if (markersToRemove.length > 0) {
       clustererRef.current.removeMarkers(markersToRemove);
       markersToRemove.forEach((marker) => marker.setMap(null));
     }
 
+    // Add new markers
     if (updatedMarkers.length > 0) {
       clustererRef.current.addMarkers(updatedMarkers);
     }
 
+    // Remove overlays for removed markers
     markersToRemove.forEach((marker) => {
       const streamId = marker.userData.streamId;
       const overlay = markerOverlays.current.get(streamId);
@@ -544,7 +548,7 @@ export function FixedMarkers({
       }
       marker.setMap(null);
     });
-
+    // Force clusterer update
     clustererRef.current.render();
 
     updateMarkerOverlays();
