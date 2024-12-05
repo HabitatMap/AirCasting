@@ -9,13 +9,9 @@ import usePlacesAutocomplete, {
 import { useMap } from "@vis.gl/react-google-maps";
 
 import locationSearchIcon from "../../assets/icons/locationSearchIcon.svg";
-import { cleanSessions } from "../../store/fixedSessionsSlice";
 import { useAppDispatch } from "../../store/hooks";
 import { setFetchingData } from "../../store/mapSlice";
-import { clearMobileSessions } from "../../store/mobileSessionsSlice";
-import * as Cookies from "../../utils/cookies";
 import { determineZoomLevel } from "../../utils/determineZoomLevel";
-import { updateMapBounds } from "../../utils/mapBoundsHandler";
 import { UrlParamsTypes, useMapParams } from "../../utils/mapParamsHandler";
 import { screenSizes } from "../../utils/media";
 import useScreenSizeDetection from "../../utils/useScreenSizeDetection";
@@ -85,14 +81,16 @@ const LocationSearch: React.FC<LocationSearchProps> = ({
     const { lat, lng } = await getLatLng(results[0]);
     const { zoom, bounds } = determineZoomLevel(results);
 
-    const newSearchParams = new URLSearchParams(window.location.search);
-
-    const currentCenter = JSON.stringify({ lat, lng });
-    const currentZoom = zoom.toString();
-    newSearchParams.set(UrlParamsTypes.currentCenter, currentCenter);
-    newSearchParams.set(UrlParamsTypes.currentZoom, currentZoom);
-    Cookies.set(UrlParamsTypes.currentCenter, currentCenter);
-    Cookies.set(UrlParamsTypes.currentZoom, currentZoom);
+    setUrlParams([
+      {
+        key: UrlParamsTypes.currentCenter,
+        value: JSON.stringify({ lat, lng }),
+      },
+      {
+        key: UrlParamsTypes.currentZoom,
+        value: zoom.toString(),
+      },
+    ]);
 
     if (bounds && map) {
       map.fitBounds(bounds);
@@ -101,22 +99,9 @@ const LocationSearch: React.FC<LocationSearchProps> = ({
       map?.panTo({ lat, lng });
     }
 
-    updateMapBounds(map, newSearchParams);
-
-    setUrlParams([
-      {
-        key: UrlParamsTypes.currentCenter,
-        value: currentCenter,
-      },
-      {
-        key: UrlParamsTypes.currentZoom,
-        value: currentZoom,
-      },
-    ]);
-
-    dispatch(clearMobileSessions());
-    dispatch(cleanSessions());
-    dispatch(setFetchingData(true));
+    setTimeout(() => {
+      dispatch(setFetchingData(true));
+    }, 200);
   };
 
   useEffect(() => {
