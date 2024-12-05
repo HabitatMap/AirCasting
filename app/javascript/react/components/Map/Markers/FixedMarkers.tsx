@@ -31,9 +31,10 @@ import { getColorForValue } from "../../../utils/thresholdColors";
 import { ClusterInfo, ClusterInfoLoading } from "./ClusterInfo/ClusterInfo";
 
 import HoverMarker from "./HoverMarker/HoverMarker";
-import { ClusterOverlay } from "./clusterOverlay";
-import { LabelOverlay } from "./customMarkerLabel";
-import { CustomMarkerOverlay } from "./customMarkerOverlay";
+
+import { ClusterOverlay } from "./ClusterMarker/clusterOverlay";
+import { LabelOverlay } from "./CustomOverlays/customMarkerLabel";
+import { CustomMarkerOverlay } from "./CustomOverlays/customMarkerOverlay";
 
 type CustomMarker = google.maps.Marker & {
   value: number;
