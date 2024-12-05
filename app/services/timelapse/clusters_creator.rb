@@ -16,7 +16,6 @@ module Timelapse
       streams = fetch_streams(params)
       clusters = cluster_streams(streams, zoom_level)
 
-      Rails.logger.info "Final cluster count: #{clusters.count}"
       cluster_processor.call(clusters: clusters, sensor_name: sensor_name)
     end
 
@@ -60,10 +59,21 @@ module Timelapse
     end
 
     def project_point(lat, lng, zoom)
+      # Calculate scale factor based on zoom level
+      # Each zoom level doubles the scale (2^zoom)
       scale = 2 ** zoom
+
+      # Convert longitude to x coordinate
       x = (lng + 180) / 360 * TILE_SIZE * scale
+
+      # Convert latitude to radians for trigonometric calculations
       lat_rad = lat * Math::PI / 180
+
+      # Convert latitude to y coordinate using Web Mercator projection formula
+      # This is a conformal projection that preserves angles
       y = (1 - Math.log(Math.tan(lat_rad) + 1 / Math.cos(lat_rad)) / Math::PI) / 2 * TILE_SIZE * scale
+
+      # Return projected x, y coordinates in pixels
       { x: x, y: y }
     end
 

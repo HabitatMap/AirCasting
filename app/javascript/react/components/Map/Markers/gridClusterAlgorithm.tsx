@@ -53,14 +53,34 @@ export class CustomAlgorithm implements Algorithm {
     return clusters.sort((a, b) => b.markers!.length - a.markers!.length);
   }
 
+  /**
+   * Projects geographic coordinates to pixel coordinates using Web Mercator projection
+   * This is used to convert lat/lng points to x/y coordinates for clustering on the map
+   *
+   * @param lat - Latitude in degrees (-90 to 90)
+   * @param lng - Longitude in degrees (-180 to 180)
+   * @param zoom - Map zoom level (0 to 21)
+   * @returns {Object} - Projected coordinates { x: number, y: number } in pixels
+   */
   private projectPoint(lat: number, lng: number, zoom: number) {
+    // Calculate scale factor based on zoom level
+    // Each zoom level doubles the scale: 2^zoom
     const scale = Math.pow(2, zoom);
+
+    // Convert longitude to x coordinate
     const x = ((lng + 180) / 360) * TILE_SIZE * scale;
+
+    // Convert latitude to radians for trigonometric calculations
     const latRad = (lat * Math.PI) / 180;
+
+    // Convert latitude to y coordinate using Web Mercator projection
+    // The formula preserves angles (conformal projection)
     const y =
       ((1 - Math.log(Math.tan(latRad) + 1 / Math.cos(latRad)) / Math.PI) / 2) *
       TILE_SIZE *
       scale;
+
+    // Return projected coordinates in pixels
     return { x, y };
   }
 
