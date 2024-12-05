@@ -2,7 +2,7 @@ import { debounce } from "lodash";
 import { useCallback, useEffect, useMemo } from "react";
 import { useSearchParams } from "react-router-dom";
 
-import { MAP_CONFIGS } from "../components/Map/mapConfigs";
+import { MAP_CONFIGS } from "../components/Map/mapUtils/mapConfigs";
 import { defaultGridSize } from "../components/SessionFilters/CrowdMapGridSize";
 import { getSensorUnitSymbol } from "../components/SessionFilters/SensorFilter";
 import {

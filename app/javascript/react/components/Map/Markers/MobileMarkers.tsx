@@ -15,9 +15,9 @@ import { LatLngLiteral } from "../../../types/googleMaps";
 import { Point, Session } from "../../../types/sessionType";
 import { useMapParams } from "../../../utils/mapParamsHandler";
 import { getColorForValue } from "../../../utils/thresholdColors";
-import { CustomMarker } from "./CustomMarker";
-import { LabelOverlay } from "./customMarkerLabel";
-import { CustomMarkerOverlay } from "./customMarkerOverlay";
+import { CustomMarker } from "./CustomOverlays/CustomMarker";
+import { LabelOverlay } from "./CustomOverlays/customMarkerLabel";
+import { CustomMarkerOverlay } from "./CustomOverlays/customMarkerOverlay";
 
 type Props = {
   sessions: Session[];

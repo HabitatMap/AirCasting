@@ -1,4 +1,4 @@
-import { gray400, white } from "../../../assets/styles/colors";
+import { gray400, white } from "../../../../assets/styles/colors";
 
 export class LabelOverlay extends google.maps.OverlayView {
   private div: HTMLElement | null = null;

@@ -2,9 +2,9 @@ import React from "react";
 import { unstable_batchedUpdates } from "react-dom";
 import { createRoot, Root } from "react-dom/client";
 import { Provider } from "react-redux";
-import store from "../../../store/index";
-import { Note } from "../../../types/note";
-import { NotesPopover } from "./NotesPopover/NotesPopover";
+import store from "../../../../store/index";
+import { Note } from "../../../../types/note";
+import { NotesPopover } from "../NotesPopover/NotesPopover";
 
 export class CustomMarker extends google.maps.OverlayView {
   private div: HTMLDivElement | null = null;

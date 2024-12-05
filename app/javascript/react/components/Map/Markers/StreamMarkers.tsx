@@ -18,7 +18,7 @@ import {
 import { selectThresholds } from "../../../store/thresholdSlice";
 import { Session } from "../../../types/sessionType";
 import { getColorForValue } from "../../../utils/thresholdColors";
-import { CustomMarker } from "./CustomMarker";
+import { CustomMarker } from "./CustomOverlays/CustomMarker";
 import HoverMarker from "./HoverMarker/HoverMarker";
 
 type Props = {

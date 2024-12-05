@@ -2,7 +2,7 @@ import { useMap } from "@vis.gl/react-google-maps";
 import React, { useEffect, useRef } from "react";
 import { blue } from "../../../../assets/styles/colors";
 import { LatLngLiteral } from "../../../../types/googleMaps";
-import { CustomMarker } from "../CustomMarker";
+import { CustomMarker } from "../CustomOverlays/CustomMarker";
 
 interface HoverMarkerProps {
   position: LatLngLiteral | null;
