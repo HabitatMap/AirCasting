@@ -362,6 +362,12 @@ const Map = () => {
         limit: fetchedSessions,
       };
 
+      // Save bounds in cookies when fetching sessions
+      Cookies.set("mapBoundsEast", boundEast.toString());
+      Cookies.set("mapBoundsNorth", boundNorth.toString());
+      Cookies.set("mapBoundsSouth", boundSouth.toString());
+      Cookies.set("mapBoundsWest", boundWest.toString());
+
       dispatch(fetchMobileSessions({ filters: JSON.stringify(updatedFilters) }))
         .unwrap()
         .then(() => {
@@ -371,6 +377,12 @@ const Map = () => {
       isFirstRender.current = false;
     } else {
       if (fetchingData || isFirstLoad) {
+        // Save bounds in cookies when fetching sessions
+        Cookies.set("mapBoundsEast", boundEast.toString());
+        Cookies.set("mapBoundsNorth", boundNorth.toString());
+        Cookies.set("mapBoundsSouth", boundSouth.toString());
+        Cookies.set("mapBoundsWest", boundWest.toString());
+
         if (fixedSessionTypeSelected) {
           if (isIndoorParameterInUrl) {
             if (isActive) {
@@ -495,7 +507,28 @@ const Map = () => {
 
   useEffect(() => {
     if (currentUserSettings === UserSettings.TimelapseView) {
-      dispatch(fetchTimelapseData({ filters: filters }));
+      const storedBounds = {
+        east: parseFloat(Cookies.get("mapBoundsEast") || boundEast.toString()),
+        north: parseFloat(
+          Cookies.get("mapBoundsNorth") || boundNorth.toString()
+        ),
+        south: parseFloat(
+          Cookies.get("mapBoundsSouth") || boundSouth.toString()
+        ),
+        west: parseFloat(Cookies.get("mapBoundsWest") || boundWest.toString()),
+      };
+
+      const timelapseFilters = {
+        ...JSON.parse(filters),
+        west: storedBounds.west,
+        east: storedBounds.east,
+        north: storedBounds.north,
+        south: storedBounds.south,
+      };
+
+      dispatch(
+        fetchTimelapseData({ filters: JSON.stringify(timelapseFilters) })
+      );
     }
   }, [currentUserSettings, sessionsPoints]);
 
