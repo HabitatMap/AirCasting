@@ -68,8 +68,12 @@ import {
 import {
   selectCurrentTimestamp,
   selectTimelapseData,
+  selectTimelapseIsLoading,
 } from "../../store/timelapseSelectors";
-import { fetchTimelapseData } from "../../store/timelapseSlice";
+import {
+  fetchTimelapseData,
+  setCurrentTimestamp,
+} from "../../store/timelapseSlice";
 import { SessionTypes } from "../../types/filters";
 import { SessionList } from "../../types/sessionType";
 import { UserSettings } from "../../types/userStates";
@@ -720,18 +724,27 @@ const Map = () => {
   };
 
   const openTimelapse = () => {
-    goToUserSettings(
-      currentUserSettings === UserSettings.TimelapseView
-        ? previousUserSettings
-        : UserSettings.TimelapseView
-    );
+    // Clear existing timelapse markers before switching views
+    dispatch(setCurrentTimestamp(""));
+
+    // Add a small delay to ensure markers are cleared before view changes
+    setTimeout(() => {
+      goToUserSettings(
+        currentUserSettings === UserSettings.TimelapseView
+          ? previousUserSettings
+          : UserSettings.TimelapseView
+      );
+    }, 0);
   };
+
+  const isTimelapseLoading = useAppSelector(selectTimelapseIsLoading);
 
   const renderTimelapseMarkers = () => {
     if (
       currentUserSettings === UserSettings.TimelapseView &&
       currentTimestamp &&
-      memoizedTimelapseData[currentTimestamp]
+      memoizedTimelapseData[currentTimestamp] &&
+      !isTimelapseLoading
     ) {
       return (
         <TimelapseMarkers sessions={memoizedTimelapseData[currentTimestamp]} />

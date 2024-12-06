@@ -1,5 +1,5 @@
 import { useMap } from "@vis.gl/react-google-maps";
-import { useEffect, useMemo, useRef } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useSelector } from "react-redux";
 import { selectThresholds } from "../../../store/thresholdSlice";
 import { useMapParams } from "../../../utils/mapParamsHandler";
@@ -85,6 +85,7 @@ const createLabelOverlay = (
 };
 
 export const TimelapseMarkers = ({ sessions }: Props) => {
+  const [isTimelapseActive, setIsTimelapseActive] = useState(false);
   const thresholds = useSelector(selectThresholds);
   const { unitSymbol } = useMapParams();
   const map = useMap();
@@ -207,6 +208,18 @@ export const TimelapseMarkers = ({ sessions }: Props) => {
   useEffect(() => {
     if (!map) return;
 
+    // Clear markers when timelapse is activated
+    if (!isTimelapseActive) {
+      markersRef.current.forEach((timelapseMarker) => {
+        timelapseMarker.markerOverlay.setMap(null);
+        if (timelapseMarker.labelOverlay) {
+          timelapseMarker.labelOverlay.setMap(null);
+        }
+      });
+      markersRef.current.clear();
+      setIsTimelapseActive(true);
+    }
+
     const sessionsMap = new Map(
       memoizedSessions.map((session) => [
         `${session.latitude}-${session.longitude}`,
@@ -227,10 +240,11 @@ export const TimelapseMarkers = ({ sessions }: Props) => {
     });
 
     removeObsoleteMarkers(sessionsMap);
-  }, [map, memoizedSessions, thresholds, unitSymbol]);
+  }, [map, memoizedSessions, thresholds, unitSymbol, isTimelapseActive]);
 
   useEffect(() => {
     return () => {
+      // Clear all markers when component unmounts
       markersRef.current.forEach((timelapseMarker) => {
         timelapseMarker.markerOverlay.setMap(null);
         if (timelapseMarker.labelOverlay) {
@@ -238,6 +252,7 @@ export const TimelapseMarkers = ({ sessions }: Props) => {
         }
       });
       markersRef.current.clear();
+      setIsTimelapseActive(false);
     };
   }, []);
 
