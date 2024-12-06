@@ -11,12 +11,14 @@ import { useMap } from "@vis.gl/react-google-maps";
 import locationSearchIcon from "../../assets/icons/locationSearchIcon.svg";
 import { useAppDispatch } from "../../store/hooks";
 import { setFetchingData } from "../../store/mapSlice";
+import * as Cookies from "../../utils/cookies";
 import { determineZoomLevel } from "../../utils/determineZoomLevel";
 import { UrlParamsTypes, useMapParams } from "../../utils/mapParamsHandler";
 import { screenSizes } from "../../utils/media";
 import useScreenSizeDetection from "../../utils/useScreenSizeDetection";
 import * as S from "./LocationSearch.style";
 
+import { useNavigate } from "react-router-dom";
 const OK_STATUS = "OK";
 
 interface LocationSearchProps {
@@ -37,12 +39,15 @@ const LocationSearch: React.FC<LocationSearchProps> = ({
   const [inputValue, setInputValue] = useState("");
   const { t } = useTranslation();
   const map = useMap();
-  const { setUrlParams } = useMapParams();
+  const { setUrlParams, searchParams } = useMapParams();
+  const navigate = useNavigate();
   const {
     setValue,
     suggestions: { status, data },
     clearSuggestions,
   } = usePlacesAutocomplete();
+
+  const newSearchParams = new URLSearchParams(searchParams.toString());
 
   const {
     isOpen,
@@ -80,20 +85,34 @@ const LocationSearch: React.FC<LocationSearchProps> = ({
     const results = await getGeocode({ address: item.description });
     const { lat, lng } = await getLatLng(results[0]);
     const { zoom, bounds } = determineZoomLevel(results);
+    console.log(bounds, "bounds");
 
-    setUrlParams([
-      {
-        key: UrlParamsTypes.currentCenter,
-        value: JSON.stringify({ lat, lng }),
-      },
-      {
-        key: UrlParamsTypes.currentZoom,
-        value: zoom.toString(),
-      },
-    ]);
+    const north = bounds?.getNorthEast().lat();
+    const south = bounds?.getSouthWest().lat();
+    const east = bounds?.getNorthEast().lng();
+    const west = bounds?.getSouthWest().lng();
+
+    // const updatedParams = updateMapBounds(map, newSearchParams);
+    // if (updatedParams) {
+    //   navigate(`?${updatedParams.toString()}`);
+    // }
+    // newSearchParams.set(
+    //   UrlParamsTypes.currentCenter,
+    //   JSON.stringify({ lat, lng })
+    // );
+    // newSearchParams.set(UrlParamsTypes.currentZoom, zoom.toString());
+
+    // Cookies.set(UrlParamsTypes.boundEast, east?.toString() || "");
+    // Cookies.set(UrlParamsTypes.boundNorth, north?.toString() || "");
+    // Cookies.set(UrlParamsTypes.boundSouth, south?.toString() || "");
+    // Cookies.set(UrlParamsTypes.boundWest, west?.toString() || "");
+    Cookies.set(UrlParamsTypes.currentCenter, JSON.stringify({ lat, lng }));
+    Cookies.set(UrlParamsTypes.currentZoom, zoom.toString());
 
     if (bounds && map) {
       map.fitBounds(bounds);
+      // console.log(newSearchParams.toString());
+      // navigate(`?${newSearchParams.toString()}`);
     } else {
       map?.setZoom(zoom);
       map?.panTo({ lat, lng });
