@@ -28,9 +28,10 @@ import { ClusterInfo, ClusterInfoLoading } from "./ClusterInfo/ClusterInfo";
 
 import { UserSettings } from "../../../types/userStates";
 import HoverMarker from "./HoverMarker/HoverMarker";
-import { ClusterOverlay } from "./clusterOverlay";
-import { LabelOverlay } from "./customMarkerLabel";
-import { CustomMarkerOverlay } from "./customMarkerOverlay";
+
+import { ClusterOverlay } from "./ClusterMarker/clusterOverlay";
+import { LabelOverlay } from "./CustomOverlays/customMarkerLabel";
+import { CustomMarkerOverlay } from "./CustomOverlays/customMarkerOverlay";
 import { CustomAlgorithm } from "./gridClusterAlgorithm";
 
 type CustomMarker = google.maps.Marker & {

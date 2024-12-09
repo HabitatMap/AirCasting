@@ -1,8 +1,8 @@
 import { Cluster } from "@googlemaps/markerclusterer";
-import { green, orange, red, yellow } from "../../../assets/styles/colors";
-import { CustomMarker } from "../../../types/googleMaps";
-import { Thresholds } from "../../../types/thresholds";
-import { createClusterIcon } from "./createMarkerIcon";
+import { green, orange, red, yellow } from "../../../../assets/styles/colors";
+import { CustomMarker } from "../../../../types/googleMaps";
+import { Thresholds } from "../../../../types/thresholds";
+import { createClusterIcon } from "./createClusterIcon";
 
 interface RendererParams {
   thresholds: Thresholds;
