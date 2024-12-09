@@ -1,6 +1,6 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
-import { MAP_ID } from "../components/Map/mapConfigs";
+import { MAP_ID } from "../components/Map/mapUtils/mapConfigs";
 import { DEFAULT_MAP_CENTER } from "../const/coordinates";
 import { LatLngLiteral } from "../types/googleMaps";
 import { RootState } from "./";

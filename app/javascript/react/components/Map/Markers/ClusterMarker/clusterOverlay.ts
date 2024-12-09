@@ -1,4 +1,4 @@
-import { CustomCluster } from "./FixedMarkers";
+import { CustomCluster } from "../FixedMarkers";
 
 export class ClusterOverlay extends google.maps.OverlayView {
   private div: HTMLElement | null = null;

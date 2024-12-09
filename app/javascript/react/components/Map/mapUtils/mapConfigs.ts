@@ -1,6 +1,5 @@
-import { MapConfig, MapTypeId } from "../../types/map";
+import { MapConfig, MapTypeId } from "../../../types/map";
 import mapStyles from "./mapStyles";
-
 
 export const MAP_CONFIGS: MapConfig[] = [
   {

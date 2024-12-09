@@ -98,8 +98,8 @@ import { FixedMarkers } from "./Markers/FixedMarkers";
 import { MobileMarkers } from "./Markers/MobileMarkers";
 import { StreamMarkers } from "./Markers/StreamMarkers";
 import { TimelapseMarkers } from "./Markers/TimelapseMarkers";
-import mapStyles from "./mapStyles";
-import mapStylesZoomedIn from "./mapStylesZoomedIn";
+import mapStyles from "./mapUtils/mapStyles";
+import mapStylesZoomedIn from "./mapUtils/mapStylesZoomedIn";
 
 const Map = () => {
   const dispatch = useAppDispatch();

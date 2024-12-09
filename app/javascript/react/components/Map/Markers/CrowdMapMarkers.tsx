@@ -22,8 +22,9 @@ import useMapEventListeners from "../../../utils/mapEventListeners";
 import { useMapParams } from "../../../utils/mapParamsHandler";
 import { getColorForValue } from "../../../utils/thresholdColors";
 
-import { CustomMarker } from "./CustomMarker";
-import MapOverlay from "./MapOverlay";
+import { CustomMarker } from "./CustomOverlays/CustomMarker";
+
+import MapOverlay from "./CustomOverlays/MapOverlay";
 import {
   RectangleInfo,
   RectangleInfoLoading,
