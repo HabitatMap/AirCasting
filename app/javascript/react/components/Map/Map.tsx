@@ -505,6 +505,8 @@ const Map = () => {
     dispatch,
   ]);
 
+  console.log("deployed");
+
   useEffect(() => {
     if (currentUserSettings === UserSettings.TimelapseView) {
       const storedBounds = {
