@@ -19,7 +19,7 @@ import { setMarkersLoading } from "../../../store/markersLoadingSlice";
 import { StatusEnum } from "../../../types/api";
 import type { LatLngLiteral } from "../../../types/googleMaps";
 import { Session } from "../../../types/sessionType";
-import { CustomMarker } from "./CustomMarker";
+import { CustomMarker } from "./CustomOverlays/CustomMarker";
 import HoverMarker from "./HoverMarker/HoverMarker";
 
 type DormantMarkersProps = {
