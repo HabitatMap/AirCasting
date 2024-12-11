@@ -8,4 +8,6 @@ export default {
   moduleNameMapper: {
     "^.+.(gif|svg|png|jpg|eot|ttf|woff|woff2)$": "jest-transform-stub",
   },
+  setupFilesAfterEnv: ["<rootDir>/jest.setup.ts"],
+  testRegex: "app/javascript/react/.*\\.test\\.tsx$",
 };
