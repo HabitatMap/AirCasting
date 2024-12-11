@@ -1,17 +1,21 @@
 module StreamHourlyAverages
   class Repository
     def insert_stream_hourly_averages(start_date_time:, end_date_time:)
-      values_to_insert =
+      stream_ids_and_values_to_insert =
         hourly_average_values_for_fixed_streams(start_date_time, end_date_time)
 
-      if values_to_insert.any?
-        insert_records(values_to_insert, end_date_time)
-      else
-        []
+      if stream_ids_and_values_to_insert.any?
+        insert_records(stream_ids_and_values_to_insert, end_date_time)
       end
     end
 
-    def update_last_hourly_average(stream_ids_with_last_hourly_average_ids)
+    def update_streams_last_hourly_average_ids(date_time:)
+      stream_ids_with_last_hourly_average_ids =
+        StreamHourlyAverage
+          .where(date_time: date_time)
+          .pluck(:stream_id, :id)
+          .to_h
+
       streams = Stream.where(id: stream_ids_with_last_hourly_average_ids.keys)
 
       streams.each do |stream|
@@ -43,10 +47,9 @@ module StreamHourlyAverages
         .map { |stream_id, value| { stream_id: stream_id, value: value.round } }
     end
 
-    def insert_records(values, end_date_time)
+    def insert_records(stream_ids_and_values_to_insert, end_date_time)
       current_time = Time.current
 
-      # It returns a hash with stream_ids as keys and stream_hourly_average_ids as values.
       StreamHourlyAverage
         .create_with(
           date_time: end_date_time,
@@ -54,12 +57,9 @@ module StreamHourlyAverages
           updated_at: current_time,
         )
         .insert_all(
-          values,
-          returning: %i[stream_id id],
+          stream_ids_and_values_to_insert,
           unique_by: %i[stream_id date_time],
         )
-        .rows
-        .to_h
     end
   end
 end

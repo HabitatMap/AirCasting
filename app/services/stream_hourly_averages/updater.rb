@@ -7,12 +7,15 @@ module StreamHourlyAverages
     def call
       start_date_time, end_date_time = date_time_range
 
-      insert_result =
+      ActiveRecord::Base.transaction do
         repository.insert_stream_hourly_averages(
           start_date_time: start_date_time,
           end_date_time: end_date_time,
         )
-      repository.update_last_hourly_average(insert_result) if insert_result.any?
+        repository.update_streams_last_hourly_average_ids(
+          date_time: end_date_time,
+        )
+      end
     end
 
     private
