@@ -1,21 +1,20 @@
 import "@testing-library/jest-dom";
-import { render, screen } from "@testing-library/react";
+import { screen } from "@testing-library/react";
 import React from "react";
+import { renderWithProvider } from "../../setupTests";
 
 import { RefreshMapButton } from ".";
 
+// Mock the translation hook
+jest.mock("react-i18next", () => ({
+  useTranslation: () => ({
+    t: (key: string) => (key === "navbar.refreshMap" ? "Refresh Map" : key),
+  }),
+}));
+
 describe("RefreshMapButton", () => {
   it("should render RefreshMapButton", () => {
-    render(<RefreshMapButton />);
+    renderWithProvider(<RefreshMapButton />);
     expect(screen.getByText("Refresh Map")).toBeInTheDocument();
   });
-
-  // test("refresh button renders", () => {
-  //   expect(true).toBe(true);
-  // });
-
-  // test("Renders the main page", () => {
-  // render(<RefreshMapButton />);
-  //   expect(true).toBeTruthy();
-  // });
 });
