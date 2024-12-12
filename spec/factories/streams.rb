@@ -11,4 +11,8 @@ FactoryBot.define do
     threshold_set
     association :session, factory: :mobile_session
   end
+
+  trait :fixed do
+    association :session, factory: :fixed_session
+  end
 end

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2024_11_19_133112) do
+ActiveRecord::Schema.define(version: 2024_12_06_155713) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -134,6 +134,15 @@ ActiveRecord::Schema.define(version: 2024_11_19_133112) do
     t.index ["stream_id"], name: "index_stream_daily_averages_on_stream_id"
   end
 
+  create_table "stream_hourly_averages", force: :cascade do |t|
+    t.bigint "stream_id", null: false
+    t.integer "value", null: false
+    t.datetime "date_time", null: false
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["stream_id", "date_time"], name: "index_stream_hourly_averages_on_stream_id_and_date_time", unique: true
+  end
+
   create_table "streams", id: :serial, force: :cascade do |t|
     t.string "sensor_name"
     t.string "unit_name"
@@ -151,6 +160,8 @@ ActiveRecord::Schema.define(version: 2024_11_19_133112) do
     t.decimal "start_longitude", precision: 12, scale: 9
     t.decimal "start_latitude", precision: 12, scale: 9
     t.integer "threshold_set_id", null: false
+    t.bigint "last_hourly_average_id"
+    t.index ["last_hourly_average_id"], name: "index_streams_on_last_hourly_average_id"
     t.index ["max_latitude"], name: "index_streams_on_max_latitude"
     t.index ["max_longitude"], name: "index_streams_on_max_longitude"
     t.index ["min_latitude"], name: "index_streams_on_min_latitude"
@@ -245,6 +256,8 @@ ActiveRecord::Schema.define(version: 2024_11_19_133112) do
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
   add_foreign_key "stream_daily_averages", "streams"
+  add_foreign_key "stream_hourly_averages", "streams"
+  add_foreign_key "streams", "stream_hourly_averages", column: "last_hourly_average_id"
   add_foreign_key "streams", "threshold_sets"
   add_foreign_key "threshold_alerts", "streams"
 end
