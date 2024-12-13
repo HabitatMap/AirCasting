@@ -29,6 +29,7 @@ import { ClusterInfo, ClusterInfoLoading } from "./ClusterInfo/ClusterInfo";
 import { UserSettings } from "../../../types/userStates";
 import HoverMarker from "./HoverMarker/HoverMarker";
 
+import useScreenSizeDetection from "../../../utils/useScreenSizeDetection";
 import { ClusterOverlay } from "./ClusterMarker/clusterOverlay";
 import { LabelOverlay } from "./CustomOverlays/customMarkerLabel";
 import { CustomMarkerOverlay } from "./CustomOverlays/customMarkerOverlay";
@@ -86,6 +87,7 @@ export function FixedMarkers({
   const clusterOverlaysRef = useRef<Map<string, ClusterOverlay>>(new Map());
   const previousZoomRef = useRef<number | null>(null);
   const previousModeRef = useRef<string | null>(null);
+  const isMobile = useScreenSizeDetection();
 
   // State variables
   const [hoverPosition, setHoverPosition] = useState<LatLngLiteral | null>(
@@ -701,7 +703,7 @@ export function FixedMarkers({
     const currentMode = currentUserSettings;
     const previousMode = previousUserSettingsRef.current;
 
-    // Clear markers when switching to/from timelapse view
+    // Only clear markers when switching to/from timelapse view
     if (
       previousMode &&
       ((previousMode === UserSettings.TimelapseView &&
@@ -712,13 +714,38 @@ export function FixedMarkers({
       clearAllMarkersAndClusters();
     }
 
+    // Don't clear markers when switching between mobile views
+    if (
+      isMobile &&
+      currentMode !== UserSettings.TimelapseView &&
+      previousMode !== UserSettings.TimelapseView
+    ) {
+      // Force re-render of markers instead of clearing
+      if (clustererRef.current && map) {
+        clustererRef.current.render();
+        handleClusteringEnd();
+        updateMarkerOverlays();
+        updateClusterOverlays();
+      }
+    }
+
     previousUserSettingsRef.current = currentMode;
 
-    // Cleanup on unmount
+    // Only cleanup on component unmount, not on view changes
     return () => {
-      clearAllMarkersAndClusters();
+      if (!isMobile || currentMode === UserSettings.TimelapseView) {
+        clearAllMarkersAndClusters();
+      }
     };
-  }, [currentUserSettings, clearAllMarkersAndClusters]);
+  }, [
+    currentUserSettings,
+    clearAllMarkersAndClusters,
+    map,
+    handleClusteringEnd,
+    updateMarkerOverlays,
+    updateClusterOverlays,
+    isMobile,
+  ]);
 
   useEffect(() => {
     if (clustererRef.current && map) {
@@ -727,6 +754,29 @@ export function FixedMarkers({
       handleClusteringEnd();
     }
   }, [map?.getZoom(), currentUserSettings, handleClusteringEnd]);
+
+  // Add new effect to force re-render on sessions change
+  useEffect(() => {
+    if (map && sessions.length > 0) {
+      // Force immediate re-render of markers
+      if (clustererRef.current) {
+        clustererRef.current.clearMarkers();
+
+        const markers = sessions.map((session) => {
+          const marker = createMarker(session);
+          markerRefs.current.set(session.point.streamId, marker);
+          return marker;
+        });
+
+        clustererRef.current.addMarkers(markers);
+        clustererRef.current.render();
+        console.log("updating overlays");
+        // Force update overlays
+        updateMarkerOverlays();
+        updateClusterOverlays();
+      }
+    }
+  }, [sessions, map]); // Only re-run when sessions or map changes
 
   return (
     <>
