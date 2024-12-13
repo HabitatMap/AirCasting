@@ -437,9 +437,16 @@ export function FixedMarkers({
       handleClusteringEnd
     );
 
+    // Filter sessions based on selectedStreamId
+    const filteredSessions = selectedStreamId
+      ? sessions.filter(
+          (session) => Number(session.point.streamId) === selectedStreamId
+        )
+      : sessions;
+
     // Create new markers if we have sessions
-    if (sessions.length > 0) {
-      const markers = sessions.map((session) => {
+    if (filteredSessions.length > 0) {
+      const markers = filteredSessions.map((session) => {
         const marker = createMarker(session);
         markerRefs.current.set(session.point.streamId, marker);
         return marker;
@@ -451,7 +458,9 @@ export function FixedMarkers({
     }
 
     // Update loading state
-    dispatch(setMarkersLoading(markerRefs.current.size < sessions.length));
+    dispatch(
+      setMarkersLoading(markerRefs.current.size < filteredSessions.length)
+    );
 
     // Cleanup
     return () => {
@@ -460,6 +469,7 @@ export function FixedMarkers({
     };
   }, [
     sessions,
+    selectedStreamId,
     map,
     currentUserSettings,
     createMarker,
@@ -483,6 +493,20 @@ export function FixedMarkers({
       setHoverPosition(null);
     }
   }, [hoverStreamId, sessions]);
+
+  // Add effect to handle zooming to selected marker
+  useEffect(() => {
+    if (selectedStreamId && map) {
+      const selectedSession = sessions.find(
+        (session) => Number(session.point.streamId) === selectedStreamId
+      );
+
+      if (selectedSession) {
+        map.panTo(selectedSession.point);
+        map.setZoom(ZOOM_FOR_SELECTED_SESSION);
+      }
+    }
+  }, [selectedStreamId, sessions, map]);
 
   return (
     <>
