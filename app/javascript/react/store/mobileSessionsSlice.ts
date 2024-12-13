@@ -2,12 +2,12 @@ import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { AxiosResponse } from "axios";
 import { oldApiClient } from "../api/apiClient";
 import { API_ENDPOINTS } from "../api/apiEndpoints";
-import { StatusEnum, ApiError } from "../types/api"; // Use ApiError
+import { ApiError, StatusEnum } from "../types/api"; // Use ApiError
 import { getErrorMessage } from "../utils/getErrorMessage";
 import { logError } from "../utils/logController";
 import { RootState } from "./";
 
-export interface Session {
+export interface MobileSessionGeneral {
   id: number;
   endTimeLocal: string;
   startTimeLocal: string;
@@ -44,12 +44,12 @@ export interface Session {
 
 interface SessionsResponse {
   fetchableSessionsCount: number;
-  sessions: Session[];
+  sessions: MobileSessionGeneral[];
 }
 
 interface SessionsState {
   fetchableSessionsCount: number;
-  sessions: Session[];
+  sessions: MobileSessionGeneral[];
   status: StatusEnum;
   error: ApiError | null;
 }

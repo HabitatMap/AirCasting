@@ -1,6 +1,6 @@
 import { Measurement } from "../../../store/fixedStreamSlice";
 import { LatLngLiteral } from "../../../types/googleMaps";
-import { Session } from "../../../types/sessionType";
+import { FixedSession, MobileSession } from "../../../types/sessionType";
 
 export const isValidMeasurement = (m: Measurement): m is Measurement => {
   return m.time !== undefined && m.value !== undefined;
@@ -15,7 +15,7 @@ export const createFixedSeriesData = (
     .sort((a, b) => a[0] - b[0]);
 
 export const createMobileSeriesData = (
-  data: Session[] | Measurement[],
+  data: FixedSession[] | Measurement[] | MobileSession[],
   isGraphData: boolean
 ) =>
   data

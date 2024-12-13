@@ -8,7 +8,7 @@ import { getErrorMessage } from "../utils/getErrorMessage";
 import { logError } from "../utils/logController";
 import { FixedSessionsTypes } from "./sessionFiltersSlice";
 
-export interface FixedSession {
+export interface FixedSessionGeneral {
   id: number;
   uuid: string;
   endTimeLocal: string;
@@ -19,9 +19,9 @@ export interface FixedSession {
   longitude: number;
   title: string;
   username: string;
+  lastHourlyAverageValue: number;
   streams: {
     [key: string]: {
-      streamDailyAverage: number;
       measurementShortType: string;
       sensorName: string;
       unitSymbol: string;
@@ -32,13 +32,13 @@ export interface FixedSession {
 
 interface SessionsResponse {
   fetchableSessionsCount: number;
-  sessions: FixedSession[];
+  sessions: FixedSessionGeneral[];
 }
 
 interface SessionsState {
   fetchableSessionsCount: number;
-  activeSessions: FixedSession[];
-  dormantSessions: FixedSession[];
+  activeSessions: FixedSessionGeneral[];
+  dormantSessions: FixedSessionGeneral[];
   isActiveSessionsFetched: boolean;
   isDormantSessionsFetched: boolean;
   status: StatusEnum;

@@ -9,7 +9,15 @@ export type Point = LatLngLiteral & {
   streamId: string;
 };
 
-export type Session = {
+export type FixedSession = {
+  id: number;
+  averageValue: number;
+  lastMeasurementValue: number;
+  point: Point;
+  time?: number;
+};
+
+export type MobileSession = {
   id: number;
   lastMeasurementValue: number;
   point: Point;
@@ -17,7 +25,7 @@ export type Session = {
   notes?: Note[];
 };
 
-export type IndoorSession = Omit<Session, "point">;
+export type IndoorSession = Omit<FixedSession, "point">;
 
 export type SessionList = {
   id: number;
@@ -27,5 +35,4 @@ export type SessionList = {
   startTime: string;
   endTime: string;
   streamId: number;
-  lastMeasurementValue?: number;
 };

@@ -16,13 +16,13 @@ import {
   setTotalMarkers,
 } from "../../../store/markersLoadingSlice";
 import { selectThresholds } from "../../../store/thresholdSlice";
-import { Session } from "../../../types/sessionType";
+import { MobileSession } from "../../../types/sessionType";
 import { getColorForValue } from "../../../utils/thresholdColors";
 import { CustomMarker } from "./CustomOverlays/CustomMarker";
 import HoverMarker from "./HoverMarker/HoverMarker";
 
 type Props = {
-  sessions: Session[];
+  sessions: MobileSession[];
   unitSymbol: string;
 };
 
@@ -46,7 +46,7 @@ const StreamMarkers = ({ sessions, unitSymbol }: Props) => {
         typeof session.point.lng === "number"
     );
 
-    const locationMap = new Map<string, Session>();
+    const locationMap = new Map<string, MobileSession>();
     validSessions.forEach((session) => {
       const locationKey = `${session.point.lat},${session.point.lng}`;
       const existingSession = locationMap.get(locationKey);
@@ -84,7 +84,7 @@ const StreamMarkers = ({ sessions, unitSymbol }: Props) => {
   }, [sortedSessions]);
 
   const createOrUpdateMarker = useCallback(
-    (session: Session) => {
+    (session: MobileSession) => {
       if (!CustomOverlay) return;
 
       const position = { lat: session.point.lat, lng: session.point.lng };
