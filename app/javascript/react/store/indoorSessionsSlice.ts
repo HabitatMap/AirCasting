@@ -15,6 +15,7 @@ interface IndoorSession {
   endTimeLocal: string;
   startTimeLocal: string;
   lastMeasurementValue: number;
+  lastHourlyAverageValue: number;
   isIndoor: boolean;
   isActive: boolean;
   title: string;

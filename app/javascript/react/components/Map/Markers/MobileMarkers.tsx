@@ -12,7 +12,7 @@ import {
 import { selectThresholds } from "../../../store/thresholdSlice";
 import { StatusEnum } from "../../../types/api";
 import { LatLngLiteral } from "../../../types/googleMaps";
-import { Point, Session } from "../../../types/sessionType";
+import { MobileSession, Point } from "../../../types/sessionType";
 import { useMapParams } from "../../../utils/mapParamsHandler";
 import { getColorForValue } from "../../../utils/thresholdColors";
 import { CustomMarker } from "./CustomOverlays/CustomMarker";
@@ -20,7 +20,7 @@ import { LabelOverlay } from "./CustomOverlays/customMarkerLabel";
 import { CustomMarkerOverlay } from "./CustomOverlays/customMarkerOverlay";
 
 type Props = {
-  sessions: Session[];
+  sessions: MobileSession[];
   onMarkerClick: (streamId: number | null, id: number | null) => void;
   selectedStreamId: number | null;
   pulsatingSessionId: number | null;
@@ -119,7 +119,7 @@ const MobileMarkers = ({
   );
 
   const createMarker = useCallback(
-    (session: Session): CustomMarker => {
+    (session: MobileSession): CustomMarker => {
       const color = getColorForValue(thresholds, session.lastMeasurementValue);
       const shouldPulse = session.id === pulsatingSessionId;
       const size = 12;
