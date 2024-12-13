@@ -29,6 +29,7 @@ import { ClusterInfo, ClusterInfoLoading } from "./ClusterInfo/ClusterInfo";
 import { UserSettings } from "../../../types/userStates";
 import HoverMarker from "./HoverMarker/HoverMarker";
 
+import { selectIsLoading } from "../../../store/fixedStreamSlice";
 import { ClusterOverlay } from "./ClusterMarker/clusterOverlay";
 import { LabelOverlay } from "./CustomOverlays/customMarkerLabel";
 import { CustomMarkerOverlay } from "./CustomOverlays/customMarkerOverlay";
@@ -100,6 +101,8 @@ export function FixedMarkers({
 
   // Memoized values
   const memoizedSessions = useMemo(() => sessions, [sessions]);
+
+  const isLoading = useAppSelector(selectIsLoading);
 
   // Refs for event handlers
   const onMarkerClickRef = useRef(onMarkerClick);
@@ -564,6 +567,7 @@ export function FixedMarkers({
     updateMarkerOverlays,
     updateClusterOverlays,
     memoizedSessions,
+    isLoading,
   ]);
 
   useEffect(() => {
