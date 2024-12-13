@@ -718,7 +718,7 @@ export function FixedMarkers({
     return () => {
       clearAllMarkersAndClusters();
     };
-  }, [currentUserSettings, clearAllMarkersAndClusters]);
+  }, []);
 
   useEffect(() => {
     if (clustererRef.current && map) {
