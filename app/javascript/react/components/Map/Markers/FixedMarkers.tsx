@@ -19,7 +19,7 @@ import { setMarkersLoading } from "../../../store/markersLoadingSlice";
 import { selectThresholds } from "../../../store/thresholdSlice";
 import { StatusEnum } from "../../../types/api";
 import { LatLngLiteral } from "../../../types/googleMaps";
-import { Session } from "../../../types/sessionType";
+import { FixedSession } from "../../../types/sessionType";
 import { getClusterPixelPosition } from "../../../utils/getClusterPixelPosition";
 import useMapEventListeners from "../../../utils/mapEventListeners";
 import { useMapParams } from "../../../utils/mapParamsHandler";
@@ -47,7 +47,7 @@ export type CustomCluster = Cluster & {
 };
 
 type FixedMarkersProps = {
-  sessions: Session[];
+  sessions: FixedSession[];
   onMarkerClick: (streamId: number | null, id: number | null) => void;
   selectedStreamId: number | null;
   pulsatingSessionId: number | null;
@@ -209,7 +209,7 @@ export function FixedMarkers({
   };
 
   const createMarker = useCallback(
-    (session: Session): CustomMarker => {
+    (session: FixedSession): CustomMarker => {
       const marker = new google.maps.Marker({
         position: session.point,
         icon: {
@@ -218,7 +218,7 @@ export function FixedMarkers({
         zIndex: Number(google.maps.Marker.MAX_ZINDEX) + 1,
       }) as CustomMarker;
 
-      marker.value = session.lastMeasurementValue;
+      marker.value = session.averageValue;
       marker.sessionId = session.id;
       marker.userData = { streamId: session.point.streamId };
       marker.clustered = false;
@@ -449,7 +449,7 @@ export function FixedMarkers({
 
               const newOverlay = new CustomMarkerOverlay(
                 new google.maps.LatLng(latitude, longitude),
-                getColorForValue(thresholds, session.lastMeasurementValue),
+                getColorForValue(thresholds, session.averageValue),
                 true,
                 false
               );
@@ -458,8 +458,8 @@ export function FixedMarkers({
 
               const newLabelOverlay = new LabelOverlay(
                 new google.maps.LatLng(latitude, longitude),
-                getColorForValue(thresholds, session.lastMeasurementValue),
-                session.lastMeasurementValue,
+                getColorForValue(thresholds, session.averageValue),
+                session.averageValue,
                 unitSymbol,
                 true,
                 () => {
@@ -513,7 +513,7 @@ export function FixedMarkers({
         updatedMarkers.push(marker);
       } else {
         marker.setPosition(session.point);
-        marker.value = session.lastMeasurementValue;
+        marker.value = session.averageValue;
         marker.sessionId = session.id;
       }
     });

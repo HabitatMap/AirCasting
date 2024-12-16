@@ -18,12 +18,12 @@ import { selectHoverStreamId } from "../../../store/mapSlice";
 import { setMarkersLoading } from "../../../store/markersLoadingSlice";
 import { StatusEnum } from "../../../types/api";
 import type { LatLngLiteral } from "../../../types/googleMaps";
-import { Session } from "../../../types/sessionType";
+import { FixedSession } from "../../../types/sessionType";
 import { CustomMarker } from "./CustomOverlays/CustomMarker";
 import HoverMarker from "./HoverMarker/HoverMarker";
 
 type DormantMarkersProps = {
-  sessions: Session[];
+  sessions: FixedSession[];
   onMarkerClick: (streamId: number | null, id: number | null) => void;
   selectedStreamId: number | null;
   pulsatingSessionId: number | null;
@@ -63,7 +63,7 @@ const DormantMarkers: React.FC<DormantMarkersProps> = ({
   );
 
   const createMarker = useCallback(
-    (session: Session): CustomMarker => {
+    (session: FixedSession): CustomMarker => {
       const position = session.point;
       const color = gray300;
       const title = "";

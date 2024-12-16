@@ -1,8 +1,8 @@
 import { createSelector } from "reselect";
 import { StatusEnum } from "../types/api";
-import { Session, SessionList } from "../types/sessionType";
+import { FixedSession, SessionList } from "../types/sessionType";
 import { RootState } from "./";
-import { FixedSession } from "./fixedSessionsSlice";
+import { FixedSessionGeneral } from "./fixedSessionsSlice";
 import { FixedSessionsTypes } from "./sessionFiltersSlice";
 
 const selectActiveFixedSessionsState = (state: RootState) =>
@@ -26,7 +26,7 @@ const selectIsDormantSessionsFetched = createSelector(
   (fixedSessionsState) => fixedSessionsState.isDormantSessionsFetched
 );
 
-const transformSessionData = (sessions: FixedSession[]) =>
+const transformSessionData = (sessions: FixedSessionGeneral[]) =>
   sessions.map(
     ({
       id,
@@ -37,6 +37,7 @@ const transformSessionData = (sessions: FixedSession[]) =>
       latitude,
       longitude,
       streams,
+      lastHourlyAverageValue,
     }) => {
       const firstStream = streams[Object.keys(streams)[0]] || {};
       return {
@@ -46,7 +47,7 @@ const transformSessionData = (sessions: FixedSession[]) =>
         lastMeasurementValue,
         startTime: startTimeLocal,
         endTime: endTimeLocal,
-        averageValue: firstStream.streamDailyAverage || 0,
+        averageValue: lastHourlyAverageValue || lastMeasurementValue,
         point: {
           lat: latitude,
           lng: longitude,
@@ -77,13 +78,14 @@ const selectTransformedSessionsByType = createSelector(
 
 const selectFixedSessionsPoints = createSelector(
   [selectTransformedSessionsByType],
-  (transformedSessions): Session[] => {
+  (transformedSessions): FixedSession[] => {
     return transformedSessions.map(
       ({
         id,
         title,
         sensorName,
         lastMeasurementValue,
+        averageValue,
         startTime,
         endTime,
         point,
@@ -94,6 +96,7 @@ const selectFixedSessionsPoints = createSelector(
         startTime,
         endTime,
         lastMeasurementValue,
+        averageValue,
         point,
       })
     );
@@ -112,7 +115,6 @@ const selectFixedSessionsList = createSelector(
         startTime,
         endTime,
         streamId,
-        lastMeasurementValue,
       }) => ({
         id,
         title,
@@ -121,40 +123,14 @@ const selectFixedSessionsList = createSelector(
         startTime,
         endTime,
         streamId,
-        lastMeasurementValue,
       })
     );
-  }
-);
-
-const selectFixedSessionPointsBySessionId = createSelector(
-  [
-    selectSessionsByType,
-    (_: RootState, __: FixedSessionsTypes, sessionId: number | null) =>
-      sessionId,
-  ],
-  (sessions, sessionId): Session[] => {
-    const transformedSessions = transformSessionData(sessions);
-    const session = transformedSessions.find(
-      (session) => Number(session.id) === Number(sessionId)
-    );
-
-    return session
-      ? [
-          {
-            id: session.id,
-            lastMeasurementValue: session.lastMeasurementValue,
-            point: session.point,
-          },
-        ]
-      : [];
   }
 );
 
 export {
   selectActiveFixedSessionsState,
   selectDormantFixedSessionsState,
-  selectFixedSessionPointsBySessionId,
   selectFixedSessionsList,
   selectFixedSessionsPoints,
   selectFixedSessionsStatusFulfilled,

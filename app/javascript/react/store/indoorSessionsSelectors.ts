@@ -24,6 +24,7 @@ const selectIndoorSessionsPoints = (isDormant: boolean) =>
           startTimeLocal,
           endTimeLocal,
           streams,
+          lastHourlyAverageValue,
         }) => {
           const firstStream = streams[Object.keys(streams)[0]];
 
@@ -33,6 +34,7 @@ const selectIndoorSessionsPoints = (isDormant: boolean) =>
             sensorName: firstStream.sensorName,
             startTime: startTimeLocal,
             endTime: endTimeLocal,
+            averageValue: lastHourlyAverageValue || lastMeasurementValue,
             lastMeasurementValue,
           };
         }
@@ -49,14 +51,22 @@ const selectIndoorSessionsList = (isDormant: boolean) =>
         : indoorSessionsState.activeIndoorSessions;
 
       return sessions.map(
-        ({ id, title, startTimeLocal, endTimeLocal, streams }) => {
+        ({
+          id,
+          title,
+          startTimeLocal,
+          endTimeLocal,
+          streams,
+          lastHourlyAverageValue,
+          lastMeasurementValue,
+        }) => {
           const firstStream = streams[Object.keys(streams)[0]];
 
           return {
             id,
             title,
             sensorName: firstStream.sensorName,
-            averageValue: firstStream.streamDailyAverage,
+            averageValue: lastHourlyAverageValue || lastMeasurementValue,
             startTime: startTimeLocal,
             endTime: endTimeLocal,
             streamId: firstStream.id,
