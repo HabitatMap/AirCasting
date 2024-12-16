@@ -380,4 +380,13 @@ export default [
       },
     ],
   },
+  {
+    featureType: "landscape.natural",
+    elementType: "labels",
+    stylers: [
+      {
+        visibility: "off",
+      },
+    ],
+  },
 ];
