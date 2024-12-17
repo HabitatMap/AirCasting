@@ -39,6 +39,7 @@ const StreamMarkers = ({ sessions, unitSymbol }: Props) => {
   >(null);
 
   const sortedSessions = useMemo(() => {
+    console.time("sortedSessions calculation");
     const validSessions = sessions.filter(
       (session) =>
         session.point &&
@@ -62,11 +63,13 @@ const StreamMarkers = ({ sessions, unitSymbol }: Props) => {
       }
     });
 
-    return Array.from(locationMap.values()).sort((a, b) => {
+    const sorted = Array.from(locationMap.values()).sort((a, b) => {
       const timeA = a.time ? new Date(a.time.toString()).getTime() : 0;
       const timeB = b.time ? new Date(b.time.toString()).getTime() : 0;
       return timeA - timeB;
     });
+    console.timeEnd("sortedSessions calculation");
+    return sorted;
   }, [sessions]);
 
   const handleIdle = useCallback(() => {
@@ -87,8 +90,8 @@ const StreamMarkers = ({ sessions, unitSymbol }: Props) => {
     (session: MobileSession) => {
       if (!CustomOverlay) return;
 
-      const position = { lat: session.point.lat, lng: session.point.lng };
       const markerId = session.id.toString();
+      const position = { lat: session.point.lat, lng: session.point.lng };
       const title = `${session.lastMeasurementValue} ${unitSymbol}`;
 
       const shouldShowNotes =
@@ -113,18 +116,21 @@ const StreamMarkers = ({ sessions, unitSymbol }: Props) => {
           "overlayMouseTarget",
           notes
         );
-
         marker.setMap(map);
         markersRef.current.set(markerId, marker);
       } else {
         marker.setPosition(position);
         marker.setTitle(title);
         marker.setNotes(notes);
+
+        if (marker.getMap() !== map) {
+          marker.setMap(map);
+        }
       }
 
       return marker;
     },
-    [map, unitSymbol, CustomOverlay, firstSessionWithNotes]
+    [map, unitSymbol, CustomOverlay, firstSessionWithNotes, thresholds]
   );
 
   useEffect(() => {
@@ -136,9 +142,45 @@ const StreamMarkers = ({ sessions, unitSymbol }: Props) => {
   useEffect(() => {
     if (!map || !CustomOverlay) return;
 
+    console.time("markers-update-effect");
     dispatch(setMarkersLoading(true));
-    dispatch(setTotalMarkers(sortedSessions.length));
 
+    // Calculate bounds to find center
+    const bounds = new google.maps.LatLngBounds();
+    sortedSessions.forEach((session) => {
+      bounds.extend({ lat: session.point.lat, lng: session.point.lng });
+    });
+
+    // Extend bounds to show more context around markers
+    const ne = bounds.getNorthEast();
+    const sw = bounds.getSouthWest();
+    const latPadding = (ne.lat() - sw.lat()) * 0.4; // Increased from 0.3 to 0.5 for more padding
+    const lngPadding = (ne.lng() - sw.lng()) * 0.4; // Increased from 0.3 to 0.5 for more padding
+
+    bounds.extend({
+      lat: ne.lat() + latPadding * 0.1, // Minimal north padding
+      lng: ne.lng() + lngPadding,
+    });
+    bounds.extend({
+      lat: sw.lat() - latPadding * 2.5, // Much more south padding
+      lng: sw.lng() - lngPadding,
+    });
+
+    // Fit bounds with padding
+    map.fitBounds(bounds);
+
+    // After bounds are set, create markers
+    const activeMarkerIds = new Set<string>();
+
+    console.time("markers-update");
+    sortedSessions.forEach((session) => {
+      const markerId = session.id.toString();
+      createOrUpdateMarker(session);
+      activeMarkerIds.add(markerId);
+    });
+    console.timeEnd("markers-update");
+
+    // Update polyline
     const path = sortedSessions.map((session) => ({
       lat: session.point.lat,
       lng: session.point.lng,
@@ -148,7 +190,7 @@ const StreamMarkers = ({ sessions, unitSymbol }: Props) => {
       polylineRef.current.setPath(path);
     } else {
       polylineRef.current = new google.maps.Polyline({
-        path: path,
+        path,
         map,
         strokeColor: mobileStreamPath,
         strokeOpacity: 0.7,
@@ -156,43 +198,27 @@ const StreamMarkers = ({ sessions, unitSymbol }: Props) => {
       });
     }
 
-    const currentMarkerIds = new Set<string>();
-
-    sortedSessions.forEach((session) => {
-      const markerId = session.id.toString();
-      createOrUpdateMarker(session);
-      currentMarkerIds.add(markerId);
-    });
-
+    // Clean up unused markers
     markersRef.current.forEach((marker, markerId) => {
-      if (!currentMarkerIds.has(markerId)) {
+      if (!activeMarkerIds.has(markerId)) {
         marker.setMap(null);
         markersRef.current.delete(markerId);
       }
     });
 
+    dispatch(setTotalMarkers(sortedSessions.length));
+    dispatch(setMarkersLoading(false));
     const idleListener = map.addListener("idle", handleIdle);
-
-    timeoutId.current = setTimeout(() => {
-      dispatch(setMarkersLoading(false));
-    }, 10000);
+    console.timeEnd("markers-update-effect");
 
     return () => {
-      markersRef.current.forEach((marker) => {
-        marker.setMap(null);
-      });
+      markersRef.current.forEach((marker) => marker.setMap(null));
       markersRef.current.clear();
-
       if (polylineRef.current) {
         polylineRef.current.setMap(null);
         polylineRef.current = null;
       }
-
       google.maps.event.removeListener(idleListener);
-      if (timeoutId.current) {
-        clearTimeout(timeoutId.current);
-        timeoutId.current = null;
-      }
     };
   }, [
     map,
