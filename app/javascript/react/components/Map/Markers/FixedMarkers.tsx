@@ -498,7 +498,6 @@ export function FixedMarkers({
     thresholds,
     unitSymbol,
     centerMapOnMarker,
-    isLoading,
   ]);
 
   useEffect(() => {
