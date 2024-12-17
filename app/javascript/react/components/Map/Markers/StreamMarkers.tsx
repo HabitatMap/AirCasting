@@ -10,7 +10,7 @@ import { useSelector } from "react-redux";
 
 import { mobileStreamPath } from "../../../assets/styles/colors";
 import { useAppDispatch } from "../../../store/hooks";
-import { selectHoverPosition } from "../../../store/mapSlice";
+import { selectHoverPosition, setHoverPosition } from "../../../store/mapSlice";
 import {
   setMarkersLoading,
   setTotalMarkers,
@@ -37,6 +37,7 @@ const StreamMarkers = ({ sessions, unitSymbol }: Props) => {
   const [CustomOverlay, setCustomOverlay] = useState<
     typeof CustomMarker | null
   >(null);
+  const isInitialLoading = useRef(true);
 
   const sortedSessions = useMemo(() => {
     console.time("sortedSessions calculation");
@@ -144,6 +145,7 @@ const StreamMarkers = ({ sessions, unitSymbol }: Props) => {
 
     console.time("markers-update-effect");
     dispatch(setMarkersLoading(true));
+    isInitialLoading.current = true;
 
     // Calculate bounds to find center
     const bounds = new google.maps.LatLngBounds();
@@ -208,6 +210,7 @@ const StreamMarkers = ({ sessions, unitSymbol }: Props) => {
 
     dispatch(setTotalMarkers(sortedSessions.length));
     dispatch(setMarkersLoading(false));
+    isInitialLoading.current = false;
     const idleListener = map.addListener("idle", handleIdle);
     console.timeEnd("markers-update-effect");
 
@@ -218,6 +221,7 @@ const StreamMarkers = ({ sessions, unitSymbol }: Props) => {
         polylineRef.current.setMap(null);
         polylineRef.current = null;
       }
+      dispatch(setHoverPosition(null));
       google.maps.event.removeListener(idleListener);
     };
   }, [
@@ -242,7 +246,9 @@ const StreamMarkers = ({ sessions, unitSymbol }: Props) => {
     });
   }, [thresholds, sortedSessions]);
 
-  return hoverPosition ? <HoverMarker position={hoverPosition} /> : null;
+  return !isInitialLoading.current && hoverPosition ? (
+    <HoverMarker position={hoverPosition} />
+  ) : null;
 };
 
 export { StreamMarkers };
