@@ -231,7 +231,7 @@ const MobileMarkers = ({
             isSelected,
             () => {
               const isCurrentlySelected = selectedStreamId === Number(streamId);
-              onMarkerClick(
+              onMarkerClickRef.current(
                 isCurrentlySelected ? null : Number(streamId),
                 isCurrentlySelected ? null : Number(session.id),
                 !isCurrentlySelected
