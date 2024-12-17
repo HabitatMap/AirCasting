@@ -373,6 +373,7 @@ export function FixedMarkers({
     thresholds,
     unitSymbol,
     centerMapOnMarker,
+    isLoading,
   ]);
 
   useEffect(() => {
@@ -497,6 +498,7 @@ export function FixedMarkers({
     thresholds,
     unitSymbol,
     centerMapOnMarker,
+    isLoading,
   ]);
 
   useEffect(() => {
@@ -627,6 +629,7 @@ export function FixedMarkers({
     sessions,
     pulsatingSessionId,
     handleClusterClickInternal,
+    isLoading,
   ]);
 
   useEffect(() => {
