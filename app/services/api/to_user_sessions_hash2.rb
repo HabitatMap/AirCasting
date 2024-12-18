@@ -13,8 +13,8 @@ class Api::ToUserSessionsHash2
       {
         upload: new_in_params,
         download: new_in_database + outdated,
-        deleted: deleted
-      }
+        deleted: deleted,
+      },
     )
   end
 
@@ -27,7 +27,10 @@ class Api::ToUserSessionsHash2
   end
 
   def delete_sessions(sessions)
-    user.sessions.where(uuid: sessions.pluck(:uuid)).destroy_all
+    sessions = Session.where(uuid: sessions.pluck(:uuid))
+    streams = Stream.where(session: sessions)
+    streams.update_all(last_hourly_average: nil)
+    sessions.destroy_all
   end
 
   def deleted
@@ -57,7 +60,7 @@ class Api::ToUserSessionsHash2
         if (session.streams.count != 0) &&
              (session.streams.all? { |stream| stream.measurements.count != 0 })
           acc.push(
-            OpenStruct.new({ uuid: session.uuid, version: session.version })
+            OpenStruct.new({ uuid: session.uuid, version: session.version }),
           )
         end
 
