@@ -182,8 +182,30 @@ const StreamMarkers = ({ sessions, unitSymbol }: Props) => {
   useEffect(() => {
     if (!map || !CustomOverlay) return;
 
+    // Clean up existing markers and polyline first
+    const cleanup = () => {
+      markersRef.current.forEach((marker) => {
+        marker.setMap(null);
+        marker.cleanup();
+      });
+      markersRef.current.clear();
+
+      if (polylineRef.current) {
+        polylineRef.current.setMap(null);
+        polylineRef.current = null;
+      }
+    };
+
+    // Always clean up before setting new markers
+    cleanup();
+
     dispatch(setMarkersLoading(true));
     isInitialLoading.current = true;
+
+    if (sessions.length === 0) {
+      dispatch(setMarkersLoading(false));
+      return cleanup; // Return cleanup function for useEffect
+    }
 
     if (sortedSessions.length > 0) {
       const bounds = new google.maps.LatLngBounds();
@@ -231,25 +253,15 @@ const StreamMarkers = ({ sessions, unitSymbol }: Props) => {
       isInitialLoading.current = false;
       const idleListener = map.addListener("idle", handleIdle);
 
-      return () => {
-        markersRef.current.forEach((marker) => {
-          marker.setMap(null);
-          marker.cleanup();
-        });
-        markersRef.current.clear();
-
-        if (polylineRef.current) {
-          polylineRef.current.setMap(null);
-          polylineRef.current = null;
-        }
-
-        dispatch(setHoverPosition(null));
-        google.maps.event.removeListener(idleListener);
-      };
+      dispatch(setHoverPosition(null));
     });
+
+    // Return cleanup function
+    return cleanup;
   }, [
     map,
     sortedSessions,
+    sessions,
     dispatch,
     handleIdle,
     createOrUpdateMarker,
