@@ -4,6 +4,7 @@ class Stream < ApplicationRecord
   belongs_to :last_hourly_average,
              class_name: 'StreamHourlyAverage',
              optional: true
+  has_many :stream_hourly_averages, dependent: :destroy
 
   has_many :measurements, dependent: :delete_all
   has_many :stream_daily_averages, dependent: :delete_all
