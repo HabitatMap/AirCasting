@@ -283,7 +283,7 @@ export class CustomMarker extends google.maps.OverlayView {
   }
 
   cleanup() {
-    this.setMap(null); // Ensure marker is removed from map
+    this.setMap(null);
 
     // Batch cleanup operations
     if (this.div) {

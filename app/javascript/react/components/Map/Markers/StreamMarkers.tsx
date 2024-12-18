@@ -39,6 +39,11 @@ const StreamMarkers = ({ sessions, unitSymbol }: Props) => {
   >(null);
   const isInitialLoading = useRef(true);
 
+  const ZOOM_FOR_SELECTED_SESSION = 16;
+  const LAT_DIFF_SMALL = 0.00001;
+  const LAT_DIFF_MEDIUM = 0.0001;
+  const LAT_ADJUST_SMALL = 0.005;
+
   const sortedSessions = useMemo(() => {
     console.time("sortedSessions calculation");
     const validSessions = sessions.filter(
@@ -140,6 +145,45 @@ const StreamMarkers = ({ sessions, unitSymbol }: Props) => {
     }
   }, [CustomOverlay]);
 
+  const centerMapOnBounds = useCallback(
+    (bounds: google.maps.LatLngBounds) => {
+      if (!map) return;
+
+      const ne = bounds.getNorthEast();
+      const sw = bounds.getSouthWest();
+      const latDiff = ne.lat() - sw.lat();
+      const lngDiff = ne.lng() - sw.lng();
+
+      if (latDiff < LAT_DIFF_SMALL && lngDiff < LAT_DIFF_SMALL) {
+        const centerLat = (ne.lat() + sw.lat()) / 2;
+        const centerLng = (ne.lng() + sw.lng()) / 2;
+        map.setCenter({ lat: centerLat, lng: centerLng });
+        map.setZoom(ZOOM_FOR_SELECTED_SESSION);
+      } else {
+        let adjustedLat: number;
+        if (latDiff >= 0 && latDiff < LAT_DIFF_SMALL) {
+          adjustedLat = sw.lat() - LAT_ADJUST_SMALL;
+        } else if (latDiff >= LAT_DIFF_SMALL && latDiff < LAT_DIFF_MEDIUM) {
+          adjustedLat = sw.lat() - latDiff * 2;
+        } else {
+          adjustedLat = sw.lat() - latDiff;
+        }
+
+        const adjustedBounds = new google.maps.LatLngBounds(
+          new google.maps.LatLng(adjustedLat, sw.lng()),
+          new google.maps.LatLng(ne.lat(), ne.lng())
+        );
+
+        map.fitBounds(adjustedBounds);
+
+        if (latDiff === 0) {
+          map.setZoom(ZOOM_FOR_SELECTED_SESSION);
+        }
+      }
+    },
+    [map]
+  );
+
   useEffect(() => {
     if (!map || !CustomOverlay) return;
 
@@ -147,31 +191,13 @@ const StreamMarkers = ({ sessions, unitSymbol }: Props) => {
     dispatch(setMarkersLoading(true));
     isInitialLoading.current = true;
 
-    // Calculate bounds to find center
     const bounds = new google.maps.LatLngBounds();
     sortedSessions.forEach((session) => {
       bounds.extend({ lat: session.point.lat, lng: session.point.lng });
     });
 
-    // Extend bounds to show more context around markers
-    const ne = bounds.getNorthEast();
-    const sw = bounds.getSouthWest();
-    const latPadding = (ne.lat() - sw.lat()) * 0.4;
-    const lngPadding = (ne.lng() - sw.lng()) * 0.4;
+    centerMapOnBounds(bounds);
 
-    bounds.extend({
-      lat: ne.lat() + latPadding * 0.1, // Minimal north padding
-      lng: ne.lng() + lngPadding,
-    });
-    bounds.extend({
-      lat: sw.lat() - latPadding * 2.5, // Much more south padding
-      lng: sw.lng() - lngPadding,
-    });
-
-    // Fit bounds with padding
-    map.fitBounds(bounds);
-
-    // After bounds are set, create markers
     const activeMarkerIds = new Set<string>();
 
     console.time("markers-update");
@@ -182,7 +208,6 @@ const StreamMarkers = ({ sessions, unitSymbol }: Props) => {
     });
     console.timeEnd("markers-update");
 
-    // Update polyline
     const path = sortedSessions.map((session) => ({
       lat: session.point.lat,
       lng: session.point.lng,
@@ -200,7 +225,6 @@ const StreamMarkers = ({ sessions, unitSymbol }: Props) => {
       });
     }
 
-    // Clean up unused markers
     markersRef.current.forEach((marker, markerId) => {
       if (!activeMarkerIds.has(markerId)) {
         marker.setMap(null);
@@ -217,14 +241,12 @@ const StreamMarkers = ({ sessions, unitSymbol }: Props) => {
     return () => {
       console.time("markers-cleanup");
 
-      // Clear all markers immediately
       markersRef.current.forEach((marker) => {
-        marker.setMap(null); // Remove from map first
-        marker.cleanup(); // Then cleanup DOM elements
+        marker.setMap(null);
+        marker.cleanup();
       });
       markersRef.current.clear();
 
-      // Clear polyline
       if (polylineRef.current) {
         polylineRef.current.setMap(null);
         polylineRef.current = null;
@@ -242,6 +264,7 @@ const StreamMarkers = ({ sessions, unitSymbol }: Props) => {
     handleIdle,
     createOrUpdateMarker,
     CustomOverlay,
+    centerMapOnBounds,
   ]);
 
   useEffect(() => {
