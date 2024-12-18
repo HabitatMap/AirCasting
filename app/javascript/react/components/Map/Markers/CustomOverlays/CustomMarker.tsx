@@ -21,6 +21,7 @@ export class CustomMarker extends google.maps.OverlayView {
   private paneName: keyof google.maps.MapPanes;
   private notes: Note[];
   private noteContainers: Map<string, Root> = new Map();
+  private notesPopover: HTMLDivElement | null = null;
 
   constructor(
     position: google.maps.LatLngLiteral,
@@ -262,28 +263,42 @@ export class CustomMarker extends google.maps.OverlayView {
     }, 0);
   }
 
+  clearNotes() {
+    // Clear all note containers in one batch
+    this.noteContainers.forEach((root) => {
+      root.unmount();
+    });
+    this.noteContainers.clear();
+
+    // Remove note elements
+    if (this.div) {
+      const noteElements = this.div.querySelectorAll("[data-note-container]");
+      noteElements.forEach((el) => el.remove());
+    }
+
+    if (this.notesPopover) {
+      this.notesPopover.remove();
+      this.notesPopover = null;
+    }
+  }
+
   cleanup() {
+    this.setMap(null);
+
+    // Batch cleanup operations
     if (this.div) {
       if (this.onClick) {
         this.div.removeEventListener("click", this.onClick);
       }
 
-      // Schedule unmount for next tick
-      setTimeout(() => {
-        this.noteContainers.forEach((root) => {
-          try {
-            root.unmount();
-          } catch (e) {
-            console.warn("Error unmounting note container:", e);
-          }
-        });
-        this.noteContainers.clear();
+      // Clear notes first
+      this.clearNotes();
 
-        if (this.div && this.div.parentNode) {
-          this.div.parentNode.removeChild(this.div);
-        }
-        this.div = null;
-      }, 0);
+      // Remove main div
+      if (this.div.parentNode) {
+        this.div.parentNode.removeChild(this.div);
+      }
+      this.div = null;
     }
   }
 }

@@ -21,7 +21,11 @@ import { CustomMarkerOverlay } from "./CustomOverlays/customMarkerOverlay";
 
 type Props = {
   sessions: MobileSession[];
-  onMarkerClick: (streamId: number | null, id: number | null) => void;
+  onMarkerClick: (
+    streamId: number | null,
+    id: number | null,
+    isSelected: boolean
+  ) => void;
   selectedStreamId: number | null;
   pulsatingSessionId: number | null;
 };
@@ -52,6 +56,12 @@ const MobileMarkers = ({
   const [selectedMarkerKey, setSelectedMarkerKey] = useState<string | null>(
     null
   );
+
+  const onMarkerClickRef = useRef(onMarkerClick);
+
+  useEffect(() => {
+    onMarkerClickRef.current = onMarkerClick;
+  }, [onMarkerClick]);
 
   const areMarkersTooClose = useCallback(
     (marker1: LatLngLiteral, marker2: LatLngLiteral) => {
@@ -134,8 +144,16 @@ const MobileMarkers = ({
         undefined,
         undefined,
         () => {
-          onMarkerClick(Number(session.point.streamId), Number(session.id));
-          centerMapOnMarker(session.point);
+          const isCurrentlySelected =
+            selectedStreamId === Number(session.point.streamId);
+          onMarkerClickRef.current(
+            isCurrentlySelected ? null : Number(session.point.streamId),
+            isCurrentlySelected ? null : Number(session.id),
+            !isCurrentlySelected
+          );
+          if (!isCurrentlySelected) {
+            centerMapOnMarker(session.point);
+          }
         }
       );
 
@@ -144,7 +162,13 @@ const MobileMarkers = ({
 
       return marker;
     },
-    [thresholds, pulsatingSessionId, onMarkerClick, centerMapOnMarker]
+    [
+      thresholds,
+      pulsatingSessionId,
+      onMarkerClick,
+      centerMapOnMarker,
+      selectedStreamId,
+    ]
   );
 
   const updateMarkers = useCallback(() => {
@@ -206,8 +230,15 @@ const MobileMarkers = ({
             unitSymbol,
             isSelected,
             () => {
-              onMarkerClick(Number(streamId), Number(session.id));
-              centerMapOnMarker(session.point);
+              const isCurrentlySelected = selectedStreamId === Number(streamId);
+              onMarkerClickRef.current(
+                isCurrentlySelected ? null : Number(streamId),
+                isCurrentlySelected ? null : Number(session.id),
+                !isCurrentlySelected
+              );
+              if (!isCurrentlySelected) {
+                centerMapOnMarker(session.point);
+              }
             }
           );
           labelOverlay.setMap(map);
@@ -312,6 +343,13 @@ const MobileMarkers = ({
       labelOverlays.current.clear();
     };
   }, []);
+
+  useEffect(() => {
+    if (selectedStreamId === null) {
+      setSelectedMarkerKey(null);
+      updateMarkers();
+    }
+  }, [selectedStreamId, updateMarkers]);
 
   return null;
 };
