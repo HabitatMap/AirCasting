@@ -85,7 +85,13 @@ class Session < ApplicationRecord
     if sensor_name.present?
       # this change in mysql->postgres affects performance, cause we need to compare lowercased strings
       # we can create a column with lowercased sensor_name and use it for comparison so its faster
-      sessions = sessions.joins(:streams).where('LOWER(streams.sensor_name) IN (?)', Sensor.sensor_name(sensor_name))
+      sessions =
+        sessions
+          .joins(:streams)
+          .where(
+            'LOWER(streams.sensor_name) IN (?)',
+            Sensor.sensor_name(sensor_name),
+          )
     end
 
     unit_symbol = data[:unit_symbol]
@@ -175,11 +181,25 @@ class Session < ApplicationRecord
     res = super(opts.merge(methods: methods))
 
     map_of_streams = {}
-    strs = sensor_id ? streams.includes(:threshold_set).where(sensor_name: sensor_id) : streams.includes(:threshold_set).all
+    strs =
+      if sensor_id
+        streams.includes(:threshold_set).where(sensor_name: sensor_id)
+      else
+        streams.includes(:threshold_set).all
+      end
 
     strs.each do |stream|
       stream_json = stream.as_json
-      thresholds_json = stream.threshold_set.as_json(only: [:threshold_very_low, :threshold_low, :threshold_medium, :threshold_high, :threshold_very_high])
+      thresholds_json =
+        stream.threshold_set.as_json(
+          only: %i[
+            threshold_very_low
+            threshold_low
+            threshold_medium
+            threshold_high
+            threshold_very_high
+          ],
+        )
 
       stream_json.merge!(thresholds_json)
 
@@ -192,9 +212,10 @@ class Session < ApplicationRecord
         else
           map_of_streams[stream.sensor_name] =
             stream_json.merge(
-              'measurements' => stream.measurements.as_json(
-                only: %i[time value latitude longitude]
-              )
+              'measurements' =>
+                stream.measurements.as_json(
+                  only: %i[time value latitude longitude],
+                ),
             )
         end
       else
@@ -224,12 +245,14 @@ class Session < ApplicationRecord
 
       (session_data[:streams] || []).each do |key, stream_data|
         if stream_data[:deleted]
-          streams
-            .where(
+          streams_to_destroy =
+            streams.where(
               sensor_package_name: stream_data[:sensor_package_name],
               sensor_name: stream_data[:sensor_name],
             )
-            .each(&:destroy)
+
+          streams_to_destroy.update_all(last_hourly_average: nil)
+          streams_to_destroy.each(&:destroy)
         end
       end
 
@@ -341,7 +364,7 @@ class Session < ApplicationRecord
       previousUserSettings: 'MAP_VIEW',
     }
 
-    query_string = encoded_params.map { |k, v| "#{k}=#{v}" }.join("&")
+    query_string = encoded_params.map { |k, v| "#{k}=#{v}" }.join('&')
 
     "#{Rails.application.routes.url_helpers.root_path}?#{query_string}"
   end
