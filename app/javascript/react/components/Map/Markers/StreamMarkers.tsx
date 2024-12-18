@@ -215,14 +215,25 @@ const StreamMarkers = ({ sessions, unitSymbol }: Props) => {
     console.timeEnd("markers-update-effect");
 
     return () => {
-      markersRef.current.forEach((marker) => marker.setMap(null));
+      console.time("markers-cleanup");
+
+      // Clear all markers immediately
+      markersRef.current.forEach((marker) => {
+        marker.setMap(null); // Remove from map first
+        marker.cleanup(); // Then cleanup DOM elements
+      });
       markersRef.current.clear();
+
+      // Clear polyline
       if (polylineRef.current) {
         polylineRef.current.setMap(null);
         polylineRef.current = null;
       }
+
       dispatch(setHoverPosition(null));
       google.maps.event.removeListener(idleListener);
+
+      console.timeEnd("markers-cleanup");
     };
   }, [
     map,
