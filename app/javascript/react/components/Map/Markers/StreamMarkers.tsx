@@ -33,7 +33,6 @@ const StreamMarkers = ({ sessions, unitSymbol }: Props) => {
   const thresholds = useSelector(selectThresholds);
   const polylineRef = useRef<google.maps.Polyline | null>(null);
   const hoverPosition = useSelector(selectHoverPosition);
-  const timeoutId = useRef<NodeJS.Timeout | null>(null);
   const [CustomOverlay, setCustomOverlay] = useState<
     typeof CustomMarker | null
   >(null);
@@ -80,10 +79,6 @@ const StreamMarkers = ({ sessions, unitSymbol }: Props) => {
 
   const handleIdle = useCallback(() => {
     dispatch(setMarkersLoading(false));
-    if (timeoutId.current) {
-      clearTimeout(timeoutId.current);
-      timeoutId.current = null;
-    }
   }, [dispatch]);
 
   const firstSessionWithNotes = useMemo(() => {
@@ -187,76 +182,71 @@ const StreamMarkers = ({ sessions, unitSymbol }: Props) => {
   useEffect(() => {
     if (!map || !CustomOverlay) return;
 
-    console.time("markers-update-effect");
     dispatch(setMarkersLoading(true));
     isInitialLoading.current = true;
 
-    const bounds = new google.maps.LatLngBounds();
-    sortedSessions.forEach((session) => {
-      bounds.extend({ lat: session.point.lat, lng: session.point.lng });
-    });
-
-    centerMapOnBounds(bounds);
-
-    const activeMarkerIds = new Set<string>();
-
-    console.time("markers-update");
-    sortedSessions.forEach((session) => {
-      const markerId = session.id.toString();
-      createOrUpdateMarker(session);
-      activeMarkerIds.add(markerId);
-    });
-    console.timeEnd("markers-update");
-
-    const path = sortedSessions.map((session) => ({
-      lat: session.point.lat,
-      lng: session.point.lng,
-    }));
-
-    if (polylineRef.current) {
-      polylineRef.current.setPath(path);
-    } else {
-      polylineRef.current = new google.maps.Polyline({
-        path,
-        map,
-        strokeColor: mobileStreamPath,
-        strokeOpacity: 0.7,
-        strokeWeight: 4,
+    if (sortedSessions.length > 0) {
+      const bounds = new google.maps.LatLngBounds();
+      sortedSessions.forEach((session) => {
+        bounds.extend({ lat: session.point.lat, lng: session.point.lng });
       });
+      centerMapOnBounds(bounds);
     }
 
-    markersRef.current.forEach((marker, markerId) => {
-      if (!activeMarkerIds.has(markerId)) {
-        marker.setMap(null);
-        markersRef.current.delete(markerId);
-      }
-    });
+    requestAnimationFrame(() => {
+      const activeMarkerIds = new Set<string>();
 
-    dispatch(setTotalMarkers(sortedSessions.length));
-    dispatch(setMarkersLoading(false));
-    isInitialLoading.current = false;
-    const idleListener = map.addListener("idle", handleIdle);
-    console.timeEnd("markers-update-effect");
-
-    return () => {
-      console.time("markers-cleanup");
-
-      markersRef.current.forEach((marker) => {
-        marker.setMap(null);
-        marker.cleanup();
+      sortedSessions.forEach((session) => {
+        const markerId = session.id.toString();
+        createOrUpdateMarker(session);
+        activeMarkerIds.add(markerId);
       });
-      markersRef.current.clear();
+
+      const path = sortedSessions.map((session) => ({
+        lat: session.point.lat,
+        lng: session.point.lng,
+      }));
 
       if (polylineRef.current) {
-        polylineRef.current.setMap(null);
-        polylineRef.current = null;
+        polylineRef.current.setPath(path);
+      } else {
+        polylineRef.current = new google.maps.Polyline({
+          path,
+          map,
+          strokeColor: mobileStreamPath,
+          strokeOpacity: 0.7,
+          strokeWeight: 4,
+        });
       }
 
-      dispatch(setHoverPosition(null));
-      google.maps.event.removeListener(idleListener);
+      markersRef.current.forEach((marker, markerId) => {
+        if (!activeMarkerIds.has(markerId)) {
+          marker.setMap(null);
+          markersRef.current.delete(markerId);
+        }
+      });
 
-      console.timeEnd("markers-cleanup");
-    };
+      dispatch(setTotalMarkers(sortedSessions.length));
+      dispatch(setMarkersLoading(false));
+      isInitialLoading.current = false;
+      const idleListener = map.addListener("idle", handleIdle);
+
+      return () => {
+        markersRef.current.forEach((marker) => {
+          marker.setMap(null);
+          marker.cleanup();
+        });
+        markersRef.current.clear();
+
+        if (polylineRef.current) {
+          polylineRef.current.setMap(null);
+          polylineRef.current = null;
+        }
+
+        dispatch(setHoverPosition(null));
+        google.maps.event.removeListener(idleListener);
+      };
+    });
   }, [
     map,
     sortedSessions,
