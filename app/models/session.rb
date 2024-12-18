@@ -251,7 +251,7 @@ class Session < ApplicationRecord
               sensor_name: stream_data[:sensor_name],
             )
 
-          streams_to_destroy.update_all(last_hourly_average: nil)
+          streams_to_destroy.update_all(last_hourly_average_id: nil)
           streams_to_destroy.each(&:destroy)
         end
       end

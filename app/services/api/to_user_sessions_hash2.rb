@@ -29,7 +29,7 @@ class Api::ToUserSessionsHash2
   def delete_sessions(sessions)
     sessions = Session.where(uuid: sessions.pluck(:uuid))
     streams = Stream.where(session: sessions)
-    streams.update_all(last_hourly_average: nil)
+    streams.update_all(last_hourly_average_id: nil)
     sessions.destroy_all
   end
 
