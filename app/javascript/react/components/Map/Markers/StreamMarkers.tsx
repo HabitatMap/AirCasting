@@ -156,8 +156,8 @@ const StreamMarkers = ({ sessions, unitSymbol }: Props) => {
     // Extend bounds to show more context around markers
     const ne = bounds.getNorthEast();
     const sw = bounds.getSouthWest();
-    const latPadding = (ne.lat() - sw.lat()) * 0.4; // Increased from 0.3 to 0.5 for more padding
-    const lngPadding = (ne.lng() - sw.lng()) * 0.4; // Increased from 0.3 to 0.5 for more padding
+    const latPadding = (ne.lat() - sw.lat()) * 0.4;
+    const lngPadding = (ne.lng() - sw.lng()) * 0.4;
 
     bounds.extend({
       lat: ne.lat() + latPadding * 0.1, // Minimal north padding
