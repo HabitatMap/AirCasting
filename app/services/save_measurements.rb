@@ -21,10 +21,13 @@ class SaveMeasurements
 
     persisted_streams_hash =
       persisted_streams.each_with_object({}) do |stream, acc|
-        acc[[stream.min_latitude.to_f, stream.min_longitude.to_f, stream.sensor_name]] = [
-          stream.session_id,
-          stream.id,
-        ]
+        acc[
+          [
+            stream.min_latitude.to_f,
+            stream.min_longitude.to_f,
+            stream.sensor_name,
+          ]
+        ] = [stream.session_id, stream.id]
       end
 
     pairs_to_append, pairs_to_create =
@@ -33,17 +36,19 @@ class SaveMeasurements
         rounded_longitude = stream.longitude.round(3)
         stream_sensor_name = stream.sensor_name
 
-        match_found = persisted_streams_hash.detect do |key, _|
-          persisted_latitude, persisted_longitude, persisted_sensor_name = key
-          match_condition = persisted_sensor_name == stream_sensor_name &&
-                            persisted_latitude.round(3) == rounded_latitude &&
-                            persisted_longitude.round(3) == rounded_longitude
-          if match_condition
-            stream.latitude = persisted_latitude
-            stream.longitude = persisted_longitude
+        match_found =
+          persisted_streams_hash.detect do |key, _|
+            persisted_latitude, persisted_longitude, persisted_sensor_name = key
+            match_condition =
+              persisted_sensor_name == stream_sensor_name &&
+                persisted_latitude.round(3) == rounded_latitude &&
+                persisted_longitude.round(3) == rounded_longitude
+            if match_condition
+              stream.latitude = persisted_latitude
+              stream.longitude = persisted_longitude
+            end
+            match_condition
           end
-          match_condition
-        end
 
         match_found.present?
       end
@@ -190,20 +195,23 @@ class SaveMeasurements
       pairs_to_create
         .each_with_object([])
         .with_index do |((stream, measurements), acc), i|
-
           measurements.each do |measurement|
             acc <<
               Measurement.new(
                 value: measurement.value,
                 latitude: measurement.latitude,
                 longitude: measurement.longitude,
-                location: factory.point(measurement.longitude.to_f, measurement.latitude.to_f),
+                location:
+                  factory.point(
+                    measurement.longitude.to_f,
+                    measurement.latitude.to_f,
+                  ),
                 time: measurement.time_local,
                 timezone_offset: nil,
                 milliseconds: 0,
                 measured_value: measurement.value,
                 stream_id: stream_ids[i],
-                time_with_time_zone: measurement.time_with_time_zone
+                time_with_time_zone: measurement.time_with_time_zone,
               )
           end
         end
@@ -225,7 +233,11 @@ class SaveMeasurements
                 value: measurement.value,
                 latitude: measurement.latitude,
                 longitude: measurement.longitude,
-                location: factory.point(measurement.longitude.to_f, measurement.latitude.to_f),
+                location:
+                  factory.point(
+                    measurement.longitude.to_f,
+                    measurement.latitude.to_f,
+                  ),
                 time: measurement.time_local,
                 timezone_offset: nil,
                 milliseconds: 0,
@@ -234,7 +246,7 @@ class SaveMeasurements
                   persisted_streams_hash[
                     [stream.latitude, stream.longitude, stream.sensor_name]
                   ].last,
-                time_with_time_zone: measurement.time_with_time_zone
+                time_with_time_zone: measurement.time_with_time_zone,
               )
           end
         end
