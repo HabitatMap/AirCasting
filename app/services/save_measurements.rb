@@ -1,6 +1,10 @@
 class SaveMeasurements
-  def initialize(user:)
+  def initialize(
+    user:,
+    hourly_averages_worker: UpdateHourlyAveragesForAirNowStreamsWorker
+  )
     @user = user
+    @hourly_averages_worker = hourly_averages_worker
   end
 
   def call(streams:)
@@ -9,7 +13,7 @@ class SaveMeasurements
 
   private
 
-  attr_reader :user
+  attr_reader :user, :hourly_averages_worker
 
   def save(streams)
     persisted_streams =
@@ -191,6 +195,7 @@ class SaveMeasurements
     stream_ids = ((last_id - new_streams.size + 1)..last_id).to_a
     factory = RGeo::Geographic.spherical_factory(srid: 4326)
 
+    created_measurement_ids = []
     measurements =
       pairs_to_create
         .each_with_object([])
@@ -216,6 +221,7 @@ class SaveMeasurements
           end
         end
     import = Measurement.import measurements
+    created_measurement_ids += import.ids
     if import.failed_instances.any?
       Rails
         .logger.warn "Measurement.import failed for: #{import.failed_instances.inspect}"
@@ -251,9 +257,16 @@ class SaveMeasurements
           end
         end
     import = Measurement.import measurements
+    created_measurement_ids += import.ids
     if import.failed_instances.any?
       Rails
         .logger.warn "Measurement.import failed for: #{import.failed_instances.inspect}"
     end
+
+    update_stream_hourly_averages(created_measurement_ids)
+  end
+
+  def update_stream_hourly_averages(measurement_ids)
+    hourly_averages_worker.set(queue: :slow).perform_async(measurement_ids)
   end
 end
