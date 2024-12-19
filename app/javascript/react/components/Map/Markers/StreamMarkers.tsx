@@ -10,7 +10,7 @@ import { useSelector } from "react-redux";
 
 import { mobileStreamPath } from "../../../assets/styles/colors";
 import { useAppDispatch } from "../../../store/hooks";
-import { selectHoverPosition } from "../../../store/mapSlice";
+import { selectHoverPosition, setHoverPosition } from "../../../store/mapSlice";
 import {
   setMarkersLoading,
   setTotalMarkers,
@@ -33,10 +33,15 @@ const StreamMarkers = ({ sessions, unitSymbol }: Props) => {
   const thresholds = useSelector(selectThresholds);
   const polylineRef = useRef<google.maps.Polyline | null>(null);
   const hoverPosition = useSelector(selectHoverPosition);
-  const timeoutId = useRef<NodeJS.Timeout | null>(null);
   const [CustomOverlay, setCustomOverlay] = useState<
     typeof CustomMarker | null
   >(null);
+  const isInitialLoading = useRef(true);
+
+  const ZOOM_FOR_SELECTED_SESSION = 16;
+  const LAT_DIFF_SMALL = 0.00001;
+  const LAT_DIFF_MEDIUM = 0.0001;
+  const LAT_ADJUST_SMALL = 0.005;
 
   const sortedSessions = useMemo(() => {
     const validSessions = sessions.filter(
@@ -62,19 +67,16 @@ const StreamMarkers = ({ sessions, unitSymbol }: Props) => {
       }
     });
 
-    return Array.from(locationMap.values()).sort((a, b) => {
+    const sorted = Array.from(locationMap.values()).sort((a, b) => {
       const timeA = a.time ? new Date(a.time.toString()).getTime() : 0;
       const timeB = b.time ? new Date(b.time.toString()).getTime() : 0;
       return timeA - timeB;
     });
+    return sorted;
   }, [sessions]);
 
   const handleIdle = useCallback(() => {
     dispatch(setMarkersLoading(false));
-    if (timeoutId.current) {
-      clearTimeout(timeoutId.current);
-      timeoutId.current = null;
-    }
   }, [dispatch]);
 
   const firstSessionWithNotes = useMemo(() => {
@@ -87,8 +89,8 @@ const StreamMarkers = ({ sessions, unitSymbol }: Props) => {
     (session: MobileSession) => {
       if (!CustomOverlay) return;
 
-      const position = { lat: session.point.lat, lng: session.point.lng };
       const markerId = session.id.toString();
+      const position = { lat: session.point.lat, lng: session.point.lng };
       const title = `${session.lastMeasurementValue} ${unitSymbol}`;
 
       const shouldShowNotes =
@@ -113,18 +115,21 @@ const StreamMarkers = ({ sessions, unitSymbol }: Props) => {
           "overlayMouseTarget",
           notes
         );
-
         marker.setMap(map);
         markersRef.current.set(markerId, marker);
       } else {
         marker.setPosition(position);
         marker.setTitle(title);
         marker.setNotes(notes);
+
+        if (marker.getMap() !== map) {
+          marker.setMap(map);
+        }
       }
 
       return marker;
     },
-    [map, unitSymbol, CustomOverlay, firstSessionWithNotes]
+    [map, unitSymbol, CustomOverlay, firstSessionWithNotes, thresholds]
   );
 
   useEffect(() => {
@@ -133,53 +138,53 @@ const StreamMarkers = ({ sessions, unitSymbol }: Props) => {
     }
   }, [CustomOverlay]);
 
+  const centerMapOnBounds = useCallback(
+    (bounds: google.maps.LatLngBounds) => {
+      if (!map) return;
+
+      const ne = bounds.getNorthEast();
+      const sw = bounds.getSouthWest();
+      const latDiff = ne.lat() - sw.lat();
+      const lngDiff = ne.lng() - sw.lng();
+
+      if (latDiff < LAT_DIFF_SMALL && lngDiff < LAT_DIFF_SMALL) {
+        const centerLat = (ne.lat() + sw.lat()) / 2;
+        const centerLng = (ne.lng() + sw.lng()) / 2;
+        map.setCenter({ lat: centerLat, lng: centerLng });
+        map.setZoom(ZOOM_FOR_SELECTED_SESSION);
+      } else {
+        let adjustedLat: number;
+        if (latDiff >= 0 && latDiff < LAT_DIFF_SMALL) {
+          adjustedLat = sw.lat() - LAT_ADJUST_SMALL;
+        } else if (latDiff >= LAT_DIFF_SMALL && latDiff < LAT_DIFF_MEDIUM) {
+          adjustedLat = sw.lat() - latDiff * 2;
+        } else {
+          adjustedLat = sw.lat() - latDiff;
+        }
+
+        const adjustedBounds = new google.maps.LatLngBounds(
+          new google.maps.LatLng(adjustedLat, sw.lng()),
+          new google.maps.LatLng(ne.lat(), ne.lng())
+        );
+
+        map.fitBounds(adjustedBounds);
+
+        if (latDiff === 0) {
+          map.setZoom(ZOOM_FOR_SELECTED_SESSION);
+        }
+      }
+    },
+    [map]
+  );
+
   useEffect(() => {
     if (!map || !CustomOverlay) return;
 
-    dispatch(setMarkersLoading(true));
-    dispatch(setTotalMarkers(sortedSessions.length));
-
-    const path = sortedSessions.map((session) => ({
-      lat: session.point.lat,
-      lng: session.point.lng,
-    }));
-
-    if (polylineRef.current) {
-      polylineRef.current.setPath(path);
-    } else {
-      polylineRef.current = new google.maps.Polyline({
-        path: path,
-        map,
-        strokeColor: mobileStreamPath,
-        strokeOpacity: 0.7,
-        strokeWeight: 4,
-      });
-    }
-
-    const currentMarkerIds = new Set<string>();
-
-    sortedSessions.forEach((session) => {
-      const markerId = session.id.toString();
-      createOrUpdateMarker(session);
-      currentMarkerIds.add(markerId);
-    });
-
-    markersRef.current.forEach((marker, markerId) => {
-      if (!currentMarkerIds.has(markerId)) {
-        marker.setMap(null);
-        markersRef.current.delete(markerId);
-      }
-    });
-
-    const idleListener = map.addListener("idle", handleIdle);
-
-    timeoutId.current = setTimeout(() => {
-      dispatch(setMarkersLoading(false));
-    }, 10000);
-
-    return () => {
+    // Clean up existing markers and polyline first
+    const cleanup = () => {
       markersRef.current.forEach((marker) => {
         marker.setMap(null);
+        marker.cleanup();
       });
       markersRef.current.clear();
 
@@ -187,20 +192,79 @@ const StreamMarkers = ({ sessions, unitSymbol }: Props) => {
         polylineRef.current.setMap(null);
         polylineRef.current = null;
       }
-
-      google.maps.event.removeListener(idleListener);
-      if (timeoutId.current) {
-        clearTimeout(timeoutId.current);
-        timeoutId.current = null;
-      }
     };
+
+    // Always clean up before setting new markers
+    cleanup();
+
+    dispatch(setMarkersLoading(true));
+    isInitialLoading.current = true;
+
+    if (sessions.length === 0) {
+      dispatch(setMarkersLoading(false));
+      return cleanup; // Return cleanup function for useEffect
+    }
+
+    if (sortedSessions.length > 0) {
+      const bounds = new google.maps.LatLngBounds();
+      sortedSessions.forEach((session) => {
+        bounds.extend({ lat: session.point.lat, lng: session.point.lng });
+      });
+      centerMapOnBounds(bounds);
+    }
+
+    requestAnimationFrame(() => {
+      const activeMarkerIds = new Set<string>();
+
+      sortedSessions.forEach((session) => {
+        const markerId = session.id.toString();
+        createOrUpdateMarker(session);
+        activeMarkerIds.add(markerId);
+      });
+
+      const path = sortedSessions.map((session) => ({
+        lat: session.point.lat,
+        lng: session.point.lng,
+      }));
+
+      if (polylineRef.current) {
+        polylineRef.current.setPath(path);
+      } else {
+        polylineRef.current = new google.maps.Polyline({
+          path,
+          map,
+          strokeColor: mobileStreamPath,
+          strokeOpacity: 0.7,
+          strokeWeight: 4,
+        });
+      }
+
+      markersRef.current.forEach((marker, markerId) => {
+        if (!activeMarkerIds.has(markerId)) {
+          marker.setMap(null);
+          markersRef.current.delete(markerId);
+        }
+      });
+
+      dispatch(setTotalMarkers(sortedSessions.length));
+      dispatch(setMarkersLoading(false));
+      isInitialLoading.current = false;
+      const idleListener = map.addListener("idle", handleIdle);
+
+      dispatch(setHoverPosition(null));
+    });
+
+    // Return cleanup function
+    return cleanup;
   }, [
     map,
     sortedSessions,
+    sessions,
     dispatch,
     handleIdle,
     createOrUpdateMarker,
     CustomOverlay,
+    centerMapOnBounds,
   ]);
 
   useEffect(() => {
@@ -216,7 +280,9 @@ const StreamMarkers = ({ sessions, unitSymbol }: Props) => {
     });
   }, [thresholds, sortedSessions]);
 
-  return hoverPosition ? <HoverMarker position={hoverPosition} /> : null;
+  return !isInitialLoading.current && hoverPosition ? (
+    <HoverMarker position={hoverPosition} />
+  ) : null;
 };
 
 export { StreamMarkers };

@@ -9,7 +9,7 @@ interface MapState {
   fetchingData: boolean;
   hoverStreamId: number | null;
   mapId: string;
-  position: LatLngLiteral;
+  position: LatLngLiteral | null;
   sessionsListExpanded: boolean;
 }
 
@@ -31,7 +31,7 @@ const mapSlice = createSlice({
     setHoverStreamId(state, action: PayloadAction<number | null>) {
       state.hoverStreamId = action.payload;
     },
-    setHoverPosition(state, action: PayloadAction<LatLngLiteral>) {
+    setHoverPosition(state, action: PayloadAction<LatLngLiteral | null>) {
       state.position = action.payload;
     },
     setMapId(state, action: PayloadAction<string>) {
