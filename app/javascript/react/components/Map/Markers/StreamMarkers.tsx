@@ -44,7 +44,6 @@ const StreamMarkers = ({ sessions, unitSymbol }: Props) => {
   const LAT_ADJUST_SMALL = 0.005;
 
   const sortedSessions = useMemo(() => {
-    console.time("sortedSessions calculation");
     const validSessions = sessions.filter(
       (session) =>
         session.point &&
@@ -73,7 +72,6 @@ const StreamMarkers = ({ sessions, unitSymbol }: Props) => {
       const timeB = b.time ? new Date(b.time.toString()).getTime() : 0;
       return timeA - timeB;
     });
-    console.timeEnd("sortedSessions calculation");
     return sorted;
   }, [sessions]);
 
