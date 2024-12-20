@@ -1,95 +1,35 @@
-import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { AxiosResponse } from "axios";
-import { oldApiClient } from "../api/apiClient";
-import { API_ENDPOINTS } from "../api/apiEndpoints";
-import { ApiError } from "../types/api";
-import { getErrorMessage } from "../utils/getErrorMessage";
-import { logError } from "../utils/logController";
-
-interface ClusterData {
-  average: number;
-  numberOfContributors: number;
-  numberOfSamples: number;
-  numberOfInstruments: number;
-}
+import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
 interface ClusterState {
-  data: ClusterData | null;
+  clusterAverage: number | null;
+  clusterSize: number | null;
   loading: boolean;
-  error: ApiError | null;
   visible: boolean;
 }
 
 const initialState: ClusterState = {
-  data: null,
+  clusterAverage: null,
+  clusterSize: null,
   loading: false,
-  error: null,
   visible: false,
 };
-
-export const fetchClusterData = createAsyncThunk<
-  ClusterData,
-  string[],
-  { rejectValue: ApiError }
->("cluster/fetchClusterData", async (streamIds, { rejectWithValue }) => {
-  try {
-    const response: AxiosResponse<ClusterData> = await oldApiClient.get(
-      API_ENDPOINTS.fetchClusterData(streamIds)
-    );
-    return response.data;
-  } catch (error) {
-    const errorMessage = getErrorMessage(error);
-
-    const apiError: ApiError = {
-      message: errorMessage,
-      additionalInfo: {
-        action: "fetchClusterData",
-        endpoint: API_ENDPOINTS.fetchClusterData(streamIds),
-      },
-    };
-
-    logError(error, apiError);
-
-    return rejectWithValue(apiError);
-  }
-});
 
 const clusterSlice = createSlice({
   name: "cluster",
   initialState,
   reducers: {
+    setAverage: (state, action: PayloadAction<number>) => {
+      state.clusterAverage = action.payload;
+    },
+    setSize: (state, action: PayloadAction<number>) => {
+      state.clusterSize = action.payload;
+    },
     setVisibility: (state, action: PayloadAction<boolean>) => {
       state.visible = action.payload;
     },
   },
-  extraReducers: (builder) => {
-    builder
-      .addCase(fetchClusterData.pending, (state) => {
-        state.loading = true;
-        state.error = null;
-        state.visible = true;
-      })
-      .addCase(
-        fetchClusterData.fulfilled,
-        (state, action: PayloadAction<ClusterData>) => {
-          state.data = action.payload;
-          state.loading = false;
-          state.visible = true;
-        }
-      )
-      .addCase(
-        fetchClusterData.rejected,
-        (state, action: PayloadAction<ApiError | undefined>) => {
-          state.error = action.payload || {
-            message: "An unknown error occurred",
-          };
-          state.loading = false;
-          state.visible = false;
-        }
-      );
-  },
 });
 
-export const { setVisibility } = clusterSlice.actions;
+export const { setAverage, setSize, setVisibility } = clusterSlice.actions;
 
 export default clusterSlice.reducer;
