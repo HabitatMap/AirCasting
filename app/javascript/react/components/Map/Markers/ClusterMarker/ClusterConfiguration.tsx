@@ -1,7 +1,7 @@
 import { Cluster } from "@googlemaps/markerclusterer";
-import { useDispatch } from "react-redux";
 import { green, orange, red, yellow } from "../../../../assets/styles/colors";
 import { setAverage } from "../../../../store/clusterSlice";
+import { useAppDispatch } from "../../../../store/hooks";
 import { CustomMarker } from "../../../../types/googleMaps";
 import { Thresholds } from "../../../../types/thresholds";
 import { calculateClusterAverage } from "./clusterCalculations";
@@ -22,7 +22,7 @@ export const createFixedMarkersRenderer = ({
   updateClusterStyle,
   clusterElementsRef,
 }: RendererParams) => {
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
 
   return {
     render: (cluster: Cluster) => {
