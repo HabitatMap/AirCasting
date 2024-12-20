@@ -1,5 +1,6 @@
 import { configureStore } from "@reduxjs/toolkit";
 
+import calendarReducer from "./calendarSlice";
 import clusterReducer from "./clusterSlice";
 import crowdMapReducer from "./crowdMapSlice";
 import sessionReducer from "./exportSessionSlice";
@@ -38,6 +39,7 @@ const store = configureStore({
     sessionFilter: sessionFilterReducer,
     threshold: thresholdReducer,
     timelapse: timelapseReducer,
+    calendar: calendarReducer,
   },
 });
 

@@ -4,6 +4,7 @@ import NoDataToDisplay from "highcharts/modules/no-data-to-display";
 import React, { useCallback, useEffect, useMemo, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import { white } from "../../assets/styles/colors";
+import { selectSelectedDate } from "../../store/calendarSlice";
 import { selectFixedStreamShortInfo } from "../../store/fixedStreamSelectors";
 import {
   Measurement,
@@ -35,6 +36,7 @@ import {
   mapIndexToTimeRange,
 } from "../../utils/getTimeRange";
 import { useMapParams } from "../../utils/mapParamsHandler";
+import { MILLISECONDS_IN_A_DAY } from "../../utils/timeRanges";
 import useMobileDetection from "../../utils/useScreenSizeDetection";
 import { handleLoad } from "./chartEvents";
 import {
@@ -100,29 +102,47 @@ const Graph: React.FC<GraphProps> = React.memo(
       ? fixedLastSelectedTimeRange
       : mobileLastSelectedTimeRange || MobileTimeRange.All;
 
-    const startTime = useMemo(
-      () =>
-        fixedSessionTypeSelected
-          ? parseDateString(fixedStreamShortInfo.startTime)
-          : parseDateString(mobileStreamShortInfo.startTime),
-      [
-        mobileStreamShortInfo.startTime,
-        fixedStreamShortInfo.firstMeasurementTime,
-        fixedSessionTypeSelected,
-      ]
+    const selectedDate = useAppSelector(selectSelectedDate);
+    console.log(
+      "selectedDate",
+      selectedDate ? new Date(selectedDate).toISOString() : selectedDate
+    );
+    const startTime = useMemo(() => {
+      if (selectedDate) {
+        return selectedDate;
+      }
+      return fixedSessionTypeSelected
+        ? parseDateString(fixedStreamShortInfo.startTime)
+        : parseDateString(mobileStreamShortInfo.startTime);
+    }, [
+      selectedDate,
+      mobileStreamShortInfo.startTime,
+      fixedStreamShortInfo.firstMeasurementTime,
+      fixedSessionTypeSelected,
+    ]);
+
+    console.log(
+      "startTime",
+      startTime ? new Date(startTime).toISOString() : startTime
     );
 
-    const endTime = useMemo(
-      () =>
-        fixedSessionTypeSelected
-          ? fixedStreamShortInfo.endTime
-            ? parseDateString(fixedStreamShortInfo.endTime)
-            : Date.now()
-          : mobileStreamShortInfo.endTime
-          ? parseDateString(mobileStreamShortInfo.endTime)
-          : Date.now(),
-      [mobileStreamShortInfo.endTime, fixedStreamShortInfo.endTime]
-    );
+    const endTime = useMemo(() => {
+      if (selectedDate) {
+        return selectedDate + MILLISECONDS_IN_A_DAY;
+      }
+      return fixedSessionTypeSelected
+        ? fixedStreamShortInfo.endTime
+          ? parseDateString(fixedStreamShortInfo.endTime)
+          : Date.now()
+        : mobileStreamShortInfo.endTime
+        ? parseDateString(mobileStreamShortInfo.endTime)
+        : Date.now();
+    }, [
+      selectedDate,
+      mobileStreamShortInfo.endTime,
+      fixedStreamShortInfo.endTime,
+    ]);
+    console.log("endTime", endTime ? new Date(endTime).toISOString() : endTime);
 
     const isIndoorParameterInUrl = isIndoor === "true";
 
@@ -132,7 +152,12 @@ const Graph: React.FC<GraphProps> = React.memo(
             (fixedGraphData?.measurements as Measurement[]) || []
           )
         : createMobileSeriesData(mobileGraphData, true);
-    }, [fixedSessionTypeSelected, fixedGraphData, mobileGraphData]);
+    }, [
+      fixedSessionTypeSelected,
+      fixedGraphData,
+      mobileGraphData,
+      selectedDate,
+    ]);
 
     const totalDuration = useMemo(
       () => endTime - startTime,
@@ -142,6 +167,13 @@ const Graph: React.FC<GraphProps> = React.memo(
     let chartData: GraphData = seriesData as GraphData;
 
     const { fetchMeasurementsIfNeeded } = useMeasurementsFetcher(streamId);
+
+    useEffect(() => {
+      if (startTime && streamId) {
+        // Fetch data for one day period
+        fetchMeasurementsIfNeeded(startTime, endTime);
+      }
+    }, [startTime, streamId, fetchMeasurementsIfNeeded]);
 
     useChartUpdater({
       chartComponentRef,
@@ -214,7 +246,8 @@ const Graph: React.FC<GraphProps> = React.memo(
           fixedSessionTypeSelected,
           dispatch,
           isLoading,
-          fetchMeasurementsIfNeeded
+          fetchMeasurementsIfNeeded,
+          selectedDate
         ),
       [
         isMobile,
@@ -223,8 +256,11 @@ const Graph: React.FC<GraphProps> = React.memo(
         dispatch,
         isLoading,
         fetchMeasurementsIfNeeded,
+        selectedDate,
       ]
     );
+
+    console.log("xAxisOptions", xAxisOptions);
 
     const scrollbarOptions = useMemo(
       () => ({
@@ -339,6 +375,7 @@ const Graph: React.FC<GraphProps> = React.memo(
         handleChartLoad,
         lastSelectedTimeRange,
         dispatch,
+        startTime,
       ]
     );
 

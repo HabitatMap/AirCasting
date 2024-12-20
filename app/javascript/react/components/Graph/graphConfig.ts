@@ -72,15 +72,21 @@ const getXAxisOptions = (
   fixedSessionTypeSelected: boolean,
   dispatch: AppDispatch,
   isLoading: boolean,
-  fetchMeasurementsIfNeeded: (start: number, end: number) => Promise<void>
+  fetchMeasurementsIfNeeded: (start: number, end: number) => Promise<void>,
+  selectedDate: number | null
 ): Highcharts.XAxisOptions => {
   let isFetchingData = false;
   let initialDataMin: number | null = null;
   let fetchTimeout: NodeJS.Timeout | null = null;
 
   const handleSetExtremes = debounce(
-    (e: Highcharts.AxisSetExtremesEventObject) => {
-      if (!isLoading && e.min !== undefined && e.max !== undefined) {
+    (e: Highcharts.AxisSetExtremesEventObject, selectedDate: number | null) => {
+      if (
+        !isLoading &&
+        e.min !== undefined &&
+        e.max !== undefined &&
+        selectedDate === null
+      ) {
         dispatch(
           fixedSessionTypeSelected
             ? updateFixedMeasurementExtremes({ min: e.min, max: e.max })
@@ -105,6 +111,38 @@ const getXAxisOptions = (
               <span class="time">${formattedMaxTime.time ?? ""}</span>
             </div>
           `;
+        }
+      } else {
+        if (!isLoading && selectedDate !== null) {
+          dispatch(
+            fixedSessionTypeSelected
+              ? updateFixedMeasurementExtremes({
+                  min: selectedDate,
+                  max: selectedDate + MILLISECONDS_IN_A_DAY,
+                })
+              : updateMobileMeasurementExtremes({
+                  min: selectedDate,
+                  max: selectedDate + MILLISECONDS_IN_A_DAY,
+                })
+          );
+          const { formattedMinTime, formattedMaxTime } = formatTimeExtremes(
+            selectedDate,
+            selectedDate + MILLISECONDS_IN_A_DAY
+          );
+
+          if (rangeDisplayRef?.current) {
+            rangeDisplayRef.current.innerHTML = `
+              <div class="time-container">
+                <span class="date">${formattedMinTime.date ?? ""}</span>
+                <span class="time">${formattedMinTime.time ?? ""}</span>
+              </div>
+              <span>-</span>
+              <div class="time-container">
+                <span class="date">${formattedMaxTime.date ?? ""}</span>
+                <span class="time">${formattedMaxTime.time ?? ""}</span>
+              </div>
+            `;
+          }
         }
       }
     },
@@ -144,7 +182,7 @@ const getXAxisOptions = (
         const chart = axis.chart as Highcharts.StockChart;
         const sensorName = chart.series[0]?.name;
 
-        handleSetExtremes(e);
+        handleSetExtremes(e, selectedDate);
 
         if (!fixedSessionTypeSelected) return;
 
