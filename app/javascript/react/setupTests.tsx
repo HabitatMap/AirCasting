@@ -3,6 +3,10 @@ import React from "react";
 import { Provider } from "react-redux";
 import { createMemoryRouter, RouterProvider } from "react-router-dom";
 import store from "./store/index";
+import { initGoogleMapsMocks } from "./test/mocks/mockGoogleMapsInit";
+
+// Initialize google maps mock before any tests
+initGoogleMapsMocks();
 
 export const testRenderer = (
   children: React.ReactNode,

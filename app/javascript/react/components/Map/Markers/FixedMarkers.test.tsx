@@ -1,3 +1,4 @@
+import { act } from "@testing-library/react";
 import React from "react";
 import { testRenderer } from "../../../setupTests";
 import { FixedSession } from "../../../types/sessionType";
@@ -8,19 +9,80 @@ jest.mock("@vis.gl/react-google-maps", () => ({
   useMap: () => ({
     panTo: jest.fn(),
     setZoom: jest.fn(),
+    getZoom: jest.fn(() => 14),
+    addListener: jest.fn(),
+    removeListener: jest.fn(),
+    getBounds: jest.fn(),
+    fitBounds: jest.fn(),
+    panToBounds: jest.fn(),
+    controls: [],
+    data: jest.fn(),
+    getCenter: jest.fn(),
+    setMap: jest.fn(),
   }),
 }));
 
 // Mock the store hooks
 jest.mock("../../../store/hooks", () => ({
   useAppDispatch: () => jest.fn(),
-  useAppSelector: jest.fn(),
+  useAppSelector: jest.fn((selector) => ({
+    cluster: { visible: false, clusterAverage: 0, clusterSize: 0 },
+    thresholds: { low: 0, middle: 50, high: 100 },
+    map: { hoverStreamId: null },
+  })),
 }));
 
 // Mock the selectors
 jest.mock("../../../store/fixedStreamSelectors", () => ({
   selectFixedStreamData: jest.fn(),
   selectFixedStreamStatus: jest.fn(),
+}));
+
+// Add this mock
+jest.mock("../../../utils/mapParamsHandler", () => ({
+  useMapParams: () => ({
+    unitSymbol: "µg/m³",
+    currentUserSettings: "map",
+    min: 0,
+    max: 100,
+  }),
+}));
+
+// At the top level, create a shared mock
+const mockClusterer = {
+  addMarker: jest.fn(),
+  removeMarker: jest.fn(),
+  clearMarkers: jest.fn(),
+  render: jest.fn(),
+  addListener: jest.fn(),
+  removeMarkers: jest.fn(),
+  addMarkers: jest.fn(),
+  setMap: jest.fn(),
+  getMap: jest.fn(),
+  onAdd: jest.fn(),
+  onRemove: jest.fn(),
+  markers: [],
+};
+
+// Update MarkerClusterer mock
+jest.mock("@googlemaps/markerclusterer", () => ({
+  MarkerClusterer: jest.fn().mockImplementation((map, markers) => {
+    if (markers) {
+      mockClusterer.addMarkers(markers);
+    }
+    return mockClusterer;
+  }),
+  GridAlgorithm: jest.fn().mockImplementation(() => ({
+    calculate: jest.fn().mockReturnValue([]),
+  })),
+}));
+
+// Add this mock before describe block
+jest.mock("../../../utils/mapEventListeners", () => ({
+  __esModule: true,
+  default: () => ({
+    clearListeners: jest.fn(),
+  }),
 }));
 
 describe("FixedMarkers", () => {
@@ -58,18 +120,30 @@ describe("FixedMarkers", () => {
     );
   });
 
-  it("creates markers for each session", () => {
-    const { container } = testRenderer(
-      <FixedMarkers
-        sessions={mockSessions}
-        onMarkerClick={mockOnMarkerClick}
-        selectedStreamId={null}
-        pulsatingSessionId={null}
-      />
-    );
+  it("creates markers for each session", async () => {
+    await act(async () => {
+      testRenderer(
+        <FixedMarkers
+          sessions={mockSessions}
+          onMarkerClick={mockOnMarkerClick}
+          selectedStreamId={null}
+          pulsatingSessionId={null}
+        />
+      );
+    });
 
-    // Check if markers are created (this is a basic check, as the actual markers might not be in the DOM)
-    expect(container.innerHTML).not.toBe("");
+    expect(mockClusterer.addMarkers).toHaveBeenCalled();
+
+    // Get the last call to addMarkers
+    const lastCall =
+      mockClusterer.addMarkers.mock.calls[
+        mockClusterer.addMarkers.mock.calls.length - 1
+      ];
+    if (lastCall && lastCall[0]) {
+      expect(lastCall[0].length).toBe(mockSessions.length);
+    } else {
+      fail("Last addMarkers call did not contain markers array");
+    }
   });
 
   // Add more tests here for other functionalities
