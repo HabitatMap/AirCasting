@@ -121,7 +121,7 @@ const getFullWeeksOfThreeLatestMonths = (
 const selectMovingCalendarData = (
   state: RootState
 ): MovingStreamDailyAverage[] => {
-  return state.movingCalendarStream.data;
+  return state.calendar.data;
 };
 
 const selectThreeMonthsDailyAverage = createSelector(
@@ -149,4 +149,10 @@ const selectMovingCalendarMinMax = createSelector(
   }
 );
 
-export { selectMovingCalendarMinMax, selectThreeMonthsDailyAverage };
+const selectSelectedDate = (state: RootState) => state.calendar.selectedDate;
+
+export {
+  selectMovingCalendarMinMax,
+  selectSelectedDate,
+  selectThreeMonthsDailyAverage,
+};

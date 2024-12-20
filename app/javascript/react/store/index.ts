@@ -12,7 +12,6 @@ import mapReducer from "./mapSlice";
 import markersLoadingReducer from "./markersLoadingSlice";
 import mobileSessionsReducer from "./mobileSessionsSlice";
 import mobileStreamReducer from "./mobileStreamSlice";
-import movingStreamReducer from "./movingCalendarStreamSlice";
 import realtimeMapUpdatesReducer from "./realtimeMapUpdatesSlice";
 import rectangleReducer from "./rectangleSlice";
 import sensorsReducer from "./sensorsSlice";
@@ -31,7 +30,6 @@ const store = configureStore({
     markersLoading: markersLoadingReducer,
     mobileSessions: mobileSessionsReducer,
     mobileStream: mobileStreamReducer,
-    movingCalendarStream: movingStreamReducer,
     realtimeMapUpdates: realtimeMapUpdatesReducer,
     rectangle: rectangleReducer,
     sensors: sensorsReducer,

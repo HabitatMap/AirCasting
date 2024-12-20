@@ -14,6 +14,7 @@ import { ResetButton } from "../../components/ThresholdConfigurator/ThresholdBut
 import { ThresholdButtonVariant } from "../../components/ThresholdConfigurator/ThresholdButtons/ThresholdButton";
 import { UniformDistributionButton } from "../../components/ThresholdConfigurator/ThresholdButtons/UniformDistributionButton";
 
+import { calendarData, fetchNewMovingStream } from "../../store/calendarSlice";
 import { selectFixedStreamShortInfo } from "../../store/fixedStreamSelectors";
 import {
   fetchFixedStreamById,
@@ -21,10 +22,6 @@ import {
   selectIsLoading,
 } from "../../store/fixedStreamSlice";
 import { useAppDispatch, useAppSelector } from "../../store/hooks";
-import {
-  fetchNewMovingStream,
-  movingData,
-} from "../../store/movingCalendarStreamSlice";
 import { setDefaultThresholdsValues } from "../../store/thresholdSlice";
 
 import { SessionTypes } from "../../types/filters";
@@ -48,7 +45,7 @@ const CalendarPage: React.FC<CalendarPageProps> = ({ children }) => {
   const { unitSymbol, streamId } = useMapParams();
 
   const fixedStreamData = useAppSelector(selectFixedData);
-  const movingCalendarData = useAppSelector(movingData);
+  const movingCalendarData = useAppSelector(calendarData);
   const { startTime, endTime } = useAppSelector(selectFixedStreamShortInfo);
   const isLoading = useAppSelector(selectIsLoading);
 

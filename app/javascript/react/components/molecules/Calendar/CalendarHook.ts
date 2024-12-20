@@ -2,11 +2,11 @@ import moment, { Moment } from "moment";
 import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 
-import { useAppDispatch } from "../../../store/hooks";
 import {
+  calendarData,
   fetchNewMovingStream,
-  movingData,
-} from "../../../store/movingCalendarStreamSlice";
+} from "../../../store/calendarSlice";
+import { useAppDispatch } from "../../../store/hooks";
 import { selectThreeMonthsDailyAverage } from "../../../store/movingStreamSelectors";
 import { DateFormat } from "../../../types/dateFormat";
 import { MovesKeys } from "../../../types/movesKeys";
@@ -45,7 +45,7 @@ const useCalendarHook = ({
 
   const dispatch = useAppDispatch();
   const threeMonthsData = useSelector(selectThreeMonthsDailyAverage);
-  const movingCalendarData = useSelector(movingData);
+  const movingCalendarData = useSelector(calendarData);
   const [isRightButtonDisabled, setIsRightButtonDisabled] =
     useState<boolean>(false);
   const [isLeftButtonDisabled, setIsLeftButtonDisabled] =

@@ -2,8 +2,8 @@ import { useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 
 import { urls } from "../const/urls";
+import { resetMovingStreamData } from "../store/calendarSlice";
 import { useAppDispatch } from "../store/hooks";
-import { resetMovingStreamData } from "../store/movingCalendarStreamSlice";
 import { UserSettings } from "../types/userStates";
 import { UrlParamsTypes, useMapParams } from "../utils/mapParamsHandler";
 import useMobileDetection from "../utils/useScreenSizeDetection";

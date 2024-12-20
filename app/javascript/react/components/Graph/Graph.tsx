@@ -4,7 +4,6 @@ import NoDataToDisplay from "highcharts/modules/no-data-to-display";
 import React, { useCallback, useEffect, useMemo, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import { white } from "../../assets/styles/colors";
-import { selectSelectedDate } from "../../store/calendarSlice";
 import { selectFixedStreamShortInfo } from "../../store/fixedStreamSelectors";
 import {
   Measurement,
@@ -24,6 +23,7 @@ import {
   selectLastSelectedMobileTimeRange,
   setLastSelectedMobileTimeRange,
 } from "../../store/mobileStreamSlice";
+import { selectSelectedDate } from "../../store/movingStreamSelectors";
 import { selectThresholds } from "../../store/thresholdSlice";
 import { SessionType, SessionTypes } from "../../types/filters";
 import { FixedStreamShortInfo } from "../../types/fixedStream";
