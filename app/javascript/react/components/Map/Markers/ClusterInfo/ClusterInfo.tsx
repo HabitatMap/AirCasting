@@ -21,8 +21,8 @@ import { ClusterZoomIn } from "./ClusterZoomIn/ClusterZoomIn";
 
 interface ClusterProps {
   color: string;
-  average: number;
-  numberOfSessions: number;
+  average: number | null;
+  numberOfSessions: number | null;
   handleZoomIn: () => void;
   position: { top: number; left: number };
   visible: boolean;
@@ -56,7 +56,7 @@ const ClusterInfo = ({
               <MobileClusterInfoColorText $color={color}>
                 {numberOfSessions} {t("map.clusterInfo.stations")}
               </MobileClusterInfoColorText>
-              {average.toFixed(0)}{" "}
+              {average?.toFixed(0)}{" "}
               {` ${unitSymbol} ${t("map.clusterInfo.average")}`}
             </MobileClusterInfoText>
             <ClusterZoomIn handleZoomIn={handleZoomIn} color={color} />
@@ -70,7 +70,7 @@ const ClusterInfo = ({
                   {numberOfSessions} {t("map.clusterInfo.stations")}
                 </ClusterInfoColorText>
                 {" - "}
-                <ClusterInfoBoldText>{average.toFixed(0)}</ClusterInfoBoldText>
+                <ClusterInfoBoldText>{average?.toFixed(0)}</ClusterInfoBoldText>
                 {` ${unitSymbol} ${t("map.clusterInfo.average")}`}
               </ClusterInfoText>
             </DataContainer>

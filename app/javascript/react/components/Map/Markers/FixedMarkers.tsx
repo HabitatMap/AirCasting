@@ -8,7 +8,11 @@ import React, {
   useState,
 } from "react";
 
-import { fetchClusterData, setVisibility } from "../../../store/clusterSlice";
+import {
+  setAverage,
+  setSize,
+  setVisibility,
+} from "../../../store/clusterSlice";
 import {
   selectFixedStreamData,
   selectFixedStreamStatus,
@@ -30,6 +34,7 @@ import { UserSettings } from "../../../types/userStates";
 import HoverMarker from "./HoverMarker/HoverMarker";
 
 import { selectIsLoading } from "../../../store/fixedStreamSlice";
+import { calculateClusterAverage } from "./ClusterMarker/clusterCalculations";
 import { ClusterOverlay } from "./ClusterMarker/clusterOverlay";
 import { LabelOverlay } from "./CustomOverlays/customMarkerLabel";
 import { CustomMarkerOverlay } from "./CustomOverlays/customMarkerOverlay";
@@ -74,10 +79,13 @@ export function FixedMarkers({
   // Redux selectors
   const hoverStreamId = useAppSelector(selectHoverStreamId);
   const thresholds = useAppSelector(selectThresholds);
-  const clusterData = useAppSelector((state) => state.cluster.data);
   const clusterVisible = useAppSelector((state) => state.cluster.visible);
   const fixedStreamData = useAppSelector(selectFixedStreamData);
   const fixedStreamStatus = useAppSelector(selectFixedStreamStatus);
+  const clusterAverage = useAppSelector(
+    (state) => state.cluster.clusterAverage
+  );
+  const clusterSize = useAppSelector((state) => state.cluster.clusterSize);
 
   // Refs
   const clustererRef = useRef<MarkerClusterer | null>(null);
@@ -131,14 +139,14 @@ export function FixedMarkers({
       }
       setClusterDataLoading(true);
       setSelectedCluster(cluster);
-
-      const markerStreamIds = cluster.markers
-        ?.map((marker) => (marker as CustomMarker).userData?.streamId)
-        .filter((id): id is string => typeof id === "string" && id.length > 0);
-
-      if (markerStreamIds && markerStreamIds.length > 0) {
-        await dispatch(fetchClusterData(markerStreamIds));
+      if (cluster.markers) {
+        const average = calculateClusterAverage(
+          cluster.markers as CustomMarker[]
+        );
+        dispatch(setAverage(average));
+        dispatch(setSize(cluster.markers?.length || 0));
       }
+
       setClusterDataLoading(false);
       dispatch(setVisibility(true));
       onClusterClick?.(cluster);
@@ -742,16 +750,14 @@ export function FixedMarkers({
         (clusterDataLoading ? (
           <ClusterInfoLoading position={clusterPosition} visible={true} />
         ) : (
-          clusterData && (
-            <ClusterInfo
-              color={getColorForValue(thresholds, clusterData.average)}
-              average={clusterData.average}
-              numberOfSessions={clusterData.numberOfInstruments}
-              handleZoomIn={handleZoomIn}
-              position={clusterPosition}
-              visible={clusterVisible}
-            />
-          )
+          <ClusterInfo
+            color={getColorForValue(thresholds, clusterAverage)}
+            average={clusterAverage}
+            numberOfSessions={clusterSize}
+            handleZoomIn={handleZoomIn}
+            position={clusterPosition}
+            visible={clusterVisible}
+          />
         ))}
     </>
   );
