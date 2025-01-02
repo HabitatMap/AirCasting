@@ -146,5 +146,74 @@ describe("FixedMarkers", () => {
     }
   });
 
+  it("creates a cluster when markers are close together", async () => {
+    const closeMarkers: FixedSession[] = [
+      {
+        id: 1,
+        point: { lat: 40.7128, lng: -74.006, streamId: "1" },
+        averageValue: 50,
+        lastMeasurementValue: 55,
+        time: 1714857600,
+      },
+      {
+        id: 2,
+        point: { lat: 40.7129, lng: -74.007, streamId: "2" }, // Very close to first marker
+        averageValue: 75,
+        lastMeasurementValue: 80,
+        time: 1714857600,
+      },
+    ];
+
+    await act(async () => {
+      testRenderer(
+        <FixedMarkers
+          sessions={closeMarkers}
+          onMarkerClick={mockOnMarkerClick}
+          selectedStreamId={null}
+          pulsatingSessionId={null}
+        />
+      );
+    });
+
+    expect(mockClusterer.addMarkers).toHaveBeenCalled();
+  });
+
+  it("updates clusters when markers change", async () => {
+    const { rerender } = testRenderer(
+      <FixedMarkers
+        sessions={mockSessions}
+        onMarkerClick={mockOnMarkerClick}
+        selectedStreamId={null}
+        pulsatingSessionId={null}
+      />
+    );
+
+    // Update with new sessions
+    const newSessions = [
+      ...mockSessions,
+      {
+        id: 3,
+        point: { lat: 41.8781, lng: -87.6298, streamId: "3" },
+        averageValue: 60,
+        lastMeasurementValue: 65,
+        time: 1714857600,
+      },
+    ];
+
+    await act(async () => {
+      rerender(
+        <FixedMarkers
+          sessions={newSessions}
+          onMarkerClick={mockOnMarkerClick}
+          selectedStreamId={null}
+          pulsatingSessionId={null}
+        />
+      );
+    });
+
+    expect(mockClusterer.clearMarkers).toHaveBeenCalled();
+    expect(mockClusterer.addMarkers).toHaveBeenCalled();
+  });
+
   // Add more tests here for other functionalities
 });
