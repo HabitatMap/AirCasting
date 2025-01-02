@@ -1,82 +1,78 @@
-import { useRef } from "react";
-import { fetchMeasurements } from "../../../store/fixedStreamSlice";
-import { useAppDispatch } from "../../../store/hooks";
+import { debounce } from "lodash";
+import { useEffect, useRef } from "react";
+import {
+  fetchMeasurements,
+  selectStreamMeasurements,
+} from "../../../store/fixedStreamSlice";
+import { useAppDispatch, useAppSelector } from "../../../store/hooks";
 
-interface FetchRange {
-  start: number;
-  end: number;
-}
-
-interface LastFetchedRange {
-  start: number | null;
-  end: number | null;
-}
+const CHUNK_SIZE = 7 * 24 * 60 * 60 * 1000; // 1 week in milliseconds
 
 export const useMeasurementsFetcher = (streamId: number | null) => {
   const isCurrentlyFetchingRef = useRef(false);
-  const lastFetchedRangeRef = useRef<LastFetchedRange>({
-    start: null,
-    end: null,
-  });
+  const isBackgroundFetchingRef = useRef(false);
   const dispatch = useAppDispatch();
-  const validateFetchRange = ({ start, end }: FetchRange): boolean => {
-    if (!streamId || isCurrentlyFetchingRef.current) return false;
+  const measurements = useAppSelector((state) =>
+    selectStreamMeasurements(state, streamId)
+  );
 
-    const now = Date.now();
-    end = Math.min(end, now);
-
-    return start < end;
-  };
-
-  const adjustFetchRange = ({ start, end }: FetchRange): FetchRange | null => {
-    const { start: lastStart, end: lastEnd } = lastFetchedRangeRef.current;
-
-    if (lastStart === null || lastEnd === null) return { start, end };
-
-    // Return null if data already exists
-    if (start >= lastStart && end <= lastEnd) return null;
-
-    // Adjust range to fetch only missing data
-    if (start < lastStart) return { start, end: lastStart };
-    if (end > lastEnd) return { start: lastEnd, end };
-
-    return null;
-  };
-
-  const updateLastFetchedRange = (newRange: FetchRange) => {
-    const { start, end } = lastFetchedRangeRef.current;
-    lastFetchedRangeRef.current = {
-      start: Math.min(newRange.start, start ?? newRange.start),
-      end: Math.max(newRange.end, end ?? newRange.end),
-    };
-  };
-
-  const fetchMeasurementsIfNeeded = async (start: number, end: number) => {
-    const range = { start, end };
-
-    if (!validateFetchRange(range)) return;
-
-    const adjustedRange = adjustFetchRange(range);
-    if (!adjustedRange) return;
-
-    isCurrentlyFetchingRef.current = true;
-
+  const fetchChunk = async (
+    start: number,
+    end: number,
+    isBackground = false
+  ) => {
     try {
       await dispatch(
         fetchMeasurements({
           streamId: Number(streamId),
-          startTime: Math.floor(adjustedRange.start).toString(),
-          endTime: Math.floor(adjustedRange.end).toString(),
+          startTime: Math.floor(start).toString(),
+          endTime: Math.floor(end).toString(),
+          isBackground, // Pass this to the action
         })
       ).unwrap();
-
-      updateLastFetchedRange(adjustedRange);
     } catch (error) {
-      console.error("Error fetching measurements:", error);
-    } finally {
-      isCurrentlyFetchingRef.current = false;
+      console.error("Error fetching chunk:", error);
     }
   };
+
+  const fetchInBackground = async (start: number, end: number) => {
+    isBackgroundFetchingRef.current = true;
+    let currentStart = start;
+    while (currentStart < end && isBackgroundFetchingRef.current) {
+      const chunkEnd = Math.min(currentStart + CHUNK_SIZE, end);
+      await fetchChunk(currentStart, chunkEnd, true);
+      currentStart = chunkEnd;
+      await new Promise((resolve) => setTimeout(resolve, 500));
+    }
+    isBackgroundFetchingRef.current = false;
+  };
+
+  // Cancel background fetching when component unmounts or streamId changes
+  useEffect(() => {
+    return () => {
+      isBackgroundFetchingRef.current = false;
+    };
+  }, [streamId]);
+
+  const fetchMeasurementsIfNeeded = debounce(
+    async (start: number, end: number) => {
+      if (!streamId || isCurrentlyFetchingRef.current) return;
+      isCurrentlyFetchingRef.current = true;
+
+      try {
+        // First fetch just the visible range
+        await fetchChunk(start, Math.min(start + CHUNK_SIZE, end), false);
+
+        // Then fetch the rest in the background
+        if (end > start + CHUNK_SIZE) {
+          fetchInBackground(start + CHUNK_SIZE, end);
+        }
+      } finally {
+        isCurrentlyFetchingRef.current = false;
+      }
+    },
+    300
+  ) as (start: number, end: number) => Promise<void>;
 
   return { fetchMeasurementsIfNeeded };
 };
