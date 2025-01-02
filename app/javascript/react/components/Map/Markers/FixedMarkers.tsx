@@ -95,6 +95,7 @@ export function FixedMarkers({
   const clusterOverlaysRef = useRef<Map<string, ClusterOverlay>>(new Map());
   const previousZoomRef = useRef<number | null>(null);
   const previousModeRef = useRef<string | null>(null);
+  const initialCenterRef = useRef<boolean>(false);
 
   // State variables
   const [hoverPosition, setHoverPosition] = useState<LatLngLiteral | null>(
@@ -417,7 +418,11 @@ export function FixedMarkers({
         if (latitude && longitude) {
           const fixedStreamPosition = { lat: latitude, lng: longitude };
 
-          centerMapOnMarker(fixedStreamPosition);
+          // Only center on first render
+          if (!initialCenterRef.current) {
+            centerMapOnMarker(fixedStreamPosition);
+            initialCenterRef.current = true;
+          }
 
           if (clustererRef.current) {
             clustererRef.current.clearMarkers();
@@ -706,6 +711,9 @@ export function FixedMarkers({
     setSelectedCluster(null);
     setClusterPosition(null);
     setHoverPosition(null);
+
+    // Reset the initial center ref
+    initialCenterRef.current = false;
   }, []);
 
   // Watch for mode changes using currentUserSettings
