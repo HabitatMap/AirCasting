@@ -6,11 +6,11 @@ import { useTranslation } from "react-i18next";
 import { white } from "../../assets/styles/colors";
 import { selectFixedStreamShortInfo } from "../../store/fixedStreamSelectors";
 import {
-  Measurement,
   resetLastSelectedTimeRange,
   selectFixedData,
   selectIsLoading,
   selectLastSelectedFixedTimeRange,
+  selectStreamMeasurements,
   setLastSelectedTimeRange,
 } from "../../store/fixedStreamSlice";
 import { useAppDispatch, useAppSelector } from "../../store/hooks";
@@ -126,13 +126,15 @@ const Graph: React.FC<GraphProps> = React.memo(
 
     const isIndoorParameterInUrl = isIndoor === "true";
 
+    const measurements = useAppSelector((state) =>
+      selectStreamMeasurements(state, streamId)
+    );
+
     const seriesData = useMemo(() => {
       return fixedSessionTypeSelected
-        ? createFixedSeriesData(
-            (fixedGraphData?.measurements as Measurement[]) || []
-          )
+        ? createFixedSeriesData(measurements)
         : createMobileSeriesData(mobileGraphData, true);
-    }, [fixedSessionTypeSelected, fixedGraphData, mobileGraphData]);
+    }, [fixedSessionTypeSelected, measurements, mobileGraphData]);
 
     const totalDuration = useMemo(
       () => endTime - startTime,
@@ -169,6 +171,15 @@ const Graph: React.FC<GraphProps> = React.memo(
         dispatch(resetLastSelectedMobileTimeRange());
       }
     }, []);
+
+    useEffect(() => {
+      if (streamId && fixedSessionTypeSelected && !measurements.length) {
+        // Only fetch if we don't have data for this stream
+        const now = Date.now();
+        const oneDayInMs = 24 * 60 * 60 * 1000;
+        fetchMeasurementsIfNeeded(now - oneDayInMs, now);
+      }
+    }, [streamId, fixedSessionTypeSelected, measurements.length]);
 
     // Apply touch action to the graph container for mobile devices in Calendar page
     useEffect(() => {
