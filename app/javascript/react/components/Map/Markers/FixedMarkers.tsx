@@ -94,7 +94,6 @@ export function FixedMarkers({
   const labelOverlays = useRef<Map<string, LabelOverlay>>(new Map());
   const clusterOverlaysRef = useRef<Map<string, ClusterOverlay>>(new Map());
   const previousZoomRef = useRef<number | null>(null);
-  const previousModeRef = useRef<string | null>(null);
   const initialCenterRef = useRef<boolean>(false);
 
   // State variables
@@ -117,6 +116,7 @@ export function FixedMarkers({
   const onMarkerClickRef = useRef(onMarkerClick);
   useEffect(() => {
     onMarkerClickRef.current = onMarkerClick;
+    initialCenterRef.current = false;
   }, [onMarkerClick]);
 
   // Utility functions
