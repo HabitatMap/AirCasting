@@ -13,11 +13,10 @@ import { useAppDispatch } from "../../store/hooks";
 import { setFetchingData } from "../../store/mapSlice";
 import { determineZoomLevel } from "../../utils/determineZoomLevel";
 import { UrlParamsTypes, useMapParams } from "../../utils/mapParamsHandler";
-import { screenSizes } from "../../utils/media";
-import useScreenSizeDetection from "../../utils/useScreenSizeDetection";
 import * as S from "./LocationSearch.style";
 
 const OK_STATUS = "OK";
+const DEFAULT_ZOOM = 13;
 
 interface LocationSearchProps {
   isMapPage?: boolean;
@@ -26,10 +25,7 @@ interface LocationSearchProps {
 
 type AutocompletePrediction = google.maps.places.AutocompletePrediction;
 
-const LocationSearch: React.FC<LocationSearchProps> = ({
-  isMapPage,
-  isTimelapseView,
-}) => {
+const LocationSearch: React.FC<LocationSearchProps> = ({ isTimelapseView }) => {
   const dispatch = useAppDispatch();
   const [items, setItems] = useState<AutocompletePrediction[]>([]);
   const [selectedItem, setSelectedItem] =
@@ -46,7 +42,6 @@ const LocationSearch: React.FC<LocationSearchProps> = ({
 
   const {
     isOpen,
-    getToggleButtonProps,
     getMenuProps,
     getInputProps,
     highlightedIndex,
@@ -67,8 +62,6 @@ const LocationSearch: React.FC<LocationSearchProps> = ({
     },
     inputValue,
   });
-
-  const isSmallDesktop = useScreenSizeDetection(screenSizes.mediumDesktop);
 
   const displaySearchResults = isOpen && items.length > 0;
 
@@ -104,6 +97,39 @@ const LocationSearch: React.FC<LocationSearchProps> = ({
     }, 200);
   };
 
+  const handleBrowserLocation = () => {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const { latitude: lat, longitude: lng } = position.coords;
+
+          setUrlParams([
+            {
+              key: UrlParamsTypes.currentCenter,
+              value: JSON.stringify({ lat, lng }),
+            },
+            {
+              key: UrlParamsTypes.currentZoom,
+              value: DEFAULT_ZOOM.toString(),
+            },
+          ]);
+
+          map?.setZoom(DEFAULT_ZOOM);
+          map?.panTo({ lat, lng });
+
+          setInputValue("");
+          setItems([]);
+          setTimeout(() => {
+            dispatch(setFetchingData(true));
+          }, 200);
+        },
+        (error) => {
+          console.error("Error getting location:", error);
+        }
+      );
+    }
+  };
+
   useEffect(() => {
     if (status === OK_STATUS && data.length) {
       setItems(data);
@@ -118,15 +144,16 @@ const LocationSearch: React.FC<LocationSearchProps> = ({
         {...getInputProps()}
         $isTimelapsView={isTimelapseView}
       />
-      {!isMapPage && !isSmallDesktop && (
-        <S.LocationSearchButton
-          aria-label={t("map.toggleMenu")}
-          type="button"
-          {...getToggleButtonProps()}
-        >
-          <img src={locationSearchIcon} alt={t("map.searchIcon")} />
-        </S.LocationSearchButton>
-      )}
+      <S.LocationSearchButton
+        aria-label={t("map.browserLocationButton")}
+        type="button"
+        onClick={handleBrowserLocation}
+      >
+        <S.LocationSearchIcon
+          src={locationSearchIcon}
+          alt={t("map.searchIcon")}
+        />
+      </S.LocationSearchButton>
       <S.SuggestionsList
         $displaySearchResults={displaySearchResults}
         {...getMenuProps()}
