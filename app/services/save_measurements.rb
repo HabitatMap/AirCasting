@@ -1,6 +1,10 @@
 class SaveMeasurements
-  def initialize(user:)
+  def initialize(
+    user:,
+    hourly_averages_worker: UpdateHourlyAveragesForAirNowStreamsWorker
+  )
     @user = user
+    @hourly_averages_worker = hourly_averages_worker
   end
 
   def call(streams:)
@@ -9,7 +13,7 @@ class SaveMeasurements
 
   private
 
-  attr_reader :user
+  attr_reader :user, :hourly_averages_worker
 
   def save(streams)
     persisted_streams =
@@ -21,10 +25,13 @@ class SaveMeasurements
 
     persisted_streams_hash =
       persisted_streams.each_with_object({}) do |stream, acc|
-        acc[[stream.min_latitude.to_f, stream.min_longitude.to_f, stream.sensor_name]] = [
-          stream.session_id,
-          stream.id,
-        ]
+        acc[
+          [
+            stream.min_latitude.to_f,
+            stream.min_longitude.to_f,
+            stream.sensor_name,
+          ]
+        ] = [stream.session_id, stream.id]
       end
 
     pairs_to_append, pairs_to_create =
@@ -33,17 +40,19 @@ class SaveMeasurements
         rounded_longitude = stream.longitude.round(3)
         stream_sensor_name = stream.sensor_name
 
-        match_found = persisted_streams_hash.detect do |key, _|
-          persisted_latitude, persisted_longitude, persisted_sensor_name = key
-          match_condition = persisted_sensor_name == stream_sensor_name &&
-                            persisted_latitude.round(3) == rounded_latitude &&
-                            persisted_longitude.round(3) == rounded_longitude
-          if match_condition
-            stream.latitude = persisted_latitude
-            stream.longitude = persisted_longitude
+        match_found =
+          persisted_streams_hash.detect do |key, _|
+            persisted_latitude, persisted_longitude, persisted_sensor_name = key
+            match_condition =
+              persisted_sensor_name == stream_sensor_name &&
+                persisted_latitude.round(3) == rounded_latitude &&
+                persisted_longitude.round(3) == rounded_longitude
+            if match_condition
+              stream.latitude = persisted_latitude
+              stream.longitude = persisted_longitude
+            end
+            match_condition
           end
-          match_condition
-        end
 
         match_found.present?
       end
@@ -186,28 +195,33 @@ class SaveMeasurements
     stream_ids = ((last_id - new_streams.size + 1)..last_id).to_a
     factory = RGeo::Geographic.spherical_factory(srid: 4326)
 
+    created_measurement_ids = []
     measurements =
       pairs_to_create
         .each_with_object([])
         .with_index do |((stream, measurements), acc), i|
-
           measurements.each do |measurement|
             acc <<
               Measurement.new(
                 value: measurement.value,
                 latitude: measurement.latitude,
                 longitude: measurement.longitude,
-                location: factory.point(measurement.longitude.to_f, measurement.latitude.to_f),
+                location:
+                  factory.point(
+                    measurement.longitude.to_f,
+                    measurement.latitude.to_f,
+                  ),
                 time: measurement.time_local,
                 timezone_offset: nil,
                 milliseconds: 0,
                 measured_value: measurement.value,
                 stream_id: stream_ids[i],
-                time_with_time_zone: measurement.time_with_time_zone
+                time_with_time_zone: measurement.time_with_time_zone,
               )
           end
         end
     import = Measurement.import measurements
+    created_measurement_ids += import.ids
     if import.failed_instances.any?
       Rails
         .logger.warn "Measurement.import failed for: #{import.failed_instances.inspect}"
@@ -225,7 +239,11 @@ class SaveMeasurements
                 value: measurement.value,
                 latitude: measurement.latitude,
                 longitude: measurement.longitude,
-                location: factory.point(measurement.longitude.to_f, measurement.latitude.to_f),
+                location:
+                  factory.point(
+                    measurement.longitude.to_f,
+                    measurement.latitude.to_f,
+                  ),
                 time: measurement.time_local,
                 timezone_offset: nil,
                 milliseconds: 0,
@@ -234,14 +252,21 @@ class SaveMeasurements
                   persisted_streams_hash[
                     [stream.latitude, stream.longitude, stream.sensor_name]
                   ].last,
-                time_with_time_zone: measurement.time_with_time_zone
+                time_with_time_zone: measurement.time_with_time_zone,
               )
           end
         end
     import = Measurement.import measurements
+    created_measurement_ids += import.ids
     if import.failed_instances.any?
       Rails
         .logger.warn "Measurement.import failed for: #{import.failed_instances.inspect}"
     end
+
+    update_stream_hourly_averages(created_measurement_ids)
+  end
+
+  def update_stream_hourly_averages(measurement_ids)
+    hourly_averages_worker.set(queue: :slow).perform_async(measurement_ids)
   end
 end
