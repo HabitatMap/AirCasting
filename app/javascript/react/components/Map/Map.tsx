@@ -811,6 +811,7 @@ const Map = () => {
         isFractionalZoomEnabled={true}
         styles={memoizedMapStyles}
         onZoomChanged={handleZoomChanged}
+        tilt={0}
       >
         {fixedSessionsStatusFulfilled &&
           fixedSessionTypeSelected &&
