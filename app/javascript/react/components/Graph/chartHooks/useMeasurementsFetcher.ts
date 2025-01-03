@@ -9,6 +9,7 @@ const CHUNK_SIZE = MILLISECONDS_IN_A_WEEK;
 export const useMeasurementsFetcher = (streamId: number | null) => {
   const isCurrentlyFetchingRef = useRef(false);
   const isBackgroundFetchingRef = useRef(false);
+  const isInitialFetchRef = useRef(true);
   const dispatch = useAppDispatch();
 
   const fetchChunk = async (
@@ -30,19 +31,19 @@ export const useMeasurementsFetcher = (streamId: number | null) => {
     }
   };
 
-  const fetchInBackground = async (start: number, end: number) => {
-    isBackgroundFetchingRef.current = true;
-    let currentStart = start;
-    while (currentStart < end && isBackgroundFetchingRef.current) {
-      const chunkEnd = Math.min(currentStart + CHUNK_SIZE, end);
-      await fetchChunk(currentStart, chunkEnd, true);
-      currentStart = chunkEnd;
-      await new Promise((resolve) => setTimeout(resolve, 500));
-    }
-    isBackgroundFetchingRef.current = false;
-  };
+  // const fetchInBackground = async (start: number, end: number) => {
+  //   isBackgroundFetchingRef.current = true;
+  //   let currentStart = start;
 
-  // Cancel background fetching when component unmounts or streamId changes
+  //   while (currentStart < end && isBackgroundFetchingRef.current) {
+  //     const chunkEnd = Math.min(currentStart + CHUNK_SIZE, end);
+  //     await fetchChunk(currentStart, chunkEnd, true);
+  //     currentStart = chunkEnd;
+  //     await new Promise((resolve) => setTimeout(resolve, 500));
+  //   }
+  //   isBackgroundFetchingRef.current = false;
+  // };
+
   useEffect(() => {
     return () => {
       isBackgroundFetchingRef.current = false;
@@ -55,12 +56,18 @@ export const useMeasurementsFetcher = (streamId: number | null) => {
       isCurrentlyFetchingRef.current = true;
 
       try {
-        // First fetch just the visible range
-        await fetchChunk(start, Math.min(start + CHUNK_SIZE, end), false);
-
-        // Then fetch the rest in the background
-        if (end > start + CHUNK_SIZE) {
-          fetchInBackground(start + CHUNK_SIZE, end);
+        if (isInitialFetchRef.current) {
+          // For initial fetch, load data in chunks
+          let currentStart = start;
+          while (currentStart < end) {
+            const chunkEnd = Math.min(currentStart + CHUNK_SIZE, end);
+            await fetchChunk(currentStart, chunkEnd, false);
+            currentStart = chunkEnd;
+          }
+          isInitialFetchRef.current = false;
+        } else {
+          // For subsequent fetches, fetch the whole range at once
+          await fetchChunk(start, end, false);
         }
       } finally {
         isCurrentlyFetchingRef.current = false;

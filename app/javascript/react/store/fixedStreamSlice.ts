@@ -177,20 +177,21 @@ const fixedStreamSlice = createSlice({
     ) {
       const { streamId, measurements } = action.payload;
       const existingMeasurements = state.measurements[streamId] || [];
-      const existingTimestamps = new Set(
-        existingMeasurements.map((m) => m.time)
-      );
 
-      const uniqueNewMeasurements = measurements.filter(
-        (m) => !existingTimestamps.has(m.time)
-      );
+      // Create a map of existing measurements by timestamp for faster lookup
+      const existingMap = new Map(existingMeasurements.map((m) => [m.time, m]));
 
-      if (uniqueNewMeasurements.length > 0) {
-        state.measurements[streamId] = [
-          ...existingMeasurements,
-          ...uniqueNewMeasurements,
-        ].sort((a, b) => a.time - b.time);
-      }
+      // Merge new measurements, keeping existing ones if timestamps overlap
+      measurements.forEach((measurement) => {
+        if (!existingMap.has(measurement.time)) {
+          existingMap.set(measurement.time, measurement);
+        }
+      });
+
+      // Convert back to array and sort by time
+      state.measurements[streamId] = Array.from(existingMap.values()).sort(
+        (a, b) => a.time - b.time
+      );
     },
   },
   extraReducers: (builder) => {
@@ -226,30 +227,28 @@ const fixedStreamSlice = createSlice({
     });
 
     builder.addCase(fetchMeasurements.fulfilled, (state, action) => {
-      // End loading if not a background fetch
       if (!action.meta.arg.isBackground) {
         state.status = StatusEnum.Fulfilled;
         state.isLoading = false;
         state.error = null;
       }
-      // Merge measurements
+
       const streamId = Number(action.meta?.arg?.streamId);
       if (streamId) {
         const existingMeasurements = state.measurements[streamId] || [];
-        const existingTimestamps = new Set(
-          existingMeasurements.map((m) => m.time)
+        const existingMap = new Map(
+          existingMeasurements.map((m) => [m.time, m])
         );
 
-        const uniqueNewMeasurements = action.payload.filter(
-          (m) => !existingTimestamps.has(m.time)
-        );
+        action.payload.forEach((measurement) => {
+          if (!existingMap.has(measurement.time)) {
+            existingMap.set(measurement.time, measurement);
+          }
+        });
 
-        if (uniqueNewMeasurements.length > 0) {
-          state.measurements[streamId] = [
-            ...existingMeasurements,
-            ...uniqueNewMeasurements,
-          ].sort((a, b) => a.time - b.time);
-        }
+        state.measurements[streamId] = Array.from(existingMap.values()).sort(
+          (a, b) => a.time - b.time
+        );
       }
     });
 
