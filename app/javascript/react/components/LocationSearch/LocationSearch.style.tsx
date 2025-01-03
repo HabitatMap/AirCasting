@@ -92,17 +92,33 @@ const SearchInput = styled.input<SearchInputProps>`
 `;
 
 const LocationSearchButton = styled.button`
-  background-color: transparent;
+  background-color: ${white};
+  height: 3.2rem;
+  border-radius: 50%;
   cursor: pointer;
   border: none;
   z-index: 2;
+
+  @media ${media.mediumDesktop} {
+    height: 4.2rem;
+    background-color: transparent;
+  }
+`;
+
+const LocationSearchIcon = styled.img`
+  width: 3.2rem;
+  height: 3.2rem;
+
+  @media ${media.mediumDesktop} {
+    width: 4.2rem;
+    height: 4.2rem;
+  }
 `;
 
 const SearchContainer = styled.div<{ $isTimelapseView: boolean }>`
   position: relative;
   display: flex;
   align-items: center;
-  justify-content: space-between;
   gap: 1rem;
   width: 70vw;
   @media ${media.smallDesktop} {
@@ -128,6 +144,7 @@ const Hr = styled.hr<HrProps>`
 export {
   Hr,
   LocationSearchButton,
+  LocationSearchIcon,
   SearchContainer,
   SearchInput,
   Suggestion,
