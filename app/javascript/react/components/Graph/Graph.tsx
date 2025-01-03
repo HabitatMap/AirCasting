@@ -225,7 +225,8 @@ const Graph: React.FC<GraphProps> = React.memo(
           fixedSessionTypeSelected,
           dispatch,
           isLoading,
-          fetchMeasurementsIfNeeded
+          fetchMeasurementsIfNeeded,
+          streamId
         ),
       [
         isMobile,
