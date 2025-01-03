@@ -1,20 +1,15 @@
 import { debounce } from "lodash";
 import { useEffect, useRef } from "react";
-import {
-  fetchMeasurements,
-  selectStreamMeasurements,
-} from "../../../store/fixedStreamSlice";
-import { useAppDispatch, useAppSelector } from "../../../store/hooks";
+import { fetchMeasurements } from "../../../store/fixedStreamSlice";
+import { useAppDispatch } from "../../../store/hooks";
+import { MILLISECONDS_IN_A_WEEK } from "../../../utils/timeRanges";
 
-const CHUNK_SIZE = 7 * 24 * 60 * 60 * 1000; // 1 week in milliseconds
+const CHUNK_SIZE = MILLISECONDS_IN_A_WEEK;
 
 export const useMeasurementsFetcher = (streamId: number | null) => {
   const isCurrentlyFetchingRef = useRef(false);
   const isBackgroundFetchingRef = useRef(false);
   const dispatch = useAppDispatch();
-  const measurements = useAppSelector((state) =>
-    selectStreamMeasurements(state, streamId)
-  );
 
   const fetchChunk = async (
     start: number,
@@ -27,7 +22,7 @@ export const useMeasurementsFetcher = (streamId: number | null) => {
           streamId: Number(streamId),
           startTime: Math.floor(start).toString(),
           endTime: Math.floor(end).toString(),
-          isBackground, // Pass this to the action
+          isBackground,
         })
       ).unwrap();
     } catch (error) {

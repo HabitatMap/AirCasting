@@ -37,6 +37,7 @@ import {
   MILLISECONDS_IN_A_5_MINUTES,
   MILLISECONDS_IN_A_DAY,
   MILLISECONDS_IN_A_MONTH,
+  MILLISECONDS_IN_A_SECOND,
   MILLISECONDS_IN_A_WEEK,
   MILLISECONDS_IN_AN_HOUR,
 } from "../../utils/timeRanges";
@@ -126,8 +127,30 @@ const getXAxisOptions = (
   );
 
   return {
+    title: {
+      text: undefined,
+    },
+    showEmpty: false,
+    showLastLabel: !isMobile,
+    tickColor: gray200,
+    lineColor: white,
     type: "datetime",
-    // ... your other X-axis props ...
+    labels: {
+      enabled: true,
+      overflow: "justify",
+      step: 1,
+      style: {
+        fontSize: "1.2rem",
+        fontFamily: "Roboto",
+      },
+    },
+    crosshair: {
+      color: white,
+      width: 2,
+    },
+    visible: true,
+    minRange: MILLISECONDS_IN_A_SECOND,
+    ordinal: false,
     events: {
       afterSetExtremes: async function (
         e: Highcharts.AxisSetExtremesEventObject

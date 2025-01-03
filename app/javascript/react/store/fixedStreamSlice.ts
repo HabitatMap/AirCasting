@@ -19,8 +19,6 @@ export interface Measurement {
 export interface FixedStreamState {
   data: FixedStream;
   fetchedStartTime: number | null;
-
-  // Values to be updated based on currently visible time range:
   minMeasurementValue: number | null;
   maxMeasurementValue: number | null;
   averageMeasurementValue: number | null;
@@ -28,10 +26,7 @@ export interface FixedStreamState {
   status: StatusEnum;
   error: ApiError | null;
   isLoading: boolean;
-
   lastSelectedTimeRange: FixedTimeRange;
-
-  // Dictionary: streamId -> array of measurements
   measurements: {
     [streamId: number]: Measurement[];
   };
@@ -290,7 +285,6 @@ export const selectIsLoading = (state: RootState) =>
 export const selectLastSelectedFixedTimeRange = (state: RootState) =>
   state.fixedStream.lastSelectedTimeRange;
 
-// Grab the array of measurements from the dictionary
 export const selectStreamMeasurements = (
   state: RootState,
   streamId: number | null

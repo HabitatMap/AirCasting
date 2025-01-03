@@ -19,7 +19,7 @@ import sessionFilterReducer from "./sessionFiltersSlice";
 import thresholdReducer from "./thresholdSlice";
 import timelapseReducer from "./timelapseSlice";
 
-const store = configureStore({
+export const store = configureStore({
   reducer: {
     cluster: clusterReducer,
     crowdMap: crowdMapReducer,
