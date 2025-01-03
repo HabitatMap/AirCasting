@@ -97,36 +97,51 @@ const LocationSearch: React.FC<LocationSearchProps> = ({ isTimelapseView }) => {
     }, 200);
   };
 
-  const handleBrowserLocation = () => {
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          const { latitude: lat, longitude: lng } = position.coords;
-
-          setUrlParams([
-            {
-              key: UrlParamsTypes.currentCenter,
-              value: JSON.stringify({ lat, lng }),
-            },
-            {
-              key: UrlParamsTypes.currentZoom,
-              value: DEFAULT_ZOOM.toString(),
-            },
-          ]);
-
-          map?.setZoom(DEFAULT_ZOOM);
-          map?.panTo({ lat, lng });
-
-          setInputValue("");
-          setItems([]);
-          setTimeout(() => {
-            dispatch(setFetchingData(true));
-          }, 200);
-        },
-        (error) => {
-          console.error("Error getting location:", error);
+  const handleBrowserLocation = async () => {
+    try {
+      // Try Google Maps Geolocation API
+      const response = await fetch(
+        `https://www.googleapis.com/geolocation/v1/geolocate?key=${process.env.GOOGLE_MAPS_API_KEY}`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            considerIp: true,
+          }),
         }
       );
+
+      const data = await response.json();
+
+      if (data.location) {
+        const { lat, lng } = data.location;
+
+        setUrlParams([
+          {
+            key: UrlParamsTypes.currentCenter,
+            value: JSON.stringify({ lat, lng }),
+          },
+          {
+            key: UrlParamsTypes.currentZoom,
+            value: DEFAULT_ZOOM.toString(),
+          },
+        ]);
+
+        map?.setZoom(DEFAULT_ZOOM);
+        map?.panTo({ lat, lng });
+
+        setInputValue("");
+        setItems([]);
+        setTimeout(() => {
+          dispatch(setFetchingData(true));
+        }, 200);
+      } else {
+        console.log(t("map.locationError.unavailable"));
+      }
+    } catch (error) {
+      console.log(t("map.locationError.unavailable"));
     }
   };
 

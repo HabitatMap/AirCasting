@@ -154,6 +154,13 @@
       "altNext": "Next note",
       "altPrevious": "Previous note",
       "altPhoto": "Note photo"
+    },
+    "locationError": {
+      "default": "Error getting location",
+      "permissionDenied": "Please allow location access to use this feature",
+      "unavailable": "Unable to determine your location",
+      "timeout": "Location request timed out",
+      "notSupported": "Geolocation is not supported by your browser"
     }
   },
   "sessionDetailsModal": {
