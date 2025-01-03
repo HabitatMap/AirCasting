@@ -6,11 +6,11 @@ import { useTranslation } from "react-i18next";
 import { white } from "../../assets/styles/colors";
 import { selectFixedStreamShortInfo } from "../../store/fixedStreamSelectors";
 import {
-  Measurement,
   resetLastSelectedTimeRange,
   selectFixedData,
   selectIsLoading,
   selectLastSelectedFixedTimeRange,
+  selectStreamMeasurements,
   setLastSelectedTimeRange,
 } from "../../store/fixedStreamSlice";
 import { useAppDispatch, useAppSelector } from "../../store/hooks";
@@ -35,6 +35,7 @@ import {
   mapIndexToTimeRange,
 } from "../../utils/getTimeRange";
 import { useMapParams } from "../../utils/mapParamsHandler";
+import { MILLISECONDS_IN_A_WEEK } from "../../utils/timeRanges";
 import useMobileDetection from "../../utils/useScreenSizeDetection";
 import { handleLoad } from "./chartEvents";
 import {
@@ -126,13 +127,15 @@ const Graph: React.FC<GraphProps> = React.memo(
 
     const isIndoorParameterInUrl = isIndoor === "true";
 
+    const measurements = useAppSelector((state) =>
+      selectStreamMeasurements(state, streamId)
+    );
+
     const seriesData = useMemo(() => {
       return fixedSessionTypeSelected
-        ? createFixedSeriesData(
-            (fixedGraphData?.measurements as Measurement[]) || []
-          )
+        ? createFixedSeriesData(measurements)
         : createMobileSeriesData(mobileGraphData, true);
-    }, [fixedSessionTypeSelected, fixedGraphData, mobileGraphData]);
+    }, [fixedSessionTypeSelected, measurements, mobileGraphData]);
 
     const totalDuration = useMemo(
       () => endTime - startTime,
@@ -169,6 +172,14 @@ const Graph: React.FC<GraphProps> = React.memo(
         dispatch(resetLastSelectedMobileTimeRange());
       }
     }, []);
+
+    useEffect(() => {
+      if (streamId && fixedSessionTypeSelected && !measurements.length) {
+        // Only fetch if we don't have data for this stream
+        const now = Date.now();
+        fetchMeasurementsIfNeeded(now - MILLISECONDS_IN_A_WEEK, now);
+      }
+    }, [streamId, fixedSessionTypeSelected, measurements.length]);
 
     // Apply touch action to the graph container for mobile devices in Calendar page
     useEffect(() => {
@@ -214,7 +225,8 @@ const Graph: React.FC<GraphProps> = React.memo(
           fixedSessionTypeSelected,
           dispatch,
           isLoading,
-          fetchMeasurementsIfNeeded
+          fetchMeasurementsIfNeeded,
+          streamId
         ),
       [
         isMobile,
