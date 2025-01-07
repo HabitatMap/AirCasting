@@ -1,6 +1,5 @@
 vendor
 app/javascript/angular/libs
-elm-stuff
 public
 assets/stylesheets/vendor
 db/schema.rb

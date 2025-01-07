@@ -4,46 +4,45 @@ rvm:
   - 2.7.0
 dist: bionic
 before_install:
-- openssl aes-256-cbc -K $encrypted_9f37634381c1_key -iv $encrypted_9f37634381c1_iv
-  -in keys.tar.gz.enc -out keys.tar.gz -d
-- tar xvf keys.tar.gz
-- eval "$(ssh-agent -s)"
-- chmod 600 ./keys/github_deploy_key
-- ssh-add ./keys/github_deploy_key
-- chmod 600 ./keys/container_deploy_key
-- ssh-add ./keys/container_deploy_key
-- echo -e "Host aircasting.org\n\tStrictHostKeyChecking no\n" >> ~/.ssh/config
-- chmod +x ./bin/deploy.sh
-- gem install bundler -v '2.3.4'
+  - openssl aes-256-cbc -K $encrypted_9f37634381c1_key -iv $encrypted_9f37634381c1_iv
+    -in keys.tar.gz.enc -out keys.tar.gz -d
+  - tar xvf keys.tar.gz
+  - eval "$(ssh-agent -s)"
+  - chmod 600 ./keys/github_deploy_key
+  - ssh-add ./keys/github_deploy_key
+  - chmod 600 ./keys/container_deploy_key
+  - ssh-add ./keys/container_deploy_key
+  - echo -e "Host aircasting.org\n\tStrictHostKeyChecking no\n" >> ~/.ssh/config
+  - chmod +x ./bin/deploy.sh
+  - gem install bundler -v '2.3.4'
 cache:
   bundler: true
   directories:
-  - node_modules
-  - vendor/bundle
+    - node_modules
+    - vendor/bundle
   yarn: true
 services:
   - mysql
 addons:
   apt:
     packages:
-    - libgsl0-dev
+      - libgsl0-dev
 install:
-- bundle install --path=vendor/bundle
-- nvm install
-- node -v
-- npm i -g yarn
-- yarn
+  - bundle install --path=vendor/bundle
+  - nvm install
+  - node -v
+  - npm i -g yarn
+  - yarn
 before_script:
-- cp config/database.yml.travis config/database.yml
-- mysql -e 'create database aircasting_test;'
-- RAILS_ENV=test bin/rails db:migrate
+  - cp config/database.yml.travis config/database.yml
+  - mysql -e 'create database aircasting_test;'
+  - RAILS_ENV=test bin/rails db:migrate
 script:
-- yarn test
-- yarn run elm-test app/javascript/elm/tests
-- bin/rspec
-- ./bin/deploy.sh
+  - yarn test
+  - bin/rspec
+  - ./bin/deploy.sh
 env:
-- secure: SB6cGWtgFS6K+Kp1zkwUgzF62lRIIJMTJOOzK/ozmtSMzhL2BqjTkVOtm83jkbNcpZm5bDumWUCPTml4snOBpid7V9gw+Ot2V8kUHd2AGPVi/3Rvglk9OL3dGz7P+32oNlF/tjjdVzQoAU2HdIwSaEVxdn3q9thSRJMwGo8HsPQ=
+  - secure: SB6cGWtgFS6K+Kp1zkwUgzF62lRIIJMTJOOzK/ozmtSMzhL2BqjTkVOtm83jkbNcpZm5bDumWUCPTml4snOBpid7V9gw+Ot2V8kUHd2AGPVi/3Rvglk9OL3dGz7P+32oNlF/tjjdVzQoAU2HdIwSaEVxdn3q9thSRJMwGo8HsPQ=
 notifications:
   slack:
     secure: bmp+mN1rGXtHTlWjDmJixpVcVVj+fTQvWJIJz1oNCq5xmNytAtzLCR1lRCIp2GzBHteR9A/j1+2YwzKz2ExHmnublmK80eVrwx+a4+ZanvqPGFWyHkfdfJDbZR8Z9655IlcTh+OUYzqqDVpccNwHD7uU3b7ZSJrjzjl0RpsamIA=

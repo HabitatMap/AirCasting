@@ -1,6 +1,6 @@
 const { resolve } = require("path");
 const { sourcePath, additionalPaths } = require("./config");
-const elmLoader = require("./elmLoader");
+
 
 // Extracts CSS into .css file
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
@@ -55,7 +55,6 @@ const getEsbuildCssLoader = () => {
 };
 
 module.exports = () => [
-  elmLoader,
   // Raw
   {
     test: [/\.html$/],
