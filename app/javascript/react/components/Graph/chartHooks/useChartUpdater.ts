@@ -1,5 +1,7 @@
 import Highcharts from "highcharts";
 import { useCallback, useEffect, useRef } from "react";
+import { updateFixedMeasurementExtremes } from "../../../store/fixedStreamSlice";
+import { useAppDispatch } from "../../../store/hooks";
 import { FixedTimeRange, MobileTimeRange } from "../../../types/timeRange";
 import { getSelectedRangeIndex } from "../../../utils/getTimeRange";
 
@@ -15,6 +17,7 @@ interface UseChartUpdaterProps {
   isLoading: boolean;
   lastSelectedTimeRange: FixedTimeRange | MobileTimeRange | null;
   fixedSessionTypeSelected: boolean;
+  streamId: number | null;
 }
 
 export const useChartUpdater = ({
@@ -23,9 +26,11 @@ export const useChartUpdater = ({
   isLoading,
   lastSelectedTimeRange,
   fixedSessionTypeSelected,
+  streamId,
 }: UseChartUpdaterProps) => {
   const isFirstRender = useRef(true);
   const lastRangeRef = useRef<number | null>(null);
+  const dispatch = useAppDispatch();
 
   const updateChartData = useCallback(
     (
@@ -47,12 +52,26 @@ export const useChartUpdater = ({
       // Update the data
       chart.series[0].setData(data, true, false, false);
 
+      // Update extremes based on visible range
+      if (fixedSessionTypeSelected && streamId && chart.xAxis[0]) {
+        const { min, max } = chart.xAxis[0].getExtremes();
+        if (min !== undefined && max !== undefined) {
+          dispatch(
+            updateFixedMeasurementExtremes({
+              streamId,
+              min,
+              max,
+            })
+          );
+        }
+      }
+
       // Reapply the range selection after data update
       if (chart.rangeSelector && lastRangeRef.current !== null) {
         chart.rangeSelector.clickButton(lastRangeRef.current, true);
       }
     },
-    []
+    [dispatch, fixedSessionTypeSelected, streamId]
   );
 
   useEffect(() => {
@@ -64,10 +83,10 @@ export const useChartUpdater = ({
       updateChartData(chart, seriesData);
       isFirstRender.current = false;
     } else {
-      // For subsequent updates, use the stored range
       updateChartData(chart, seriesData);
     }
 
+    // If we have a lastSelectedTimeRange, apply it
     if (lastSelectedTimeRange && chart.rangeSelector) {
       const selectedIndex = getSelectedRangeIndex(
         lastSelectedTimeRange,

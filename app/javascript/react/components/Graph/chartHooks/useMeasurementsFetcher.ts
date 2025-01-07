@@ -12,18 +12,13 @@ export const useMeasurementsFetcher = (streamId: number | null) => {
   const isInitialFetchRef = useRef(true);
   const dispatch = useAppDispatch();
 
-  const fetchChunk = async (
-    start: number,
-    end: number,
-    isBackground = false
-  ) => {
+  const fetchChunk = async (start: number, end: number) => {
     try {
       await dispatch(
         fetchMeasurements({
           streamId: Number(streamId),
           startTime: Math.floor(start).toString(),
           endTime: Math.floor(end).toString(),
-          isBackground,
         })
       ).unwrap();
     } catch (error) {
@@ -39,11 +34,11 @@ export const useMeasurementsFetcher = (streamId: number | null) => {
       try {
         if (isInitialFetchRef.current) {
           // For initial fetch, load one week of data
-          await fetchChunk(end - MILLISECONDS_IN_A_DAY * 2, end, false);
+          await fetchChunk(end - MILLISECONDS_IN_A_DAY * 2, end);
           isInitialFetchRef.current = false;
         } else {
           // For subsequent fetches, get one month of data
-          await fetchChunk(end - MILLISECONDS_IN_A_MONTH, end, false);
+          await fetchChunk(end - MILLISECONDS_IN_A_MONTH, end);
         }
       } finally {
         isCurrentlyFetchingRef.current = false;

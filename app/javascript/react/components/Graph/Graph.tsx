@@ -4,6 +4,7 @@ import NoDataToDisplay from "highcharts/modules/no-data-to-display";
 import React, { useCallback, useEffect, useMemo, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import { white } from "../../assets/styles/colors";
+import { RootState } from "../../store";
 import { selectFixedStreamShortInfo } from "../../store/fixedStreamSelectors";
 import {
   resetLastSelectedTimeRange,
@@ -124,8 +125,11 @@ const Graph: React.FC<GraphProps> = React.memo(
 
     const isIndoorParameterInUrl = isIndoor === "true";
 
-    const measurements = useAppSelector((state) =>
-      selectStreamMeasurements(state, streamId)
+    const measurements = useAppSelector(
+      useCallback(
+        (state: RootState) => selectStreamMeasurements(state, streamId),
+        [streamId]
+      )
     );
 
     const seriesData = useMemo(() => {
@@ -143,12 +147,13 @@ const Graph: React.FC<GraphProps> = React.memo(
 
     const { fetchMeasurementsIfNeeded } = useMeasurementsFetcher(streamId);
 
-    useChartUpdater({
+    const { updateChartData } = useChartUpdater({
       chartComponentRef,
       seriesData,
       isLoading,
       lastSelectedTimeRange,
       fixedSessionTypeSelected,
+      streamId,
     });
 
     useEffect(() => {

@@ -1,4 +1,9 @@
-import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
+import {
+  createAsyncThunk,
+  createSelector,
+  createSlice,
+  PayloadAction,
+} from "@reduxjs/toolkit";
 import { AxiosResponse } from "axios";
 import { apiClient, oldApiClient } from "../api/apiClient";
 import { API_ENDPOINTS } from "../api/apiEndpoints";
@@ -104,7 +109,6 @@ export const fetchMeasurements = createAsyncThunk(
       streamId: number;
       startTime: string;
       endTime: string;
-      isBackground?: boolean;
     },
     { rejectWithValue }
   ) => {
@@ -216,21 +220,16 @@ const fixedStreamSlice = createSlice({
     });
 
     // ================ fetchMeasurements =================
-    builder.addCase(fetchMeasurements.pending, (state, action) => {
-      // If it's not a background fetch, set loading status
-      if (!action.meta.arg.isBackground) {
-        state.status = StatusEnum.Pending;
-        state.error = null;
-        state.isLoading = true;
-      }
+    builder.addCase(fetchMeasurements.pending, (state) => {
+      state.status = StatusEnum.Pending;
+      state.error = null;
+      state.isLoading = true;
     });
 
     builder.addCase(fetchMeasurements.fulfilled, (state, action) => {
-      if (!action.meta.arg.isBackground) {
-        state.status = StatusEnum.Fulfilled;
-        state.isLoading = false;
-        state.error = null;
-      }
+      state.status = StatusEnum.Fulfilled;
+      state.isLoading = false;
+      state.error = null;
 
       const streamId = Number(action.meta?.arg?.streamId);
       if (streamId) {
@@ -275,13 +274,28 @@ export const {
 } = fixedStreamSlice.actions;
 
 // Selectors
-export const selectFixedData = (state: RootState) => state.fixedStream.data;
-export const selectIsLoading = (state: RootState) =>
-  state.fixedStream.isLoading;
-export const selectLastSelectedFixedTimeRange = (state: RootState) =>
-  state.fixedStream.lastSelectedTimeRange;
+export const selectFixedStreamState = (state: RootState) => state.fixedStream;
 
-export const selectStreamMeasurements = (
-  state: RootState,
-  streamId: number | null
-) => (streamId ? state.fixedStream.measurements[streamId] || [] : []);
+export const selectFixedData = createSelector(
+  [selectFixedStreamState],
+  (fixedStream) => fixedStream.data
+);
+
+export const selectIsLoading = createSelector(
+  [selectFixedStreamState],
+  (fixedStream) => fixedStream.isLoading
+);
+
+export const selectLastSelectedFixedTimeRange = createSelector(
+  [selectFixedStreamState],
+  (fixedStream) => fixedStream.lastSelectedTimeRange
+);
+
+export const selectStreamMeasurements = createSelector(
+  [
+    selectFixedStreamState,
+    (_state: RootState, streamId: number | null) => streamId,
+  ],
+  (fixedStream, streamId) =>
+    streamId ? fixedStream.measurements[streamId] || [] : []
+);
