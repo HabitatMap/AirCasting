@@ -38,9 +38,13 @@ const SuggestionsList = styled.ul<SuggestionsListProps>`
   box-shadow: ${(p) =>
     p.$displaySearchResults ? `2px 2px 4px 0px rgba(76, 86, 96, 0.1)` : `none`};
   padding: 30px 0 8px 8px;
-  width: 26rem;
+  width: 20rem;
   z-index: 2;
   color: ${gray400};
+
+  @media ${media.smallMobile} {
+    width: 26rem;
+  }
 
   @media ${media.mediumDesktop} {
     width: 100%;
@@ -52,7 +56,7 @@ const SuggestionsList = styled.ul<SuggestionsListProps>`
 `;
 
 const SearchInput = styled.input<SearchInputProps>`
-  width: ${(props) => (props.$isTimelapsView ? "100%" : "26.9rem")};
+  width: ${(props) => (props.$isTimelapsView ? "100%" : "20rem")};
   height: 3.2rem;
   border-radius: ${(p) =>
     p.$displaySearchResults ? `15px 15px 0px 0px` : `20px`};
@@ -68,6 +72,10 @@ const SearchInput = styled.input<SearchInputProps>`
   outline: none;
   z-index: 3;
   color: ${gray400};
+
+  @media ${media.smallMobile} {
+    width: ${(props) => (props.$isTimelapsView ? "100%" : "26rem")};
+  }
 
   @media ${media.smallDesktop} {
     width: 26rem;
@@ -119,8 +127,13 @@ const SearchContainer = styled.div<{ $isTimelapseView: boolean }>`
   position: relative;
   display: flex;
   align-items: center;
-  gap: 1rem;
+  gap: 0.5rem;
   width: 70vw;
+
+  @media ${media.smallMobile} {
+    gap: 1rem;
+  }
+
   @media ${media.smallDesktop} {
     width: auto;
   }
