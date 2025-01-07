@@ -7,7 +7,6 @@ import { white } from "../../assets/styles/colors";
 import { selectFixedStreamShortInfo } from "../../store/fixedStreamSelectors";
 import {
   resetLastSelectedTimeRange,
-  selectFixedData,
   selectIsLoading,
   selectLastSelectedFixedTimeRange,
   selectStreamMeasurements,
@@ -79,7 +78,6 @@ const Graph: React.FC<GraphProps> = React.memo(
     const fixedSessionTypeSelected = sessionType === SessionTypes.FIXED;
     const thresholdsState = useAppSelector(selectThresholds);
     const isLoading = useAppSelector(selectIsLoading);
-    const fixedGraphData = useAppSelector(selectFixedData);
     const mobileGraphData = useAppSelector(selectMobileStreamPoints);
     const mobileStreamShortInfo: MobileStreamShortInfo = useAppSelector(
       selectMobileStreamShortInfo
@@ -94,8 +92,7 @@ const Graph: React.FC<GraphProps> = React.memo(
       selectLastSelectedMobileTimeRange
     );
 
-    const { unitSymbol, measurementType, isIndoor, sensorName } =
-      useMapParams();
+    const { unitSymbol, measurementType, isIndoor } = useMapParams();
 
     const lastSelectedTimeRange = fixedSessionTypeSelected
       ? fixedLastSelectedTimeRange

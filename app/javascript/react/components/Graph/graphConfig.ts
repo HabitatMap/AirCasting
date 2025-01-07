@@ -42,12 +42,6 @@ import {
   MILLISECONDS_IN_AN_HOUR,
 } from "../../utils/timeRanges";
 
-let hasInitialFetch = false;
-
-const isGovernmentSensor = (sensorName?: string) => {
-  return sensorName?.toLowerCase().includes("government");
-};
-
 const getScrollbarOptions = (isCalendarPage: boolean, isMobile: boolean) => {
   return {
     barBackgroundColor: gray200,
@@ -73,28 +67,24 @@ const getXAxisOptions = (
   dispatch: AppDispatch,
   isLoading: boolean,
   fetchMeasurementsIfNeeded: (start: number, end: number) => Promise<void>,
-  // NEW: pass the current `streamId` from the Graph so we know which set of measurements to update
   streamId: number | null
 ): Highcharts.XAxisOptions => {
   let isFetchingData = false;
   let initialDataMin: number | null = null;
   let fetchTimeout: NodeJS.Timeout | null = null;
 
-  // Debounced function to set extremes
   const handleSetExtremes = debounce(
     (e: Highcharts.AxisSetExtremesEventObject) => {
       if (!isLoading && e.min !== undefined && e.max !== undefined) {
         if (fixedSessionTypeSelected && streamId !== null) {
           dispatch(
             updateFixedMeasurementExtremes({
-              // Pass the streamId!
               streamId,
               min: e.min,
               max: e.max,
             })
           );
         } else {
-          // For mobile streams
           dispatch(
             updateMobileMeasurementExtremes({
               min: e.min,
@@ -103,7 +93,6 @@ const getXAxisOptions = (
           );
         }
 
-        // If you have a little range display in the UI, update it
         const { formattedMinTime, formattedMaxTime } = formatTimeExtremes(
           e.min,
           e.max
@@ -156,19 +145,14 @@ const getXAxisOptions = (
         e: Highcharts.AxisSetExtremesEventObject
       ) {
         const axis = this;
-        const chart = axis.chart as Highcharts.StockChart;
 
-        // 1) First let your debounced function handle min/max updating:
         handleSetExtremes(e);
 
         if (!fixedSessionTypeSelected || streamId == null) return;
 
-        // 2) Possibly do "infinite scrolling" style fetch if user scrolls near dataMin:
         if (initialDataMin === null && e.dataMin !== undefined) {
           initialDataMin = e.dataMin - MILLISECONDS_IN_A_MONTH;
         }
-
-        // For example, fetch older data if user pans close to the start:
         const onScrollbarRelease = () => {
           if (fetchTimeout) clearTimeout(fetchTimeout);
           fetchTimeout = setTimeout(async () => {
@@ -176,7 +160,6 @@ const getXAxisOptions = (
             const { min, max, dataMin } = axis.getExtremes();
             if (min === undefined || dataMin === undefined) return;
 
-            // example logic: if user scrolls near dataMin, fetch older
             const buffer = (max - min) * 0.02;
             const isAtDataMin = min <= dataMin + buffer;
             if (isAtDataMin) {

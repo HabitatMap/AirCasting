@@ -68,7 +68,6 @@ export const useChartUpdater = ({
       updateChartData(chart, seriesData);
     }
 
-    // If we have a lastSelectedTimeRange, apply it
     if (lastSelectedTimeRange && chart.rangeSelector) {
       const selectedIndex = getSelectedRangeIndex(
         lastSelectedTimeRange,

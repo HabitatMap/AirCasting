@@ -128,7 +128,6 @@ const fixedStreamSlice = createSlice({
   name: "fixedStream",
   initialState,
   reducers: {
-    // IMPORTANT: We now require the streamId in the payload
     updateFixedMeasurementExtremes(
       state,
       action: PayloadAction<{ streamId: number; min: number; max: number }>
@@ -264,10 +263,8 @@ const fixedStreamSlice = createSlice({
   },
 });
 
-// Export the reducer
 export default fixedStreamSlice.reducer;
 
-// Export your actions
 export const {
   updateFixedMeasurementExtremes,
   resetFixedStreamState,
