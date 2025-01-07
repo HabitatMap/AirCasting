@@ -1,18 +1,16 @@
 !!! 5
-%html(lang="en" ng-app="aircasting")
+%html{lang: 'en', 'ng-app': 'aircasting'}
   %head
-    %meta(name='viewport' content='width=device-width, initial-scale=1')
-    %meta(name='description' content='AirCasting map showing health and environmental data like air quality, temperature, humidity, sound levels and more.')
+    %meta{name: 'viewport', content: 'width=device-width, initial-scale=1'}/
+    %meta{name: 'description', content: 'AirCasting map showing health and environmental data like air quality, temperature, humidity, sound levels and more.'}/
     %title AirCasting
-    = javascript_include_tag *webpack_asset_urls('elm', 'js'), defer: true
-    = stylesheet_link_tag *webpack_asset_urls('elm', 'css'), defer: true
+    = javascript_include_tag *webpack_asset_urls('js'), defer: true
+    = stylesheet_link_tag *webpack_asset_urls('css'), defer: true
     = javascript_include_tag "https://maps.googleapis.com/maps/api/js?key=#{A9n.google_maps_api_key}&libraries=places&v=quarterly&callback=initMap", defer: true
     = render partial: 'shared/fb_logo'
     = render partial: 'shared/gtm'
     = csrf_meta_tags
     = render partial: "shared/favicon"
-
   %body
     = render partial: 'shared/noscript_gtm'
-
   = yield
