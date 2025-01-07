@@ -12,14 +12,13 @@ import locationSearchIcon from "../../assets/icons/locationSearchIcon.svg";
 import { useAppDispatch } from "../../store/hooks";
 import { setFetchingData } from "../../store/mapSlice";
 import { determineZoomLevel } from "../../utils/determineZoomLevel";
+import { getBrowserLocation } from "../../utils/geolocation";
 import { UrlParamsTypes, useMapParams } from "../../utils/mapParamsHandler";
 import * as S from "./LocationSearch.style";
 
 const OK_STATUS = "OK";
-const DEFAULT_ZOOM = 13;
 
 interface LocationSearchProps {
-  isMapPage?: boolean;
   isTimelapseView: boolean;
 }
 
@@ -98,50 +97,16 @@ const LocationSearch: React.FC<LocationSearchProps> = ({ isTimelapseView }) => {
   };
 
   const handleBrowserLocation = async () => {
-    try {
-      // Try Google Maps Geolocation API
-      const response = await fetch(
-        `https://www.googleapis.com/geolocation/v1/geolocate?key=${process.env.GOOGLE_MAPS_API_KEY}`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            considerIp: true,
-          }),
-        }
-      );
+    const location = await getBrowserLocation(map, setUrlParams);
 
-      const data = await response.json();
-
-      if (data.location) {
-        const { lat, lng } = data.location;
-
-        setUrlParams([
-          {
-            key: UrlParamsTypes.currentCenter,
-            value: JSON.stringify({ lat, lng }),
-          },
-          {
-            key: UrlParamsTypes.currentZoom,
-            value: DEFAULT_ZOOM.toString(),
-          },
-        ]);
-
-        map?.setZoom(DEFAULT_ZOOM);
-        map?.panTo({ lat, lng });
-
-        setInputValue("");
-        setItems([]);
-        setTimeout(() => {
-          dispatch(setFetchingData(true));
-        }, 200);
-      } else {
-        console.log(t("map.locationError.unavailable"));
-      }
-    } catch (error) {
-      console.log(t("map.locationError.unavailable"));
+    if (location) {
+      setInputValue("");
+      setItems([]);
+      setTimeout(() => {
+        dispatch(setFetchingData(true));
+      }, 200);
+    } else {
+      console.log(t("map.locationError"));
     }
   };
 
