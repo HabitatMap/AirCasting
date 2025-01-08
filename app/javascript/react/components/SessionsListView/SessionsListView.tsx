@@ -189,7 +189,6 @@ const SessionsListView: React.FC<SessionsListViewProps> = ({
                 startTime={session.startTime}
                 endTime={session.endTime}
                 streamId={session.streamId}
-                lastMeasurementValue={session.lastMeasurementValue}
                 onClick={(id, streamId) => handleClick(id, streamId)}
                 onMouseEnter={(id) => handleMouseEnter(id)}
                 onMouseLeave={handleMouseLeave}

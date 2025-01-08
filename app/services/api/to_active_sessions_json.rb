@@ -29,7 +29,11 @@ class Api::ToActiveSessionsJson
   # this should be tested in terms of performance and actual queries generated vs. old mysql implementation
   def build_json_output(anonymous = false)
     sessions = formatted_sessions
-    streams = Stream.where(session_id: sessions.pluck('sessions.id'))
+    streams =
+      Stream
+        .includes(:last_hourly_average)
+        .left_joins(:last_hourly_average)
+        .where(session_id: sessions.pluck('sessions.id'))
     selected_sensor_streams =
       streams.select do |stream|
         Sensor.sensor_name(data[:sensor_name]).include? stream.sensor_name
@@ -47,28 +51,32 @@ class Api::ToActiveSessionsJson
             related_stream.id,
           )
 
-      {
-        'id' => session.id,
-        'uuid' => session.uuid,
-        'end_time_local' => session.end_time_local.strftime('%Y-%m-%dT%H:%M:%S.%LZ'),
-        'start_time_local' => session.start_time_local.strftime('%Y-%m-%dT%H:%M:%S.%LZ'),
-        'last_measurement_value' => related_stream&.average_value&.round,
-        'is_indoor' => session.is_indoor,
-        'latitude' => session.latitude,
-        'longitude' => session.longitude,
-        'title' => session.title,
-        'username' => anonymous ? 'anonymous' : session.user.username,
-        'is_active' => session.is_active,
-        'streams' => {
-          related_stream.sensor_name => {
-            'measurement_short_type' => related_stream.measurement_short_type,
-            'sensor_name' => related_stream.sensor_name,
-            'unit_symbol' => related_stream.unit_symbol,
-            'id' => related_stream.id,
-            'stream_daily_average' => last_average_value&.round || 'no data',
-          }
+        {
+          'id' => session.id,
+          'uuid' => session.uuid,
+          'end_time_local' =>
+            session.end_time_local.strftime('%Y-%m-%dT%H:%M:%S.%LZ'),
+          'start_time_local' =>
+            session.start_time_local.strftime('%Y-%m-%dT%H:%M:%S.%LZ'),
+          'last_measurement_value' => related_stream&.average_value&.round,
+          'is_indoor' => session.is_indoor,
+          'latitude' => session.latitude,
+          'longitude' => session.longitude,
+          'title' => session.title,
+          'username' => anonymous ? 'anonymous' : session.user.username,
+          'is_active' => session.is_active,
+          'last_hourly_average_value' =>
+            related_stream.last_hourly_average_value,
+          'streams' => {
+            related_stream.sensor_name => {
+              'measurement_short_type' => related_stream.measurement_short_type,
+              'sensor_name' => related_stream.sensor_name,
+              'unit_symbol' => related_stream.unit_symbol,
+              'id' => related_stream.id,
+              'stream_daily_average' => last_average_value&.round || 'no data',
+            },
+          },
         }
-      }
       end
 
     {

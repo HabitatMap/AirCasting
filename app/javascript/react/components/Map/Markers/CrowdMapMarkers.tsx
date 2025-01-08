@@ -17,13 +17,14 @@ import {
   selectRectangleLoading,
 } from "../../../store/rectangleSlice";
 import { selectThresholds } from "../../../store/thresholdSlice";
-import { Session } from "../../../types/sessionType";
+import { MobileSession } from "../../../types/sessionType";
 import useMapEventListeners from "../../../utils/mapEventListeners";
 import { useMapParams } from "../../../utils/mapParamsHandler";
 import { getColorForValue } from "../../../utils/thresholdColors";
 
-import { CustomMarker } from "./CustomMarker";
-import MapOverlay from "./MapOverlay";
+import { CustomMarker } from "./CustomOverlays/CustomMarker";
+
+import MapOverlay from "./CustomOverlays/MapOverlay";
 import {
   RectangleInfo,
   RectangleInfoLoading,
@@ -31,7 +32,7 @@ import {
 
 type Props = {
   pulsatingSessionId: number | null;
-  sessions: Session[];
+  sessions: MobileSession[];
 };
 
 const CrowdMapMarkers = ({ pulsatingSessionId, sessions }: Props) => {
@@ -118,7 +119,7 @@ const CrowdMapMarkers = ({ pulsatingSessionId, sessions }: Props) => {
   } | null>(null);
 
   const crowdMapRectanglesLength: number = crowdMapRectangles.length;
-  const displayedSession: Session | undefined = sessions.find(
+  const displayedSession: MobileSession | undefined = sessions.find(
     (session) => session.id === pulsatingSessionId
   );
   const displayedSessionMarkerRef = useRef<CustomMarker | null>(null);

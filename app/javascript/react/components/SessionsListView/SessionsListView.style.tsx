@@ -7,7 +7,6 @@ const SessionListViewStyle = styled.div`
   position: fixed;
   top: 10.5rem;
   right: 1.25rem;
-  bottom: 6.4rem;
   border-radius: 0.5rem;
   box-sizing: border-box;
   padding-right: 0.8rem;
@@ -45,6 +44,9 @@ const SessionListContainer = styled.div`
   flex-direction: column;
   gap: 1rem;
   padding-bottom: 1rem;
+  position: absolute;
+  top: 5rem;
+  max-height: calc(100vh - 22rem);
 
   @-moz-document url-prefix() {
     width: calc(100% + 2rem);

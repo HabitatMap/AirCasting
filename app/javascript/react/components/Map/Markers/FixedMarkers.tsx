@@ -8,7 +8,11 @@ import React, {
   useState,
 } from "react";
 
-import { fetchClusterData, setVisibility } from "../../../store/clusterSlice";
+import {
+  setAverage,
+  setSize,
+  setVisibility,
+} from "../../../store/clusterSlice";
 import {
   selectFixedStreamData,
   selectFixedStreamStatus,
@@ -19,7 +23,7 @@ import { setMarkersLoading } from "../../../store/markersLoadingSlice";
 import { selectThresholds } from "../../../store/thresholdSlice";
 import { StatusEnum } from "../../../types/api";
 import { LatLngLiteral } from "../../../types/googleMaps";
-import { Session } from "../../../types/sessionType";
+import { FixedSession } from "../../../types/sessionType";
 import { getClusterPixelPosition } from "../../../utils/getClusterPixelPosition";
 import useMapEventListeners from "../../../utils/mapEventListeners";
 import { useMapParams } from "../../../utils/mapParamsHandler";
@@ -28,9 +32,12 @@ import { ClusterInfo, ClusterInfoLoading } from "./ClusterInfo/ClusterInfo";
 
 import { UserSettings } from "../../../types/userStates";
 import HoverMarker from "./HoverMarker/HoverMarker";
-import { ClusterOverlay } from "./clusterOverlay";
-import { LabelOverlay } from "./customMarkerLabel";
-import { CustomMarkerOverlay } from "./customMarkerOverlay";
+
+import { selectIsLoading } from "../../../store/fixedStreamSlice";
+import { calculateClusterAverage } from "./ClusterMarker/clusterCalculations";
+import { ClusterOverlay } from "./ClusterMarker/clusterOverlay";
+import { LabelOverlay } from "./CustomOverlays/customMarkerLabel";
+import { CustomMarkerOverlay } from "./CustomOverlays/customMarkerOverlay";
 import { CustomAlgorithm } from "./gridClusterAlgorithm";
 
 type CustomMarker = google.maps.Marker & {
@@ -45,7 +52,7 @@ export type CustomCluster = Cluster & {
 };
 
 type FixedMarkersProps = {
-  sessions: Session[];
+  sessions: FixedSession[];
   onMarkerClick: (streamId: number | null, id: number | null) => void;
   selectedStreamId: number | null;
   pulsatingSessionId: number | null;
@@ -72,10 +79,13 @@ export function FixedMarkers({
   // Redux selectors
   const hoverStreamId = useAppSelector(selectHoverStreamId);
   const thresholds = useAppSelector(selectThresholds);
-  const clusterData = useAppSelector((state) => state.cluster.data);
   const clusterVisible = useAppSelector((state) => state.cluster.visible);
   const fixedStreamData = useAppSelector(selectFixedStreamData);
   const fixedStreamStatus = useAppSelector(selectFixedStreamStatus);
+  const clusterAverage = useAppSelector(
+    (state) => state.cluster.clusterAverage
+  );
+  const clusterSize = useAppSelector((state) => state.cluster.clusterSize);
 
   // Refs
   const clustererRef = useRef<MarkerClusterer | null>(null);
@@ -84,7 +94,7 @@ export function FixedMarkers({
   const labelOverlays = useRef<Map<string, LabelOverlay>>(new Map());
   const clusterOverlaysRef = useRef<Map<string, ClusterOverlay>>(new Map());
   const previousZoomRef = useRef<number | null>(null);
-  const previousModeRef = useRef<string | null>(null);
+  const initialCenterRef = useRef<boolean>(false);
 
   // State variables
   const [hoverPosition, setHoverPosition] = useState<LatLngLiteral | null>(
@@ -100,10 +110,13 @@ export function FixedMarkers({
   // Memoized values
   const memoizedSessions = useMemo(() => sessions, [sessions]);
 
+  const isLoading = useAppSelector(selectIsLoading);
+
   // Refs for event handlers
   const onMarkerClickRef = useRef(onMarkerClick);
   useEffect(() => {
     onMarkerClickRef.current = onMarkerClick;
+    initialCenterRef.current = false;
   }, [onMarkerClick]);
 
   // Utility functions
@@ -127,14 +140,14 @@ export function FixedMarkers({
       }
       setClusterDataLoading(true);
       setSelectedCluster(cluster);
-
-      const markerStreamIds = cluster.markers
-        ?.map((marker) => (marker as CustomMarker).userData?.streamId)
-        .filter((id): id is string => typeof id === "string" && id.length > 0);
-
-      if (markerStreamIds && markerStreamIds.length > 0) {
-        await dispatch(fetchClusterData(markerStreamIds));
+      if (cluster.markers) {
+        const average = calculateClusterAverage(
+          cluster.markers as CustomMarker[]
+        );
+        dispatch(setAverage(average));
+        dispatch(setSize(cluster.markers?.length || 0));
       }
+
       setClusterDataLoading(false);
       dispatch(setVisibility(true));
       onClusterClick?.(cluster);
@@ -205,7 +218,7 @@ export function FixedMarkers({
   };
 
   const createMarker = useCallback(
-    (session: Session): CustomMarker => {
+    (session: FixedSession): CustomMarker => {
       const marker = new google.maps.Marker({
         position: session.point,
         icon: {
@@ -214,7 +227,7 @@ export function FixedMarkers({
         zIndex: Number(google.maps.Marker.MAX_ZINDEX) + 1,
       }) as CustomMarker;
 
-      marker.value = session.lastMeasurementValue;
+      marker.value = session.averageValue;
       marker.sessionId = session.id;
       marker.userData = { streamId: session.point.streamId };
       marker.clustered = false;
@@ -369,6 +382,7 @@ export function FixedMarkers({
     thresholds,
     unitSymbol,
     centerMapOnMarker,
+    isLoading,
   ]);
 
   useEffect(() => {
@@ -404,7 +418,11 @@ export function FixedMarkers({
         if (latitude && longitude) {
           const fixedStreamPosition = { lat: latitude, lng: longitude };
 
-          centerMapOnMarker(fixedStreamPosition);
+          // Only center on first render
+          if (!initialCenterRef.current) {
+            centerMapOnMarker(fixedStreamPosition);
+            initialCenterRef.current = true;
+          }
 
           if (clustererRef.current) {
             clustererRef.current.clearMarkers();
@@ -445,7 +463,7 @@ export function FixedMarkers({
 
               const newOverlay = new CustomMarkerOverlay(
                 new google.maps.LatLng(latitude, longitude),
-                getColorForValue(thresholds, session.lastMeasurementValue),
+                getColorForValue(thresholds, session.averageValue),
                 true,
                 false
               );
@@ -454,8 +472,8 @@ export function FixedMarkers({
 
               const newLabelOverlay = new LabelOverlay(
                 new google.maps.LatLng(latitude, longitude),
-                getColorForValue(thresholds, session.lastMeasurementValue),
-                session.lastMeasurementValue,
+                getColorForValue(thresholds, session.averageValue),
+                session.averageValue,
                 unitSymbol,
                 true,
                 () => {
@@ -509,7 +527,7 @@ export function FixedMarkers({
         updatedMarkers.push(marker);
       } else {
         marker.setPosition(session.point);
-        marker.value = session.lastMeasurementValue;
+        marker.value = session.averageValue;
         marker.sessionId = session.id;
       }
     });
@@ -563,6 +581,7 @@ export function FixedMarkers({
     updateMarkerOverlays,
     updateClusterOverlays,
     memoizedSessions,
+    isLoading,
   ]);
 
   useEffect(() => {
@@ -622,6 +641,7 @@ export function FixedMarkers({
     sessions,
     pulsatingSessionId,
     handleClusterClickInternal,
+    isLoading,
   ]);
 
   useEffect(() => {
@@ -691,6 +711,9 @@ export function FixedMarkers({
     setSelectedCluster(null);
     setClusterPosition(null);
     setHoverPosition(null);
+
+    // Reset the initial center ref
+    initialCenterRef.current = false;
   }, []);
 
   // Watch for mode changes using currentUserSettings
@@ -717,7 +740,7 @@ export function FixedMarkers({
     return () => {
       clearAllMarkersAndClusters();
     };
-  }, [currentUserSettings, clearAllMarkersAndClusters]);
+  }, []);
 
   useEffect(() => {
     if (clustererRef.current && map) {
@@ -735,16 +758,14 @@ export function FixedMarkers({
         (clusterDataLoading ? (
           <ClusterInfoLoading position={clusterPosition} visible={true} />
         ) : (
-          clusterData && (
-            <ClusterInfo
-              color={getColorForValue(thresholds, clusterData.average)}
-              average={clusterData.average}
-              numberOfSessions={clusterData.numberOfInstruments}
-              handleZoomIn={handleZoomIn}
-              position={clusterPosition}
-              visible={clusterVisible}
-            />
-          )
+          <ClusterInfo
+            color={getColorForValue(thresholds, clusterAverage)}
+            average={clusterAverage}
+            numberOfSessions={clusterSize}
+            handleZoomIn={handleZoomIn}
+            position={clusterPosition}
+            visible={clusterVisible}
+          />
         ))}
     </>
   );

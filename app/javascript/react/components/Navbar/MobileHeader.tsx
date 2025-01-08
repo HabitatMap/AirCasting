@@ -82,7 +82,7 @@ export const MobileHeader = ({
               </S.MenuButton>
             </nav>
           </S.MobileMenuContainer>
-          <LocationSearch isMapPage={true} isTimelapseView={isTimelapseView} />
+          <LocationSearch isTimelapseView={isTimelapseView} />
           {!isTimelapseView && (
             <>
               <RefreshMapButton />

@@ -98,8 +98,8 @@ import { FixedMarkers } from "./Markers/FixedMarkers";
 import { MobileMarkers } from "./Markers/MobileMarkers";
 import { StreamMarkers } from "./Markers/StreamMarkers";
 import { TimelapseMarkers } from "./Markers/TimelapseMarkers";
-import mapStyles from "./mapStyles";
-import mapStylesZoomedIn from "./mapStylesZoomedIn";
+import mapStyles from "./mapUtils/mapStyles";
+import mapStylesZoomedIn from "./mapUtils/mapStylesZoomedIn";
 
 const Map = () => {
   const dispatch = useAppDispatch();
@@ -227,8 +227,6 @@ const Map = () => {
     fetchableIndoorSessionsCount,
     isIndoorParameterInUrl,
   ]);
-
-  const sessionsPoints = fixedSessionTypeSelected ? fixedPoints : mobilePoints;
 
   const memoizedTimelapseData = useMemo(() => timelapseData, [timelapseData]);
 
@@ -530,7 +528,7 @@ const Map = () => {
         fetchTimelapseData({ filters: JSON.stringify(timelapseFilters) })
       );
     }
-  }, [currentUserSettings, sessionsPoints]);
+  }, [currentUserSettings, fixedPoints]);
 
   const handleScrollEnd = useHandleScrollEnd(
     offset,
@@ -813,13 +811,14 @@ const Map = () => {
         isFractionalZoomEnabled={true}
         styles={memoizedMapStyles}
         onZoomChanged={handleZoomChanged}
+        tilt={0}
       >
         {fixedSessionsStatusFulfilled &&
           fixedSessionTypeSelected &&
           !isActive &&
           !isIndoorParameterInUrl && (
             <DormantMarkers
-              sessions={sessionsPoints}
+              sessions={fixedPoints}
               onMarkerClick={handleMarkerClick}
               selectedStreamId={streamId}
               pulsatingSessionId={pulsatingSessionId}
@@ -833,7 +832,7 @@ const Map = () => {
             !isIndoorParameterInUrl &&
             isActive && (
               <FixedMarkers
-                sessions={sessionsPoints}
+                sessions={fixedPoints}
                 onMarkerClick={handleMarkerClick}
                 selectedStreamId={streamId}
                 pulsatingSessionId={pulsatingSessionId}
@@ -846,11 +845,11 @@ const Map = () => {
             [UserSettings.MapLegendView].includes(currentUserSettings)) ? (
             <CrowdMapMarkers
               pulsatingSessionId={pulsatingSessionId}
-              sessions={sessionsPoints}
+              sessions={mobilePoints}
             />
           ) : (
             <MobileMarkers
-              sessions={sessionsPoints}
+              sessions={mobilePoints}
               onMarkerClick={handleMarkerClick}
               selectedStreamId={streamId}
               pulsatingSessionId={pulsatingSessionId}
@@ -949,7 +948,6 @@ const Map = () => {
               startTime: session.startTime,
               endTime: session.endTime,
               streamId: session.streamId,
-              lastMeasurementValue: session.lastMeasurementValue,
             }))}
             onCellClick={(id, streamId) => {
               handleMarkerClick(streamId, id);
@@ -988,7 +986,6 @@ const Map = () => {
                 startTime: session.startTime,
                 endTime: session.endTime,
                 streamId: session.streamId,
-                lastMeasurementValue: session.lastMeasurementValue,
               }))}
               onCellClick={(id, streamId) => {
                 setPulsatingSessionId(null);

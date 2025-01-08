@@ -12,24 +12,19 @@ import locationSearchIcon from "../../assets/icons/locationSearchIcon.svg";
 import { useAppDispatch } from "../../store/hooks";
 import { setFetchingData } from "../../store/mapSlice";
 import { determineZoomLevel } from "../../utils/determineZoomLevel";
+import { getBrowserLocation } from "../../utils/geolocation";
 import { UrlParamsTypes, useMapParams } from "../../utils/mapParamsHandler";
-import { screenSizes } from "../../utils/media";
-import useScreenSizeDetection from "../../utils/useScreenSizeDetection";
 import * as S from "./LocationSearch.style";
 
 const OK_STATUS = "OK";
 
 interface LocationSearchProps {
-  isMapPage?: boolean;
   isTimelapseView: boolean;
 }
 
 type AutocompletePrediction = google.maps.places.AutocompletePrediction;
 
-const LocationSearch: React.FC<LocationSearchProps> = ({
-  isMapPage,
-  isTimelapseView,
-}) => {
+const LocationSearch: React.FC<LocationSearchProps> = ({ isTimelapseView }) => {
   const dispatch = useAppDispatch();
   const [items, setItems] = useState<AutocompletePrediction[]>([]);
   const [selectedItem, setSelectedItem] =
@@ -46,7 +41,6 @@ const LocationSearch: React.FC<LocationSearchProps> = ({
 
   const {
     isOpen,
-    getToggleButtonProps,
     getMenuProps,
     getInputProps,
     highlightedIndex,
@@ -67,8 +61,6 @@ const LocationSearch: React.FC<LocationSearchProps> = ({
     },
     inputValue,
   });
-
-  const isSmallDesktop = useScreenSizeDetection(screenSizes.mediumDesktop);
 
   const displaySearchResults = isOpen && items.length > 0;
 
@@ -104,6 +96,20 @@ const LocationSearch: React.FC<LocationSearchProps> = ({
     }, 200);
   };
 
+  const handleBrowserLocation = async () => {
+    const location = await getBrowserLocation(map, setUrlParams);
+
+    if (location) {
+      setInputValue("");
+      setItems([]);
+      setTimeout(() => {
+        dispatch(setFetchingData(true));
+      }, 200);
+    } else {
+      console.log(t("map.locationError"));
+    }
+  };
+
   useEffect(() => {
     if (status === OK_STATUS && data.length) {
       setItems(data);
@@ -118,15 +124,16 @@ const LocationSearch: React.FC<LocationSearchProps> = ({
         {...getInputProps()}
         $isTimelapsView={isTimelapseView}
       />
-      {!isMapPage && !isSmallDesktop && (
-        <S.LocationSearchButton
-          aria-label={t("map.toggleMenu")}
-          type="button"
-          {...getToggleButtonProps()}
-        >
-          <img src={locationSearchIcon} alt={t("map.searchIcon")} />
-        </S.LocationSearchButton>
-      )}
+      <S.LocationSearchButton
+        aria-label={t("map.browserLocationButton")}
+        type="button"
+        onClick={handleBrowserLocation}
+      >
+        <S.LocationSearchIcon
+          src={locationSearchIcon}
+          alt={t("map.searchIcon")}
+        />
+      </S.LocationSearchButton>
       <S.SuggestionsList
         $displaySearchResults={displaySearchResults}
         {...getMenuProps()}

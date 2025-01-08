@@ -1,16 +1,16 @@
 import { createSelector } from "reselect";
 
-import { Session, SessionList } from "../types/sessionType";
+import { MobileSession, SessionList } from "../types/sessionType";
 import { RootState } from "./";
-import { Session as MobileSession } from "./mobileSessionsSlice";
+import { MobileSessionGeneral } from "./mobileSessionsSlice";
 
 const selectMobileSessionsState = (state: RootState) => state.mobileSessions;
 
 const selectMobileSessionPointsBySessionId = (sessionId: number) =>
   createSelector(
     [selectMobileSessionsState],
-    (mobileSessionState): Session[] => {
-      const mobileSessionByStreamId: MobileSession | undefined =
+    (mobileSessionState): MobileSession[] => {
+      const mobileSessionByStreamId: MobileSessionGeneral | undefined =
         mobileSessionState.sessions.find(
           (session) => Number(session.id) === Number(sessionId)
         );
@@ -40,7 +40,7 @@ const selectMobileSessionPointsBySessionId = (sessionId: number) =>
 
 const selectMobileSessionsPoints = createSelector(
   [selectMobileSessionsState],
-  (mobileSessionsState): Session[] =>
+  (mobileSessionsState): MobileSession[] =>
     mobileSessionsState.sessions.map(({ id, streams }) => {
       const firstStream = streams[Object.keys(streams)[0]];
 

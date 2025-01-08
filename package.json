@@ -8,7 +8,7 @@
     "coverage:lcov": "NODE_ENV=test nyc --require @babel/register --reporter=lcov blue-tape app/javascript/javascript/tests/**/*.test.js",
     "build": "webpack --config ./config/webpack/webpack.config.js --mode production --progress",
     "dev": "webpack serve --config ./config/webpack/webpack.config.js --mode development --progress",
-    "test": "jest --runTestsByPath app/javascript/react/__test__/*.test.tsx"
+    "test": "jest --testPathPattern=\"app/javascript/react/.*\\.test\\.tsx$\""
   },
   "dependencies": {
     "@babel/core": "^7.16.0",
@@ -79,6 +79,7 @@
     "@types/lodash": "^4.17.1",
     "@types/react": "^18.2.23",
     "@types/react-dom": "^18.2.8",
+    "@types/redux-mock-store": "^1.5.0",
     "babel-plugin-istanbul": "^6.1.1",
     "babel-plugin-macros": "^3.1.0",
     "blue-tape": "^1.0.0",
@@ -91,6 +92,7 @@
     "jest-transform-stub": "^2.0.0",
     "nyc": "^15.1.0",
     "prettier": "^2.5.1",
+    "redux-mock-store": "^1.5.5",
     "sinon": "^12.0.1",
     "ts-jest": "^29.1.2",
     "ts-node": "^10.9.2",

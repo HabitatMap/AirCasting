@@ -9,7 +9,7 @@ import {
   strokeColor,
   textColor,
   waterColor,
-} from "../../assets/styles/colors";
+} from "../../../assets/styles/colors";
 
 export default [
   {
@@ -373,6 +373,15 @@ export default [
   },
   {
     featureType: "water",
+    elementType: "labels",
+    stylers: [
+      {
+        visibility: "off",
+      },
+    ],
+  },
+  {
+    featureType: "landscape.natural",
     elementType: "labels",
     stylers: [
       {
