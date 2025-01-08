@@ -38,11 +38,13 @@ const SuggestionsList = styled.ul<{ $displaySearchResults?: boolean }>`
   }
 
   @media ${media.mediumDesktop} {
-    width: 100%;
     padding: 10px 0 8px 8px;
     border-radius: 0px 0px 10px 10px;
     top: 100%;
     z-index: 1;
+  }
+  @media ${media.largeDesktop} {
+    width: 36.8rem;
   }
 `;
 
