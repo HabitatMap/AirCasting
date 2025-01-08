@@ -155,6 +155,7 @@ const Graph: React.FC<GraphProps> = React.memo(
       lastSelectedTimeRange,
       fixedSessionTypeSelected,
       streamId,
+      rangeDisplayRef,
     });
 
     useEffect(() => {

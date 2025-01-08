@@ -3,7 +3,9 @@ import { useCallback, useEffect, useRef } from "react";
 import { updateFixedMeasurementExtremes } from "../../../store/fixedStreamSlice";
 import { useAppDispatch } from "../../../store/hooks";
 import { FixedTimeRange, MobileTimeRange } from "../../../types/timeRange";
+
 import { getSelectedRangeIndex } from "../../../utils/getTimeRange";
+import { formatTimeExtremes } from "../../../utils/measurementsCalc";
 
 interface UseChartUpdaterProps {
   chartComponentRef: React.RefObject<{
@@ -18,6 +20,7 @@ interface UseChartUpdaterProps {
   lastSelectedTimeRange: FixedTimeRange | MobileTimeRange | null;
   fixedSessionTypeSelected: boolean;
   streamId: number | null;
+  rangeDisplayRef?: React.RefObject<HTMLDivElement>;
 }
 
 export const useChartUpdater = ({
@@ -27,6 +30,7 @@ export const useChartUpdater = ({
   lastSelectedTimeRange,
   fixedSessionTypeSelected,
   streamId,
+  rangeDisplayRef,
 }: UseChartUpdaterProps) => {
   const isFirstRender = useRef(true);
   const lastRangeRef = useRef<number | null>(null);
@@ -72,6 +76,30 @@ export const useChartUpdater = ({
       }
     },
     [dispatch, fixedSessionTypeSelected, streamId]
+  );
+
+  // Update time range display
+  const updateTimeRangeDisplay = useCallback(
+    (min: number, max: number) => {
+      if (rangeDisplayRef?.current) {
+        const { formattedMinTime, formattedMaxTime } = formatTimeExtremes(
+          min,
+          max
+        );
+        rangeDisplayRef.current.innerHTML = `
+        <div class="time-container">
+          <span class="date">${formattedMinTime.date ?? ""}</span>
+          <span class="time">${formattedMinTime.time ?? ""}</span>
+        </div>
+        <span>-</span>
+        <div class="time-container">
+          <span class="date">${formattedMaxTime.date ?? ""}</span>
+          <span class="time">${formattedMaxTime.time ?? ""}</span>
+        </div>
+      `;
+      }
+    },
+    [rangeDisplayRef]
   );
 
   useEffect(() => {
@@ -132,9 +160,28 @@ export const useChartUpdater = ({
             max,
           })
         );
+        // Update time range display
+        updateTimeRangeDisplay(min, max);
       }
     }
-  }, [lastSelectedTimeRange, fixedSessionTypeSelected, streamId, dispatch]);
+  }, [
+    lastSelectedTimeRange,
+    fixedSessionTypeSelected,
+    streamId,
+    dispatch,
+    updateTimeRangeDisplay,
+  ]);
+
+  // Also update time range display when data changes
+  useEffect(() => {
+    if (!seriesData || isLoading || !chartComponentRef.current?.chart) return;
+
+    const chart = chartComponentRef.current.chart;
+    const { min, max } = chart.xAxis[0].getExtremes();
+    if (min !== undefined && max !== undefined) {
+      updateTimeRangeDisplay(min, max);
+    }
+  }, [seriesData, isLoading, updateTimeRangeDisplay]);
 
   return {
     updateChartData,
