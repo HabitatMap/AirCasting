@@ -23,6 +23,41 @@ interface UseChartUpdaterProps {
   rangeDisplayRef?: React.RefObject<HTMLDivElement>;
 }
 
+// Create a utility function to generate HTML content
+export const generateTimeRangeHTML = (min: number, max: number) => {
+  const { formattedMinTime, formattedMaxTime } = formatTimeExtremes(min, max);
+  return `
+    <div class="time-container">
+      <span class="date">${formattedMinTime.date || ""}</span>
+      <span class="time">${formattedMinTime.time || ""}</span>
+    </div>
+    <span>-</span>
+    <div class="time-container">
+      <span class="date">${formattedMaxTime.date || ""}</span>
+      <span class="time">${formattedMaxTime.time || ""}</span>
+    </div>
+  `.trim();
+};
+
+// Create a utility function to safely update the DOM
+export const updateRangeDisplayDOM = (
+  element: HTMLDivElement,
+  htmlContent: string,
+  clearPrevious: boolean = false
+) => {
+  if (clearPrevious) {
+    element.innerHTML = "";
+  }
+
+  // Use requestAnimationFrame to ensure proper timing
+  requestAnimationFrame(() => {
+    element.innerHTML = htmlContent;
+    // Force reflow
+    void element.offsetHeight;
+    void element.getBoundingClientRect();
+  });
+};
+
 export const useChartUpdater = ({
   chartComponentRef,
   seriesData,
@@ -83,33 +118,8 @@ export const useChartUpdater = ({
     (min: number, max: number) => {
       if (!rangeDisplayRef?.current) return;
 
-      const { formattedMinTime, formattedMaxTime } = formatTimeExtremes(
-        min,
-        max
-      );
-
-      // Create the HTML string with proper escaping
-      const htmlContent = `
-        <div class="time-container">
-          <span class="date">${formattedMinTime.date || ""}</span>
-          <span class="time">${formattedMinTime.time || ""}</span>
-        </div>
-        <span>-</span>
-        <div class="time-container">
-          <span class="date">${formattedMaxTime.date || ""}</span>
-          <span class="time">${formattedMaxTime.time || ""}</span>
-        </div>
-      `.trim();
-
-      // Force update with a small delay to ensure Chrome renders it
-      setTimeout(() => {
-        if (rangeDisplayRef.current) {
-          rangeDisplayRef.current.innerHTML = htmlContent;
-          // Double force reflow
-          void rangeDisplayRef.current.offsetHeight;
-          void rangeDisplayRef.current.getBoundingClientRect();
-        }
-      }, 0);
+      const htmlContent = generateTimeRangeHTML(min, max);
+      updateRangeDisplayDOM(rangeDisplayRef.current, htmlContent, true);
     },
     [rangeDisplayRef]
   );
