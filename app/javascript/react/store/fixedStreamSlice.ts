@@ -196,6 +196,12 @@ const fixedStreamSlice = createSlice({
         (a, b) => a.time - b.time
       );
     },
+
+    resetFixedMeasurementExtremes(state) {
+      state.minMeasurementValue = null;
+      state.maxMeasurementValue = null;
+      state.averageMeasurementValue = null;
+    },
   },
   extraReducers: (builder) => {
     // ================ fetchFixedStreamById =================
@@ -271,6 +277,7 @@ export const {
   resetLastSelectedTimeRange,
   resetStreamMeasurements,
   updateStreamMeasurements,
+  resetFixedMeasurementExtremes,
 } = fixedStreamSlice.actions;
 
 // Selectors

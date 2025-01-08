@@ -102,6 +102,40 @@ export const useChartUpdater = ({
     fixedSessionTypeSelected,
   ]);
 
+  // Add effect to handle time range changes for fixed streams only
+  useEffect(() => {
+    if (
+      !chartComponentRef.current?.chart ||
+      !lastSelectedTimeRange ||
+      !fixedSessionTypeSelected
+    )
+      return;
+
+    const chart = chartComponentRef.current.chart;
+    const selectedIndex = getSelectedRangeIndex(
+      lastSelectedTimeRange,
+      fixedSessionTypeSelected
+    );
+
+    if (chart.rangeSelector) {
+      chart.rangeSelector.clickButton(selectedIndex, true);
+    }
+
+    // Update extremes based on new range for fixed streams only
+    if (chart.xAxis[0] && streamId) {
+      const { min, max } = chart.xAxis[0].getExtremes();
+      if (min !== undefined && max !== undefined) {
+        dispatch(
+          updateFixedMeasurementExtremes({
+            streamId,
+            min,
+            max,
+          })
+        );
+      }
+    }
+  }, [lastSelectedTimeRange, fixedSessionTypeSelected, streamId, dispatch]);
+
   return {
     updateChartData,
   };
