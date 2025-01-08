@@ -1,6 +1,9 @@
 import Highcharts from "highcharts";
 import { useCallback, useEffect, useRef } from "react";
-import { updateFixedMeasurementExtremes } from "../../../store/fixedStreamSlice";
+import {
+  resetFixedMeasurementExtremes,
+  updateFixedMeasurementExtremes,
+} from "../../../store/fixedStreamSlice";
 import { useAppDispatch } from "../../../store/hooks";
 import { FixedTimeRange, MobileTimeRange } from "../../../types/timeRange";
 
@@ -23,7 +26,6 @@ interface UseChartUpdaterProps {
   rangeDisplayRef?: React.RefObject<HTMLDivElement>;
 }
 
-// Create a utility function to generate HTML content
 export const generateTimeRangeHTML = (min: number, max: number) => {
   const { formattedMinTime, formattedMaxTime } = formatTimeExtremes(min, max);
   return `
@@ -39,7 +41,6 @@ export const generateTimeRangeHTML = (min: number, max: number) => {
   `.trim();
 };
 
-// Create a utility function to safely update the DOM
 export const updateRangeDisplayDOM = (
   element: HTMLDivElement,
   htmlContent: string,
@@ -49,10 +50,8 @@ export const updateRangeDisplayDOM = (
     element.innerHTML = "";
   }
 
-  // Use requestAnimationFrame to ensure proper timing
   requestAnimationFrame(() => {
     element.innerHTML = htmlContent;
-    // Force reflow
     void element.offsetHeight;
     void element.getBoundingClientRect();
   });
@@ -80,7 +79,6 @@ export const useChartUpdater = ({
       },
       data: Highcharts.PointOptionsType[]
     ) => {
-      // Store current range selection before updating data
       if (chart.rangeSelector) {
         const selectedButton = chart.options.rangeSelector?.selected;
         if (selectedButton !== undefined) {
@@ -88,10 +86,8 @@ export const useChartUpdater = ({
         }
       }
 
-      // Update the data
       chart.series[0].setData(data, true, false, false);
 
-      // Update extremes based on visible range
       if (fixedSessionTypeSelected && streamId && chart.xAxis[0]) {
         const { min, max } = chart.xAxis[0].getExtremes();
         if (min !== undefined && max !== undefined) {
@@ -105,7 +101,6 @@ export const useChartUpdater = ({
         }
       }
 
-      // Reapply the range selection after data update
       if (chart.rangeSelector && lastRangeRef.current !== null) {
         chart.rangeSelector.clickButton(lastRangeRef.current, true);
       }
@@ -113,7 +108,6 @@ export const useChartUpdater = ({
     [dispatch, fixedSessionTypeSelected, streamId]
   );
 
-  // Update time range display
   const updateTimeRangeDisplay = useCallback(
     (min: number, max: number) => {
       if (!rangeDisplayRef?.current) return;
@@ -136,7 +130,6 @@ export const useChartUpdater = ({
       updateChartData(chart, seriesData);
     }
 
-    // If we have a lastSelectedTimeRange, apply it
     if (lastSelectedTimeRange && chart.rangeSelector) {
       const selectedIndex = getSelectedRangeIndex(
         lastSelectedTimeRange,
@@ -152,7 +145,6 @@ export const useChartUpdater = ({
     fixedSessionTypeSelected,
   ]);
 
-  // Add effect to handle time range changes for fixed streams only
   useEffect(() => {
     if (
       !chartComponentRef.current?.chart ||
@@ -171,7 +163,6 @@ export const useChartUpdater = ({
       chart.rangeSelector.clickButton(selectedIndex, true);
     }
 
-    // Update extremes based on new range for fixed streams only
     if (chart.xAxis[0] && streamId) {
       const { min, max } = chart.xAxis[0].getExtremes();
       if (min !== undefined && max !== undefined) {
@@ -182,7 +173,6 @@ export const useChartUpdater = ({
             max,
           })
         );
-        // Update time range display
         updateTimeRangeDisplay(min, max);
       }
     }
@@ -194,7 +184,6 @@ export const useChartUpdater = ({
     updateTimeRangeDisplay,
   ]);
 
-  // Also update time range display when data changes
   useEffect(() => {
     if (!seriesData || isLoading || !chartComponentRef.current?.chart) return;
 
@@ -204,6 +193,14 @@ export const useChartUpdater = ({
       updateTimeRangeDisplay(min, max);
     }
   }, [seriesData, isLoading, updateTimeRangeDisplay]);
+
+  useEffect(() => {
+    return () => {
+      if (fixedSessionTypeSelected && streamId) {
+        dispatch(resetFixedMeasurementExtremes());
+      }
+    };
+  }, [dispatch, fixedSessionTypeSelected, streamId]);
 
   return {
     updateChartData,
