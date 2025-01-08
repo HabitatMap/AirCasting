@@ -38,6 +38,7 @@ import {
 import { useMapParams } from "../../utils/mapParamsHandler";
 import {
   MILLISECONDS_IN_A_DAY,
+  MILLISECONDS_IN_A_MONTH,
   MILLISECONDS_IN_A_WEEK,
 } from "../../utils/timeRanges";
 import useMobileDetection from "../../utils/useScreenSizeDetection";
@@ -198,12 +199,29 @@ const Graph: React.FC<GraphProps> = React.memo(
     }, []);
 
     useEffect(() => {
-      if (streamId && fixedSessionTypeSelected && !measurements.length) {
-        // Only fetch if we don't have data for this stream
-        const now = Date.now();
-        fetchMeasurementsIfNeeded(now - MILLISECONDS_IN_A_WEEK, now);
+      if (streamId && fixedSessionTypeSelected) {
+        if (selectedDate) {
+          // Fetch data for selected date if we don't have measurements in that range
+          const hasDataForSelectedDate = measurements.some(
+            (m) =>
+              m.time >= selectedDate &&
+              m.time <= selectedDate + MILLISECONDS_IN_A_DAY
+          );
+
+          if (!hasDataForSelectedDate) {
+            fetchMeasurementsIfNeeded(
+              selectedDate - MILLISECONDS_IN_A_MONTH / 2,
+              selectedDate + MILLISECONDS_IN_A_MONTH / 2,
+              selectedDate
+            );
+          }
+        } else if (!measurements.length) {
+          // Only fetch if we don't have data for this stream
+          const now = Date.now();
+          fetchMeasurementsIfNeeded(now - MILLISECONDS_IN_A_WEEK, now);
+        }
       }
-    }, [streamId, fixedSessionTypeSelected, measurements.length]);
+    }, [streamId, fixedSessionTypeSelected, measurements.length, selectedDate]);
 
     // Apply touch action to the graph container for mobile devices in Calendar page
     useEffect(() => {

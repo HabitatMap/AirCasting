@@ -13,6 +13,8 @@ export const useMeasurementsFetcher = (streamId: number | null) => {
   const dispatch = useAppDispatch();
 
   const fetchChunk = async (start: number, end: number) => {
+    if (!streamId) return;
+
     try {
       await dispatch(
         fetchMeasurements({
@@ -27,12 +29,17 @@ export const useMeasurementsFetcher = (streamId: number | null) => {
   };
 
   const fetchMeasurementsIfNeeded = debounce(
-    async (start: number, end: number) => {
+    async (start: number, end: number, selectedDate?: number | null) => {
       if (!streamId || isCurrentlyFetchingRef.current) return;
       isCurrentlyFetchingRef.current = true;
 
       try {
-        if (isInitialFetchRef.current) {
+        if (selectedDate) {
+          // For selected date, fetch one month of data centered around the selected date
+          const monthStart = selectedDate - MILLISECONDS_IN_A_MONTH / 2;
+          const monthEnd = selectedDate + MILLISECONDS_IN_A_MONTH / 2;
+          await fetchChunk(monthStart, monthEnd);
+        } else if (isInitialFetchRef.current) {
           // For initial fetch, load one week of data
           await fetchChunk(end - MILLISECONDS_IN_A_DAY * 2, end);
           isInitialFetchRef.current = false;
@@ -45,7 +52,11 @@ export const useMeasurementsFetcher = (streamId: number | null) => {
       }
     },
     300
-  ) as (start: number, end: number) => Promise<void>;
+  ) as (
+    start: number,
+    end: number,
+    selectedDate?: number | null
+  ) => Promise<void>;
 
   return { fetchMeasurementsIfNeeded };
 };
