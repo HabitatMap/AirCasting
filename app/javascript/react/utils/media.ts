@@ -2,6 +2,7 @@ const sizes = {
   // Why such numbers? Explenation:
   // While there is no hard and fast rule for what breakpoints should be used,
   // values of common CSS breakpoints are 320px or 480px (for mobile phones), 768px (for tablets)
+  smallMobile: "340px",
   mobile: "768px",
   smallDesktop: "769px",
   tabletMax: "1023px",
@@ -13,6 +14,7 @@ const sizes = {
 };
 
 export const media = {
+  smallMobile: `(min-width: ${sizes.smallMobile})`,
   mobile: `(max-width: ${sizes.mobile})`,
   smallDesktop: `(min-width: ${sizes.smallDesktop})`,
   tabletMax: `(max-width: ${sizes.tabletMax})`,
@@ -24,6 +26,7 @@ export const media = {
 };
 
 export const screenSizes = {
+  smallMobile: 340,
   mobile: 768,
   smallDesktop: 769,
   tabletMax: 1023,
