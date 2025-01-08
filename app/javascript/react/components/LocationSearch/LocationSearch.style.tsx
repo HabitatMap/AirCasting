@@ -8,26 +8,13 @@ interface SuggestionProps {
   $isHighlighted?: boolean;
 }
 
-interface SearchInputProps {
-  $displaySearchResults?: boolean;
-  $isTimelapsView?: boolean;
-}
-
-interface SuggestionsListProps {
-  $displaySearchResults?: boolean;
-}
-
-interface HrProps {
-  $displaySearchResults?: boolean;
-}
-
 const Suggestion = styled.li<SuggestionProps>`
   cursor: pointer;
   padding: 0.5rem;
   font-size: 1.6rem;
 `;
 
-const SuggestionsList = styled.ul<SuggestionsListProps>`
+const SuggestionsList = styled.ul<{ $displaySearchResults?: boolean }>`
   background-color: ${(p) => (p.$displaySearchResults ? `${white}` : `none`)};
   position: absolute;
   top: 20%;
@@ -38,11 +25,15 @@ const SuggestionsList = styled.ul<SuggestionsListProps>`
   box-shadow: ${(p) =>
     p.$displaySearchResults ? `2px 2px 4px 0px rgba(76, 86, 96, 0.1)` : `none`};
   padding: 30px 0 8px 8px;
-  width: 20rem;
+  width: 19rem;
   z-index: 2;
   color: ${gray400};
 
   @media ${media.smallMobile} {
+    width: 20rem;
+  }
+
+  @media ${media.smallDesktop} {
     width: 26rem;
   }
 
@@ -55,8 +46,8 @@ const SuggestionsList = styled.ul<SuggestionsListProps>`
   }
 `;
 
-const SearchInput = styled.input<SearchInputProps>`
-  width: 20rem;
+const SearchInput = styled.input<{ $displaySearchResults?: boolean }>`
+  width: 19rem;
   height: 3.2rem;
   border-radius: ${(p) =>
     p.$displaySearchResults ? `15px 15px 0px 0px` : `20px`};
@@ -74,7 +65,7 @@ const SearchInput = styled.input<SearchInputProps>`
   color: ${gray400};
 
   @media ${media.smallMobile} {
-    width: 22rem;
+    width: 20rem;
   }
 
   @media ${media.smallDesktop} {
@@ -101,7 +92,7 @@ const SearchInput = styled.input<SearchInputProps>`
 
 const LocationSearchButton = styled.button`
   background-color: ${white};
-  height: 3.2rem;
+  height: 4rem;
   border-radius: 50%;
   cursor: pointer;
   border: none;
@@ -114,8 +105,8 @@ const LocationSearchButton = styled.button`
 `;
 
 const LocationSearchIcon = styled.img`
-  width: 3.2rem;
-  height: 3.2rem;
+  width: 4rem;
+  height: 4rem;
 
   @media ${media.mediumDesktop} {
     width: 4.2rem;
@@ -144,7 +135,7 @@ const SearchContainer = styled.div<{ $isTimelapseView: boolean }>`
     pointer-events: none;`}
 `;
 
-const Hr = styled.hr<HrProps>`
+const Hr = styled.hr<{ $displaySearchResults?: boolean }>`
   visibility: hidden;
 
   @media ${media.mediumDesktop} {

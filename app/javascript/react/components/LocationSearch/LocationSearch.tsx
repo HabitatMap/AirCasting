@@ -122,7 +122,6 @@ const LocationSearch: React.FC<LocationSearchProps> = ({ isTimelapseView }) => {
         placeholder={t("map.searchPlaceholder")}
         $displaySearchResults={displaySearchResults}
         {...getInputProps()}
-        $isTimelapsView={isTimelapseView}
       />
       <S.LocationSearchButton
         aria-label={t("map.browserLocationButton")}
