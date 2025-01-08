@@ -56,7 +56,7 @@ const SuggestionsList = styled.ul<SuggestionsListProps>`
 `;
 
 const SearchInput = styled.input<SearchInputProps>`
-  width: ${(props) => (props.$isTimelapsView ? "100%" : "20rem")};
+  width: 20rem;
   height: 3.2rem;
   border-radius: ${(p) =>
     p.$displaySearchResults ? `15px 15px 0px 0px` : `20px`};
@@ -74,7 +74,7 @@ const SearchInput = styled.input<SearchInputProps>`
   color: ${gray400};
 
   @media ${media.smallMobile} {
-    width: ${(props) => (props.$isTimelapsView ? "100%" : "26rem")};
+    width: 22rem;
   }
 
   @media ${media.smallDesktop} {
