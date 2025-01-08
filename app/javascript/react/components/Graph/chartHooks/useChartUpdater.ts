@@ -81,23 +81,35 @@ export const useChartUpdater = ({
   // Update time range display
   const updateTimeRangeDisplay = useCallback(
     (min: number, max: number) => {
-      if (rangeDisplayRef?.current) {
-        const { formattedMinTime, formattedMaxTime } = formatTimeExtremes(
-          min,
-          max
-        );
-        rangeDisplayRef.current.innerHTML = `
+      if (!rangeDisplayRef?.current) return;
+
+      const { formattedMinTime, formattedMaxTime } = formatTimeExtremes(
+        min,
+        max
+      );
+
+      // Create the HTML string with proper escaping
+      const htmlContent = `
         <div class="time-container">
-          <span class="date">${formattedMinTime.date ?? ""}</span>
-          <span class="time">${formattedMinTime.time ?? ""}</span>
+          <span class="date">${formattedMinTime.date || ""}</span>
+          <span class="time">${formattedMinTime.time || ""}</span>
         </div>
         <span>-</span>
         <div class="time-container">
-          <span class="date">${formattedMaxTime.date ?? ""}</span>
-          <span class="time">${formattedMaxTime.time ?? ""}</span>
+          <span class="date">${formattedMaxTime.date || ""}</span>
+          <span class="time">${formattedMaxTime.time || ""}</span>
         </div>
-      `;
-      }
+      `.trim();
+
+      // Force update with a small delay to ensure Chrome renders it
+      setTimeout(() => {
+        if (rangeDisplayRef.current) {
+          rangeDisplayRef.current.innerHTML = htmlContent;
+          // Double force reflow
+          void rangeDisplayRef.current.offsetHeight;
+          void rangeDisplayRef.current.getBoundingClientRect();
+        }
+      }, 0);
     },
     [rangeDisplayRef]
   );

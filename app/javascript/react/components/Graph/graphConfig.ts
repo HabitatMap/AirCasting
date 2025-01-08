@@ -93,22 +93,31 @@ const getXAxisOptions = (
           );
         }
 
-        const { formattedMinTime, formattedMaxTime } = formatTimeExtremes(
-          e.min,
-          e.max
-        );
         if (rangeDisplayRef?.current) {
-          rangeDisplayRef.current.innerHTML = `
+          const { formattedMinTime, formattedMaxTime } = formatTimeExtremes(
+            e.min,
+            e.max
+          );
+
+          const htmlContent = `
             <div class="time-container">
-              <span class="date">${formattedMinTime.date ?? ""}</span>
-              <span class="time">${formattedMinTime.time ?? ""}</span>
+              <span class="date">${formattedMinTime.date || ""}</span>
+              <span class="time">${formattedMinTime.time || ""}</span>
             </div>
             <span>-</span>
             <div class="time-container">
-              <span class="date">${formattedMaxTime.date ?? ""}</span>
-              <span class="time">${formattedMaxTime.time ?? ""}</span>
+              <span class="date">${formattedMaxTime.date || ""}</span>
+              <span class="time">${formattedMaxTime.time || ""}</span>
             </div>
-          `;
+          `.trim();
+
+          setTimeout(() => {
+            if (rangeDisplayRef.current) {
+              rangeDisplayRef.current.innerHTML = htmlContent;
+              void rangeDisplayRef.current.offsetHeight;
+              void rangeDisplayRef.current.getBoundingClientRect();
+            }
+          }, 0);
         }
       }
     },
