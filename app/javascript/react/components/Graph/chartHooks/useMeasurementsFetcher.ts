@@ -10,9 +10,12 @@ import {
 export const useMeasurementsFetcher = (streamId: number | null) => {
   const isCurrentlyFetchingRef = useRef(false);
   const isInitialFetchRef = useRef(true);
+  const lastFetchedStartRef = useRef<number | null>(null);
   const dispatch = useAppDispatch();
 
   const fetchChunk = async (start: number, end: number) => {
+    if (!streamId) return;
+
     try {
       await dispatch(
         fetchMeasurements({
@@ -21,6 +24,9 @@ export const useMeasurementsFetcher = (streamId: number | null) => {
           endTime: Math.floor(end).toString(),
         })
       ).unwrap();
+
+      // Update last fetched start time after successful fetch
+      lastFetchedStartRef.current = start;
     } catch (error) {
       console.error("Error fetching chunk:", error);
     }
@@ -29,16 +35,33 @@ export const useMeasurementsFetcher = (streamId: number | null) => {
   const fetchMeasurementsIfNeeded = debounce(
     async (start: number, end: number) => {
       if (!streamId || isCurrentlyFetchingRef.current) return;
-      isCurrentlyFetchingRef.current = true;
 
       try {
+        isCurrentlyFetchingRef.current = true;
+
+        // For initial fetch, load two days of data
         if (isInitialFetchRef.current) {
-          // For initial fetch, load one week of data
           await fetchChunk(end - MILLISECONDS_IN_A_DAY * 2, end);
           isInitialFetchRef.current = false;
-        } else {
-          // For subsequent fetches, get one month of data
-          await fetchChunk(end - MILLISECONDS_IN_A_MONTH, end);
+          return;
+        }
+
+        // For subsequent fetches, check if we need to load more data
+        if (
+          lastFetchedStartRef.current === null ||
+          start < lastFetchedStartRef.current
+        ) {
+          // Calculate the fetch window
+          const fetchStart = Math.min(
+            start,
+            lastFetchedStartRef.current
+              ? lastFetchedStartRef.current - MILLISECONDS_IN_A_MONTH
+              : end - MILLISECONDS_IN_A_MONTH
+          );
+
+          const fetchEnd = lastFetchedStartRef.current || end;
+
+          await fetchChunk(fetchStart, fetchEnd);
         }
       } finally {
         isCurrentlyFetchingRef.current = false;

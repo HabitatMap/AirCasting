@@ -32,7 +32,6 @@ import { updateMobileMeasurementExtremes } from "../../store/mobileStreamSlice";
 import { LatLngLiteral } from "../../types/googleMaps";
 import { GraphData, GraphPoint } from "../../types/graph";
 import { Thresholds } from "../../types/thresholds";
-import { formatTimeExtremes } from "../../utils/measurementsCalc";
 import {
   MILLISECONDS_IN_A_5_MINUTES,
   MILLISECONDS_IN_A_DAY,
@@ -41,6 +40,10 @@ import {
   MILLISECONDS_IN_A_WEEK,
   MILLISECONDS_IN_AN_HOUR,
 } from "../../utils/timeRanges";
+import {
+  generateTimeRangeHTML,
+  updateRangeDisplayDOM,
+} from "./chartHooks/useChartUpdater";
 
 const getScrollbarOptions = (isCalendarPage: boolean, isMobile: boolean) => {
   return {
@@ -93,22 +96,9 @@ const getXAxisOptions = (
           );
         }
 
-        const { formattedMinTime, formattedMaxTime } = formatTimeExtremes(
-          e.min,
-          e.max
-        );
         if (rangeDisplayRef?.current) {
-          rangeDisplayRef.current.innerHTML = `
-            <div class="time-container">
-              <span class="date">${formattedMinTime.date ?? ""}</span>
-              <span class="time">${formattedMinTime.time ?? ""}</span>
-            </div>
-            <span>-</span>
-            <div class="time-container">
-              <span class="date">${formattedMaxTime.date ?? ""}</span>
-              <span class="time">${formattedMaxTime.time ?? ""}</span>
-            </div>
-          `;
+          const htmlContent = generateTimeRangeHTML(e.min, e.max);
+          updateRangeDisplayDOM(rangeDisplayRef.current, htmlContent, true);
         }
       }
     },

@@ -74,7 +74,6 @@ const initialState: FixedStreamState = {
   measurements: {},
 };
 
-// Thunk: fetch one fixed stream by ID
 export const fetchFixedStreamById = createAsyncThunk<
   FixedStream,
   number,
@@ -101,7 +100,6 @@ export const fetchFixedStreamById = createAsyncThunk<
   }
 });
 
-// Thunk: fetch measurements for a given [startTime, endTime]
 export const fetchMeasurements = createAsyncThunk(
   "fixedStream/fetchMeasurements",
   async (
@@ -139,21 +137,20 @@ const fixedStreamSlice = createSlice({
       const { streamId, min, max } = action.payload;
       const allMeasurements = state.measurements[streamId] || [];
 
-      // Filter only the measurements in the [min, max] time range
       const values = allMeasurements
         .filter((m) => m.time >= min && m.time <= max)
         .map((m) => m.value);
 
-      const newMin = values.length > 0 ? Math.min(...values) : 0;
-      const newMax = values.length > 0 ? Math.max(...values) : 0;
-      const newAvg =
-        values.length > 0
-          ? values.reduce((sum, value) => sum + value, 0) / values.length
-          : 0;
-
-      state.minMeasurementValue = newMin;
-      state.maxMeasurementValue = newMax;
-      state.averageMeasurementValue = newAvg;
+      if (values.length > 0) {
+        state.minMeasurementValue = Math.min(...values);
+        state.maxMeasurementValue = Math.max(...values);
+        state.averageMeasurementValue =
+          values.reduce((sum, value) => sum + value, 0) / values.length;
+      } else {
+        state.minMeasurementValue = null;
+        state.maxMeasurementValue = null;
+        state.averageMeasurementValue = null;
+      }
     },
 
     resetFixedStreamState(state) {
@@ -181,24 +178,30 @@ const fixedStreamSlice = createSlice({
       const { streamId, measurements } = action.payload;
       const existingMeasurements = state.measurements[streamId] || [];
 
-      // Create a map of existing measurements by timestamp for faster lookup
       const existingMap = new Map(existingMeasurements.map((m) => [m.time, m]));
 
-      // Merge new measurements, keeping existing ones if timestamps overlap
       measurements.forEach((measurement) => {
         if (!existingMap.has(measurement.time)) {
           existingMap.set(measurement.time, measurement);
         }
       });
 
-      // Convert back to array and sort by time
       state.measurements[streamId] = Array.from(existingMap.values()).sort(
         (a, b) => a.time - b.time
       );
     },
+
+    resetFixedMeasurementExtremes(state) {
+      state.minMeasurementValue = null;
+      state.maxMeasurementValue = null;
+      state.averageMeasurementValue = null;
+    },
+    resetTimeRange: (state) => {
+      state.lastSelectedTimeRange = FixedTimeRange.Day;
+      localStorage.setItem("lastSelectedTimeRange", FixedTimeRange.Day);
+    },
   },
   extraReducers: (builder) => {
-    // ================ fetchFixedStreamById =================
     builder.addCase(fetchFixedStreamById.pending, (state) => {
       state.status = StatusEnum.Pending;
       state.error = null;
@@ -219,7 +222,6 @@ const fixedStreamSlice = createSlice({
       state.isLoading = false;
     });
 
-    // ================ fetchMeasurements =================
     builder.addCase(fetchMeasurements.pending, (state) => {
       state.status = StatusEnum.Pending;
       state.error = null;
@@ -271,9 +273,10 @@ export const {
   resetLastSelectedTimeRange,
   resetStreamMeasurements,
   updateStreamMeasurements,
+  resetFixedMeasurementExtremes,
+  resetTimeRange,
 } = fixedStreamSlice.actions;
 
-// Selectors
 export const selectFixedStreamState = (state: RootState) => state.fixedStream;
 
 export const selectFixedData = createSelector(
