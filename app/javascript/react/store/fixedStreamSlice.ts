@@ -196,6 +196,10 @@ const fixedStreamSlice = createSlice({
       state.maxMeasurementValue = null;
       state.averageMeasurementValue = null;
     },
+    resetTimeRange: (state) => {
+      state.lastSelectedTimeRange = FixedTimeRange.Day;
+      localStorage.setItem("lastSelectedTimeRange", FixedTimeRange.Day);
+    },
   },
   extraReducers: (builder) => {
     builder.addCase(fetchFixedStreamById.pending, (state) => {
@@ -270,6 +274,7 @@ export const {
   resetStreamMeasurements,
   updateStreamMeasurements,
   resetFixedMeasurementExtremes,
+  resetTimeRange,
 } = fixedStreamSlice.actions;
 
 export const selectFixedStreamState = (state: RootState) => state.fixedStream;

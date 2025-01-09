@@ -9,6 +9,7 @@ import { selectFixedStreamShortInfo } from "../../store/fixedStreamSelectors";
 import {
   resetFixedMeasurementExtremes,
   resetLastSelectedTimeRange,
+  resetTimeRange,
   selectIsLoading,
   selectLastSelectedFixedTimeRange,
   selectStreamMeasurements,
@@ -157,6 +158,30 @@ const Graph: React.FC<GraphProps> = React.memo(
       streamId,
       rangeDisplayRef,
     });
+
+    useEffect(() => {
+      // Reset to 24-hour range on component mount
+      dispatch(resetTimeRange());
+    }, [dispatch]);
+
+    useEffect(() => {
+      // Update the time range when it changes
+      if (lastSelectedTimeRange) {
+        if (fixedSessionTypeSelected) {
+          // Only dispatch fixed time range if in fixed session
+          dispatch(
+            setLastSelectedTimeRange(lastSelectedTimeRange as FixedTimeRange)
+          );
+        } else {
+          // Handle mobile time range separately
+          dispatch(
+            setLastSelectedMobileTimeRange(
+              lastSelectedTimeRange as MobileTimeRange
+            )
+          );
+        }
+      }
+    }, [dispatch, lastSelectedTimeRange, fixedSessionTypeSelected]);
 
     useEffect(() => {
       if (chartComponentRef.current && chartComponentRef.current.chart) {

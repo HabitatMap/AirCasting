@@ -2,6 +2,7 @@ import Highcharts from "highcharts";
 import { useCallback, useEffect, useRef } from "react";
 import {
   resetFixedMeasurementExtremes,
+  resetTimeRange,
   updateFixedMeasurementExtremes,
 } from "../../../store/fixedStreamSlice";
 import { useAppDispatch } from "../../../store/hooks";
@@ -196,11 +197,49 @@ export const useChartUpdater = ({
 
   useEffect(() => {
     return () => {
+      dispatch(resetTimeRange());
       if (fixedSessionTypeSelected && streamId) {
         dispatch(resetFixedMeasurementExtremes());
       }
     };
   }, [dispatch, fixedSessionTypeSelected, streamId]);
+
+  useEffect(() => {
+    if (!chartComponentRef.current?.chart) return;
+
+    const chart = chartComponentRef.current.chart;
+
+    // Reset to 24-hour range on initial load
+    dispatch(resetTimeRange());
+
+    if (chart.rangeSelector) {
+      const dayIndex = getSelectedRangeIndex(
+        FixedTimeRange.Day,
+        fixedSessionTypeSelected
+      );
+      chart.rangeSelector.clickButton(dayIndex, true);
+    }
+
+    if (chart.xAxis[0] && streamId) {
+      const { min, max } = chart.xAxis[0].getExtremes();
+      if (min !== undefined && max !== undefined) {
+        dispatch(
+          updateFixedMeasurementExtremes({
+            streamId,
+            min,
+            max,
+          })
+        );
+        updateTimeRangeDisplay(min, max);
+      }
+    }
+  }, [
+    chartComponentRef,
+    dispatch,
+    fixedSessionTypeSelected,
+    streamId,
+    updateTimeRangeDisplay,
+  ]);
 
   return {
     updateChartData,
