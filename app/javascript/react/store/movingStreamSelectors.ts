@@ -30,7 +30,7 @@ const prepareCalendarDataCell = (
 ): CalendarCellData => {
   return {
     date: date.toDate(),
-    value: value ?? 0,
+    value: value ?? null,
     isCurrentMonth: true,
   };
 };

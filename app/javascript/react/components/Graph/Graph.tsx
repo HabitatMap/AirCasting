@@ -412,11 +412,11 @@ const Graph: React.FC<GraphProps> = React.memo(
         // Set the extremes to show the selected day
         chart.xAxis[0].setExtremes(startTime, endTime);
 
-        // If we're in fixed session mode and have a streamId, fetch data if needed
+        // If we're in fixed session mode and have a streamId, fetch data just for this day
         if (fixedSessionTypeSelected && streamId) {
           fetchMeasurementsIfNeeded(
-            startTime - MILLISECONDS_IN_A_DAY * 15, // Fetch 15 days before
-            endTime + MILLISECONDS_IN_A_DAY * 15 // Fetch 15 days after
+            startTime, // Start of the day
+            endTime // End of the day
           );
         }
       }

@@ -5,7 +5,7 @@ import * as S from "./Day.style";
 
 interface DayProps {
   dayNumber: string;
-  value: number;
+  value: number | null;
   isCurrentMonth: boolean;
   date: Date;
   min: number;
@@ -19,13 +19,15 @@ interface DayProps {
 const Day = ({ dayNumber, value, date, onClick, ...thresholds }: DayProps) => {
   return (
     <S.Day
-      $color={getColorForValue(thresholds, value)}
-      onClick={onClick}
-      style={{ cursor: "pointer" }}
+      $color={
+        value !== null ? getColorForValue(thresholds, value) : "transparent"
+      }
+      onClick={value !== null ? onClick : undefined}
+      style={{ cursor: value !== null ? "pointer" : "default" }}
     >
       <S.DayNumber $isVisible={true}>{dayNumber}</S.DayNumber>
-      <S.ValueContainer $isVisible={true}>
-        <S.Value>{value}</S.Value>
+      <S.ValueContainer $isVisible={value !== null}>
+        <S.Value>{value ?? ""}</S.Value>
       </S.ValueContainer>
     </S.Day>
   );
