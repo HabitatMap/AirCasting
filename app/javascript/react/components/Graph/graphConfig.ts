@@ -97,9 +97,6 @@ const getXAxisOptions = (
         }
 
         if (rangeDisplayRef?.current) {
-          console.log("e.min", e.min);
-          console.log("e.max", e.max);
-          console.log("rangeDisplayRef.current", rangeDisplayRef.current);
           const htmlContent = generateTimeRangeHTML(e.min, e.max);
           updateRangeDisplayDOM(rangeDisplayRef.current, htmlContent, true);
         }

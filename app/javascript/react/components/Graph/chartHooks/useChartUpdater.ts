@@ -106,7 +106,7 @@ export const useChartUpdater = ({
         chart.rangeSelector.clickButton(lastRangeRef.current, true);
       }
     },
-    [dispatch, fixedSessionTypeSelected, streamId]
+    [fixedSessionTypeSelected, streamId]
   );
 
   const updateTimeRangeDisplay = useCallback(
@@ -181,7 +181,6 @@ export const useChartUpdater = ({
     lastSelectedTimeRange,
     fixedSessionTypeSelected,
     streamId,
-    dispatch,
     updateTimeRangeDisplay,
   ]);
 
@@ -202,7 +201,7 @@ export const useChartUpdater = ({
         dispatch(resetFixedMeasurementExtremes());
       }
     };
-  }, [dispatch, fixedSessionTypeSelected, streamId]);
+  }, [fixedSessionTypeSelected, streamId]);
 
   useEffect(() => {
     if (!chartComponentRef.current?.chart) return;
