@@ -25,6 +25,7 @@ interface UseChartUpdaterProps {
   fixedSessionTypeSelected: boolean;
   streamId: number | null;
   rangeDisplayRef?: React.RefObject<HTMLDivElement>;
+  selectedDate: number | null;
 }
 
 export const generateTimeRangeHTML = (
@@ -79,6 +80,7 @@ export const useChartUpdater = ({
   fixedSessionTypeSelected,
   streamId,
   rangeDisplayRef,
+  selectedDate,
 }: UseChartUpdaterProps) => {
   const isFirstRender = useRef(true);
   const lastRangeRef = useRef<number | null>(null);
@@ -123,10 +125,10 @@ export const useChartUpdater = ({
   );
 
   const updateTimeRangeDisplay = useCallback(
-    (min: number, max: number) => {
+    (min: number, max: number, selectedDate: number | null) => {
       if (!rangeDisplayRef?.current) return;
 
-      const htmlContent = generateTimeRangeHTML(min, max);
+      const htmlContent = generateTimeRangeHTML(min, max, selectedDate);
       updateRangeDisplayDOM(rangeDisplayRef.current, htmlContent, true);
     },
     [rangeDisplayRef]
@@ -187,7 +189,7 @@ export const useChartUpdater = ({
             max,
           })
         );
-        updateTimeRangeDisplay(min, max);
+        updateTimeRangeDisplay(min, max, selectedDate);
       }
     }
   }, [
@@ -203,7 +205,7 @@ export const useChartUpdater = ({
     const chart = chartComponentRef.current.chart;
     const { min, max } = chart.xAxis[0].getExtremes();
     if (min !== undefined && max !== undefined) {
-      updateTimeRangeDisplay(min, max);
+      updateTimeRangeDisplay(min, max, selectedDate);
     }
   }, [seriesData, isLoading, updateTimeRangeDisplay]);
 
@@ -242,7 +244,7 @@ export const useChartUpdater = ({
             max,
           })
         );
-        updateTimeRangeDisplay(min, max);
+        updateTimeRangeDisplay(min, max, selectedDate);
       }
     }
   }, [

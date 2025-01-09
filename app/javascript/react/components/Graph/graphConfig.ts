@@ -28,6 +28,7 @@ import {
 import { AppDispatch } from "../../store";
 import { updateFixedMeasurementExtremes } from "../../store/fixedStreamSlice";
 import { setHoverPosition, setHoverStreamId } from "../../store/mapSlice";
+import { updateMobileMeasurementExtremes } from "../../store/mobileStreamSlice";
 import { LatLngLiteral } from "../../types/googleMaps";
 import { GraphData, GraphPoint } from "../../types/graph";
 import { Thresholds } from "../../types/thresholds";
@@ -83,6 +84,23 @@ const getXAxisOptions = (
   const handleSetExtremes = debounce(
     (e: Highcharts.AxisSetExtremesEventObject) => {
       if (!isLoading && e.min !== undefined && e.max !== undefined) {
+        if (fixedSessionTypeSelected && streamId !== null) {
+          dispatch(
+            updateFixedMeasurementExtremes({
+              streamId,
+              min: e.min,
+              max: e.max,
+            })
+          );
+        } else {
+          dispatch(
+            updateMobileMeasurementExtremes({
+              min: e.min,
+              max: e.max,
+            })
+          );
+        }
+
         if (selectedDate !== null) {
           // If a date is selected, set the extremes to that day
           if (fixedSessionTypeSelected && streamId !== null) {
@@ -94,7 +112,7 @@ const getXAxisOptions = (
               })
             );
           }
-
+        }
         if (rangeDisplayRef?.current) {
           const htmlContent = generateTimeRangeHTML(e.min, e.max, selectedDate);
           updateRangeDisplayDOM(rangeDisplayRef.current, htmlContent, true);

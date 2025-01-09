@@ -109,9 +109,6 @@ const Graph: React.FC<GraphProps> = React.memo(
     const selectedDate = useAppSelector(selectSelectedDate);
 
     const startTime = useMemo(() => {
-      if (selectedDate) {
-        return selectedDate;
-      }
       return fixedSessionTypeSelected
         ? parseDateString(fixedStreamShortInfo.startTime)
         : parseDateString(mobileStreamShortInfo.startTime);
@@ -123,9 +120,6 @@ const Graph: React.FC<GraphProps> = React.memo(
     ]);
 
     const endTime = useMemo(() => {
-      if (selectedDate) {
-        return selectedDate + MILLISECONDS_IN_A_DAY;
-      }
       return fixedSessionTypeSelected
         ? fixedStreamShortInfo.endTime
           ? parseDateString(fixedStreamShortInfo.endTime)
@@ -147,7 +141,6 @@ const Graph: React.FC<GraphProps> = React.memo(
         [streamId]
       )
     );
-
     const seriesData = useMemo(() => {
       return fixedSessionTypeSelected
         ? createFixedSeriesData(measurements)
@@ -218,7 +211,6 @@ const Graph: React.FC<GraphProps> = React.memo(
 
           if (!hasDataForSelectedDate) {
             fetchMeasurementsIfNeeded(
-              selectedDate - MILLISECONDS_IN_A_MONTH / 2,
               selectedDate + MILLISECONDS_IN_A_MONTH / 2,
               selectedDate
             );
@@ -430,8 +422,7 @@ const Graph: React.FC<GraphProps> = React.memo(
           if (fixedSessionTypeSelected && streamId) {
             fetchMeasurementsIfNeeded(
               selectedDate,
-              selectedDate + MILLISECONDS_IN_A_DAY,
-              selectedDate
+              selectedDate + MILLISECONDS_IN_A_DAY
             );
           }
 
@@ -467,12 +458,12 @@ const Graph: React.FC<GraphProps> = React.memo(
           }
 
           // 5. Disable scrollbar temporarily for the day view
-          chart.scrollbar?.update(
-            {
-              enabled: false,
-            },
-            false
-          );
+          // chart.scrollbar?.update(
+          //   {
+          //     enabled: false,
+          //   },
+          //   false
+          // );
 
           // 6. Do a single redraw at the end
           chart.redraw();

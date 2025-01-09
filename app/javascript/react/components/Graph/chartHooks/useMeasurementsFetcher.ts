@@ -32,18 +32,39 @@ export const useMeasurementsFetcher = (streamId: number | null) => {
     }
   };
 
+  // const fetchMeasurementsIfNeeded = debounce(
+  //   async (end: number, selectedDate?: number | null) => {
+  //     if (!streamId || isCurrentlyFetchingRef.current) return;
+
+  //     try {
+  //     isCurrentlyFetchingRef.current = true;
+
+  //       if (selectedDate) {
+  //         // For selected date, fetch one month of data centered around the selected date
+  //         const monthStart = selectedDate - MILLISECONDS_IN_A_MONTH / 2;
+  //         const monthEnd = selectedDate + MILLISECONDS_IN_A_MONTH / 2;
+  //         await fetchChunk(monthStart, monthEnd);
+  //       } else if (isInitialFetchRef.current) {
+  //         // For initial fetch, load one week of data
+  //         await fetchChunk(end - MILLISECONDS_IN_A_DAY * 2, end);
+  //         isInitialFetchRef.current = false;
+  //         return;
+  //       } else {
+  //         // For subsequent fetches, get one month of data
+  //         await fetchChunk(end - MILLISECONDS_IN_A_MONTH, end);
+  //       }
+  //     } finally {
+  //       isCurrentlyFetchingRef.current = false;
+  //     }
+  //   },
+  //   300
+  // ) as (end: number, selectedDate?: number | null) => Promise<void>;
+
   const fetchMeasurementsIfNeeded = debounce(
-    async (start: number, end: number, selectedDate?: number | null) => {
+    async (start: number, end: number) => {
       if (!streamId || isCurrentlyFetchingRef.current) return;
 
-      isCurrentlyFetchingRef.current = true;
       try {
-        if (selectedDate) {
-          const monthStart = selectedDate - MILLISECONDS_IN_A_MONTH / 2;
-          const monthEnd = selectedDate + MILLISECONDS_IN_A_MONTH / 2;
-          await fetchChunk(monthStart, monthEnd);
-        } else if (isInitialFetchRef.current) {
-          // For initial fetch, load one week of data
         isCurrentlyFetchingRef.current = true;
 
         // For initial fetch, load two days of data
@@ -75,11 +96,7 @@ export const useMeasurementsFetcher = (streamId: number | null) => {
       }
     },
     300
-  ) as (
-    start: number,
-    end: number,
-    selectedDate?: number | null
-  ) => Promise<void>;
+  ) as (start: number, end: number) => Promise<void>;
 
   return { fetchMeasurementsIfNeeded };
 };

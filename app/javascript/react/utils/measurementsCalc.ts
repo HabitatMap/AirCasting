@@ -1,5 +1,6 @@
 import moment from "moment";
 import { DateFormat } from "../types/dateFormat";
+import { MILLISECONDS_IN_A_DAY } from "./timeRanges";
 
 export const calculateMeasurementStats = (
   measurements: { value: number }[]
@@ -45,7 +46,8 @@ export const formatTime = (minTime: string | null, maxTime: string | null) => {
 
 export const formatTimeExtremes = (
   minTime: number | null,
-  maxTime: number | null
+  maxTime: number | null,
+  selectedDate: number | null
 ) => {
   const formatDate = (date: number | null) => {
     if (!date) return { date: null, time: null };
@@ -58,8 +60,15 @@ export const formatTimeExtremes = (
     return { date: dateString, time: timeString };
   };
 
+  const formattedMinTime = selectedDate
+    ? formatDate(selectedDate)
+    : formatDate(minTime);
+  const formattedMaxTime = selectedDate
+    ? formatDate(selectedDate + MILLISECONDS_IN_A_DAY)
+    : formatDate(maxTime);
+
   return {
-    formattedMinTime: formatDate(minTime),
-    formattedMaxTime: formatDate(maxTime),
+    formattedMinTime,
+    formattedMaxTime,
   };
 };
