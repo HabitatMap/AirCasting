@@ -120,8 +120,26 @@ const getXAxisOptions = (
                 max: e.max,
               })
             );
+
+            const { formattedMinTime, formattedMaxTime } = formatTimeExtremes(
+              e.min,
+              e.max
+            );
+
+            if (rangeDisplayRef?.current) {
+              rangeDisplayRef.current.innerHTML = `
+                <div class="time-container">
+                  <span class="date">${formattedMinTime.date ?? ""}</span>
+                  <span class="time">${formattedMinTime.time ?? ""}</span>
+                </div>
+                <span>-</span>
+                <div class="time-container">
+                  <span class="date">${formattedMaxTime.date ?? ""}</span>
+                  <span class="time">${formattedMaxTime.time ?? ""}</span>
+                </div>
+              `;
+            }
           }
-          // ... rest of the existing code ...
         }
       }
     },

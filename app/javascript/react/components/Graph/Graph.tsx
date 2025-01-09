@@ -12,6 +12,7 @@ import {
   selectLastSelectedFixedTimeRange,
   selectStreamMeasurements,
   setLastSelectedTimeRange,
+  updateFixedMeasurementExtremes,
 } from "../../store/fixedStreamSlice";
 import { useAppDispatch, useAppSelector } from "../../store/hooks";
 import {
@@ -105,10 +106,7 @@ const Graph: React.FC<GraphProps> = React.memo(
       : mobileLastSelectedTimeRange || MobileTimeRange.All;
 
     const selectedDate = useAppSelector(selectSelectedDate);
-    console.log(
-      "selectedDate",
-      selectedDate ? new Date(selectedDate).toISOString() : selectedDate
-    );
+
     const startTime = useMemo(() => {
       if (selectedDate) {
         return selectedDate;
@@ -122,11 +120,6 @@ const Graph: React.FC<GraphProps> = React.memo(
       fixedStreamShortInfo.firstMeasurementTime,
       fixedSessionTypeSelected,
     ]);
-
-    console.log(
-      "startTime",
-      startTime ? new Date(startTime).toISOString() : startTime
-    );
 
     const endTime = useMemo(() => {
       if (selectedDate) {
@@ -144,7 +137,6 @@ const Graph: React.FC<GraphProps> = React.memo(
       mobileStreamShortInfo.endTime,
       fixedStreamShortInfo.endTime,
     ]);
-    console.log("endTime", endTime ? new Date(endTime).toISOString() : endTime);
 
     const isIndoorParameterInUrl = isIndoor === "true";
 
@@ -282,8 +274,6 @@ const Graph: React.FC<GraphProps> = React.memo(
       ]
     );
 
-    console.log("xAxisOptions", xAxisOptions);
-
     const scrollbarOptions = useMemo(
       () => ({
         ...getScrollbarOptions(isCalendarPage, isMobile),
@@ -398,8 +388,91 @@ const Graph: React.FC<GraphProps> = React.memo(
         lastSelectedTimeRange,
         dispatch,
         startTime,
+        selectedDate,
       ]
     );
+
+    const isUpdatingRef = useRef<boolean>(false);
+
+    // Add ref to track if we've already handled this date
+    const lastHandledDateRef = useRef<number | null>(null);
+
+    useEffect(() => {
+      if (
+        selectedDate &&
+        chartComponentRef.current?.chart &&
+        !isUpdatingRef.current &&
+        lastHandledDateRef.current !== selectedDate // Only update if date changed
+      ) {
+        const chart = chartComponentRef.current.chart;
+
+        try {
+          isUpdatingRef.current = true;
+          lastHandledDateRef.current = selectedDate; // Track the date we're handling
+
+          // 1. First fetch data if needed for the selected date
+          if (fixedSessionTypeSelected && streamId) {
+            fetchMeasurementsIfNeeded(
+              selectedDate,
+              selectedDate + MILLISECONDS_IN_A_DAY,
+              selectedDate
+            );
+          }
+
+          // 2. Update the series data
+          const dayData = seriesData?.filter((point) => {
+            const pointTime = Array.isArray(point) ? point[0] : point.x;
+            return (
+              pointTime >= selectedDate &&
+              pointTime <= selectedDate + MILLISECONDS_IN_A_DAY
+            );
+          });
+
+          if (dayData) {
+            chart.series[0].setData(dayData, false);
+          }
+
+          // 3. Set the extremes to show the selected day
+          chart.xAxis[0].setExtremes(
+            selectedDate,
+            selectedDate + MILLISECONDS_IN_A_DAY,
+            false
+          );
+
+          // 4. Update measurements extremes in store
+          if (fixedSessionTypeSelected && streamId) {
+            dispatch(
+              updateFixedMeasurementExtremes({
+                streamId,
+                min: selectedDate,
+                max: selectedDate + MILLISECONDS_IN_A_DAY,
+              })
+            );
+          }
+
+          // 5. Disable scrollbar temporarily for the day view
+          chart.scrollbar?.update(
+            {
+              enabled: false,
+            },
+            false
+          );
+
+          // 6. Do a single redraw at the end
+          chart.redraw();
+        } finally {
+          setTimeout(() => {
+            isUpdatingRef.current = false;
+          }, 0);
+        }
+      }
+    }, [
+      selectedDate,
+      streamId,
+      fixedSessionTypeSelected,
+      dispatch,
+      fetchMeasurementsIfNeeded,
+    ]);
 
     return (
       <S.Container
