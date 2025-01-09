@@ -29,9 +29,9 @@ const prepareCalendarDataCell = (
   value: number | null
 ): CalendarCellData => {
   return {
-    date: date.format("YYYY-MM-DD"),
-    dayNumber: date.format("D"),
-    value,
+    date: date.toDate(),
+    value: value ?? 0,
+    isCurrentMonth: true,
   };
 };
 
@@ -148,5 +148,14 @@ const selectMovingCalendarMinMax = createSelector(
     return { min, max };
   }
 );
+
+const mapStreamDailyAverageToCalendarCell = (
+  streamDailyAverage: StreamDailyAverage,
+  isCurrentMonth: boolean
+): CalendarCellData => ({
+  date: new Date(streamDailyAverage.date),
+  value: streamDailyAverage.value ?? 0,
+  isCurrentMonth,
+});
 
 export { selectMovingCalendarMinMax, selectThreeMonthsDailyAverage };

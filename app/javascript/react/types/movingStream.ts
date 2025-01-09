@@ -1,12 +1,8 @@
+import { CalendarCellData } from "./calendar";
+
 interface StreamDailyAverage {
   date: string;
   value: number;
-}
-
-interface CalendarCellData {
-  date: string;
-  dayNumber: string;
-  value: number | null;
 }
 
 interface CalendarMonthlyData {
@@ -15,4 +11,4 @@ interface CalendarMonthlyData {
   weeks: CalendarCellData[][];
 }
 
-export type { StreamDailyAverage, CalendarCellData, CalendarMonthlyData };
+export type { CalendarCellData, CalendarMonthlyData, StreamDailyAverage };

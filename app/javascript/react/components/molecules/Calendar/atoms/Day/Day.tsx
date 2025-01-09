@@ -1,15 +1,28 @@
 import React from "react";
 
 import { getColorForValue } from "../../../../../utils/thresholdColors";
-import { CalendarCellData } from "../../../../../types/movingStream";
-import { Thresholds } from "../../../../../types/thresholds";
 import * as S from "./Day.style";
 
-interface DayProps extends CalendarCellData, Thresholds {}
+interface DayProps {
+  dayNumber: string;
+  value: number;
+  isCurrentMonth: boolean;
+  date: Date;
+  min: number;
+  low: number;
+  middle: number;
+  high: number;
+  max: number;
+  onClick?: () => void;
+}
 
-const Day = ({ dayNumber, value, date, ...thresholds }: DayProps) => {
+const Day = ({ dayNumber, value, date, onClick, ...thresholds }: DayProps) => {
   return (
-    <S.Day $color={getColorForValue(thresholds, value)}>
+    <S.Day
+      $color={getColorForValue(thresholds, value)}
+      onClick={onClick}
+      style={{ cursor: "pointer" }}
+    >
       <S.DayNumber $isVisible={true}>{dayNumber}</S.DayNumber>
       <S.ValueContainer $isVisible={true}>
         <S.Value>{value}</S.Value>

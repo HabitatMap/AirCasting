@@ -3,7 +3,7 @@ import { useTranslation } from "react-i18next";
 
 import { MovesKeys } from "../../../types/movesKeys";
 import isMobile from "../../../utils/useScreenSizeDetection";
-import { Month } from "./atoms/Month";
+import { Month } from "./atoms/Month/Month";
 import { ScrollCalendarButton } from "./atoms/ScrollCalendarButton/ScrollCalendarButton";
 import * as S from "./Calendar.style";
 import useCalendarHook from "./CalendarHook";
@@ -13,12 +13,14 @@ interface CalendarProps {
   streamId: number;
   minCalendarDate: string;
   maxCalendarDate: string;
+  onDaySelect?: (date: Date) => void;
 }
 
 const Calendar: React.FC<CalendarProps> = ({
   streamId,
   minCalendarDate,
   maxCalendarDate,
+  onDaySelect,
 }) => {
   const {
     threeMonthsData,
@@ -76,13 +78,17 @@ const Calendar: React.FC<CalendarProps> = ({
     </>
   );
 
+  const handleDayClick = (date: Date) => {
+    onDaySelect?.(date);
+  };
+
   const CalendarContent = () => (
     <>
       {isMobileView && <MobileSwipeComponent />}
       <S.ThreeMonths>
         {!isMobileView && <DesktopSwipeComponent />}
         {sortedThreeMonthsData.map((month) => (
-          <Month key={month.monthName} {...month} />
+          <Month key={month.monthName} {...month} onDayClick={handleDayClick} />
         ))}
       </S.ThreeMonths>
     </>

@@ -56,6 +56,7 @@ const CalendarPage: React.FC<CalendarPageProps> = ({ children }) => {
   const { formattedMinTime, formattedMaxTime } = formatTime(startTime, endTime);
   const [errorMessage, setErrorMessage] = useState("");
   const [initialDataFetched, setInitialDataFetched] = useState(false);
+  const [selectedDate, setSelectedDate] = useState<Date | undefined>();
 
   const calendarIsVisible =
     movingCalendarData.data.length &&
@@ -117,6 +118,11 @@ const CalendarPage: React.FC<CalendarPageProps> = ({ children }) => {
     setInitialDataFetched(false);
   }, [streamId]);
 
+  const handleDaySelect = (date: Date) => {
+    console.log("Day selected:", date);
+    setSelectedDate(date);
+  };
+
   const renderMobileGraph = () => (
     <S.GraphContainer $isMobile={isMobile}>
       <HeaderToggle
@@ -141,6 +147,7 @@ const CalendarPage: React.FC<CalendarPageProps> = ({ children }) => {
               sessionType={SessionTypes.FIXED}
               isCalendarPage={true}
               rangeDisplayRef={rangeDisplayRef}
+              selectedDate={selectedDate}
             />
             <MeasurementComponent />
           </>
@@ -217,6 +224,7 @@ const CalendarPage: React.FC<CalendarPageProps> = ({ children }) => {
             sessionType={SessionTypes.FIXED}
             isCalendarPage={true}
             rangeDisplayRef={rangeDisplayRef}
+            selectedDate={selectedDate}
           />
         }
       />
@@ -236,6 +244,7 @@ const CalendarPage: React.FC<CalendarPageProps> = ({ children }) => {
               streamId={streamId}
               minCalendarDate={fixedStreamData.stream.startTime}
               maxCalendarDate={streamEndTime}
+              onDaySelect={handleDaySelect}
             />
           ) : (
             <EmptyCalendar />

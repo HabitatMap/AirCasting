@@ -37,7 +37,10 @@ import {
   mapIndexToTimeRange,
 } from "../../utils/getTimeRange";
 import { useMapParams } from "../../utils/mapParamsHandler";
-import { MILLISECONDS_IN_A_WEEK } from "../../utils/timeRanges";
+import {
+  MILLISECONDS_IN_A_DAY,
+  MILLISECONDS_IN_A_WEEK,
+} from "../../utils/timeRanges";
 import useMobileDetection from "../../utils/useScreenSizeDetection";
 import { handleLoad } from "./chartEvents";
 import {
@@ -69,10 +72,17 @@ interface GraphProps {
   streamId: number | null;
   isCalendarPage: boolean;
   rangeDisplayRef?: React.RefObject<HTMLDivElement>;
+  selectedDate?: Date;
 }
 
 const Graph: React.FC<GraphProps> = React.memo(
-  ({ streamId, sessionType, isCalendarPage, rangeDisplayRef }) => {
+  ({
+    streamId,
+    sessionType,
+    isCalendarPage,
+    rangeDisplayRef,
+    selectedDate,
+  }) => {
     const dispatch = useAppDispatch();
     const { t } = useTranslation();
     const graphRef = useRef<HTMLDivElement>(null);
@@ -392,6 +402,25 @@ const Graph: React.FC<GraphProps> = React.memo(
         }
       };
     }, [dispatch, fixedSessionTypeSelected, streamId]);
+
+    useEffect(() => {
+      if (selectedDate && chartComponentRef.current?.chart) {
+        const chart = chartComponentRef.current.chart;
+        const startTime = selectedDate.getTime();
+        const endTime = startTime + MILLISECONDS_IN_A_DAY;
+
+        // Set the extremes to show the selected day
+        chart.xAxis[0].setExtremes(startTime, endTime);
+
+        // If we're in fixed session mode and have a streamId, fetch data if needed
+        if (fixedSessionTypeSelected && streamId) {
+          fetchMeasurementsIfNeeded(
+            startTime - MILLISECONDS_IN_A_DAY * 15, // Fetch 15 days before
+            endTime + MILLISECONDS_IN_A_DAY * 15 // Fetch 15 days after
+          );
+        }
+      }
+    }, [selectedDate, streamId, fixedSessionTypeSelected]);
 
     return (
       <S.Container
