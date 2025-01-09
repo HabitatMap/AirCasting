@@ -8,26 +8,13 @@ interface SuggestionProps {
   $isHighlighted?: boolean;
 }
 
-interface SearchInputProps {
-  $displaySearchResults?: boolean;
-  $isTimelapsView?: boolean;
-}
-
-interface SuggestionsListProps {
-  $displaySearchResults?: boolean;
-}
-
-interface HrProps {
-  $displaySearchResults?: boolean;
-}
-
 const Suggestion = styled.li<SuggestionProps>`
   cursor: pointer;
   padding: 0.5rem;
   font-size: 1.6rem;
 `;
 
-const SuggestionsList = styled.ul<SuggestionsListProps>`
+const SuggestionsList = styled.ul<{ $displaySearchResults?: boolean }>`
   background-color: ${(p) => (p.$displaySearchResults ? `${white}` : `none`)};
   position: absolute;
   top: 20%;
@@ -38,21 +25,31 @@ const SuggestionsList = styled.ul<SuggestionsListProps>`
   box-shadow: ${(p) =>
     p.$displaySearchResults ? `2px 2px 4px 0px rgba(76, 86, 96, 0.1)` : `none`};
   padding: 30px 0 8px 8px;
-  width: 26rem;
+  width: 19rem;
   z-index: 2;
   color: ${gray400};
 
+  @media ${media.smallMobile} {
+    width: 20rem;
+  }
+
+  @media ${media.smallDesktop} {
+    width: 26rem;
+  }
+
   @media ${media.mediumDesktop} {
-    width: 100%;
     padding: 10px 0 8px 8px;
     border-radius: 0px 0px 10px 10px;
     top: 100%;
     z-index: 1;
   }
+  @media ${media.largeDesktop} {
+    width: 36.8rem;
+  }
 `;
 
-const SearchInput = styled.input<SearchInputProps>`
-  width: ${(props) => (props.$isTimelapsView ? "100%" : "26.9rem")};
+const SearchInput = styled.input<{ $displaySearchResults?: boolean }>`
+  width: 19rem;
   height: 3.2rem;
   border-radius: ${(p) =>
     p.$displaySearchResults ? `15px 15px 0px 0px` : `20px`};
@@ -68,6 +65,10 @@ const SearchInput = styled.input<SearchInputProps>`
   outline: none;
   z-index: 3;
   color: ${gray400};
+
+  @media ${media.smallMobile} {
+    width: 20rem;
+  }
 
   @media ${media.smallDesktop} {
     width: 26rem;
@@ -93,7 +94,7 @@ const SearchInput = styled.input<SearchInputProps>`
 
 const LocationSearchButton = styled.button`
   background-color: ${white};
-  height: 3.2rem;
+  height: 4rem;
   border-radius: 50%;
   cursor: pointer;
   border: none;
@@ -106,8 +107,8 @@ const LocationSearchButton = styled.button`
 `;
 
 const LocationSearchIcon = styled.img`
-  width: 3.2rem;
-  height: 3.2rem;
+  width: 4rem;
+  height: 4rem;
 
   @media ${media.mediumDesktop} {
     width: 4.2rem;
@@ -119,8 +120,13 @@ const SearchContainer = styled.div<{ $isTimelapseView: boolean }>`
   position: relative;
   display: flex;
   align-items: center;
-  gap: 1rem;
+  gap: 0.5rem;
   width: 70vw;
+
+  @media ${media.smallMobile} {
+    gap: 1rem;
+  }
+
   @media ${media.smallDesktop} {
     width: auto;
   }
@@ -131,7 +137,7 @@ const SearchContainer = styled.div<{ $isTimelapseView: boolean }>`
     pointer-events: none;`}
 `;
 
-const Hr = styled.hr<HrProps>`
+const Hr = styled.hr<{ $displaySearchResults?: boolean }>`
   visibility: hidden;
 
   @media ${media.mediumDesktop} {

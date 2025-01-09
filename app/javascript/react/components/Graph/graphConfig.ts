@@ -31,7 +31,6 @@ import { setHoverPosition, setHoverStreamId } from "../../store/mapSlice";
 import { LatLngLiteral } from "../../types/googleMaps";
 import { GraphData, GraphPoint } from "../../types/graph";
 import { Thresholds } from "../../types/thresholds";
-import { formatTimeExtremes } from "../../utils/measurementsCalc";
 import {
   MILLISECONDS_IN_A_5_MINUTES,
   MILLISECONDS_IN_A_DAY,
@@ -40,6 +39,10 @@ import {
   MILLISECONDS_IN_A_WEEK,
   MILLISECONDS_IN_AN_HOUR,
 } from "../../utils/timeRanges";
+import {
+  generateTimeRangeHTML,
+  updateRangeDisplayDOM,
+} from "./chartHooks/useChartUpdater";
 
 const getScrollbarOptions = (isCalendarPage: boolean, isMobile: boolean) => {
   return {
@@ -92,54 +95,9 @@ const getXAxisOptions = (
             );
           }
 
-          const { formattedMinTime, formattedMaxTime } = formatTimeExtremes(
-            selectedDate,
-            selectedDate + MILLISECONDS_IN_A_DAY
-          );
-
-          if (rangeDisplayRef?.current) {
-            rangeDisplayRef.current.innerHTML = `
-              <div class="time-container">
-                <span class="date">${formattedMinTime.date ?? ""}</span>
-                <span class="time">${formattedMinTime.time ?? ""}</span>
-              </div>
-              <span>-</span>
-              <div class="time-container">
-                <span class="date">${formattedMaxTime.date ?? ""}</span>
-                <span class="time">${formattedMaxTime.time ?? ""}</span>
-              </div>
-            `;
-          }
-        } else {
-          // Normal behavior when no date is selected
-          if (fixedSessionTypeSelected && streamId !== null) {
-            dispatch(
-              updateFixedMeasurementExtremes({
-                streamId,
-                min: e.min,
-                max: e.max,
-              })
-            );
-
-            const { formattedMinTime, formattedMaxTime } = formatTimeExtremes(
-              e.min,
-              e.max
-            );
-
-            if (rangeDisplayRef?.current) {
-              rangeDisplayRef.current.innerHTML = `
-                <div class="time-container">
-                  <span class="date">${formattedMinTime.date ?? ""}</span>
-                  <span class="time">${formattedMinTime.time ?? ""}</span>
-                </div>
-                <span>-</span>
-                <div class="time-container">
-                  <span class="date">${formattedMaxTime.date ?? ""}</span>
-                  <span class="time">${formattedMaxTime.time ?? ""}</span>
-                </div>
-              `;
-            }
-          }
+        if (rangeDisplayRef?.current) {
+          const htmlContent = generateTimeRangeHTML(e.min, e.max, selectedDate);
+          updateRangeDisplayDOM(rangeDisplayRef.current, htmlContent, true);
         }
       }
     },

@@ -7,7 +7,9 @@ import { white } from "../../assets/styles/colors";
 import { RootState } from "../../store";
 import { selectFixedStreamShortInfo } from "../../store/fixedStreamSelectors";
 import {
+  resetFixedMeasurementExtremes,
   resetLastSelectedTimeRange,
+  resetTimeRange,
   selectIsLoading,
   selectLastSelectedFixedTimeRange,
   selectStreamMeasurements,
@@ -48,7 +50,6 @@ import {
   createFixedSeriesData,
   createMobileSeriesData,
 } from "./chartHooks/createGraphData";
-import { useChartUpdater } from "./chartHooks/useChartUpdater";
 import { useMeasurementsFetcher } from "./chartHooks/useMeasurementsFetcher";
 import * as S from "./Graph.style";
 import {
@@ -162,14 +163,29 @@ const Graph: React.FC<GraphProps> = React.memo(
 
     const { fetchMeasurementsIfNeeded } = useMeasurementsFetcher(streamId);
 
-    const { updateChartData } = useChartUpdater({
-      chartComponentRef,
-      seriesData,
-      isLoading,
-      lastSelectedTimeRange,
-      fixedSessionTypeSelected,
-      streamId,
-    });
+    useEffect(() => {
+      // Reset to 24-hour range on component mount
+      dispatch(resetTimeRange());
+    }, [dispatch]);
+
+    useEffect(() => {
+      // Update the time range when it changes
+      if (lastSelectedTimeRange) {
+        if (fixedSessionTypeSelected) {
+          // Only dispatch fixed time range if in fixed session
+          dispatch(
+            setLastSelectedTimeRange(lastSelectedTimeRange as FixedTimeRange)
+          );
+        } else {
+          // Handle mobile time range separately
+          dispatch(
+            setLastSelectedMobileTimeRange(
+              lastSelectedTimeRange as MobileTimeRange
+            )
+          );
+        }
+      }
+    }, [dispatch, lastSelectedTimeRange, fixedSessionTypeSelected]);
 
     useEffect(() => {
       if (chartComponentRef.current && chartComponentRef.current.chart) {
@@ -473,6 +489,15 @@ const Graph: React.FC<GraphProps> = React.memo(
       dispatch,
       fetchMeasurementsIfNeeded,
     ]);
+    // Add cleanup effect for fixed streams only
+    useEffect(() => {
+      return () => {
+        // Reset measurement extremes when component unmounts, but only for fixed streams
+        if (fixedSessionTypeSelected && streamId) {
+          dispatch(resetFixedMeasurementExtremes());
+        }
+      };
+    }, [dispatch, fixedSessionTypeSelected, streamId]);
 
     return (
       <S.Container
