@@ -29,7 +29,6 @@ const Day = styled(CalendarCell)<DayProps>`
   justify-content: space-between;
   text-align: center;
   margin: 0 0 0.6rem 0;
-  //TODO: Ask Iwona about the opacity
   background-color: ${(props) => props.$color};
   width: 100%;
 
@@ -81,4 +80,4 @@ const Value = styled.div`
   text-overflow: ellipsis;
 `;
 
-export { Day, DayNumber, Value, CalendarCell, ValueContainer };
+export { CalendarCell, Day, DayNumber, Value, ValueContainer };

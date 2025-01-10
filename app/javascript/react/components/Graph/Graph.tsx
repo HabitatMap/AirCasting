@@ -406,21 +406,28 @@ const Graph: React.FC<GraphProps> = React.memo(
     useEffect(() => {
       if (selectedDate && chartComponentRef.current?.chart) {
         const chart = chartComponentRef.current.chart;
-        const startTime = selectedDate.getTime();
-        const endTime = startTime + MILLISECONDS_IN_A_DAY;
+        const dayStart = selectedDate.getTime();
+        const dayEnd = dayStart + MILLISECONDS_IN_A_DAY;
 
-        // Set the extremes to show the selected day
-        chart.xAxis[0].setExtremes(startTime, endTime);
+        // Fetch more data for context, but don't display it yet
+        const fetchStart = dayStart - MILLISECONDS_IN_A_DAY * 2;
+        const fetchEnd = dayEnd + MILLISECONDS_IN_A_DAY * 2;
 
-        // If we're in fixed session mode and have a streamId, fetch data just for this day
-        if (fixedSessionTypeSelected && streamId) {
-          fetchMeasurementsIfNeeded(
-            startTime, // Start of the day
-            endTime // End of the day
-          );
+        // Check if we have data for this day
+        const hasDataForSelectedDay = measurements.some(
+          (measurement) =>
+            measurement.time >= fetchStart && measurement.time < fetchEnd
+        );
+
+        // If no data found for this day, fetch it
+        if (!hasDataForSelectedDay && fixedSessionTypeSelected && streamId) {
+          fetchMeasurementsIfNeeded(fetchStart, fetchEnd);
         }
+
+        // Always set the view to exactly the selected day
+        chart.xAxis[0].setExtremes(dayStart, dayEnd);
       }
-    }, [selectedDate, streamId, fixedSessionTypeSelected]);
+    }, [selectedDate, streamId, fixedSessionTypeSelected, measurements]);
 
     return (
       <S.Container
