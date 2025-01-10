@@ -403,6 +403,8 @@ const Graph: React.FC<GraphProps> = React.memo(
       };
     }, [dispatch, fixedSessionTypeSelected, streamId]);
 
+    const isFetchingSelectedDayRef = useRef(false);
+
     useEffect(() => {
       if (selectedDate && chartComponentRef.current?.chart) {
         const chart = chartComponentRef.current.chart;
@@ -419,9 +421,19 @@ const Graph: React.FC<GraphProps> = React.memo(
             measurement.time >= fetchStart && measurement.time < fetchEnd
         );
 
-        // If no data found for this day, fetch it
-        if (!hasDataForSelectedDay && fixedSessionTypeSelected && streamId) {
+        // If no data found for this day and not already fetching, fetch it
+        if (
+          !hasDataForSelectedDay &&
+          fixedSessionTypeSelected &&
+          streamId &&
+          !isFetchingSelectedDayRef.current
+        ) {
+          isFetchingSelectedDayRef.current = true;
           fetchMeasurementsIfNeeded(fetchStart, fetchEnd);
+          // Reset the flag after a delay to allow for next potential fetch
+          setTimeout(() => {
+            isFetchingSelectedDayRef.current = false;
+          }, 1000);
         }
 
         // Always set the view to exactly the selected day
