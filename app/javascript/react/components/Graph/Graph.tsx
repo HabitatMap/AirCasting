@@ -10,6 +10,7 @@ import {
   resetFixedMeasurementExtremes,
   resetLastSelectedTimeRange,
   resetTimeRange,
+  selectFetchedTimeRanges,
   selectIsLoading,
   selectLastSelectedFixedTimeRange,
   selectStreamMeasurements,
@@ -256,6 +257,10 @@ const Graph: React.FC<GraphProps> = React.memo(
       };
     }, []);
 
+    const savedTimeRanges = useAppSelector((state) =>
+      selectFetchedTimeRanges(state, streamId)
+    );
+
     const xAxisOptions = useMemo(
       () =>
         getXAxisOptions(
@@ -265,7 +270,8 @@ const Graph: React.FC<GraphProps> = React.memo(
           dispatch,
           isLoading,
           fetchMeasurementsIfNeeded,
-          streamId
+          streamId,
+          savedTimeRanges
         ),
       [
         isMobile,
@@ -274,6 +280,7 @@ const Graph: React.FC<GraphProps> = React.memo(
         dispatch,
         isLoading,
         fetchMeasurementsIfNeeded,
+        savedTimeRanges,
       ]
     );
 
@@ -411,26 +418,46 @@ const Graph: React.FC<GraphProps> = React.memo(
         const dayStart = selectedDate.getTime();
         const dayEnd = dayStart + MILLISECONDS_IN_A_DAY;
 
-        // Fetch more data for context, but don't display it yet
-        const fetchStart = dayStart - MILLISECONDS_IN_A_DAY * 2;
-        const fetchEnd = dayEnd + MILLISECONDS_IN_A_DAY * 2;
+        // Get the start and end of the selected month
+        const selectedMonth = selectedDate.getMonth();
+        const selectedYear = selectedDate.getFullYear();
 
-        // Check if we have data for this day
-        const hasDataForSelectedDay = measurements.some(
-          (measurement) =>
-            measurement.time >= fetchStart && measurement.time < fetchEnd
-        );
+        const monthStart = new Date(
+          selectedYear,
+          selectedMonth,
+          1,
+          0,
+          0,
+          0,
+          0
+        ).getTime();
+        const monthEnd = new Date(
+          selectedYear,
+          selectedMonth + 1,
+          0,
+          23,
+          59,
+          59,
+          999
+        ).getTime();
 
-        // If no data found for this day and not already fetching, fetch it
+        // Check if we have complete data for this specific month
+        const hasCompleteMonthData = savedTimeRanges.some((range) => {
+          const rangeCoversMonth =
+            range.start <= monthStart && range.end >= monthEnd;
+          return rangeCoversMonth;
+        });
+
+        // If we don't have complete data for this month and not already fetching, fetch it
         if (
-          !hasDataForSelectedDay &&
+          !hasCompleteMonthData &&
           fixedSessionTypeSelected &&
           streamId &&
           !isFetchingSelectedDayRef.current
         ) {
           isFetchingSelectedDayRef.current = true;
-          fetchMeasurementsIfNeeded(fetchStart, fetchEnd);
-          // Reset the flag after a delay to allow for next potential fetch
+          // Only fetch the exact month's data
+          fetchMeasurementsIfNeeded(monthStart, monthEnd);
           setTimeout(() => {
             isFetchingSelectedDayRef.current = false;
           }, 1000);
@@ -439,7 +466,13 @@ const Graph: React.FC<GraphProps> = React.memo(
         // Always set the view to exactly the selected day
         chart.xAxis[0].setExtremes(dayStart, dayEnd);
       }
-    }, [selectedDate, streamId, fixedSessionTypeSelected, measurements]);
+    }, [
+      selectedDate,
+      streamId,
+      fixedSessionTypeSelected,
+      savedTimeRanges,
+      fetchMeasurementsIfNeeded,
+    ]);
 
     return (
       <S.Container

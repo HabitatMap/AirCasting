@@ -35,6 +35,12 @@ export interface FixedStreamState {
   measurements: {
     [streamId: number]: Measurement[];
   };
+  fetchedTimeRanges: {
+    [streamId: number]: Array<{
+      start: number;
+      end: number;
+    }>;
+  };
 }
 
 const initialState: FixedStreamState = {
@@ -72,6 +78,7 @@ const initialState: FixedStreamState = {
   isLoading: false,
   lastSelectedTimeRange: FixedTimeRange.Day,
   measurements: {},
+  fetchedTimeRanges: {},
 };
 
 export const fetchFixedStreamById = createAsyncThunk<
@@ -169,6 +176,7 @@ const fixedStreamSlice = createSlice({
 
     resetStreamMeasurements(state, action: PayloadAction<number>) {
       state.measurements[action.payload] = [];
+      state.fetchedTimeRanges[action.payload] = [];
     },
 
     updateStreamMeasurements(
@@ -199,6 +207,54 @@ const fixedStreamSlice = createSlice({
     resetTimeRange: (state) => {
       state.lastSelectedTimeRange = FixedTimeRange.Day;
       localStorage.setItem("lastSelectedTimeRange", FixedTimeRange.Day);
+    },
+
+    updateFetchedTimeRanges(
+      state,
+      action: PayloadAction<{
+        streamId: number;
+        start: number;
+        end: number;
+      }>
+    ) {
+      const { streamId, start, end } = action.payload;
+      if (!state.fetchedTimeRanges[streamId]) {
+        state.fetchedTimeRanges[streamId] = [];
+      }
+
+      const ranges = [...state.fetchedTimeRanges[streamId]];
+
+      // Add new range
+      ranges.push({ start, end });
+
+      // Sort ranges by start time
+      ranges.sort((a, b) => a.start - b.start);
+
+      // Merge overlapping ranges
+      const mergedRanges = ranges.reduce((acc, curr) => {
+        if (acc.length === 0) return [curr];
+
+        const prev = acc[acc.length - 1];
+
+        // If ranges overlap or are adjacent (within 1 second)
+        if (curr.start <= prev.end + 1000) {
+          prev.end = Math.max(prev.end, curr.end);
+          return acc;
+        }
+
+        return [...acc, curr];
+      }, [] as Array<{ start: number; end: number }>);
+
+      state.fetchedTimeRanges[streamId] = mergedRanges;
+
+      console.log("Merged Time Ranges:", {
+        streamId,
+        newRange: { start: new Date(start), end: new Date(end) },
+        mergedRanges: mergedRanges.map((range) => ({
+          start: new Date(range.start),
+          end: new Date(range.end),
+        })),
+      });
     },
   },
   extraReducers: (builder) => {
@@ -249,6 +305,49 @@ const fixedStreamSlice = createSlice({
         state.measurements[streamId] = Array.from(existingMap.values()).sort(
           (a, b) => a.time - b.time
         );
+
+        console.log("Raw timestamps:", {
+          startTime: action.meta.arg.startTime,
+          endTime: action.meta.arg.endTime,
+        });
+
+        const startTime = Number(action.meta.arg.startTime);
+        const endTime = Number(action.meta.arg.endTime);
+
+        console.log("Parsed timestamps:", {
+          startTime,
+          endTime,
+          startDate: new Date(startTime),
+          endDate: new Date(endTime),
+        });
+
+        if (!state.fetchedTimeRanges[streamId]) {
+          state.fetchedTimeRanges[streamId] = [];
+        }
+
+        if (!isNaN(startTime) && !isNaN(endTime)) {
+          state.fetchedTimeRanges[streamId].push({
+            start: startTime,
+            end: endTime,
+          });
+
+          console.log("Fetched New Time Range:", {
+            streamId,
+            range: {
+              start: new Date(startTime),
+              end: new Date(endTime),
+            },
+            allRanges: state.fetchedTimeRanges[streamId].map((range) => ({
+              start: new Date(range.start),
+              end: new Date(range.end),
+            })),
+          });
+        } else {
+          console.error("Failed to parse timestamps:", {
+            startTimeString: action.meta.arg.startTime,
+            endTimeString: action.meta.arg.endTime,
+          });
+        }
       }
     });
 
@@ -275,6 +374,7 @@ export const {
   updateStreamMeasurements,
   resetFixedMeasurementExtremes,
   resetTimeRange,
+  updateFetchedTimeRanges,
 } = fixedStreamSlice.actions;
 
 export const selectFixedStreamState = (state: RootState) => state.fixedStream;
@@ -301,4 +401,13 @@ export const selectStreamMeasurements = createSelector(
   ],
   (fixedStream, streamId) =>
     streamId ? fixedStream.measurements[streamId] || [] : []
+);
+
+export const selectFetchedTimeRanges = createSelector(
+  [
+    selectFixedStreamState,
+    (_state: RootState, streamId: number | null) => streamId,
+  ],
+  (fixedStream, streamId) =>
+    streamId ? fixedStream.fetchedTimeRanges[streamId] || [] : []
 );

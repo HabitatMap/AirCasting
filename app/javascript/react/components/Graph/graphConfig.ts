@@ -70,7 +70,8 @@ const getXAxisOptions = (
   dispatch: AppDispatch,
   isLoading: boolean,
   fetchMeasurementsIfNeeded: (start: number, end: number) => Promise<void>,
-  streamId: number | null
+  streamId: number | null,
+  savedTimeRanges: Array<{ start: number; end: number }>
 ): Highcharts.XAxisOptions => {
   let isFetchingData = false;
   let initialDataMin: number | null = null;
@@ -135,36 +136,84 @@ const getXAxisOptions = (
         e: Highcharts.AxisSetExtremesEventObject
       ) {
         const axis = this;
-
         handleSetExtremes(e);
 
-        if (!fixedSessionTypeSelected || streamId == null) return;
+        if (
+          !fixedSessionTypeSelected ||
+          !streamId ||
+          isLoading ||
+          isFetchingData
+        )
+          return;
 
-        if (initialDataMin === null && e.dataMin !== undefined) {
-          initialDataMin = e.dataMin - MILLISECONDS_IN_A_MONTH;
-        }
-        const onScrollbarRelease = () => {
-          if (fetchTimeout) clearTimeout(fetchTimeout);
-          fetchTimeout = setTimeout(async () => {
-            if (isLoading || isFetchingData) return;
-            const { min, max, dataMin } = axis.getExtremes();
-            if (min === undefined || dataMin === undefined) return;
+        if (e.min !== undefined && e.max !== undefined) {
+          const minDate = new Date(e.min);
+          const maxDate = new Date(e.max);
 
-            const buffer = (max - min) * 0.02;
-            const isAtDataMin = min <= dataMin + buffer;
-            if (isAtDataMin) {
+          // Get month range
+          const monthStart = new Date(
+            minDate.getFullYear(),
+            minDate.getMonth(),
+            1,
+            0,
+            0,
+            0,
+            0
+          ).getTime();
+          const monthEnd = new Date(
+            maxDate.getFullYear(),
+            maxDate.getMonth() + 1,
+            0,
+            23,
+            59,
+            59,
+            999
+          ).getTime();
+
+          // Check if we're at the data edge
+          const { dataMin } = axis.getExtremes();
+          const isAtDataEdge = e.min <= dataMin + (e.max - e.min) * 0.1; // Within 10% of the edge
+
+          if (isAtDataEdge) {
+            // Fetch an additional month before the current view
+            const prevMonthStart = new Date(
+              minDate.getFullYear(),
+              minDate.getMonth() - 1,
+              1,
+              0,
+              0,
+              0,
+              0
+            ).getTime();
+
+            const hasData = savedTimeRanges.some(
+              (range) => range.start <= prevMonthStart && range.end >= monthEnd
+            );
+
+            if (!hasData) {
               isFetchingData = true;
               try {
-                const newStart = min - MILLISECONDS_IN_A_MONTH;
-                await fetchMeasurementsIfNeeded(newStart, min);
+                await fetchMeasurementsIfNeeded(prevMonthStart, monthEnd);
               } finally {
                 isFetchingData = false;
-                fetchTimeout = null;
               }
             }
-          }, 800);
-        };
-        onScrollbarRelease();
+          } else {
+            // Normal range check
+            const hasData = savedTimeRanges.some(
+              (range) => range.start <= monthStart && range.end >= monthEnd
+            );
+
+            if (!hasData) {
+              isFetchingData = true;
+              try {
+                await fetchMeasurementsIfNeeded(monthStart, monthEnd);
+              } finally {
+                isFetchingData = false;
+              }
+            }
+          }
+        }
       },
     },
   };
