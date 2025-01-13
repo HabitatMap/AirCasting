@@ -246,15 +246,6 @@ const fixedStreamSlice = createSlice({
       }, [] as Array<{ start: number; end: number }>);
 
       state.fetchedTimeRanges[streamId] = mergedRanges;
-
-      console.log("Merged Time Ranges:", {
-        streamId,
-        newRange: { start: new Date(start), end: new Date(end) },
-        mergedRanges: mergedRanges.map((range) => ({
-          start: new Date(range.start),
-          end: new Date(range.end),
-        })),
-      });
     },
   },
   extraReducers: (builder) => {
@@ -306,20 +297,8 @@ const fixedStreamSlice = createSlice({
           (a, b) => a.time - b.time
         );
 
-        console.log("Raw timestamps:", {
-          startTime: action.meta.arg.startTime,
-          endTime: action.meta.arg.endTime,
-        });
-
         const startTime = Number(action.meta.arg.startTime);
         const endTime = Number(action.meta.arg.endTime);
-
-        console.log("Parsed timestamps:", {
-          startTime,
-          endTime,
-          startDate: new Date(startTime),
-          endDate: new Date(endTime),
-        });
 
         if (!state.fetchedTimeRanges[streamId]) {
           state.fetchedTimeRanges[streamId] = [];
@@ -329,18 +308,6 @@ const fixedStreamSlice = createSlice({
           state.fetchedTimeRanges[streamId].push({
             start: startTime,
             end: endTime,
-          });
-
-          console.log("Fetched New Time Range:", {
-            streamId,
-            range: {
-              start: new Date(startTime),
-              end: new Date(endTime),
-            },
-            allRanges: state.fetchedTimeRanges[streamId].map((range) => ({
-              start: new Date(range.start),
-              end: new Date(range.end),
-            })),
           });
         } else {
           console.error("Failed to parse timestamps:", {

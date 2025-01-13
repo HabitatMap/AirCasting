@@ -160,6 +160,7 @@ const getXAxisOptions = (
             0,
             0
           ).getTime();
+
           const monthEnd = new Date(
             maxDate.getFullYear(),
             maxDate.getMonth() + 1,

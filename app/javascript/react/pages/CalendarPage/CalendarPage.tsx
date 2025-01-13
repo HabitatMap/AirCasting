@@ -56,7 +56,9 @@ const CalendarPage: React.FC<CalendarPageProps> = ({ children }) => {
   const { formattedMinTime, formattedMaxTime } = formatTime(startTime, endTime);
   const [errorMessage, setErrorMessage] = useState("");
   const [initialDataFetched, setInitialDataFetched] = useState(false);
-  const [selectedDate, setSelectedDate] = useState<Date | undefined>();
+  const [selectedDateTimestamp, setSelectedDateTimestamp] = useState<
+    number | undefined
+  >();
 
   const calendarIsVisible =
     movingCalendarData.data.length &&
@@ -118,9 +120,8 @@ const CalendarPage: React.FC<CalendarPageProps> = ({ children }) => {
     setInitialDataFetched(false);
   }, [streamId]);
 
-  const handleDaySelect = (date: Date) => {
-    console.log("Day selected:", date);
-    setSelectedDate(date);
+  const handleDaySelect = (timestampDate: number) => {
+    setSelectedDateTimestamp(timestampDate);
   };
 
   const renderMobileGraph = () => (
@@ -147,7 +148,7 @@ const CalendarPage: React.FC<CalendarPageProps> = ({ children }) => {
               sessionType={SessionTypes.FIXED}
               isCalendarPage={true}
               rangeDisplayRef={rangeDisplayRef}
-              selectedDate={selectedDate}
+              selectedDateTimestamp={selectedDateTimestamp}
             />
             <MeasurementComponent />
           </>
@@ -224,7 +225,7 @@ const CalendarPage: React.FC<CalendarPageProps> = ({ children }) => {
             sessionType={SessionTypes.FIXED}
             isCalendarPage={true}
             rangeDisplayRef={rangeDisplayRef}
-            selectedDate={selectedDate}
+            selectedDateTimestamp={selectedDateTimestamp}
           />
         }
       />

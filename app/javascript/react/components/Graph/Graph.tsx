@@ -1,6 +1,7 @@
 import HighchartsReact from "highcharts-react-official";
 import Highcharts, { Chart } from "highcharts/highstock";
 import NoDataToDisplay from "highcharts/modules/no-data-to-display";
+import moment from "moment";
 import React, { useCallback, useEffect, useMemo, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import { white } from "../../assets/styles/colors";
@@ -73,7 +74,7 @@ interface GraphProps {
   streamId: number | null;
   isCalendarPage: boolean;
   rangeDisplayRef?: React.RefObject<HTMLDivElement>;
-  selectedDate?: Date;
+  selectedDateTimestamp?: number;
 }
 
 const Graph: React.FC<GraphProps> = React.memo(
@@ -82,7 +83,7 @@ const Graph: React.FC<GraphProps> = React.memo(
     sessionType,
     isCalendarPage,
     rangeDisplayRef,
-    selectedDate,
+    selectedDateTimestamp,
   }) => {
     const dispatch = useAppDispatch();
     const { t } = useTranslation();
@@ -413,14 +414,12 @@ const Graph: React.FC<GraphProps> = React.memo(
     const isFetchingSelectedDayRef = useRef(false);
 
     useEffect(() => {
-      if (selectedDate && chartComponentRef.current?.chart) {
+      if (selectedDateTimestamp && chartComponentRef.current?.chart) {
         const chart = chartComponentRef.current.chart;
-        const dayStart = selectedDate.getTime();
-        const dayEnd = dayStart + MILLISECONDS_IN_A_DAY;
 
         // Get the start and end of the selected month
-        const selectedMonth = selectedDate.getMonth();
-        const selectedYear = selectedDate.getFullYear();
+        const selectedMonth = moment(selectedDateTimestamp).month();
+        const selectedYear = moment(selectedDateTimestamp).year();
 
         const monthStart = new Date(
           selectedYear,
@@ -464,10 +463,14 @@ const Graph: React.FC<GraphProps> = React.memo(
         }
 
         // Always set the view to exactly the selected day
-        chart.xAxis[0].setExtremes(dayStart, dayEnd);
+
+        chart.xAxis[0].setExtremes(
+          selectedDateTimestamp,
+          selectedDateTimestamp + MILLISECONDS_IN_A_DAY
+        );
       }
     }, [
-      selectedDate,
+      selectedDateTimestamp,
       streamId,
       fixedSessionTypeSelected,
       savedTimeRanges,

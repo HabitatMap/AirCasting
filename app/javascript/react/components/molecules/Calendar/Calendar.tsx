@@ -13,7 +13,7 @@ interface CalendarProps {
   streamId: number;
   minCalendarDate: string;
   maxCalendarDate: string;
-  onDaySelect?: (date: Date) => void;
+  onDaySelect?: (timestampDate: number) => void;
 }
 
 const Calendar: React.FC<CalendarProps> = ({
@@ -78,8 +78,8 @@ const Calendar: React.FC<CalendarProps> = ({
     </>
   );
 
-  const handleDayClick = (date: Date) => {
-    onDaySelect?.(date);
+  const handleDayClick = (timestampDate: number) => {
+    onDaySelect?.(timestampDate);
   };
 
   const CalendarContent = () => (

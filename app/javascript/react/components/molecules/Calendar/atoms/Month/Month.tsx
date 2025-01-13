@@ -1,6 +1,7 @@
 import React from "react";
 import { useSelector } from "react-redux";
 
+import moment from "moment";
 import { selectThresholds } from "../../../../../store/thresholdSlice";
 import { CalendarCellData } from "../../../../../types/calendar";
 import { Day } from "../Day";
@@ -11,7 +12,7 @@ interface MonthProps {
   monthName: string;
   dayNamesHeader: string[];
   weeks: CalendarCellData[][];
-  onDayClick?: (date: Date) => void;
+  onDayClick?: (timestampDate: number) => void;
 }
 
 export const Month: React.FC<MonthProps> = ({
@@ -21,6 +22,12 @@ export const Month: React.FC<MonthProps> = ({
   onDayClick,
 }) => {
   const thresholds = useSelector(selectThresholds);
+
+  const timestampDayStart = (date: Date) => {
+    const selectedDayWithoutTime = moment(date).format("YYYY-MM-DD");
+    const dayStart = new Date(selectedDayWithoutTime).getTime();
+    return dayStart;
+  };
 
   return (
     <S.Month>
@@ -35,7 +42,7 @@ export const Month: React.FC<MonthProps> = ({
                 {...day}
                 {...thresholds}
                 dayNumber={day.date.getDate().toString()}
-                onClick={() => onDayClick?.(day.date)}
+                onClick={() => onDayClick?.(timestampDayStart(day.date))}
               />
             ))}
           </S.Week>
