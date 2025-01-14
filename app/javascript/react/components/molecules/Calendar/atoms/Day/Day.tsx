@@ -19,15 +19,13 @@ interface DayProps {
 const Day = ({ dayNumber, value, date, onClick, ...thresholds }: DayProps) => {
   return (
     <S.Day
-      $color={
-        value !== null ? getColorForValue(thresholds, value) : "transparent"
-      }
+      $color={getColorForValue(thresholds, value)}
       onClick={value !== null ? onClick : undefined}
       style={{ cursor: value !== null ? "pointer" : "default" }}
     >
       <S.DayNumber $isVisible={true}>{dayNumber}</S.DayNumber>
-      <S.ValueContainer $isVisible={value !== null}>
-        <S.Value>{value ?? ""}</S.Value>
+      <S.ValueContainer $isVisible={true}>
+        <S.Value>{value}</S.Value>
       </S.ValueContainer>
     </S.Day>
   );
