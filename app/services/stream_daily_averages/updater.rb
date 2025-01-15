@@ -11,11 +11,13 @@ module StreamDailyAverages
     def call(stream_id:, time_with_time_zone:)
       value = average_value(stream_id, time_with_time_zone)
 
-      create_or_update_stream_daily_average(
-        stream_id,
-        time_with_time_zone,
-        value,
-      )
+      if value
+        create_or_update_stream_daily_average(
+          stream_id,
+          time_with_time_zone,
+          value,
+        )
+      end
     end
 
     private
@@ -23,7 +25,7 @@ module StreamDailyAverages
     attr_reader :measurements_repository, :stream_daily_averages_repository
 
     def average_value(stream_id, time_with_time_zone)
-      measurements_repository.stream_daily_average_value(
+      measurements_repository.daily_average_value(
         stream_id: stream_id,
         time_with_time_zone: time_with_time_zone,
       )
@@ -34,7 +36,7 @@ module StreamDailyAverages
       time_with_time_zone,
       value
     )
-      stream_daily_averages_repository.create_or_update(
+      stream_daily_averages_repository.create_or_update!(
         stream_id: stream_id,
         date: time_with_time_zone.to_date,
         value: value,

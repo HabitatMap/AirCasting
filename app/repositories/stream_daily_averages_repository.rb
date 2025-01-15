@@ -14,18 +14,16 @@ class StreamDailyAveragesRepository
   end
 
   def last_average_value(stream_id)
-    last_daily_average = StreamDailyAverage
-                          .where(stream_id: stream_id)
-                          .order(date: :desc)
-                          .first
+    last_daily_average =
+      StreamDailyAverage.where(stream_id: stream_id).order(date: :desc).first
 
     last_daily_average&.value || nil
   end
 
-  def create_or_update(stream_id:, date:, value:)
+  def create_or_update!(stream_id:, date:, value:)
     stream_daily_average =
       StreamDailyAverage.find_or_initialize_by(stream_id: stream_id, date: date)
 
-    stream_daily_average.update(value: value)
+    stream_daily_average.update!(value: value)
   end
 end
