@@ -812,6 +812,7 @@ const Map = () => {
         styles={memoizedMapStyles}
         onZoomChanged={handleZoomChanged}
         tilt={0}
+        reuseMaps={true}
       >
         {fixedSessionsStatusFulfilled &&
           fixedSessionTypeSelected &&
