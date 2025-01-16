@@ -3,7 +3,7 @@
 FactoryBot.define do
   factory :mobile_session do
     user
-    sequence(:uuid) { |n| "uuid-#{n}" }
+    sequence(:uuid) { |n| "mobile-uuid-#{n}" }
     title { 'Another session' }
     tag_list { 'boring quiet' }
     contribute { true }

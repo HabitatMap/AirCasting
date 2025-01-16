@@ -3,7 +3,7 @@
 FactoryBot.define do
   factory :fixed_session do
     user
-    sequence(:uuid) { |n| "uuid-#{n}" }
+    sequence(:uuid) { |n| "fixed-uuid-#{n}" }
     title { 'Another session' }
     tag_list { 'boring quiet' }
     contribute { true }
