@@ -2,14 +2,10 @@ import { debounce } from "lodash";
 import { useRef } from "react";
 import { fetchMeasurements } from "../../../store/fixedStreamSlice";
 import { useAppDispatch } from "../../../store/hooks";
-import {
-  MILLISECONDS_IN_A_DAY,
-  MILLISECONDS_IN_A_MONTH,
-} from "../../../utils/timeRanges";
+import { MILLISECONDS_IN_A_MONTH } from "../../../utils/timeRanges";
 
 export const useMeasurementsFetcher = (streamId: number | null) => {
   const isCurrentlyFetchingRef = useRef(false);
-  const isInitialFetchRef = useRef(true);
   const lastFetchedStartRef = useRef<number | null>(null);
   const dispatch = useAppDispatch();
 
@@ -38,13 +34,6 @@ export const useMeasurementsFetcher = (streamId: number | null) => {
 
       try {
         isCurrentlyFetchingRef.current = true;
-
-        // For initial fetch, load two days of data
-        if (isInitialFetchRef.current) {
-          await fetchChunk(end - MILLISECONDS_IN_A_DAY * 2, end);
-          isInitialFetchRef.current = false;
-          return;
-        }
 
         // For subsequent fetches, check if we need to load more data
         if (

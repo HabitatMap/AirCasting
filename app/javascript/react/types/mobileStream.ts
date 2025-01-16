@@ -46,4 +46,9 @@ interface MobileGraphData {
   measurementType: string;
 }
 
-export type { MobileGraphData, MobileStream, MobileStreamShortInfo };
+export type {
+  Measurement,
+  MobileGraphData,
+  MobileStream,
+  MobileStreamShortInfo,
+};

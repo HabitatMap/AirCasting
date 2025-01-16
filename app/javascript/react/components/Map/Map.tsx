@@ -30,6 +30,7 @@ import {
 import {
   fetchFixedStreamById,
   resetFixedStreamState,
+  selectFixedData,
 } from "../../store/fixedStreamSlice";
 import { useAppDispatch, useAppSelector } from "../../store/hooks";
 import { selectIndoorSessionsList } from "../../store/indoorSessionsSelectors";
@@ -196,6 +197,8 @@ const Map = () => {
       return selectMobileSessionsList(state);
     }
   });
+
+  const fixedStreamData = useAppSelector(selectFixedData);
 
   const memoizedMapStyles = useMemo(() => mapStyles, []);
 
@@ -476,7 +479,11 @@ const Map = () => {
   }, [mapInstance, previousUserSettings]);
 
   useEffect(() => {
-    if (streamId && currentUserSettings === UserSettings.ModalView) {
+    if (
+      streamId &&
+      currentUserSettings === UserSettings.ModalView &&
+      !fixedStreamData.measurements.length
+    ) {
       fixedSessionTypeSelected
         ? dispatch(fetchFixedStreamById(streamId))
         : dispatch(fetchMobileStreamById(streamId));
