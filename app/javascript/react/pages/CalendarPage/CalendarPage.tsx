@@ -67,7 +67,7 @@ const CalendarPage: React.FC<CalendarPageProps> = ({ children }) => {
     moment().format("YYYY-MM-DD");
 
   useEffect(() => {
-    if (streamId) {
+    if (streamId && !fixedStreamData.measurements.length) {
       dispatch(fetchFixedStreamById(streamId));
     }
   }, [streamId]);

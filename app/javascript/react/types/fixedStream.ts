@@ -1,3 +1,5 @@
+import { FixedMeasurement } from "../store/fixedStreamSlice";
+
 interface StreamUpdate {
   lastUpdate: string | null;
   updateFrequency: string;
@@ -23,11 +25,6 @@ interface FixedStreamStationInfo extends StreamUpdate, DataSource {
   latitude: number;
   longitude: number;
   firstMeasurementTime: number;
-}
-
-interface FixedMeasurement {
-  time: number;
-  value: number;
 }
 
 interface StreamDailyAverage {
