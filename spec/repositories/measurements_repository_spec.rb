@@ -3,24 +3,40 @@ require 'rails_helper'
 describe MeasurementsRepository do
   subject { described_class.new }
 
-  describe '#from_last_24_hours' do
-    it 'returns measurements for given stream' do
-      stream = create_stream!
-      measurements = create_measurements!({ stream: stream, count: 10 })
-      other_measurement = create_measurement!
+  describe '#last_2_days' do
+    it 'returns last two days of measurements for given stream' do
+      stream = create(:stream, :fixed)
+      measurement_1 =
+        create(
+          :measurement,
+          stream: stream,
+          time: Time.parse('2025-01-15 09:00'),
+        )
+      measurement_2 =
+        create(
+          :measurement,
+          stream: stream,
+          time: Time.parse('2025-01-14 10:00'),
+        )
+      measurement_3 =
+        create(
+          :measurement,
+          stream: stream,
+          time: Time.parse('2025-01-13 09:00'),
+        )
+      create(
+        :measurement,
+        stream: stream,
+        time: Time.parse('2025-01-13 08:00'),
+        value: 50,
+      )
+      create(:measurement, time: Time.parse('2025-01-15 08:00'))
 
-      result = subject.from_last_24_hours(stream_id: stream.id)
+      result = subject.last_2_days(stream_id: stream.id)
 
-      expect(result).to match_array(measurements)
-    end
-
-    it 'returns last 1440 measurements' do
-      stream = create_stream!
-      create_measurements!({ stream: stream, count: 1441 })
-
-      result = subject.from_last_24_hours(stream_id: stream.id)
-
-      expect(result.size).to eq(1440)
+      expect(result).to match_array(
+        [measurement_1, measurement_2, measurement_3],
+      )
     end
   end
 
