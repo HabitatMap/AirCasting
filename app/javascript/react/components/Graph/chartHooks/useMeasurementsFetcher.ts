@@ -6,7 +6,6 @@ import { MILLISECONDS_IN_A_MONTH } from "../../../utils/timeRanges";
 
 export const useMeasurementsFetcher = (streamId: number | null) => {
   const isCurrentlyFetchingRef = useRef(false);
-  const isInitialFetchRef = useRef(true);
   const lastFetchedStartRef = useRef<number | null>(null);
   const dispatch = useAppDispatch();
 
