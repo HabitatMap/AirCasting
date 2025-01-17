@@ -48,10 +48,6 @@ const SessionListContainer = styled.div`
   top: 5rem;
   max-height: calc(100vh - 22rem);
 
-  @-moz-document url-prefix() {
-    width: calc(100% + 2rem);
-  }
-
   &::-webkit-scrollbar-button:end:decrement {
     padding-bottom: 1rem;
   }
