@@ -19,7 +19,10 @@ module StreamDailyAverages
           ELSE DATE_TRUNC('day', time) - INTERVAL '1 day'
         END AS date
       FROM measurements
-      WHERE time >= '2024-01-01 00:00:01'
+      JOIN streams ON measurements.stream_id = streams.id
+      JOIN sessions ON streams.session_id = sessions.id
+      WHERE time >= '2024-09-01 00:00:01'
+      AND sessions.type = 'FixedSession'
       GROUP BY stream_id, date;
 
       INSERT INTO stream_daily_averages (stream_id, value, date, created_at, updated_at)
