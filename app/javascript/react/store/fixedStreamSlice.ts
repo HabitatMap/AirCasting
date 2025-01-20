@@ -30,9 +30,6 @@ export interface FixedStreamState {
   error: ApiError | null;
   isLoading: boolean;
   lastSelectedTimeRange: FixedTimeRange;
-  measurements: {
-    [streamId: number]: FixedMeasurement[];
-  };
   fetchedTimeRanges: {
     [streamId: number]: Array<{
       start: number;
@@ -75,7 +72,6 @@ const initialState: FixedStreamState = {
   error: null,
   isLoading: false,
   lastSelectedTimeRange: FixedTimeRange.Day,
-  measurements: {},
   fetchedTimeRanges: {},
 };
 
@@ -170,11 +166,6 @@ const fixedStreamSlice = createSlice({
     resetLastSelectedTimeRange(state) {
       state.lastSelectedTimeRange = FixedTimeRange.Day;
       localStorage.setItem("lastSelectedTimeRange", FixedTimeRange.Day);
-    },
-
-    resetStreamMeasurements(state, action: PayloadAction<number>) {
-      state.measurements[action.payload] = [];
-      state.fetchedTimeRanges[action.payload] = [];
     },
 
     updateStreamMeasurements(
@@ -338,7 +329,6 @@ export const {
   resetFixedStreamState,
   setLastSelectedTimeRange,
   resetLastSelectedTimeRange,
-  resetStreamMeasurements,
   updateStreamMeasurements,
   resetFixedMeasurementExtremes,
   resetTimeRange,
