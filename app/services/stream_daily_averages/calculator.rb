@@ -21,8 +21,9 @@ module StreamDailyAverages
       FROM measurements
       JOIN streams ON measurements.stream_id = streams.id
       JOIN sessions ON streams.session_id = sessions.id
-      WHERE time >= '2024-12-01 00:00:01'
-      AND sessions.last_measurement_at >= '2024-11-30 00:00:01'
+      WHERE time >= '2024-06-01 00:00:01'
+      AND time < '2024-12-01 00:00:01'
+      AND sessions.last_measurement_at >= '2024-05-31 00:00:01'
       AND sessions.type = 'FixedSession'
       GROUP BY stream_id, date;
 
