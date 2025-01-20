@@ -41,7 +41,7 @@ describe MeasurementsRepository do
   end
 
   describe '#daily_average_value' do
-    it 'returns avarage value of measurements for given stream and day' do
+    it 'returns rounded avarage value of measurements for given stream and day' do
       time_with_time_zone = Time.parse('2025-01-15 10:00 -05:00')
       stream = create(:stream, :fixed)
 
@@ -57,7 +57,15 @@ describe MeasurementsRepository do
           :measurement,
           stream: stream,
           time_with_time_zone: Time.parse('2025-01-16 00:00 -05:00'),
-          value: 6,
+          value: 3,
+        )
+
+      measurement_3 =
+        create(
+          :measurement,
+          stream: stream,
+          time_with_time_zone: Time.parse('2025-01-16 00:00 -05:00'),
+          value: 4,
         )
 
       create(
@@ -70,7 +78,9 @@ describe MeasurementsRepository do
         :measurement,
         time_with_time_zone: Time.parse('2025-01-15 09:00 -05:00'),
       )
-      expected_value = (measurement_1.value + measurement_2.value) / 2
+      expected_value =
+        ((measurement_1.value + measurement_2.value + measurement_3.value) / 3)
+          .round
 
       result =
         subject.daily_average_value(
