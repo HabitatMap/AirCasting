@@ -19,6 +19,7 @@ module StreamDailyAverages
           ELSE DATE_TRUNC('day', time) - INTERVAL '1 day'
         END AS date
       FROM measurements
+      WHERE time >= '2024-01-01 00:00:01'
       GROUP BY stream_id, date;
 
       INSERT INTO stream_daily_averages (stream_id, value, date, created_at, updated_at)
