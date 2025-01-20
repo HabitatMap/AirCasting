@@ -4,44 +4,50 @@ module StreamDailyAverages
       @updater = updater
     end
 
-    def call(stream_id:, time_zone:, is_air_now_stream:)
-      if first_hour_of_the_day?(time_zone)
-        recalucate_daily_values(stream_id, time_zone, is_air_now_stream)
-      end
+    def call(stream_id:, station_current_time:, is_air_now_stream:)
+      ActiveRecord::Base.transaction do
+        if first_hour_of_the_day?(station_current_time)
+          recalucate_daily_values(
+            stream_id,
+            station_current_time,
+            is_air_now_stream,
+          )
+        end
 
-      update_value_for_current_day(stream_id, time_zone)
+        update_value_for_current_day(stream_id, station_current_time)
+      end
     end
 
     private
 
     attr_reader :updater
 
-    def current_time(time_zone)
-      @current_time ||= Time.current.in_time_zone(time_zone)
+    def first_hour_of_the_day?(station_current_time)
+      station_current_time.hour < 1
     end
 
-    def first_hour_of_the_day?(time_zone)
-      current_time(time_zone).hour < 1
-    end
-
-    def recalucate_daily_values(stream_id, time_zone, is_air_now_stream)
+    def recalucate_daily_values(
+      stream_id,
+      station_current_time,
+      is_air_now_stream
+    )
       updater.call(
         stream_id: stream_id,
-        time_with_time_zone: current_time(time_zone) - 1.day,
+        time_with_time_zone: station_current_time - 1.day,
       )
 
       if is_air_now_stream
         updater.call(
           stream_id: stream_id,
-          time_with_time_zone: current_time(time_zone) - 2.days,
+          time_with_time_zone: station_current_time - 2.days,
         )
       end
     end
 
-    def update_value_for_current_day(stream_id, time_zone)
+    def update_value_for_current_day(stream_id, station_current_time)
       updater.call(
         stream_id: stream_id,
-        time_with_time_zone: current_time(time_zone),
+        time_with_time_zone: station_current_time,
       )
     end
   end

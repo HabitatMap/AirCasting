@@ -46,14 +46,14 @@ describe StreamDailyAveragesRepository do
     end
   end
 
-  describe '#create_or_update' do
+  describe '#create_or_update!' do
     context 'stream_daily_average for given stream and date does not exist' do
       it 'creates a new record' do
         stream = create_stream!
         current_date = Time.current.to_date
 
         expect {
-          subject.create_or_update(
+          subject.create_or_update!(
             stream_id: stream.id,
             date: current_date,
             value: 10,
@@ -77,7 +77,7 @@ describe StreamDailyAveragesRepository do
           )
 
         expect {
-          subject.create_or_update(
+          subject.create_or_update!(
             stream_id: stream.id,
             date: current_date,
             value: 10,
