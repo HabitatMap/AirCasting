@@ -26,3 +26,8 @@
     cron: "1 * * * *"
     class: UpdateStreamHourlyAveragesWorker
     queue: slow
+
+  update_stream_daily_averages:
+    cron: "5 * * * *"
+    class: UpdateStreamDailyAveragesWorker
+    queue: slow
