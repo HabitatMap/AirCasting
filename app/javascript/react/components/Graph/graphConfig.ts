@@ -62,7 +62,6 @@ const getScrollbarOptions = (isCalendarPage: boolean, isMobile: boolean) => {
     minWidth: isMobile ? 30 : 8,
   };
 };
-
 const getXAxisOptions = (
   isMobile: boolean,
   rangeDisplayRef: React.RefObject<HTMLDivElement> | undefined,
@@ -75,10 +74,10 @@ const getXAxisOptions = (
 ): Highcharts.XAxisOptions => {
   let isFetchingData = false;
   let initialDataMin: number | null = null;
-  let fetchTimeout: NodeJS.Timeout | null = null;
+  const fetchTimeout: NodeJS.Timeout | null = null;
 
   const handleSetExtremes = debounce(
-    async (e: Highcharts.AxisSetExtremesEventObject, axis: Highcharts.Axis) => {
+    (e: Highcharts.AxisSetExtremesEventObject) => {
       if (!isLoading && e.min !== undefined && e.max !== undefined) {
         if (fixedSessionTypeSelected && streamId !== null) {
           dispatch(
@@ -101,35 +100,28 @@ const getXAxisOptions = (
           const htmlContent = generateTimeRangeHTML(e.min, e.max);
           updateRangeDisplayDOM(rangeDisplayRef.current, htmlContent, true);
         }
-
-        // Handle scrollbar release
-        if (initialDataMin === null && e.dataMin !== undefined) {
-          initialDataMin = e.dataMin - MILLISECONDS_IN_A_MONTH;
-        }
-
-        if (fetchTimeout) clearTimeout(fetchTimeout);
-        fetchTimeout = setTimeout(async () => {
-          if (isLoading || isFetchingData) return;
-          const { min, max, dataMin } = axis.getExtremes();
-          if (min === undefined || dataMin === undefined) return;
-
-          const buffer = (max - min) * 0.02;
-          const isAtDataMin = min <= dataMin + buffer;
-          if (isAtDataMin) {
-            isFetchingData = true;
-            try {
-              const newStart = min - MILLISECONDS_IN_A_MONTH;
-              await fetchMeasurementsIfNeeded(newStart, min);
-            } finally {
-              isFetchingData = false;
-              fetchTimeout = null;
-            }
-          }
-        }, 800);
       }
     },
     300
   );
+
+  const onScrollbarRelease = debounce(async (axis: Highcharts.Axis) => {
+    if (isLoading || isFetchingData) return;
+    const { min, max, dataMin } = axis.getExtremes();
+    if (min === undefined || max === undefined || dataMin === undefined) return;
+
+    const buffer = (max - min) * 0.02;
+    const isAtDataMin = min <= dataMin + buffer;
+    if (isAtDataMin) {
+      isFetchingData = true;
+      try {
+        const newStart = min - MILLISECONDS_IN_A_MONTH;
+        await fetchMeasurementsIfNeeded(newStart, min);
+      } finally {
+        isFetchingData = false;
+      }
+    }
+  }, 800);
 
   return {
     title: {
@@ -160,8 +152,11 @@ const getXAxisOptions = (
       afterSetExtremes: async function (
         e: Highcharts.AxisSetExtremesEventObject
       ) {
-        const axis = this;
-        handleSetExtremes(e, axis);
+        handleSetExtremes(e);
+
+        if (initialDataMin === null && e.dataMin !== undefined) {
+          initialDataMin = e.dataMin - MILLISECONDS_IN_A_MONTH;
+        }
 
         if (
           !fixedSessionTypeSelected ||
@@ -197,7 +192,7 @@ const getXAxisOptions = (
           ).getTime();
 
           // Check if we're at the data edge
-          const { dataMin } = axis.getExtremes();
+          const { dataMin } = this.getExtremes();
           const isAtDataEdge = e.min <= dataMin + (e.max - e.min) * 0.1; // Within 10% of the edge
 
           if (isAtDataEdge) {
@@ -240,6 +235,9 @@ const getXAxisOptions = (
             }
           }
         }
+
+        // Call onScrollbarRelease after each extreme change
+        onScrollbarRelease(this);
       },
     },
   };
