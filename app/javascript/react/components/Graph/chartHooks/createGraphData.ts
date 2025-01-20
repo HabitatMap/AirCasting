@@ -1,13 +1,16 @@
-import { Measurement } from "../../../store/fixedStreamSlice";
+import { FixedMeasurement } from "../../../store/fixedStreamSlice";
 import { LatLngLiteral } from "../../../types/googleMaps";
+import { Measurement } from "../../../types/mobileStream";
 import { FixedSession, MobileSession } from "../../../types/sessionType";
 
-export const isValidMeasurement = (m: Measurement): m is Measurement => {
+export const isValidMeasurement = (
+  m: FixedMeasurement
+): m is FixedMeasurement => {
   return m.time !== undefined && m.value !== undefined;
 };
 
 export const createFixedSeriesData = (
-  measurements: Measurement[] | undefined
+  measurements: FixedMeasurement[] | undefined
 ) =>
   measurements
     ?.filter(isValidMeasurement)

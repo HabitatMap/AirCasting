@@ -58,7 +58,7 @@ const selectFixedStreamShortInfo = createSelector(
 
     const lastMeasurementDateLabel = moment(date).format("MMM D");
     const lastUpdate = moment
-      .utc(fixedStreamData.stream.lastUpdate)
+      .utc(fixedStreamData.stream.endTime)
 
       .format("HH:mm MMM D YYYY");
     const startTime = moment

@@ -1,6 +1,13 @@
 class MeasurementsRepository
-  def from_last_24_hours(stream_id:)
-    Measurement.where(stream_id: stream_id).reorder(time: :desc).limit(1440)
+  def last_2_days(stream_id:)
+    last_measurement_time =
+      Measurement.where(stream_id: stream_id).reorder(time: :desc).first.time
+
+    Measurement.where(
+      'stream_id = ? AND time >= ?',
+      stream_id,
+      last_measurement_time - 2.days,
+    )
   end
 
   def stream_daily_average_value(stream_id:, time_with_time_zone:)

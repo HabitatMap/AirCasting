@@ -39,10 +39,7 @@ import {
   mapIndexToTimeRange,
 } from "../../utils/getTimeRange";
 import { useMapParams } from "../../utils/mapParamsHandler";
-import {
-  MILLISECONDS_IN_A_DAY,
-  MILLISECONDS_IN_A_WEEK,
-} from "../../utils/timeRanges";
+import { MILLISECONDS_IN_A_DAY } from "../../utils/timeRanges";
 import useMobileDetection from "../../utils/useScreenSizeDetection";
 import { handleLoad } from "./chartEvents";
 import {
@@ -202,14 +199,6 @@ const Graph: React.FC<GraphProps> = React.memo(
         dispatch(resetLastSelectedMobileTimeRange());
       }
     }, []);
-
-    useEffect(() => {
-      if (streamId && fixedSessionTypeSelected && !measurements.length) {
-        // Only fetch if we don't have data for this stream
-        const now = Date.now();
-        fetchMeasurementsIfNeeded(now - MILLISECONDS_IN_A_WEEK, now);
-      }
-    }, [streamId, fixedSessionTypeSelected, measurements.length]);
 
     // Apply touch action to the graph container for mobile devices in Calendar page
     useEffect(() => {

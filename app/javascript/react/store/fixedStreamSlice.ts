@@ -14,11 +14,9 @@ import { getErrorMessage } from "../utils/getErrorMessage";
 import { logError } from "../utils/logController";
 import { RootState } from "./index";
 
-export interface Measurement {
+export interface FixedMeasurement {
   time: number;
   value: number;
-  latitude: number;
-  longitude: number;
 }
 
 export interface FixedStreamState {
@@ -33,7 +31,7 @@ export interface FixedStreamState {
   isLoading: boolean;
   lastSelectedTimeRange: FixedTimeRange;
   measurements: {
-    [streamId: number]: Measurement[];
+    [streamId: number]: FixedMeasurement[];
   };
   fetchedTimeRanges: {
     [streamId: number]: Array<{
@@ -118,7 +116,7 @@ export const fetchMeasurements = createAsyncThunk(
     { rejectWithValue }
   ) => {
     try {
-      const response: AxiosResponse<Measurement[], Error> =
+      const response: AxiosResponse<FixedMeasurement[], Error> =
         await oldApiClient.get(
           API_ENDPOINTS.fetchMeasurements(
             params.streamId,
@@ -141,8 +139,8 @@ const fixedStreamSlice = createSlice({
       state,
       action: PayloadAction<{ streamId: number; min: number; max: number }>
     ) {
-      const { streamId, min, max } = action.payload;
-      const allMeasurements = state.measurements[streamId] || [];
+      const { min, max } = action.payload;
+      const allMeasurements = state.data.measurements || [];
 
       const values = allMeasurements
         .filter((m) => m.time >= min && m.time <= max)
@@ -181,10 +179,13 @@ const fixedStreamSlice = createSlice({
 
     updateStreamMeasurements(
       state,
-      action: PayloadAction<{ streamId: number; measurements: Measurement[] }>
+      action: PayloadAction<{
+        streamId: number;
+        measurements: FixedMeasurement[];
+      }>
     ) {
-      const { streamId, measurements } = action.payload;
-      const existingMeasurements = state.measurements[streamId] || [];
+      const { measurements } = action.payload;
+      const existingMeasurements = state.data.measurements || [];
 
       const existingMap = new Map(existingMeasurements.map((m) => [m.time, m]));
 
@@ -194,7 +195,7 @@ const fixedStreamSlice = createSlice({
         }
       });
 
-      state.measurements[streamId] = Array.from(existingMap.values()).sort(
+      state.data.measurements = Array.from(existingMap.values()).sort(
         (a, b) => a.time - b.time
       );
     },
@@ -282,7 +283,7 @@ const fixedStreamSlice = createSlice({
 
       const streamId = Number(action.meta?.arg?.streamId);
       if (streamId) {
-        const existingMeasurements = state.measurements[streamId] || [];
+        const existingMeasurements = state.data.measurements || [];
         const existingMap = new Map(
           existingMeasurements.map((m) => [m.time, m])
         );
@@ -293,7 +294,7 @@ const fixedStreamSlice = createSlice({
           }
         });
 
-        state.measurements[streamId] = Array.from(existingMap.values()).sort(
+        state.data.measurements = Array.from(existingMap.values()).sort(
           (a, b) => a.time - b.time
         );
 
@@ -366,8 +367,9 @@ export const selectStreamMeasurements = createSelector(
     selectFixedStreamState,
     (_state: RootState, streamId: number | null) => streamId,
   ],
-  (fixedStream, streamId) =>
-    streamId ? fixedStream.measurements[streamId] || [] : []
+  (fixedStream, streamId) => {
+    return streamId ? fixedStream.data.measurements || [] : [];
+  }
 );
 
 export const selectFetchedTimeRanges = createSelector(
