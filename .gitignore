@@ -41,13 +41,11 @@ config/rails_best_practices.yml
 
 .capistrano/
 
-/elm-stuff
 /node_modules
 /public/webpack
 pids/
 .byebug_history
 repl-temp-*
-elm-stuff
 build/
 /public/packs
 /public/packs-test
