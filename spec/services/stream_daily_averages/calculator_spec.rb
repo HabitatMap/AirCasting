@@ -5,8 +5,12 @@ describe StreamDailyAverages::Calculator do
 
   describe '#call' do
     it 'calculates the daily averages' do
-      stream_1 = create(:stream, :fixed)
-      stream_2 = create(:stream, :fixed)
+      session_1 =
+        create(:fixed_session, last_measurement_at: '2025-01-18 00:00:00')
+      session_2 =
+        create(:fixed_session, last_measurement_at: '2025-01-18 00:00:00')
+      stream_1 = create(:stream, session: session_1)
+      stream_2 = create(:stream, session: session_2)
 
       # stream_1, for: 2025-01-16, average: 2
       create(
