@@ -22,7 +22,6 @@ class MeasurementsRepository
         end_date_time,
       )
       .average(:value)
-      .round
   end
 
   def streams_averages_hourly_last_7_days(stream_ids:, with_hour_shift:)

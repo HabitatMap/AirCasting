@@ -17,7 +17,7 @@ describe StreamDailyAverages::StreamInteractor do
         create(
           :measurement,
           stream: stream,
-          value: 12,
+          value: 11,
           time_with_time_zone: Time.parse('2025-01-15 08:00 -05:00'),
         )
 
@@ -58,7 +58,7 @@ describe StreamDailyAverages::StreamInteractor do
         create(
           :measurement,
           stream: stream,
-          value: 12,
+          value: 9,
           time_with_time_zone: Time.parse('2025-01-15 08:00 -05:00'),
         )
 
@@ -70,7 +70,7 @@ describe StreamDailyAverages::StreamInteractor do
           )
         }.not_to change(StreamDailyAverage, :count)
 
-        expect(stream_daily_average.reload.value).to eq(11)
+        expect(stream_daily_average.reload.value).to eq(10)
       end
     end
 
