@@ -1,6 +1,6 @@
 import styled from "styled-components";
 
-import { gray100, gray400, red, white } from "../../assets/styles/colors";
+import { gray100, gray400, red100, white } from "../../assets/styles/colors";
 import { NAVBAR_HEIGHT } from "../../components/Navbar/Navbar.style";
 import { H3 } from "../../components/Typography";
 import { media } from "../../utils/media";
@@ -98,7 +98,7 @@ const ThresholdButtonsContainer = styled.div`
 `;
 
 const ErrorMessage = styled.p`
-  color: ${red};
+  color: ${red100};
   position: absolute;
   background-color: ${white};
   top: 8%;
