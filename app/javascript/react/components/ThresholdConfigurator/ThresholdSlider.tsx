@@ -194,7 +194,7 @@ const ThresholdSlider: React.FC<ThresholdSliderProps> = ({
         ...positionStyle,
         zIndex: 10,
         marginLeft:
-          thresholdKey === "min" ? "-1px" : value === max ? "0px" : "-15px",
+          thresholdKey === "min" ? "-15px" : value === max ? "0px" : "-15px",
         left:
           thresholdKey === "max"
             ? "auto"
@@ -205,28 +205,39 @@ const ThresholdSlider: React.FC<ThresholdSliderProps> = ({
                 sliderWidth,
                 isMobile
               )}px`,
-        right: thresholdKey === "max" ? "-1px" : "auto",
+        right: thresholdKey === "max" ? "-20px" : "auto",
       }}
       onChange={(e) => setInputValue(e.target.value)}
-      onTouchStart={(event: React.TouchEvent<HTMLInputElement>) =>
-        handleTouchStart(
-          thresholdKey,
-          thresholdValues,
-          sliderWidth,
-          setThresholdValues,
-          setInputValue,
-          setErrorMessage
-        )({ touches: [{ clientX: event.touches[0].clientX }] })
+      onTouchStart={
+        thresholdKey === "min" || thresholdKey === "max"
+          ? undefined
+          : (event: React.TouchEvent<HTMLInputElement>) =>
+              handleTouchStart(
+                thresholdKey,
+                thresholdValues,
+                sliderWidth,
+                setThresholdValues,
+                setInputValue,
+                setErrorMessage
+              )({ touches: [{ clientX: event.touches[0].clientX }] })
       }
-      onMouseDown={handleMouseDown(
-        thresholdKey,
-        thresholdValues,
-        sliderWidth,
-        setThresholdValues,
-        setInputValue,
-        setErrorMessage
-      )}
-      onKeyDown={handleInputKeyDown(thresholdKey)}
+      onMouseDown={
+        thresholdKey === "min" || thresholdKey === "max"
+          ? undefined
+          : handleMouseDown(
+              thresholdKey,
+              thresholdValues,
+              sliderWidth,
+              setThresholdValues,
+              setInputValue,
+              setErrorMessage
+            )
+      }
+      onKeyDown={
+        thresholdKey === "min" || thresholdKey === "max"
+          ? undefined
+          : handleInputKeyDown(thresholdKey)
+      }
       $isLast={thresholdKey === "max"}
       $isMin={thresholdKey === "min"}
     />
@@ -287,24 +298,31 @@ const ThresholdSlider: React.FC<ThresholdSliderProps> = ({
                   isMobile
                 )}px`,
               }}
-              onTouchStart={(event: React.TouchEvent<HTMLInputElement>) =>
-                handleTouchStart(
-                  thresholdKey,
-                  thresholdValues,
-                  sliderWidth,
-                  setThresholdValues,
-                  setInputValue,
-                  setErrorMessage
-                )({ touches: [{ clientX: event.touches[0].clientX }] })
+              onTouchStart={
+                thresholdKey === "min" || thresholdKey === "max"
+                  ? undefined
+                  : (event: React.TouchEvent<HTMLInputElement>) =>
+                      handleTouchStart(
+                        thresholdKey,
+                        thresholdValues,
+                        sliderWidth,
+                        setThresholdValues,
+                        setInputValue,
+                        setErrorMessage
+                      )({ touches: [{ clientX: event.touches[0].clientX }] })
               }
-              onMouseDown={handleMouseDown(
-                thresholdKey,
-                thresholdValues,
-                sliderWidth,
-                setThresholdValues,
-                setInputValue,
-                setErrorMessage
-              )}
+              onMouseDown={
+                thresholdKey === "min" || thresholdKey === "max"
+                  ? undefined
+                  : handleMouseDown(
+                      thresholdKey,
+                      thresholdValues,
+                      sliderWidth,
+                      setThresholdValues,
+                      setInputValue,
+                      setErrorMessage
+                    )
+              }
               onKeyDown={handleInputKeyDown(thresholdKey)}
             >
               <S.OldStyleSliderHandle />
