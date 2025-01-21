@@ -40,35 +40,49 @@ describe MeasurementsRepository do
     end
   end
 
-  describe '#stream_daily_average_value' do
+  describe '#daily_average_value' do
     it 'returns avarage value of measurements for given stream and day' do
-      stream = create_stream!
-      time_with_time_zone = Time.current.prev_day
-      beginning_of_day = time_with_time_zone.beginning_of_day
+      time_with_time_zone = Time.parse('2025-01-15 10:00 -05:00')
+      stream = create(:stream, :fixed)
+
       measurement_1 =
-        create_measurement!(
-          { stream: stream, time_with_time_zone: beginning_of_day, value: 10 },
+        create(
+          :measurement,
+          stream: stream,
+          time_with_time_zone: Time.parse('2025-01-15 09:00 -05:00'),
+          value: 10,
         )
       measurement_2 =
-        create_measurement!(
-          {
-            stream: stream,
-            time_with_time_zone: beginning_of_day + 1.hour,
-            value: 6,
-          },
-        )
-      create_measurement!(
-        {
+        create(
+          :measurement,
           stream: stream,
-          time_with_time_zone: beginning_of_day - 1.hour,
-          value: 50,
-        },
+          time_with_time_zone: Time.parse('2025-01-16 00:00 -05:00'),
+          value: 3,
+        )
+
+      measurement_3 =
+        create(
+          :measurement,
+          stream: stream,
+          time_with_time_zone: Time.parse('2025-01-16 00:00 -05:00'),
+          value: 4,
+        )
+
+      create(
+        :measurement,
+        stream: stream,
+        time_with_time_zone: Time.parse('2025-01-15 00:00 -05:00'),
+        value: 50,
       )
-      create_measurement!(time_with_time_zone: beginning_of_day)
-      expected_value = (measurement_1.value + measurement_2.value) / 2
+      create(
+        :measurement,
+        time_with_time_zone: Time.parse('2025-01-15 09:00 -05:00'),
+      )
+      expected_value =
+        (measurement_1.value + measurement_2.value + measurement_3.value) / 3
 
       result =
-        subject.stream_daily_average_value(
+        subject.daily_average_value(
           stream_id: stream.id,
           time_with_time_zone: time_with_time_zone,
         )

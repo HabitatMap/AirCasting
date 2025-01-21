@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2024_12_06_155713) do
+ActiveRecord::Schema.define(version: 2025_01_17_100537) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -127,11 +127,11 @@ ActiveRecord::Schema.define(version: 2024_12_06_155713) do
 
   create_table "stream_daily_averages", force: :cascade do |t|
     t.bigint "stream_id", null: false
-    t.float "value", null: false
+    t.integer "value", null: false
     t.date "date", null: false
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
-    t.index ["stream_id"], name: "index_stream_daily_averages_on_stream_id"
+    t.index ["stream_id", "date"], name: "index_stream_daily_averages_on_stream_id_and_date", unique: true
   end
 
   create_table "stream_hourly_averages", force: :cascade do |t|
