@@ -15,7 +15,7 @@ module StreamDailyAverages
         create_or_update_stream_daily_average(
           stream_id,
           time_with_time_zone,
-          value,
+          value.round,
         )
       end
     end
