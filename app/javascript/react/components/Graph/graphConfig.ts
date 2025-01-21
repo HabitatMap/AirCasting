@@ -74,7 +74,7 @@ const getXAxisOptions = (
 ): Highcharts.XAxisOptions => {
   let isFetchingData = false;
   let initialDataMin: number | null = null;
-  const fetchTimeout: NodeJS.Timeout | null = null;
+  let isFirstLoad = true;
 
   const handleSetExtremes = debounce(
     (e: Highcharts.AxisSetExtremesEventObject) => {
@@ -156,6 +156,11 @@ const getXAxisOptions = (
 
         if (initialDataMin === null && e.dataMin !== undefined) {
           initialDataMin = e.dataMin - MILLISECONDS_IN_A_MONTH;
+        }
+
+        if (isFirstLoad && !e.trigger?.includes("scrollbar")) {
+          isFirstLoad = false;
+          return;
         }
 
         if (

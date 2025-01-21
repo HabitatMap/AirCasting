@@ -15,6 +15,7 @@ import {
   selectLastSelectedFixedTimeRange,
   selectStreamMeasurements,
   setLastSelectedTimeRange,
+  updateFixedMeasurementExtremes,
 } from "../../store/fixedStreamSlice";
 import { useAppDispatch, useAppSelector } from "../../store/hooks";
 import {
@@ -238,7 +239,7 @@ const Graph: React.FC<GraphProps> = React.memo(
           fixedSessionTypeSelected,
           dispatch,
           isLoading,
-          fetchMeasurementsIfNeeded, // Called only on user pan/zoom
+          fetchMeasurementsIfNeeded,
           streamId,
           savedTimeRanges
         ),
@@ -381,15 +382,12 @@ const Graph: React.FC<GraphProps> = React.memo(
       };
     }, [dispatch, fixedSessionTypeSelected, streamId]);
 
-    // Ref to track first render to skip auto-fetch on initial mount
+    // Add a new ref to track initial calendar open
+    const isInitialCalendarOpen = useRef(true);
     const isInitialMount = useRef(true);
     const isFetchingSelectedDayRef = useRef(false);
 
-    /**
-     * Fetch data only when user selects a date from the calendar (`selectedDateTimestamp`).
-     * The `isInitialMount` guard ensures no fetch on the very first render if a date
-     * happens to be set programmatically.
-     */
+    // Modify the selectedDateTimestamp effect
     useEffect(() => {
       if (selectedDateTimestamp && chartComponentRef.current?.chart) {
         const chart = chartComponentRef.current.chart;
@@ -417,9 +415,8 @@ const Graph: React.FC<GraphProps> = React.memo(
           999
         ).getTime();
 
-        // Only fetch if it's truly user selection (skip first render)
-        if (!isInitialMount.current) {
-          // Check if we already have data for that entire month
+        // Skip fetch on initial mount and first calendar open
+        if (!isInitialMount.current && !isInitialCalendarOpen.current) {
           const hasCompleteMonthData = savedTimeRanges.some((range) => {
             const rangeCoversMonth =
               range.start <= monthStart && range.end >= monthEnd;
@@ -433,24 +430,70 @@ const Graph: React.FC<GraphProps> = React.memo(
             !isFetchingSelectedDayRef.current
           ) {
             isFetchingSelectedDayRef.current = true;
-            // This is a user-triggered fetch for the selected month
-            fetchMeasurementsIfNeeded(monthStart, monthEnd).finally(() => {
-              // small cooldown
-              setTimeout(() => {
-                isFetchingSelectedDayRef.current = false;
-              }, 1000);
-            });
+            fetchMeasurementsIfNeeded(monthStart, monthEnd)
+              .then(() => {
+                // After fetching, force update the extremes for the selected day
+                if (chart && streamId) {
+                  const dayStart = selectedDateTimestamp;
+                  const dayEnd = selectedDateTimestamp + MILLISECONDS_IN_A_DAY;
+
+                  dispatch(
+                    updateFixedMeasurementExtremes({
+                      streamId,
+                      min: dayStart,
+                      max: dayEnd,
+                    })
+                  );
+
+                  // Update chart extremes
+                  chart.xAxis[0].setExtremes(dayStart, dayEnd);
+                }
+              })
+              .finally(() => {
+                setTimeout(() => {
+                  isFetchingSelectedDayRef.current = false;
+                }, 1000);
+              });
+          } else {
+            // Even if we don't fetch, we should still update the extremes
+            if (chart && streamId) {
+              const dayStart = selectedDateTimestamp;
+              const dayEnd = selectedDateTimestamp + MILLISECONDS_IN_A_DAY;
+
+              dispatch(
+                updateFixedMeasurementExtremes({
+                  streamId,
+                  min: dayStart,
+                  max: dayEnd,
+                })
+              );
+
+              // Update chart extremes
+              chart.xAxis[0].setExtremes(dayStart, dayEnd);
+            }
           }
         } else {
-          // The first time this runs (component mount), we skip fetching
+          // Mark initial mount and calendar open as complete
           isInitialMount.current = false;
-        }
+          isInitialCalendarOpen.current = false;
 
-        // Always update chart extremes to show the selected day
-        chart.xAxis[0].setExtremes(
-          selectedDateTimestamp,
-          selectedDateTimestamp + MILLISECONDS_IN_A_DAY
-        );
+          // Update extremes even on first load
+          if (chart && streamId) {
+            const dayStart = selectedDateTimestamp;
+            const dayEnd = selectedDateTimestamp + MILLISECONDS_IN_A_DAY;
+
+            dispatch(
+              updateFixedMeasurementExtremes({
+                streamId,
+                min: dayStart,
+                max: dayEnd,
+              })
+            );
+
+            // Update chart extremes
+            chart.xAxis[0].setExtremes(dayStart, dayEnd);
+          }
+        }
       }
     }, [
       selectedDateTimestamp,
@@ -458,6 +501,7 @@ const Graph: React.FC<GraphProps> = React.memo(
       fixedSessionTypeSelected,
       savedTimeRanges,
       fetchMeasurementsIfNeeded,
+      dispatch,
     ]);
 
     return (
