@@ -77,8 +77,47 @@ const getXAxisOptions = (
   let isFirstLoad = true;
 
   const handleSetExtremes = debounce(
-    (e: Highcharts.AxisSetExtremesEventObject) => {
+    async (e: Highcharts.AxisSetExtremesEventObject) => {
+      console.log("handleSetExtremes called:", {
+        min: new Date(e.min || 0),
+        max: new Date(e.max || 0),
+        trigger: e.trigger,
+        dataMin: e.dataMin,
+        dataMax: e.dataMax,
+      });
+
       if (!isLoading && e.min !== undefined && e.max !== undefined) {
+        // Check if we need to fetch data for this range
+        if (
+          fixedSessionTypeSelected &&
+          streamId &&
+          e.trigger === "rangeSelectorButton"
+        ) {
+          const hasData = savedTimeRanges.some(
+            (range) => range.start <= e.min! && range.end >= e.max!
+          );
+
+          console.log("Checking data availability:", {
+            hasData,
+            min: new Date(e.min),
+            max: new Date(e.max),
+            savedTimeRanges: savedTimeRanges.map((range) => ({
+              start: new Date(range.start),
+              end: new Date(range.end),
+            })),
+          });
+
+          if (!hasData && !isFetchingData) {
+            console.log("Fetching data for range selector");
+            isFetchingData = true;
+            try {
+              await fetchMeasurementsIfNeeded(e.min, e.max);
+            } finally {
+              isFetchingData = false;
+            }
+          }
+        }
+
         if (fixedSessionTypeSelected && streamId !== null) {
           dispatch(
             updateFixedMeasurementExtremes({
