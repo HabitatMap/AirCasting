@@ -1,5 +1,6 @@
 import React, { useMemo } from "react";
 
+import { selectIsLoading } from "../../../../store";
 import {
   selectFixedExtremes,
   selectFixedStreamShortInfo,
@@ -11,8 +12,6 @@ import {
 } from "../../../../store/mobileStreamSelectors";
 import { selectThresholds } from "../../../../store/thresholdSlice";
 import { SessionType, SessionTypes } from "../../../../types/filters";
-import { FixedStreamShortInfo } from "../../../../types/fixedStream";
-import { MobileStreamShortInfo } from "../../../../types/mobileStream";
 import useMobileDetection from "../../../../utils/useScreenSizeDetection";
 import * as S from "../SessionDetailsModal.style";
 import ModalDesktopHeader from "./ModalDesktopHeader";
@@ -37,16 +36,24 @@ const SessionInfo: React.FC<SessionInfoProps> = ({
   );
   const isMobile = useMobileDetection();
 
-  const streamShortInfo: MobileStreamShortInfo | FixedStreamShortInfo =
-    useAppSelector(
-      fixedSessionTypeSelected
-        ? selectFixedStreamShortInfo
-        : selectMobileStreamShortInfo
-    );
+  const streamShortInfo = useAppSelector(
+    fixedSessionTypeSelected
+      ? selectFixedStreamShortInfo
+      : selectMobileStreamShortInfo
+  );
   const extremes = useAppSelector(
     fixedSessionTypeSelected ? selectFixedExtremes : selectMobileExtremes
   );
   const thresholds = useAppSelector(selectThresholds);
+  const isLoading = useAppSelector(selectIsLoading);
+
+  console.log("SessionInfo render:", {
+    streamId,
+    fixedSessionTypeSelected,
+    extremes,
+    streamShortInfo,
+    isLoading,
+  });
 
   const toggleVisibility = () => setIsVisible(!isVisible);
 

@@ -387,8 +387,54 @@ const Graph: React.FC<GraphProps> = React.memo(
     const isInitialMount = useRef(true);
     const isFetchingSelectedDayRef = useRef(false);
 
+    // Add this effect to handle initial data load
+    useEffect(() => {
+      console.log("Initial data load effect:", {
+        hasChart: !!chartComponentRef.current?.chart,
+        streamId,
+        measurements: measurements.length,
+      });
+
+      if (
+        chartComponentRef.current?.chart &&
+        streamId &&
+        measurements.length > 0
+      ) {
+        // Get the most recent day's data
+        const now = Date.now();
+        const dayStart = now - MILLISECONDS_IN_A_DAY;
+        const dayEnd = now;
+
+        console.log("Updating initial extremes:", {
+          dayStart: new Date(dayStart),
+          dayEnd: new Date(dayEnd),
+          measurementsCount: measurements.length,
+        });
+
+        dispatch(
+          updateFixedMeasurementExtremes({
+            streamId,
+            min: dayStart,
+            max: dayEnd,
+          })
+        );
+
+        // Update chart extremes
+        chartComponentRef.current.chart.xAxis[0].setExtremes(dayStart, dayEnd);
+      }
+    }, [streamId, measurements, dispatch]);
+
     // Modify the selectedDateTimestamp effect
     useEffect(() => {
+      console.log("selectedDateTimestamp effect triggered:", {
+        selectedDateTimestamp,
+        hasChart: !!chartComponentRef.current?.chart,
+        streamId,
+        isInitialMount: isInitialMount.current,
+        isInitialCalendar: isInitialCalendarOpen.current,
+        measurementsCount: measurements.length,
+      });
+
       if (selectedDateTimestamp && chartComponentRef.current?.chart) {
         const chart = chartComponentRef.current.chart;
 
@@ -415,7 +461,36 @@ const Graph: React.FC<GraphProps> = React.memo(
           999
         ).getTime();
 
-        // Skip fetch on initial mount and first calendar open
+        console.log("Time ranges calculated:", {
+          monthStart: new Date(monthStart),
+          monthEnd: new Date(monthEnd),
+          savedTimeRanges,
+        });
+
+        // Even on initial load, we should update the extremes
+        if (chart && streamId) {
+          const dayStart = selectedDateTimestamp;
+          const dayEnd = selectedDateTimestamp + MILLISECONDS_IN_A_DAY;
+
+          console.log("Updating extremes on load:", {
+            dayStart: new Date(dayStart),
+            dayEnd: new Date(dayEnd),
+            streamId,
+          });
+
+          dispatch(
+            updateFixedMeasurementExtremes({
+              streamId,
+              min: dayStart,
+              max: dayEnd,
+            })
+          );
+
+          // Update chart extremes
+          chart.xAxis[0].setExtremes(dayStart, dayEnd);
+        }
+
+        // Rest of the existing logic for fetching...
         if (!isInitialMount.current && !isInitialCalendarOpen.current) {
           const hasCompleteMonthData = savedTimeRanges.some((range) => {
             const rangeCoversMonth =
@@ -473,26 +548,8 @@ const Graph: React.FC<GraphProps> = React.memo(
             }
           }
         } else {
-          // Mark initial mount and calendar open as complete
           isInitialMount.current = false;
           isInitialCalendarOpen.current = false;
-
-          // Update extremes even on first load
-          if (chart && streamId) {
-            const dayStart = selectedDateTimestamp;
-            const dayEnd = selectedDateTimestamp + MILLISECONDS_IN_A_DAY;
-
-            dispatch(
-              updateFixedMeasurementExtremes({
-                streamId,
-                min: dayStart,
-                max: dayEnd,
-              })
-            );
-
-            // Update chart extremes
-            chart.xAxis[0].setExtremes(dayStart, dayEnd);
-          }
         }
       }
     }, [
