@@ -1,14 +1,27 @@
 module StreamDailyAverages
   class Calculator
-    def call
+    def call(start_date:, end_date:)
+      start_date_time = Time.parse(start_date)
+      end_date_time = Time.parse(end_date) + 1.day
+
+      Rails.logger.info(
+        "STARTING: Recalculating averages from #{start_date_time} to #{end_date_time}",
+      )
+
       ActiveRecord::Base.transaction do
-        ActiveRecord::Base.connection.execute(query)
+        ActiveRecord::Base.connection.execute(
+          query(start_date_time, end_date_time),
+        )
       end
+
+      Rails.logger.info(
+        "FINISHED: Averages recalculated from #{start_date_time} to #{end_date_time}",
+      )
     end
 
     private
 
-    def query
+    def query(start_date_time, end_date_time)
       <<-SQL
       CREATE TEMP TABLE temp_daily_averages AS
       SELECT
@@ -21,9 +34,9 @@ module StreamDailyAverages
       FROM measurements
       JOIN streams ON measurements.stream_id = streams.id
       JOIN sessions ON streams.session_id = sessions.id
-      WHERE time >= '2024-01-01 00:00:01'
-      AND time < '2024-06-01 00:00:01'
-      AND sessions.last_measurement_at >= '2023-12-31 00:00:01'
+      WHERE time > '#{start_date_time}'
+      AND time <= '#{end_date_time}'
+      AND sessions.last_measurement_at >= '#{start_date_time - 2.days}'
       AND sessions.type = 'FixedSession'
       GROUP BY stream_id, date;
 

@@ -72,7 +72,9 @@ describe StreamDailyAverages::Calculator do
         time: '2025-01-18 00:00:00',
       )
 
-      expect { subject.call }.to change { StreamDailyAverage.count }.by(3)
+      expect {
+        subject.call(start_date: '2025-01-16', end_date: '2025-01-17')
+      }.to change { StreamDailyAverage.count }.by(3)
 
       stream_daily_average_1_1 =
         StreamDailyAverage.find_by(
@@ -93,6 +95,37 @@ describe StreamDailyAverages::Calculator do
       expect(stream_daily_average_1_1.value).to eq(2)
       expect(stream_daily_average_1_2.value).to eq(7)
       expect(stream_daily_average_2_1.value).to eq(5)
+    end
+
+    it 'does not update daily averages outside of the date range' do
+      session =
+        create(:fixed_session, last_measurement_at: '2025-01-18 00:09:00')
+      stream = create(:stream, session: session)
+      stream_daily_average =
+        create(
+          :stream_daily_average,
+          stream: stream,
+          date: Date.parse('2025-01-16'),
+          value: 2,
+        )
+      create(
+        :measurement,
+        stream: stream,
+        value: 1,
+        time: '2025-01-15 00:09:00',
+      )
+      create(
+        :measurement,
+        stream: stream,
+        value: 1,
+        time: '2025-01-18 00:09:00',
+      )
+
+      expect {
+        subject.call(start_date: '2025-01-16', end_date: '2025-01-17')
+      }.to_not change { stream_daily_average.reload.updated_at }
+
+      expect(StreamDailyAverage.count).to eq(1)
     end
   end
 end
