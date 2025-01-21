@@ -1,5 +1,5 @@
 import HighchartsReact from "highcharts-react-official";
-import Highcharts, { Chart } from "highcharts/highstock";
+import Highcharts, { Chart as HighchartsChart } from "highcharts/highstock";
 import NoDataToDisplay from "highcharts/modules/no-data-to-display";
 import moment from "moment";
 import React, { useCallback, useEffect, useMemo, useRef } from "react";
@@ -39,7 +39,11 @@ import {
   mapIndexToTimeRange,
 } from "../../utils/getTimeRange";
 import { useMapParams } from "../../utils/mapParamsHandler";
-import { MILLISECONDS_IN_A_DAY } from "../../utils/timeRanges";
+import {
+  MILLISECONDS_IN_A_DAY,
+  MILLISECONDS_IN_A_MONTH,
+  MILLISECONDS_IN_A_WEEK,
+} from "../../utils/timeRanges";
 import useMobileDetection from "../../utils/useScreenSizeDetection";
 import { handleLoad } from "./chartEvents";
 import {
@@ -84,7 +88,15 @@ const Graph: React.FC<GraphProps> = React.memo(
     const dispatch = useAppDispatch();
     const { t } = useTranslation();
     const graphRef = useRef<HTMLDivElement>(null);
-    const chartComponentRef = useRef<HighchartsReact.RefObject>(null);
+    const chartComponentRef = useRef<
+      HighchartsReact.RefObject & {
+        chart: Highcharts.Chart & {
+          rangeSelector?: {
+            clickButton: (index: number, redraw?: boolean) => void;
+          };
+        };
+      }
+    >(null);
     const isMobile = useMobileDetection();
     const fixedSessionTypeSelected = sessionType === SessionTypes.FIXED;
     const thresholdsState = useAppSelector(selectThresholds);
@@ -263,7 +275,7 @@ const Graph: React.FC<GraphProps> = React.memo(
     );
 
     const handleChartLoad = useCallback(
-      function (this: Chart) {
+      function (this: HighchartsChart) {
         handleLoad.call(this, isCalendarPage, isMobile);
       },
       [isCalendarPage, isMobile]
@@ -280,7 +292,7 @@ const Graph: React.FC<GraphProps> = React.memo(
           ...chartOptions,
           events: {
             load: handleChartLoad,
-            redraw: function (this: Chart) {
+            redraw: function (this: HighchartsChart) {
               const chart = this as Highcharts.StockChart;
               const selectedButton = chart.options.rangeSelector?.selected;
               if (selectedButton !== undefined) {
@@ -393,36 +405,66 @@ const Graph: React.FC<GraphProps> = React.memo(
         hasChart: !!chartComponentRef.current?.chart,
         streamId,
         measurements: measurements.length,
+        lastSelectedTimeRange,
       });
 
       if (
         chartComponentRef.current?.chart &&
         streamId &&
-        measurements.length > 0
+        measurements.length > 0 &&
+        !isLoading
       ) {
-        // Get the most recent day's data
-        const now = Date.now();
-        const dayStart = now - MILLISECONDS_IN_A_DAY;
-        const dayEnd = now;
-
-        console.log("Updating initial extremes:", {
-          dayStart: new Date(dayStart),
-          dayEnd: new Date(dayEnd),
-          measurementsCount: measurements.length,
-        });
-
-        dispatch(
-          updateFixedMeasurementExtremes({
-            streamId,
-            min: dayStart,
-            max: dayEnd,
-          })
+        const chart = chartComponentRef.current.chart;
+        const sortedMeasurements = [...measurements].sort(
+          (a, b) => b.time - a.time
         );
+        const latestTime = sortedMeasurements[0]?.time;
 
-        // Update chart extremes
-        chartComponentRef.current.chart.xAxis[0].setExtremes(dayStart, dayEnd);
+        if (latestTime) {
+          let dayStart = latestTime - MILLISECONDS_IN_A_DAY;
+          let dayEnd = latestTime;
+
+          // Adjust time range based on lastSelectedTimeRange
+          if (lastSelectedTimeRange === FixedTimeRange.Week) {
+            dayStart = latestTime - MILLISECONDS_IN_A_WEEK;
+          } else if (lastSelectedTimeRange === FixedTimeRange.Month) {
+            dayStart = latestTime - MILLISECONDS_IN_A_MONTH;
+          }
+
+          console.log("Updating initial extremes:", {
+            dayStart: new Date(dayStart),
+            dayEnd: new Date(dayEnd),
+            measurementsCount: measurements.length,
+            selectedRange: lastSelectedTimeRange,
+          });
+
+          dispatch(
+            updateFixedMeasurementExtremes({
+              streamId,
+              min: dayStart,
+              max: dayEnd,
+            })
+          );
+
+          // Update chart extremes and select appropriate button
+          chart.xAxis[0].setExtremes(dayStart, dayEnd);
+          if (chart.rangeSelector) {
+            const selectedIndex = getSelectedRangeIndex(
+              lastSelectedTimeRange,
+              fixedSessionTypeSelected
+            );
+            chart.rangeSelector.clickButton(selectedIndex, true);
+          }
+        }
       }
-    }, [streamId, measurements, dispatch]);
+    }, [
+      streamId,
+      measurements,
+      dispatch,
+      isLoading,
+      lastSelectedTimeRange,
+      fixedSessionTypeSelected,
+    ]);
 
     // Modify the selectedDateTimestamp effect
     useEffect(() => {

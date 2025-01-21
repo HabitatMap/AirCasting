@@ -45,6 +45,13 @@ import {
   updateRangeDisplayDOM,
 } from "./chartHooks/useChartUpdater";
 
+interface ExtendedAxisSetExtremesEventObject
+  extends Highcharts.AxisSetExtremesEventObject {
+  rangeSelectorButton?: {
+    index: number;
+  };
+}
+
 const getScrollbarOptions = (isCalendarPage: boolean, isMobile: boolean) => {
   return {
     barBackgroundColor: gray200,
@@ -75,43 +82,97 @@ const getXAxisOptions = (
   let isFetchingData = false;
   let initialDataMin: number | null = null;
   let isFirstLoad = true;
+  let lastFetchTime = 0;
+  let lastSelectedRange: number | null = null;
+
+  const checkIfDataExists = (start: number, end: number) => {
+    if (!start || !end || isNaN(start) || isNaN(end)) {
+      console.log("Invalid time range for data check:", { start, end });
+      return true;
+    }
+
+    const hasData = savedTimeRanges.some(
+      (range) => range.start <= start && range.end >= end
+    );
+
+    console.log("Checking data existence:", {
+      hasData,
+      timeRange: {
+        start: new Date(start),
+        end: new Date(end),
+      },
+      existingRanges: savedTimeRanges.map((range) => ({
+        start: new Date(range.start),
+        end: new Date(range.end),
+      })),
+    });
+
+    return hasData;
+  };
+
+  const shouldFetch = () => {
+    const now = Date.now();
+    if (now - lastFetchTime < 1000) {
+      console.log("Skipping fetch: too soon after last fetch");
+      return false;
+    }
+    lastFetchTime = now;
+    return true;
+  };
 
   const handleSetExtremes = debounce(
-    async (e: Highcharts.AxisSetExtremesEventObject) => {
+    async (e: ExtendedAxisSetExtremesEventObject) => {
       console.log("handleSetExtremes called:", {
         min: new Date(e.min || 0),
         max: new Date(e.max || 0),
         trigger: e.trigger,
         dataMin: e.dataMin,
         dataMax: e.dataMax,
+        lastSelectedRange,
       });
 
       if (!isLoading && e.min !== undefined && e.max !== undefined) {
-        // Check if we need to fetch data for this range
         if (
           fixedSessionTypeSelected &&
           streamId &&
-          e.trigger === "rangeSelectorButton"
+          e.trigger === "rangeSelectorButton" &&
+          shouldFetch()
         ) {
-          const hasData = savedTimeRanges.some(
-            (range) => range.start <= e.min! && range.end >= e.max!
-          );
+          if (e.rangeSelectorButton?.index !== undefined) {
+            lastSelectedRange = e.rangeSelectorButton.index;
+            console.log("Storing selected range:", lastSelectedRange);
+          }
 
-          console.log("Checking data availability:", {
-            hasData,
-            min: new Date(e.min),
-            max: new Date(e.max),
-            savedTimeRanges: savedTimeRanges.map((range) => ({
-              start: new Date(range.start),
-              end: new Date(range.end),
-            })),
-          });
+          const hasData = checkIfDataExists(e.min, e.max);
 
           if (!hasData && !isFetchingData) {
-            console.log("Fetching data for range selector");
+            console.log("Fetching data for range selector:", {
+              reason: "Missing data for selected range",
+              timeRange: {
+                start: new Date(e.min),
+                end: new Date(e.max),
+              },
+              selectedRange: lastSelectedRange,
+            });
+
             isFetchingData = true;
             try {
               await fetchMeasurementsIfNeeded(e.min, e.max);
+
+              const chart = (
+                e.target as unknown as {
+                  chart: Highcharts.Chart & {
+                    rangeSelector?: {
+                      clickButton: (index: number, redraw?: boolean) => void;
+                    };
+                  };
+                }
+              ).chart;
+
+              if (lastSelectedRange !== null && chart?.rangeSelector) {
+                console.log("Restoring selected range:", lastSelectedRange);
+                chart.rangeSelector.clickButton(lastSelectedRange, true);
+              }
             } finally {
               isFetchingData = false;
             }
@@ -152,12 +213,31 @@ const getXAxisOptions = (
     const buffer = (max - min) * 0.02;
     const isAtDataMin = min <= dataMin + buffer;
     if (isAtDataMin) {
-      isFetchingData = true;
-      try {
-        const newStart = min - MILLISECONDS_IN_A_MONTH;
-        await fetchMeasurementsIfNeeded(newStart, min);
-      } finally {
-        isFetchingData = false;
+      const newStart = min - MILLISECONDS_IN_A_MONTH;
+
+      console.log("Scrollbar at data edge:", {
+        currentMin: new Date(min),
+        newStart: new Date(newStart),
+        buffer,
+      });
+
+      if (!checkIfDataExists(newStart, min)) {
+        console.log("Fetching data for scrollbar:", {
+          reason: "Missing data at edge",
+          timeRange: {
+            start: new Date(newStart),
+            end: new Date(min),
+          },
+        });
+
+        isFetchingData = true;
+        try {
+          await fetchMeasurementsIfNeeded(newStart, min);
+        } finally {
+          isFetchingData = false;
+        }
+      } else {
+        console.log("Skipping scrollbar fetch: data already exists");
       }
     }
   }, 800);
@@ -188,9 +268,15 @@ const getXAxisOptions = (
     minRange: MILLISECONDS_IN_A_SECOND,
     ordinal: false,
     events: {
-      afterSetExtremes: async function (
-        e: Highcharts.AxisSetExtremesEventObject
-      ) {
+      afterSetExtremes: async function (e: ExtendedAxisSetExtremesEventObject) {
+        console.log("afterSetExtremes triggered:", {
+          trigger: e.trigger,
+          isFirstLoad,
+          isLoading,
+          isFetchingData,
+          lastSelectedRange,
+        });
+
         handleSetExtremes(e);
 
         if (initialDataMin === null && e.dataMin !== undefined) {
@@ -198,6 +284,7 @@ const getXAxisOptions = (
         }
 
         if (isFirstLoad && !e.trigger?.includes("scrollbar")) {
+          console.log("Skipping first load fetch");
           isFirstLoad = false;
           return;
         }
