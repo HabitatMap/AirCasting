@@ -408,6 +408,7 @@ const NumberInput = styled.input<{
   $isLast?: boolean;
   $hasError?: boolean;
   $isActive?: boolean;
+  $isMin?: boolean;
 }>`
   font-family: Roboto;
   font-weight: 400;
@@ -424,8 +425,11 @@ const NumberInput = styled.input<{
   border: 1px solid ${colors.gray100};
   box-shadow: 2px 2px 4px 0px rgba(76, 86, 96, 0.1);
   z-index: 7;
-  cursor: move; /* fallback if grab cursor is unsupported */
-  cursor: grab;
+  cursor: ${(props) =>
+    props.$isMin || props.$isLast
+      ? "default"
+      : "move"}; /* fallback if grab cursor is unsupported */
+  cursor: ${(props) => (props.$isMin || props.$isLast ? "default" : "grab")};
 
   appearance: textfield;
   -moz-appearance: textfield;
@@ -437,9 +441,12 @@ const NumberInput = styled.input<{
   }
 
   &:active {
-    cursor: grabbing;
-    cursor: -moz-grabbing;
-    cursor: -webkit-grabbing;
+    cursor: ${(props) =>
+      props.$isMin || props.$isLast ? "default" : "grabbing"};
+    cursor: ${(props) =>
+      props.$isMin || props.$isLast ? "default" : "-moz-grabbing"};
+    cursor: ${(props) =>
+      props.$isMin || props.$isLast ? "default" : "-webkit-grabbing"};
   }
   &:disabled {
     background-color: ${colors.white};

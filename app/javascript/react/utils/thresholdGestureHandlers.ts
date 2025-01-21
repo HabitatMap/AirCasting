@@ -155,6 +155,9 @@ export const handleMouseDown =
     setErrorMessage: React.Dispatch<React.SetStateAction<string>>
   ) =>
   (event: { clientX: any }) => {
+    if (thresholdKey === "min" || thresholdKey === "max") {
+      return;
+    }
     if (document.activeElement instanceof HTMLElement) {
       document.activeElement.blur();
     }

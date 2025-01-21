@@ -228,6 +228,7 @@ const ThresholdSlider: React.FC<ThresholdSliderProps> = ({
       )}
       onKeyDown={handleInputKeyDown(thresholdKey)}
       $isLast={thresholdKey === "max"}
+      $isMin={thresholdKey === "min"}
     />
   );
 
