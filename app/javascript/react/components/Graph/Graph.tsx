@@ -10,7 +10,6 @@ import { selectFixedStreamShortInfo } from "../../store/fixedStreamSelectors";
 import {
   resetFixedMeasurementExtremes,
   resetLastSelectedTimeRange,
-  resetTimeRange,
   selectFetchedTimeRanges,
   selectIsLoading,
   selectLastSelectedFixedTimeRange,
@@ -135,11 +134,8 @@ const Graph: React.FC<GraphProps> = React.memo(
 
     const isIndoorParameterInUrl = isIndoor === "true";
 
-    const measurements = useAppSelector(
-      useCallback(
-        (state: RootState) => selectStreamMeasurements(state, streamId),
-        [streamId]
-      )
+    const measurements = useAppSelector((state: RootState) =>
+      selectStreamMeasurements(state, streamId)
     );
 
     const seriesData = useMemo(() => {
@@ -158,20 +154,13 @@ const Graph: React.FC<GraphProps> = React.memo(
     const { fetchMeasurementsIfNeeded } = useMeasurementsFetcher(streamId);
 
     useEffect(() => {
-      // Reset to 24-hour range on component mount
-      dispatch(resetTimeRange());
-    }, [dispatch]);
-
-    useEffect(() => {
-      // Update the time range when it changes
+      // Update the time range (purely local state) when it changes
       if (lastSelectedTimeRange) {
         if (fixedSessionTypeSelected) {
-          // Only dispatch fixed time range if in fixed session
           dispatch(
             setLastSelectedTimeRange(lastSelectedTimeRange as FixedTimeRange)
           );
         } else {
-          // Handle mobile time range separately
           dispatch(
             setLastSelectedMobileTimeRange(
               lastSelectedTimeRange as MobileTimeRange
@@ -192,13 +181,14 @@ const Graph: React.FC<GraphProps> = React.memo(
       }
     }, [isLoading]);
 
+    // Reset lastSelectedTimeRange on mount (local state only, no fetch)
     useEffect(() => {
       if (fixedSessionTypeSelected) {
         dispatch(resetLastSelectedTimeRange());
       } else {
         dispatch(resetLastSelectedMobileTimeRange());
       }
-    }, []);
+    }, [dispatch, fixedSessionTypeSelected]);
 
     // Apply touch action to the graph container for mobile devices in Calendar page
     useEffect(() => {
@@ -248,7 +238,7 @@ const Graph: React.FC<GraphProps> = React.memo(
           fixedSessionTypeSelected,
           dispatch,
           isLoading,
-          fetchMeasurementsIfNeeded,
+          fetchMeasurementsIfNeeded, // Called only on user pan/zoom
           streamId,
           savedTimeRanges
         ),
@@ -260,6 +250,7 @@ const Graph: React.FC<GraphProps> = React.memo(
         isLoading,
         fetchMeasurementsIfNeeded,
         savedTimeRanges,
+        streamId,
       ]
     );
 
@@ -267,7 +258,7 @@ const Graph: React.FC<GraphProps> = React.memo(
       () => ({
         ...getScrollbarOptions(isCalendarPage, isMobile),
       }),
-      [isCalendarPage, isMobile, isLoading, seriesData]
+      [isCalendarPage, isMobile]
     );
 
     const handleChartLoad = useCallback(
@@ -332,6 +323,7 @@ const Graph: React.FC<GraphProps> = React.memo(
             isCalendarPage,
             t
           ),
+          // This only sets which RangeSelector button is "highlighted"
           selected: getSelectedRangeIndex(
             lastSelectedTimeRange,
             fixedSessionTypeSelected
@@ -364,7 +356,7 @@ const Graph: React.FC<GraphProps> = React.memo(
         isMobile,
         xAxisOptions,
         thresholdsState,
-        seriesData,
+        chartData,
         measurementType,
         unitSymbol,
         fixedSessionTypeSelected,
@@ -376,26 +368,33 @@ const Graph: React.FC<GraphProps> = React.memo(
         handleChartLoad,
         lastSelectedTimeRange,
         dispatch,
+        chartOptions,
       ]
     );
 
-    // Add cleanup effect for fixed streams only
+    // Clean up extremes on unmount (fixed streams only)
     useEffect(() => {
       return () => {
-        // Reset measurement extremes when component unmounts, but only for fixed streams
         if (fixedSessionTypeSelected && streamId) {
           dispatch(resetFixedMeasurementExtremes());
         }
       };
     }, [dispatch, fixedSessionTypeSelected, streamId]);
 
+    // Ref to track first render to skip auto-fetch on initial mount
+    const isInitialMount = useRef(true);
     const isFetchingSelectedDayRef = useRef(false);
 
+    /**
+     * Fetch data only when user selects a date from the calendar (`selectedDateTimestamp`).
+     * The `isInitialMount` guard ensures no fetch on the very first render if a date
+     * happens to be set programmatically.
+     */
     useEffect(() => {
       if (selectedDateTimestamp && chartComponentRef.current?.chart) {
         const chart = chartComponentRef.current.chart;
 
-        // Get the start and end of the selected month
+        // Calculate the month's start/end for the chosen date
         const selectedMonth = moment(selectedDateTimestamp).month();
         const selectedYear = moment(selectedDateTimestamp).year();
 
@@ -418,30 +417,36 @@ const Graph: React.FC<GraphProps> = React.memo(
           999
         ).getTime();
 
-        // Check if we have complete data for this specific month
-        const hasCompleteMonthData = savedTimeRanges.some((range) => {
-          const rangeCoversMonth =
-            range.start <= monthStart && range.end >= monthEnd;
-          return rangeCoversMonth;
-        });
+        // Only fetch if it's truly user selection (skip first render)
+        if (!isInitialMount.current) {
+          // Check if we already have data for that entire month
+          const hasCompleteMonthData = savedTimeRanges.some((range) => {
+            const rangeCoversMonth =
+              range.start <= monthStart && range.end >= monthEnd;
+            return rangeCoversMonth;
+          });
 
-        // If we don't have complete data for this month and not already fetching, fetch it
-        if (
-          !hasCompleteMonthData &&
-          fixedSessionTypeSelected &&
-          streamId &&
-          !isFetchingSelectedDayRef.current
-        ) {
-          isFetchingSelectedDayRef.current = true;
-          // Only fetch the exact month's data
-          fetchMeasurementsIfNeeded(monthStart, monthEnd);
-          setTimeout(() => {
-            isFetchingSelectedDayRef.current = false;
-          }, 1000);
+          if (
+            !hasCompleteMonthData &&
+            fixedSessionTypeSelected &&
+            streamId &&
+            !isFetchingSelectedDayRef.current
+          ) {
+            isFetchingSelectedDayRef.current = true;
+            // This is a user-triggered fetch for the selected month
+            fetchMeasurementsIfNeeded(monthStart, monthEnd).finally(() => {
+              // small cooldown
+              setTimeout(() => {
+                isFetchingSelectedDayRef.current = false;
+              }, 1000);
+            });
+          }
+        } else {
+          // The first time this runs (component mount), we skip fetching
+          isInitialMount.current = false;
         }
 
-        // Always set the view to exactly the selected day
-
+        // Always update chart extremes to show the selected day
         chart.xAxis[0].setExtremes(
           selectedDateTimestamp,
           selectedDateTimestamp + MILLISECONDS_IN_A_DAY

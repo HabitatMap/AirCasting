@@ -329,6 +329,7 @@ export const {
   resetFixedStreamState,
   setLastSelectedTimeRange,
   resetLastSelectedTimeRange,
+
   updateStreamMeasurements,
   resetFixedMeasurementExtremes,
   resetTimeRange,

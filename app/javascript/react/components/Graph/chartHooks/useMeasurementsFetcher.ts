@@ -23,7 +23,7 @@ export const useMeasurementsFetcher = (streamId: number | null) => {
         // Add 1 second cooldown
         setTimeout(() => {
           isFetchingRef.current = false;
-        }, 2000);
+        }, 1000);
       } catch (error) {
         console.error("Error fetching measurements:", error);
         isFetchingRef.current = false;
