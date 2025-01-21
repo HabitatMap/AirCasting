@@ -238,13 +238,13 @@ const RangeInput = styled.input<{
   caret-color: transparent;
   background: linear-gradient(
     to right,
-    ${colors.green} ${(props) => props.$firstThumbPos}px,
-    ${colors.yellow} ${(props) => props.$firstThumbPos}px,
-    ${colors.yellow} ${(props) => props.$secondThumbPos}px,
-    ${colors.orange} ${(props) => props.$secondThumbPos}px,
-    ${colors.orange} ${(props) => props.$thirdThumbPos}px,
-    ${colors.red} ${(props) => props.$thirdThumbPos}px,
-    ${colors.red} 100%
+    ${colors.green100} ${(props) => props.$firstThumbPos}px,
+    ${colors.yellow100} ${(props) => props.$firstThumbPos}px,
+    ${colors.yellow100} ${(props) => props.$secondThumbPos}px,
+    ${colors.orange100} ${(props) => props.$secondThumbPos}px,
+    ${colors.orange100} ${(props) => props.$thirdThumbPos}px,
+    ${colors.red100} ${(props) => props.$thirdThumbPos}px,
+    ${colors.red100} 100%
   );
   border-radius: 2px;
   outline: none;
@@ -450,7 +450,7 @@ const NumberInput = styled.input<{
       props.$isActive
         ? "transparent"
         : props.$hasError
-        ? colors.red
+        ? colors.red100
         : colors.gray100};
     outline: 2px solid
       ${(props) => (props.$isActive ? colors.gray100 : "transparent")};
@@ -466,7 +466,7 @@ const NumberInput = styled.input<{
 `;
 
 const ErrorMessage = styled.p`
-  color: ${colors.red};
+  color: ${colors.red100};
   position: absolute;
   background-color: ${colors.white};
   top: 8%;
@@ -557,9 +557,9 @@ export {
   StaticMobileSliderContainer,
   StyledContainer,
   ThresholdButton,
-  ThresholdButtonWrapper,
   ThresholdButtonsMobileWrapper,
   ThresholdButtonsWrapper,
+  ThresholdButtonWrapper,
   ThresholdsDisclaimer,
   UniformDistributionButton,
   Units,

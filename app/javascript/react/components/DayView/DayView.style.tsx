@@ -1,10 +1,10 @@
 import styled from "styled-components";
 
-import { H6, H5 } from "../Typography";
-import { Thresholds } from "../../types/thresholds";
-import { getColorForValue } from "../../utils/thresholdColors";
-import { media } from "../../utils/media";
 import * as colors from "../../assets/styles/colors";
+import { Thresholds } from "../../types/thresholds";
+import { media } from "../../utils/media";
+import { getColorForValue } from "../../utils/thresholdColors";
+import { H5, H6 } from "../Typography";
 
 interface ValueBarProps {
   $value: number;
@@ -89,9 +89,9 @@ const DesktopLabel = styled(H5)`
 `;
 
 export {
-  Container,
   BackgroundBarContainer,
   BottomLabel,
+  Container,
   DesktopLabel,
   MobileLabel,
 };

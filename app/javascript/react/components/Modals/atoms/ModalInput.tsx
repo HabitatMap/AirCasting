@@ -1,7 +1,8 @@
 import React from "react";
-import styled from "styled-components";
 import { useTranslation } from "react-i18next";
+import styled from "styled-components";
 
+import { red100 } from "../../../assets/styles/colors";
 import { TextInput } from "../Modals.style";
 
 interface ModalInputProps {
@@ -34,7 +35,7 @@ const ModalInput: React.FC<ModalInputProps> = ({
 };
 
 const RedErrorMessage = styled.span`
-  color: red;
+  color: ${red100};
 `;
 
 export { ModalInput, RedErrorMessage };

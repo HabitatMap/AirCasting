@@ -19,11 +19,11 @@ import {
   gray200,
   gray300,
   gray400,
-  green,
-  orange,
-  red,
+  green100,
+  orange100,
+  red100,
   white,
-  yellow,
+  yellow100,
 } from "../../assets/styles/colors";
 import { AppDispatch } from "../../store";
 import { updateFixedMeasurementExtremes } from "../../store/fixedStreamSlice";
@@ -214,22 +214,22 @@ const getYAxisOptions = (
       {
         from: min,
         to: low,
-        color: green,
+        color: green100,
       },
       {
         from: low,
         to: middle,
-        color: yellow,
+        color: yellow100,
       },
       {
         from: middle,
         to: high,
-        color: orange,
+        color: orange100,
       },
       {
         from: high,
         to: max,
-        color: red,
+        color: red100,
       },
     ],
   };

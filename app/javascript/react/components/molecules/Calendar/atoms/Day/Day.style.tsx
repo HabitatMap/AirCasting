@@ -5,6 +5,7 @@ import { media } from "../../../../../utils/media";
 
 interface DayProps {
   $color?: string;
+  $borderColor?: string;
 }
 
 interface LabelProps {
@@ -32,6 +33,11 @@ const Day = styled(CalendarCell)<DayProps>`
   //TODO: Ask Iwona about the opacity
   background-color: ${(props) => props.$color};
   width: 100%;
+  border: 2px solid transparent;
+
+  &:hover {
+    border: 2px solid ${(props) => props.$borderColor};
+  }
 
   @media (${media.smallDesktop}) {
     border-radius: 5px;
@@ -81,4 +87,4 @@ const Value = styled.div`
   text-overflow: ellipsis;
 `;
 
-export { Day, DayNumber, Value, CalendarCell, ValueContainer };
+export { CalendarCell, Day, DayNumber, Value, ValueContainer };

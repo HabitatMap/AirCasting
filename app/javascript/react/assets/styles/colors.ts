@@ -17,10 +17,14 @@ const acBlue = "#00B2EF";
 const acBlueTransparent = "#CCF0FC";
 const darkBlue = "#5C81A5";
 const darkBlueTransparent = "#5c81a580";
-const red = "#E95F5F";
-const orange = "#FCA443";
-const yellow = "#FFD960";
-const green = "#96D788";
+const red100 = "#E95F5F";
+const red200 = "#CA3131";
+const orange100 = "#FCA443";
+const orange200 = "#E07D11";
+const yellow100 = "#FFD960";
+const yellow200 = "#D2A61A";
+const green100 = "#96D788";
+const green200 = "#41992E";
 const lightCrimson = "#ED6B86";
 const rose = "#FF38B5";
 const royalPurple = "#7D3EBE";
@@ -69,7 +73,8 @@ export {
   gray800,
   gray900,
   grayStroke,
-  green,
+  green100,
+  green200,
   grey,
   internationalBorderFillColor,
   landscapeColor,
@@ -82,17 +87,20 @@ export {
   mapWater,
   mint,
   mobileStreamPath,
-  orange,
+  orange100,
+  orange200,
   provinceStrokeColor,
+  red100,
+  red200,
   reservationFillColor,
-  royalPurple,
-  red,
   roadColor,
   rose,
+  royalPurple,
   strokeColor,
   textColor,
   theme,
   waterColor,
   white,
-  yellow,
+  yellow100,
+  yellow200,
 };
