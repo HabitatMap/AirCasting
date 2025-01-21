@@ -47,14 +47,6 @@ const SessionInfo: React.FC<SessionInfoProps> = ({
   const thresholds = useAppSelector(selectThresholds);
   const isLoading = useAppSelector(selectIsLoading);
 
-  console.log("SessionInfo render:", {
-    streamId,
-    fixedSessionTypeSelected,
-    extremes,
-    streamShortInfo,
-    isLoading,
-  });
-
   const toggleVisibility = () => setIsVisible(!isVisible);
 
   const commonProps = {

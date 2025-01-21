@@ -138,16 +138,8 @@ const fixedStreamSlice = createSlice({
       const { min, max } = action.payload;
       const allMeasurements = state.data.measurements || [];
 
-      console.log("updateFixedMeasurementExtremes called:", {
-        min: new Date(min),
-        max: new Date(max),
-        measurementsCount: allMeasurements.length,
-        streamId: action.payload.streamId,
-      });
-
       // Ensure we have valid timestamps
       if (!min || !max || isNaN(min) || isNaN(max)) {
-        console.log("Invalid timestamps, skipping extremes update");
         return;
       }
 
@@ -155,26 +147,12 @@ const fixedStreamSlice = createSlice({
         .filter((m) => m.time >= min && m.time <= max)
         .map((m) => m.value);
 
-      console.log("Filtered measurements:", {
-        filteredCount: values.length,
-        firstValue: values[0],
-        lastValue: values[values.length - 1],
-        timeRange: `${new Date(min)} - ${new Date(max)}`,
-      });
-
       if (values.length > 0) {
         state.minMeasurementValue = Math.min(...values);
         state.maxMeasurementValue = Math.max(...values);
         state.averageMeasurementValue =
           values.reduce((sum, value) => sum + value, 0) / values.length;
-
-        console.log("Updated extremes:", {
-          min: state.minMeasurementValue,
-          max: state.maxMeasurementValue,
-          avg: state.averageMeasurementValue,
-        });
       } else {
-        console.log("No measurements found in range");
         state.minMeasurementValue = null;
         state.maxMeasurementValue = null;
         state.averageMeasurementValue = null;

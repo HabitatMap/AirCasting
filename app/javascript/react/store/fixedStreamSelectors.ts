@@ -26,12 +26,6 @@ const selectFixedExtremes = createSelector(
       maxMeasurementValue,
     } = fixedStream;
 
-    console.log("selectFixedExtremes called:", {
-      rawMin: minMeasurementValue,
-      rawMax: maxMeasurementValue,
-      rawAvg: averageMeasurementValue,
-    });
-
     const min = isValidValue(minMeasurementValue)
       ? Math.round(minMeasurementValue!)
       : null;
@@ -41,8 +35,6 @@ const selectFixedExtremes = createSelector(
     const avg = isValidValue(averageMeasurementValue)
       ? Math.round(averageMeasurementValue!)
       : null;
-
-    console.log("selectFixedExtremes returning:", { min, max, avg });
 
     return {
       minMeasurementValue: min,

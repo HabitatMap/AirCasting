@@ -401,13 +401,6 @@ const Graph: React.FC<GraphProps> = React.memo(
 
     // Add this effect to handle initial data load
     useEffect(() => {
-      console.log("Initial data load effect:", {
-        hasChart: !!chartComponentRef.current?.chart,
-        streamId,
-        measurements: measurements.length,
-        lastSelectedTimeRange,
-      });
-
       if (
         chartComponentRef.current?.chart &&
         streamId &&
@@ -430,13 +423,6 @@ const Graph: React.FC<GraphProps> = React.memo(
           } else if (lastSelectedTimeRange === FixedTimeRange.Month) {
             dayStart = latestTime - MILLISECONDS_IN_A_MONTH;
           }
-
-          console.log("Updating initial extremes:", {
-            dayStart: new Date(dayStart),
-            dayEnd: new Date(dayEnd),
-            measurementsCount: measurements.length,
-            selectedRange: lastSelectedTimeRange,
-          });
 
           dispatch(
             updateFixedMeasurementExtremes({
@@ -468,13 +454,18 @@ const Graph: React.FC<GraphProps> = React.memo(
 
     // Modify the selectedDateTimestamp effect
     useEffect(() => {
-      console.log("selectedDateTimestamp effect triggered:", {
-        selectedDateTimestamp,
+      console.log("Calendar date selection effect:", {
+        selectedDateTimestamp: selectedDateTimestamp
+          ? new Date(selectedDateTimestamp)
+          : null,
         hasChart: !!chartComponentRef.current?.chart,
-        streamId,
+        savedTimeRanges: savedTimeRanges.map((range) => ({
+          start: new Date(range.start),
+          end: new Date(range.end),
+        })),
+        isFetching: isFetchingSelectedDayRef.current,
         isInitialMount: isInitialMount.current,
         isInitialCalendar: isInitialCalendarOpen.current,
-        measurementsCount: measurements.length,
       });
 
       if (selectedDateTimestamp && chartComponentRef.current?.chart) {
@@ -503,22 +494,10 @@ const Graph: React.FC<GraphProps> = React.memo(
           999
         ).getTime();
 
-        console.log("Time ranges calculated:", {
-          monthStart: new Date(monthStart),
-          monthEnd: new Date(monthEnd),
-          savedTimeRanges,
-        });
-
         // Even on initial load, we should update the extremes
         if (chart && streamId) {
           const dayStart = selectedDateTimestamp;
           const dayEnd = selectedDateTimestamp + MILLISECONDS_IN_A_DAY;
-
-          console.log("Updating extremes on load:", {
-            dayStart: new Date(dayStart),
-            dayEnd: new Date(dayEnd),
-            streamId,
-          });
 
           dispatch(
             updateFixedMeasurementExtremes({

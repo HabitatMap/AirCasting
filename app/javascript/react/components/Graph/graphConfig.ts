@@ -87,33 +87,17 @@ const getXAxisOptions = (
 
   const checkIfDataExists = (start: number, end: number) => {
     if (!start || !end || isNaN(start) || isNaN(end)) {
-      console.log("Invalid time range for data check:", { start, end });
       return true;
     }
 
-    const hasData = savedTimeRanges.some(
+    return savedTimeRanges.some(
       (range) => range.start <= start && range.end >= end
     );
-
-    console.log("Checking data existence:", {
-      hasData,
-      timeRange: {
-        start: new Date(start),
-        end: new Date(end),
-      },
-      existingRanges: savedTimeRanges.map((range) => ({
-        start: new Date(range.start),
-        end: new Date(range.end),
-      })),
-    });
-
-    return hasData;
   };
 
   const shouldFetch = () => {
     const now = Date.now();
     if (now - lastFetchTime < 1000) {
-      console.log("Skipping fetch: too soon after last fetch");
       return false;
     }
     lastFetchTime = now;
@@ -122,15 +106,6 @@ const getXAxisOptions = (
 
   const handleSetExtremes = debounce(
     async (e: ExtendedAxisSetExtremesEventObject) => {
-      console.log("handleSetExtremes called:", {
-        min: new Date(e.min || 0),
-        max: new Date(e.max || 0),
-        trigger: e.trigger,
-        dataMin: e.dataMin,
-        dataMax: e.dataMax,
-        lastSelectedRange,
-      });
-
       if (!isLoading && e.min !== undefined && e.max !== undefined) {
         if (
           fixedSessionTypeSelected &&
@@ -140,21 +115,11 @@ const getXAxisOptions = (
         ) {
           if (e.rangeSelectorButton?.index !== undefined) {
             lastSelectedRange = e.rangeSelectorButton.index;
-            console.log("Storing selected range:", lastSelectedRange);
           }
 
           const hasData = checkIfDataExists(e.min, e.max);
 
           if (!hasData && !isFetchingData) {
-            console.log("Fetching data for range selector:", {
-              reason: "Missing data for selected range",
-              timeRange: {
-                start: new Date(e.min),
-                end: new Date(e.max),
-              },
-              selectedRange: lastSelectedRange,
-            });
-
             isFetchingData = true;
             try {
               await fetchMeasurementsIfNeeded(e.min, e.max);
@@ -170,7 +135,6 @@ const getXAxisOptions = (
               ).chart;
 
               if (lastSelectedRange !== null && chart?.rangeSelector) {
-                console.log("Restoring selected range:", lastSelectedRange);
                 chart.rangeSelector.clickButton(lastSelectedRange, true);
               }
             } finally {
@@ -215,21 +179,7 @@ const getXAxisOptions = (
     if (isAtDataMin) {
       const newStart = min - MILLISECONDS_IN_A_MONTH;
 
-      console.log("Scrollbar at data edge:", {
-        currentMin: new Date(min),
-        newStart: new Date(newStart),
-        buffer,
-      });
-
       if (!checkIfDataExists(newStart, min)) {
-        console.log("Fetching data for scrollbar:", {
-          reason: "Missing data at edge",
-          timeRange: {
-            start: new Date(newStart),
-            end: new Date(min),
-          },
-        });
-
         isFetchingData = true;
         try {
           await fetchMeasurementsIfNeeded(newStart, min);
@@ -269,14 +219,6 @@ const getXAxisOptions = (
     ordinal: false,
     events: {
       afterSetExtremes: async function (e: ExtendedAxisSetExtremesEventObject) {
-        console.log("afterSetExtremes triggered:", {
-          trigger: e.trigger,
-          isFirstLoad,
-          isLoading,
-          isFetchingData,
-          lastSelectedRange,
-        });
-
         handleSetExtremes(e);
 
         if (initialDataMin === null && e.dataMin !== undefined) {
@@ -284,7 +226,6 @@ const getXAxisOptions = (
         }
 
         if (isFirstLoad && !e.trigger?.includes("scrollbar")) {
-          console.log("Skipping first load fetch");
           isFirstLoad = false;
           return;
         }

@@ -88,25 +88,29 @@ const CalendarPage: React.FC<CalendarPageProps> = ({ children }) => {
       fixedStreamData.stream.startTime &&
       streamEndTime
     ) {
-      const startMoment = moment(fixedStreamData.stream.startTime);
-      const endMoment = moment(streamEndTime);
+      if (movingCalendarData.data.length === 0) {
+        const startMoment = moment(fixedStreamData.stream.startTime);
+        const endMoment = moment(streamEndTime);
 
-      if (startMoment.isValid() && endMoment.isValid()) {
-        const formattedEndDate = endMoment.format("YYYY-MM-DD");
-        const newStartDate = endMoment
-          .clone()
-          .date(1)
-          .subtract(2, "months")
-          .format("YYYY-MM-DD");
+        if (startMoment.isValid() && endMoment.isValid()) {
+          const formattedEndDate = endMoment.format("YYYY-MM-DD");
+          const newStartDate = endMoment
+            .clone()
+            .date(1)
+            .subtract(2, "months")
+            .format("YYYY-MM-DD");
 
-        dispatch(
-          fetchNewMovingStream({
-            id: streamId,
-            startDate: newStartDate,
-            endDate: formattedEndDate,
-          })
-        );
+          dispatch(
+            fetchNewMovingStream({
+              id: streamId,
+              startDate: newStartDate,
+              endDate: formattedEndDate,
+            })
+          );
 
+          setInitialDataFetched(true);
+        }
+      } else {
         setInitialDataFetched(true);
       }
     }
@@ -114,7 +118,14 @@ const CalendarPage: React.FC<CalendarPageProps> = ({ children }) => {
     if (fixedStreamData.stream) {
       dispatch(setDefaultThresholdsValues(fixedStreamData.stream));
     }
-  }, [fixedStreamData, streamId, isLoading, streamEndTime, initialDataFetched]);
+  }, [
+    fixedStreamData,
+    streamId,
+    isLoading,
+    streamEndTime,
+    initialDataFetched,
+    movingCalendarData.data.length,
+  ]);
 
   useEffect(() => {
     setInitialDataFetched(false);

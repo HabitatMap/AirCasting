@@ -79,6 +79,12 @@ const Calendar: React.FC<CalendarProps> = ({
   );
 
   const handleDayClick = (timestampDate: number) => {
+    console.log("Calendar day clicked:", {
+      date: new Date(timestampDate),
+      streamId,
+      minDate: minCalendarDate,
+      maxDate: maxCalendarDate,
+    });
     onDaySelect?.(timestampDate);
   };
 
