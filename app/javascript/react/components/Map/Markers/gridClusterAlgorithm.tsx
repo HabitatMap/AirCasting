@@ -245,8 +245,9 @@ export class CustomAlgorithm implements Algorithm {
 
     if (zoom <= 7) return baseSize * mobileMultiplier;
 
-    const reductionRate = zoom >= 12 ? (this.isMobile ? 2.0 : 3.0) : 1.3;
+    const reductionRate = zoom >= 12 ? 3.0 : 1.3;
     const zoomOffset = zoom >= 12 ? 5 : 8;
+
     const exponent = Math.max(0, zoom - zoomOffset);
     return Math.max(
       (baseSize * mobileMultiplier) / Math.pow(reductionRate, exponent),
