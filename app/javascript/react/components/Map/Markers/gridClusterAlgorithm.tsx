@@ -17,16 +17,65 @@ export class CustomAlgorithm implements Algorithm {
 
   public calculate({ markers, map }: AlgorithmInput): AlgorithmOutput {
     const zoom = Math.round(map.getZoom() || INITIAL_ZOOM);
-
     this.lastZoom = zoom;
-    const clusters = this.clusterMarkers(markers, zoom);
+
+    // Get current viewport bounds
+    const bounds = map.getBounds();
+    if (!bounds) {
+      return { clusters: this.clusterMarkers(markers, zoom) };
+    }
+
+    // Split markers into visible and non-visible
+    const { visibleMarkers, nonVisibleMarkers } = this.splitMarkersByVisibility(
+      markers,
+      bounds
+    );
+
+    // Cluster visible markers with normal grid size
+    const visibleClusters = this.clusterMarkers(visibleMarkers, zoom);
+
+    // Cluster non-visible markers with larger grid size for better performance
+    const nonVisibleClusters = this.clusterMarkers(
+      nonVisibleMarkers,
+      zoom,
+      true
+    );
+
+    // Combine clusters
+    const clusters = [...visibleClusters, ...nonVisibleClusters];
     this.cachedClusters = { clusters };
     return this.cachedClusters;
   }
 
-  private clusterMarkers(markers: Marker[], zoom: number): Cluster[] {
+  private splitMarkersByVisibility(
+    markers: Marker[],
+    bounds: google.maps.LatLngBounds
+  ): { visibleMarkers: Marker[]; nonVisibleMarkers: Marker[] } {
+    const visibleMarkers: Marker[] = [];
+    const nonVisibleMarkers: Marker[] = [];
+
+    markers.forEach((marker) => {
+      const position = this.getMarkerPosition(marker);
+      const latLng = new google.maps.LatLng(position.lat, position.lng);
+
+      if (bounds.contains(latLng)) {
+        visibleMarkers.push(marker);
+      } else {
+        nonVisibleMarkers.push(marker);
+      }
+    });
+
+    return { visibleMarkers, nonVisibleMarkers };
+  }
+
+  private clusterMarkers(
+    markers: Marker[],
+    zoom: number,
+    isOffscreen: boolean = false
+  ): Cluster[] {
     const grid: { [key: string]: Marker[] } = {};
-    const gridSize = this.calculateGridSize(zoom);
+    // Use larger grid size for off-screen markers
+    const gridSize = this.calculateGridSize(zoom, isOffscreen);
 
     markers.forEach((marker) => {
       const position = this.getMarkerPosition(marker);
@@ -45,6 +94,10 @@ export class CustomAlgorithm implements Algorithm {
       if (cellMarkers.length >= MINIMUM_CLUSTER_SIZE) {
         return [this.createCluster(cellMarkers)];
       } else {
+        // For off-screen markers, always cluster them
+        if (isOffscreen && cellMarkers.length > 0) {
+          return [this.createCluster(cellMarkers)];
+        }
         return cellMarkers.map((marker) => this.createCluster([marker]));
       }
     });
@@ -83,8 +136,16 @@ export class CustomAlgorithm implements Algorithm {
     return { x, y };
   }
 
-  private calculateGridSize(zoom: number): number {
+  private calculateGridSize(
+    zoom: number,
+    isOffscreen: boolean = false
+  ): number {
     const baseSize = 25;
+    if (isOffscreen) {
+      // Use larger grid size for off-screen markers
+      return baseSize * 2;
+    }
+
     if (zoom <= 7) return baseSize;
 
     const reductionRate = zoom >= 12 ? 3.0 : 1.3;
