@@ -161,52 +161,157 @@ export function FixedMarkers({
       return;
     }
     previousZoomRef.current = currentZoom;
+
+    console.log("=== Starting clustering update ===");
+    console.log(`Current zoom level: ${currentZoom}`);
+
+    // Clear all markers first
+    let hiddenMarkersCount = 0;
     markerRefs.current.forEach((marker) => {
-      (marker as CustomMarker).clustered = false;
+      marker.clustered = false;
+      const markerOverlay = markerOverlays.current.get(
+        marker.userData.streamId
+      );
+      const labelOverlay = labelOverlays.current.get(marker.userData.streamId);
+
+      // Hide all markers initially
+      if (markerOverlay) markerOverlay.setMap(null);
+      if (labelOverlay) labelOverlay.setMap(null);
+      hiddenMarkersCount++;
     });
+    console.log(`Hidden ${hiddenMarkersCount} markers initially`);
+
+    // Clear existing cluster overlays
+    let clearedClusters = 0;
+    clusterOverlaysRef.current.forEach((overlay) => {
+      overlay.setMap(null);
+      clearedClusters++;
+    });
+    clusterOverlaysRef.current.clear();
+    console.log(`Cleared ${clearedClusters} existing clusters`);
 
     const clusters =
       clustererRef.current &&
       // @ts-ignore - clusters
       (clustererRef.current.clusters as CustomCluster[]);
 
-    clusterOverlaysRef.current.forEach((overlay) => {
-      overlay.setMap(null);
-    });
-    clusterOverlaysRef.current.clear();
+    if (!clusters || !map) {
+      console.log("No clusters or map found, exiting");
+      return;
+    }
 
-    if (!clusters) return;
+    // Get current viewport bounds
+    const bounds = map.getBounds();
+    if (!bounds) {
+      console.log("No bounds found, exiting");
+      return;
+    }
+
+    let visibleClusters = 0;
+    let visibleMarkers = 0;
+    let hiddenClusters = 0;
+    let hiddenSingleMarkers = 0;
 
     clusters.forEach((cluster) => {
-      if (cluster.markers && cluster.markers.length > 1) {
+      if (!cluster.markers) return;
+
+      // Check if cluster is in viewport
+      const isVisible = bounds.contains(cluster.position);
+
+      if (cluster.markers.length > 1) {
         cluster.markers.forEach((marker) => {
           (marker as CustomMarker).clustered = true;
         });
 
-        const markers = cluster.markers as CustomMarker[];
-        const values = markers.map((marker) => marker.value || 0);
-        const average =
-          values.reduce((sum, value) => sum + value, 0) / values.length;
-        const color = getColorForValue(thresholds, average);
+        if (isVisible) {
+          const markers = cluster.markers as CustomMarker[];
+          const values = markers.map((marker) => marker.value || 0);
+          const average =
+            values.reduce((sum, value) => sum + value, 0) / values.length;
+          const color = getColorForValue(thresholds, average);
 
-        const hasPulsatingSession =
-          pulsatingSessionId !== null &&
-          markers.some((marker) => marker.sessionId === pulsatingSessionId);
+          const hasPulsatingSession =
+            pulsatingSessionId !== null &&
+            markers.some((marker) => marker.sessionId === pulsatingSessionId);
 
-        const overlay = new ClusterOverlay(
-          cluster,
-          color,
-          hasPulsatingSession,
-          map!,
-          handleClusterClickInternal
-        );
-        const clusterKey = `${cluster.position
-          .lat()
-          .toFixed(6)}_${cluster.position.lng().toFixed(6)}`;
-        clusterOverlaysRef.current.set(clusterKey, overlay);
+          const overlay = new ClusterOverlay(
+            cluster,
+            color,
+            hasPulsatingSession,
+            map!,
+            handleClusterClickInternal
+          );
+          const clusterKey = `${cluster.position
+            .lat()
+            .toFixed(6)}_${cluster.position.lng().toFixed(6)}`;
+          clusterOverlaysRef.current.set(clusterKey, overlay);
+          visibleClusters++;
+        } else {
+          hiddenClusters++;
+        }
+      } else {
+        // For single markers, only show if in viewport
+        const marker = cluster.markers[0] as CustomMarker;
+        if (isVisible) {
+          const streamId = marker.userData.streamId;
+          const position = marker.getPosition();
+          if (!position) return;
+
+          const isSelected =
+            marker.userData?.streamId === selectedStreamId?.toString();
+          const shouldPulse =
+            marker.sessionId === pulsatingSessionId && !marker.clustered;
+          const color = getColorForValue(thresholds, marker.value);
+
+          // Create or update marker overlay
+          const markerOverlay = new CustomMarkerOverlay(
+            position,
+            color,
+            isSelected,
+            shouldPulse
+          );
+          markerOverlay.setMap(map);
+          markerOverlays.current.set(streamId, markerOverlay);
+
+          // Create or update label overlay
+          const labelOverlay = new LabelOverlay(
+            position,
+            color,
+            marker.value,
+            unitSymbol,
+            isSelected,
+            () => {
+              onMarkerClickRef.current(
+                Number(marker.userData.streamId),
+                Number(marker.sessionId)
+              );
+              centerMapOnMarker({ lat: position.lat(), lng: position.lng() });
+            }
+          );
+          labelOverlay.setMap(map);
+          labelOverlays.current.set(streamId, labelOverlay);
+          visibleMarkers++;
+        } else {
+          hiddenSingleMarkers++;
+        }
       }
     });
-  }, [map, thresholds, pulsatingSessionId, handleClusterClickInternal]);
+
+    console.log("=== Clustering Results ===");
+    console.log(`Visible clusters: ${visibleClusters}`);
+    console.log(`Hidden clusters: ${hiddenClusters}`);
+    console.log(`Visible single markers: ${visibleMarkers}`);
+    console.log(`Hidden single markers: ${hiddenSingleMarkers}`);
+    console.log("========================");
+  }, [
+    map,
+    thresholds,
+    pulsatingSessionId,
+    handleClusterClickInternal,
+    selectedStreamId,
+    unitSymbol,
+    centerMapOnMarker,
+  ]);
 
   const customRenderer = {
     render: ({ position }: CustomRendererProps) => {
@@ -252,6 +357,9 @@ export function FixedMarkers({
   }, [dispatch]);
 
   const handleBoundsChanged = useCallback(() => {
+    console.log("Bounds changed event triggered");
+
+    // Update cluster positions if a cluster is selected
     if (selectedCluster && map) {
       const pixelPosition = getClusterPixelPosition(
         map,
@@ -259,13 +367,30 @@ export function FixedMarkers({
       );
       setClusterPosition({ top: pixelPosition.y, left: pixelPosition.x });
     }
+
+    // Force re-clustering when bounds change
+    if (clustererRef.current) {
+      console.log("Re-clustering due to bounds change");
+      // Reset the previous zoom to force handleClusteringEnd to run
+      previousZoomRef.current = null;
+      clustererRef.current.render();
+    }
   }, [map, selectedCluster]);
+
+  // Add a similar update to the zoom changed handler
+  const handleZoomChanged = useCallback(() => {
+    if (clustererRef.current) {
+      console.log("Re-clustering due to zoom change");
+      clustererRef.current.render();
+    }
+  }, []);
 
   useMapEventListeners(map, {
     click: handleMapInteraction,
     touchend: handleMapInteraction,
     dragstart: handleMapInteraction,
     bounds_changed: handleBoundsChanged,
+    zoom_changed: handleZoomChanged,
   });
 
   const handleZoomIn = useCallback(() => {

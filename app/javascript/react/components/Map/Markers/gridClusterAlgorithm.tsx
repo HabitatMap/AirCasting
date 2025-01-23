@@ -9,6 +9,7 @@ import {
 const TILE_SIZE = 256;
 const MINIMUM_CLUSTER_SIZE = 2;
 const INITIAL_ZOOM = 7;
+const ZOOM_THRESHOLD = 12; // Threshold for when to start viewport-focused clustering
 
 export class CustomAlgorithm implements Algorithm {
   private lastZoom: number | null = null;
@@ -25,24 +26,32 @@ export class CustomAlgorithm implements Algorithm {
       return { clusters: this.clusterMarkers(markers, zoom) };
     }
 
-    // Split markers into visible and non-visible
-    const { visibleMarkers, nonVisibleMarkers } = this.splitMarkersByVisibility(
-      markers,
-      bounds
-    );
+    // When zoomed in beyond threshold, use viewport-focused clustering
+    if (zoom >= ZOOM_THRESHOLD) {
+      const { visibleMarkers, nonVisibleMarkers } =
+        this.splitMarkersByVisibility(markers, bounds);
 
-    // Cluster visible markers with normal grid size
-    const visibleClusters = this.clusterMarkers(visibleMarkers, zoom);
+      // For visible markers, use individual markers or small clusters based on density
+      const visibleClusters = this.clusterMarkersInViewport(
+        visibleMarkers,
+        zoom,
+        bounds
+      );
 
-    // Cluster non-visible markers with larger grid size for better performance
-    const nonVisibleClusters = this.clusterMarkers(
-      nonVisibleMarkers,
-      zoom,
-      true
-    );
+      // For non-visible markers, always cluster with large grid size
+      const nonVisibleClusters = this.clusterMarkers(
+        nonVisibleMarkers,
+        zoom,
+        true
+      );
 
-    // Combine clusters
-    const clusters = [...visibleClusters, ...nonVisibleClusters];
+      const clusters = [...visibleClusters, ...nonVisibleClusters];
+      this.cachedClusters = { clusters };
+      return this.cachedClusters;
+    }
+
+    // For lower zoom levels, use normal clustering
+    const clusters = this.clusterMarkers(markers, zoom);
     this.cachedClusters = { clusters };
     return this.cachedClusters;
   }
@@ -66,6 +75,70 @@ export class CustomAlgorithm implements Algorithm {
     });
 
     return { visibleMarkers, nonVisibleMarkers };
+  }
+
+  private clusterMarkersInViewport(
+    markers: Marker[],
+    zoom: number,
+    bounds: google.maps.LatLngBounds
+  ): Cluster[] {
+    if (markers.length === 0) return [];
+
+    // Calculate viewport dimensions in pixels
+    const ne = bounds.getNorthEast();
+    const sw = bounds.getSouthWest();
+    const nePoint = this.projectPoint(ne.lat(), ne.lng(), zoom);
+    const swPoint = this.projectPoint(sw.lat(), sw.lng(), zoom);
+
+    // Calculate viewport width and height in pixels
+    const viewportWidth = Math.abs(nePoint.x - swPoint.x);
+    const viewportHeight = Math.abs(nePoint.y - swPoint.y);
+
+    // Adjust grid size based on viewport size and marker density
+    const markerDensity = markers.length / (viewportWidth * viewportHeight);
+    const dynamicGridSize = this.calculateDynamicGridSize(zoom, markerDensity);
+
+    const grid: { [key: string]: Marker[] } = {};
+
+    markers.forEach((marker) => {
+      const position = this.getMarkerPosition(marker);
+      const point = this.projectPoint(position.lat, position.lng, zoom);
+      const cellX = Math.floor(point.x / dynamicGridSize);
+      const cellY = Math.floor(point.y / dynamicGridSize);
+      const cellKey = `${cellX}_${cellY}`;
+
+      if (!grid[cellKey]) {
+        grid[cellKey] = [];
+      }
+      grid[cellKey].push(marker);
+    });
+
+    // Create clusters or individual markers based on density
+    return Object.values(grid).flatMap((cellMarkers) => {
+      const DENSITY_THRESHOLD = 3; // Adjust this value to control when to create clusters
+
+      if (cellMarkers.length >= DENSITY_THRESHOLD) {
+        return [this.createCluster(cellMarkers)];
+      } else {
+        return cellMarkers.map((marker) => this.createCluster([marker]));
+      }
+    });
+  }
+
+  private calculateDynamicGridSize(
+    zoom: number,
+    markerDensity: number
+  ): number {
+    // Base grid size that decreases as zoom increases
+    const baseSize = Math.max(
+      30 / Math.pow(1.5, Math.max(0, zoom - ZOOM_THRESHOLD)),
+      10
+    );
+
+    // Adjust grid size based on marker density
+    const densityFactor = Math.min(Math.max(markerDensity * 1000, 0.5), 2);
+
+    return baseSize * densityFactor;
   }
 
   private clusterMarkers(
