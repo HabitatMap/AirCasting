@@ -1,5 +1,6 @@
 import { Cluster, MarkerClusterer } from "@googlemaps/markerclusterer";
 import { useMap } from "@vis.gl/react-google-maps";
+import { debounce } from "lodash";
 import React, {
   useCallback,
   useEffect,
@@ -356,6 +357,16 @@ export function FixedMarkers({
     setClusterPosition(null);
   }, [dispatch]);
 
+  // Create debounced versions of the clustering operations
+  const debouncedRender = useCallback(
+    debounce((clusterer: MarkerClusterer) => {
+      console.log("Debounced re-clustering triggered");
+      previousZoomRef.current = null;
+      clusterer.render();
+    }, 150), // Adjust this delay as needed
+    []
+  );
+
   const handleBoundsChanged = useCallback(() => {
     console.log("Bounds changed event triggered");
 
@@ -368,22 +379,26 @@ export function FixedMarkers({
       setClusterPosition({ top: pixelPosition.y, left: pixelPosition.x });
     }
 
-    // Force re-clustering when bounds change
+    // Debounce the re-clustering on bounds change
     if (clustererRef.current) {
-      console.log("Re-clustering due to bounds change");
-      // Reset the previous zoom to force handleClusteringEnd to run
-      previousZoomRef.current = null;
-      clustererRef.current.render();
+      debouncedRender(clustererRef.current);
     }
-  }, [map, selectedCluster]);
+  }, [map, selectedCluster, debouncedRender]);
 
-  // Add a similar update to the zoom changed handler
   const handleZoomChanged = useCallback(() => {
     if (clustererRef.current) {
-      console.log("Re-clustering due to zoom change");
-      clustererRef.current.render();
+      console.log("Zoom change detected");
+      // Use the same debounced render for zoom changes
+      debouncedRender(clustererRef.current);
     }
-  }, []);
+  }, [debouncedRender]);
+
+  // Clean up debounced function on unmount
+  useEffect(() => {
+    return () => {
+      debouncedRender.cancel();
+    };
+  }, [debouncedRender]);
 
   useMapEventListeners(map, {
     click: handleMapInteraction,

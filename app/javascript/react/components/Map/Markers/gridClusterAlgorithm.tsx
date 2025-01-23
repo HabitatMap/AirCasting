@@ -11,10 +11,26 @@ const MINIMUM_CLUSTER_SIZE = 2;
 const INITIAL_ZOOM = 7;
 const ZOOM_THRESHOLD = 12; // Threshold for when to start viewport-focused clustering
 
+// Simple mobile detection function
+const isMobileDevice = () => {
+  return (
+    typeof window !== "undefined" &&
+    (window.innerWidth <= 768 ||
+      /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
+        navigator.userAgent
+      ))
+  );
+};
+
 export class CustomAlgorithm implements Algorithm {
   private lastZoom: number | null = null;
   private cachedClusters: AlgorithmOutput | null = null;
   private hasInitialized: boolean = false;
+  private isMobile: boolean;
+
+  constructor() {
+    this.isMobile = isMobileDevice();
+  }
 
   public calculate({ markers, map }: AlgorithmInput): AlgorithmOutput {
     const zoom = Math.round(map.getZoom() || INITIAL_ZOOM);
@@ -129,14 +145,18 @@ export class CustomAlgorithm implements Algorithm {
     zoom: number,
     markerDensity: number
   ): number {
-    // Base grid size that decreases as zoom increases
+    // Adjust base size for mobile
+    const mobileMultiplier = this.isMobile ? 1.5 : 1;
     const baseSize = Math.max(
-      30 / Math.pow(1.5, Math.max(0, zoom - ZOOM_THRESHOLD)),
-      10
+      (30 * mobileMultiplier) /
+        Math.pow(1.5, Math.max(0, zoom - ZOOM_THRESHOLD)),
+      this.isMobile ? 15 : 10
     );
 
-    // Adjust grid size based on marker density
-    const densityFactor = Math.min(Math.max(markerDensity * 1000, 0.5), 2);
+    // Reduce density factor impact on mobile
+    const densityFactor = this.isMobile
+      ? Math.min(Math.max(markerDensity * 500, 0.75), 1.5)
+      : Math.min(Math.max(markerDensity * 1000, 0.5), 2);
 
     return baseSize * densityFactor;
   }
@@ -214,17 +234,24 @@ export class CustomAlgorithm implements Algorithm {
     isOffscreen: boolean = false
   ): number {
     const baseSize = 25;
+
+    // Use larger grid size for mobile devices
+    const mobileMultiplier = this.isMobile ? 1.5 : 1;
+
     if (isOffscreen) {
-      // Use larger grid size for off-screen markers
-      return baseSize * 2;
+      // Use even larger grid size for off-screen markers on mobile
+      return baseSize * (this.isMobile ? 3 : 2);
     }
 
-    if (zoom <= 7) return baseSize;
+    if (zoom <= 7) return baseSize * mobileMultiplier;
 
-    const reductionRate = zoom >= 12 ? 3.0 : 1.3;
+    const reductionRate = zoom >= 12 ? (this.isMobile ? 2.0 : 3.0) : 1.3;
     const zoomOffset = zoom >= 12 ? 5 : 8;
     const exponent = Math.max(0, zoom - zoomOffset);
-    return Math.max(baseSize / Math.pow(reductionRate, exponent), 5);
+    return Math.max(
+      (baseSize * mobileMultiplier) / Math.pow(reductionRate, exponent),
+      this.isMobile ? 8 : 5
+    );
   }
 
   private createCluster(markers: Marker[]): Cluster {
