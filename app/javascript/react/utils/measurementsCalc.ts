@@ -18,12 +18,23 @@ export const calculateMeasurementStats = (
   return { min, max, avg };
 };
 
-export const isNoData = (...values: (number | null | undefined)[]): boolean => {
-  return values.some((value) => value === undefined || value === null);
+export const isNoData = (
+  min: number | null,
+  max: number | null,
+  avg: number | null
+): boolean => {
+  return (
+    min === null ||
+    max === null ||
+    avg === null ||
+    isNaN(min) ||
+    isNaN(max) ||
+    isNaN(avg)
+  );
 };
 
-export const isValidValue = (value: number | null | undefined): boolean => {
-  return value !== null && value !== undefined && isFinite(value);
+export const isValidValue = (value: number | null): boolean => {
+  return value !== null && !isNaN(value) && isFinite(value);
 };
 
 export const formatTime = (minTime: string | null, maxTime: string | null) => {
