@@ -414,16 +414,23 @@ export function FixedMarkers({
         });
 
         clustererRef.current.addListener("clusteringend", handleClusteringEnd);
+      }
 
-        // Force initial clustering
+      // Create markers for all sessions if they don't exist
+      memoizedSessions.forEach((session) => {
+        if (!markerRefs.current.has(session.point.streamId)) {
+          const marker = createMarker(session);
+          markerRefs.current.set(session.point.streamId, marker);
+        }
+      });
+
+      // Ensure clusterer is properly initialized and has all markers
+      if (clustererRef.current) {
         const allMarkers = Array.from(markerRefs.current.values());
+        clustererRef.current.clearMarkers();
         clustererRef.current.addMarkers(allMarkers);
         clustererRef.current.render();
       }
-
-      const allMarkers = Array.from(markerRefs.current.values());
-      clustererRef.current!.addMarkers(allMarkers);
-      clustererRef.current!.render();
 
       updateMarkerOverlays();
       updateClusterOverlays();
