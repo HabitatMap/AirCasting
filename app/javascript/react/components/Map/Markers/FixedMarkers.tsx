@@ -1,4 +1,4 @@
-import { Cluster, MarkerClusterer } from "@googlemaps/markerclusterer";
+import { type Cluster, MarkerClusterer } from "@googlemaps/markerclusterer";
 import { useMap } from "@vis.gl/react-google-maps";
 import React, {
   useCallback,
@@ -22,8 +22,8 @@ import { selectHoverStreamId } from "../../../store/mapSlice";
 import { setMarkersLoading } from "../../../store/markersLoadingSlice";
 import { selectThresholds } from "../../../store/thresholdSlice";
 import { StatusEnum } from "../../../types/api";
-import { LatLngLiteral } from "../../../types/googleMaps";
-import { FixedSession } from "../../../types/sessionType";
+import type { LatLngLiteral } from "../../../types/googleMaps";
+import type { FixedSession } from "../../../types/sessionType";
 import { getClusterPixelPosition } from "../../../utils/getClusterPixelPosition";
 import useMapEventListeners from "../../../utils/mapEventListeners";
 import { useMapParams } from "../../../utils/mapParamsHandler";
@@ -177,8 +177,13 @@ export function FixedMarkers({
 
     if (!clusters) return;
 
+    const bounds = map?.getBounds();
     clusters.forEach((cluster) => {
-      if (cluster.markers && cluster.markers.length > 1) {
+      if (
+        cluster.markers &&
+        cluster.markers.length > 1 &&
+        bounds?.contains(cluster.position)
+      ) {
         cluster.markers.forEach((marker) => {
           (marker as CustomMarker).clustered = true;
         });
@@ -307,8 +312,19 @@ export function FixedMarkers({
     });
   }, [pulsatingSessionId]);
 
+  const isMarkerInViewport = useCallback(
+    (marker: CustomMarker) => {
+      if (!map) return false;
+      const bounds = map.getBounds();
+      return bounds ? bounds.contains(marker.getPosition()!) : false;
+    },
+    [map]
+  );
+
   const updateMarkerOverlays = useCallback(() => {
+    const bounds = map?.getBounds();
     markerRefs.current.forEach((marker, streamId) => {
+      const isVisible = bounds ? bounds.contains(marker.getPosition()!) : false;
       const isSelected =
         marker.userData?.streamId === selectedStreamId?.toString();
       const shouldPulse =
@@ -318,8 +334,7 @@ export function FixedMarkers({
       const existingLabelOverlay = labelOverlays.current.get(streamId);
       const position = marker.getPosition();
 
-      // Remove overlays if marker is clustered
-      if (marker.clustered) {
+      if (marker.clustered || !isVisible) {
         if (existingOverlay) {
           existingOverlay.setMap(null);
           markerOverlays.current.delete(streamId);
@@ -399,16 +414,23 @@ export function FixedMarkers({
         });
 
         clustererRef.current.addListener("clusteringend", handleClusteringEnd);
+      }
 
-        // Force initial clustering
+      // Create markers for all sessions if they don't exist
+      memoizedSessions.forEach((session) => {
+        if (!markerRefs.current.has(session.point.streamId)) {
+          const marker = createMarker(session);
+          markerRefs.current.set(session.point.streamId, marker);
+        }
+      });
+
+      // Ensure clusterer is properly initialized and has all markers
+      if (clustererRef.current) {
         const allMarkers = Array.from(markerRefs.current.values());
+        clustererRef.current.clearMarkers();
         clustererRef.current.addMarkers(allMarkers);
         clustererRef.current.render();
       }
-
-      const allMarkers = Array.from(markerRefs.current.values());
-      clustererRef.current!.addMarkers(allMarkers);
-      clustererRef.current!.render();
 
       updateMarkerOverlays();
       updateClusterOverlays();
@@ -516,6 +538,7 @@ export function FixedMarkers({
   useEffect(() => {
     if (!map || !clustererRef.current) return;
 
+    const bounds = map.getBounds();
     const updatedMarkers: google.maps.Marker[] = [];
     const markersToRemove: CustomMarker[] = [];
 
@@ -524,7 +547,9 @@ export function FixedMarkers({
       if (!marker) {
         marker = createMarker(session);
         markerRefs.current.set(session.point.streamId, marker);
-        updatedMarkers.push(marker);
+        if (bounds?.contains(marker.getPosition()!)) {
+          updatedMarkers.push(marker);
+        }
       } else {
         marker.setPosition(session.point);
         marker.value = session.averageValue;
@@ -749,6 +774,15 @@ export function FixedMarkers({
       handleClusteringEnd();
     }
   }, [map?.getZoom(), currentUserSettings, handleClusteringEnd]);
+
+  useEffect(() => {
+    if (map) {
+      const listener = map.addListener("idle", updateMarkerOverlays);
+      return () => {
+        google.maps.event.removeListener(listener);
+      };
+    }
+  }, [map, updateMarkerOverlays]);
 
   return (
     <>
