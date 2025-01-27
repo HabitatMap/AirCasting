@@ -108,13 +108,6 @@ const ThresholdSlider: React.FC<ThresholdSliderProps> = ({
     };
   }, [updateSliderWidthHandler, isUniformDistributionButtonVisible]);
 
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setErrorMessage("");
-    }, 4000);
-    return () => clearTimeout(timer);
-  }, [setErrorMessage]);
-
   const {
     handleInputBlur,
     handleInputFocus,

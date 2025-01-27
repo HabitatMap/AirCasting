@@ -54,15 +54,15 @@ export const useThresholdHandlers = (
 
     switch (key) {
       case "min":
-        return value < low;
+        return value <= low;
       case "low":
-        return value < middle && value > min;
+        return value <= middle && value >= min;
       case "middle":
-        return value > low && value < high;
+        return value >= low && value <= high;
       case "high":
-        return value > middle && value < max;
+        return value >= middle && value <= max;
       case "max":
-        return value > high;
+        return value >= high;
       default:
         return true;
     }

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 
 import { UserSettings } from "../../types/userStates";
@@ -41,6 +41,16 @@ const ThresholdsConfigurator: React.FC<ThresholdsConfiguratorProps> = ({
   const isUniformDistributionButtonVisible =
     currentUserSettings === UserSettings.ModalView ||
     currentUserSettings === UserSettings.CalendarView;
+
+  useEffect(() => {
+    if (errorMessage) {
+      console.log("errorMessage", errorMessage);
+      const timer = setTimeout(() => {
+        setErrorMessage("");
+      }, 4000);
+      return () => clearTimeout(timer);
+    }
+  }, [errorMessage]);
 
   const renderSlider = () => (
     <S.SliderContainer $isMobileOldStyle={isMobileOldStyle}>
