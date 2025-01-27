@@ -30,6 +30,7 @@ interface ThresholdSliderProps {
   isMobileOldStyle: boolean;
   useColorBoxStyle: boolean;
   setErrorMessage: React.Dispatch<React.SetStateAction<string>>;
+  isUniformDistributionButtonVisible: boolean;
 }
 
 const maxThresholdDifference = 1;
@@ -38,6 +39,7 @@ const ThresholdSlider: React.FC<ThresholdSliderProps> = ({
   isMobileOldStyle,
   useColorBoxStyle,
   setErrorMessage,
+  isUniformDistributionButtonVisible,
 }) => {
   const sliderRef = useRef<HTMLDivElement>(null);
   const thresholdsState = useAppSelector(selectThresholds);
@@ -104,7 +106,7 @@ const ThresholdSlider: React.FC<ThresholdSliderProps> = ({
     return () => {
       window.removeEventListener("resize", handleResize);
     };
-  }, [updateSliderWidthHandler]);
+  }, [updateSliderWidthHandler, isUniformDistributionButtonVisible]);
 
   useEffect(() => {
     const timer = setTimeout(() => {

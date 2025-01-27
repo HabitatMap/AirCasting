@@ -498,6 +498,7 @@ const Units = styled.sup`
   font-weight: 400;
   line-height: 1.6;
   color: ${colors.gray400};
+  left: 2rem;
 `;
 
 const StyledContainer = styled.div`
@@ -564,9 +565,9 @@ export {
   StaticMobileSliderContainer,
   StyledContainer,
   ThresholdButton,
-  ThresholdButtonWrapper,
   ThresholdButtonsMobileWrapper,
   ThresholdButtonsWrapper,
+  ThresholdButtonWrapper,
   ThresholdsDisclaimer,
   UniformDistributionButton,
   Units,
