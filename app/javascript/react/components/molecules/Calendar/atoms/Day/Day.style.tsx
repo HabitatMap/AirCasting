@@ -6,6 +6,7 @@ import { media } from "../../../../../utils/media";
 interface DayProps {
   $color?: string;
   $borderColor?: string;
+  $isSelected?: boolean;
 }
 
 interface LabelProps {
@@ -30,17 +31,29 @@ const Day = styled(CalendarCell)<DayProps>`
   justify-content: space-between;
   text-align: center;
   margin: 0 0 0.6rem 0;
-  //TODO: Ask Iwona about the opacity
   background-color: ${(props) => props.$color};
   width: 100%;
   border: 2px solid transparent;
 
   &:hover {
     border: 2px solid ${(props) => props.$borderColor};
-  }
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
 
-  @media (${media.smallDesktop}) {
-    border-radius: 5px;
+    ${(props) =>
+      props.$isSelected &&
+      `
+    border: 2px solid ${gray400};
+    box-shadow: 0 0 0 2px ${gray400};
+  `}
+
+    &:hover {
+      transform: scale(1.05);
+    }
+
+    @media (${media.smallDesktop}) {
+      border-radius: 5px;
+    }
   }
 `;
 

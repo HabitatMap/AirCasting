@@ -1,15 +1,26 @@
-import React from "react";
-import { useSelector } from "react-redux";
-
-import { Month } from "./atoms/Month";
+import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
-import HeaderToggle from "./HeaderToggle/HeaderToggle";
+import { useSelector } from "react-redux";
 import { selectThreeMonthsDailyAverage } from "../../../store/movingStreamSelectors";
+import { Month } from "./atoms/Month";
 import * as S from "./Calendar.style";
+import HeaderToggle from "./HeaderToggle/HeaderToggle";
 
-const EmptyCalendar = () => {
+interface EmptyCalendarProps {
+  onDayClick?: (date: Date) => void;
+}
+
+const EmptyCalendar: React.FC<EmptyCalendarProps> = ({ onDayClick }) => {
   const threeMonthsData = useSelector(selectThreeMonthsDailyAverage);
   const { t } = useTranslation();
+  const [selectedDate, setSelectedDate] = useState<Date | null>(null);
+
+  const handleDayClick = (date: Date) => {
+    setSelectedDate(date);
+    if (onDayClick) {
+      onDayClick(date);
+    }
+  };
 
   return (
     threeMonthsData && (
@@ -20,7 +31,12 @@ const EmptyCalendar = () => {
             <>
               <S.ThreeMonths>
                 {threeMonthsData.map((month) => (
-                  <Month key={month.monthName} {...month} />
+                  <Month
+                    key={month.monthName}
+                    {...month}
+                    onDayClick={handleDayClick}
+                    selectedDate={selectedDate}
+                  />
                 ))}
               </S.ThreeMonths>
             </>
