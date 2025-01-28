@@ -125,7 +125,7 @@ const CalendarPage: React.FC<CalendarPageProps> = ({ children }) => {
     setInitialDataFetched(false);
   }, [streamId]);
 
-  const handleDayClick = (date: Date) => {
+  const handleDayClick = (date: Date | null) => {
     setSelectedDate(date);
   };
 
@@ -159,6 +159,7 @@ const CalendarPage: React.FC<CalendarPageProps> = ({ children }) => {
               isCalendarPage={true}
               rangeDisplayRef={rangeDisplayRef}
               selectedDate={selectedDate}
+              onDayClick={handleDayClick}
             />
             <MeasurementComponent />
           </>
@@ -236,6 +237,7 @@ const CalendarPage: React.FC<CalendarPageProps> = ({ children }) => {
             isCalendarPage={true}
             rangeDisplayRef={rangeDisplayRef}
             selectedDate={selectedDate}
+            onDayClick={handleDayClick}
           />
         }
       />
@@ -256,6 +258,7 @@ const CalendarPage: React.FC<CalendarPageProps> = ({ children }) => {
               minCalendarDate={fixedStreamData.stream.startTime}
               maxCalendarDate={streamEndTime}
               onDayClick={handleDayClick}
+              selectedDate={selectedDate}
             />
           ) : (
             <EmptyCalendar />
