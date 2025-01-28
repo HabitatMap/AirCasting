@@ -1,19 +1,12 @@
 import HighchartsReact from "highcharts-react-official";
 import Highcharts, { type Chart } from "highcharts/highstock";
 import NoDataToDisplay from "highcharts/modules/no-data-to-display";
-import React, {
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
+import React, { useCallback, useEffect, useMemo, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import { white } from "../../assets/styles/colors";
 import type { RootState } from "../../store";
 import { selectFixedStreamShortInfo } from "../../store/fixedStreamSelectors";
 import {
-  resetFixedMeasurementExtremes,
   resetLastSelectedTimeRange,
   resetTimeRange,
   selectIsLoading,
@@ -75,6 +68,7 @@ interface GraphProps {
   isCalendarPage: boolean;
   rangeDisplayRef?: React.RefObject<HTMLDivElement>;
   selectedDate: Date | null;
+  onDayClick?: (date: Date | null) => void;
 }
 
 const Graph: React.FC<GraphProps> = React.memo(
@@ -84,6 +78,7 @@ const Graph: React.FC<GraphProps> = React.memo(
     isCalendarPage,
     rangeDisplayRef,
     selectedDate,
+    onDayClick,
   }) => {
     const dispatch = useAppDispatch();
     const { t } = useTranslation();
@@ -172,9 +167,6 @@ const Graph: React.FC<GraphProps> = React.memo(
       rangeDisplayRef,
     });
 
-    // Add state to track if range selector was clicked
-    const [rangeSelectorClicked, setRangeSelectorClicked] = useState(false);
-
     const handleRangeSelectorClick = useCallback(
       (selectedButton: number) => {
         const timeRange = mapIndexToTimeRange(
@@ -188,9 +180,9 @@ const Graph: React.FC<GraphProps> = React.memo(
             setLastSelectedMobileTimeRange(timeRange as MobileTimeRange)
           );
         }
-        setRangeSelectorClicked(true);
+        onDayClick?.(null);
       },
-      [fixedSessionTypeSelected, dispatch]
+      [fixedSessionTypeSelected, dispatch, onDayClick]
     );
 
     const handleChartLoad = useCallback(
@@ -214,7 +206,7 @@ const Graph: React.FC<GraphProps> = React.memo(
             redraw: function (this: Chart) {
               const chart = this as Highcharts.StockChart;
               const selectedButton = chart.options.rangeSelector?.selected;
-              if (selectedButton !== undefined) {
+              if (selectedButton !== undefined && !selectedDate) {
                 handleRangeSelectorClick(selectedButton);
               }
             },
@@ -227,7 +219,8 @@ const Graph: React.FC<GraphProps> = React.memo(
           dispatch,
           isLoading,
           fetchMeasurementsIfNeeded,
-          streamId
+          streamId,
+          onDayClick
         ),
         yAxis: getYAxisOptions(thresholdsState, isMobile),
         series: [
@@ -295,39 +288,59 @@ const Graph: React.FC<GraphProps> = React.memo(
         handleChartLoad,
         lastSelectedTimeRange,
         handleRangeSelectorClick,
+        selectedDate,
+        onDayClick,
       ]
     );
 
     useEffect(() => {
-      // Reset to 24-hour range on component mount
       dispatch(resetTimeRange());
     }, [dispatch]);
 
     useEffect(() => {
-      // Update the time range when it changes
-      if (lastSelectedTimeRange) {
-        if (fixedSessionTypeSelected) {
-          // Only dispatch fixed time range if in fixed session
-          dispatch(
-            setLastSelectedTimeRange(lastSelectedTimeRange as FixedTimeRange)
-          );
-        } else {
-          // Handle mobile time range separately
-          dispatch(
-            setLastSelectedMobileTimeRange(
-              lastSelectedTimeRange as MobileTimeRange
+      if (chartComponentRef.current?.chart) {
+        const chart = chartComponentRef.current.chart;
+
+        if (selectedDate) {
+          const startOfDay = new Date(
+            Date.UTC(
+              selectedDate.getFullYear(),
+              selectedDate.getMonth(),
+              selectedDate.getDate(),
+              0,
+              0,
+              0,
+              0
             )
           );
+
+          const nextDay = new Date(
+            Date.UTC(
+              selectedDate.getFullYear(),
+              selectedDate.getMonth(),
+              selectedDate.getDate() + 1,
+              0,
+              0,
+              0,
+              0
+            )
+          );
+
+          chart.xAxis[0].setExtremes(startOfDay.getTime(), nextDay.getTime());
+          fetchMeasurementsIfNeeded(startOfDay.getTime(), nextDay.getTime());
         }
       }
-    }, [dispatch, lastSelectedTimeRange, fixedSessionTypeSelected]);
+    }, [selectedDate, fetchMeasurementsIfNeeded]);
 
     useEffect(() => {
-      if (chartComponentRef.current && chartComponentRef.current.chart) {
-        const chart = chartComponentRef.current.chart;
-        if (isLoading) {
+      if (isLoading) {
+        if (chartComponentRef.current && chartComponentRef.current.chart) {
+          const chart = chartComponentRef.current.chart;
           chart.showLoading("Loading data from server...");
-        } else {
+        }
+      } else {
+        if (chartComponentRef.current && chartComponentRef.current.chart) {
+          const chart = chartComponentRef.current.chart;
           chart.hideLoading();
         }
       }
@@ -341,7 +354,6 @@ const Graph: React.FC<GraphProps> = React.memo(
       }
     }, []);
 
-    // Apply touch action to the graph container for mobile devices in Calendar page
     useEffect(() => {
       const applyStyles = () => {
         const graphElement = graphRef.current;
@@ -364,54 +376,16 @@ const Graph: React.FC<GraphProps> = React.memo(
 
       applyStyles();
 
-      // Set up a MutationObserver to watch for changes in the DOM
       const observer = new MutationObserver(applyStyles);
 
       if (graphRef.current) {
         observer.observe(graphRef.current, { childList: true, subtree: true });
       }
 
-      // Cleanup function
       return () => {
         observer.disconnect();
       };
     }, []);
-
-    useEffect(() => {
-      if (
-        selectedDate &&
-        !rangeSelectorClicked &&
-        chartComponentRef.current?.chart
-      ) {
-        const chart = chartComponentRef.current.chart;
-        const startOfDay = new Date(selectedDate);
-        startOfDay.setHours(0, 0, 0, 0);
-        const endOfDay = new Date(selectedDate);
-        endOfDay.setHours(23, 59, 59, 999);
-
-        chart.xAxis[0].setExtremes(startOfDay.getTime(), endOfDay.getTime());
-
-        // Fetch data if needed
-        fetchMeasurementsIfNeeded(startOfDay.getTime(), endOfDay.getTime());
-      }
-    }, [selectedDate, rangeSelectorClicked, fetchMeasurementsIfNeeded]);
-
-    // Reset rangeSelectorClicked when selectedDate changes
-    useEffect(() => {
-      if (selectedDate) {
-        setRangeSelectorClicked(false);
-      }
-    }, [selectedDate]);
-
-    // Add cleanup effect for fixed streams only
-    useEffect(() => {
-      return () => {
-        // Reset measurement extremes when component unmounts, but only for fixed streams
-        if (fixedSessionTypeSelected && streamId) {
-          dispatch(resetFixedMeasurementExtremes());
-        }
-      };
-    }, [dispatch, fixedSessionTypeSelected, streamId]);
 
     return (
       <S.Container
