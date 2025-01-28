@@ -1,14 +1,14 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 
+import { UserSettings } from "../../types/userStates";
 import { useMapParams } from "../../utils/mapParamsHandler";
 import useMobileDetection from "../../utils/useScreenSizeDetection";
 import { ResetButton } from "./ThresholdButtons/ResetButton";
+import { ThresholdButtonVariant } from "./ThresholdButtons/ThresholdButton";
+import { UniformDistributionButton } from "./ThresholdButtons/UniformDistributionButton";
 import * as S from "./ThresholdConfigurator.style";
 import ThresholdSlider from "./ThresholdSlider";
-import { UniformDistributionButton } from "./ThresholdButtons/UniformDistributionButton";
-import { UserSettings } from "../../types/userStates";
-import { ThresholdButtonVariant } from "./ThresholdButtons/ThresholdButton";
 
 interface ThresholdsConfiguratorProps {
   resetButtonVariant?: ThresholdButtonVariant;
@@ -42,6 +42,15 @@ const ThresholdsConfigurator: React.FC<ThresholdsConfiguratorProps> = ({
     currentUserSettings === UserSettings.ModalView ||
     currentUserSettings === UserSettings.CalendarView;
 
+  useEffect(() => {
+    if (errorMessage) {
+      const timer = setTimeout(() => {
+        setErrorMessage("");
+      }, 4000);
+      return () => clearTimeout(timer);
+    }
+  }, [errorMessage]);
+
   const renderSlider = () => (
     <S.SliderContainer $isMobileOldStyle={isMobileOldStyle}>
       {errorMessage && <S.ErrorMessage>{errorMessage}</S.ErrorMessage>}
@@ -49,6 +58,7 @@ const ThresholdsConfigurator: React.FC<ThresholdsConfiguratorProps> = ({
         isMobileOldStyle={isMobileOldStyle}
         useColorBoxStyle={useColorBoxStyle}
         setErrorMessage={setErrorMessage}
+        isUniformDistributionButtonVisible={isUniformDistributionButtonVisible}
       />
     </S.SliderContainer>
   );

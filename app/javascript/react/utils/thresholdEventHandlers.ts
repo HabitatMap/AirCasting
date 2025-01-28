@@ -53,12 +53,16 @@ export const useThresholdHandlers = (
     const { min, low, middle, high, max } = thresholdValues;
 
     switch (key) {
+      case "min":
+        return value <= low;
       case "low":
-        return value < middle;
+        return value <= middle && value >= min;
       case "middle":
-        return value > low && value < high;
+        return value >= low && value <= high;
       case "high":
-        return value > middle;
+        return value >= middle && value <= max;
+      case "max":
+        return value >= high;
       default:
         return true;
     }
@@ -84,23 +88,30 @@ export const useThresholdHandlers = (
           })
         );
       } else {
-        if (thresholdKey === "min" && parsedValue >= thresholdValues.max) {
-          setErrorMessage(
-            t("thresholdConfigurator.minGreaterThanMaxMessage", {
-              maxValue: thresholdValues.max,
-            })
-          );
-        } else if (
-          thresholdKey === "max" &&
-          parsedValue <= thresholdValues.min
-        ) {
-          setErrorMessage(
-            t("thresholdConfigurator.maxLessThanMinMessage", {
-              minValue: thresholdValues.min,
-            })
-          );
-        } else {
-          clearErrorAndUpdateThreshold(thresholdKey, parsedValue);
+        if (thresholdKey === "min") {
+          if (parsedValue >= thresholdValues.max) {
+            setErrorMessage(
+              t("thresholdConfigurator.minGreaterThanMaxMessage", {
+                maxValue: thresholdValues.max,
+              })
+            );
+          } else if (!validateThresholdOrder(thresholdKey, parsedValue)) {
+            setErrorMessage(t("thresholdConfigurator.invalidOrderMessage"));
+          } else {
+            clearErrorAndUpdateThreshold(thresholdKey, parsedValue);
+          }
+        } else if (thresholdKey === "max") {
+          if (parsedValue <= thresholdValues.min) {
+            setErrorMessage(
+              t("thresholdConfigurator.maxLessThanMinMessage", {
+                minValue: thresholdValues.min,
+              })
+            );
+          } else if (!validateThresholdOrder(thresholdKey, parsedValue)) {
+            setErrorMessage(t("thresholdConfigurator.invalidOrderMessage"));
+          } else {
+            clearErrorAndUpdateThreshold(thresholdKey, parsedValue);
+          }
         }
       }
     } else {
