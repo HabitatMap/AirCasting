@@ -1,10 +1,10 @@
 import HighchartsReact from "highcharts-react-official";
-import Highcharts, { Chart } from "highcharts/highstock";
+import Highcharts, { type Chart } from "highcharts/highstock";
 import NoDataToDisplay from "highcharts/modules/no-data-to-display";
 import React, { useCallback, useEffect, useMemo, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import { white } from "../../assets/styles/colors";
-import { RootState } from "../../store";
+import type { RootState } from "../../store";
 import { selectFixedStreamShortInfo } from "../../store/fixedStreamSelectors";
 import {
   resetFixedMeasurementExtremes,
@@ -26,11 +26,11 @@ import {
   setLastSelectedMobileTimeRange,
 } from "../../store/mobileStreamSlice";
 import { selectThresholds } from "../../store/thresholdSlice";
-import { SessionType, SessionTypes } from "../../types/filters";
-import { FixedStreamShortInfo } from "../../types/fixedStream";
-import { GraphData } from "../../types/graph";
-import { MobileStreamShortInfo } from "../../types/mobileStream";
-import { FixedTimeRange, MobileTimeRange } from "../../types/timeRange";
+import { type SessionType, SessionTypes } from "../../types/filters";
+import type { FixedStreamShortInfo } from "../../types/fixedStream";
+import type { GraphData } from "../../types/graph";
+import type { MobileStreamShortInfo } from "../../types/mobileStream";
+import { type FixedTimeRange, MobileTimeRange } from "../../types/timeRange";
 import { parseDateString } from "../../utils/dateParser";
 import {
   getSelectedRangeIndex,
@@ -68,10 +68,17 @@ interface GraphProps {
   streamId: number | null;
   isCalendarPage: boolean;
   rangeDisplayRef?: React.RefObject<HTMLDivElement>;
+  selectedDate: Date | null;
 }
 
 const Graph: React.FC<GraphProps> = React.memo(
-  ({ streamId, sessionType, isCalendarPage, rangeDisplayRef }) => {
+  ({
+    streamId,
+    sessionType,
+    isCalendarPage,
+    rangeDisplayRef,
+    selectedDate,
+  }) => {
     const dispatch = useAppDispatch();
     const { t } = useTranslation();
     const graphRef = useRef<HTMLDivElement>(null);
@@ -108,6 +115,7 @@ const Graph: React.FC<GraphProps> = React.memo(
       [
         mobileStreamShortInfo.startTime,
         fixedStreamShortInfo.firstMeasurementTime,
+        fixedStreamShortInfo.startTime,
         fixedSessionTypeSelected,
       ]
     );
@@ -144,7 +152,7 @@ const Graph: React.FC<GraphProps> = React.memo(
       [startTime, endTime]
     );
 
-    let chartData: GraphData = seriesData as GraphData;
+    const chartData: GraphData = seriesData as GraphData;
 
     const { fetchMeasurementsIfNeeded } = useMeasurementsFetcher(streamId);
 
@@ -383,6 +391,21 @@ const Graph: React.FC<GraphProps> = React.memo(
         }
       };
     }, [dispatch, fixedSessionTypeSelected, streamId]);
+
+    useEffect(() => {
+      if (selectedDate && chartComponentRef.current?.chart) {
+        const chart = chartComponentRef.current.chart;
+        const startOfDay = new Date(selectedDate);
+        startOfDay.setHours(0, 0, 0, 0);
+        const endOfDay = new Date(selectedDate);
+        endOfDay.setHours(23, 59, 59, 999);
+
+        chart.xAxis[0].setExtremes(startOfDay.getTime(), endOfDay.getTime());
+
+        // Fetch data if needed
+        fetchMeasurementsIfNeeded(startOfDay.getTime(), endOfDay.getTime());
+      }
+    }, [selectedDate, fetchMeasurementsIfNeeded]);
 
     return (
       <S.Container
