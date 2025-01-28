@@ -44,7 +44,6 @@ const ThresholdsConfigurator: React.FC<ThresholdsConfiguratorProps> = ({
 
   useEffect(() => {
     if (errorMessage) {
-      console.log("errorMessage", errorMessage);
       const timer = setTimeout(() => {
         setErrorMessage("");
       }, 4000);
