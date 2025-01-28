@@ -129,6 +129,11 @@ const CalendarPage: React.FC<CalendarPageProps> = ({ children }) => {
     setSelectedDate(date);
   };
 
+  // Add effect to reset selected date when stream changes
+  useEffect(() => {
+    setSelectedDate(null);
+  }, [streamId]);
+
   const renderMobileGraph = () => (
     <S.GraphContainer $isMobile={isMobile}>
       <HeaderToggle
