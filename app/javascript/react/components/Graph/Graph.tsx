@@ -326,6 +326,13 @@ const Graph: React.FC<GraphProps> = React.memo(
             )
           );
 
+          console.log("Setting day range:", {
+            start: new Date(startOfDay).toISOString(),
+            end: new Date(nextDay).toISOString(),
+            startTimestamp: startOfDay.getTime(),
+            endTimestamp: nextDay.getTime(),
+          });
+
           chart.xAxis[0].setExtremes(startOfDay.getTime(), nextDay.getTime());
           fetchMeasurementsIfNeeded(startOfDay.getTime(), nextDay.getTime());
         }

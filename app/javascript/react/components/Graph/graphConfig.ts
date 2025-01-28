@@ -60,6 +60,10 @@ const getScrollbarOptions = (isCalendarPage: boolean, isMobile: boolean) => {
     enabled: isMobile && isCalendarPage ? true : !isMobile,
     liveRedraw: true,
     minWidth: isMobile ? 30 : 8,
+    rifleColor: gray200,
+    zIndex: 3,
+    margin: 0,
+    minimumRange: MILLISECONDS_IN_A_SECOND,
   };
 };
 
@@ -76,6 +80,54 @@ const getXAxisOptions = (
   let isFetchingData = false;
   let initialDataMin: number | null = null;
   let fetchTimeout: NodeJS.Timeout | null = null;
+
+  const shouldFetchData = (
+    min: number,
+    max: number,
+    dataMin: number,
+    dataMax: number,
+    chart: Highcharts.Chart
+  ) => {
+    const buffer = (max - min) * 0.02;
+    const isAtDataMin = min <= dataMin + buffer;
+    const isRangeTooBig = max - min > MILLISECONDS_IN_A_MONTH;
+
+    // Check if there are points in the current view range
+    const series = chart.series[0];
+    const points = series.points || [];
+    const visiblePoints = points.filter(
+      (point) => point.x >= min && point.x <= max
+    );
+
+    const hasMissingData =
+      visiblePoints.length === 0 ||
+      (visiblePoints.length > 0 &&
+        (min < visiblePoints[0].x ||
+          max > visiblePoints[visiblePoints.length - 1].x));
+
+    console.log("Data fetch check:", {
+      isAtDataMin,
+      isRangeTooBig,
+      pointsInRange: visiblePoints.length,
+      hasMissingData,
+      currentRange: {
+        start: new Date(min).toISOString(),
+        end: new Date(max).toISOString(),
+      },
+      dataRange: {
+        start: new Date(dataMin).toISOString(),
+        end: new Date(dataMax).toISOString(),
+      },
+      firstPoint: visiblePoints[0]?.x
+        ? new Date(visiblePoints[0].x).toISOString()
+        : null,
+      lastPoint: visiblePoints[visiblePoints.length - 1]?.x
+        ? new Date(visiblePoints[visiblePoints.length - 1].x).toISOString()
+        : null,
+    });
+
+    return (isAtDataMin || hasMissingData) && !isRangeTooBig;
+  };
 
   const handleSetExtremes = debounce(
     (e: Highcharts.AxisSetExtremesEventObject) => {
@@ -136,7 +188,18 @@ const getXAxisOptions = (
         e: Highcharts.AxisSetExtremesEventObject
       ) {
         const axis = this;
+        const chart = axis.chart;
         handleSetExtremes(e);
+
+        console.log("afterSetExtremes:", {
+          trigger: e.trigger,
+          min: new Date(e.min).toISOString(),
+          max: new Date(e.max).toISOString(),
+          minTimestamp: e.min,
+          maxTimestamp: e.max,
+          dataMin: e.dataMin ? new Date(e.dataMin).toISOString() : null,
+          dataMax: e.dataMax ? new Date(e.dataMax).toISOString() : null,
+        });
 
         if (
           e.trigger &&
@@ -146,32 +209,47 @@ const getXAxisOptions = (
         }
 
         if (!fixedSessionTypeSelected || streamId == null) return;
+        if (isFetchingData || isLoading) return;
+        if (e.dataMin === undefined || e.dataMax === undefined) return;
 
-        if (initialDataMin === null && e.dataMin !== undefined) {
+        if (initialDataMin === null) {
           initialDataMin = e.dataMin - MILLISECONDS_IN_A_MONTH;
+          console.log("Setting initialDataMin:", {
+            value: new Date(initialDataMin).toISOString(),
+            timestamp: initialDataMin,
+          });
         }
-        const onScrollbarRelease = () => {
+
+        if (e.trigger === "scrollbar" || e.trigger === "navigator") {
           if (fetchTimeout) clearTimeout(fetchTimeout);
           fetchTimeout = setTimeout(async () => {
-            if (isLoading || isFetchingData) return;
-            const { min, max, dataMin } = axis.getExtremes();
-            if (min === undefined || dataMin === undefined) return;
+            const { min, max, dataMin, dataMax } = axis.getExtremes();
 
-            const buffer = (max - min) * 0.02;
-            const isAtDataMin = min <= dataMin + buffer;
-            if (isAtDataMin) {
+            console.log("Scrollbar movement:", {
+              min: new Date(min).toISOString(),
+              max: new Date(max).toISOString(),
+              dataMin: new Date(dataMin).toISOString(),
+              dataMax: new Date(dataMax).toISOString(),
+            });
+
+            if (shouldFetchData(min, max, dataMin, dataMax, chart)) {
               isFetchingData = true;
               try {
                 const newStart = min - MILLISECONDS_IN_A_MONTH;
+                console.log("Fetching new data:", {
+                  start: new Date(newStart).toISOString(),
+                  end: new Date(min).toISOString(),
+                });
                 await fetchMeasurementsIfNeeded(newStart, min);
               } finally {
                 isFetchingData = false;
                 fetchTimeout = null;
               }
+            } else {
+              console.log("No need to fetch data");
             }
-          }, 800);
-        };
-        onScrollbarRelease();
+          }, 300);
+        }
       },
     },
   };
