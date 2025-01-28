@@ -314,27 +314,21 @@ const Graph: React.FC<GraphProps> = React.memo(
             )
           );
 
-          const nextDay = new Date(
-            Date.UTC(
-              selectedDate.getFullYear(),
-              selectedDate.getMonth(),
-              selectedDate.getDate() + 1,
-              0,
-              0,
-              0,
-              0
-            )
-          );
+          // Calculate exact 24 hours in milliseconds
+          const MILLISECONDS_IN_24_HOURS = 24 * 60 * 60 * 1000;
+          const endTimestamp = startOfDay.getTime() + MILLISECONDS_IN_24_HOURS;
 
           console.log("Setting day range:", {
             start: new Date(startOfDay).toISOString(),
-            end: new Date(nextDay).toISOString(),
+            end: new Date(endTimestamp).toISOString(),
             startTimestamp: startOfDay.getTime(),
-            endTimestamp: nextDay.getTime(),
+            endTimestamp: endTimestamp,
+            duration: MILLISECONDS_IN_24_HOURS,
+            durationInHours: 24,
           });
 
-          chart.xAxis[0].setExtremes(startOfDay.getTime(), nextDay.getTime());
-          fetchMeasurementsIfNeeded(startOfDay.getTime(), nextDay.getTime());
+          chart.xAxis[0].setExtremes(startOfDay.getTime(), endTimestamp);
+          fetchMeasurementsIfNeeded(startOfDay.getTime(), endTimestamp);
         }
       }
     }, [selectedDate, fetchMeasurementsIfNeeded]);

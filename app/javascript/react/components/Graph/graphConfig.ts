@@ -99,17 +99,34 @@ const getXAxisOptions = (
       (point) => point.x >= min && point.x <= max
     );
 
+    // Calculate gaps in data
+    const sortedPoints = visiblePoints.sort((a, b) => a.x - b.x);
+    const maxGapSize = MILLISECONDS_IN_A_DAY; // Consider gaps larger than a day as missing data
+
+    let hasGaps = false;
+    if (sortedPoints.length > 1) {
+      for (let i = 1; i < sortedPoints.length; i++) {
+        const gap = sortedPoints[i].x - sortedPoints[i - 1].x;
+        if (gap > maxGapSize) {
+          hasGaps = true;
+          break;
+        }
+      }
+    }
+
     const hasMissingData =
       visiblePoints.length === 0 ||
       (visiblePoints.length > 0 &&
         (min < visiblePoints[0].x ||
-          max > visiblePoints[visiblePoints.length - 1].x));
+          max > visiblePoints[visiblePoints.length - 1].x)) ||
+      hasGaps;
 
     console.log("Data fetch check:", {
       isAtDataMin,
       isRangeTooBig,
       pointsInRange: visiblePoints.length,
       hasMissingData,
+      hasGaps,
       currentRange: {
         start: new Date(min).toISOString(),
         end: new Date(max).toISOString(),
@@ -124,8 +141,13 @@ const getXAxisOptions = (
       lastPoint: visiblePoints[visiblePoints.length - 1]?.x
         ? new Date(visiblePoints[visiblePoints.length - 1].x).toISOString()
         : null,
+      gapThreshold: `${maxGapSize / (1000 * 60 * 60)} hours`,
     });
 
+    // Fetch data if:
+    // 1. We're at the data minimum, or
+    // 2. We have missing data or gaps
+    // 3. And the requested range isn't too big
     return (isAtDataMin || hasMissingData) && !isRangeTooBig;
   };
 
