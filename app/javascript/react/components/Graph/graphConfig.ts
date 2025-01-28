@@ -70,7 +70,8 @@ const getXAxisOptions = (
   dispatch: AppDispatch,
   isLoading: boolean,
   fetchMeasurementsIfNeeded: (start: number, end: number) => Promise<void>,
-  streamId: number | null
+  streamId: number | null,
+  onDayClick?: (date: Date | null) => void
 ): Highcharts.XAxisOptions => {
   let isFetchingData = false;
   let initialDataMin: number | null = null;
@@ -135,8 +136,14 @@ const getXAxisOptions = (
         e: Highcharts.AxisSetExtremesEventObject
       ) {
         const axis = this;
-
         handleSetExtremes(e);
+
+        if (
+          e.trigger &&
+          ["pan", "navigator", "scrollbar"].includes(e.trigger)
+        ) {
+          onDayClick?.(null);
+        }
 
         if (!fixedSessionTypeSelected || streamId == null) return;
 
