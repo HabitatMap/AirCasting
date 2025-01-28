@@ -56,6 +56,7 @@ const CalendarPage: React.FC<CalendarPageProps> = ({ children }) => {
   const { formattedMinTime, formattedMaxTime } = formatTime(startTime, endTime);
   const [errorMessage, setErrorMessage] = useState("");
   const [initialDataFetched, setInitialDataFetched] = useState(false);
+  const [selectedDate, setSelectedDate] = useState<Date | null>(null);
 
   const calendarIsVisible =
     movingCalendarData.data.length &&
@@ -70,7 +71,7 @@ const CalendarPage: React.FC<CalendarPageProps> = ({ children }) => {
     if (streamId && !fixedStreamData.measurements.length) {
       dispatch(fetchFixedStreamById(streamId));
     }
-  }, [streamId]);
+  }, [streamId, dispatch]); // Added dispatch to dependencies
 
   useEffect(() => {
     window.addEventListener("popstate", handleCalendarGoBack);
@@ -111,11 +112,22 @@ const CalendarPage: React.FC<CalendarPageProps> = ({ children }) => {
     if (fixedStreamData.stream) {
       dispatch(setDefaultThresholdsValues(fixedStreamData.stream));
     }
-  }, [fixedStreamData, streamId, isLoading, streamEndTime, initialDataFetched]);
+  }, [
+    fixedStreamData,
+    streamId,
+    isLoading,
+    streamEndTime,
+    initialDataFetched,
+    dispatch,
+  ]); // Added dispatch to dependencies
 
   useEffect(() => {
     setInitialDataFetched(false);
   }, [streamId]);
+
+  const handleDayClick = (date: Date) => {
+    setSelectedDate(date);
+  };
 
   const renderMobileGraph = () => (
     <S.GraphContainer $isMobile={isMobile}>
@@ -141,6 +153,7 @@ const CalendarPage: React.FC<CalendarPageProps> = ({ children }) => {
               sessionType={SessionTypes.FIXED}
               isCalendarPage={true}
               rangeDisplayRef={rangeDisplayRef}
+              selectedDate={selectedDate}
             />
             <MeasurementComponent />
           </>
@@ -217,6 +230,7 @@ const CalendarPage: React.FC<CalendarPageProps> = ({ children }) => {
             sessionType={SessionTypes.FIXED}
             isCalendarPage={true}
             rangeDisplayRef={rangeDisplayRef}
+            selectedDate={selectedDate}
           />
         }
       />
@@ -236,6 +250,7 @@ const CalendarPage: React.FC<CalendarPageProps> = ({ children }) => {
               streamId={streamId}
               minCalendarDate={fixedStreamData.stream.startTime}
               maxCalendarDate={streamEndTime}
+              onDayClick={handleDayClick}
             />
           ) : (
             <EmptyCalendar />

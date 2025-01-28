@@ -1,4 +1,4 @@
-import React, { useMemo } from "react";
+import React, { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 
 import { MovesKeys } from "../../../types/movesKeys";
@@ -13,12 +13,14 @@ interface CalendarProps {
   streamId: number;
   minCalendarDate: string;
   maxCalendarDate: string;
+  onDayClick: (date: Date) => void;
 }
 
 const Calendar: React.FC<CalendarProps> = ({
   streamId,
   minCalendarDate,
   maxCalendarDate,
+  onDayClick,
 }) => {
   const {
     threeMonthsData,
@@ -29,6 +31,7 @@ const Calendar: React.FC<CalendarProps> = ({
     handleRightClick,
   } = useCalendarHook({ streamId, minCalendarDate, maxCalendarDate });
   const { t } = useTranslation();
+  const [selectedDate, setSelectedDate] = useState<Date | null>(null);
 
   const isMobileView = isMobile();
 
@@ -36,6 +39,11 @@ const Calendar: React.FC<CalendarProps> = ({
     () => (isMobileView ? [...threeMonthsData].reverse() : threeMonthsData),
     [threeMonthsData, isMobileView]
   );
+
+  const handleDayClick = (date: Date) => {
+    setSelectedDate(date);
+    onDayClick(date);
+  };
 
   const MobileSwipeComponent = () => (
     <S.MobileSwipeContainer>
@@ -82,7 +90,12 @@ const Calendar: React.FC<CalendarProps> = ({
       <S.ThreeMonths>
         {!isMobileView && <DesktopSwipeComponent />}
         {sortedThreeMonthsData.map((month) => (
-          <Month key={month.monthName} {...month} />
+          <Month
+            key={month.monthName}
+            {...month}
+            onDayClick={handleDayClick}
+            selectedDate={selectedDate}
+          />
         ))}
       </S.ThreeMonths>
     </>
@@ -101,4 +114,5 @@ const Calendar: React.FC<CalendarProps> = ({
     )
   );
 };
+
 export { Calendar };
