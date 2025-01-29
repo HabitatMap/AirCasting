@@ -53,6 +53,7 @@ import {
   createFixedSeriesData,
   createMobileSeriesData,
 } from "./chartHooks/createGraphData";
+import { useChartUpdater } from "./chartHooks/useChartUpdater";
 import { useMeasurementsFetcher } from "./chartHooks/useMeasurementsFetcher";
 import * as S from "./Graph.style";
 import {
@@ -174,6 +175,15 @@ const Graph: React.FC<GraphProps> = React.memo(
 
     // Hooks to fetch & update chart data
     const { fetchMeasurementsIfNeeded } = useMeasurementsFetcher(streamId);
+    const { updateChartData } = useChartUpdater({
+      chartComponentRef,
+      seriesData,
+      isLoading,
+      lastSelectedTimeRange,
+      fixedSessionTypeSelected,
+      streamId,
+      rangeDisplayRef,
+    });
 
     // Track first load
     const [isFirstLoad, setIsFirstLoad] = useState(true);
