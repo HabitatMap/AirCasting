@@ -77,82 +77,14 @@ const getXAxisOptions = (
   streamId: number | null,
   onDayClick?: (date: Date | null) => void
 ): Highcharts.XAxisOptions => {
-  let isFetchingData = false;
-  let initialDataMin: number | null = null;
   let fetchTimeout: NodeJS.Timeout | null = null;
-
-  const shouldFetchData = (
-    min: number,
-    max: number,
-    dataMin: number,
-    dataMax: number,
-    chart: Highcharts.Chart
-  ) => {
-    const buffer = (max - min) * 0.02;
-    const isAtDataMin = min <= dataMin + buffer;
-    const isRangeTooBig = max - min > MILLISECONDS_IN_A_MONTH;
-
-    // Check if there are points in the current view range
-    const series = chart.series[0];
-    const points = series.points || [];
-    const visiblePoints = points.filter(
-      (point) => point.x >= min && point.x <= max
-    );
-
-    // Calculate gaps in data
-    const sortedPoints = visiblePoints.sort((a, b) => a.x - b.x);
-    const maxGapSize = MILLISECONDS_IN_A_DAY; // Consider gaps larger than a day as missing data
-
-    let hasGaps = false;
-    if (sortedPoints.length > 1) {
-      for (let i = 1; i < sortedPoints.length; i++) {
-        const gap = sortedPoints[i].x - sortedPoints[i - 1].x;
-        if (gap > maxGapSize) {
-          hasGaps = true;
-          break;
-        }
-      }
-    }
-
-    const hasMissingData =
-      visiblePoints.length === 0 ||
-      (visiblePoints.length > 0 &&
-        (min < visiblePoints[0].x ||
-          max > visiblePoints[visiblePoints.length - 1].x)) ||
-      hasGaps;
-
-    console.log("Data fetch check:", {
-      isAtDataMin,
-      isRangeTooBig,
-      pointsInRange: visiblePoints.length,
-      hasMissingData,
-      hasGaps,
-      currentRange: {
-        start: new Date(min).toISOString(),
-        end: new Date(max).toISOString(),
-      },
-      dataRange: {
-        start: new Date(dataMin).toISOString(),
-        end: new Date(dataMax).toISOString(),
-      },
-      firstPoint: visiblePoints[0]?.x
-        ? new Date(visiblePoints[0].x).toISOString()
-        : null,
-      lastPoint: visiblePoints[visiblePoints.length - 1]?.x
-        ? new Date(visiblePoints[visiblePoints.length - 1].x).toISOString()
-        : null,
-      gapThreshold: `${maxGapSize / (1000 * 60 * 60)} hours`,
-    });
-
-    // Fetch data if:
-    // 1. We're at the data minimum, or
-    // 2. We have missing data or gaps
-    // 3. And the requested range isn't too big
-    return (isAtDataMin || hasMissingData) && !isRangeTooBig;
-  };
+  const MAX_GAP_SIZE = MILLISECONDS_IN_A_DAY;
 
   const handleSetExtremes = debounce(
-    (e: Highcharts.AxisSetExtremesEventObject) => {
+    async (
+      e: Highcharts.AxisSetExtremesEventObject,
+      chart: Highcharts.Chart
+    ) => {
       if (!isLoading && e.min !== undefined && e.max !== undefined) {
         if (fixedSessionTypeSelected && streamId !== null) {
           dispatch(
@@ -174,6 +106,42 @@ const getXAxisOptions = (
         if (rangeDisplayRef?.current) {
           const htmlContent = generateTimeRangeHTML(e.min, e.max);
           updateRangeDisplayDOM(rangeDisplayRef.current, htmlContent, true);
+        }
+
+        const { dataMin, dataMax } = chart.xAxis[0].getExtremes();
+        const buffer = (e.max - e.min) * 0.1; // 10% buffer
+
+        // Fetch data for the entire visible range
+        await fetchMeasurementsIfNeeded(e.min, e.max);
+
+        // Check for gaps in the visible range
+        const visiblePoints = chart.series[0].points.filter(
+          (point) => point.x >= e.min && point.x <= e.max
+        );
+
+        if (visiblePoints.length > 1) {
+          let lastTimestamp = visiblePoints[0].x;
+          for (let i = 1; i < visiblePoints.length; i++) {
+            const currentTimestamp = visiblePoints[i].x;
+            const gap = currentTimestamp - lastTimestamp;
+
+            if (gap > MAX_GAP_SIZE) {
+              // Found a gap, fetch data for this range
+              await fetchMeasurementsIfNeeded(lastTimestamp, currentTimestamp);
+            }
+
+            lastTimestamp = currentTimestamp;
+          }
+        }
+
+        // Check if we need to fetch more data at the edges
+        if (e.min <= dataMin + buffer) {
+          const newStart = Math.max(e.min - MILLISECONDS_IN_A_MONTH, 0);
+          await fetchMeasurementsIfNeeded(newStart, e.min);
+        }
+        if (e.max >= dataMax - buffer) {
+          const newEnd = e.max + MILLISECONDS_IN_A_MONTH;
+          await fetchMeasurementsIfNeeded(e.max, newEnd);
         }
       }
     },
@@ -206,70 +174,20 @@ const getXAxisOptions = (
     minRange: MILLISECONDS_IN_A_SECOND,
     ordinal: false,
     events: {
-      afterSetExtremes: async function (
-        e: Highcharts.AxisSetExtremesEventObject
-      ) {
-        const axis = this;
-        const chart = axis.chart;
-        handleSetExtremes(e);
-
-        console.log("afterSetExtremes:", {
-          trigger: e.trigger,
-          min: new Date(e.min).toISOString(),
-          max: new Date(e.max).toISOString(),
-          minTimestamp: e.min,
-          maxTimestamp: e.max,
-          dataMin: e.dataMin ? new Date(e.dataMin).toISOString() : null,
-          dataMax: e.dataMax ? new Date(e.dataMax).toISOString() : null,
-        });
-
+      afterSetExtremes: function (e: Highcharts.AxisSetExtremesEventObject) {
         if (
           e.trigger &&
-          ["pan", "navigator", "scrollbar"].includes(e.trigger)
+          ["pan", "navigator", "scrollbar", "rangeSelectorButton"].includes(
+            e.trigger
+          )
         ) {
           onDayClick?.(null);
-        }
 
-        if (!fixedSessionTypeSelected || streamId == null) return;
-        if (isFetchingData || isLoading) return;
-        if (e.dataMin === undefined || e.dataMax === undefined) return;
+          if (!fixedSessionTypeSelected || streamId == null) return;
 
-        if (initialDataMin === null) {
-          initialDataMin = e.dataMin - MILLISECONDS_IN_A_MONTH;
-          console.log("Setting initialDataMin:", {
-            value: new Date(initialDataMin).toISOString(),
-            timestamp: initialDataMin,
-          });
-        }
-
-        if (e.trigger === "scrollbar" || e.trigger === "navigator") {
           if (fetchTimeout) clearTimeout(fetchTimeout);
-          fetchTimeout = setTimeout(async () => {
-            const { min, max, dataMin, dataMax } = axis.getExtremes();
-
-            console.log("Scrollbar movement:", {
-              min: new Date(min).toISOString(),
-              max: new Date(max).toISOString(),
-              dataMin: new Date(dataMin).toISOString(),
-              dataMax: new Date(dataMax).toISOString(),
-            });
-
-            if (shouldFetchData(min, max, dataMin, dataMax, chart)) {
-              isFetchingData = true;
-              try {
-                const newStart = min - MILLISECONDS_IN_A_MONTH;
-                console.log("Fetching new data:", {
-                  start: new Date(newStart).toISOString(),
-                  end: new Date(min).toISOString(),
-                });
-                await fetchMeasurementsIfNeeded(newStart, min);
-              } finally {
-                isFetchingData = false;
-                fetchTimeout = null;
-              }
-            } else {
-              console.log("No need to fetch data");
-            }
+          fetchTimeout = setTimeout(() => {
+            handleSetExtremes(e, this.chart);
           }, 300);
         }
       },
@@ -411,10 +329,10 @@ const getPlotOptions = (
   };
 };
 
-const seriesOptions = (data: GraphData) => ({
+const seriesOptions = (data: GraphData): Highcharts.SeriesSplineOptions => ({
   type: "spline",
   color: white,
-  data: data,
+  data: data as Array<[number, number]>,
   tooltip: {
     valueDecimals: 2,
   },
