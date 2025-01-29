@@ -17,13 +17,11 @@ export const useMeasurementsFetcher = (streamId: number | null) => {
     try {
       isCurrentlyFetchingRef.current = true;
 
-      // Check if we have data for the requested range
       const hasData = await dispatch(
         checkDataAvailability({ streamId, start, end })
       ).unwrap();
 
       if (!hasData) {
-        // If we don't have data, fetch one month's worth of data
         const fetchStart = start - MILLISECONDS_IN_A_MONTH;
         const fetchEnd = end + MILLISECONDS_IN_A_MONTH;
 
@@ -35,7 +33,6 @@ export const useMeasurementsFetcher = (streamId: number | null) => {
           })
         ).unwrap();
 
-        // Update the Redux store with the new time range
         dispatch(
           updateFetchedTimeRanges({
             streamId,
