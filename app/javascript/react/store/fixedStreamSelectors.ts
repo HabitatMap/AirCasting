@@ -123,6 +123,33 @@ const selectFixedStreamShortInfo = createSelector(
 
 const selectFixedStreamStatus = (state: RootState) => state.fixedStream.status;
 
+export const selectFixedStreamState = (state: RootState) => state.fixedStream;
+
+export const selectFixedData = createSelector(
+  [selectFixedStreamState],
+  (fixedStream) => fixedStream.data
+);
+
+export const selectIsLoading = createSelector(
+  [selectFixedStreamState],
+  (fixedStream) => fixedStream.isLoading
+);
+
+export const selectLastSelectedFixedTimeRange = createSelector(
+  [selectFixedStreamState],
+  (fixedStream) => fixedStream.lastSelectedTimeRange
+);
+
+export const selectStreamMeasurements = createSelector(
+  [
+    selectFixedStreamState,
+    (_state: RootState, streamId: number | null) => streamId,
+  ],
+  (fixedStream, streamId) => {
+    return streamId ? fixedStream.data.measurements || [] : [];
+  }
+);
+
 export {
   selectFixedExtremes,
   selectFixedStreamData,

@@ -1,5 +1,5 @@
 import HighchartsReact from "highcharts-react-official";
-import Highcharts, { type Chart } from "highcharts/highstock";
+import Highcharts, { Chart } from "highcharts/highstock";
 import NoDataToDisplay from "highcharts/modules/no-data-to-display";
 import React, {
   useCallback,
@@ -10,14 +10,15 @@ import React, {
 } from "react";
 import { useTranslation } from "react-i18next";
 import { white } from "../../assets/styles/colors";
-import type { RootState } from "../../store";
-import { selectFixedStreamShortInfo } from "../../store/fixedStreamSelectors";
+import { selectIsLoading, type RootState } from "../../store";
+import {
+  selectFixedStreamShortInfo,
+  selectLastSelectedFixedTimeRange,
+  selectStreamMeasurements,
+} from "../../store/fixedStreamSelectors";
 import {
   resetLastSelectedTimeRange,
   resetTimeRange,
-  selectIsLoading,
-  selectLastSelectedFixedTimeRange,
-  selectStreamMeasurements,
   setLastSelectedTimeRange,
 } from "../../store/fixedStreamSlice";
 import { useAppDispatch, useAppSelector } from "../../store/hooks";
@@ -31,10 +32,10 @@ import {
   setLastSelectedMobileTimeRange,
 } from "../../store/mobileStreamSlice";
 import { selectThresholds } from "../../store/thresholdSlice";
-import { type SessionType, SessionTypes } from "../../types/filters";
-import type { FixedStreamShortInfo } from "../../types/fixedStream";
-import type { GraphData } from "../../types/graph";
-import type { MobileStreamShortInfo } from "../../types/mobileStream";
+import { SessionType, SessionTypes } from "../../types/filters";
+import { FixedStreamShortInfo } from "../../types/fixedStream";
+import { GraphData } from "../../types/graph";
+import { MobileStreamShortInfo } from "../../types/mobileStream";
 import { FixedTimeRange, MobileTimeRange } from "../../types/timeRange";
 import { parseDateString } from "../../utils/dateParser";
 import {
@@ -159,7 +160,6 @@ const Graph: React.FC<GraphProps> = React.memo(
       [startTime, endTime]
     );
 
-    // Pull measurements from Redux
     const measurements = useAppSelector((state: RootState) =>
       selectStreamMeasurements(state, streamId)
     );
@@ -189,17 +189,15 @@ const Graph: React.FC<GraphProps> = React.memo(
     const [isFirstLoad, setIsFirstLoad] = useState(true);
 
     // ----------------------------------------------------------------------------
-    //  STEP 1: Decide which rangeSelector button (if any) is currently highlighted
+    //  Decide which rangeSelector button (if any) is currently highlighted
     //
     //  - If `selectedDate` is not null => we're showing a custom day => highlight none (-1)
     //  - Else => map Redux range to a button index
     // ----------------------------------------------------------------------------
     const computedSelectedRangeIndex = React.useMemo(() => {
       if (selectedDate) {
-        // No built-in button is active when user picks a custom day
-        return -1; // Highcharts uses -1 to indicate no selected button
+        return -1;
       }
-      // Otherwise, highlight whichever range is in our Redux state
       return getSelectedRangeIndex(
         lastSelectedTimeRange,
         fixedSessionTypeSelected
@@ -214,10 +212,10 @@ const Graph: React.FC<GraphProps> = React.memo(
 
       // Set exact 24-hour range from start of selected date
       const startOfDay = new Date(selectedDate);
-      startOfDay.setUTCHours(0, 0, 0, 0); // Set to 00:00:00.000 UTC
+      startOfDay.setUTCHours(0, 0, 0, 0);
 
       const endOfDay = new Date(startOfDay);
-      endOfDay.setUTCDate(endOfDay.getUTCDate() + 1); // Add exactly one day in UTC
+      endOfDay.setUTCDate(endOfDay.getUTCDate() + 1);
 
       // Reset any existing range selection in Redux
       if (fixedSessionTypeSelected) {
@@ -230,7 +228,7 @@ const Graph: React.FC<GraphProps> = React.memo(
       chart.update(
         {
           rangeSelector: {
-            selected: -1, // -1 means no button selected
+            selected: -1,
           },
         },
         false
@@ -446,7 +444,7 @@ const Graph: React.FC<GraphProps> = React.memo(
       handleChartLoad,
     ]);
 
-    // Reset time range in Redux on mount (optional)
+    // Reset time range in Redux on mount
     useEffect(() => {
       dispatch(resetTimeRange());
     }, [dispatch]);

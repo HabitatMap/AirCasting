@@ -14,12 +14,12 @@ import { ResetButton } from "../../components/ThresholdConfigurator/ThresholdBut
 import { ThresholdButtonVariant } from "../../components/ThresholdConfigurator/ThresholdButtons/ThresholdButton";
 import { UniformDistributionButton } from "../../components/ThresholdConfigurator/ThresholdButtons/UniformDistributionButton";
 
-import { selectFixedStreamShortInfo } from "../../store/fixedStreamSelectors";
 import {
-  fetchFixedStreamById,
   selectFixedData,
+  selectFixedStreamShortInfo,
   selectIsLoading,
-} from "../../store/fixedStreamSlice";
+} from "../../store/fixedStreamSelectors";
+import { fetchFixedStreamById } from "../../store/fixedStreamSlice";
 import { useAppDispatch, useAppSelector } from "../../store/hooks";
 import {
   fetchNewMovingStream,
@@ -71,7 +71,7 @@ const CalendarPage: React.FC<CalendarPageProps> = ({ children }) => {
     if (streamId && !fixedStreamData.measurements.length) {
       dispatch(fetchFixedStreamById(streamId));
     }
-  }, [streamId, dispatch]); // Added dispatch to dependencies
+  }, [streamId]);
 
   useEffect(() => {
     window.addEventListener("popstate", handleCalendarGoBack);
@@ -112,14 +112,7 @@ const CalendarPage: React.FC<CalendarPageProps> = ({ children }) => {
     if (fixedStreamData.stream) {
       dispatch(setDefaultThresholdsValues(fixedStreamData.stream));
     }
-  }, [
-    fixedStreamData,
-    streamId,
-    isLoading,
-    streamEndTime,
-    initialDataFetched,
-    dispatch,
-  ]); // Added dispatch to dependencies
+  }, [fixedStreamData, streamId, isLoading, streamEndTime, initialDataFetched]);
 
   useEffect(() => {
     setInitialDataFetched(false);
@@ -129,7 +122,6 @@ const CalendarPage: React.FC<CalendarPageProps> = ({ children }) => {
     setSelectedDate(date);
   };
 
-  // Add effect to reset selected date when stream changes
   useEffect(() => {
     setSelectedDate(null);
   }, [streamId]);

@@ -16,6 +16,7 @@ import {
 import {
   selectFixedStreamData,
   selectFixedStreamStatus,
+  selectIsLoading,
 } from "../../../store/fixedStreamSelectors";
 import { useAppDispatch, useAppSelector } from "../../../store/hooks";
 import { selectHoverStreamId } from "../../../store/mapSlice";
@@ -33,7 +34,6 @@ import { ClusterInfo, ClusterInfoLoading } from "./ClusterInfo/ClusterInfo";
 import { UserSettings } from "../../../types/userStates";
 import HoverMarker from "./HoverMarker/HoverMarker";
 
-import { selectIsLoading } from "../../../store/fixedStreamSlice";
 import { calculateClusterAverage } from "./ClusterMarker/clusterCalculations";
 import { ClusterOverlay } from "./ClusterMarker/clusterOverlay";
 import { LabelOverlay } from "./CustomOverlays/customMarkerLabel";
