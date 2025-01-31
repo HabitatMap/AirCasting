@@ -27,10 +27,10 @@ import {
   fetchActiveFixedSessions,
   fetchDormantFixedSessions,
 } from "../../store/fixedSessionsSlice";
+import { selectFixedData } from "../../store/fixedStreamSelectors";
 import {
   fetchFixedStreamById,
   resetFixedStreamState,
-  selectFixedData,
 } from "../../store/fixedStreamSlice";
 import { useAppDispatch, useAppSelector } from "../../store/hooks";
 import { selectIndoorSessionsList } from "../../store/indoorSessionsSelectors";
