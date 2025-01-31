@@ -27,35 +27,30 @@ interface UseChartUpdaterProps {
   rangeDisplayRef?: React.RefObject<HTMLDivElement>;
 }
 
-export const generateTimeRangeHTML = (min: number, max: number) => {
-  const { formattedMinTime, formattedMaxTime } = formatTimeExtremes(min, max);
+export const generateTimeRangeHTML = (start: number, end: number): string => {
+  const { formattedMaxTime, formattedMinTime } = formatTimeExtremes(start, end);
+
   return `
     <div class="time-container">
-      <span class="date">${formattedMinTime.date || ""}</span>
-      <span class="time">${formattedMinTime.time || ""}</span>
+      <span class="date">${formattedMinTime.date}</span>
+      <span class="time">${formattedMinTime.time}</span>
     </div>
     <span>-</span>
     <div class="time-container">
-      <span class="date">${formattedMaxTime.date || ""}</span>
-      <span class="time">${formattedMaxTime.time || ""}</span>
+      <span class="date">${formattedMaxTime.date}</span>
+      <span class="time">${formattedMaxTime.time}</span>
     </div>
-  `.trim();
+  `;
 };
 
 export const updateRangeDisplayDOM = (
   element: HTMLDivElement,
-  htmlContent: string,
-  clearPrevious: boolean = false
+  content: string,
+  shouldReplace: boolean = false
 ) => {
-  if (clearPrevious) {
-    element.innerHTML = "";
+  if (shouldReplace) {
+    element.innerHTML = content;
   }
-
-  requestAnimationFrame(() => {
-    element.innerHTML = htmlContent;
-    void element.offsetHeight;
-    void element.getBoundingClientRect();
-  });
 };
 
 export const useChartUpdater = ({
@@ -70,6 +65,19 @@ export const useChartUpdater = ({
   const isFirstRender = useRef(true);
   const lastRangeRef = useRef<number | null>(null);
   const dispatch = useAppDispatch();
+  const updateTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Cleanup function
+  useEffect(() => {
+    return () => {
+      if (updateTimeoutRef.current) {
+        clearTimeout(updateTimeoutRef.current);
+      }
+      if (rangeDisplayRef?.current) {
+        rangeDisplayRef.current.innerHTML = "";
+      }
+    };
+  }, []);
 
   const updateChartData = useCallback(
     (
@@ -113,12 +121,51 @@ export const useChartUpdater = ({
     (min: number, max: number) => {
       if (!rangeDisplayRef?.current) return;
 
-      const htmlContent = generateTimeRangeHTML(min, max);
-      updateRangeDisplayDOM(rangeDisplayRef.current, htmlContent, true);
+      // Clear any pending updates
+      if (updateTimeoutRef.current) {
+        clearTimeout(updateTimeoutRef.current);
+      }
+
+      // Schedule the update
+      updateTimeoutRef.current = setTimeout(() => {
+        if (rangeDisplayRef.current) {
+          rangeDisplayRef.current.innerHTML = "";
+          const htmlContent = generateTimeRangeHTML(min, max);
+          updateRangeDisplayDOM(rangeDisplayRef.current, htmlContent, true);
+        }
+      }, 0);
     },
     [rangeDisplayRef]
   );
 
+  // Single effect for time range display updates
+  useEffect(() => {
+    if (!chartComponentRef.current?.chart || isLoading) return;
+
+    const chart = chartComponentRef.current.chart;
+    const { min, max } = chart.xAxis[0].getExtremes();
+
+    if (min !== undefined && max !== undefined) {
+      // Clear existing content before update
+      if (rangeDisplayRef?.current) {
+        rangeDisplayRef.current.innerHTML = "";
+      }
+      updateTimeRangeDisplay(min, max);
+    }
+
+    return () => {
+      if (updateTimeoutRef.current) {
+        clearTimeout(updateTimeoutRef.current);
+      }
+    };
+  }, [
+    chartComponentRef,
+    isLoading,
+    updateTimeRangeDisplay,
+    lastSelectedTimeRange,
+  ]);
+
+  // Remove updateTimeRangeDisplay calls from other effects
   useEffect(() => {
     if (!seriesData || isLoading || !chartComponentRef.current?.chart) return;
 
@@ -183,16 +230,6 @@ export const useChartUpdater = ({
     streamId,
     updateTimeRangeDisplay,
   ]);
-
-  useEffect(() => {
-    if (!seriesData || isLoading || !chartComponentRef.current?.chart) return;
-
-    const chart = chartComponentRef.current.chart;
-    const { min, max } = chart.xAxis[0].getExtremes();
-    if (min !== undefined && max !== undefined) {
-      updateTimeRangeDisplay(min, max);
-    }
-  }, [seriesData, isLoading, updateTimeRangeDisplay]);
 
   useEffect(() => {
     return () => {

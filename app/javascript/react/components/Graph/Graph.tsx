@@ -206,35 +206,18 @@ const Graph: React.FC<GraphProps> = React.memo(
       );
     }, [selectedDate, lastSelectedTimeRange, fixedSessionTypeSelected]);
 
-    // Modify the selectedDate effect to prevent multiple triggers
+    // Modify the selectedDate effect
     useEffect(() => {
       if (!chartComponentRef.current?.chart || !selectedDate) return;
 
       const chart = chartComponentRef.current.chart;
 
-      // Prevent re-running if we're already showing this date
-      const currentExtremes = chart.xAxis[0].getExtremes();
-      const startOfDay = new Date(
-        Date.UTC(
-          selectedDate.getFullYear(),
-          selectedDate.getMonth(),
-          selectedDate.getDate(),
-          0,
-          0,
-          0,
-          0
-        )
-      );
-      const MILLISECONDS_IN_24_HOURS = 24 * 60 * 60 * 1000;
-      const endTimestamp = startOfDay.getTime() + MILLISECONDS_IN_24_HOURS;
+      // Set exact 24-hour range from start of selected date
+      const startOfDay = new Date(selectedDate);
+      startOfDay.setUTCHours(0, 0, 0, 0); // Set to 00:00:00.000 UTC
 
-      // Only update if the range has changed
-      if (
-        currentExtremes.min === startOfDay.getTime() &&
-        currentExtremes.max === endTimestamp
-      ) {
-        return;
-      }
+      const endOfDay = new Date(startOfDay);
+      endOfDay.setUTCDate(endOfDay.getUTCDate() + 1); // Add exactly one day in UTC
 
       // Reset any existing range selection in Redux
       if (fixedSessionTypeSelected) {
@@ -243,7 +226,7 @@ const Graph: React.FC<GraphProps> = React.memo(
         dispatch(resetLastSelectedMobileTimeRange());
       }
 
-      // Update chart in a single operation to prevent multiple redraws
+      // Update chart in a single operation
       chart.update(
         {
           rangeSelector: {
@@ -251,11 +234,13 @@ const Graph: React.FC<GraphProps> = React.memo(
           },
         },
         false
-      ); // false prevents redraw
+      );
 
-      chart.xAxis[0].setExtremes(startOfDay.getTime(), endTimestamp);
+      const startTime = startOfDay.getTime();
+      const endTime = endOfDay.getTime();
 
-      fetchMeasurementsIfNeeded(startOfDay.getTime(), endTimestamp);
+      chart.xAxis[0].setExtremes(startTime, endTime);
+      fetchMeasurementsIfNeeded(startTime, endTime);
     }, [
       selectedDate,
       fetchMeasurementsIfNeeded,
