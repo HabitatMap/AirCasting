@@ -1,17 +1,22 @@
 import React from "react";
 
-import * as S from "./DayView.style";
 import { Thresholds } from "../../types/thresholds";
+import * as S from "./DayView.style";
 
 interface DayViewProps {
   value: number;
   date: Date;
   thresholdsValues: Thresholds;
+  onClick?: (date: Date) => void;
 }
 
-const DayView = ({ value, date, thresholdsValues }: DayViewProps) => {
+const DayView = ({ value, date, thresholdsValues, onClick }: DayViewProps) => {
+  const handleClick = () => {
+    onClick?.(date);
+  };
+
   return (
-    <S.Container>
+    <S.Container onClick={handleClick}>
       <S.DesktopLabel>{value} (µg/m)</S.DesktopLabel>
       <S.BackgroundBarContainer
         $value={value}

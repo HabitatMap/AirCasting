@@ -45,6 +45,13 @@ import {
   updateRangeDisplayDOM,
 } from "./chartHooks/useChartUpdater";
 
+interface ExtendedAxisSetExtremesEventObject
+  extends Highcharts.AxisSetExtremesEventObject {
+  rangeSelectorButton?: {
+    index: number;
+  };
+}
+
 const getScrollbarOptions = (isCalendarPage: boolean, isMobile: boolean) => {
   return {
     barBackgroundColor: gray200,
@@ -62,7 +69,6 @@ const getScrollbarOptions = (isCalendarPage: boolean, isMobile: boolean) => {
     minWidth: isMobile ? 30 : 8,
   };
 };
-
 const getXAxisOptions = (
   isMobile: boolean,
   rangeDisplayRef: React.RefObject<HTMLDivElement> | undefined,
@@ -70,15 +76,73 @@ const getXAxisOptions = (
   dispatch: AppDispatch,
   isLoading: boolean,
   fetchMeasurementsIfNeeded: (start: number, end: number) => Promise<void>,
-  streamId: number | null
+  streamId: number | null,
+  savedTimeRanges: Array<{ start: number; end: number }>
 ): Highcharts.XAxisOptions => {
   let isFetchingData = false;
   let initialDataMin: number | null = null;
-  let fetchTimeout: NodeJS.Timeout | null = null;
+  let isFirstLoad = true;
+  let lastFetchTime = 0;
+  let lastSelectedRange: number | null = null;
+
+  const checkIfDataExists = (start: number, end: number) => {
+    if (!start || !end || isNaN(start) || isNaN(end)) {
+      return true;
+    }
+
+    return savedTimeRanges.some(
+      (range) => range.start <= start && range.end >= end
+    );
+  };
+
+  const shouldFetch = () => {
+    const now = Date.now();
+    if (now - lastFetchTime < 1000) {
+      return false;
+    }
+    lastFetchTime = now;
+    return true;
+  };
 
   const handleSetExtremes = debounce(
-    (e: Highcharts.AxisSetExtremesEventObject) => {
+    async (e: ExtendedAxisSetExtremesEventObject) => {
       if (!isLoading && e.min !== undefined && e.max !== undefined) {
+        if (
+          fixedSessionTypeSelected &&
+          streamId &&
+          e.trigger === "rangeSelectorButton" &&
+          shouldFetch()
+        ) {
+          if (e.rangeSelectorButton?.index !== undefined) {
+            lastSelectedRange = e.rangeSelectorButton.index;
+          }
+
+          const hasData = checkIfDataExists(e.min, e.max);
+
+          if (!hasData && !isFetchingData) {
+            isFetchingData = true;
+            try {
+              await fetchMeasurementsIfNeeded(e.min, e.max);
+
+              const chart = (
+                e.target as unknown as {
+                  chart: Highcharts.Chart & {
+                    rangeSelector?: {
+                      clickButton: (index: number, redraw?: boolean) => void;
+                    };
+                  };
+                }
+              ).chart;
+
+              if (lastSelectedRange !== null && chart?.rangeSelector) {
+                chart.rangeSelector.clickButton(lastSelectedRange, true);
+              }
+            } finally {
+              isFetchingData = false;
+            }
+          }
+        }
+
         if (fixedSessionTypeSelected && streamId !== null) {
           dispatch(
             updateFixedMeasurementExtremes({
@@ -104,6 +168,29 @@ const getXAxisOptions = (
     },
     300
   );
+
+  const onScrollbarRelease = debounce(async (axis: Highcharts.Axis) => {
+    if (isLoading || isFetchingData) return;
+    const { min, max, dataMin } = axis.getExtremes();
+    if (min === undefined || max === undefined || dataMin === undefined) return;
+
+    const buffer = (max - min) * 0.02;
+    const isAtDataMin = min <= dataMin + buffer;
+    if (isAtDataMin) {
+      const newStart = min - MILLISECONDS_IN_A_MONTH;
+
+      if (!checkIfDataExists(newStart, min)) {
+        isFetchingData = true;
+        try {
+          await fetchMeasurementsIfNeeded(newStart, min);
+        } finally {
+          isFetchingData = false;
+        }
+      } else {
+        console.log("Skipping scrollbar fetch: data already exists");
+      }
+    }
+  }, 800);
 
   return {
     title: {
@@ -131,40 +218,98 @@ const getXAxisOptions = (
     minRange: MILLISECONDS_IN_A_SECOND,
     ordinal: false,
     events: {
-      afterSetExtremes: async function (
-        e: Highcharts.AxisSetExtremesEventObject
-      ) {
-        const axis = this;
-
+      afterSetExtremes: async function (e: ExtendedAxisSetExtremesEventObject) {
         handleSetExtremes(e);
-
-        if (!fixedSessionTypeSelected || streamId == null) return;
 
         if (initialDataMin === null && e.dataMin !== undefined) {
           initialDataMin = e.dataMin - MILLISECONDS_IN_A_MONTH;
         }
-        const onScrollbarRelease = () => {
-          if (fetchTimeout) clearTimeout(fetchTimeout);
-          fetchTimeout = setTimeout(async () => {
-            if (isLoading || isFetchingData) return;
-            const { min, max, dataMin } = axis.getExtremes();
-            if (min === undefined || dataMin === undefined) return;
 
-            const buffer = (max - min) * 0.02;
-            const isAtDataMin = min <= dataMin + buffer;
-            if (isAtDataMin) {
+        if (isFirstLoad && !e.trigger?.includes("scrollbar")) {
+          isFirstLoad = false;
+          return;
+        }
+
+        if (
+          !fixedSessionTypeSelected ||
+          !streamId ||
+          isLoading ||
+          isFetchingData
+        )
+          return;
+
+        if (e.min !== undefined && e.max !== undefined) {
+          const minDate = new Date(e.min);
+          const maxDate = new Date(e.max);
+
+          // Get month range
+          const monthStart = new Date(
+            minDate.getFullYear(),
+            minDate.getMonth(),
+            1,
+            0,
+            0,
+            0,
+            0
+          ).getTime();
+
+          const monthEnd = new Date(
+            maxDate.getFullYear(),
+            maxDate.getMonth() + 1,
+            0,
+            23,
+            59,
+            59,
+            999
+          ).getTime();
+
+          // Check if we're at the data edge
+          const { dataMin } = this.getExtremes();
+          const isAtDataEdge = e.min <= dataMin + (e.max - e.min) * 0.1; // Within 10% of the edge
+
+          if (isAtDataEdge) {
+            // Fetch an additional month before the current view
+            const prevMonthStart = new Date(
+              minDate.getFullYear(),
+              minDate.getMonth() - 1,
+              1,
+              0,
+              0,
+              0,
+              0
+            ).getTime();
+
+            const hasData = savedTimeRanges.some(
+              (range) => range.start <= prevMonthStart && range.end >= monthEnd
+            );
+
+            if (!hasData) {
               isFetchingData = true;
               try {
-                const newStart = min - MILLISECONDS_IN_A_MONTH;
-                await fetchMeasurementsIfNeeded(newStart, min);
+                await fetchMeasurementsIfNeeded(prevMonthStart, monthEnd);
               } finally {
                 isFetchingData = false;
-                fetchTimeout = null;
               }
             }
-          }, 800);
-        };
-        onScrollbarRelease();
+          } else {
+            // Normal range check
+            const hasData = savedTimeRanges.some(
+              (range) => range.start <= monthStart && range.end >= monthEnd
+            );
+
+            if (!hasData) {
+              isFetchingData = true;
+              try {
+                await fetchMeasurementsIfNeeded(monthStart, monthEnd);
+              } finally {
+                isFetchingData = false;
+              }
+            }
+          }
+        }
+
+        // Call onScrollbarRelease after each extreme change
+        onScrollbarRelease(this);
       },
     },
   };
