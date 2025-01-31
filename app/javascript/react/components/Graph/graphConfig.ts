@@ -40,10 +40,6 @@ import {
   MILLISECONDS_IN_A_WEEK,
   MILLISECONDS_IN_AN_HOUR,
 } from "../../utils/timeRanges";
-import {
-  generateTimeRangeHTML,
-  updateRangeDisplayDOM,
-} from "./chartHooks/useChartUpdater";
 
 const getScrollbarOptions = (isCalendarPage: boolean, isMobile: boolean) => {
   return {
@@ -103,18 +99,11 @@ const getXAxisOptions = (
           );
         }
 
-        if (rangeDisplayRef?.current) {
-          const htmlContent = generateTimeRangeHTML(e.min, e.max);
-          updateRangeDisplayDOM(rangeDisplayRef.current, htmlContent, true);
-        }
-
         const { dataMin, dataMax } = chart.xAxis[0].getExtremes();
-        const buffer = (e.max - e.min) * 0.1; // 10% buffer
+        const buffer = (e.max - e.min) * 0.1;
 
-        // Fetch data for the entire visible range
         await fetchMeasurementsIfNeeded(e.min, e.max);
 
-        // Check for gaps in the visible range
         const visiblePoints = chart.series[0].points.filter(
           (point) => point.x >= e.min && point.x <= e.max
         );
@@ -126,7 +115,6 @@ const getXAxisOptions = (
             const gap = currentTimestamp - lastTimestamp;
 
             if (gap > MAX_GAP_SIZE) {
-              // Found a gap, fetch data for this range
               await fetchMeasurementsIfNeeded(lastTimestamp, currentTimestamp);
             }
 
@@ -134,7 +122,6 @@ const getXAxisOptions = (
           }
         }
 
-        // Check if we need to fetch more data at the edges
         if (e.min <= dataMin + buffer) {
           const newStart = Math.max(e.min - MILLISECONDS_IN_A_MONTH, 0);
           await fetchMeasurementsIfNeeded(newStart, e.min);
