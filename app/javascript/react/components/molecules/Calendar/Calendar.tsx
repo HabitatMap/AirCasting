@@ -42,6 +42,12 @@ const Calendar: React.FC<CalendarProps> = ({
   );
 
   const handleDayClick = (date: Date) => {
+    console.log("Calendar Day Click:", {
+      clickedDate: date,
+      currentSelectedDate: selectedDate,
+      threeMonthsData,
+    });
+
     if (selectedDate && date.getTime() === selectedDate.getTime()) {
       onDayClick(null);
     } else {
