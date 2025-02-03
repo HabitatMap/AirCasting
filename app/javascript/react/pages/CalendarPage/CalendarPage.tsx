@@ -1,6 +1,7 @@
 import moment from "moment";
 import React, { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { useSearchParams } from "react-router-dom";
 
 import { Graph } from "../../components/Graph";
 import MeasurementComponent from "../../components/Graph/MeasurementComponent";
@@ -46,6 +47,7 @@ const CalendarPage: React.FC<CalendarPageProps> = ({ children }) => {
   const { t } = useTranslation();
   const handleCalendarGoBack = useCalendarBackNavigation();
   const { unitSymbol, streamId } = useMapParams();
+  const [searchParams, setSearchParams] = useSearchParams();
 
   const fixedStreamData = useAppSelector(selectFixedData);
   const movingCalendarData = useAppSelector(movingData);
@@ -86,6 +88,13 @@ const CalendarPage: React.FC<CalendarPageProps> = ({ children }) => {
       fixedStreamData.stream.startTime &&
       streamEndTime
     ) {
+      console.log("Calendar Page Initial Data Fetch:", {
+        streamId,
+        startTime: fixedStreamData.stream.startTime,
+        endTime: streamEndTime,
+        initialDataFetched,
+      });
+
       const startMoment = moment(fixedStreamData.stream.startTime);
       const endMoment = moment(streamEndTime);
 
@@ -112,18 +121,53 @@ const CalendarPage: React.FC<CalendarPageProps> = ({ children }) => {
     if (fixedStreamData.stream) {
       dispatch(setDefaultThresholdsValues(fixedStreamData.stream));
     }
-  }, [fixedStreamData, streamId, isLoading, streamEndTime, initialDataFetched]);
+  }, [fixedStreamData, streamId, isLoading, streamEndTime]);
 
   useEffect(() => {
-    setInitialDataFetched(false);
+    if (!streamId) {
+      setInitialDataFetched(false);
+    }
   }, [streamId]);
 
   const handleDayClick = (date: Date | null) => {
+    console.log("Calendar Page Day Click:", {
+      newDate: date,
+      currentSelectedDate: selectedDate,
+    });
+
+    if (date) {
+      const formattedDate = moment(date).format("YYYY-MM-DD");
+      setSearchParams((prev) => {
+        const newParams = new URLSearchParams(prev);
+        newParams.set("selectedDate", formattedDate);
+        return newParams;
+      });
+    } else {
+      setSearchParams((prev) => {
+        const newParams = new URLSearchParams(prev);
+        newParams.delete("selectedDate");
+        return newParams;
+      });
+    }
+
     setSelectedDate(date);
   };
 
   useEffect(() => {
+    const selectedDateParam = searchParams.get("selectedDate");
+    if (selectedDateParam) {
+      const date = moment(selectedDateParam).toDate();
+      setSelectedDate(date);
+    }
+  }, []);
+
+  useEffect(() => {
     setSelectedDate(null);
+    setSearchParams((prev) => {
+      const newParams = new URLSearchParams(prev);
+      newParams.delete("selectedDate");
+      return newParams;
+    });
   }, [streamId]);
 
   const renderMobileGraph = () => (
