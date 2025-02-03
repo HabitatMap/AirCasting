@@ -1,5 +1,10 @@
 import { Cluster } from "@googlemaps/markerclusterer";
-import { green, orange, red, yellow } from "../../../../assets/styles/colors";
+import {
+  green100,
+  orange100,
+  red100,
+  yellow100,
+} from "../../../../assets/styles/colors";
 import { setAverage } from "../../../../store/clusterSlice";
 import { useAppDispatch } from "../../../../store/hooks";
 import { CustomMarker } from "../../../../types/googleMaps";
@@ -38,7 +43,7 @@ export const createFixedMarkersRenderer = ({
       else if (average <= thresholds.high) styleIndex = 2;
       else styleIndex = 3;
 
-      const color = [green, yellow, orange, red][styleIndex];
+      const color = [green100, yellow100, orange100, red100][styleIndex];
 
       const clusterIcon = createClusterIcon(color, false);
 

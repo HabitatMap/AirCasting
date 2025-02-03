@@ -55,11 +55,11 @@ const ThresholdSlider: React.FC<ThresholdSliderProps> = ({
   const dispatch = useAppDispatch();
 
   const colorsMap = {
-    min: colors.green,
-    low: colors.yellow,
-    middle: colors.orange,
-    high: colors.red,
-    max: colors.red,
+    min: colors.green100,
+    low: colors.yellow100,
+    middle: colors.orange100,
+    high: colors.red100,
+    max: colors.red100,
   };
 
   const debouncedSetUserThresholdValues = useMemo(
