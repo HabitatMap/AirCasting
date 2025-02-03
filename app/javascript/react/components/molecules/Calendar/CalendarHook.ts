@@ -110,6 +110,13 @@ const useCalendarHook = ({
     const processedMaxEndDate = formattedDateRange.lastDate;
     const processedFirstDataPoint = formattedDateRange.firstDate;
 
+    console.log("Calendar Hook Initial Setup:", {
+      maxEndDate: processedMaxEndDate,
+      firstDataPoint: processedFirstDataPoint,
+      minCalendarDate,
+      maxCalendarDate,
+    });
+
     const startMoment = moment(
       formattedDateRange.lastDateNoFormat,
       DateFormat.default
@@ -130,6 +137,12 @@ const useCalendarHook = ({
 
   useEffect(() => {
     if (!dateReference.currentEndDate) return;
+
+    console.log("Calendar Direction Update:", {
+      direction: dateReference.direction,
+      currentEndDate: dateReference.currentEndDate,
+      trigger: dateReference.triggerDirectionUpdate,
+    });
 
     const dateMoment = moment(dateReference.currentEndDate, DateFormat.us);
     let newEndMoment: Moment;
@@ -185,6 +198,11 @@ const useCalendarHook = ({
   }, [dateReference.triggerDirectionUpdate]);
 
   useEffect(() => {
+    console.log("Moving Calendar Data Update:", {
+      data: movingCalendarData,
+      currentDateReference: dateReference,
+    });
+
     const formattedDateRange = getFormattedDateRange();
     const processedMaxEndDate = formattedDateRange.lastDate;
     const processedFirstDataPoint = formattedDateRange.firstDate;
