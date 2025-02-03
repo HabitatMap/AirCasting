@@ -1,7 +1,6 @@
 import moment from "moment";
 import React, { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { useSearchParams } from "react-router-dom";
 
 import { Graph } from "../../components/Graph";
 import MeasurementComponent from "../../components/Graph/MeasurementComponent";
@@ -47,7 +46,6 @@ const CalendarPage: React.FC<CalendarPageProps> = ({ children }) => {
   const { t } = useTranslation();
   const handleCalendarGoBack = useCalendarBackNavigation();
   const { unitSymbol, streamId } = useMapParams();
-  const [searchParams, setSearchParams] = useSearchParams();
 
   const fixedStreamData = useAppSelector(selectFixedData);
   const movingCalendarData = useAppSelector(movingData);
@@ -134,40 +132,11 @@ const CalendarPage: React.FC<CalendarPageProps> = ({ children }) => {
       newDate: date,
       currentSelectedDate: selectedDate,
     });
-
-    if (date) {
-      const formattedDate = moment(date).format("YYYY-MM-DD");
-      setSearchParams((prev) => {
-        const newParams = new URLSearchParams(prev);
-        newParams.set("selectedDate", formattedDate);
-        return newParams;
-      });
-    } else {
-      setSearchParams((prev) => {
-        const newParams = new URLSearchParams(prev);
-        newParams.delete("selectedDate");
-        return newParams;
-      });
-    }
-
     setSelectedDate(date);
   };
 
   useEffect(() => {
-    const selectedDateParam = searchParams.get("selectedDate");
-    if (selectedDateParam) {
-      const date = moment(selectedDateParam).toDate();
-      setSelectedDate(date);
-    }
-  }, []);
-
-  useEffect(() => {
     setSelectedDate(null);
-    setSearchParams((prev) => {
-      const newParams = new URLSearchParams(prev);
-      newParams.delete("selectedDate");
-      return newParams;
-    });
   }, [streamId]);
 
   const renderMobileGraph = () => (
