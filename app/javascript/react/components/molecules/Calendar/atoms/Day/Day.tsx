@@ -13,7 +13,6 @@ interface DayProps extends CalendarCellData, Thresholds {
 const Day: React.FC<DayProps> = ({
   dayNumber,
   value,
-  date,
   onClick,
   isSelected,
   min,
@@ -24,14 +23,19 @@ const Day: React.FC<DayProps> = ({
 }: DayProps) => {
   return (
     <S.Day
-      $borderColor={getColorForValue(thresholds, value, true)}
-      $color={getColorForValue({ min, low, middle, high, max }, value)}
       $isSelected={isSelected}
-      onClick={onClick}
+      onClick={value !== null ? onClick : undefined}
+      $color={getColorForValue({ min, low, middle, high, max }, value)}
+      $borderColor={getColorForValue(
+        { min, low, middle, high, max },
+        value,
+        true
+      )}
+      $hasValue={value !== null}
     >
       <S.DayNumber $isVisible={true}>{dayNumber}</S.DayNumber>
       <S.ValueContainer $isVisible={true}>
-        <S.Value>{value !== null ? value : "-"}</S.Value>
+        <S.Value>{value !== null ? value : ""}</S.Value>
       </S.ValueContainer>
     </S.Day>
   );
