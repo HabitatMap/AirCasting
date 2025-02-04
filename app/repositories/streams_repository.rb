@@ -25,6 +25,10 @@ class StreamsRepository
       .find_by(sessions: { uuid: session_uuid }, sensor_name: sensor_name)
   end
 
+  def create!(params:)
+    Stream.create!(params)
+  end
+
   def calculate_bounding_box!(
     stream,
     calculator = Outliers::CalculateBoundingBox.new
@@ -59,5 +63,9 @@ class StreamsRepository
     stream.start_longitude = first_measurement.longitude
     stream.start_latitude = first_measurement.latitude
     stream.save!
+  end
+
+  def update_measurements_count!(stream_id:, measurements_count:)
+    Stream.update_counters(stream_id, measurements_count: measurements_count)
   end
 end
