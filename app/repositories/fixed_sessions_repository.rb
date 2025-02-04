@@ -11,7 +11,7 @@ class FixedSessionsRepository
 
   def update_end_timestamps!(session:, last_measurement:)
     session.end_time_local = last_measurement.time
-    session.last_measurement_at = last_measurement.time_with_time_zone
+    session.last_measurement_at = last_measurement.time_with_time_zone.utc
 
     session.save!
   end
