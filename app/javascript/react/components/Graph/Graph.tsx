@@ -210,12 +210,35 @@ const Graph: React.FC<GraphProps> = React.memo(
 
       const chart = chartComponentRef.current.chart;
 
-      // Set exact 24-hour range from start of selected date
-      const startOfDay = new Date(selectedDate);
-      startOfDay.setUTCHours(0, 0, 0, 0);
+      // Get stream start and end times
+      const selectedTime = selectedDate.getTime();
+      const streamStartTime = parseDateString(fixedStreamShortInfo.startTime);
+      const streamEndTime = fixedStreamShortInfo.endTime
+        ? parseDateString(fixedStreamShortInfo.endTime)
+        : Date.now();
 
-      const endOfDay = new Date(startOfDay);
-      endOfDay.setUTCDate(endOfDay.getUTCDate() + 1);
+      // Check if selected date is close to stream boundaries
+      const isNearStartTime =
+        Math.abs(selectedTime - streamStartTime) < MILLISECONDS_IN_A_DAY;
+      const isNearEndTime =
+        Math.abs(selectedTime - streamEndTime) < MILLISECONDS_IN_A_DAY;
+
+      // Set range based on proximity to stream boundaries
+      const startOfRange = isNearStartTime
+        ? streamStartTime // Use actual stream start if near beginning
+        : (() => {
+            const startOfDay = new Date(selectedDate);
+            startOfDay.setUTCHours(0, 0, 0, 0);
+            return startOfDay.getTime();
+          })();
+
+      const endOfRange = isNearEndTime
+        ? streamEndTime // Use actual stream end if near end
+        : (() => {
+            const endOfDay = new Date(selectedDate);
+            endOfDay.setUTCDate(endOfDay.getUTCDate() + 1);
+            return endOfDay.getTime();
+          })();
 
       // Reset any existing range selection in Redux
       if (fixedSessionTypeSelected) {
@@ -234,16 +257,15 @@ const Graph: React.FC<GraphProps> = React.memo(
         false
       );
 
-      const startTime = startOfDay.getTime();
-      const endTime = endOfDay.getTime();
-
-      chart.xAxis[0].setExtremes(startTime, endTime);
-      fetchMeasurementsIfNeeded(startTime, endTime);
+      chart.xAxis[0].setExtremes(startOfRange, endOfRange);
+      fetchMeasurementsIfNeeded(startOfRange, endOfRange);
     }, [
       selectedDate,
       fetchMeasurementsIfNeeded,
       dispatch,
       fixedSessionTypeSelected,
+      fixedStreamShortInfo.startTime,
+      fixedStreamShortInfo.endTime,
     ]);
 
     const handleRangeSelectorClick = useCallback(
@@ -336,7 +358,6 @@ const Graph: React.FC<GraphProps> = React.memo(
         },
         xAxis: getXAxisOptions(
           isMobile,
-          rangeDisplayRef,
           fixedSessionTypeSelected,
           dispatch,
           isLoading,

@@ -65,7 +65,6 @@ const getScrollbarOptions = (isCalendarPage: boolean, isMobile: boolean) => {
 
 const getXAxisOptions = (
   isMobile: boolean,
-  rangeDisplayRef: React.RefObject<HTMLDivElement> | undefined,
   fixedSessionTypeSelected: boolean,
   dispatch: AppDispatch,
   isLoading: boolean,
@@ -132,7 +131,7 @@ const getXAxisOptions = (
         }
       }
     },
-    300
+    100
   );
 
   return {
@@ -175,7 +174,7 @@ const getXAxisOptions = (
           if (fetchTimeout) clearTimeout(fetchTimeout);
           fetchTimeout = setTimeout(() => {
             handleSetExtremes(e, this.chart);
-          }, 300);
+          }, 100);
         }
       },
     },
