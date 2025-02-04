@@ -45,6 +45,8 @@ Rails.application.routes.draw do
       end
     end
 
+    post 'realtime/measurements' => 'v3/fixed_streaming/measurements#create'
+
     get 'averages' => 'averages#index'
     get 'averages2' => 'averages#index2'
     resources :thresholds, only: %i[show], id: /.*/
@@ -71,7 +73,6 @@ Rails.application.routes.draw do
     namespace :realtime do
       get 'sync_measurements' => 'sessions#sync_measurements'
       resources :sessions, only: %i[create show]
-      resources :measurements, only: :create
     end
 
     namespace :fixed do
