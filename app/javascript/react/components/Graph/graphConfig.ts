@@ -345,10 +345,33 @@ const getTooltipOptions = (
   enabled: true,
   formatter: function (this: Highcharts.TooltipFormatterContextObject): string {
     const date = Highcharts.dateFormat("%m/%d/%Y", Number(this.x));
-    const time = Highcharts.dateFormat("%H:%M:%S", Number(this.x));
     const pointData = this.points ? this.points[0] : this.point;
-    let s = `<span>${date} `;
-    s += Highcharts.dateFormat("%H:%M:%S", this.x as number) + "</span>";
+    const point = pointData as any;
+
+    console.log("Series info:", {
+      hasDataGrouping: !!point.series.dataGrouping,
+      groupingEnabled: point.series.dataGrouping?.enabled,
+      currentDataGrouping: point.series.currentDataGrouping,
+      point: point,
+    });
+
+    const isGrouped =
+      point.series.hasGroupedData && point.series.currentDataGrouping;
+
+    let timeStr;
+    if (isGrouped) {
+      const groupingInfo = point.series.currentDataGrouping;
+      const start = point.x;
+      const end = start + groupingInfo.unitRange;
+
+      const startTime = Highcharts.dateFormat("%H:%M:%S", start);
+      const endTime = Highcharts.dateFormat("%H:%M:%S", end);
+      timeStr = `${startTime} - ${endTime}`;
+    } else {
+      timeStr = Highcharts.dateFormat("%H:%M:%S", Number(this.x));
+    }
+
+    let s = `<span>${date} ${timeStr}</span>`;
     s +=
       "<br/>" +
       measurementType +
@@ -356,6 +379,12 @@ const getTooltipOptions = (
       Math.round(Number(pointData.y)) +
       " " +
       unitSymbol;
+
+    if (isGrouped) {
+      const groupingInfo = point.series.currentDataGrouping;
+      s += ` (averaged over ${groupingInfo.unitName})`;
+    }
+
     return s;
   },
   borderWidth: 0,
