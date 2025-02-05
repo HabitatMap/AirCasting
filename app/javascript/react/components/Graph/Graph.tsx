@@ -17,6 +17,7 @@ import {
   selectStreamMeasurements,
 } from "../../store/fixedStreamSelectors";
 import {
+  resetFixedMeasurementExtremes,
   resetLastSelectedTimeRange,
   resetTimeRange,
   setLastSelectedTimeRange,
@@ -542,6 +543,16 @@ const Graph: React.FC<GraphProps> = React.memo(
         observer.disconnect();
       };
     }, []);
+
+    // Add cleanup effect for fixed streams only
+    useEffect(() => {
+      return () => {
+        // Reset measurement extremes when component unmounts, but only for fixed streams
+        if (fixedSessionTypeSelected && streamId) {
+          dispatch(resetFixedMeasurementExtremes());
+        }
+      };
+    }, [dispatch, fixedSessionTypeSelected, streamId]);
 
     return (
       <S.Container
