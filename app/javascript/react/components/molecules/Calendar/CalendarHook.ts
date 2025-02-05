@@ -116,27 +116,50 @@ const useCalendarHook = ({
   };
 
   useEffect(() => {
-    const endMoment = moment(maxCalendarDate);
-    const newStartDate = endMoment
-      .clone()
-      .date(1)
-      .subtract(SEEN_MONTHS_NUMBER - 1, "months")
-      .format(DateFormat.us);
-    const newEndDate = endMoment.format(DateFormat.us);
-
-    setVisibleDateRange({
-      startDate: newStartDate,
-      endDate: newEndDate,
+    console.log("Moving Calendar Data Update:", {
+      data: movingCalendarData,
+      currentDateReference: dateReference,
     });
 
-    setDateReference((prevState) => ({
-      ...prevState,
-      currentStartDate: newStartDate,
-      currentEndDate: newEndDate,
-      firstVisibleDataPointDate: newStartDate,
-      lastVisibleDataPointDate: newEndDate,
-    }));
-  }, [maxCalendarDate]);
+    if (movingCalendarData.data.length > 0) {
+      const sortedData = [...movingCalendarData.data].sort(
+        (a, b) => moment(a.date).valueOf() - moment(b.date).valueOf()
+      );
+
+      const firstDate = moment(sortedData[0].date).format(DateFormat.us);
+      const lastDate = moment(sortedData[sortedData.length - 1].date).format(
+        DateFormat.us
+      );
+
+      // Initialize with the last 3 months of data
+      const endMoment = moment(lastDate, DateFormat.us);
+      const newStartDate = endMoment
+        .clone()
+        .date(1)
+        .subtract(SEEN_MONTHS_NUMBER - 1, "months")
+        .format(DateFormat.us);
+      const newEndDate = endMoment.format(DateFormat.us);
+
+      setVisibleDateRange({
+        startDate: newStartDate,
+        endDate: newEndDate,
+      });
+
+      // Disable right arrow if we're at the latest data
+      const maxEndDateMoment = moment(maxCalendarDate, DateFormat.default);
+      setIsRightButtonDisabled(
+        endMoment.isSameOrAfter(maxEndDateMoment, "day")
+      );
+
+      setDateReference((prevState) => ({
+        ...prevState,
+        currentStartDate: newStartDate,
+        currentEndDate: newEndDate,
+        firstVisibleDataPointDate: newStartDate,
+        lastVisibleDataPointDate: newEndDate,
+      }));
+    }
+  }, [movingCalendarData, maxCalendarDate]);
 
   useEffect(() => {
     if (!dateReference.currentEndDate || !dateReference.direction) return;
@@ -182,25 +205,10 @@ const useCalendarHook = ({
       ...prevState,
       currentStartDate: newStartDate,
       currentEndDate: newEndDate,
+      firstVisibleDataPointDate: newStartDate,
+      lastVisibleDataPointDate: newEndDate,
     }));
   }, [dateReference.triggerDirectionUpdate]);
-
-  useEffect(() => {
-    console.log("Moving Calendar Data Update:", {
-      data: movingCalendarData,
-      currentDateReference: dateReference,
-    });
-
-    const formattedDateRange = getFormattedDateRange();
-    const processedMaxEndDate = formattedDateRange.lastDate;
-    const processedFirstDataPoint = formattedDateRange.firstDate;
-
-    setDateReference((prevState) => ({
-      ...prevState,
-      firstVisibleDataPointDate: processedFirstDataPoint,
-      lastVisibleDataPointDate: processedMaxEndDate,
-    }));
-  }, [movingCalendarData]);
 
   return {
     threeMonthsData,
