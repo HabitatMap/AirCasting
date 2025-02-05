@@ -93,27 +93,15 @@ const CalendarPage: React.FC<CalendarPageProps> = ({ children }) => {
         initialDataFetched,
       });
 
-      const startMoment = moment(fixedStreamData.stream.startTime);
-      const endMoment = moment(streamEndTime);
+      dispatch(
+        fetchNewMovingStream({
+          id: streamId,
+          startDate: fixedStreamData.stream.startTime,
+          endDate: streamEndTime,
+        })
+      );
 
-      if (startMoment.isValid() && endMoment.isValid()) {
-        const formattedEndDate = endMoment.format("YYYY-MM-DD");
-        const newStartDate = endMoment
-          .clone()
-          .date(1)
-          .subtract(2, "months")
-          .format("YYYY-MM-DD");
-
-        dispatch(
-          fetchNewMovingStream({
-            id: streamId,
-            startDate: newStartDate,
-            endDate: formattedEndDate,
-          })
-        );
-
-        setInitialDataFetched(true);
-      }
+      setInitialDataFetched(true);
     }
 
     if (fixedStreamData.stream) {
