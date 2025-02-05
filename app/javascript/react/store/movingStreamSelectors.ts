@@ -2,6 +2,8 @@ import { createSelector } from "@reduxjs/toolkit";
 import moment, { Moment } from "moment";
 
 import { RootState } from ".";
+
+import { DateFormat } from "../types/dateFormat";
 import {
   CalendarCellData,
   CalendarMonthlyData,
@@ -97,25 +99,20 @@ const getLatestDataPointDate = (
   return latestDataPointDate;
 };
 
-const getFullWeeksOfThreeLatestMonths = (
-  streamDailyAverages: MovingStreamDailyAverage[]
-): CalendarMonthlyData[] => {
-  const latestDateWithData = getLatestDataPointDate(streamDailyAverages);
-  const latestMomentWithData = moment(latestDateWithData);
+const getVisibleMonthsData = (
+  streamDailyAverages: MovingStreamDailyAverage[],
+  startDate: string,
+  endDate: string
+): MovingStreamDailyAverage[] => {
+  if (!streamDailyAverages || !startDate || !endDate) return [];
 
-  const secondLatestMonth = latestMomentWithData.clone().subtract(1, "month");
-  const thirdLatestMonth = latestMomentWithData.clone().subtract(2, "month");
-  const threeMonths = [
-    thirdLatestMonth,
-    secondLatestMonth,
-    latestMomentWithData,
-  ];
+  const startMoment = moment(startDate, DateFormat.us).startOf("day");
+  const endMoment = moment(endDate, DateFormat.us).endOf("day");
 
-  const threeMonthsData = threeMonths.map((month) => {
-    return getMonthWeeksOfDailyAveragesFor(month, streamDailyAverages);
+  return streamDailyAverages.filter((average) => {
+    const dateMoment = moment(average.date, DateFormat.default);
+    return dateMoment.isBetween(startMoment, endMoment, "day", "[]");
   });
-
-  return threeMonthsData;
 };
 
 const selectMovingCalendarData = (
@@ -125,12 +122,90 @@ const selectMovingCalendarData = (
 };
 
 const selectThreeMonthsDailyAverage = createSelector(
-  selectMovingCalendarData,
-  (fixedStreamData): CalendarMonthlyData[] => {
-    const streamDailyAverages = fixedStreamData;
+  [
+    selectMovingCalendarData,
+    (_state: RootState, startDate?: string, endDate?: string) => ({
+      startDate,
+      endDate,
+    }),
+  ],
+  (calendarData, { startDate, endDate }): CalendarMonthlyData[] => {
+    console.log("Calendar Selector Input:", {
+      calendarDataLength: calendarData?.length,
+      startDate,
+      endDate,
+    });
 
-    const monthData = getFullWeeksOfThreeLatestMonths(streamDailyAverages);
-    return monthData;
+    if (!calendarData || calendarData.length === 0) {
+      console.log("No calendar data available");
+      return [];
+    }
+
+    if (!startDate || !endDate) {
+      console.log("Missing date range");
+      return [];
+    }
+
+    const visibleData =
+      startDate && endDate
+        ? getVisibleMonthsData(calendarData, startDate, endDate)
+        : calendarData;
+
+    console.log("Visible Data:", {
+      visibleDataLength: visibleData.length,
+      firstDate: visibleData[0]?.date,
+      lastDate: visibleData[visibleData.length - 1]?.date,
+    });
+
+    const endMoment = moment(endDate, DateFormat.us);
+    if (!endMoment.isValid()) {
+      console.log("Invalid end date");
+      return [];
+    }
+
+    const latestMomentWithData = endMoment.clone().endOf("month");
+    const secondLatestMonth = latestMomentWithData.clone().subtract(1, "month");
+    const thirdLatestMonth = latestMomentWithData.clone().subtract(2, "month");
+
+    if (
+      !latestMomentWithData.isValid() ||
+      !secondLatestMonth.isValid() ||
+      !thirdLatestMonth.isValid()
+    ) {
+      console.log("Invalid month calculations");
+      return [];
+    }
+
+    console.log("Three Months:", {
+      latest: latestMomentWithData.format("YYYY-MM"),
+      second: secondLatestMonth.format("YYYY-MM"),
+      third: thirdLatestMonth.format("YYYY-MM"),
+    });
+
+    const threeMonths = [
+      thirdLatestMonth,
+      secondLatestMonth,
+      latestMomentWithData,
+    ];
+
+    try {
+      const threeMonthsData = threeMonths.map((month) =>
+        getMonthWeeksOfDailyAveragesFor(month, visibleData)
+      );
+
+      console.log("Generated Calendar Data:", {
+        monthsCount: threeMonthsData.length,
+        months: threeMonthsData.map((m) => ({
+          name: m.monthName,
+          hasData: m.weeks.some((w) => w.some((d) => d.value !== null)),
+        })),
+      });
+
+      return threeMonthsData;
+    } catch (error) {
+      console.error("Error generating calendar data:", error);
+      return [];
+    }
   }
 );
 

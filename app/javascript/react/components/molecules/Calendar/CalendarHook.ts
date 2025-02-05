@@ -3,10 +3,8 @@ import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 
 import { useAppDispatch } from "../../../store/hooks";
-import {
-  fetchNewMovingStream,
-  movingData,
-} from "../../../store/movingCalendarStreamSlice";
+import { RootState } from "../../../store/index";
+import { movingData } from "../../../store/movingCalendarStreamSlice";
 import { selectThreeMonthsDailyAverage } from "../../../store/movingStreamSelectors";
 import { DateFormat } from "../../../types/dateFormat";
 import { MovesKeys } from "../../../types/movesKeys";
@@ -44,7 +42,19 @@ const useCalendarHook = ({
   const SEEN_MONTHS_NUMBER = 3;
 
   const dispatch = useAppDispatch();
-  const threeMonthsData = useSelector(selectThreeMonthsDailyAverage);
+
+  const [visibleDateRange, setVisibleDateRange] = useState({
+    startDate: "",
+    endDate: "",
+  });
+
+  const threeMonthsData = useSelector((state: RootState) =>
+    selectThreeMonthsDailyAverage(
+      state,
+      visibleDateRange.startDate,
+      visibleDateRange.endDate
+    )
+  );
   const movingCalendarData = useSelector(movingData);
   const [isRightButtonDisabled, setIsRightButtonDisabled] =
     useState<boolean>(false);
@@ -106,43 +116,30 @@ const useCalendarHook = ({
   };
 
   useEffect(() => {
-    const formattedDateRange = getFormattedDateRange();
-    const processedMaxEndDate = formattedDateRange.lastDate;
-    const processedFirstDataPoint = formattedDateRange.firstDate;
-
-    console.log("Calendar Hook Initial Setup:", {
-      maxEndDate: processedMaxEndDate,
-      firstDataPoint: processedFirstDataPoint,
-      minCalendarDate,
-      maxCalendarDate,
-    });
-
-    const startMoment = moment(
-      formattedDateRange.lastDateNoFormat,
-      DateFormat.default
-    );
-    const newStartDate = startMoment
+    const endMoment = moment(maxCalendarDate);
+    const newStartDate = endMoment
+      .clone()
       .date(1)
       .subtract(SEEN_MONTHS_NUMBER - 1, "months")
       .format(DateFormat.us);
+    const newEndDate = endMoment.format(DateFormat.us);
+
+    setVisibleDateRange({
+      startDate: newStartDate,
+      endDate: newEndDate,
+    });
 
     setDateReference((prevState) => ({
       ...prevState,
       currentStartDate: newStartDate,
-      firstVisibleDataPointDate: processedFirstDataPoint,
-      lastVisibleDataPointDate: processedMaxEndDate,
-      currentEndDate: processedMaxEndDate,
+      currentEndDate: newEndDate,
+      firstVisibleDataPointDate: newStartDate,
+      lastVisibleDataPointDate: newEndDate,
     }));
-  }, []);
+  }, [maxCalendarDate]);
 
   useEffect(() => {
-    if (!dateReference.currentEndDate) return;
-
-    console.log("Calendar Direction Update:", {
-      direction: dateReference.direction,
-      currentEndDate: dateReference.currentEndDate,
-      trigger: dateReference.triggerDirectionUpdate,
-    });
+    if (!dateReference.currentEndDate || !dateReference.direction) return;
 
     const dateMoment = moment(dateReference.currentEndDate, DateFormat.us);
     let newEndMoment: Moment;
@@ -161,6 +158,7 @@ const useCalendarHook = ({
 
     const newEndDate = newEndMoment.format(DateFormat.us);
     const newStartDate = newEndMoment
+      .clone()
       .date(1)
       .subtract(SEEN_MONTHS_NUMBER - 1, "months")
       .format(DateFormat.us);
@@ -175,26 +173,16 @@ const useCalendarHook = ({
       return;
     }
 
+    setVisibleDateRange({
+      startDate: newStartDate,
+      endDate: newEndDate,
+    });
+
     setDateReference((prevState) => ({
       ...prevState,
       currentStartDate: newStartDate,
       currentEndDate: newEndDate,
     }));
-
-    const formattedStartDate = moment(newStartDate, DateFormat.us).format(
-      DateFormat.default
-    );
-    const formattedEndDate = moment(newEndDate, DateFormat.us).format(
-      DateFormat.default
-    );
-
-    dispatch(
-      fetchNewMovingStream({
-        id: streamId,
-        startDate: formattedStartDate,
-        endDate: formattedEndDate,
-      })
-    );
   }, [dateReference.triggerDirectionUpdate]);
 
   useEffect(() => {
