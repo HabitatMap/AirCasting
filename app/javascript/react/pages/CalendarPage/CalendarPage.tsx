@@ -14,12 +14,12 @@ import { ResetButton } from "../../components/ThresholdConfigurator/ThresholdBut
 import { ThresholdButtonVariant } from "../../components/ThresholdConfigurator/ThresholdButtons/ThresholdButton";
 import { UniformDistributionButton } from "../../components/ThresholdConfigurator/ThresholdButtons/UniformDistributionButton";
 
-import { selectFixedStreamShortInfo } from "../../store/fixedStreamSelectors";
 import {
-  fetchFixedStreamById,
   selectFixedData,
+  selectFixedStreamShortInfo,
   selectIsLoading,
-} from "../../store/fixedStreamSlice";
+} from "../../store/fixedStreamSelectors";
+import { fetchFixedStreamById } from "../../store/fixedStreamSlice";
 import { useAppDispatch, useAppSelector } from "../../store/hooks";
 import {
   fetchNewMovingStream,
@@ -56,6 +56,7 @@ const CalendarPage: React.FC<CalendarPageProps> = ({ children }) => {
   const { formattedMinTime, formattedMaxTime } = formatTime(startTime, endTime);
   const [errorMessage, setErrorMessage] = useState("");
   const [initialDataFetched, setInitialDataFetched] = useState(false);
+  const [selectedDate, setSelectedDate] = useState<Date | null>(null);
 
   const calendarIsVisible =
     movingCalendarData.data.length &&
@@ -85,36 +86,34 @@ const CalendarPage: React.FC<CalendarPageProps> = ({ children }) => {
       fixedStreamData.stream.startTime &&
       streamEndTime
     ) {
-      const startMoment = moment(fixedStreamData.stream.startTime);
-      const endMoment = moment(streamEndTime);
+      dispatch(
+        fetchNewMovingStream({
+          id: streamId,
+          startDate: fixedStreamData.stream.startTime,
+          endDate: streamEndTime,
+        })
+      );
 
-      if (startMoment.isValid() && endMoment.isValid()) {
-        const formattedEndDate = endMoment.format("YYYY-MM-DD");
-        const newStartDate = endMoment
-          .clone()
-          .date(1)
-          .subtract(2, "months")
-          .format("YYYY-MM-DD");
-
-        dispatch(
-          fetchNewMovingStream({
-            id: streamId,
-            startDate: newStartDate,
-            endDate: formattedEndDate,
-          })
-        );
-
-        setInitialDataFetched(true);
-      }
+      setInitialDataFetched(true);
     }
 
     if (fixedStreamData.stream) {
       dispatch(setDefaultThresholdsValues(fixedStreamData.stream));
     }
-  }, [fixedStreamData, streamId, isLoading, streamEndTime, initialDataFetched]);
+  }, [fixedStreamData, streamId, isLoading, streamEndTime]);
 
   useEffect(() => {
-    setInitialDataFetched(false);
+    if (!streamId) {
+      setInitialDataFetched(false);
+    }
+  }, [streamId]);
+
+  const handleDayClick = (date: Date | null) => {
+    setSelectedDate(date);
+  };
+
+  useEffect(() => {
+    setSelectedDate(null);
   }, [streamId]);
 
   const renderMobileGraph = () => (
@@ -141,6 +140,8 @@ const CalendarPage: React.FC<CalendarPageProps> = ({ children }) => {
               sessionType={SessionTypes.FIXED}
               isCalendarPage={true}
               rangeDisplayRef={rangeDisplayRef}
+              selectedDate={selectedDate}
+              onDayClick={handleDayClick}
             />
             <MeasurementComponent />
           </>
@@ -217,6 +218,8 @@ const CalendarPage: React.FC<CalendarPageProps> = ({ children }) => {
             sessionType={SessionTypes.FIXED}
             isCalendarPage={true}
             rangeDisplayRef={rangeDisplayRef}
+            selectedDate={selectedDate}
+            onDayClick={handleDayClick}
           />
         }
       />
@@ -236,6 +239,8 @@ const CalendarPage: React.FC<CalendarPageProps> = ({ children }) => {
               streamId={streamId}
               minCalendarDate={fixedStreamData.stream.startTime}
               maxCalendarDate={streamEndTime}
+              onDayClick={handleDayClick}
+              selectedDate={selectedDate}
             />
           ) : (
             <EmptyCalendar />

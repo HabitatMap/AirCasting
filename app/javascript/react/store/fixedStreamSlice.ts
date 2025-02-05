@@ -1,18 +1,17 @@
 import {
   createAsyncThunk,
-  createSelector,
   createSlice,
-  PayloadAction,
+  type PayloadAction,
 } from "@reduxjs/toolkit";
-import { AxiosResponse } from "axios";
+import type { AxiosResponse } from "axios";
 import { apiClient, oldApiClient } from "../api/apiClient";
 import { API_ENDPOINTS } from "../api/apiEndpoints";
-import { ApiError, StatusEnum } from "../types/api";
-import { FixedStream } from "../types/fixedStream";
+import { type ApiError, StatusEnum } from "../types/api";
+import type { FixedStream } from "../types/fixedStream";
 import { FixedTimeRange } from "../types/timeRange";
 import { getErrorMessage } from "../utils/getErrorMessage";
 import { logError } from "../utils/logController";
-import { RootState } from "./index";
+import type { RootState } from "./index";
 
 export interface FixedMeasurement {
   time: number;
@@ -25,7 +24,6 @@ export interface FixedStreamState {
   minMeasurementValue: number | null;
   maxMeasurementValue: number | null;
   averageMeasurementValue: number | null;
-
   status: StatusEnum;
   error: ApiError | null;
   isLoading: boolean;
@@ -33,6 +31,7 @@ export interface FixedStreamState {
   measurements: {
     [streamId: number]: FixedMeasurement[];
   };
+  fetchedTimeRanges: { [streamId: number]: { start: number; end: number }[] };
 }
 
 const initialState: FixedStreamState = {
@@ -70,6 +69,7 @@ const initialState: FixedStreamState = {
   isLoading: false,
   lastSelectedTimeRange: FixedTimeRange.Day,
   measurements: {},
+  fetchedTimeRanges: {},
 };
 
 export const fetchFixedStreamById = createAsyncThunk<
@@ -121,6 +121,21 @@ export const fetchMeasurements = createAsyncThunk(
     } catch (error) {
       return rejectWithValue(getErrorMessage(error));
     }
+  }
+);
+
+export const checkDataAvailability = createAsyncThunk(
+  "fixedStream/checkDataAvailability",
+  async (
+    { streamId, start, end }: { streamId: number; start: number; end: number },
+    { getState }
+  ) => {
+    const state = getState() as RootState;
+    const fetchedRanges = state.fixedStream.fetchedTimeRanges[streamId] || [];
+
+    return fetchedRanges.some(
+      (range) => range.start <= start && range.end >= end
+    );
   }
 );
 
@@ -201,6 +216,16 @@ const fixedStreamSlice = createSlice({
       state.lastSelectedTimeRange = FixedTimeRange.Day;
       localStorage.setItem("lastSelectedTimeRange", FixedTimeRange.Day);
     },
+    updateFetchedTimeRanges: (
+      state,
+      action: PayloadAction<{ streamId: number; start: number; end: number }>
+    ) => {
+      const { streamId, start, end } = action.payload;
+      if (!state.fetchedTimeRanges[streamId]) {
+        state.fetchedTimeRanges[streamId] = [];
+      }
+      state.fetchedTimeRanges[streamId].push({ start, end });
+    },
   },
   extraReducers: (builder) => {
     builder.addCase(fetchFixedStreamById.pending, (state) => {
@@ -265,8 +290,6 @@ const fixedStreamSlice = createSlice({
   },
 });
 
-export default fixedStreamSlice.reducer;
-
 export const {
   updateFixedMeasurementExtremes,
   resetFixedStreamState,
@@ -276,31 +299,7 @@ export const {
   updateStreamMeasurements,
   resetFixedMeasurementExtremes,
   resetTimeRange,
+  updateFetchedTimeRanges,
 } = fixedStreamSlice.actions;
 
-export const selectFixedStreamState = (state: RootState) => state.fixedStream;
-
-export const selectFixedData = createSelector(
-  [selectFixedStreamState],
-  (fixedStream) => fixedStream.data
-);
-
-export const selectIsLoading = createSelector(
-  [selectFixedStreamState],
-  (fixedStream) => fixedStream.isLoading
-);
-
-export const selectLastSelectedFixedTimeRange = createSelector(
-  [selectFixedStreamState],
-  (fixedStream) => fixedStream.lastSelectedTimeRange
-);
-
-export const selectStreamMeasurements = createSelector(
-  [
-    selectFixedStreamState,
-    (_state: RootState, streamId: number | null) => streamId,
-  ],
-  (fixedStream, streamId) => {
-    return streamId ? fixedStream.data.measurements || [] : [];
-  }
-);
+export default fixedStreamSlice.reducer;
