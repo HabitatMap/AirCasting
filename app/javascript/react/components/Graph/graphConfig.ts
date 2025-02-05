@@ -199,7 +199,9 @@ const getXAxisOptions = (
     minRange: MILLISECONDS_IN_A_SECOND,
     ordinal: false,
     events: {
-      afterSetExtremes: function (e: Highcharts.AxisSetExtremesEventObject) {
+      afterSetExtremes: async function (
+        e: Highcharts.AxisSetExtremesEventObject
+      ) {
         const extremes = this.chart.xAxis[0].getExtremes();
 
         // Validate extremes and ensure they are numbers
@@ -221,6 +223,7 @@ const getXAxisOptions = (
         if (!isLoading) {
           try {
             const requestedHours = (max - min) / (1000 * 60 * 60);
+            const buffer = (max - min) * 0.1;
 
             // For calendar day clicks, ensure we get a 24-hour range
             if (!e.trigger && requestedHours < 24) {
@@ -250,17 +253,6 @@ const getXAxisOptions = (
                 return;
               }
 
-              console.log("Calendar click - setting range:", {
-                from: new Date(finalMin).toISOString(),
-                to: new Date(finalMax).toISOString(),
-                isFirstDay,
-                isLastDay,
-                dataRange: {
-                  min: new Date(extremes.dataMin).toISOString(),
-                  max: new Date(extremes.dataMax).toISOString(),
-                },
-              });
-
               // Update display first to ensure UI consistency
               if (rangeDisplayRef?.current) {
                 const htmlContent = generateTimeRangeHTML(finalMin, finalMax);
@@ -282,13 +274,28 @@ const getXAxisOptions = (
               this.chart.redraw(false);
 
               // Finally fetch new data if needed
-              fetchTimeout = setTimeout(() => {
-                handleSetExtremes(
-                  { ...e, min: finalMin, max: finalMax },
-                  this.chart
-                );
-              }, 250);
+              if (finalMax - finalMin <= MAX_GAP_SIZE) {
+                fetchTimeout = setTimeout(() => {
+                  handleSetExtremes(
+                    { ...e, min: finalMin, max: finalMax },
+                    this.chart
+                  );
+                }, 250);
+              }
               return;
+            }
+
+            // For scrollbar and other navigation
+            if (e.trigger === "scrollbar" || e.trigger === "navigator") {
+              // Check if we're near the edges and need to fetch more data
+              if (min <= extremes.dataMin + buffer) {
+                const newStart = Math.max(min - MILLISECONDS_IN_A_MONTH, 0);
+                await fetchMeasurementsIfNeeded(newStart, min);
+              }
+              if (max >= extremes.dataMax - buffer) {
+                const newEnd = max + MILLISECONDS_IN_A_MONTH;
+                await fetchMeasurementsIfNeeded(max, newEnd);
+              }
             }
 
             // For other cases, update normally
@@ -297,9 +304,12 @@ const getXAxisOptions = (
               updateRangeDisplayDOM(rangeDisplayRef.current, htmlContent, true);
             }
 
-            fetchTimeout = setTimeout(() => {
-              handleSetExtremes({ ...e, min, max }, this.chart);
-            }, 250);
+            // Only fetch if range is within limits
+            if (max - min <= MAX_GAP_SIZE) {
+              fetchTimeout = setTimeout(() => {
+                handleSetExtremes({ ...e, min, max }, this.chart);
+              }, 250);
+            }
 
             // Only reset day click state for range selector
             if (e.trigger === "rangeSelectorButton") {
