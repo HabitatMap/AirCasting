@@ -45,12 +45,9 @@ export const generateTimeRangeHTML = (start: number, end: number): string => {
 
 export const updateRangeDisplayDOM = (
   element: HTMLDivElement,
-  content: string,
-  shouldReplace: boolean = false
+  content: string
 ) => {
-  if (shouldReplace) {
-    element.innerHTML = content;
-  }
+  element.innerHTML = content;
 };
 
 export const useChartUpdater = ({
@@ -62,8 +59,6 @@ export const useChartUpdater = ({
   streamId,
   rangeDisplayRef,
 }: UseChartUpdaterProps) => {
-  const isFirstRender = useRef(true);
-  const lastRangeRef = useRef<number | null>(null);
   const dispatch = useAppDispatch();
   const updateTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
@@ -88,13 +83,6 @@ export const useChartUpdater = ({
       },
       data: Highcharts.PointOptionsType[]
     ) => {
-      if (chart.rangeSelector) {
-        const selectedButton = chart.options.rangeSelector?.selected;
-        if (selectedButton !== undefined) {
-          lastRangeRef.current = selectedButton;
-        }
-      }
-
       chart.series[0].setData(data, true, false, false);
 
       if (fixedSessionTypeSelected && streamId && chart.xAxis[0]) {
@@ -109,10 +97,6 @@ export const useChartUpdater = ({
           );
         }
       }
-
-      if (chart.rangeSelector && lastRangeRef.current !== null) {
-        chart.rangeSelector.clickButton(lastRangeRef.current, true);
-      }
     },
     [fixedSessionTypeSelected, streamId]
   );
@@ -121,24 +105,20 @@ export const useChartUpdater = ({
     (min: number, max: number) => {
       if (!rangeDisplayRef?.current) return;
 
-      // Clear any pending updates
       if (updateTimeoutRef.current) {
         clearTimeout(updateTimeoutRef.current);
       }
 
-      // Schedule the update
       updateTimeoutRef.current = setTimeout(() => {
         if (rangeDisplayRef.current) {
-          rangeDisplayRef.current.innerHTML = "";
           const htmlContent = generateTimeRangeHTML(min, max);
-          updateRangeDisplayDOM(rangeDisplayRef.current, htmlContent, true);
+          updateRangeDisplayDOM(rangeDisplayRef.current, htmlContent);
         }
       }, 0);
     },
     [rangeDisplayRef]
   );
 
-  // Single effect for time range display updates
   useEffect(() => {
     if (!chartComponentRef.current?.chart || isLoading) return;
 
@@ -165,18 +145,11 @@ export const useChartUpdater = ({
     lastSelectedTimeRange,
   ]);
 
-  // Remove updateTimeRangeDisplay calls from other effects
   useEffect(() => {
     if (!seriesData || isLoading || !chartComponentRef.current?.chart) return;
 
     const chart = chartComponentRef.current.chart;
-
-    if (isFirstRender.current) {
-      updateChartData(chart, seriesData);
-      isFirstRender.current = false;
-    } else {
-      updateChartData(chart, seriesData);
-    }
+    updateChartData(chart, seriesData);
 
     if (lastSelectedTimeRange && chart.rangeSelector) {
       const selectedIndex = getSelectedRangeIndex(
