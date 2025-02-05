@@ -216,35 +216,227 @@ const getXAxisOptions = (
 
             // For calendar day clicks, ensure we get a 24-hour range
             if (!e.trigger && requestedHours < 24) {
-              const startOfDay = new Date(min);
-              startOfDay.setUTCHours(0, 0, 0, 0);
-              const endOfDay = new Date(startOfDay);
-              endOfDay.setUTCDate(endOfDay.getUTCDate() + 1);
+              try {
+                const startOfDay = new Date(min);
+                startOfDay.setUTCHours(0, 0, 0, 0);
+                const endOfDay = new Date(startOfDay);
+                endOfDay.setUTCDate(endOfDay.getUTCDate() + 1);
 
-              const newMin = startOfDay.getTime();
-              const newMax = endOfDay.getTime();
+                const newMin = startOfDay.getTime();
+                const newMax = endOfDay.getTime();
 
-              // Check if this is first or last day in data range
-              const isFirstDay =
-                Math.abs(newMin - extremes.dataMin) < MILLISECONDS_IN_A_DAY;
-              const isLastDay =
-                Math.abs(newMax - extremes.dataMax) < MILLISECONDS_IN_A_DAY;
+                // Check if this is first or last day in data range
+                const isFirstDay =
+                  Math.abs(newMin - extremes.dataMin) < MILLISECONDS_IN_A_DAY;
+                const isLastDay =
+                  Math.abs(newMax - extremes.dataMax) < MILLISECONDS_IN_A_DAY;
 
-              // For first/last days, use actual data range instead of full day
-              const finalMin = isFirstDay ? extremes.dataMin : newMin;
-              const finalMax = isLastDay ? extremes.dataMax : newMax;
+                // For first/last days, use actual data range instead of full day
+                const finalMin = isFirstDay ? extremes.dataMin : newMin;
+                const finalMax = isLastDay ? extremes.dataMax : newMax;
 
-              // Prevent recursive updates
-              if (
-                finalMin === this.chart.xAxis[0].min &&
-                finalMax === this.chart.xAxis[0].max
-              ) {
-                return;
+                // Get visible points to determine actual data range
+                const dayPoints = this.chart.series[0].points.filter(
+                  (point) => point.x >= newMin && point.x <= newMax
+                );
+
+                // If we have points, use their range for first/last day
+                if (dayPoints.length > 0 && (isFirstDay || isLastDay)) {
+                  const actualMin = isFirstDay
+                    ? Math.min(...dayPoints.map((p) => p.x))
+                    : newMin;
+                  const actualMax = isLastDay
+                    ? Math.max(...dayPoints.map((p) => p.x))
+                    : newMax;
+
+                  // Add small buffer (5 minutes) for better visualization
+                  const buffer = 5 * 60 * 1000; // 5 minutes in milliseconds
+                  const displayMin = Math.max(actualMin - buffer, 0);
+                  const displayMax = actualMax + buffer;
+
+                  // Update display first to ensure UI consistency
+                  if (rangeDisplayRef?.current) {
+                    const htmlContent = generateTimeRangeHTML(
+                      displayMin,
+                      displayMax
+                    );
+                    updateRangeDisplayDOM(
+                      rangeDisplayRef.current,
+                      htmlContent,
+                      true
+                    );
+                  }
+
+                  // Then update chart without animation and redraw
+                  this.chart.xAxis[0].update(
+                    {
+                      min: displayMin,
+                      max: displayMax,
+                    },
+                    false
+                  );
+                  this.chart.redraw(false);
+
+                  // Finally fetch new data if needed
+                  if (displayMax - displayMin <= MAX_GAP_SIZE) {
+                    fetchTimeout = setTimeout(() => {
+                      handleSetExtremes(
+                        { ...e, min: displayMin, max: displayMax },
+                        this.chart
+                      );
+                    }, 250);
+                  }
+                  return;
+                }
+
+                // For scrollbar and other navigation
+                if (e.trigger === "scrollbar" || e.trigger === "navigator") {
+                  console.log("Scrollbar/Navigator triggered", { min, max });
+                  // Check if we're near the edges and need to fetch more data
+                  if (min <= extremes.dataMin + buffer) {
+                    const newStart = Math.max(min - MILLISECONDS_IN_A_MONTH, 0);
+                    console.log("Fetching data near start", { newStart, min });
+                    await fetchMeasurementsIfNeeded(newStart, min);
+                  }
+                  if (max >= extremes.dataMax - buffer) {
+                    const newEnd = max + MILLISECONDS_IN_A_MONTH;
+                    console.log("Fetching data near end", { max, newEnd });
+                    await fetchMeasurementsIfNeeded(max, newEnd);
+                  }
+                }
+
+                // Always check for gaps in visible data, regardless of trigger
+                const visiblePoints = this.chart.series[0].points.filter(
+                  (point) => point.x >= min && point.x <= max
+                );
+                console.log("Checking for gaps in visible points", {
+                  pointsCount: visiblePoints.length,
+                  timeRange: {
+                    start: new Date(min).toISOString(),
+                    end: new Date(max).toISOString(),
+                  },
+                });
+
+                // If there are no points in the visible range, fetch the entire range
+                if (visiblePoints.length === 0) {
+                  console.log("No points in visible range, fetching data", {
+                    start: new Date(min).toISOString(),
+                    end: new Date(max).toISOString(),
+                  });
+                  await fetchMeasurementsIfNeeded(min, max);
+                }
+                // If we have points, check for gaps
+                else if (visiblePoints.length > 1) {
+                  let lastTimestamp = visiblePoints[0].x;
+                  for (let i = 1; i < visiblePoints.length; i++) {
+                    const currentTimestamp = visiblePoints[i].x;
+                    const gap = currentTimestamp - lastTimestamp;
+
+                    if (gap > MILLISECONDS_IN_A_DAY) {
+                      console.log("Found gap, fetching data", {
+                        gap: gap / MILLISECONDS_IN_A_DAY + " days",
+                        start: new Date(lastTimestamp).toISOString(),
+                        end: new Date(currentTimestamp).toISOString(),
+                      });
+                      await fetchMeasurementsIfNeeded(
+                        lastTimestamp,
+                        currentTimestamp
+                      );
+                    }
+
+                    lastTimestamp = currentTimestamp;
+                  }
+                }
+
+                // For other cases, update normally
+                if (rangeDisplayRef?.current) {
+                  console.log("Updating range display");
+                  const htmlContent = generateTimeRangeHTML(min, max);
+                  updateRangeDisplayDOM(
+                    rangeDisplayRef.current,
+                    htmlContent,
+                    true
+                  );
+                }
+
+                // Always fetch data for the current range
+                fetchTimeout = setTimeout(() => {
+                  handleSetExtremes({ ...e, min, max }, this.chart);
+                }, 250);
+
+                // Only reset day click state for range selector
+                if (e.trigger === "rangeSelectorButton") {
+                  onDayClick?.(null);
+                }
+              } catch (error) {
+                console.error("Error handling day click:", error);
+              }
+            }
+
+            try {
+              // For scrollbar and other navigation
+              if (e.trigger === "scrollbar" || e.trigger === "navigator") {
+                console.log("Scrollbar/Navigator triggered", { min, max });
+                // Check if we're near the edges and need to fetch more data
+                if (min <= extremes.dataMin + buffer) {
+                  const newStart = Math.max(min - MILLISECONDS_IN_A_MONTH, 0);
+                  console.log("Fetching data near start", { newStart, min });
+                  await fetchMeasurementsIfNeeded(newStart, min);
+                }
+                if (max >= extremes.dataMax - buffer) {
+                  const newEnd = max + MILLISECONDS_IN_A_MONTH;
+                  console.log("Fetching data near end", { max, newEnd });
+                  await fetchMeasurementsIfNeeded(max, newEnd);
+                }
               }
 
-              // Update display first to ensure UI consistency
+              // Always check for gaps in visible data, regardless of trigger
+              const visiblePoints = this.chart.series[0].points.filter(
+                (point) => point.x >= min && point.x <= max
+              );
+              console.log("Checking for gaps in visible points", {
+                pointsCount: visiblePoints.length,
+                timeRange: {
+                  start: new Date(min).toISOString(),
+                  end: new Date(max).toISOString(),
+                },
+              });
+
+              // If there are no points in the visible range, fetch the entire range
+              if (visiblePoints.length === 0) {
+                console.log("No points in visible range, fetching data", {
+                  start: new Date(min).toISOString(),
+                  end: new Date(max).toISOString(),
+                });
+                await fetchMeasurementsIfNeeded(min, max);
+              }
+              // If we have points, check for gaps
+              else if (visiblePoints.length > 1) {
+                let lastTimestamp = visiblePoints[0].x;
+                for (let i = 1; i < visiblePoints.length; i++) {
+                  const currentTimestamp = visiblePoints[i].x;
+                  const gap = currentTimestamp - lastTimestamp;
+
+                  if (gap > MILLISECONDS_IN_A_DAY) {
+                    console.log("Found gap, fetching data", {
+                      gap: gap / MILLISECONDS_IN_A_DAY + " days",
+                      start: new Date(lastTimestamp).toISOString(),
+                      end: new Date(currentTimestamp).toISOString(),
+                    });
+                    await fetchMeasurementsIfNeeded(
+                      lastTimestamp,
+                      currentTimestamp
+                    );
+                  }
+
+                  lastTimestamp = currentTimestamp;
+                }
+              }
+
+              // For other cases, update normally
               if (rangeDisplayRef?.current) {
-                const htmlContent = generateTimeRangeHTML(finalMin, finalMax);
+                console.log("Updating range display");
+                const htmlContent = generateTimeRangeHTML(min, max);
                 updateRangeDisplayDOM(
                   rangeDisplayRef.current,
                   htmlContent,
@@ -252,57 +444,17 @@ const getXAxisOptions = (
                 );
               }
 
-              // Then update chart without animation and redraw
-              this.chart.xAxis[0].update(
-                {
-                  min: finalMin,
-                  max: finalMax,
-                },
-                false
-              );
-              this.chart.redraw(false);
-
-              // Finally fetch new data if needed
-              if (finalMax - finalMin <= MAX_GAP_SIZE) {
-                fetchTimeout = setTimeout(() => {
-                  handleSetExtremes(
-                    { ...e, min: finalMin, max: finalMax },
-                    this.chart
-                  );
-                }, 250);
-              }
-              return;
-            }
-
-            // For scrollbar and other navigation
-            if (e.trigger === "scrollbar" || e.trigger === "navigator") {
-              // Check if we're near the edges and need to fetch more data
-              if (min <= extremes.dataMin + buffer) {
-                const newStart = Math.max(min - MILLISECONDS_IN_A_MONTH, 0);
-                await fetchMeasurementsIfNeeded(newStart, min);
-              }
-              if (max >= extremes.dataMax - buffer) {
-                const newEnd = max + MILLISECONDS_IN_A_MONTH;
-                await fetchMeasurementsIfNeeded(max, newEnd);
-              }
-            }
-
-            // For other cases, update normally
-            if (rangeDisplayRef?.current) {
-              const htmlContent = generateTimeRangeHTML(min, max);
-              updateRangeDisplayDOM(rangeDisplayRef.current, htmlContent, true);
-            }
-
-            // Only fetch if range is within limits
-            if (max - min <= MAX_GAP_SIZE) {
+              // Always fetch data for the current range
               fetchTimeout = setTimeout(() => {
                 handleSetExtremes({ ...e, min, max }, this.chart);
               }, 250);
-            }
 
-            // Only reset day click state for range selector
-            if (e.trigger === "rangeSelectorButton") {
-              onDayClick?.(null);
+              // Only reset day click state for range selector
+              if (e.trigger === "rangeSelectorButton") {
+                onDayClick?.(null);
+              }
+            } catch (error) {
+              console.error("Error handling extremes update:", error);
             }
           } catch (error) {
             console.error("Error handling extremes update:", error);
