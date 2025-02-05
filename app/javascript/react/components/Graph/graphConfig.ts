@@ -32,6 +32,7 @@ import { updateMobileMeasurementExtremes } from "../../store/mobileStreamSlice";
 import { LatLngLiteral } from "../../types/googleMaps";
 import { GraphData, GraphPoint } from "../../types/graph";
 import { Thresholds } from "../../types/thresholds";
+import { formatTimeExtremes } from "../../utils/measurementsCalc";
 import {
   MILLISECONDS_IN_A_5_MINUTES,
   MILLISECONDS_IN_A_DAY,
@@ -70,17 +71,67 @@ const getXAxisOptions = (
   isLoading: boolean,
   fetchMeasurementsIfNeeded: (start: number, end: number) => Promise<void>,
   streamId: number | null,
-  onDayClick?: (date: Date | null) => void
+  onDayClick?: (date: Date | null) => void,
+  rangeDisplayRef?: React.RefObject<HTMLDivElement>
 ): Highcharts.XAxisOptions => {
   let fetchTimeout: NodeJS.Timeout | null = null;
   const MAX_GAP_SIZE = MILLISECONDS_IN_A_DAY;
 
+  const generateTimeRangeHTML = (start: number, end: number): string => {
+    const { formattedMaxTime, formattedMinTime } = formatTimeExtremes(
+      start,
+      end
+    );
+    return `
+      <div class="time-container">
+        <span class="date">${formattedMinTime.date}</span>
+        <span class="time">${formattedMinTime.time}</span>
+      </div>
+      <span>-</span>
+      <div class="time-container">
+        <span class="date">${formattedMaxTime.date}</span>
+        <span class="time">${formattedMaxTime.time}</span>
+      </div>
+    `;
+  };
+
+  const updateRangeDisplayDOM = (
+    element: HTMLDivElement,
+    content: string,
+    shouldReplace = false
+  ) => {
+    if (shouldReplace) {
+      element.innerHTML = content;
+    }
+  };
+
   const handleSetExtremes = debounce(
     async (
       e: Highcharts.AxisSetExtremesEventObject,
-      chart: Highcharts.Chart
+      chart: Highcharts.Chart & {
+        rangeSelector?: {
+          clickButton: (index: number, redraw?: boolean) => void;
+        };
+      }
     ) => {
+      console.log("handleSetExtremes called with:", {
+        trigger: e.trigger,
+        min: e.min,
+        max: e.max,
+        isLoading,
+        hasRef: !!rangeDisplayRef?.current,
+      });
+
       if (!isLoading && e.min !== undefined && e.max !== undefined) {
+        // Update time range display
+        if (rangeDisplayRef?.current) {
+          const htmlContent = generateTimeRangeHTML(e.min, e.max);
+          console.log("Updating HTML with content:", htmlContent);
+          updateRangeDisplayDOM(rangeDisplayRef.current, htmlContent, true);
+        } else {
+          console.log("rangeDisplayRef not available");
+        }
+
         if (fixedSessionTypeSelected && streamId !== null) {
           dispatch(
             updateFixedMeasurementExtremes({
@@ -161,15 +212,20 @@ const getXAxisOptions = (
     ordinal: false,
     events: {
       afterSetExtremes: function (e: Highcharts.AxisSetExtremesEventObject) {
+        console.log("afterSetExtremes event:", {
+          trigger: e.trigger,
+          min: e.min,
+          max: e.max,
+        });
+
+        // Handle both explicit triggers and undefined (date clicks)
         if (
-          e.trigger &&
+          !e.trigger ||
           ["pan", "navigator", "scrollbar", "rangeSelectorButton"].includes(
             e.trigger
           )
         ) {
           onDayClick?.(null);
-
-          if (!fixedSessionTypeSelected || streamId == null) return;
 
           if (fetchTimeout) clearTimeout(fetchTimeout);
           fetchTimeout = setTimeout(() => {
