@@ -102,22 +102,11 @@ const getXAxisOptions = (
         return;
       }
 
-      console.log("handleSetExtremes called with:", {
-        trigger: e.trigger,
-        min: e.min,
-        max: e.max,
-        isLoading,
-        hasRef: !!rangeDisplayRef?.current,
-      });
-
       if (!isLoading && e.min !== undefined && e.max !== undefined) {
         // Update time range display
         if (rangeDisplayRef?.current) {
           const htmlContent = generateTimeRangeHTML(e.min, e.max);
-          console.log("Updating HTML with content:", htmlContent);
           updateRangeDisplayDOM(rangeDisplayRef.current, htmlContent, true);
-        } else {
-          console.log("rangeDisplayRef not available");
         }
 
         if (fixedSessionTypeSelected && streamId !== null) {

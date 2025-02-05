@@ -86,13 +86,6 @@ const CalendarPage: React.FC<CalendarPageProps> = ({ children }) => {
       fixedStreamData.stream.startTime &&
       streamEndTime
     ) {
-      console.log("Calendar Page Initial Data Fetch:", {
-        streamId,
-        startTime: fixedStreamData.stream.startTime,
-        endTime: streamEndTime,
-        initialDataFetched,
-      });
-
       dispatch(
         fetchNewMovingStream({
           id: streamId,
@@ -116,10 +109,6 @@ const CalendarPage: React.FC<CalendarPageProps> = ({ children }) => {
   }, [streamId]);
 
   const handleDayClick = (date: Date | null) => {
-    console.log("Calendar Page Day Click:", {
-      newDate: date,
-      currentSelectedDate: selectedDate,
-    });
     setSelectedDate(date);
   };
 

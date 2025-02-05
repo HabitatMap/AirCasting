@@ -116,11 +116,6 @@ const useCalendarHook = ({
   };
 
   useEffect(() => {
-    console.log("Moving Calendar Data Update:", {
-      data: movingCalendarData,
-      currentDateReference: dateReference,
-    });
-
     if (movingCalendarData.data.length > 0) {
       const sortedData = [...movingCalendarData.data].sort(
         (a, b) => moment(a.date).valueOf() - moment(b.date).valueOf()

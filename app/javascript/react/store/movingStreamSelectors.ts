@@ -10,7 +10,6 @@ import {
   StreamDailyAverage,
 } from "../types/movingStream";
 import { StreamDailyAverage as MovingStreamDailyAverage } from "../types/StreamDailyAverage";
-import { lastItemFromArray } from "../utils/lastArrayItem";
 
 const WEEKDAYS_COUNT = 7;
 
@@ -83,22 +82,6 @@ const getMonthWeeksOfDailyAveragesFor = (
   return { monthName, dayNamesHeader, weeks };
 };
 
-const sortStreamDailyAveragesByDate = (
-  streamDailyAverages: StreamDailyAverage[]
-): StreamDailyAverage[] => {
-  return [...streamDailyAverages].sort((a, b) => {
-    return moment(a.date).valueOf() - moment(b.date).valueOf();
-  });
-};
-
-const getLatestDataPointDate = (
-  streamDailyAverages: StreamDailyAverage[]
-): string | undefined => {
-  const sortedAverages = sortStreamDailyAveragesByDate(streamDailyAverages);
-  const latestDataPointDate = lastItemFromArray(sortedAverages)?.date;
-  return latestDataPointDate;
-};
-
 const getVisibleMonthsData = (
   streamDailyAverages: MovingStreamDailyAverage[],
   startDate: string,
@@ -115,7 +98,7 @@ const getVisibleMonthsData = (
   });
 };
 
-const selectMovingCalendarData = (
+const _selectMovingCalendarData = (
   state: RootState
 ): MovingStreamDailyAverage[] => {
   return state.movingCalendarStream.data;
@@ -123,26 +106,18 @@ const selectMovingCalendarData = (
 
 const selectThreeMonthsDailyAverage = createSelector(
   [
-    selectMovingCalendarData,
+    _selectMovingCalendarData,
     (_state: RootState, startDate?: string, endDate?: string) => ({
       startDate,
       endDate,
     }),
   ],
   (calendarData, { startDate, endDate }): CalendarMonthlyData[] => {
-    console.log("Calendar Selector Input:", {
-      calendarDataLength: calendarData?.length,
-      startDate,
-      endDate,
-    });
-
     if (!calendarData || calendarData.length === 0) {
-      console.log("No calendar data available");
       return [];
     }
 
     if (!startDate || !endDate) {
-      console.log("Missing date range");
       return [];
     }
 
@@ -151,15 +126,8 @@ const selectThreeMonthsDailyAverage = createSelector(
         ? getVisibleMonthsData(calendarData, startDate, endDate)
         : calendarData;
 
-    console.log("Visible Data:", {
-      visibleDataLength: visibleData.length,
-      firstDate: visibleData[0]?.date,
-      lastDate: visibleData[visibleData.length - 1]?.date,
-    });
-
     const endMoment = moment(endDate, DateFormat.us);
     if (!endMoment.isValid()) {
-      console.log("Invalid end date");
       return [];
     }
 
@@ -172,15 +140,8 @@ const selectThreeMonthsDailyAverage = createSelector(
       !secondLatestMonth.isValid() ||
       !thirdLatestMonth.isValid()
     ) {
-      console.log("Invalid month calculations");
       return [];
     }
-
-    console.log("Three Months:", {
-      latest: latestMomentWithData.format("YYYY-MM"),
-      second: secondLatestMonth.format("YYYY-MM"),
-      third: thirdLatestMonth.format("YYYY-MM"),
-    });
 
     const threeMonths = [
       thirdLatestMonth,
@@ -193,14 +154,6 @@ const selectThreeMonthsDailyAverage = createSelector(
         getMonthWeeksOfDailyAveragesFor(month, visibleData)
       );
 
-      console.log("Generated Calendar Data:", {
-        monthsCount: threeMonthsData.length,
-        months: threeMonthsData.map((m) => ({
-          name: m.monthName,
-          hasData: m.weeks.some((w) => w.some((d) => d.value !== null)),
-        })),
-      });
-
       return threeMonthsData;
     } catch (error) {
       console.error("Error generating calendar data:", error);
@@ -210,7 +163,7 @@ const selectThreeMonthsDailyAverage = createSelector(
 );
 
 const selectMovingCalendarMinMax = createSelector(
-  selectMovingCalendarData,
+  _selectMovingCalendarData,
   (calendarData) => {
     if (!calendarData || calendarData.length === 0) {
       return { min: null, max: null };
