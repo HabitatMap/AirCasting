@@ -363,7 +363,8 @@ const Graph: React.FC<GraphProps> = React.memo(
           isLoading,
           fetchMeasurementsIfNeeded,
           streamId,
-          onDayClick
+          onDayClick,
+          rangeDisplayRef
         ),
         yAxis: getYAxisOptions(thresholdsState, isMobile),
         series: [
