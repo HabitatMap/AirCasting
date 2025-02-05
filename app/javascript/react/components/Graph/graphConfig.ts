@@ -32,7 +32,6 @@ import { updateMobileMeasurementExtremes } from "../../store/mobileStreamSlice";
 import { LatLngLiteral } from "../../types/googleMaps";
 import { GraphData, GraphPoint } from "../../types/graph";
 import { Thresholds } from "../../types/thresholds";
-import { formatTimeExtremes } from "../../utils/measurementsCalc";
 import {
   MILLISECONDS_IN_A_5_MINUTES,
   MILLISECONDS_IN_A_DAY,
@@ -41,6 +40,7 @@ import {
   MILLISECONDS_IN_A_WEEK,
   MILLISECONDS_IN_AN_HOUR,
 } from "../../utils/timeRanges";
+import { generateTimeRangeHTML } from "./chartHooks/useChartUpdater";
 
 const getScrollbarOptions = (isCalendarPage: boolean, isMobile: boolean) => {
   return {
@@ -75,25 +75,8 @@ const getXAxisOptions = (
   rangeDisplayRef?: React.RefObject<HTMLDivElement>
 ): Highcharts.XAxisOptions => {
   let fetchTimeout: NodeJS.Timeout | null = null;
+  let isInitialLoad = true;
   const MAX_GAP_SIZE = MILLISECONDS_IN_A_DAY;
-
-  const generateTimeRangeHTML = (start: number, end: number): string => {
-    const { formattedMaxTime, formattedMinTime } = formatTimeExtremes(
-      start,
-      end
-    );
-    return `
-      <div class="time-container">
-        <span class="date">${formattedMinTime.date}</span>
-        <span class="time">${formattedMinTime.time}</span>
-      </div>
-      <span>-</span>
-      <div class="time-container">
-        <span class="date">${formattedMaxTime.date}</span>
-        <span class="time">${formattedMaxTime.time}</span>
-      </div>
-    `;
-  };
 
   const updateRangeDisplayDOM = (
     element: HTMLDivElement,
@@ -114,6 +97,11 @@ const getXAxisOptions = (
         };
       }
     ) => {
+      if (isInitialLoad) {
+        isInitialLoad = false;
+        return;
+      }
+
       console.log("handleSetExtremes called with:", {
         trigger: e.trigger,
         min: e.min,
@@ -212,25 +200,114 @@ const getXAxisOptions = (
     ordinal: false,
     events: {
       afterSetExtremes: function (e: Highcharts.AxisSetExtremesEventObject) {
-        console.log("afterSetExtremes event:", {
-          trigger: e.trigger,
-          min: e.min,
-          max: e.max,
-        });
+        const extremes = this.chart.xAxis[0].getExtremes();
 
-        // Handle both explicit triggers and undefined (date clicks)
-        if (
-          !e.trigger ||
-          ["pan", "navigator", "scrollbar", "rangeSelectorButton"].includes(
-            e.trigger
-          )
-        ) {
-          onDayClick?.(null);
+        // Validate extremes and ensure they are numbers
+        const min = typeof e.min === "number" ? e.min : extremes.min;
+        const max = typeof e.max === "number" ? e.max : extremes.max;
 
-          if (fetchTimeout) clearTimeout(fetchTimeout);
-          fetchTimeout = setTimeout(() => {
-            handleSetExtremes(e, this.chart);
-          }, 100);
+        if (!min || !max || min >= max) {
+          console.warn("Invalid extremes:", { min, max });
+          return;
+        }
+
+        // Clear any existing timeout
+        if (fetchTimeout) {
+          clearTimeout(fetchTimeout);
+          fetchTimeout = null;
+        }
+
+        // Only process if we have valid extremes and not loading
+        if (!isLoading) {
+          try {
+            const requestedHours = (max - min) / (1000 * 60 * 60);
+
+            // For calendar day clicks, ensure we get a 24-hour range
+            if (!e.trigger && requestedHours < 24) {
+              const startOfDay = new Date(min);
+              startOfDay.setUTCHours(0, 0, 0, 0);
+              const endOfDay = new Date(startOfDay);
+              endOfDay.setUTCDate(endOfDay.getUTCDate() + 1);
+
+              const newMin = startOfDay.getTime();
+              const newMax = endOfDay.getTime();
+
+              // Check if this is first or last day in data range
+              const isFirstDay =
+                Math.abs(newMin - extremes.dataMin) < MILLISECONDS_IN_A_DAY;
+              const isLastDay =
+                Math.abs(newMax - extremes.dataMax) < MILLISECONDS_IN_A_DAY;
+
+              // For first/last days, use actual data range instead of full day
+              const finalMin = isFirstDay ? extremes.dataMin : newMin;
+              const finalMax = isLastDay ? extremes.dataMax : newMax;
+
+              // Prevent recursive updates
+              if (
+                finalMin === this.chart.xAxis[0].min &&
+                finalMax === this.chart.xAxis[0].max
+              ) {
+                return;
+              }
+
+              console.log("Calendar click - setting range:", {
+                from: new Date(finalMin).toISOString(),
+                to: new Date(finalMax).toISOString(),
+                isFirstDay,
+                isLastDay,
+                dataRange: {
+                  min: new Date(extremes.dataMin).toISOString(),
+                  max: new Date(extremes.dataMax).toISOString(),
+                },
+              });
+
+              // Update display first to ensure UI consistency
+              if (rangeDisplayRef?.current) {
+                const htmlContent = generateTimeRangeHTML(finalMin, finalMax);
+                updateRangeDisplayDOM(
+                  rangeDisplayRef.current,
+                  htmlContent,
+                  true
+                );
+              }
+
+              // Then update chart without animation and redraw
+              this.chart.xAxis[0].update(
+                {
+                  min: finalMin,
+                  max: finalMax,
+                },
+                false
+              );
+              this.chart.redraw(false);
+
+              // Finally fetch new data if needed
+              fetchTimeout = setTimeout(() => {
+                handleSetExtremes(
+                  { ...e, min: finalMin, max: finalMax },
+                  this.chart
+                );
+              }, 250);
+              return;
+            }
+
+            // For other cases, update normally
+            if (rangeDisplayRef?.current) {
+              const htmlContent = generateTimeRangeHTML(min, max);
+              updateRangeDisplayDOM(rangeDisplayRef.current, htmlContent, true);
+            }
+
+            fetchTimeout = setTimeout(() => {
+              handleSetExtremes({ ...e, min, max }, this.chart);
+            }, 250);
+
+            // Only reset day click state for range selector
+            if (e.trigger === "rangeSelectorButton") {
+              onDayClick?.(null);
+            }
+          } catch (error) {
+            console.error("Error handling extremes update:", error);
+          }
         }
       },
     },
