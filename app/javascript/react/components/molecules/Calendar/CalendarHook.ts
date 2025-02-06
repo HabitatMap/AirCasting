@@ -3,10 +3,8 @@ import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 
 import { useAppDispatch } from "../../../store/hooks";
-import {
-  fetchNewMovingStream,
-  movingData,
-} from "../../../store/movingCalendarStreamSlice";
+import { RootState } from "../../../store/index";
+import { movingData } from "../../../store/movingCalendarStreamSlice";
 import { selectThreeMonthsDailyAverage } from "../../../store/movingStreamSelectors";
 import { DateFormat } from "../../../types/dateFormat";
 import { MovesKeys } from "../../../types/movesKeys";
@@ -44,7 +42,19 @@ const useCalendarHook = ({
   const SEEN_MONTHS_NUMBER = 3;
 
   const dispatch = useAppDispatch();
-  const threeMonthsData = useSelector(selectThreeMonthsDailyAverage);
+
+  const [visibleDateRange, setVisibleDateRange] = useState({
+    startDate: "",
+    endDate: "",
+  });
+
+  const threeMonthsData = useSelector((state: RootState) =>
+    selectThreeMonthsDailyAverage(
+      state,
+      visibleDateRange.startDate,
+      visibleDateRange.endDate
+    )
+  );
   const movingCalendarData = useSelector(movingData);
   const [isRightButtonDisabled, setIsRightButtonDisabled] =
     useState<boolean>(false);
@@ -106,30 +116,48 @@ const useCalendarHook = ({
   };
 
   useEffect(() => {
-    const formattedDateRange = getFormattedDateRange();
-    const processedMaxEndDate = formattedDateRange.lastDate;
-    const processedFirstDataPoint = formattedDateRange.firstDate;
+    if (movingCalendarData.data.length > 0) {
+      const sortedData = [...movingCalendarData.data].sort(
+        (a, b) => moment(a.date).valueOf() - moment(b.date).valueOf()
+      );
 
-    const startMoment = moment(
-      formattedDateRange.lastDateNoFormat,
-      DateFormat.default
-    );
-    const newStartDate = startMoment
-      .date(1)
-      .subtract(SEEN_MONTHS_NUMBER - 1, "months")
-      .format(DateFormat.us);
+      const firstDate = moment(sortedData[0].date).format(DateFormat.us);
+      const lastDate = moment(sortedData[sortedData.length - 1].date).format(
+        DateFormat.us
+      );
 
-    setDateReference((prevState) => ({
-      ...prevState,
-      currentStartDate: newStartDate,
-      firstVisibleDataPointDate: processedFirstDataPoint,
-      lastVisibleDataPointDate: processedMaxEndDate,
-      currentEndDate: processedMaxEndDate,
-    }));
-  }, []);
+      // Initialize with the last 3 months of data
+      const endMoment = moment(lastDate, DateFormat.us);
+      const newStartDate = endMoment
+        .clone()
+        .date(1)
+        .subtract(SEEN_MONTHS_NUMBER - 1, "months")
+        .format(DateFormat.us);
+      const newEndDate = endMoment.format(DateFormat.us);
+
+      setVisibleDateRange({
+        startDate: newStartDate,
+        endDate: newEndDate,
+      });
+
+      // Disable right arrow if we're at the latest data
+      const maxEndDateMoment = moment(maxCalendarDate, DateFormat.default);
+      setIsRightButtonDisabled(
+        endMoment.isSameOrAfter(maxEndDateMoment, "day")
+      );
+
+      setDateReference((prevState) => ({
+        ...prevState,
+        currentStartDate: newStartDate,
+        currentEndDate: newEndDate,
+        firstVisibleDataPointDate: newStartDate,
+        lastVisibleDataPointDate: newEndDate,
+      }));
+    }
+  }, [movingCalendarData, maxCalendarDate]);
 
   useEffect(() => {
-    if (!dateReference.currentEndDate) return;
+    if (!dateReference.currentEndDate || !dateReference.direction) return;
 
     const dateMoment = moment(dateReference.currentEndDate, DateFormat.us);
     let newEndMoment: Moment;
@@ -148,6 +176,7 @@ const useCalendarHook = ({
 
     const newEndDate = newEndMoment.format(DateFormat.us);
     const newStartDate = newEndMoment
+      .clone()
       .date(1)
       .subtract(SEEN_MONTHS_NUMBER - 1, "months")
       .format(DateFormat.us);
@@ -162,39 +191,19 @@ const useCalendarHook = ({
       return;
     }
 
+    setVisibleDateRange({
+      startDate: newStartDate,
+      endDate: newEndDate,
+    });
+
     setDateReference((prevState) => ({
       ...prevState,
       currentStartDate: newStartDate,
       currentEndDate: newEndDate,
+      firstVisibleDataPointDate: newStartDate,
+      lastVisibleDataPointDate: newEndDate,
     }));
-
-    const formattedStartDate = moment(newStartDate, DateFormat.us).format(
-      DateFormat.default
-    );
-    const formattedEndDate = moment(newEndDate, DateFormat.us).format(
-      DateFormat.default
-    );
-
-    dispatch(
-      fetchNewMovingStream({
-        id: streamId,
-        startDate: formattedStartDate,
-        endDate: formattedEndDate,
-      })
-    );
   }, [dateReference.triggerDirectionUpdate]);
-
-  useEffect(() => {
-    const formattedDateRange = getFormattedDateRange();
-    const processedMaxEndDate = formattedDateRange.lastDate;
-    const processedFirstDataPoint = formattedDateRange.firstDate;
-
-    setDateReference((prevState) => ({
-      ...prevState,
-      firstVisibleDataPointDate: processedFirstDataPoint,
-      lastVisibleDataPointDate: processedMaxEndDate,
-    }));
-  }, [movingCalendarData]);
 
   return {
     threeMonthsData,

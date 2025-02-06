@@ -13,12 +13,16 @@ interface CalendarProps {
   streamId: number;
   minCalendarDate: string;
   maxCalendarDate: string;
+  onDayClick: (date: Date | null) => void;
+  selectedDate: Date | null;
 }
 
 const Calendar: React.FC<CalendarProps> = ({
   streamId,
   minCalendarDate,
   maxCalendarDate,
+  onDayClick,
+  selectedDate,
 }) => {
   const {
     threeMonthsData,
@@ -36,6 +40,14 @@ const Calendar: React.FC<CalendarProps> = ({
     () => (isMobileView ? [...threeMonthsData].reverse() : threeMonthsData),
     [threeMonthsData, isMobileView]
   );
+
+  const handleDayClick = (date: Date) => {
+    if (selectedDate && date.getTime() === selectedDate.getTime()) {
+      onDayClick(null);
+    } else {
+      onDayClick(date);
+    }
+  };
 
   const MobileSwipeComponent = () => (
     <S.MobileSwipeContainer>
@@ -82,7 +94,12 @@ const Calendar: React.FC<CalendarProps> = ({
       <S.ThreeMonths>
         {!isMobileView && <DesktopSwipeComponent />}
         {sortedThreeMonthsData.map((month) => (
-          <Month key={month.monthName} {...month} />
+          <Month
+            key={month.monthName}
+            {...month}
+            onDayClick={handleDayClick}
+            selectedDate={selectedDate}
+          />
         ))}
       </S.ThreeMonths>
     </>
@@ -101,4 +118,5 @@ const Calendar: React.FC<CalendarProps> = ({
     )
   );
 };
+
 export { Calendar };
