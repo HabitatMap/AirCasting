@@ -97,19 +97,33 @@ const getXAxisOptions = (
         };
       }
     ) => {
-      if (isInitialLoad) {
-        isInitialLoad = false;
-        return;
-      }
+      console.log("handleSetExtremes called with:", {
+        min: e.min,
+        max: e.max,
+        trigger: e.trigger,
+        isLoading,
+        isInitialLoad,
+      });
 
       if (!isLoading && e.min !== undefined && e.max !== undefined) {
-        // Update time range display
+        console.log("Processing extremes update", {
+          min: new Date(e.min).toISOString(),
+          max: new Date(e.max).toISOString(),
+        });
+
+        await fetchMeasurementsIfNeeded(e.min, e.max);
+
         if (rangeDisplayRef?.current) {
           const htmlContent = generateTimeRangeHTML(e.min, e.max);
+          console.log("Updating range display with:", htmlContent);
           updateRangeDisplayDOM(rangeDisplayRef.current, htmlContent, true);
         }
 
         if (fixedSessionTypeSelected && streamId !== null) {
+          console.log(
+            "Updating fixed measurement extremes for stream:",
+            streamId
+          );
           dispatch(
             updateFixedMeasurementExtremes({
               streamId,
@@ -118,6 +132,7 @@ const getXAxisOptions = (
             })
           );
         } else {
+          console.log("Updating mobile measurement extremes");
           dispatch(
             updateMobileMeasurementExtremes({
               min: e.min,
@@ -127,13 +142,17 @@ const getXAxisOptions = (
         }
 
         const { dataMin, dataMax } = chart.xAxis[0].getExtremes();
-        const buffer = (e.max - e.min) * 0.1;
+        console.log("Current data range:", {
+          dataMin: new Date(dataMin).toISOString(),
+          dataMax: new Date(dataMax).toISOString(),
+        });
 
-        await fetchMeasurementsIfNeeded(e.min, e.max);
+        const buffer = (e.max - e.min) * 0.1;
 
         const visiblePoints = chart.series[0].points.filter(
           (point) => point.x >= e.min && point.x <= e.max
         );
+        console.log("Visible points in range:", visiblePoints.length);
 
         if (visiblePoints.length > 1) {
           let lastTimestamp = visiblePoints[0].x;
@@ -157,6 +176,12 @@ const getXAxisOptions = (
           const newEnd = e.max + MILLISECONDS_IN_A_MONTH;
           await fetchMeasurementsIfNeeded(e.max, newEnd);
         }
+      } else {
+        console.log("Skipping extremes update:", {
+          isLoading,
+          hasMin: e.min !== undefined,
+          hasMax: e.max !== undefined,
+        });
       }
     },
     100
@@ -191,7 +216,19 @@ const getXAxisOptions = (
       afterSetExtremes: async function (
         e: Highcharts.AxisSetExtremesEventObject
       ) {
+        console.log("afterSetExtremes triggered:", {
+          trigger: e.trigger,
+          min: e.min ? new Date(e.min).toISOString() : null,
+          max: e.max ? new Date(e.max).toISOString() : null,
+        });
+
         const extremes = this.chart.xAxis[0].getExtremes();
+        console.log("Current chart extremes:", {
+          dataMin: new Date(extremes.dataMin).toISOString(),
+          dataMax: new Date(extremes.dataMax).toISOString(),
+          min: new Date(extremes.min).toISOString(),
+          max: new Date(extremes.max).toISOString(),
+        });
 
         // Validate extremes and ensure they are numbers
         const min = typeof e.min === "number" ? e.min : extremes.min;
