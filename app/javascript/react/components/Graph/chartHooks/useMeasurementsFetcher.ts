@@ -1,4 +1,3 @@
-// app/javascript/react/components/Graph/chartHooks/useMeasurementsFetcher.ts
 import { useEffect, useRef } from "react";
 import {
   checkDataAvailability,
@@ -16,42 +15,63 @@ export const useMeasurementsFetcher = (streamId: number | null) => {
   const dispatch = useAppDispatch();
   const isFirstRender = useRef(true);
 
-  // Reset flag on mount
   useEffect(() => {
     isFirstRender.current = true;
+    console.log(
+      "[useMeasurementsFetcher] Mounted: isFirstRender reset to true"
+    );
   }, []);
 
   const fetchMeasurementsIfNeeded = async (start: number, end: number) => {
-    if (!streamId || isCurrentlyFetchingRef.current) return;
+    console.log(
+      "[useMeasurementsFetcher] Called fetchMeasurementsIfNeeded with start:",
+      start,
+      "end:",
+      end
+    );
+    if (!streamId || isCurrentlyFetchingRef.current) {
+      console.log(
+        "[useMeasurementsFetcher] Early return: streamId:",
+        streamId,
+        "isCurrentlyFetching:",
+        isCurrentlyFetchingRef.current
+      );
+      return;
+    }
 
     try {
       isCurrentlyFetchingRef.current = true;
-
       const hasData = await dispatch(
         checkDataAvailability({ streamId, start, end })
       ).unwrap();
-
+      console.log(
+        "[useMeasurementsFetcher] checkDataAvailability result:",
+        hasData,
+        "for range:",
+        start,
+        end
+      );
       if (!hasData) {
         let fetchStart: number, fetchEnd: number;
-
         if (isFirstRender.current) {
-          // On first render: use a 2-day buffer on each side.
           fetchStart = start - 2 * MILLISECONDS_IN_A_DAY;
           fetchEnd = end + 2 * MILLISECONDS_IN_A_DAY;
-          console.log("Fetching first render: 2 days buffer", {
+          console.log(
+            "[useMeasurementsFetcher] First render: computed fetchStart:",
             fetchStart,
-            fetchEnd,
-          });
+            "fetchEnd:",
+            fetchEnd
+          );
         } else {
-          // Subsequent calls: use a 1-month buffer on each side.
           fetchStart = start - MILLISECONDS_IN_A_MONTH;
           fetchEnd = end + MILLISECONDS_IN_A_MONTH;
-          console.log("Fetching subsequent render: 1 month buffer", {
+          console.log(
+            "[useMeasurementsFetcher] Subsequent render: computed fetchStart:",
             fetchStart,
-            fetchEnd,
-          });
+            "fetchEnd:",
+            fetchEnd
+          );
         }
-
         await dispatch(
           fetchMeasurements({
             streamId: Number(streamId),
@@ -59,7 +79,11 @@ export const useMeasurementsFetcher = (streamId: number | null) => {
             endTime: Math.floor(fetchEnd).toString(),
           })
         ).unwrap();
-
+        console.log(
+          "[useMeasurementsFetcher] Fetched measurements for range:",
+          fetchStart,
+          fetchEnd
+        );
         dispatch(
           updateFetchedTimeRanges({
             streamId,
@@ -67,15 +91,27 @@ export const useMeasurementsFetcher = (streamId: number | null) => {
             end: fetchEnd,
           })
         );
-
         if (isFirstRender.current) {
           isFirstRender.current = false;
+          console.log(
+            "[useMeasurementsFetcher] Setting isFirstRender to false"
+          );
         }
+      } else {
+        console.log(
+          "[useMeasurementsFetcher] Data already available for range:",
+          start,
+          end
+        );
       }
     } catch (error) {
-      console.error("Error fetching measurements:", error);
+      console.error(
+        "[useMeasurementsFetcher] Error fetching measurements:",
+        error
+      );
     } finally {
       isCurrentlyFetchingRef.current = false;
+      console.log("[useMeasurementsFetcher] isCurrentlyFetching set to false");
     }
   };
 

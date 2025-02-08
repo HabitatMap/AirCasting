@@ -19,7 +19,6 @@ import {
 import {
   resetLastSelectedTimeRange,
   resetTimeRange,
-  setLastSelectedTimeRange,
 } from "../../store/fixedStreamSlice";
 import { useAppDispatch, useAppSelector } from "../../store/hooks";
 import {
@@ -29,7 +28,6 @@ import {
 import {
   resetLastSelectedMobileTimeRange,
   selectLastSelectedMobileTimeRange,
-  setLastSelectedMobileTimeRange,
 } from "../../store/mobileStreamSlice";
 import { selectThresholds } from "../../store/thresholdSlice";
 import { SessionType, SessionTypes } from "../../types/filters";
@@ -38,10 +36,7 @@ import { GraphData } from "../../types/graph";
 import { MobileStreamShortInfo } from "../../types/mobileStream";
 import { FixedTimeRange, MobileTimeRange } from "../../types/timeRange";
 import { parseDateString } from "../../utils/dateParser";
-import {
-  getSelectedRangeIndex,
-  mapIndexToTimeRange,
-} from "../../utils/getTimeRange";
+import { getSelectedRangeIndex } from "../../utils/getTimeRange";
 import { useMapParams } from "../../utils/mapParamsHandler";
 import {
   MILLISECONDS_IN_A_DAY,
@@ -173,9 +168,14 @@ const Graph: React.FC<GraphProps> = React.memo(
 
     const chartData: GraphData = seriesData as GraphData;
 
+    const initialFetchedRangeRef = useRef<{
+      start: number;
+      end: number;
+    } | null>(null);
+    const initialLoadRef = useRef(true);
+
     // Hooks to fetch & update chart data
-    const { fetchMeasurementsIfNeeded, fetchedTimeRanges } =
-      useMeasurementsFetcher(streamId);
+    const { fetchMeasurementsIfNeeded } = useMeasurementsFetcher(streamId);
     const { updateChartData } = useChartUpdater({
       chartComponentRef,
       seriesData,
@@ -268,71 +268,46 @@ const Graph: React.FC<GraphProps> = React.memo(
       fixedStreamShortInfo.startTime,
       fixedStreamShortInfo.endTime,
     ]);
+    const streamStartTime = parseDateString(fixedStreamShortInfo.startTime);
+    const streamEndTime = fixedStreamShortInfo.endTime
+      ? parseDateString(fixedStreamShortInfo.endTime)
+      : Date.now();
 
     const handleRangeSelectorClick = useCallback(
-      (selectedButton: number) => {
-        onDayClick?.(null);
-
-        const timeRange = mapIndexToTimeRange(
-          selectedButton,
-          fixedSessionTypeSelected
-        );
-
-        // Update Redux state
-        if (fixedSessionTypeSelected) {
-          dispatch(setLastSelectedTimeRange(timeRange as FixedTimeRange));
-        } else {
-          dispatch(
-            setLastSelectedMobileTimeRange(timeRange as MobileTimeRange)
-          );
-        }
-
-        // Update chart extremes
+      (timeRange: FixedTimeRange) => {
         if (chartComponentRef.current?.chart) {
           const chart = chartComponentRef.current.chart;
-          const currentExtremes = chart.xAxis[0].getExtremes();
-          const currentMax = currentExtremes.max || Date.now();
-          let startTime, endTime;
-
-          switch (timeRange) {
-            case FixedTimeRange.Month:
-              endTime = currentMax;
-              startTime = endTime - MILLISECONDS_IN_A_MONTH;
-              break;
-            case FixedTimeRange.Week:
-              endTime = currentMax;
-              startTime = endTime - MILLISECONDS_IN_A_WEEK;
-              break;
-            case FixedTimeRange.Day:
-              endTime = currentMax;
-              startTime = endTime - MILLISECONDS_IN_A_DAY;
-              break;
-            default:
-              endTime = currentMax;
-              startTime = endTime - MILLISECONDS_IN_A_DAY;
+          let startTime: number;
+          let endTime: number;
+          if (timeRange === FixedTimeRange.Day && selectedDate) {
+            let startOfDay = new Date(selectedDate);
+            startOfDay.setUTCHours(0, 0, 0, 0);
+            let endOfDay = new Date(startOfDay);
+            endOfDay.setUTCDate(startOfDay.getUTCDate() + 1);
+            startTime = startOfDay.getTime();
+            endTime = endOfDay.getTime();
+            if (startTime < streamStartTime) startTime = streamStartTime;
+            if (endTime > streamEndTime) endTime = streamEndTime;
+          } else if (timeRange === FixedTimeRange.Week) {
+            endTime = chart.xAxis[0].getExtremes().max || Date.now();
+            startTime = endTime - MILLISECONDS_IN_A_WEEK;
+          } else if (timeRange === FixedTimeRange.Month) {
+            endTime = chart.xAxis[0].getExtremes().max || Date.now();
+            startTime = endTime - MILLISECONDS_IN_A_MONTH;
+          } else {
+            endTime = chart.xAxis[0].getExtremes().max || Date.now();
+            startTime = endTime - MILLISECONDS_IN_A_DAY;
           }
-
-          // First update the range selector button state
-          chart.update(
-            {
-              rangeSelector: {
-                selected: selectedButton,
-              },
-            },
-            false
+          console.log(
+            "[Graph] handleRangeSelectorClick: setting extremes to",
+            startTime,
+            endTime
           );
-
-          // Then set the extremes and fetch data
-          chart.xAxis[0].setExtremes(startTime, endTime, true); // true triggers redraw
+          chart.xAxis[0].setExtremes(startTime, endTime, true);
           fetchMeasurementsIfNeeded(startTime, endTime);
         }
       },
-      [
-        fixedSessionTypeSelected,
-        dispatch,
-        onDayClick,
-        fetchMeasurementsIfNeeded,
-      ]
+      [selectedDate, streamStartTime, streamEndTime, fetchMeasurementsIfNeeded]
     );
 
     const handleChartLoad = useCallback(
@@ -364,6 +339,8 @@ const Graph: React.FC<GraphProps> = React.memo(
           isLoading,
           fetchMeasurementsIfNeeded,
           streamId,
+          initialFetchedRangeRef,
+          initialLoadRef,
           onDayClick,
           rangeDisplayRef
         ),
@@ -396,7 +373,7 @@ const Graph: React.FC<GraphProps> = React.memo(
               text: t("graph.24Hours"),
               events: {
                 click: function () {
-                  handleRangeSelectorClick(0);
+                  handleRangeSelectorClick(FixedTimeRange.Day);
                 },
               },
             },
@@ -406,7 +383,7 @@ const Graph: React.FC<GraphProps> = React.memo(
               text: t("graph.oneWeek"),
               events: {
                 click: function () {
-                  handleRangeSelectorClick(1);
+                  handleRangeSelectorClick(FixedTimeRange.Week);
                 },
               },
             },
@@ -416,7 +393,7 @@ const Graph: React.FC<GraphProps> = React.memo(
               text: t("graph.oneMonth"),
               events: {
                 click: function () {
-                  handleRangeSelectorClick(2);
+                  handleRangeSelectorClick(FixedTimeRange.Month);
                 },
               },
             },
