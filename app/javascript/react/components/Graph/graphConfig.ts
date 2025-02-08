@@ -63,18 +63,26 @@ const getScrollbarOptions = (isCalendarPage: boolean, isMobile: boolean) => {
   };
 };
 
+const TOLERANCE_UPPER = 60000; // 60 seconds tolerance for upper edge fetch
+
 const getXAxisOptions = (
   isMobile: boolean,
   fixedSessionTypeSelected: boolean,
-  dispatch: any, // Replace with your proper AppDispatch type if available.
+  dispatch: any,
   isLoading: boolean,
   fetchMeasurementsIfNeeded: (start: number, end: number) => Promise<void>,
   streamId: number | null,
+  // Required stable refs:
+  initialFetchedRangeRef: React.MutableRefObject<{
+    start: number;
+    end: number;
+  } | null>,
+  initialLoadRef: React.MutableRefObject<boolean>,
+  // Optional parameters:
   onDayClick?: (date: Date | null) => void,
   rangeDisplayRef?: React.RefObject<HTMLDivElement>
 ): Highcharts.XAxisOptions => {
   let fetchTimeout: NodeJS.Timeout | null = null;
-  let isInitialLoad = true; // Local flag for first call.
   const MAX_GAP_SIZE = MILLISECONDS_IN_A_DAY;
 
   const updateRangeDisplayDOM = (
@@ -96,39 +104,122 @@ const getXAxisOptions = (
         };
       }
     ) => {
-      console.log("handleSetExtremes called with:", {
-        min: e.min,
-        max: e.max,
+      console.log("[getXAxisOptions] handleSetExtremes called with:", {
+        originalEmin: e.min,
+        originalEmax: e.max,
         trigger: e.trigger,
-        isLoading,
-        isInitialLoad,
+        initialLoad: initialLoadRef.current,
+        storedRange: initialFetchedRangeRef.current,
       });
 
       if (!isLoading && e.min !== undefined && e.max !== undefined) {
-        // *** On first call, override the range to a centered 2-day window ***
-        if (isInitialLoad) {
+        // First render adjustment
+        if (initialLoadRef.current) {
           const desiredRange = 2 * MILLISECONDS_IN_A_DAY;
           const center = (e.min + e.max) / 2;
           e.min = center - desiredRange / 2;
           e.max = center + desiredRange / 2;
-          console.log("First render: adjusted extremes to 2 days", {
-            min: e.min,
-            max: e.max,
-          });
-          isInitialLoad = false;
+          console.log(
+            "[getXAxisOptions] First render adjustment: new e.min:",
+            e.min,
+            "new e.max:",
+            e.max
+          );
+          initialFetchedRangeRef.current = { start: e.min, end: e.max };
+          console.log(
+            "[getXAxisOptions] Stored initialFetchedRange:",
+            initialFetchedRangeRef.current
+          );
+          initialLoadRef.current = false;
+        } else if (initialFetchedRangeRef.current) {
+          // If the new range nearly matches the initially fetched range, skip fetching
+          const tolerance = 1000; // 1 second tolerance
+          if (
+            Math.abs(e.min - initialFetchedRangeRef.current.start) <
+              tolerance &&
+            Math.abs(e.max - initialFetchedRangeRef.current.end) < tolerance
+          ) {
+            console.log(
+              "[getXAxisOptions] New range matches initial fetched range; skipping additional fetch."
+            );
+            return;
+          }
+          console.log(
+            "[getXAxisOptions] Requested range is outside initial fetched range."
+          );
         }
-        // *********************************************************************
 
-        console.log("Processing extremes update", {
-          min: new Date(e.min).toISOString(),
-          max: new Date(e.max).toISOString(),
+        // Get the current chart extremes once and reuse them.
+        const chartExtremes = chart.xAxis[0].getExtremes();
+        console.log("[getXAxisOptions] Chart extremes after update:", {
+          dataMin: new Date(chartExtremes.dataMin).toISOString(),
+          dataMax: new Date(chartExtremes.dataMax).toISOString(),
         });
+        const buffer = (e.max - e.min) * 0.1;
+        const visiblePoints = chart.series[0].points.filter(
+          (point) => point.x >= e.min && point.x <= e.max
+        );
+        console.log(
+          "[getXAxisOptions] Number of visible points:",
+          visiblePoints.length
+        );
 
-        await fetchMeasurementsIfNeeded(e.min, e.max);
+        // Proceed with fetching missing gaps among visible points.
+        if (visiblePoints.length > 1) {
+          let lastTimestamp = visiblePoints[0].x;
+          for (let i = 1; i < visiblePoints.length; i++) {
+            const currentTimestamp = visiblePoints[i].x;
+            const gap = currentTimestamp - lastTimestamp;
+            if (gap > MAX_GAP_SIZE) {
+              console.log(
+                "[getXAxisOptions] Detected gap of",
+                gap,
+                "between",
+                lastTimestamp,
+                "and",
+                currentTimestamp,
+                "- fetching missing data."
+              );
+              await fetchMeasurementsIfNeeded(lastTimestamp, currentTimestamp);
+            }
+            lastTimestamp = currentTimestamp;
+          }
+        }
 
+        // Fetch additional data if near the lower edge.
+        if (e.min <= chartExtremes.dataMin + buffer) {
+          const newStart = Math.max(e.min - MILLISECONDS_IN_A_MONTH, 0);
+          console.log(
+            "[getXAxisOptions] e.min is close to dataMin; fetching additional data from",
+            newStart,
+            "to",
+            e.min
+          );
+          await fetchMeasurementsIfNeeded(newStart, e.min);
+        }
+
+        // Upper edge: only fetch if e.max is not nearly equal to dataMax.
+        if (e.max >= chartExtremes.dataMax - buffer) {
+          if (Math.abs(e.max - chartExtremes.dataMax) > TOLERANCE_UPPER) {
+            const newEnd = e.max + MILLISECONDS_IN_A_MONTH;
+            console.log(
+              "[getXAxisOptions] e.max is close to dataMax; fetching additional data from",
+              e.max,
+              "to",
+              newEnd
+            );
+            await fetchMeasurementsIfNeeded(e.max, newEnd);
+          } else {
+            console.log(
+              "[getXAxisOptions] e.max is at the upper edge of available data; skipping additional upper fetch."
+            );
+          }
+        }
+
+        // Dispatch updates for measurement extremes.
         if (fixedSessionTypeSelected && streamId !== null) {
           console.log(
-            "Updating fixed measurement extremes for stream:",
+            "[getXAxisOptions] Updating fixed measurement extremes for stream:",
             streamId
           );
           dispatch(
@@ -139,7 +230,7 @@ const getXAxisOptions = (
             })
           );
         } else {
-          console.log("Updating mobile measurement extremes");
+          console.log("[getXAxisOptions] Updating mobile measurement extremes");
           dispatch(
             updateMobileMeasurementExtremes({
               min: e.min,
@@ -148,50 +239,24 @@ const getXAxisOptions = (
           );
         }
 
-        const { dataMin, dataMax } = chart.xAxis[0].getExtremes();
-        console.log("Current data range:", {
-          dataMin: new Date(dataMin).toISOString(),
-          dataMax: new Date(dataMax).toISOString(),
-        });
-
-        const buffer = (e.max - e.min) * 0.1;
-        const visiblePoints = chart.series[0].points.filter(
-          (point) => point.x >= e.min && point.x <= e.max
-        );
-        console.log("Visible points in range:", visiblePoints.length);
-
-        if (visiblePoints.length > 1) {
-          let lastTimestamp = visiblePoints[0].x;
-          for (let i = 1; i < visiblePoints.length; i++) {
-            const currentTimestamp = visiblePoints[i].x;
-            const gap = currentTimestamp - lastTimestamp;
-            if (gap > MAX_GAP_SIZE) {
-              await fetchMeasurementsIfNeeded(lastTimestamp, currentTimestamp);
-            }
-            lastTimestamp = currentTimestamp;
-          }
-        }
-
-        if (e.min <= dataMin + buffer) {
-          const newStart = Math.max(e.min - MILLISECONDS_IN_A_MONTH, 0);
-          await fetchMeasurementsIfNeeded(newStart, e.min);
-        }
-        if (e.max >= dataMax - buffer) {
-          const newEnd = e.max + MILLISECONDS_IN_A_MONTH;
-          await fetchMeasurementsIfNeeded(e.max, newEnd);
-        }
-
+        // Update the range display if applicable.
         if (rangeDisplayRef?.current) {
           const htmlContent = generateTimeRangeHTML(e.min, e.max);
-          console.log("Updating range display with:", htmlContent);
+          console.log(
+            "[getXAxisOptions] Updating range display with:",
+            htmlContent
+          );
           updateRangeDisplayDOM(rangeDisplayRef.current, htmlContent, true);
         }
       } else {
-        console.log("Skipping extremes update:", {
+        console.log(
+          "[getXAxisOptions] Skipping extremes update: isLoading:",
           isLoading,
-          hasMin: e.min !== undefined,
-          hasMax: e.max !== undefined,
-        });
+          "hasMin:",
+          e.min !== undefined,
+          "hasMax:",
+          e.max !== undefined
+        );
       }
     },
     100
@@ -218,7 +283,7 @@ const getXAxisOptions = (
       afterSetExtremes: async function (
         e: Highcharts.AxisSetExtremesEventObject
       ) {
-        console.log("afterSetExtremes triggered:", {
+        console.log("[getXAxisOptions] afterSetExtremes triggered:", {
           trigger: e.trigger,
           min: e.min ? new Date(e.min).toISOString() : null,
           max: e.max ? new Date(e.max).toISOString() : null,
