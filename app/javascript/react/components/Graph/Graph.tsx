@@ -174,7 +174,8 @@ const Graph: React.FC<GraphProps> = React.memo(
     const chartData: GraphData = seriesData as GraphData;
 
     // Hooks to fetch & update chart data
-    const { fetchMeasurementsIfNeeded } = useMeasurementsFetcher(streamId);
+    const { fetchMeasurementsIfNeeded, fetchedTimeRanges } =
+      useMeasurementsFetcher(streamId);
     const { updateChartData } = useChartUpdater({
       chartComponentRef,
       seriesData,
@@ -491,26 +492,6 @@ const Graph: React.FC<GraphProps> = React.memo(
         dispatch(resetLastSelectedMobileTimeRange());
       }
     }, [fixedSessionTypeSelected, dispatch]);
-
-    // If no data, fetch the last 30 days (optional logic)
-    useEffect(() => {
-      if (
-        fixedSessionTypeSelected &&
-        streamId &&
-        (!measurements || measurements.length === 0) &&
-        !isFirstLoad
-      ) {
-        const now = Date.now();
-        const oneMonthAgo = now - MILLISECONDS_IN_A_MONTH;
-        fetchMeasurementsIfNeeded(oneMonthAgo, now);
-      }
-    }, [
-      fixedSessionTypeSelected,
-      streamId,
-      measurements,
-      fetchMeasurementsIfNeeded,
-      isFirstLoad,
-    ]);
 
     useEffect(() => {
       const applyStyles = () => {
