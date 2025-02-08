@@ -63,7 +63,7 @@ const getScrollbarOptions = (isCalendarPage: boolean, isMobile: boolean) => {
   };
 };
 
-const TOLERANCE_UPPER = 60000; // 60 seconds tolerance for upper edge fetch
+const TOLERANCE_UPPER = 60000; // 60 seconds tolerance
 
 const getXAxisOptions = (
   isMobile: boolean,
@@ -72,15 +72,14 @@ const getXAxisOptions = (
   isLoading: boolean,
   fetchMeasurementsIfNeeded: (start: number, end: number) => Promise<void>,
   streamId: number | null,
-  // Required stable refs:
   initialFetchedRangeRef: React.MutableRefObject<{
     start: number;
     end: number;
   } | null>,
   initialLoadRef: React.MutableRefObject<boolean>,
-  // Optional parameters:
   onDayClick?: (date: Date | null) => void,
-  rangeDisplayRef?: React.RefObject<HTMLDivElement>
+  rangeDisplayRef?: React.RefObject<HTMLDivElement>,
+  lastRangeSelectorTriggerRef?: React.MutableRefObject<string | null>
 ): Highcharts.XAxisOptions => {
   let fetchTimeout: NodeJS.Timeout | null = null;
   const MAX_GAP_SIZE = MILLISECONDS_IN_A_DAY;
@@ -98,11 +97,7 @@ const getXAxisOptions = (
   const handleSetExtremes = debounce(
     async (
       e: Highcharts.AxisSetExtremesEventObject,
-      chart: Highcharts.Chart & {
-        rangeSelector?: {
-          clickButton: (index: number, redraw?: boolean) => void;
-        };
-      }
+      chart: Highcharts.Chart
     ) => {
       console.log("[getXAxisOptions] handleSetExtremes called with:", {
         originalEmin: e.min,
@@ -112,8 +107,27 @@ const getXAxisOptions = (
         storedRange: initialFetchedRangeRef.current,
       });
 
-      if (!isLoading && e.min !== undefined && e.max !== undefined) {
-        // First render adjustment
+      if (e.min !== undefined && e.max !== undefined) {
+        // Add padding to fetch more data than visible range
+        const visibleRange = e.max - e.min;
+        const padding = visibleRange * 0.5; // 50% padding on each side
+        const fetchStart = Math.max(0, e.min - padding);
+        const fetchEnd = e.max + padding;
+
+        // Always fetch data for scrollbar/navigator events
+        if (e.trigger === "scrollbar" || e.trigger === "navigator") {
+          console.log(
+            "[getXAxisOptions] Scrollbar/Navigator triggered - fetching data:",
+            {
+              start: fetchStart,
+              end: fetchEnd,
+            }
+          );
+          await fetchMeasurementsIfNeeded(fetchStart, fetchEnd);
+          return;
+        }
+
+        // Rest of existing logic for other events...
         if (initialLoadRef.current) {
           const desiredRange = 2 * MILLISECONDS_IN_A_DAY;
           const center = (e.min + e.max) / 2;
@@ -126,13 +140,8 @@ const getXAxisOptions = (
             e.max
           );
           initialFetchedRangeRef.current = { start: e.min, end: e.max };
-          console.log(
-            "[getXAxisOptions] Stored initialFetchedRange:",
-            initialFetchedRangeRef.current
-          );
           initialLoadRef.current = false;
         } else if (initialFetchedRangeRef.current) {
-          // If the new range nearly matches the initially fetched range, skip fetching
           const tolerance = 1000; // 1 second tolerance
           if (
             Math.abs(e.min - initialFetchedRangeRef.current.start) <
@@ -149,36 +158,21 @@ const getXAxisOptions = (
           );
         }
 
-        // Get the current chart extremes once and reuse them.
+        // Get chart extremes and check gaps
         const chartExtremes = chart.xAxis[0].getExtremes();
-        console.log("[getXAxisOptions] Chart extremes after update:", {
-          dataMin: new Date(chartExtremes.dataMin).toISOString(),
-          dataMax: new Date(chartExtremes.dataMax).toISOString(),
-        });
-        const buffer = (e.max - e.min) * 0.1;
         const visiblePoints = chart.series[0].points.filter(
           (point) => point.x >= e.min && point.x <= e.max
         );
-        console.log(
-          "[getXAxisOptions] Number of visible points:",
-          visiblePoints.length
-        );
 
-        // Proceed with fetching missing gaps among visible points.
+        // Check for gaps in data
         if (visiblePoints.length > 1) {
           let lastTimestamp = visiblePoints[0].x;
           for (let i = 1; i < visiblePoints.length; i++) {
             const currentTimestamp = visiblePoints[i].x;
             const gap = currentTimestamp - lastTimestamp;
-            if (gap > MAX_GAP_SIZE) {
+            if (gap > MILLISECONDS_IN_A_DAY) {
               console.log(
-                "[getXAxisOptions] Detected gap of",
-                gap,
-                "between",
-                lastTimestamp,
-                "and",
-                currentTimestamp,
-                "- fetching missing data."
+                "[getXAxisOptions] Found data gap, fetching missing data"
               );
               await fetchMeasurementsIfNeeded(lastTimestamp, currentTimestamp);
             }
@@ -186,8 +180,8 @@ const getXAxisOptions = (
           }
         }
 
-        // Fetch additional data if near the lower edge.
-        if (e.min <= chartExtremes.dataMin + buffer) {
+        // Check if we are near the lower edge.
+        if (e.min <= chartExtremes.dataMin) {
           const newStart = Math.max(e.min - MILLISECONDS_IN_A_MONTH, 0);
           console.log(
             "[getXAxisOptions] e.min is close to dataMin; fetching additional data from",
@@ -198,8 +192,8 @@ const getXAxisOptions = (
           await fetchMeasurementsIfNeeded(newStart, e.min);
         }
 
-        // Upper edge: only fetch if e.max is not nearly equal to dataMax.
-        if (e.max >= chartExtremes.dataMax - buffer) {
+        // Upper edge: fetch more only if not too close.
+        if (e.max >= chartExtremes.dataMax) {
           if (Math.abs(e.max - chartExtremes.dataMax) > TOLERANCE_UPPER) {
             const newEnd = e.max + MILLISECONDS_IN_A_MONTH;
             console.log(
@@ -216,7 +210,7 @@ const getXAxisOptions = (
           }
         }
 
-        // Dispatch updates for measurement extremes.
+        // Update extremes in Redux
         if (fixedSessionTypeSelected && streamId !== null) {
           console.log(
             "[getXAxisOptions] Updating fixed measurement extremes for stream:",
@@ -239,7 +233,7 @@ const getXAxisOptions = (
           );
         }
 
-        // Update the range display if applicable.
+        // Update the range display if provided.
         if (rangeDisplayRef?.current) {
           const htmlContent = generateTimeRangeHTML(e.min, e.max);
           console.log(
@@ -247,6 +241,10 @@ const getXAxisOptions = (
             htmlContent
           );
           updateRangeDisplayDOM(rangeDisplayRef.current, htmlContent, true);
+        }
+        // Clear our stored trigger flag so later events don't misfire.
+        if (lastRangeSelectorTriggerRef) {
+          lastRangeSelectorTriggerRef.current = null;
         }
       } else {
         console.log(
@@ -280,17 +278,9 @@ const getXAxisOptions = (
     minRange: MILLISECONDS_IN_A_SECOND,
     ordinal: false,
     events: {
-      afterSetExtremes: async function (
-        e: Highcharts.AxisSetExtremesEventObject
-      ) {
-        console.log("[getXAxisOptions] afterSetExtremes triggered:", {
-          trigger: e.trigger,
-          min: e.min ? new Date(e.min).toISOString() : null,
-          max: e.max ? new Date(e.max).toISOString() : null,
-        });
+      afterSetExtremes: function (e: Highcharts.AxisSetExtremesEventObject) {
         if (fetchTimeout) {
           clearTimeout(fetchTimeout);
-          fetchTimeout = null;
         }
         fetchTimeout = setTimeout(() => {
           handleSetExtremes(e, this.chart);
