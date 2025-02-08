@@ -7,7 +7,7 @@ import {
 import { useAppDispatch } from "../../../store/hooks";
 import {
   MILLISECONDS_IN_A_DAY,
-  MILLISECONDS_IN_A_MONTH,
+  MILLISECONDS_IN_A_WEEK,
 } from "../../../utils/timeRanges";
 
 export const useMeasurementsFetcher = (streamId: number | null) => {
@@ -63,8 +63,8 @@ export const useMeasurementsFetcher = (streamId: number | null) => {
             fetchEnd
           );
         } else {
-          fetchStart = start - MILLISECONDS_IN_A_MONTH;
-          fetchEnd = end + MILLISECONDS_IN_A_MONTH;
+          fetchStart = start - MILLISECONDS_IN_A_WEEK * 2;
+          fetchEnd = end + MILLISECONDS_IN_A_WEEK * 2;
           console.log(
             "[useMeasurementsFetcher] Subsequent render: computed fetchStart:",
             fetchStart,

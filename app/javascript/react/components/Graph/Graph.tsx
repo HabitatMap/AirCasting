@@ -19,6 +19,7 @@ import {
 import {
   resetLastSelectedTimeRange,
   resetTimeRange,
+  setLastSelectedTimeRange,
 } from "../../store/fixedStreamSlice";
 import { useAppDispatch, useAppSelector } from "../../store/hooks";
 import {
@@ -28,6 +29,7 @@ import {
 import {
   resetLastSelectedMobileTimeRange,
   selectLastSelectedMobileTimeRange,
+  setLastSelectedMobileTimeRange,
 } from "../../store/mobileStreamSlice";
 import { selectThresholds } from "../../store/thresholdSlice";
 import { SessionType, SessionTypes } from "../../types/filters";
@@ -36,7 +38,10 @@ import { GraphData } from "../../types/graph";
 import { MobileStreamShortInfo } from "../../types/mobileStream";
 import { FixedTimeRange, MobileTimeRange } from "../../types/timeRange";
 import { parseDateString } from "../../utils/dateParser";
-import { getSelectedRangeIndex } from "../../utils/getTimeRange";
+import {
+  getSelectedRangeIndex,
+  mapIndexToTimeRange,
+} from "../../utils/getTimeRange";
 import { useMapParams } from "../../utils/mapParamsHandler";
 import {
   MILLISECONDS_IN_A_DAY,
@@ -274,40 +279,69 @@ const Graph: React.FC<GraphProps> = React.memo(
       : Date.now();
 
     const handleRangeSelectorClick = useCallback(
-      (timeRange: FixedTimeRange) => {
+      (selectedButton: number) => {
+        onDayClick?.(null);
+
+        const timeRange = mapIndexToTimeRange(
+          selectedButton,
+          fixedSessionTypeSelected
+        );
+
+        // Update Redux state
+        if (fixedSessionTypeSelected) {
+          dispatch(setLastSelectedTimeRange(timeRange as FixedTimeRange));
+        } else {
+          dispatch(
+            setLastSelectedMobileTimeRange(timeRange as MobileTimeRange)
+          );
+        }
+
+        // Update chart extremes
         if (chartComponentRef.current?.chart) {
           const chart = chartComponentRef.current.chart;
-          let startTime: number;
-          let endTime: number;
-          if (timeRange === FixedTimeRange.Day && selectedDate) {
-            let startOfDay = new Date(selectedDate);
-            startOfDay.setUTCHours(0, 0, 0, 0);
-            let endOfDay = new Date(startOfDay);
-            endOfDay.setUTCDate(startOfDay.getUTCDate() + 1);
-            startTime = startOfDay.getTime();
-            endTime = endOfDay.getTime();
-            if (startTime < streamStartTime) startTime = streamStartTime;
-            if (endTime > streamEndTime) endTime = streamEndTime;
-          } else if (timeRange === FixedTimeRange.Week) {
-            endTime = chart.xAxis[0].getExtremes().max || Date.now();
-            startTime = endTime - MILLISECONDS_IN_A_WEEK;
-          } else if (timeRange === FixedTimeRange.Month) {
-            endTime = chart.xAxis[0].getExtremes().max || Date.now();
-            startTime = endTime - MILLISECONDS_IN_A_MONTH;
-          } else {
-            endTime = chart.xAxis[0].getExtremes().max || Date.now();
-            startTime = endTime - MILLISECONDS_IN_A_DAY;
+          const currentExtremes = chart.xAxis[0].getExtremes();
+          const currentMax = currentExtremes.max || Date.now();
+          let startTime, endTime;
+
+          switch (timeRange) {
+            case FixedTimeRange.Month:
+              endTime = currentMax;
+              startTime = endTime - MILLISECONDS_IN_A_MONTH;
+              break;
+            case FixedTimeRange.Week:
+              endTime = currentMax;
+              startTime = endTime - MILLISECONDS_IN_A_WEEK;
+              break;
+            case FixedTimeRange.Day:
+              endTime = currentMax;
+              startTime = endTime - MILLISECONDS_IN_A_DAY;
+              break;
+            default:
+              endTime = currentMax;
+              startTime = endTime - MILLISECONDS_IN_A_DAY;
           }
-          console.log(
-            "[Graph] handleRangeSelectorClick: setting extremes to",
-            startTime,
-            endTime
+
+          // First update the range selector button state
+          chart.update(
+            {
+              rangeSelector: {
+                selected: selectedButton,
+              },
+            },
+            false
           );
-          chart.xAxis[0].setExtremes(startTime, endTime, true);
+
+          // Then set the extremes and fetch data
+          chart.xAxis[0].setExtremes(startTime, endTime, true); // true triggers redraw
           fetchMeasurementsIfNeeded(startTime, endTime);
         }
       },
-      [selectedDate, streamStartTime, streamEndTime, fetchMeasurementsIfNeeded]
+      [
+        fixedSessionTypeSelected,
+        dispatch,
+        onDayClick,
+        fetchMeasurementsIfNeeded,
+      ]
     );
 
     const handleChartLoad = useCallback(
@@ -373,7 +407,7 @@ const Graph: React.FC<GraphProps> = React.memo(
               text: t("graph.24Hours"),
               events: {
                 click: function () {
-                  handleRangeSelectorClick(FixedTimeRange.Day);
+                  handleRangeSelectorClick(0);
                 },
               },
             },
@@ -383,7 +417,7 @@ const Graph: React.FC<GraphProps> = React.memo(
               text: t("graph.oneWeek"),
               events: {
                 click: function () {
-                  handleRangeSelectorClick(FixedTimeRange.Week);
+                  handleRangeSelectorClick(1);
                 },
               },
             },
@@ -393,7 +427,7 @@ const Graph: React.FC<GraphProps> = React.memo(
               text: t("graph.oneMonth"),
               events: {
                 click: function () {
-                  handleRangeSelectorClick(FixedTimeRange.Month);
+                  handleRangeSelectorClick(2);
                 },
               },
             },
@@ -402,6 +436,31 @@ const Graph: React.FC<GraphProps> = React.memo(
         },
         scrollbar: {
           ...getScrollbarOptions(isCalendarPage, isMobile),
+          events: {
+            afterSetExtremes: function (
+              e: Highcharts.AxisSetExtremesEventObject
+            ) {
+              if (e.trigger === "scrollbar" || e.trigger === "navigator") {
+                const { min: newMin, max: newMax } = e;
+                if (newMin && newMax) {
+                  // Add padding to the range to ensure smooth scrolling
+                  const padding = (newMax - newMin) * 0.5; // 50% padding on each side
+                  const fetchStart = Math.max(0, newMin - padding);
+                  const fetchEnd = newMax + padding;
+
+                  // Reset any existing range selection
+                  if (fixedSessionTypeSelected) {
+                    dispatch(resetLastSelectedTimeRange());
+                  } else {
+                    dispatch(resetLastSelectedMobileTimeRange());
+                  }
+
+                  // Fetch data for the expanded range
+                  fetchMeasurementsIfNeeded(fetchStart, fetchEnd);
+                }
+              }
+            },
+          },
         },
         navigator: {
           ...getNavigatorOptions(),
