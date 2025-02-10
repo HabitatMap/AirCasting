@@ -332,7 +332,7 @@ const Graph: React.FC<GraphProps> = React.memo(
           );
 
           // Then set the extremes and fetch data
-          chart.xAxis[0].setExtremes(startTime, endTime, true); // true triggers redraw
+          chart.xAxis[0].setExtremes(startTime, endTime, true);
           fetchMeasurementsIfNeeded(startTime, endTime);
         }
       },
