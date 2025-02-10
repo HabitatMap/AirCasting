@@ -71,8 +71,6 @@ const getScrollbarOptions = (isCalendarPage: boolean, isMobile: boolean) => {
   };
 };
 
-const TOLERANCE_UPPER = 60000; // 60 seconds tolerance
-
 const getXAxisOptions = (
   isMobile: boolean,
   fixedSessionTypeSelected: boolean,
@@ -112,6 +110,157 @@ const getXAxisOptions = (
     `;
     rangeDisplayRef.current.innerHTML = htmlContent;
   };
+
+  // const handleSetExtremes = debounce(
+  //   async (
+  //     e: Highcharts.AxisSetExtremesEventObject,
+  //     chart: ChartWithRangeSelector
+  //   ) => {
+  //     console.log(
+  //       "[handleSetExtremes] called with trigger:",
+  //       e.trigger || "unknown",
+  //       "min:",
+  //       new Date(e.min || 0).toISOString()
+  //     );
+
+  //     if (e.min !== undefined && e.max !== undefined) {
+  //       // Add padding so we fetch slightly more data than is visible.
+  //       const visibleRange = e.max - e.min;
+  //       const padding = visibleRange * 0.5;
+  //       const fetchStart = Math.max(0, e.min - padding);
+  //       const fetchEnd = e.max + padding;
+
+  //       try {
+  //         await fetchMeasurementsIfNeeded(fetchStart, fetchEnd);
+
+  //         // Handle different triggers
+  //         switch (e.trigger) {
+  //           case "scrollbar":
+  //           case "navigator": {
+  //             // Reset selections and update with actual times
+  //             if (fixedSessionTypeSelected) {
+  //               dispatch(resetLastSelectedTimeRange());
+  //             } else {
+  //               dispatch(resetLastSelectedMobileTimeRange());
+  //             }
+  //             onDayClick?.(null);
+
+  //             const currentExtremes = chart.xAxis[0].getExtremes();
+  //             updateRangeDisplay(
+  //               currentExtremes.min || e.min,
+  //               currentExtremes.max || e.max,
+  //               false
+  //             );
+  //             break;
+  //           }
+
+  //           case "rangeSelectorButton": {
+  //             // Reset day selection
+  //             onDayClick?.(null);
+
+  //             // Get the clicked button's range
+  //             const buttonElement =
+  //               e.trigger === "rangeSelectorButton"
+  //                 ? (e as any).DOMEvent?.target
+  //                 : null;
+  //             const buttonIndex = buttonElement
+  //               ? chart.rangeSelector?.buttons?.findIndex(
+  //                   (btn) => btn.element === buttonElement
+  //                 )
+  //               : -1;
+
+  //             if (buttonIndex !== undefined && buttonIndex >= 0) {
+  //               // Let the Graph component handle the range selection
+  //               chart.rangeSelector?.clickButton(buttonIndex, false);
+  //               // Prevent further processing of this event
+  //               return;
+  //             }
+  //             break;
+  //           }
+
+  //           default: {
+  //             // This handles both undefined trigger (calendar clicks) and other cases
+  //             const utcDate = moment.utc(e.min).startOf("day");
+  //             const nextDay = moment.utc(utcDate).add(1, "day");
+
+  //             const extremes = chart.xAxis[0].getExtremes();
+
+  //             // For calendar clicks, always use day boundaries
+  //             const startTime = utcDate.valueOf();
+  //             const endTime = nextDay.valueOf();
+
+  //             // Convert extremes to start of day for comparison
+  //             const dataMinDay = moment
+  //               .utc(extremes.dataMin)
+  //               .startOf("day")
+  //               .valueOf();
+  //             const dataMaxDay = moment
+  //               .utc(extremes.dataMax)
+  //               .startOf("day")
+  //               .valueOf();
+  //             const selectedDay = utcDate.valueOf();
+
+  //             // Check if selected day is first or last day
+  //             const isFirstDay = selectedDay === dataMinDay;
+  //             const isLastDay = selectedDay === dataMaxDay;
+
+  //             // Add debug logs
+  //             console.log("Day Selection Debug:", {
+  //               selectedDay: utcDate.format("YYYY-MM-DD"),
+  //               startTime: {
+  //                 timestamp: startTime,
+  //                 formatted: moment
+  //                   .utc(startTime)
+  //                   .format("YYYY-MM-DD HH:mm:ss"),
+  //               },
+  //               endTime: {
+  //                 timestamp: endTime,
+  //                 formatted: moment.utc(endTime).format("YYYY-MM-DD HH:mm:ss"),
+  //               },
+  //               extremes: {
+  //                 dataMin: extremes.dataMin
+  //                   ? moment.utc(extremes.dataMin).format("YYYY-MM-DD HH:mm:ss")
+  //                   : null,
+  //                 dataMax: extremes.dataMax
+  //                   ? moment.utc(extremes.dataMax).format("YYYY-MM-DD HH:mm:ss")
+  //                   : null,
+  //                 dataMinDay: dataMinDay
+  //                   ? moment.utc(dataMinDay).format("YYYY-MM-DD")
+  //                   : null,
+  //                 dataMaxDay: dataMaxDay
+  //                   ? moment.utc(dataMaxDay).format("YYYY-MM-DD")
+  //                   : null,
+  //               },
+  //               isFirstDay,
+  //               isLastDay,
+  //             });
+
+  //             // Set the chart extremes
+  //             chart.xAxis[0].setExtremes(
+  //               startTime,
+  //               endTime,
+  //               true,
+  //               false // don't animate
+  //             );
+
+  //             // For first/last day, use actual data range
+  //             if (isFirstDay) {
+  //               updateRangeDisplay(extremes.dataMin, endTime, false);
+  //             } else if (isLastDay) {
+  //               updateRangeDisplay(startTime, extremes.dataMax, false);
+  //             } else {
+  //               updateRangeDisplay(startTime, endTime, true);
+  //             }
+  //             break;
+  //           }
+  //         }
+  //       } catch (error) {
+  //         console.error("[getXAxisOptions] Error fetching data:", error);
+  //       }
+  //     }
+  //   },
+  //   100
+  // );
 
   const handleSetExtremes = debounce(
     async (
@@ -181,13 +330,20 @@ const getXAxisOptions = (
             }
 
             default: {
-              // This handles both undefined trigger (calendar clicks) and other cases
+              // NEW: if the visible range is more than a day, assume a non‑day selection
+              // (such as one week or one month) and simply update the display.
+              if (e.max - e.min > MILLISECONDS_IN_A_DAY * 1.1) {
+                updateRangeDisplay(e.min, e.max, false);
+                return;
+              }
+
+              // For calendar clicks (day selection), always use day boundaries.
               const utcDate = moment.utc(e.min).startOf("day");
               const nextDay = moment.utc(utcDate).add(1, "day");
 
               const extremes = chart.xAxis[0].getExtremes();
 
-              // For calendar clicks, always use day boundaries
+              // For calendar clicks, always use day boundaries.
               const startTime = utcDate.valueOf();
               const endTime = nextDay.valueOf();
 
@@ -206,38 +362,7 @@ const getXAxisOptions = (
               const isFirstDay = selectedDay === dataMinDay;
               const isLastDay = selectedDay === dataMaxDay;
 
-              // Add debug logs
-              console.log("Day Selection Debug:", {
-                selectedDay: utcDate.format("YYYY-MM-DD"),
-                startTime: {
-                  timestamp: startTime,
-                  formatted: moment
-                    .utc(startTime)
-                    .format("YYYY-MM-DD HH:mm:ss"),
-                },
-                endTime: {
-                  timestamp: endTime,
-                  formatted: moment.utc(endTime).format("YYYY-MM-DD HH:mm:ss"),
-                },
-                extremes: {
-                  dataMin: extremes.dataMin
-                    ? moment.utc(extremes.dataMin).format("YYYY-MM-DD HH:mm:ss")
-                    : null,
-                  dataMax: extremes.dataMax
-                    ? moment.utc(extremes.dataMax).format("YYYY-MM-DD HH:mm:ss")
-                    : null,
-                  dataMinDay: dataMinDay
-                    ? moment.utc(dataMinDay).format("YYYY-MM-DD")
-                    : null,
-                  dataMaxDay: dataMaxDay
-                    ? moment.utc(dataMaxDay).format("YYYY-MM-DD")
-                    : null,
-                },
-                isFirstDay,
-                isLastDay,
-              });
-
-              // Set the chart extremes
+              // Set the chart extremes to a 24-hour window.
               chart.xAxis[0].setExtremes(
                 startTime,
                 endTime,
@@ -263,7 +388,6 @@ const getXAxisOptions = (
     },
     100
   );
-
   return {
     title: { text: undefined },
     showEmpty: false,
