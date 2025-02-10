@@ -25,15 +25,9 @@ import {
   white,
   yellow100,
 } from "../../assets/styles/colors";
-import {
-  resetLastSelectedTimeRange,
-  updateFixedMeasurementExtremes,
-} from "../../store/fixedStreamSlice";
+import { resetLastSelectedTimeRange } from "../../store/fixedStreamSlice";
 import { setHoverPosition, setHoverStreamId } from "../../store/mapSlice";
-import {
-  resetLastSelectedMobileTimeRange,
-  updateMobileMeasurementExtremes,
-} from "../../store/mobileStreamSlice";
+import { resetLastSelectedMobileTimeRange } from "../../store/mobileStreamSlice";
 import { LatLngLiteral } from "../../types/googleMaps";
 import { GraphData, GraphPoint } from "../../types/graph";
 import { Thresholds } from "../../types/thresholds";
@@ -93,10 +87,14 @@ const getXAxisOptions = (
 ): Highcharts.XAxisOptions => {
   let fetchTimeout: NodeJS.Timeout | null = null;
 
-  const updateRangeDisplay = (min: number, max: number) => {
+  const updateRangeDisplay = (
+    min: number,
+    max: number,
+    isDayClick: boolean = false
+  ) => {
     if (!rangeDisplayRef?.current) return;
 
-    const formatDate = (timestamp: number) => {
+    const formatDate = (timestamp: number, isDayClick: boolean) => {
       const date = new Date(timestamp);
       return {
         date: date.toLocaleDateString("en-US", {
@@ -104,17 +102,19 @@ const getXAxisOptions = (
           day: "2-digit",
           year: "numeric",
         }),
-        time: date.toLocaleTimeString("en-US", {
-          hour: "2-digit",
-          minute: "2-digit",
-          second: "2-digit",
-          hour12: false,
-        }),
+        time: isDayClick
+          ? "00:00:00"
+          : date.toLocaleTimeString("en-US", {
+              hour: "2-digit",
+              minute: "2-digit",
+              second: "2-digit",
+              hour12: false,
+            }),
       };
     };
 
-    const minFormatted = formatDate(min);
-    const maxFormatted = formatDate(max);
+    const minFormatted = formatDate(min, isDayClick);
+    const maxFormatted = formatDate(max, isDayClick);
 
     const htmlContent = `
       <div class="time-container">
@@ -127,7 +127,6 @@ const getXAxisOptions = (
         <span class="time">${maxFormatted.time}</span>
       </div>
     `;
-
     rangeDisplayRef.current.innerHTML = htmlContent;
   };
 
@@ -136,15 +135,22 @@ const getXAxisOptions = (
       e: Highcharts.AxisSetExtremesEventObject,
       chart: ChartWithRangeSelector
     ) => {
+      console.log(
+        "[handleSetExtremes] called with trigger:",
+        e.trigger || "unknown",
+        "min:",
+        new Date(e.min || 0).toISOString()
+      );
+
       if (e.min !== undefined && e.max !== undefined) {
-        // Add padding to fetch more data than visible range
+        // Add padding so we fetch slightly more data than is visible.
         const visibleRange = e.max - e.min;
         const padding = visibleRange * 0.5;
         const fetchStart = Math.max(0, e.min - padding);
         const fetchEnd = e.max + padding;
 
         if (e.trigger === "scrollbar" || e.trigger === "navigator") {
-          // Reset any existing range selection and deselect day
+          // For scrollbar/navigator events, reset any day selection.
           if (fixedSessionTypeSelected) {
             dispatch(resetLastSelectedTimeRange());
           } else {
@@ -154,125 +160,69 @@ const getXAxisOptions = (
 
           try {
             await fetchMeasurementsIfNeeded(fetchStart, fetchEnd);
-
-            // Get the current extremes after data fetch
             const currentExtremes = chart.xAxis[0].getExtremes();
-
-            // Update the range display with current visible range
             updateRangeDisplay(
               currentExtremes.min || e.min,
-              currentExtremes.max || e.max
+              currentExtremes.max || e.max,
+              false
             );
-
-            // Update extremes in Redux
-            if (fixedSessionTypeSelected && streamId !== null) {
-              dispatch(
-                updateFixedMeasurementExtremes({
-                  streamId,
-                  min: currentExtremes.min || e.min,
-                  max: currentExtremes.max || e.max,
-                })
-              );
-            } else {
-              dispatch(
-                updateMobileMeasurementExtremes({
-                  min: currentExtremes.min || e.min,
-                  max: currentExtremes.max || e.max,
-                })
-              );
-            }
           } catch (error) {
             console.error("[getXAxisOptions] Error fetching data:", error);
           }
         } else if (e.trigger === "rangeSelectorButton") {
-          // Deselect day when using range selector buttons
+          // For range selector button clicks, also deselect any day.
           onDayClick?.(null);
 
           try {
             await fetchMeasurementsIfNeeded(fetchStart, fetchEnd);
-
-            // Get the current extremes after data fetch
             const currentExtremes = chart.xAxis[0].getExtremes();
-
-            // Update the range display with current visible range
             updateRangeDisplay(
               currentExtremes.min || e.min,
-              currentExtremes.max || e.max
+              currentExtremes.max || e.max,
+              false
             );
-
-            // Update extremes in Redux
-            if (fixedSessionTypeSelected && streamId !== null) {
-              dispatch(
-                updateFixedMeasurementExtremes({
-                  streamId,
-                  min: currentExtremes.min || e.min,
-                  max: currentExtremes.max || e.max,
-                })
-              );
-            } else {
-              dispatch(
-                updateMobileMeasurementExtremes({
-                  min: currentExtremes.min || e.min,
-                  max: currentExtremes.max || e.max,
-                })
-              );
-            }
           } catch (error) {
             console.error("[getXAxisOptions] Error fetching data:", error);
           }
         } else {
-          // Handle day selection and other cases
+          // Day selection (or other non-explicit triggers):
           try {
             await fetchMeasurementsIfNeeded(fetchStart, fetchEnd);
 
-            // Get the current extremes after data fetch
-            const currentExtremes = chart.xAxis[0].getExtremes();
-            const selectedTime = currentExtremes.min || e.min;
+            // Convert the UTC e.min value to a local date.
+            const clickedUTC = new Date(e.min);
+            // Create a new Date instance that represents the local time.
+            const localDate = new Date(clickedUTC.getTime());
+            // Set localDate to local midnight.
+            localDate.setHours(0, 0, 0, 0);
+            // Compute the next local day.
+            const nextLocalDate = new Date(localDate.getTime());
+            nextLocalDate.setDate(localDate.getDate() + 1);
 
-            // Get the selected day's start and end
-            const selectedDate = new Date(selectedTime);
-            selectedDate.setHours(0, 0, 0, 0);
-            const nextDate = new Date(selectedDate);
-            nextDate.setDate(nextDate.getDate() + 1);
+            const extremes = chart.xAxis[0].getExtremes();
+            const computedStart = localDate.getTime();
+            const computedEnd = nextLocalDate.getTime();
 
-            // Check if this is the first or last day of total data range
+            // Adjust boundaries if they exceed the overall data range.
+            const startTime =
+              computedStart < extremes.dataMin
+                ? extremes.dataMin
+                : computedStart;
+            const endTime =
+              computedEnd > extremes.dataMax ? extremes.dataMax : computedEnd;
+
+            // Check if this is the first or last day
             const isFirstDay =
-              selectedDate.getTime() <= currentExtremes.dataMin;
-            const isLastDay = nextDate.getTime() >= currentExtremes.dataMax;
+              Math.abs(startTime - extremes.dataMin) < TOLERANCE_UPPER;
+            const isLastDay =
+              Math.abs(endTime - extremes.dataMax) < TOLERANCE_UPPER;
+            const shouldShowActualTime = isFirstDay || isLastDay;
 
-            // Set time range for the selected day
-            const startTime = isFirstDay
-              ? currentExtremes.dataMin // Use actual start time for first day
-              : selectedDate.getTime(); // Use midnight for other days
-            const endTime = isLastDay
-              ? currentExtremes.dataMax // Use actual end time for last day
-              : nextDate.getTime(); // Use midnight of next day for other days
-
-            // Update the range display
-            updateRangeDisplay(startTime, endTime);
-
-            // Update extremes in Redux
-            if (fixedSessionTypeSelected && streamId !== null) {
-              dispatch(
-                updateFixedMeasurementExtremes({
-                  streamId,
-                  min: startTime,
-                  max: endTime,
-                })
-              );
-            } else {
-              dispatch(
-                updateMobileMeasurementExtremes({
-                  min: startTime,
-                  max: endTime,
-                })
-              );
-            }
+            updateRangeDisplay(startTime, endTime, !shouldShowActualTime);
           } catch (error) {
             console.error("[getXAxisOptions] Error fetching data:", error);
           }
         }
-      } else {
       }
     },
     100
