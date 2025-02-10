@@ -360,13 +360,24 @@ const Graph: React.FC<GraphProps> = memo(
         rangeDisplayRef,
       ]
     );
-
     const handleChartLoad = useCallback(
       function (this: Chart) {
         handleLoad.call(this, isCalendarPage, isMobile);
+
+        // Set the x-axis extremes to show only the recent two days.
+        // (Here we use the stream's end time, which should be the most recent time.)
+        const chart = this;
+        const twoDaysAgo = endTime - 2 * MILLISECONDS_IN_A_DAY;
+
+        // Set the extremes; note that the fourth parameter set to false disables animation.
+        chart.xAxis[0].setExtremes(twoDaysAgo, endTime, true, false);
+
+        // Also trigger a fetch for this two-day range.
+        fetchMeasurementsIfNeeded(twoDaysAgo, endTime);
+
         setIsFirstLoad(false);
       },
-      [isCalendarPage, isMobile]
+      [isCalendarPage, isMobile, fetchMeasurementsIfNeeded, endTime]
     );
 
     const chartOptions = useMemo(
