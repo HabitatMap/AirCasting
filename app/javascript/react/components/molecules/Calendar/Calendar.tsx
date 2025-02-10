@@ -1,4 +1,4 @@
-import React, { useMemo } from "react";
+import React, { useCallback, useMemo } from "react";
 import { useTranslation } from "react-i18next";
 
 import { MovesKeys } from "../../../types/movesKeys";
@@ -41,13 +41,18 @@ const Calendar: React.FC<CalendarProps> = ({
     [threeMonthsData, isMobileView]
   );
 
-  const handleDayClick = (date: Date) => {
-    if (selectedDate && date.getTime() === selectedDate.getTime()) {
-      onDayClick(null);
-    } else {
-      onDayClick(date);
-    }
-  };
+  const handleDayClick = useCallback(
+    (date: Date) => {
+      if (!date) return;
+
+      if (selectedDate && date.getTime() === selectedDate.getTime()) {
+        onDayClick(null);
+      } else {
+        onDayClick(date);
+      }
+    },
+    [selectedDate, onDayClick]
+  );
 
   const MobileSwipeComponent = () => (
     <S.MobileSwipeContainer>

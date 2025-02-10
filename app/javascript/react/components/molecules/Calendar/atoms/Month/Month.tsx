@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useCallback } from "react";
 import { useSelector } from "react-redux";
 
 import { selectThresholds } from "../../../../../store/thresholdSlice";
@@ -21,6 +21,15 @@ const Month: React.FC<MonthProps> = ({
 }) => {
   const thresholds = useSelector(selectThresholds);
 
+  // Memoize the click handler
+  const handleDayClick = useCallback(
+    (date: Date) => {
+      if (!date) return;
+      onDayClick(date);
+    },
+    [onDayClick]
+  );
+
   return (
     <S.Month>
       <S.MonthName>{monthName}</S.MonthName>
@@ -33,7 +42,7 @@ const Month: React.FC<MonthProps> = ({
                 key={day.date}
                 {...day}
                 {...thresholds}
-                onClick={() => onDayClick(new Date(day.date))}
+                onClick={() => handleDayClick(new Date(day.date))}
                 isSelected={
                   selectedDate?.toDateString() ===
                   new Date(day.date).toDateString()
