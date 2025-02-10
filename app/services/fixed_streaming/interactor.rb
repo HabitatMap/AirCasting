@@ -5,12 +5,14 @@ module FixedStreaming
       streams_repository: StreamsRepository.new,
       stream_creator: StreamCreator.new,
       measurements_creator: MeasurementsCreator.new,
+      fixed_measurements_creator: FixedMeasurementsCreator.new,
       fixed_sessions_repository: FixedSessionsRepository.new
     )
       @params_parser = params_parser
       @streams_repository = streams_repository
       @stream_creator = stream_creator
       @measurements_creator = measurements_creator
+      @fixed_measurements_creator = fixed_measurements_creator
       @fixed_sessions_repository = fixed_sessions_repository
     end
 
@@ -25,6 +27,8 @@ module FixedStreaming
         stream = find_stream(session, data) || create_stream(session, data)
         measurement_import_result, last_measurement =
           create_measurements(data, session, stream)
+        fixed_measurement_import_result, last_fixed_measurement =
+          create_fixed_measurements(data, session, stream)
         update_session_end_timestamps(session, last_measurement)
         update_measurements_count(stream, measurement_import_result)
       end
@@ -38,6 +42,7 @@ module FixedStreaming
                 :streams_repository,
                 :stream_creator,
                 :measurements_creator,
+                :fixed_measurements_creator,
                 :fixed_sessions_repository
 
     def parse_params(params, user_id)
@@ -59,6 +64,14 @@ module FixedStreaming
       measurements_creator.call(
         data: data[:measurements],
         session: session,
+        stream: stream,
+      )
+    end
+
+    def create_fixed_measurements(data, session, stream)
+      fixed_measurements_creator.call(
+        data: data[:measurements],
+        time_zone: session.time_zone,
         stream: stream,
       )
     end
