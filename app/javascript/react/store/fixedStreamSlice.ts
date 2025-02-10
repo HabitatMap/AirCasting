@@ -148,17 +148,35 @@ const fixedStreamSlice = createSlice({
       action: PayloadAction<{ streamId: number; min: number; max: number }>
     ) {
       const { min, max } = action.payload;
-      const allMeasurements = state.data.measurements || [];
+      const measurements = state.data.measurements || [];
 
-      const values = allMeasurements
-        .filter((m) => m.time >= min && m.time <= max)
-        .map((m) => m.value);
+      // Filter measurements within the visible range
+      const visibleMeasurements = measurements.filter(
+        (m) => m.time >= min && m.time <= max
+      );
 
-      if (values.length > 0) {
-        state.minMeasurementValue = Math.min(...values);
-        state.maxMeasurementValue = Math.max(...values);
-        state.averageMeasurementValue =
-          values.reduce((sum, value) => sum + value, 0) / values.length;
+      if (visibleMeasurements.length > 0) {
+        // Calculate min, max, and average in a single pass
+        const {
+          min: minValue,
+          max: maxValue,
+          sum,
+        } = visibleMeasurements.reduce(
+          (acc, measurement) => ({
+            min: Math.min(acc.min, measurement.value),
+            max: Math.max(acc.max, measurement.value),
+            sum: acc.sum + measurement.value,
+          }),
+          {
+            min: visibleMeasurements[0].value,
+            max: visibleMeasurements[0].value,
+            sum: 0,
+          }
+        );
+
+        state.minMeasurementValue = minValue;
+        state.maxMeasurementValue = maxValue;
+        state.averageMeasurementValue = sum / visibleMeasurements.length;
       } else {
         state.minMeasurementValue = null;
         state.maxMeasurementValue = null;
