@@ -17,10 +17,18 @@ export const useMeasurementsFetcher = (streamId: number | null) => {
 
   useEffect(() => {
     isFirstRender.current = true;
+    return () => {
+      isCurrentlyFetchingRef.current = false;
+    };
   }, []);
 
   const fetchMeasurementsIfNeeded = async (start: number, end: number) => {
     if (!streamId || isCurrentlyFetchingRef.current) {
+      console.log("[fetchMeasurementsIfNeeded] Skipping fetch:", {
+        reason: !streamId ? "no streamId" : "already fetching",
+        streamId,
+        isCurrentlyFetching: isCurrentlyFetchingRef.current,
+      });
       return;
     }
 
@@ -30,17 +38,27 @@ export const useMeasurementsFetcher = (streamId: number | null) => {
         checkDataAvailability({ streamId, start, end })
       ).unwrap();
 
-      if (!hasData) {
-        let fetchStart: number, fetchEnd: number;
-        if (isFirstRender.current) {
-          fetchStart = start - MILLISECONDS_IN_A_DAY;
-          fetchEnd = end + MILLISECONDS_IN_A_DAY;
-        } else {
-          fetchStart = start - MILLISECONDS_IN_A_WEEK * 2;
-          fetchEnd = end + MILLISECONDS_IN_A_WEEK * 2;
-        }
+      console.log("[fetchMeasurementsIfNeeded] Data availability check:", {
+        hasData,
+        start: new Date(start).toISOString(),
+        end: new Date(end).toISOString(),
+      });
 
-        await dispatch(
+      if (!hasData) {
+        const fetchStart = isFirstRender.current
+          ? start - MILLISECONDS_IN_A_DAY
+          : start - MILLISECONDS_IN_A_WEEK * 2;
+        const fetchEnd = isFirstRender.current
+          ? end + MILLISECONDS_IN_A_DAY
+          : end + MILLISECONDS_IN_A_WEEK * 2;
+
+        console.log("[fetchMeasurementsIfNeeded] Fetching data:", {
+          isFirstRender: isFirstRender.current,
+          fetchStart: new Date(fetchStart).toISOString(),
+          fetchEnd: new Date(fetchEnd).toISOString(),
+        });
+
+        const result = await dispatch(
           fetchMeasurements({
             streamId: Number(streamId),
             startTime: Math.floor(fetchStart).toString(),
@@ -48,13 +66,21 @@ export const useMeasurementsFetcher = (streamId: number | null) => {
           })
         ).unwrap();
 
-        dispatch(
-          updateFetchedTimeRanges({
-            streamId,
-            start: fetchStart,
-            end: fetchEnd,
-          })
-        );
+        console.log("[fetchMeasurementsIfNeeded] Fetch result:", {
+          success: !!result,
+          dataPoints: result?.length,
+        });
+
+        // Only update fetched ranges if we got data successfully
+        if (result) {
+          dispatch(
+            updateFetchedTimeRanges({
+              streamId,
+              start: fetchStart,
+              end: fetchEnd,
+            })
+          );
+        }
 
         if (isFirstRender.current) {
           isFirstRender.current = false;

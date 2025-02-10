@@ -45,7 +45,6 @@ import {
   mapIndexToTimeRange,
 } from "../../utils/getTimeRange";
 import { useMapParams } from "../../utils/mapParamsHandler";
-import { formatTimeExtremes } from "../../utils/measurementsCalc";
 import {
   MILLISECONDS_IN_A_DAY,
   MILLISECONDS_IN_A_MONTH,
@@ -57,6 +56,7 @@ import {
   createFixedSeriesData,
   createMobileSeriesData,
 } from "./chartHooks/createGraphData";
+import { updateRangeDisplay } from "./chartHooks/updateRangeDisplay";
 import { useChartUpdater } from "./chartHooks/useChartUpdater";
 import { useMeasurementsFetcher } from "./chartHooks/useMeasurementsFetcher";
 import * as S from "./Graph.style";
@@ -199,6 +199,10 @@ const Graph: React.FC<GraphProps> = memo(
 
     const lastRangeSelectorTriggerRef = useRef<string | null>(null);
 
+    // Add these refs
+    const lastTriggerRef = useRef<string | null>(null);
+    const lastUpdateTimeRef = useRef<number>(0);
+
     // ----------------------------------------------------------------------------
     //  Decide which rangeSelector button (if any) is currently highlighted.
     //  (If a custom day is selected, we use -1.)
@@ -227,71 +231,20 @@ const Graph: React.FC<GraphProps> = memo(
 
     // Update the useEffect for selectedDate
     useEffect(() => {
-      if (!chartComponentRef.current?.chart || selectedDate === undefined)
-        return;
+      if (!chartComponentRef.current?.chart || !selectedDate) return;
 
       const chart = chartComponentRef.current.chart;
-      const selectedTime = selectedDate?.getTime() || 0;
-
-      // If selectedDate is null, don't update the chart
-      if (!selectedDate) return;
-
-      const streamStartTime = parseDateString(fixedStreamShortInfo.startTime);
-      const streamEndTime = fixedStreamShortInfo.endTime
-        ? parseDateString(fixedStreamShortInfo.endTime)
-        : Date.now();
-
-      // Convert to UTC time zone
-      const utcDate = moment.utc(selectedTime).startOf("day");
+      const utcDate = moment.utc(selectedDate).startOf("day");
       const nextDay = moment.utc(utcDate).add(1, "day");
-
       const startTime = utcDate.valueOf();
       const endTime = nextDay.valueOf();
 
-      // Check if this is the first or last day
-      const isFirstDay =
-        utcDate.format("YYYY-MM-DD") ===
-        moment.utc(streamStartTime).format("YYYY-MM-DD");
-      const isLastDay =
-        utcDate.format("YYYY-MM-DD") ===
-        moment.utc(streamEndTime).format("YYYY-MM-DD");
+      // Update the chart extremes.
+      chart.xAxis[0].setExtremes(startTime, endTime, true, false);
 
-      // Reset any existing range selection in Redux
-      if (fixedSessionTypeSelected) {
-        dispatch(resetLastSelectedTimeRange());
-      } else {
-        dispatch(resetLastSelectedMobileTimeRange());
-      }
-
-      chart.update(
-        {
-          rangeSelector: {
-            selected: -1,
-          },
-        },
-        false
-      );
-
-      // Set the chart extremes
-      chart.xAxis[0].setExtremes(startTime, endTime, true);
-
-      // Update range display if available
-      if (rangeDisplayRef?.current) {
-        if (isFirstDay) {
-          updateRangeDisplay(streamStartTime, endTime, false);
-        } else if (isLastDay) {
-          updateRangeDisplay(startTime, streamEndTime, false);
-        } else {
-          updateRangeDisplay(startTime, endTime, true);
-        }
-      }
-    }, [
-      selectedDate,
-      fixedSessionTypeSelected,
-      fixedStreamShortInfo.startTime,
-      fixedStreamShortInfo.endTime,
-      dispatch,
-    ]);
+      // Update the range display.
+      updateRangeDisplay(rangeDisplayRef, startTime, endTime, false);
+    }, [selectedDate]);
 
     // --------------------------------------------------------------------------
     // Update both local state and Redux when a range selector button is clicked.
@@ -344,7 +297,7 @@ const Graph: React.FC<GraphProps> = memo(
 
           // Update range display with actual times
           if (rangeDisplayRef?.current) {
-            updateRangeDisplay(startTime, endTime, false);
+            updateRangeDisplay(rangeDisplayRef, startTime, endTime, false);
           }
 
           // Set extremes and update chart
@@ -403,6 +356,8 @@ const Graph: React.FC<GraphProps> = memo(
           streamId,
           initialFetchedRangeRef,
           initialLoadRef,
+          lastTriggerRef,
+          lastUpdateTimeRef,
           onDayClick,
           rangeDisplayRef
         ),
@@ -527,6 +482,8 @@ const Graph: React.FC<GraphProps> = memo(
       handleChartLoad,
       lastRangeSelectorTriggerRef,
       selectedRangeIndex,
+      lastTriggerRef,
+      lastUpdateTimeRef,
     ]);
 
     // Reset time range in Redux on mount
@@ -585,30 +542,6 @@ const Graph: React.FC<GraphProps> = memo(
         observer.disconnect();
       };
     }, []);
-
-    // Add this helper function inside the Graph component
-    const updateRangeDisplay = (
-      min: number,
-      max: number,
-      useFullDayFormat: boolean
-    ) => {
-      if (!rangeDisplayRef?.current) return;
-
-      const formattedTime = formatTimeExtremes(min, max, useFullDayFormat);
-
-      const htmlContent = `
-        <div class="time-container">
-          <span class="date">${formattedTime.formattedMinTime.date}</span>
-          <span class="time">${formattedTime.formattedMinTime.time}</span>
-        </div>
-        <span>-</span>
-        <div class="time-container">
-          <span class="date">${formattedTime.formattedMaxTime.date}</span>
-          <span class="time">${formattedTime.formattedMaxTime.time}</span>
-        </div>
-      `;
-      rangeDisplayRef.current.innerHTML = htmlContent;
-    };
 
     return (
       <S.Container
