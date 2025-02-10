@@ -46,6 +46,12 @@ import {
   MILLISECONDS_IN_AN_HOUR,
 } from "../../utils/timeRanges";
 
+type ChartWithRangeSelector = Highcharts.Chart & {
+  rangeSelector?: {
+    clickButton: (index: number, redraw?: boolean) => void;
+  };
+};
+
 const getScrollbarOptions = (isCalendarPage: boolean, isMobile: boolean) => {
   return {
     barBackgroundColor: gray200,
@@ -83,8 +89,7 @@ const getXAxisOptions = (
   } | null>,
   initialLoadRef: React.MutableRefObject<boolean>,
   onDayClick?: (date: Date | null) => void,
-  rangeDisplayRef?: React.RefObject<HTMLDivElement>,
-  lastRangeSelectorTriggerRef?: React.MutableRefObject<string | null>
+  rangeDisplayRef?: React.RefObject<HTMLDivElement>
 ): Highcharts.XAxisOptions => {
   let fetchTimeout: NodeJS.Timeout | null = null;
 
@@ -129,20 +134,9 @@ const getXAxisOptions = (
   const handleSetExtremes = debounce(
     async (
       e: Highcharts.AxisSetExtremesEventObject,
-      chart: Highcharts.Chart
+      chart: ChartWithRangeSelector
     ) => {
-      console.log("[getXAxisOptions] handleSetExtremes called with:", {
-        originalEmin: e.min,
-        originalEmax: e.max,
-        trigger: e.trigger,
-        initialLoad: initialLoadRef.current,
-        storedRange: initialFetchedRangeRef.current,
-      });
-
       if (e.min !== undefined && e.max !== undefined) {
-        // Always update the range display first
-        updateRangeDisplay(e.min, e.max);
-
         // Add padding to fetch more data than visible range
         const visibleRange = e.max - e.min;
         const padding = visibleRange * 0.5;
@@ -150,50 +144,135 @@ const getXAxisOptions = (
         const fetchEnd = e.max + padding;
 
         if (e.trigger === "scrollbar" || e.trigger === "navigator") {
-          console.log(
-            "[getXAxisOptions] Scrollbar/Navigator triggered - fetching data:",
-            {
-              start: fetchStart,
-              end: fetchEnd,
-            }
-          );
-
-          // Reset any existing range selection
+          // Reset any existing range selection and deselect day
           if (fixedSessionTypeSelected) {
             dispatch(resetLastSelectedTimeRange());
           } else {
             dispatch(resetLastSelectedMobileTimeRange());
           }
+          onDayClick?.(null);
 
-          await fetchMeasurementsIfNeeded(fetchStart, fetchEnd);
-        }
+          try {
+            await fetchMeasurementsIfNeeded(fetchStart, fetchEnd);
 
-        // Update extremes in Redux
-        if (fixedSessionTypeSelected && streamId !== null) {
-          dispatch(
-            updateFixedMeasurementExtremes({
-              streamId,
-              min: e.min,
-              max: e.max,
-            })
-          );
+            // Get the current extremes after data fetch
+            const currentExtremes = chart.xAxis[0].getExtremes();
+
+            // Update the range display with current visible range
+            updateRangeDisplay(
+              currentExtremes.min || e.min,
+              currentExtremes.max || e.max
+            );
+
+            // Update extremes in Redux
+            if (fixedSessionTypeSelected && streamId !== null) {
+              dispatch(
+                updateFixedMeasurementExtremes({
+                  streamId,
+                  min: currentExtremes.min || e.min,
+                  max: currentExtremes.max || e.max,
+                })
+              );
+            } else {
+              dispatch(
+                updateMobileMeasurementExtremes({
+                  min: currentExtremes.min || e.min,
+                  max: currentExtremes.max || e.max,
+                })
+              );
+            }
+          } catch (error) {
+            console.error("[getXAxisOptions] Error fetching data:", error);
+          }
+        } else if (e.trigger === "rangeSelectorButton") {
+          // Deselect day when using range selector buttons
+          onDayClick?.(null);
+
+          try {
+            await fetchMeasurementsIfNeeded(fetchStart, fetchEnd);
+
+            // Get the current extremes after data fetch
+            const currentExtremes = chart.xAxis[0].getExtremes();
+
+            // Update the range display with current visible range
+            updateRangeDisplay(
+              currentExtremes.min || e.min,
+              currentExtremes.max || e.max
+            );
+
+            // Update extremes in Redux
+            if (fixedSessionTypeSelected && streamId !== null) {
+              dispatch(
+                updateFixedMeasurementExtremes({
+                  streamId,
+                  min: currentExtremes.min || e.min,
+                  max: currentExtremes.max || e.max,
+                })
+              );
+            } else {
+              dispatch(
+                updateMobileMeasurementExtremes({
+                  min: currentExtremes.min || e.min,
+                  max: currentExtremes.max || e.max,
+                })
+              );
+            }
+          } catch (error) {
+            console.error("[getXAxisOptions] Error fetching data:", error);
+          }
         } else {
-          dispatch(
-            updateMobileMeasurementExtremes({
-              min: e.min,
-              max: e.max,
-            })
-          );
+          // Handle day selection and other cases
+          try {
+            await fetchMeasurementsIfNeeded(fetchStart, fetchEnd);
+
+            // Get the current extremes after data fetch
+            const currentExtremes = chart.xAxis[0].getExtremes();
+            const selectedTime = currentExtremes.min || e.min;
+
+            // Get the selected day's start and end
+            const selectedDate = new Date(selectedTime);
+            selectedDate.setHours(0, 0, 0, 0);
+            const nextDate = new Date(selectedDate);
+            nextDate.setDate(nextDate.getDate() + 1);
+
+            // Check if this is the first or last day of total data range
+            const isFirstDay =
+              selectedDate.getTime() <= currentExtremes.dataMin;
+            const isLastDay = nextDate.getTime() >= currentExtremes.dataMax;
+
+            // Set time range for the selected day
+            const startTime = isFirstDay
+              ? currentExtremes.dataMin // Use actual start time for first day
+              : selectedDate.getTime(); // Use midnight for other days
+            const endTime = isLastDay
+              ? currentExtremes.dataMax // Use actual end time for last day
+              : nextDate.getTime(); // Use midnight of next day for other days
+
+            // Update the range display
+            updateRangeDisplay(startTime, endTime);
+
+            // Update extremes in Redux
+            if (fixedSessionTypeSelected && streamId !== null) {
+              dispatch(
+                updateFixedMeasurementExtremes({
+                  streamId,
+                  min: startTime,
+                  max: endTime,
+                })
+              );
+            } else {
+              dispatch(
+                updateMobileMeasurementExtremes({
+                  min: startTime,
+                  max: endTime,
+                })
+              );
+            }
+          } catch (error) {
+            console.error("[getXAxisOptions] Error fetching data:", error);
+          }
         }
       } else {
-        console.log(
-          "[getXAxisOptions] Skipping extremes update: isLoading:",
-          isLoading,
-          "hasMin:",
-          e.min !== undefined,
-          "hasMax:",
-          e.max !== undefined
-        );
       }
     },
     100

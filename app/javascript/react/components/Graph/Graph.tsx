@@ -2,6 +2,7 @@ import HighchartsReact from "highcharts-react-official";
 import Highcharts, { Chart } from "highcharts/highstock";
 import NoDataToDisplay from "highcharts/modules/no-data-to-display";
 import React, {
+  memo,
   useCallback,
   useEffect,
   useMemo,
@@ -83,7 +84,7 @@ interface GraphProps {
   onDayClick?: (date: Date | null) => void;
 }
 
-const Graph: React.FC<GraphProps> = React.memo(
+const Graph: React.FC<GraphProps> = memo(
   ({
     streamId,
     sessionType,
@@ -194,6 +195,8 @@ const Graph: React.FC<GraphProps> = React.memo(
     // Track first load
     const [isFirstLoad, setIsFirstLoad] = useState(true);
 
+    const lastRangeSelectorTriggerRef = useRef<string | null>(null);
+
     // ----------------------------------------------------------------------------
     //  Decide which rangeSelector button (if any) is currently highlighted
     //
@@ -281,6 +284,7 @@ const Graph: React.FC<GraphProps> = React.memo(
     const handleRangeSelectorClick = useCallback(
       (selectedButton: number) => {
         onDayClick?.(null);
+        lastRangeSelectorTriggerRef.current = selectedButton.toString();
 
         const timeRange = mapIndexToTimeRange(
           selectedButton,
@@ -501,6 +505,7 @@ const Graph: React.FC<GraphProps> = React.memo(
       isCalendarPage,
       dispatch,
       handleChartLoad,
+      lastRangeSelectorTriggerRef,
     ]);
 
     // Reset time range in Redux on mount
