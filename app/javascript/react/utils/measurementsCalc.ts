@@ -44,22 +44,35 @@ export const formatTime = (minTime: string | null, maxTime: string | null) => {
 };
 
 export const formatTimeExtremes = (
-  minTime: number | null,
-  maxTime: number | null
+  min: number,
+  max: number,
+  useFullDayFormat: boolean = false
 ) => {
-  const formatDate = (date: number | null) => {
-    if (!date) return { date: null, time: null };
+  // Force UTC handling
+  const minDate = moment.utc(min);
+  const maxDate = moment.utc(max);
 
-    const utcDate = moment.utc(date);
+  // Check if dates are on the same day in UTC
+  const sameDay = minDate.format("YYYY-MM-DD") === maxDate.format("YYYY-MM-DD");
 
-    const dateString = utcDate.format(DateFormat.us);
-    const timeString = utcDate.format(DateFormat.time_with_seconds);
+  const formattedMinTime = {
+    date: minDate.format(DateFormat.us),
+    time:
+      useFullDayFormat && sameDay
+        ? "00:00:00"
+        : minDate.format(DateFormat.time_with_seconds),
+  };
 
-    return { date: dateString, time: timeString };
+  const formattedMaxTime = {
+    date: maxDate.format(DateFormat.us),
+    time:
+      useFullDayFormat && sameDay
+        ? "00:00:00"
+        : maxDate.format(DateFormat.time_with_seconds),
   };
 
   return {
-    formattedMinTime: formatDate(minTime),
-    formattedMaxTime: formatDate(maxTime),
+    formattedMinTime,
+    formattedMaxTime,
   };
 };

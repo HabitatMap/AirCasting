@@ -12,6 +12,7 @@ import { debounce } from "lodash";
 
 import Highcharts from "highcharts/highstock";
 import { TFunction } from "i18next";
+import moment from "moment";
 import {
   blue,
   disabledGraphButton,
@@ -31,6 +32,7 @@ import { resetLastSelectedMobileTimeRange } from "../../store/mobileStreamSlice"
 import { LatLngLiteral } from "../../types/googleMaps";
 import { GraphData, GraphPoint } from "../../types/graph";
 import { Thresholds } from "../../types/thresholds";
+import { formatTimeExtremes } from "../../utils/measurementsCalc";
 import {
   MILLISECONDS_IN_A_5_MINUTES,
   MILLISECONDS_IN_A_DAY,
@@ -43,6 +45,7 @@ import {
 type ChartWithRangeSelector = Highcharts.Chart & {
   rangeSelector?: {
     clickButton: (index: number, redraw?: boolean) => void;
+    buttons?: Array<{ element: HTMLElement }>;
   };
 };
 
@@ -90,41 +93,21 @@ const getXAxisOptions = (
   const updateRangeDisplay = (
     min: number,
     max: number,
-    isDayClick: boolean = false
+    useFullDayFormat: boolean = false
   ) => {
     if (!rangeDisplayRef?.current) return;
 
-    const formatDate = (timestamp: number, isDayClick: boolean) => {
-      const date = new Date(timestamp);
-      return {
-        date: date.toLocaleDateString("en-US", {
-          month: "2-digit",
-          day: "2-digit",
-          year: "numeric",
-        }),
-        time: isDayClick
-          ? "00:00:00"
-          : date.toLocaleTimeString("en-US", {
-              hour: "2-digit",
-              minute: "2-digit",
-              second: "2-digit",
-              hour12: false,
-            }),
-      };
-    };
-
-    const minFormatted = formatDate(min, isDayClick);
-    const maxFormatted = formatDate(max, isDayClick);
+    const formattedTime = formatTimeExtremes(min, max, useFullDayFormat);
 
     const htmlContent = `
       <div class="time-container">
-        <span class="date">${minFormatted.date}</span>
-        <span class="time">${minFormatted.time}</span>
+        <span class="date">${formattedTime.formattedMinTime.date}</span>
+        <span class="time">${formattedTime.formattedMinTime.time}</span>
       </div>
       <span>-</span>
       <div class="time-container">
-        <span class="date">${maxFormatted.date}</span>
-        <span class="time">${maxFormatted.time}</span>
+        <span class="date">${formattedTime.formattedMaxTime.date}</span>
+        <span class="time">${formattedTime.formattedMaxTime.time}</span>
       </div>
     `;
     rangeDisplayRef.current.innerHTML = htmlContent;
@@ -149,79 +132,132 @@ const getXAxisOptions = (
         const fetchStart = Math.max(0, e.min - padding);
         const fetchEnd = e.max + padding;
 
-        if (e.trigger === "scrollbar" || e.trigger === "navigator") {
-          // For scrollbar/navigator events, reset any day selection.
-          if (fixedSessionTypeSelected) {
-            dispatch(resetLastSelectedTimeRange());
-          } else {
-            dispatch(resetLastSelectedMobileTimeRange());
+        try {
+          await fetchMeasurementsIfNeeded(fetchStart, fetchEnd);
+
+          // Handle different triggers
+          switch (e.trigger) {
+            case "scrollbar":
+            case "navigator": {
+              // Reset selections and update with actual times
+              if (fixedSessionTypeSelected) {
+                dispatch(resetLastSelectedTimeRange());
+              } else {
+                dispatch(resetLastSelectedMobileTimeRange());
+              }
+              onDayClick?.(null);
+
+              const currentExtremes = chart.xAxis[0].getExtremes();
+              updateRangeDisplay(
+                currentExtremes.min || e.min,
+                currentExtremes.max || e.max,
+                false
+              );
+              break;
+            }
+
+            case "rangeSelectorButton": {
+              // Reset day selection
+              onDayClick?.(null);
+
+              // Get the clicked button's range
+              const buttonElement =
+                e.trigger === "rangeSelectorButton"
+                  ? (e as any).DOMEvent?.target
+                  : null;
+              const buttonIndex = buttonElement
+                ? chart.rangeSelector?.buttons?.findIndex(
+                    (btn) => btn.element === buttonElement
+                  )
+                : -1;
+
+              if (buttonIndex !== undefined && buttonIndex >= 0) {
+                // Let the Graph component handle the range selection
+                chart.rangeSelector?.clickButton(buttonIndex, false);
+                // Prevent further processing of this event
+                return;
+              }
+              break;
+            }
+
+            default: {
+              // This handles both undefined trigger (calendar clicks) and other cases
+              const utcDate = moment.utc(e.min).startOf("day");
+              const nextDay = moment.utc(utcDate).add(1, "day");
+
+              const extremes = chart.xAxis[0].getExtremes();
+
+              // For calendar clicks, always use day boundaries
+              const startTime = utcDate.valueOf();
+              const endTime = nextDay.valueOf();
+
+              // Convert extremes to start of day for comparison
+              const dataMinDay = moment
+                .utc(extremes.dataMin)
+                .startOf("day")
+                .valueOf();
+              const dataMaxDay = moment
+                .utc(extremes.dataMax)
+                .startOf("day")
+                .valueOf();
+              const selectedDay = utcDate.valueOf();
+
+              // Check if selected day is first or last day
+              const isFirstDay = selectedDay === dataMinDay;
+              const isLastDay = selectedDay === dataMaxDay;
+
+              // Add debug logs
+              console.log("Day Selection Debug:", {
+                selectedDay: utcDate.format("YYYY-MM-DD"),
+                startTime: {
+                  timestamp: startTime,
+                  formatted: moment
+                    .utc(startTime)
+                    .format("YYYY-MM-DD HH:mm:ss"),
+                },
+                endTime: {
+                  timestamp: endTime,
+                  formatted: moment.utc(endTime).format("YYYY-MM-DD HH:mm:ss"),
+                },
+                extremes: {
+                  dataMin: extremes.dataMin
+                    ? moment.utc(extremes.dataMin).format("YYYY-MM-DD HH:mm:ss")
+                    : null,
+                  dataMax: extremes.dataMax
+                    ? moment.utc(extremes.dataMax).format("YYYY-MM-DD HH:mm:ss")
+                    : null,
+                  dataMinDay: dataMinDay
+                    ? moment.utc(dataMinDay).format("YYYY-MM-DD")
+                    : null,
+                  dataMaxDay: dataMaxDay
+                    ? moment.utc(dataMaxDay).format("YYYY-MM-DD")
+                    : null,
+                },
+                isFirstDay,
+                isLastDay,
+              });
+
+              // Set the chart extremes
+              chart.xAxis[0].setExtremes(
+                startTime,
+                endTime,
+                true,
+                false // don't animate
+              );
+
+              // For first/last day, use actual data range
+              if (isFirstDay) {
+                updateRangeDisplay(extremes.dataMin, endTime, false);
+              } else if (isLastDay) {
+                updateRangeDisplay(startTime, extremes.dataMax, false);
+              } else {
+                updateRangeDisplay(startTime, endTime, true);
+              }
+              break;
+            }
           }
-          onDayClick?.(null);
-
-          try {
-            await fetchMeasurementsIfNeeded(fetchStart, fetchEnd);
-            const currentExtremes = chart.xAxis[0].getExtremes();
-            updateRangeDisplay(
-              currentExtremes.min || e.min,
-              currentExtremes.max || e.max,
-              false
-            );
-          } catch (error) {
-            console.error("[getXAxisOptions] Error fetching data:", error);
-          }
-        } else if (e.trigger === "rangeSelectorButton") {
-          // For range selector button clicks, also deselect any day.
-          onDayClick?.(null);
-
-          try {
-            await fetchMeasurementsIfNeeded(fetchStart, fetchEnd);
-            const currentExtremes = chart.xAxis[0].getExtremes();
-            updateRangeDisplay(
-              currentExtremes.min || e.min,
-              currentExtremes.max || e.max,
-              false
-            );
-          } catch (error) {
-            console.error("[getXAxisOptions] Error fetching data:", error);
-          }
-        } else {
-          // Day selection (or other non-explicit triggers):
-          try {
-            await fetchMeasurementsIfNeeded(fetchStart, fetchEnd);
-
-            // Convert the UTC e.min value to a local date.
-            const clickedUTC = new Date(e.min);
-            // Create a new Date instance that represents the local time.
-            const localDate = new Date(clickedUTC.getTime());
-            // Set localDate to local midnight.
-            localDate.setHours(0, 0, 0, 0);
-            // Compute the next local day.
-            const nextLocalDate = new Date(localDate.getTime());
-            nextLocalDate.setDate(localDate.getDate() + 1);
-
-            const extremes = chart.xAxis[0].getExtremes();
-            const computedStart = localDate.getTime();
-            const computedEnd = nextLocalDate.getTime();
-
-            // Adjust boundaries if they exceed the overall data range.
-            const startTime =
-              computedStart < extremes.dataMin
-                ? extremes.dataMin
-                : computedStart;
-            const endTime =
-              computedEnd > extremes.dataMax ? extremes.dataMax : computedEnd;
-
-            // Check if this is the first or last day
-            const isFirstDay =
-              Math.abs(startTime - extremes.dataMin) < TOLERANCE_UPPER;
-            const isLastDay =
-              Math.abs(endTime - extremes.dataMax) < TOLERANCE_UPPER;
-            const shouldShowActualTime = isFirstDay || isLastDay;
-
-            updateRangeDisplay(startTime, endTime, !shouldShowActualTime);
-          } catch (error) {
-            console.error("[getXAxisOptions] Error fetching data:", error);
-          }
+        } catch (error) {
+          console.error("[getXAxisOptions] Error fetching data:", error);
         }
       }
     },
