@@ -1,6 +1,7 @@
 import HighchartsReact from "highcharts-react-official";
 import Highcharts, { Chart } from "highcharts/highstock";
 import NoDataToDisplay from "highcharts/modules/no-data-to-display";
+import moment from "moment";
 import React, {
   memo,
   useCallback,
@@ -44,6 +45,7 @@ import {
   mapIndexToTimeRange,
 } from "../../utils/getTimeRange";
 import { useMapParams } from "../../utils/mapParamsHandler";
+import { formatTimeExtremes } from "../../utils/measurementsCalc";
 import {
   MILLISECONDS_IN_A_DAY,
   MILLISECONDS_IN_A_MONTH,
@@ -239,35 +241,20 @@ const Graph: React.FC<GraphProps> = memo(
         ? parseDateString(fixedStreamShortInfo.endTime)
         : Date.now();
 
-      const isNearStartTime =
-        Math.abs(selectedTime - streamStartTime) < MILLISECONDS_IN_A_DAY;
-      const isNearEndTime =
-        Math.abs(selectedTime - streamEndTime) < MILLISECONDS_IN_A_DAY;
+      // Convert to UTC time zone
+      const utcDate = moment.utc(selectedTime).startOf("day");
+      const nextDay = moment.utc(utcDate).add(1, "day");
 
-      const startOfRange = isNearStartTime
-        ? streamStartTime
-        : (() => {
-            const startOfDay = new Date(selectedDate);
-            startOfDay.setUTCHours(0, 0, 0, 0);
-            return startOfDay.getTime();
-          })();
+      const startTime = utcDate.valueOf();
+      const endTime = nextDay.valueOf();
 
-      const endOfRange = isNearEndTime
-        ? streamEndTime
-        : (() => {
-            const endOfDay = new Date(selectedDate);
-            endOfDay.setUTCDate(endOfDay.getUTCDate() + 1);
-            return endOfDay.getTime();
-          })();
-
-      // Add a check to prevent unnecessary updates
-      const currentExtremes = chart.xAxis[0].getExtremes();
-      if (
-        Math.abs(currentExtremes.min - startOfRange) < 1000 &&
-        Math.abs(currentExtremes.max - endOfRange) < 1000
-      ) {
-        return;
-      }
+      // Check if this is the first or last day
+      const isFirstDay =
+        utcDate.format("YYYY-MM-DD") ===
+        moment.utc(streamStartTime).format("YYYY-MM-DD");
+      const isLastDay =
+        utcDate.format("YYYY-MM-DD") ===
+        moment.utc(streamEndTime).format("YYYY-MM-DD");
 
       // Reset any existing range selection in Redux
       if (fixedSessionTypeSelected) {
@@ -285,13 +272,25 @@ const Graph: React.FC<GraphProps> = memo(
         false
       );
 
-      // Use a single call to setExtremes
-      chart.xAxis[0].setExtremes(startOfRange, endOfRange, true);
+      // Set the chart extremes
+      chart.xAxis[0].setExtremes(startTime, endTime, true);
+
+      // Update range display if available
+      if (rangeDisplayRef?.current) {
+        if (isFirstDay) {
+          updateRangeDisplay(streamStartTime, endTime, false);
+        } else if (isLastDay) {
+          updateRangeDisplay(startTime, streamEndTime, false);
+        } else {
+          updateRangeDisplay(startTime, endTime, true);
+        }
+      }
     }, [
       selectedDate,
       fixedSessionTypeSelected,
       fixedStreamShortInfo.startTime,
       fixedStreamShortInfo.endTime,
+      dispatch,
     ]);
 
     // --------------------------------------------------------------------------
@@ -343,14 +342,12 @@ const Graph: React.FC<GraphProps> = memo(
               startTime = endTime - MILLISECONDS_IN_A_DAY;
           }
 
-          chart.update(
-            {
-              rangeSelector: {
-                selected: selectedButton,
-              },
-            },
-            false
-          );
+          // Update range display with actual times
+          if (rangeDisplayRef?.current) {
+            updateRangeDisplay(startTime, endTime, false);
+          }
+
+          // Set extremes and update chart
           chart.xAxis[0].setExtremes(startTime, endTime, true);
           fetchMeasurementsIfNeeded(startTime, endTime);
         }
@@ -360,6 +357,7 @@ const Graph: React.FC<GraphProps> = memo(
         dispatch,
         fetchMeasurementsIfNeeded,
         onDayClick,
+        rangeDisplayRef,
       ]
     );
 
@@ -576,6 +574,30 @@ const Graph: React.FC<GraphProps> = memo(
         observer.disconnect();
       };
     }, []);
+
+    // Add this helper function inside the Graph component
+    const updateRangeDisplay = (
+      min: number,
+      max: number,
+      useFullDayFormat: boolean
+    ) => {
+      if (!rangeDisplayRef?.current) return;
+
+      const formattedTime = formatTimeExtremes(min, max, useFullDayFormat);
+
+      const htmlContent = `
+        <div class="time-container">
+          <span class="date">${formattedTime.formattedMinTime.date}</span>
+          <span class="time">${formattedTime.formattedMinTime.time}</span>
+        </div>
+        <span>-</span>
+        <div class="time-container">
+          <span class="date">${formattedTime.formattedMaxTime.date}</span>
+          <span class="time">${formattedTime.formattedMaxTime.time}</span>
+        </div>
+      `;
+      rangeDisplayRef.current.innerHTML = htmlContent;
+    };
 
     return (
       <S.Container
