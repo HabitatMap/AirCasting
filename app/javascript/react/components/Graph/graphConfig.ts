@@ -25,9 +25,15 @@ import {
   white,
   yellow100,
 } from "../../assets/styles/colors";
-import { updateFixedMeasurementExtremes } from "../../store/fixedStreamSlice";
+import {
+  resetLastSelectedTimeRange,
+  updateFixedMeasurementExtremes,
+} from "../../store/fixedStreamSlice";
 import { setHoverPosition, setHoverStreamId } from "../../store/mapSlice";
-import { updateMobileMeasurementExtremes } from "../../store/mobileStreamSlice";
+import {
+  resetLastSelectedMobileTimeRange,
+  updateMobileMeasurementExtremes,
+} from "../../store/mobileStreamSlice";
 import { LatLngLiteral } from "../../types/googleMaps";
 import { GraphData, GraphPoint } from "../../types/graph";
 import { Thresholds } from "../../types/thresholds";
@@ -39,7 +45,6 @@ import {
   MILLISECONDS_IN_A_WEEK,
   MILLISECONDS_IN_AN_HOUR,
 } from "../../utils/timeRanges";
-import { generateTimeRangeHTML } from "./chartHooks/useChartUpdater";
 
 const getScrollbarOptions = (isCalendarPage: boolean, isMobile: boolean) => {
   return {
@@ -82,16 +87,43 @@ const getXAxisOptions = (
   lastRangeSelectorTriggerRef?: React.MutableRefObject<string | null>
 ): Highcharts.XAxisOptions => {
   let fetchTimeout: NodeJS.Timeout | null = null;
-  const MAX_GAP_SIZE = MILLISECONDS_IN_A_DAY;
 
-  const updateRangeDisplayDOM = (
-    element: HTMLDivElement,
-    content: string,
-    shouldReplace = false
-  ) => {
-    if (shouldReplace) {
-      element.innerHTML = content;
-    }
+  const updateRangeDisplay = (min: number, max: number) => {
+    if (!rangeDisplayRef?.current) return;
+
+    const formatDate = (timestamp: number) => {
+      const date = new Date(timestamp);
+      return {
+        date: date.toLocaleDateString("en-US", {
+          month: "2-digit",
+          day: "2-digit",
+          year: "numeric",
+        }),
+        time: date.toLocaleTimeString("en-US", {
+          hour: "2-digit",
+          minute: "2-digit",
+          second: "2-digit",
+          hour12: false,
+        }),
+      };
+    };
+
+    const minFormatted = formatDate(min);
+    const maxFormatted = formatDate(max);
+
+    const htmlContent = `
+      <div class="time-container">
+        <span class="date">${minFormatted.date}</span>
+        <span class="time">${minFormatted.time}</span>
+      </div>
+      <span>-</span>
+      <div class="time-container">
+        <span class="date">${maxFormatted.date}</span>
+        <span class="time">${maxFormatted.time}</span>
+      </div>
+    `;
+
+    rangeDisplayRef.current.innerHTML = htmlContent;
   };
 
   const handleSetExtremes = debounce(
@@ -108,13 +140,15 @@ const getXAxisOptions = (
       });
 
       if (e.min !== undefined && e.max !== undefined) {
+        // Always update the range display first
+        updateRangeDisplay(e.min, e.max);
+
         // Add padding to fetch more data than visible range
         const visibleRange = e.max - e.min;
-        const padding = visibleRange * 0.5; // 50% padding on each side
+        const padding = visibleRange * 0.5;
         const fetchStart = Math.max(0, e.min - padding);
         const fetchEnd = e.max + padding;
 
-        // Always fetch data for scrollbar/navigator events
         if (e.trigger === "scrollbar" || e.trigger === "navigator") {
           console.log(
             "[getXAxisOptions] Scrollbar/Navigator triggered - fetching data:",
@@ -123,99 +157,19 @@ const getXAxisOptions = (
               end: fetchEnd,
             }
           );
-          await fetchMeasurementsIfNeeded(fetchStart, fetchEnd);
-          return;
-        }
 
-        // Rest of existing logic for other events...
-        if (initialLoadRef.current) {
-          const desiredRange = 2 * MILLISECONDS_IN_A_DAY;
-          const center = (e.min + e.max) / 2;
-          e.min = center - desiredRange / 2;
-          e.max = center + desiredRange / 2;
-          console.log(
-            "[getXAxisOptions] First render adjustment: new e.min:",
-            e.min,
-            "new e.max:",
-            e.max
-          );
-          initialFetchedRangeRef.current = { start: e.min, end: e.max };
-          initialLoadRef.current = false;
-        } else if (initialFetchedRangeRef.current) {
-          const tolerance = 1000; // 1 second tolerance
-          if (
-            Math.abs(e.min - initialFetchedRangeRef.current.start) <
-              tolerance &&
-            Math.abs(e.max - initialFetchedRangeRef.current.end) < tolerance
-          ) {
-            console.log(
-              "[getXAxisOptions] New range matches initial fetched range; skipping additional fetch."
-            );
-            return;
-          }
-          console.log(
-            "[getXAxisOptions] Requested range is outside initial fetched range."
-          );
-        }
-
-        // Get chart extremes and check gaps
-        const chartExtremes = chart.xAxis[0].getExtremes();
-        const visiblePoints = chart.series[0].points.filter(
-          (point) => point.x >= e.min && point.x <= e.max
-        );
-
-        // Check for gaps in data
-        if (visiblePoints.length > 1) {
-          let lastTimestamp = visiblePoints[0].x;
-          for (let i = 1; i < visiblePoints.length; i++) {
-            const currentTimestamp = visiblePoints[i].x;
-            const gap = currentTimestamp - lastTimestamp;
-            if (gap > MILLISECONDS_IN_A_DAY) {
-              console.log(
-                "[getXAxisOptions] Found data gap, fetching missing data"
-              );
-              await fetchMeasurementsIfNeeded(lastTimestamp, currentTimestamp);
-            }
-            lastTimestamp = currentTimestamp;
-          }
-        }
-
-        // Check if we are near the lower edge.
-        if (e.min <= chartExtremes.dataMin) {
-          const newStart = Math.max(e.min - MILLISECONDS_IN_A_MONTH, 0);
-          console.log(
-            "[getXAxisOptions] e.min is close to dataMin; fetching additional data from",
-            newStart,
-            "to",
-            e.min
-          );
-          await fetchMeasurementsIfNeeded(newStart, e.min);
-        }
-
-        // Upper edge: fetch more only if not too close.
-        if (e.max >= chartExtremes.dataMax) {
-          if (Math.abs(e.max - chartExtremes.dataMax) > TOLERANCE_UPPER) {
-            const newEnd = e.max + MILLISECONDS_IN_A_MONTH;
-            console.log(
-              "[getXAxisOptions] e.max is close to dataMax; fetching additional data from",
-              e.max,
-              "to",
-              newEnd
-            );
-            await fetchMeasurementsIfNeeded(e.max, newEnd);
+          // Reset any existing range selection
+          if (fixedSessionTypeSelected) {
+            dispatch(resetLastSelectedTimeRange());
           } else {
-            console.log(
-              "[getXAxisOptions] e.max is at the upper edge of available data; skipping additional upper fetch."
-            );
+            dispatch(resetLastSelectedMobileTimeRange());
           }
+
+          await fetchMeasurementsIfNeeded(fetchStart, fetchEnd);
         }
 
         // Update extremes in Redux
         if (fixedSessionTypeSelected && streamId !== null) {
-          console.log(
-            "[getXAxisOptions] Updating fixed measurement extremes for stream:",
-            streamId
-          );
           dispatch(
             updateFixedMeasurementExtremes({
               streamId,
@@ -224,27 +178,12 @@ const getXAxisOptions = (
             })
           );
         } else {
-          console.log("[getXAxisOptions] Updating mobile measurement extremes");
           dispatch(
             updateMobileMeasurementExtremes({
               min: e.min,
               max: e.max,
             })
           );
-        }
-
-        // Update the range display if provided.
-        if (rangeDisplayRef?.current) {
-          const htmlContent = generateTimeRangeHTML(e.min, e.max);
-          console.log(
-            "[getXAxisOptions] Updating range display with:",
-            htmlContent
-          );
-          updateRangeDisplayDOM(rangeDisplayRef.current, htmlContent, true);
-        }
-        // Clear our stored trigger flag so later events don't misfire.
-        if (lastRangeSelectorTriggerRef) {
-          lastRangeSelectorTriggerRef.current = null;
         }
       } else {
         console.log(
