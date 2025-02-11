@@ -1,14 +1,13 @@
-import { useEffect, useRef } from "react";
+import { useRef } from "react";
+import { selectFetchedTimeRanges } from "../../../store/fixedStreamSelectors";
 import {
-  checkDataAvailability,
   fetchMeasurements,
   updateFetchedTimeRanges,
 } from "../../../store/fixedStreamSlice";
-import { useAppDispatch } from "../../../store/hooks";
+import { useAppDispatch, useAppSelector } from "../../../store/hooks";
 import {
   MILLISECONDS_IN_A_DAY,
   MILLISECONDS_IN_A_MONTH,
-  MILLISECONDS_IN_A_WEEK,
 } from "../../../utils/timeRanges";
 
 const MAX_FETCH_ATTEMPTS = 5;
@@ -23,19 +22,83 @@ export const useMeasurementsFetcher = (
   const dispatch = useAppDispatch();
   const isFirstRender = useRef(true);
   const fetchAttemptsRef = useRef(0);
-  const lastSuccessfulFetchRef = useRef<{
-    start: number;
-    end: number;
-    hasDataBefore: boolean;
-    hasDataAfter: boolean;
-  } | null>(null);
 
-  useEffect(() => {
-    isFirstRender.current = true;
-    return () => {
-      isCurrentlyFetchingRef.current = false;
-    };
-  }, []);
+  // Get already fetched time ranges from Redux
+  const fetchedTimeRanges = useAppSelector((state) =>
+    streamId ? selectFetchedTimeRanges(state, streamId) : []
+  );
+
+  // Helper function to find gaps in fetched ranges with size limit
+  const findMissingRanges = (start: number, end: number) => {
+    if (!fetchedTimeRanges.length) {
+      // If requesting more than a month, return only the last month
+      if (end - start > MILLISECONDS_IN_A_MONTH) {
+        return [
+          {
+            start: end - MILLISECONDS_IN_A_MONTH,
+            end,
+          },
+        ];
+      }
+      return [{ start, end }];
+    }
+
+    // Sort ranges by start time
+    const sortedRanges = [...fetchedTimeRanges].sort(
+      (a, b) => a.start - b.start
+    );
+    const gaps: { start: number; end: number }[] = [];
+    let currentStart = start;
+
+    for (const range of sortedRanges) {
+      // If there's a gap before this range
+      if (currentStart < range.start) {
+        const gapEnd = Math.min(range.start, end);
+        // Only add gap if it's not too small (more than 1 minute)
+        if (gapEnd - currentStart > 60000) {
+          gaps.push({
+            start: currentStart,
+            end: gapEnd,
+          });
+        }
+      }
+      // Update currentStart to the end of this range
+      currentStart = Math.max(currentStart, range.end);
+    }
+
+    // Check if there's a gap after the last range
+    if (currentStart < end) {
+      // Only add gap if it's not too small
+      if (end - currentStart > 60000) {
+        gaps.push({
+          start: currentStart,
+          end,
+        });
+      }
+    }
+
+    // Process gaps to ensure none are larger than one month
+    return gaps.reduce<{ start: number; end: number }[]>((acc, gap) => {
+      if (gap.end - gap.start > MILLISECONDS_IN_A_MONTH) {
+        // Split into month-sized chunks, starting from the end
+        let chunkEnd = gap.end;
+        while (chunkEnd > gap.start) {
+          const chunkStart = Math.max(
+            gap.start,
+            chunkEnd - MILLISECONDS_IN_A_MONTH
+          );
+          acc.push({
+            start: chunkStart,
+            end: chunkEnd,
+          });
+          chunkEnd = chunkStart;
+        }
+      } else {
+        acc.push(gap);
+      }
+      return acc;
+    }, []);
+  };
 
   const fetchMeasurementsIfNeeded = async (
     start: number,
@@ -56,7 +119,6 @@ export const useMeasurementsFetcher = (
     const boundedStart = Math.max(start, sessionStartTime);
     const boundedEnd = Math.min(end, sessionEndTime);
 
-    // If we're outside session boundaries, skip the fetch
     if (boundedStart >= boundedEnd) {
       console.log(
         "[fetchMeasurementsIfNeeded] Outside session boundaries, skipping fetch"
@@ -66,70 +128,76 @@ export const useMeasurementsFetcher = (
 
     try {
       isCurrentlyFetchingRef.current = true;
-      const hasData = await dispatch(
-        checkDataAvailability({
-          streamId,
-          start: boundedStart,
-          end: boundedEnd,
-        })
-      ).unwrap();
 
-      console.log("[fetchMeasurementsIfNeeded] Data availability check:", {
-        hasData,
-        start: new Date(boundedStart).toISOString(),
-        end: new Date(boundedEnd).toISOString(),
-        isEdgeFetch,
-        attempt: fetchAttemptsRef.current,
-      });
+      // Find missing ranges in the requested time window
+      const missingRanges = findMissingRanges(boundedStart, boundedEnd);
 
-      if (!hasData) {
-        let fetchStart: number;
-        let fetchEnd: number;
+      console.log(
+        "[fetchMeasurementsIfNeeded] Missing ranges:",
+        missingRanges.map((range) => ({
+          start: new Date(range.start).toISOString(),
+          end: new Date(range.end).toISOString(),
+          duration: (range.end - range.start) / (1000 * 60 * 60 * 24), // days
+        }))
+      );
+
+      if (missingRanges.length === 0) {
+        console.log("[fetchMeasurementsIfNeeded] All data already fetched");
+        return;
+      }
+
+      // Fetch each missing range
+      for (const range of missingRanges) {
+        let fetchStart = range.start;
+        let fetchEnd = range.end;
 
         if (isDaySelection) {
-          // For day selection, fetch 2 days before and after
-          fetchStart = Math.max(
+          // For day selection, add padding but still respect one month limit
+          const paddedStart = Math.max(
             sessionStartTime,
-            boundedStart - MILLISECONDS_IN_A_DAY * 2
+            fetchStart - MILLISECONDS_IN_A_DAY * 2
           );
-          fetchEnd = Math.min(
+          const paddedEnd = Math.min(
             sessionEndTime,
-            boundedEnd + MILLISECONDS_IN_A_DAY * 2
+            fetchEnd + MILLISECONDS_IN_A_DAY * 2
           );
+
+          // Ensure padding doesn't exceed one month
+          if (paddedEnd - paddedStart > MILLISECONDS_IN_A_MONTH) {
+            fetchStart = paddedEnd - MILLISECONDS_IN_A_MONTH;
+            fetchEnd = paddedEnd;
+          } else {
+            fetchStart = paddedStart;
+            fetchEnd = paddedEnd;
+          }
         } else if (isEdgeFetch) {
-          // Exponential expansion based on attempts, starting with a larger base
-          const baseRange = MILLISECONDS_IN_A_MONTH * INITIAL_EDGE_FETCH_MONTHS;
-          const expansionFactor = Math.pow(2, fetchAttemptsRef.current);
-          const totalRange = baseRange * expansionFactor;
+          // Edge fetch logic with one month limit
+          const baseRange = Math.min(
+            MILLISECONDS_IN_A_MONTH * INITIAL_EDGE_FETCH_MONTHS,
+            MILLISECONDS_IN_A_MONTH
+          );
+          const expansionFactor = Math.min(
+            Math.pow(2, fetchAttemptsRef.current),
+            MILLISECONDS_IN_A_MONTH / baseRange
+          );
+          const totalRange = Math.min(
+            baseRange * expansionFactor,
+            MILLISECONDS_IN_A_MONTH
+          );
 
-          // When hitting a gap, try to fetch a large chunk in both directions
-          fetchStart = Math.max(sessionStartTime, boundedStart - totalRange);
-          fetchEnd = Math.min(sessionEndTime, boundedEnd + totalRange);
-
-          console.log("[fetchMeasurementsIfNeeded] Edge fetch calculation:", {
-            baseRange,
-            expansionFactor,
-            totalRange,
-            fetchStart: new Date(fetchStart).toISOString(),
-            fetchEnd: new Date(fetchEnd).toISOString(),
-          });
-        } else {
-          // Normal fetch behavior
-          fetchStart = isFirstRender.current
-            ? boundedStart - MILLISECONDS_IN_A_DAY
-            : boundedStart - MILLISECONDS_IN_A_WEEK * 2;
-          fetchEnd = isFirstRender.current
-            ? boundedEnd + MILLISECONDS_IN_A_DAY
-            : boundedEnd + MILLISECONDS_IN_A_WEEK * 2;
+          fetchStart = Math.max(sessionStartTime, fetchStart - totalRange / 2);
+          fetchEnd = Math.min(sessionEndTime, fetchEnd + totalRange / 2);
         }
 
-        console.log("[fetchMeasurementsIfNeeded] Fetching data:", {
-          isDaySelection,
-          isFirstRender: isFirstRender.current,
-          isEdgeFetch,
-          attempt: fetchAttemptsRef.current,
-          fetchStart: new Date(fetchStart).toISOString(),
-          fetchEnd: new Date(fetchEnd).toISOString(),
+        // Final check to ensure we never exceed one month
+        if (fetchEnd - fetchStart > MILLISECONDS_IN_A_MONTH) {
+          fetchStart = fetchEnd - MILLISECONDS_IN_A_MONTH;
+        }
+
+        console.log("[fetchMeasurementsIfNeeded] Fetching range:", {
+          start: new Date(fetchStart).toISOString(),
+          end: new Date(fetchEnd).toISOString(),
+          duration: (fetchEnd - fetchStart) / (1000 * 60 * 60 * 24), // days
         });
 
         const result = await dispatch(
@@ -141,12 +209,6 @@ export const useMeasurementsFetcher = (
         ).unwrap();
 
         if (result && result.length > 0) {
-          console.log("[fetchMeasurementsIfNeeded] Found data:", {
-            points: result.length,
-            firstPoint: new Date(result[0].time).toISOString(),
-            lastPoint: new Date(result[result.length - 1].time).toISOString(),
-          });
-
           dispatch(
             updateFetchedTimeRanges({
               streamId,
@@ -154,26 +216,11 @@ export const useMeasurementsFetcher = (
               end: fetchEnd,
             })
           );
-
-          // Reset fetch attempts on successful data fetch
-          fetchAttemptsRef.current = 0;
-        } else if (
-          isEdgeFetch &&
-          fetchAttemptsRef.current < MAX_FETCH_ATTEMPTS
-        ) {
-          // If no data found, try again with a larger range
-          fetchAttemptsRef.current++;
-          setTimeout(() => {
-            fetchMeasurementsIfNeeded(boundedStart, boundedEnd, true);
-          }, 200);
-        } else {
-          // Reset attempts if we've hit the maximum
-          fetchAttemptsRef.current = 0;
         }
+      }
 
-        if (isFirstRender.current) {
-          isFirstRender.current = false;
-        }
+      if (isFirstRender.current) {
+        isFirstRender.current = false;
       }
     } catch (error) {
       console.error(

@@ -92,7 +92,7 @@ const getXAxisOptions = (
       e: Highcharts.AxisSetExtremesEventObject,
       chart: Highcharts.Chart
     ) => {
-      console.log("handleSetExtremes called with trigger:", e.trigger);
+      if (!e.trigger) return;
 
       const now = Date.now();
       if (
@@ -110,7 +110,6 @@ const getXAxisOptions = (
         e.trigger === "navigator" ||
         e.trigger === "rangeSelectorButton"
       ) {
-        console.log("trigger:", e.trigger);
         onDayClick?.(null);
       }
 
@@ -128,24 +127,26 @@ const getXAxisOptions = (
         );
       }
 
-      const visibleRange = e.max - e.min;
-      const padding = visibleRange * 0.25;
-      const fetchStart = Math.max(sessionStartTime || 0, e.min - padding);
-      const fetchEnd = Math.min(sessionEndTime || Date.now(), e.max + padding);
-
-      try {
-        await fetchMeasurementsIfNeeded(fetchStart, fetchEnd);
-        const currentExtremes = chart.xAxis[0].getExtremes();
-        const currentMin = currentExtremes.min || e.min;
-        const currentMax = currentExtremes.max || e.max;
-        updateRangeDisplay(
-          rangeDisplayRef,
-          currentMin,
-          currentMax,
-          e.trigger === undefined
+      if (e.trigger) {
+        const visibleRange = e.max - e.min;
+        const padding = visibleRange * 0.25;
+        const fetchStart = Math.max(sessionStartTime || 0, e.min - padding);
+        const fetchEnd = Math.min(
+          sessionEndTime || Date.now(),
+          e.max + padding
         );
-      } catch (error) {
-        console.error("[handleSetExtremes] Error:", error);
+
+        try {
+          await fetchMeasurementsIfNeeded(fetchStart, fetchEnd);
+          updateRangeDisplay(
+            rangeDisplayRef,
+            e.min,
+            e.max,
+            e.trigger === undefined
+          );
+        } catch (error) {
+          console.error("[handleSetExtremes] Error:", error);
+        }
       }
     },
     300,

@@ -150,6 +150,9 @@ export const selectStreamMeasurements = createSelector(
   }
 );
 
+export const selectFetchedTimeRanges = (state: RootState, streamId: number) =>
+  state.fixedStream.fetchedTimeRanges[streamId] || [];
+
 export {
   selectFixedExtremes,
   selectFixedStreamData,
