@@ -40,15 +40,14 @@ import { GraphData } from "../../types/graph";
 import { MobileStreamShortInfo } from "../../types/mobileStream";
 import { FixedTimeRange, MobileTimeRange } from "../../types/timeRange";
 import { parseDateString } from "../../utils/dateParser";
-import {
-  getSelectedRangeIndex,
-  mapIndexToTimeRange,
-} from "../../utils/getTimeRange";
+import { getSelectedRangeIndex } from "../../utils/getTimeRange";
 import { useMapParams } from "../../utils/mapParamsHandler";
 import {
   MILLISECONDS_IN_A_DAY,
   MILLISECONDS_IN_A_MONTH,
   MILLISECONDS_IN_A_WEEK,
+  MILLISECONDS_IN_AN_HOUR,
+  MILLISECONDS_IN_FIVE_MINUTES,
 } from "../../utils/timeRanges";
 import useMobileDetection from "../../utils/useScreenSizeDetection";
 import { handleLoad } from "./chartEvents";
@@ -231,7 +230,7 @@ const Graph: React.FC<GraphProps> = memo(
     }, [selectedDate]);
 
     // --- Updated useEffect for custom day selection ---
-    // When the user selects a day, if it is the session’s first or last day,
+    // When the user selects a day, if it is the session's first or last day,
     // override the full-day boundaries with the actual session start or end times.
     useEffect(() => {
       if (!chartComponentRef.current?.chart || !selectedDate) return;
@@ -266,17 +265,37 @@ const Graph: React.FC<GraphProps> = memo(
         setSelectedRangeIndex(selectedButton);
         lastRangeSelectorTriggerRef.current = selectedButton.toString();
 
-        const timeRange = mapIndexToTimeRange(
-          selectedButton,
-          fixedSessionTypeSelected
-        );
-
+        let timeRange;
         if (fixedSessionTypeSelected) {
-          dispatch(setLastSelectedTimeRange(timeRange as FixedTimeRange));
+          switch (selectedButton) {
+            case 0:
+              timeRange = FixedTimeRange.Day;
+              break;
+            case 1:
+              timeRange = FixedTimeRange.Week;
+              break;
+            case 2:
+              timeRange = FixedTimeRange.Month;
+              break;
+            default:
+              timeRange = FixedTimeRange.Day;
+          }
+          dispatch(setLastSelectedTimeRange(timeRange));
         } else {
-          dispatch(
-            setLastSelectedMobileTimeRange(timeRange as MobileTimeRange)
-          );
+          switch (selectedButton) {
+            case 0:
+              timeRange = MobileTimeRange.FiveMinutes;
+              break;
+            case 1:
+              timeRange = MobileTimeRange.Hour;
+              break;
+            case 2:
+              timeRange = MobileTimeRange.All;
+              break;
+            default:
+              timeRange = MobileTimeRange.All;
+          }
+          dispatch(setLastSelectedMobileTimeRange(timeRange));
         }
 
         if (chartComponentRef.current?.chart) {
@@ -285,22 +304,36 @@ const Graph: React.FC<GraphProps> = memo(
           const currentMax = currentExtremes.max || Date.now();
           let rangeStart, rangeEnd;
 
-          switch (timeRange) {
-            case FixedTimeRange.Month:
-              rangeEnd = currentMax;
-              rangeStart = rangeEnd - MILLISECONDS_IN_A_MONTH;
-              break;
-            case FixedTimeRange.Week:
-              rangeEnd = currentMax;
-              rangeStart = rangeEnd - MILLISECONDS_IN_A_WEEK;
-              break;
-            case FixedTimeRange.Day:
-              rangeEnd = currentMax;
-              rangeStart = rangeEnd - MILLISECONDS_IN_A_DAY;
-              break;
-            default:
-              rangeEnd = currentMax;
-              rangeStart = rangeEnd - MILLISECONDS_IN_A_DAY;
+          if (!fixedSessionTypeSelected && timeRange === MobileTimeRange.All) {
+            // For "All" option in mobile sessions, show the entire range
+            rangeStart = startTime;
+            rangeEnd = endTime;
+          } else {
+            switch (timeRange) {
+              case FixedTimeRange.Month:
+                rangeEnd = currentMax;
+                rangeStart = rangeEnd - MILLISECONDS_IN_A_MONTH;
+                break;
+              case FixedTimeRange.Week:
+                rangeEnd = currentMax;
+                rangeStart = rangeEnd - MILLISECONDS_IN_A_WEEK;
+                break;
+              case FixedTimeRange.Day:
+                rangeEnd = currentMax;
+                rangeStart = rangeEnd - MILLISECONDS_IN_A_DAY;
+                break;
+              case MobileTimeRange.Hour:
+                rangeEnd = currentMax;
+                rangeStart = rangeEnd - MILLISECONDS_IN_AN_HOUR;
+                break;
+              case MobileTimeRange.FiveMinutes:
+                rangeEnd = currentMax;
+                rangeStart = rangeEnd - MILLISECONDS_IN_FIVE_MINUTES;
+                break;
+              default:
+                rangeEnd = currentMax;
+                rangeStart = rangeEnd - MILLISECONDS_IN_A_DAY;
+            }
           }
 
           updateRangeDisplay(rangeDisplayRef, rangeStart, rangeEnd, false);
@@ -314,6 +347,8 @@ const Graph: React.FC<GraphProps> = memo(
         fetchMeasurementsIfNeeded,
         onDayClick,
         rangeDisplayRef,
+        startTime,
+        endTime,
       ]
     );
 
@@ -382,38 +417,70 @@ const Graph: React.FC<GraphProps> = memo(
             isCalendarPage,
             t
           ),
-          buttons: [
-            {
-              type: "day",
-              count: 1,
-              text: t("graph.24Hours"),
-              events: {
-                click: function () {
-                  handleRangeSelectorClick(0);
+          buttons: fixedSessionTypeSelected
+            ? [
+                {
+                  type: "day",
+                  count: 1,
+                  text: t("graph.24Hours"),
+                  events: {
+                    click: function () {
+                      handleRangeSelectorClick(0);
+                    },
+                  },
                 },
-              },
-            },
-            {
-              type: "week",
-              count: 1,
-              text: t("graph.oneWeek"),
-              events: {
-                click: function () {
-                  handleRangeSelectorClick(1);
+                {
+                  type: "week",
+                  count: 1,
+                  text: t("graph.oneWeek"),
+                  events: {
+                    click: function () {
+                      handleRangeSelectorClick(1);
+                    },
+                  },
                 },
-              },
-            },
-            {
-              type: "month",
-              count: 1,
-              text: t("graph.oneMonth"),
-              events: {
-                click: function () {
-                  handleRangeSelectorClick(2);
+                {
+                  type: "month",
+                  count: 1,
+                  text: t("graph.oneMonth"),
+                  events: {
+                    click: function () {
+                      handleRangeSelectorClick(2);
+                    },
+                  },
                 },
-              },
-            },
-          ],
+              ]
+            : [
+                {
+                  type: "minute",
+                  count: 5,
+                  text: t("graph.fiveMinutes"),
+                  events: {
+                    click: function () {
+                      handleRangeSelectorClick(2);
+                    },
+                  },
+                },
+                {
+                  type: "minute",
+                  count: 60,
+                  text: t("graph.oneHour"),
+                  events: {
+                    click: function () {
+                      handleRangeSelectorClick(1);
+                    },
+                  },
+                },
+                {
+                  type: "all",
+                  text: t("graph.all"),
+                  events: {
+                    click: function () {
+                      handleRangeSelectorClick(0);
+                    },
+                  },
+                },
+              ],
           selected: selectedRangeIndex,
         },
         scrollbar: {

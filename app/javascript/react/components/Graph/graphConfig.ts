@@ -39,13 +39,6 @@ import {
 } from "../../utils/timeRanges";
 import { updateRangeDisplay } from "./chartHooks/updateRangeDisplay";
 
-type ChartWithRangeSelector = Highcharts.Chart & {
-  rangeSelector?: {
-    clickButton: (index: number, redraw?: boolean) => void;
-    buttons?: Array<{ element: HTMLElement }>;
-  };
-};
-
 const getScrollbarOptions = (isCalendarPage: boolean, isMobile: boolean) => {
   return {
     barBackgroundColor: gray200,
