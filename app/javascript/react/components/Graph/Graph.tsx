@@ -236,13 +236,12 @@ const Graph: React.FC<GraphProps> = memo(
       if (!chartComponentRef.current?.chart || !selectedDate) return;
 
       const chart = chartComponentRef.current.chart;
-      // Compute full-day boundaries for the selected date
+      // Get the start of the selected day in UTC
       const selectedDayStart = moment.utc(selectedDate).startOf("day");
-      const selectedDayEnd = moment.utc(selectedDate).endOf("day");
-
-      // By default, use the full day
-      let rangeStart = selectedDayStart.valueOf();
-      let rangeEnd = selectedDayEnd.valueOf();
+      const selectedDayStartMs = selectedDayStart.valueOf();
+      // Calculate a full 24h period (exactly 86,400,000 ms) from that start
+      let rangeStart = selectedDayStartMs;
+      let rangeEnd = selectedDayStartMs + MILLISECONDS_IN_A_DAY;
 
       // If selected day is the session's first day, use actual session start time.
       if (selectedDayStart.isSame(moment.utc(startTime), "day")) {
