@@ -92,6 +92,8 @@ const getXAxisOptions = (
       e: Highcharts.AxisSetExtremesEventObject,
       chart: Highcharts.Chart
     ) => {
+      console.log("handleSetExtremes called with trigger:", e.trigger);
+
       const now = Date.now();
       if (
         e.trigger === lastTriggerRef.current &&
@@ -101,6 +103,16 @@ const getXAxisOptions = (
       }
       lastTriggerRef.current = e.trigger || "unknown";
       lastUpdateTimeRef.current = now;
+
+      if (
+        e.trigger === "pan" ||
+        e.trigger === "zoom" ||
+        e.trigger === "navigator" ||
+        e.trigger === "rangeSelectorButton"
+      ) {
+        console.log("trigger:", e.trigger);
+        onDayClick?.(null);
+      }
 
       if (!e.min || !e.max || isNaN(e.min) || isNaN(e.max)) {
         return;
@@ -157,7 +169,6 @@ const getXAxisOptions = (
     visible: true,
     minRange: MILLISECONDS_IN_A_SECOND,
     ordinal: false,
-    // Set the axis boundaries to the session start/end.
     min: sessionStartTime,
     max: sessionEndTime,
     events: {
