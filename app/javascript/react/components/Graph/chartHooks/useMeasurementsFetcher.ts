@@ -12,7 +12,7 @@ import {
 } from "../../../utils/timeRanges";
 
 const MAX_FETCH_ATTEMPTS = 5;
-const INITIAL_EDGE_FETCH_MONTHS = 6; // Increased to 6 months for initial fetch
+const INITIAL_EDGE_FETCH_MONTHS = 6;
 
 export const useMeasurementsFetcher = (
   streamId: number | null,
@@ -153,7 +153,7 @@ export const useMeasurementsFetcher = (
           fetchAttemptsRef.current++;
           setTimeout(() => {
             fetchMeasurementsIfNeeded(boundedStart, boundedEnd, true);
-          }, 100);
+          }, 200);
         } else {
           // Reset attempts if we've hit the maximum
           fetchAttemptsRef.current = 0;

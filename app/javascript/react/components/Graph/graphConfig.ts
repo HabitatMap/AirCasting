@@ -148,7 +148,7 @@ const getXAxisOptions = (
         console.error("[handleSetExtremes] Error:", error);
       }
     },
-    250,
+    300,
     { leading: true, trailing: false }
   );
 
@@ -178,7 +178,7 @@ const getXAxisOptions = (
         }
         fetchTimeout = setTimeout(() => {
           handleSetExtremes(e, this.chart);
-        }, 250);
+        }, 300);
       },
     },
   };

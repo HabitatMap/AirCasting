@@ -67,7 +67,7 @@ import {
   getResponsiveOptions,
   getScrollbarOptions,
   getTooltipOptions,
-  getXAxisOptions, // This function also now accepts session boundaries.
+  getXAxisOptions, // This function now also accepts session boundaries.
   getYAxisOptions,
   legendOption,
   seriesOptions,
@@ -130,7 +130,7 @@ const Graph: React.FC<GraphProps> = memo(
       ? fixedLastSelectedTimeRange
       : mobileLastSelectedTimeRange || MobileTimeRange.All;
 
-    // Session start & end times (as computed from stream info)
+    // Session start & end times (computed from stream info)
     const startTime = useMemo(
       () =>
         fixedSessionTypeSelected
@@ -217,7 +217,7 @@ const Graph: React.FC<GraphProps> = memo(
       );
     }, [selectedDate, lastSelectedTimeRange, fixedSessionTypeSelected]);
 
-    // LOCAL STATE: Control the selected range button independent of Redux.
+    // LOCAL STATE: Control the selected range button independently of Redux.
     const [selectedRangeIndex, setSelectedRangeIndex] = useState<number>(
       computedSelectedRangeIndex
     );
@@ -230,8 +230,6 @@ const Graph: React.FC<GraphProps> = memo(
     }, [selectedDate]);
 
     // --- Updated useEffect for custom day selection ---
-    // When the user selects a day, if it is the session's first or last day,
-    // override the full-day boundaries with the actual session start or end times.
     useEffect(() => {
       if (!chartComponentRef.current?.chart || !selectedDate) return;
 
@@ -239,22 +237,49 @@ const Graph: React.FC<GraphProps> = memo(
       // Get the start of the selected day in UTC
       const selectedDayStart = moment.utc(selectedDate).startOf("day");
       const selectedDayStartMs = selectedDayStart.valueOf();
-      // Calculate a full 24h period (exactly 86,400,000 ms) from that start
-      let rangeStart = selectedDayStartMs;
-      let rangeEnd = selectedDayStartMs + MILLISECONDS_IN_A_DAY;
+      const fullDayEndMs = selectedDayStartMs + MILLISECONDS_IN_A_DAY;
 
-      // If selected day is the session's first day, use actual session start time.
+      // Default range: full day (midnight to midnight)
+      let rangeStart = selectedDayStartMs;
+      let rangeEnd = fullDayEndMs;
+
+      // If the selected day is the session's first day, adjust the lower bound
       if (selectedDayStart.isSame(moment.utc(startTime), "day")) {
         rangeStart = startTime;
       }
-      // If selected day is the session's last day, use actual session end time.
+
+      // If the session ends on this day, adjust the upper bound
       if (selectedDayStart.isSame(moment.utc(endTime), "day")) {
         rangeEnd = endTime;
       }
 
+      // Find available data points within this day
+      const dayMeasurements = measurements.filter(
+        (m) => m.time >= rangeStart && m.time <= rangeEnd
+      );
+
+      if (dayMeasurements.length > 0) {
+        // If we have data points, use their actual time range
+        rangeStart = Math.max(rangeStart, dayMeasurements[0].time);
+        rangeEnd = Math.min(
+          rangeEnd,
+          dayMeasurements[dayMeasurements.length - 1].time
+        );
+      }
+
       chart.xAxis[0].setExtremes(rangeStart, rangeEnd, true, false);
-      updateRangeDisplay(rangeDisplayRef, rangeStart, rangeEnd, false);
-    }, [selectedDate, startTime, endTime, rangeDisplayRef]);
+
+      // The "full-day" flag is true only if we're showing exactly midnight to midnight
+      const useFullDayFormat =
+        rangeStart === selectedDayStartMs && rangeEnd === fullDayEndMs;
+
+      updateRangeDisplay(
+        rangeDisplayRef,
+        rangeStart,
+        rangeEnd,
+        useFullDayFormat
+      );
+    }, [selectedDate, startTime, endTime, rangeDisplayRef, measurements]);
     // --- End updated useEffect ---
 
     // Update both local state and Redux when a range selector button is clicked.
@@ -304,7 +329,7 @@ const Graph: React.FC<GraphProps> = memo(
           let rangeStart, rangeEnd;
 
           if (!fixedSessionTypeSelected && timeRange === MobileTimeRange.All) {
-            // For "All" option in mobile sessions, show the entire range
+            // For mobile sessions, the "All" option shows the entire range.
             rangeStart = startTime;
             rangeEnd = endTime;
           } else {
