@@ -12,7 +12,7 @@ import {
 } from "../../../utils/timeRanges";
 
 const MAX_FETCH_ATTEMPTS = 5;
-const INITIAL_EDGE_FETCH_MONTHS = 6;
+const INITIAL_EDGE_FETCH_MONTHS = 1;
 
 export const useMeasurementsFetcher = (
   streamId: number | null,
@@ -40,7 +40,8 @@ export const useMeasurementsFetcher = (
   const fetchMeasurementsIfNeeded = async (
     start: number,
     end: number,
-    isEdgeFetch: boolean = false
+    isEdgeFetch: boolean = false,
+    isDaySelection: boolean = false
   ) => {
     if (!streamId || isCurrentlyFetchingRef.current) {
       console.log("[fetchMeasurementsIfNeeded] Skipping fetch:", {
@@ -85,7 +86,17 @@ export const useMeasurementsFetcher = (
         let fetchStart: number;
         let fetchEnd: number;
 
-        if (isEdgeFetch) {
+        if (isDaySelection) {
+          // For day selection, fetch 2 days before and after
+          fetchStart = Math.max(
+            sessionStartTime,
+            boundedStart - MILLISECONDS_IN_A_DAY * 2
+          );
+          fetchEnd = Math.min(
+            sessionEndTime,
+            boundedEnd + MILLISECONDS_IN_A_DAY * 2
+          );
+        } else if (isEdgeFetch) {
           // Exponential expansion based on attempts, starting with a larger base
           const baseRange = MILLISECONDS_IN_A_MONTH * INITIAL_EDGE_FETCH_MONTHS;
           const expansionFactor = Math.pow(2, fetchAttemptsRef.current);
@@ -113,6 +124,7 @@ export const useMeasurementsFetcher = (
         }
 
         console.log("[fetchMeasurementsIfNeeded] Fetching data:", {
+          isDaySelection,
           isFirstRender: isFirstRender.current,
           isEdgeFetch,
           attempt: fetchAttemptsRef.current,

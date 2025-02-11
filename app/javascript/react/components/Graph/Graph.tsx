@@ -271,7 +271,19 @@ const Graph: React.FC<GraphProps> = memo(
         }
       }
 
+      // Set the visible range to the selected day
       chart.xAxis[0].setExtremes(rangeStart, rangeEnd, true, false);
+
+      // But fetch a wider range of data (2 days before and after)
+      const fetchStart = Math.max(
+        startTime,
+        selectedDayStartMs - MILLISECONDS_IN_A_DAY * 2
+      );
+      const fetchEnd = Math.min(
+        endTime,
+        fullDayEndMs + MILLISECONDS_IN_A_DAY * 2
+      );
+      fetchMeasurementsIfNeeded(fetchStart, fetchEnd, false, true);
 
       // Use full day format only for complete days (not first/last days)
       const useFullDayFormat = !isFirstDay && !isLastDay;
@@ -282,13 +294,24 @@ const Graph: React.FC<GraphProps> = memo(
         rangeEnd,
         useFullDayFormat
       );
-    }, [selectedDate, startTime, endTime, rangeDisplayRef, measurements]);
+    }, [
+      selectedDate,
+      startTime,
+      endTime,
+      rangeDisplayRef,
+      measurements,
+      fetchMeasurementsIfNeeded,
+    ]);
     // --- End updated useEffect ---
 
     // Update both local state and Redux when a range selector button is clicked.
     const handleRangeSelectorClick = useCallback(
       (selectedButton: number) => {
-        onDayClick?.(null);
+        // Don't call onDayClick if we're already handling a day selection
+        if (!selectedDate) {
+          onDayClick?.(null);
+        }
+
         setSelectedRangeIndex(selectedButton);
         lastRangeSelectorTriggerRef.current = selectedButton.toString();
 
@@ -328,7 +351,6 @@ const Graph: React.FC<GraphProps> = memo(
         if (chartComponentRef.current?.chart) {
           const chart = chartComponentRef.current.chart;
           const currentExtremes = chart.xAxis[0].getExtremes();
-          const currentMax = currentExtremes.max || Date.now();
           let rangeStart, rangeEnd;
 
           if (!fixedSessionTypeSelected && timeRange === MobileTimeRange.All) {
@@ -336,31 +358,31 @@ const Graph: React.FC<GraphProps> = memo(
             rangeStart = startTime;
             rangeEnd = endTime;
           } else {
+            // Use session end time instead of current time
+            rangeEnd = Math.min(endTime, Date.now());
+
             switch (timeRange) {
               case FixedTimeRange.Month:
-                rangeEnd = currentMax;
                 rangeStart = rangeEnd - MILLISECONDS_IN_A_MONTH;
                 break;
               case FixedTimeRange.Week:
-                rangeEnd = currentMax;
                 rangeStart = rangeEnd - MILLISECONDS_IN_A_WEEK;
                 break;
               case FixedTimeRange.Day:
-                rangeEnd = currentMax;
                 rangeStart = rangeEnd - MILLISECONDS_IN_A_DAY;
                 break;
               case MobileTimeRange.Hour:
-                rangeEnd = currentMax;
                 rangeStart = rangeEnd - MILLISECONDS_IN_AN_HOUR;
                 break;
               case MobileTimeRange.FiveMinutes:
-                rangeEnd = currentMax;
                 rangeStart = rangeEnd - MILLISECONDS_IN_FIVE_MINUTES;
                 break;
               default:
-                rangeEnd = currentMax;
                 rangeStart = rangeEnd - MILLISECONDS_IN_A_DAY;
             }
+
+            // Ensure we don't go before session start
+            rangeStart = Math.max(rangeStart, startTime);
           }
 
           updateRangeDisplay(rangeDisplayRef, rangeStart, rangeEnd, false);
@@ -373,6 +395,7 @@ const Graph: React.FC<GraphProps> = memo(
         dispatch,
         fetchMeasurementsIfNeeded,
         onDayClick,
+        selectedDate,
         rangeDisplayRef,
         startTime,
         endTime,
