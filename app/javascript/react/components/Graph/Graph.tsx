@@ -46,8 +46,6 @@ import {
   MILLISECONDS_IN_A_DAY,
   MILLISECONDS_IN_A_MONTH,
   MILLISECONDS_IN_A_WEEK,
-  MILLISECONDS_IN_AN_HOUR,
-  MILLISECONDS_IN_FIVE_MINUTES,
 } from "../../utils/timeRanges";
 import useMobileDetection from "../../utils/useScreenSizeDetection";
 import { handleLoad } from "./chartEvents";
@@ -307,84 +305,70 @@ const Graph: React.FC<GraphProps> = memo(
     // Update both local state and Redux when a range selector button is clicked.
     const handleRangeSelectorClick = useCallback(
       (selectedButton: number) => {
-        // Don't call onDayClick if we're already handling a day selection
-        if (!selectedDate) {
-          onDayClick?.(null);
-        }
-
+        // Clear selected date and immediately update UI
+        onDayClick?.(null);
         setSelectedRangeIndex(selectedButton);
         lastRangeSelectorTriggerRef.current = selectedButton.toString();
 
-        let timeRange;
-        if (fixedSessionTypeSelected) {
-          switch (selectedButton) {
-            case 0:
-              timeRange = FixedTimeRange.Day;
-              break;
-            case 1:
-              timeRange = FixedTimeRange.Week;
-              break;
-            case 2:
-              timeRange = FixedTimeRange.Month;
-              break;
-            default:
-              timeRange = FixedTimeRange.Day;
-          }
-          dispatch(setLastSelectedTimeRange(timeRange));
-        } else {
-          switch (selectedButton) {
-            case 0:
-              timeRange = MobileTimeRange.FiveMinutes;
-              break;
-            case 1:
-              timeRange = MobileTimeRange.Hour;
-              break;
-            case 2:
-              timeRange = MobileTimeRange.All;
-              break;
-            default:
-              timeRange = MobileTimeRange.All;
-          }
-          dispatch(setLastSelectedMobileTimeRange(timeRange));
-        }
-
+        // Ensure we process the range selection immediately, not waiting for selectedDate effect
         if (chartComponentRef.current?.chart) {
           const chart = chartComponentRef.current.chart;
-          const currentExtremes = chart.xAxis[0].getExtremes();
-          let rangeStart, rangeEnd;
+          let timeRange;
 
-          if (!fixedSessionTypeSelected && timeRange === MobileTimeRange.All) {
-            // For mobile sessions, the "All" option shows the entire range.
-            rangeStart = startTime;
-            rangeEnd = endTime;
-          } else {
-            // Use session end time instead of current time
-            rangeEnd = Math.min(endTime, Date.now());
-
-            switch (timeRange) {
-              case FixedTimeRange.Month:
-                rangeStart = rangeEnd - MILLISECONDS_IN_A_MONTH;
+          if (fixedSessionTypeSelected) {
+            switch (selectedButton) {
+              case 0:
+                timeRange = FixedTimeRange.Day;
                 break;
-              case FixedTimeRange.Week:
-                rangeStart = rangeEnd - MILLISECONDS_IN_A_WEEK;
+              case 1:
+                timeRange = FixedTimeRange.Week;
                 break;
-              case FixedTimeRange.Day:
-                rangeStart = rangeEnd - MILLISECONDS_IN_A_DAY;
-                break;
-              case MobileTimeRange.Hour:
-                rangeStart = rangeEnd - MILLISECONDS_IN_AN_HOUR;
-                break;
-              case MobileTimeRange.FiveMinutes:
-                rangeStart = rangeEnd - MILLISECONDS_IN_FIVE_MINUTES;
+              case 2:
+                timeRange = FixedTimeRange.Month;
                 break;
               default:
-                rangeStart = rangeEnd - MILLISECONDS_IN_A_DAY;
+                timeRange = FixedTimeRange.Day;
             }
-
-            // Ensure we don't go before session start
-            rangeStart = Math.max(rangeStart, startTime);
+            dispatch(setLastSelectedTimeRange(timeRange));
+          } else {
+            switch (selectedButton) {
+              case 0:
+                timeRange = MobileTimeRange.FiveMinutes;
+                break;
+              case 1:
+                timeRange = MobileTimeRange.Hour;
+                break;
+              case 2:
+                timeRange = MobileTimeRange.All;
+                break;
+              default:
+                timeRange = MobileTimeRange.All;
+            }
+            dispatch(setLastSelectedMobileTimeRange(timeRange));
           }
 
+          // Calculate new range immediately
+          const rangeEnd = Math.min(endTime, Date.now());
+          let rangeStart;
+
+          switch (timeRange) {
+            case FixedTimeRange.Month:
+              rangeStart = rangeEnd - MILLISECONDS_IN_A_MONTH;
+              break;
+            case FixedTimeRange.Week:
+              rangeStart = rangeEnd - MILLISECONDS_IN_A_WEEK;
+              break;
+            case FixedTimeRange.Day:
+              rangeStart = rangeEnd - MILLISECONDS_IN_A_DAY;
+              break;
+            default:
+              rangeStart = rangeEnd - MILLISECONDS_IN_A_DAY;
+          }
+
+          // Ensure we don't go before session start
+          rangeStart = Math.max(rangeStart, startTime);
+
+          // Update chart immediately
           updateRangeDisplay(rangeDisplayRef, rangeStart, rangeEnd, false);
           chart.xAxis[0].setExtremes(rangeStart, rangeEnd, true);
           fetchMeasurementsIfNeeded(rangeStart, rangeEnd);
@@ -395,7 +379,6 @@ const Graph: React.FC<GraphProps> = memo(
         dispatch,
         fetchMeasurementsIfNeeded,
         onDayClick,
-        selectedDate,
         rangeDisplayRef,
         startTime,
         endTime,
