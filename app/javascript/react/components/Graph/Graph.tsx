@@ -243,35 +243,38 @@ const Graph: React.FC<GraphProps> = memo(
       let rangeStart = selectedDayStartMs;
       let rangeEnd = fullDayEndMs;
 
-      // If the selected day is the session's first day, adjust the lower bound
-      if (selectedDayStart.isSame(moment.utc(startTime), "day")) {
-        rangeStart = startTime;
-      }
+      // Check if this is first or last day of session
+      const isFirstDay = selectedDayStart.isSame(moment.utc(startTime), "day");
+      const isLastDay = selectedDayStart.isSame(moment.utc(endTime), "day");
 
-      // If the session ends on this day, adjust the upper bound
-      if (selectedDayStart.isSame(moment.utc(endTime), "day")) {
-        rangeEnd = endTime;
-      }
+      if (isFirstDay || isLastDay) {
+        // For first/last days, show only available data range
+        if (isFirstDay) {
+          rangeStart = startTime;
+        }
+        if (isLastDay) {
+          rangeEnd = endTime;
+        }
 
-      // Find available data points within this day
-      const dayMeasurements = measurements.filter(
-        (m) => m.time >= rangeStart && m.time <= rangeEnd
-      );
-
-      if (dayMeasurements.length > 0) {
-        // If we have data points, use their actual time range
-        rangeStart = Math.max(rangeStart, dayMeasurements[0].time);
-        rangeEnd = Math.min(
-          rangeEnd,
-          dayMeasurements[dayMeasurements.length - 1].time
+        // Find available data points within this day
+        const dayMeasurements = measurements.filter(
+          (m) => m.time >= rangeStart && m.time <= rangeEnd
         );
+
+        if (dayMeasurements.length > 0) {
+          // If we have data points, use their actual time range
+          rangeStart = Math.max(rangeStart, dayMeasurements[0].time);
+          rangeEnd = Math.min(
+            rangeEnd,
+            dayMeasurements[dayMeasurements.length - 1].time
+          );
+        }
       }
 
       chart.xAxis[0].setExtremes(rangeStart, rangeEnd, true, false);
 
-      // The "full-day" flag is true only if we're showing exactly midnight to midnight
-      const useFullDayFormat =
-        rangeStart === selectedDayStartMs && rangeEnd === fullDayEndMs;
+      // Use full day format only for complete days (not first/last days)
+      const useFullDayFormat = !isFirstDay && !isLastDay;
 
       updateRangeDisplay(
         rangeDisplayRef,
