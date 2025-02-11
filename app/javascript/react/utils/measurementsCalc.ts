@@ -52,32 +52,33 @@ export const formatTimeExtremes = (
   const minDate = moment.utc(min);
   const maxDate = moment.utc(max);
 
-  // Check if dates are on the same day in UTC
-  const sameDay = minDate.format("YYYY-MM-DD") === maxDate.format("YYYY-MM-DD");
+  // Check if both timestamps fall on the same day
+  const sameDay = minDate.isSame(maxDate, "day");
 
-  // Determine if the minimum is exactly at the start of its day
+  // Determine if the minimum timestamp is exactly at the start of its day
   const isMinAtStart = minDate.isSame(minDate.clone().startOf("day"));
-  // Determine if the maximum is exactly at the end of its day
+  // Determine if the maximum timestamp is exactly at the end of its day
   const isMaxAtEnd = maxDate.isSame(maxDate.clone().endOf("day"));
 
-  const formattedMinTime = {
-    date: minDate.format(DateFormat.us),
-    time:
-      useFullDayFormat && sameDay && isMinAtStart
-        ? "00:00:00"
-        : minDate.format(DateFormat.time_with_seconds),
-  };
-
-  const formattedMaxTime = {
-    date: maxDate.format(DateFormat.us),
-    time:
-      useFullDayFormat && sameDay && isMaxAtEnd
-        ? "00:00:00"
-        : maxDate.format(DateFormat.time_with_seconds),
-  };
+  console.log("isMinAtStart", isMinAtStart);
+  console.log("isMaxAtEnd", isMaxAtEnd);
+  console.log("sameDay", sameDay);
+  console.log("useFullDayFormat", useFullDayFormat);
 
   return {
-    formattedMinTime,
-    formattedMaxTime,
+    formattedMinTime: {
+      date: minDate.format(DateFormat.us),
+      time:
+        useFullDayFormat && sameDay && isMinAtStart
+          ? "00:00:00"
+          : minDate.format(DateFormat.time_with_seconds),
+    },
+    formattedMaxTime: {
+      date: maxDate.format(DateFormat.us),
+      time:
+        useFullDayFormat && sameDay && isMaxAtEnd
+          ? "00:00:00"
+          : maxDate.format(DateFormat.time_with_seconds),
+    },
   };
 };
