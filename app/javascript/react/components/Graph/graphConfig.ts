@@ -25,6 +25,7 @@ import {
   white,
   yellow100,
 } from "../../assets/styles/colors";
+import { updateFixedMeasurementExtremes } from "../../store/fixedStreamSlice";
 import { setHoverPosition, setHoverStreamId } from "../../store/mapSlice";
 import { LatLngLiteral } from "../../types/googleMaps";
 import { GraphData, GraphPoint } from "../../types/graph";
@@ -91,9 +92,6 @@ const getXAxisOptions = (
       e: Highcharts.AxisSetExtremesEventObject,
       chart: Highcharts.Chart
     ) => {
-      // (Your existing handleSetExtremes logic goes here.)
-      // For brevity, assume it calls fetchMeasurementsIfNeeded as needed,
-      // updates the range display, and uses lastTriggerRef/lastUpdateTimeRef.
       const now = Date.now();
       if (
         e.trigger === lastTriggerRef.current &&
@@ -106,6 +104,16 @@ const getXAxisOptions = (
 
       if (!e.min || !e.max || isNaN(e.min) || isNaN(e.max)) {
         return;
+      }
+
+      if (streamId && fixedSessionTypeSelected) {
+        dispatch(
+          updateFixedMeasurementExtremes({
+            streamId,
+            min: e.min,
+            max: e.max,
+          })
+        );
       }
 
       const visibleRange = e.max - e.min;
