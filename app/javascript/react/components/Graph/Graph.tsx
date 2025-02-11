@@ -31,7 +31,6 @@ import {
 import {
   resetLastSelectedMobileTimeRange,
   selectLastSelectedMobileTimeRange,
-  setLastSelectedMobileTimeRange,
 } from "../../store/mobileStreamSlice";
 import { selectThresholds } from "../../store/thresholdSlice";
 import { SessionType, SessionTypes } from "../../types/filters";
@@ -310,7 +309,7 @@ const Graph: React.FC<GraphProps> = memo(
         setSelectedRangeIndex(selectedButton);
         lastRangeSelectorTriggerRef.current = selectedButton.toString();
 
-        // Ensure we process the range selection immediately, not waiting for selectedDate effect
+        // Ensure we process the range selection immediately
         if (chartComponentRef.current?.chart) {
           const chart = chartComponentRef.current.chart;
           let timeRange;
@@ -330,54 +329,39 @@ const Graph: React.FC<GraphProps> = memo(
                 timeRange = FixedTimeRange.Day;
             }
             dispatch(setLastSelectedTimeRange(timeRange));
-          } else {
-            switch (selectedButton) {
-              case 0:
-                timeRange = MobileTimeRange.FiveMinutes;
-                break;
-              case 1:
-                timeRange = MobileTimeRange.Hour;
-                break;
-              case 2:
-                timeRange = MobileTimeRange.All;
-                break;
-              default:
-                timeRange = MobileTimeRange.All;
-            }
-            dispatch(setLastSelectedMobileTimeRange(timeRange));
           }
 
-          // Calculate new range immediately
-          const rangeEnd = Math.min(endTime, Date.now());
+          // Get current view's end point
+          const currentExtremes = chart.xAxis[0].getExtremes();
+          const viewEnd = Math.min(currentExtremes.max || endTime, endTime);
           let rangeStart;
 
           switch (timeRange) {
             case FixedTimeRange.Month:
-              rangeStart = rangeEnd - MILLISECONDS_IN_A_MONTH;
+              rangeStart = viewEnd - MILLISECONDS_IN_A_MONTH;
               break;
             case FixedTimeRange.Week:
-              rangeStart = rangeEnd - MILLISECONDS_IN_A_WEEK;
+              rangeStart = viewEnd - MILLISECONDS_IN_A_WEEK;
               break;
             case FixedTimeRange.Day:
-              rangeStart = rangeEnd - MILLISECONDS_IN_A_DAY;
+              rangeStart = viewEnd - MILLISECONDS_IN_A_DAY;
               break;
             default:
-              rangeStart = rangeEnd - MILLISECONDS_IN_A_DAY;
+              rangeStart = viewEnd - MILLISECONDS_IN_A_DAY;
           }
 
           // Ensure we don't go before session start
           rangeStart = Math.max(rangeStart, startTime);
+          const rangeEnd = viewEnd;
 
-          // Update chart immediately
+          // Let the chart's afterSetExtremes handle the data fetching
           updateRangeDisplay(rangeDisplayRef, rangeStart, rangeEnd, false);
           chart.xAxis[0].setExtremes(rangeStart, rangeEnd, true);
-          fetchMeasurementsIfNeeded(rangeStart, rangeEnd);
         }
       },
       [
         fixedSessionTypeSelected,
         dispatch,
-        fetchMeasurementsIfNeeded,
         onDayClick,
         rangeDisplayRef,
         startTime,

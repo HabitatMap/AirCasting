@@ -60,11 +60,6 @@ export const formatTimeExtremes = (
   // Determine if the maximum timestamp is exactly at the end of its day
   const isMaxAtEnd = maxDate.isSame(maxDate.clone().endOf("day"));
 
-  console.log("isMinAtStart", isMinAtStart);
-  console.log("isMaxAtEnd", isMaxAtEnd);
-  console.log("sameDay", sameDay);
-  console.log("useFullDayFormat", useFullDayFormat);
-
   return {
     formattedMinTime: {
       date: minDate.format(DateFormat.us),
