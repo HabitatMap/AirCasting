@@ -55,10 +55,15 @@ export const formatTimeExtremes = (
   // Check if dates are on the same day in UTC
   const sameDay = minDate.format("YYYY-MM-DD") === maxDate.format("YYYY-MM-DD");
 
+  // Determine if the minimum is exactly at the start of its day
+  const isMinAtStart = minDate.isSame(minDate.clone().startOf("day"));
+  // Determine if the maximum is exactly at the end of its day
+  const isMaxAtEnd = maxDate.isSame(maxDate.clone().endOf("day"));
+
   const formattedMinTime = {
     date: minDate.format(DateFormat.us),
     time:
-      useFullDayFormat && sameDay
+      useFullDayFormat && sameDay && isMinAtStart
         ? "00:00:00"
         : minDate.format(DateFormat.time_with_seconds),
   };
@@ -66,7 +71,7 @@ export const formatTimeExtremes = (
   const formattedMaxTime = {
     date: maxDate.format(DateFormat.us),
     time:
-      useFullDayFormat && sameDay
+      useFullDayFormat && sameDay && isMaxAtEnd
         ? "00:00:00"
         : maxDate.format(DateFormat.time_with_seconds),
   };

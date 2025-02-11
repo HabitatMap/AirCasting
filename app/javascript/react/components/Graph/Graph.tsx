@@ -68,7 +68,7 @@ import {
   getResponsiveOptions,
   getScrollbarOptions,
   getTooltipOptions,
-  getXAxisOptions, // Updated to accept session boundaries.
+  getXAxisOptions, // This function also now accepts session boundaries.
   getYAxisOptions,
   legendOption,
   seriesOptions,
@@ -131,7 +131,7 @@ const Graph: React.FC<GraphProps> = memo(
       ? fixedLastSelectedTimeRange
       : mobileLastSelectedTimeRange || MobileTimeRange.All;
 
-    // Start & end time for the entire session
+    // Session start & end times (as computed from stream info)
     const startTime = useMemo(
       () =>
         fixedSessionTypeSelected
@@ -203,7 +203,7 @@ const Graph: React.FC<GraphProps> = memo(
 
     const lastRangeSelectorTriggerRef = useRef<string | null>(null);
 
-    // Additional refs
+    // Additional refs for debouncing extremes updates.
     const lastTriggerRef = useRef<string | null>(null);
     const lastUpdateTimeRef = useRef<number>(0);
 
@@ -223,29 +223,41 @@ const Graph: React.FC<GraphProps> = memo(
       computedSelectedRangeIndex
     );
 
-    // When a custom day is selected, force the range button selection to -1.
+    // When a custom day is selected, force the range selector to -1.
     useEffect(() => {
       if (selectedDate) {
         setSelectedRangeIndex(-1);
       }
     }, [selectedDate]);
 
-    // Update chart extremes when selectedDate changes.
+    // --- Updated useEffect for custom day selection ---
+    // When the user selects a day, if it is the session’s first or last day,
+    // override the full-day boundaries with the actual session start or end times.
     useEffect(() => {
       if (!chartComponentRef.current?.chart || !selectedDate) return;
 
       const chart = chartComponentRef.current.chart;
-      const utcDate = moment.utc(selectedDate).startOf("day");
-      const nextDay = moment.utc(utcDate).add(1, "day");
-      const startTime = utcDate.valueOf();
-      const endTime = nextDay.valueOf();
+      // Compute full-day boundaries for the selected date
+      const selectedDayStart = moment.utc(selectedDate).startOf("day");
+      const selectedDayEnd = moment.utc(selectedDate).endOf("day");
 
-      // Update the chart extremes.
-      chart.xAxis[0].setExtremes(startTime, endTime, true, false);
+      // By default, use the full day
+      let rangeStart = selectedDayStart.valueOf();
+      let rangeEnd = selectedDayEnd.valueOf();
 
-      // Update the range display.
-      updateRangeDisplay(rangeDisplayRef, startTime, endTime, false);
-    }, [selectedDate]);
+      // If selected day is the session's first day, use actual session start time.
+      if (selectedDayStart.isSame(moment.utc(startTime), "day")) {
+        rangeStart = startTime;
+      }
+      // If selected day is the session's last day, use actual session end time.
+      if (selectedDayStart.isSame(moment.utc(endTime), "day")) {
+        rangeEnd = endTime;
+      }
+
+      chart.xAxis[0].setExtremes(rangeStart, rangeEnd, true, false);
+      updateRangeDisplay(rangeDisplayRef, rangeStart, rangeEnd, false);
+    }, [selectedDate, startTime, endTime, rangeDisplayRef]);
+    // --- End updated useEffect ---
 
     // Update both local state and Redux when a range selector button is clicked.
     const handleRangeSelectorClick = useCallback(
@@ -271,32 +283,29 @@ const Graph: React.FC<GraphProps> = memo(
           const chart = chartComponentRef.current.chart;
           const currentExtremes = chart.xAxis[0].getExtremes();
           const currentMax = currentExtremes.max || Date.now();
-          let startTime, endTime;
+          let rangeStart, rangeEnd;
 
           switch (timeRange) {
             case FixedTimeRange.Month:
-              endTime = currentMax;
-              startTime = endTime - MILLISECONDS_IN_A_MONTH;
+              rangeEnd = currentMax;
+              rangeStart = rangeEnd - MILLISECONDS_IN_A_MONTH;
               break;
             case FixedTimeRange.Week:
-              endTime = currentMax;
-              startTime = endTime - MILLISECONDS_IN_A_WEEK;
+              rangeEnd = currentMax;
+              rangeStart = rangeEnd - MILLISECONDS_IN_A_WEEK;
               break;
             case FixedTimeRange.Day:
-              endTime = currentMax;
-              startTime = endTime - MILLISECONDS_IN_A_DAY;
+              rangeEnd = currentMax;
+              rangeStart = rangeEnd - MILLISECONDS_IN_A_DAY;
               break;
             default:
-              endTime = currentMax;
-              startTime = endTime - MILLISECONDS_IN_A_DAY;
+              rangeEnd = currentMax;
+              rangeStart = rangeEnd - MILLISECONDS_IN_A_DAY;
           }
 
-          if (rangeDisplayRef?.current) {
-            updateRangeDisplay(rangeDisplayRef, startTime, endTime, false);
-          }
-
-          chart.xAxis[0].setExtremes(startTime, endTime, true);
-          fetchMeasurementsIfNeeded(startTime, endTime);
+          updateRangeDisplay(rangeDisplayRef, rangeStart, rangeEnd, false);
+          chart.xAxis[0].setExtremes(rangeStart, rangeEnd, true);
+          fetchMeasurementsIfNeeded(rangeStart, rangeEnd);
         }
       },
       [
@@ -308,20 +317,14 @@ const Graph: React.FC<GraphProps> = memo(
       ]
     );
 
+    // On first load, fetch only the last two days.
     const handleChartLoad = useCallback(
       function (this: Chart) {
-        // Call any additional load logic if needed.
         handleLoad.call(this, isCalendarPage, isMobile);
-
         const chart = this;
-        // Calculate two days ago based on the session's end time.
         const twoDaysAgo = endTime - 2 * MILLISECONDS_IN_A_DAY;
-
         chart.xAxis[0].setExtremes(twoDaysAgo, endTime, true, false);
-
         fetchMeasurementsIfNeeded(twoDaysAgo, endTime);
-
-        // Mark that the first load has been completed.
         setIsFirstLoad(false);
       },
       [isCalendarPage, isMobile, fetchMeasurementsIfNeeded, endTime]
@@ -332,6 +335,7 @@ const Graph: React.FC<GraphProps> = memo(
       [isCalendarPage, isMobile]
     );
 
+    // Pass session start/end times into getXAxisOptions.
     const options = useMemo<Highcharts.Options>(() => {
       return {
         chart: {
@@ -353,8 +357,8 @@ const Graph: React.FC<GraphProps> = memo(
           lastUpdateTimeRef,
           onDayClick,
           rangeDisplayRef,
-          startTime, // sessionStartTime
-          endTime // sessionEndTime
+          startTime, // session start time
+          endTime // session end time
         ),
         yAxis: getYAxisOptions(thresholdsState, isMobile),
         series: [
@@ -430,7 +434,6 @@ const Graph: React.FC<GraphProps> = memo(
                   } else {
                     dispatch(resetLastSelectedMobileTimeRange());
                   }
-
                   fetchMeasurementsIfNeeded(fetchStart, fetchEnd, true);
                 }
               }
