@@ -317,11 +317,8 @@ const Graph: React.FC<GraphProps> = memo(
         // Calculate two days ago based on the session's end time.
         const twoDaysAgo = endTime - 2 * MILLISECONDS_IN_A_DAY;
 
-        // Set the x-axis extremes to show only the last two days.
-        // The fourth parameter 'false' disables animation.
         chart.xAxis[0].setExtremes(twoDaysAgo, endTime, true, false);
 
-        // Fetch only the two-day range on the first load.
         fetchMeasurementsIfNeeded(twoDaysAgo, endTime);
 
         // Mark that the first load has been completed.
@@ -335,7 +332,6 @@ const Graph: React.FC<GraphProps> = memo(
       [isCalendarPage, isMobile]
     );
 
-    // IMPORTANT: Pass session start/end times into getXAxisOptions.
     const options = useMemo<Highcharts.Options>(() => {
       return {
         chart: {
