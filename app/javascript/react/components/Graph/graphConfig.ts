@@ -283,8 +283,6 @@ const getPlotOptions = (
       },
       dataGrouping: {
         enabled: true,
-        approximation: "average",
-        groupPixelWidth: 5,
         units: [
           ["millisecond", []],
           ["second", [2, 3, 4, 5, 6, 7, 8, 9, 10, 15, 20, 30, 40, 50]],
@@ -345,17 +343,32 @@ const getTooltipOptions = (
   enabled: true,
   formatter: function (this: Highcharts.TooltipFormatterContextObject): string {
     const date = Highcharts.dateFormat("%m/%d/%Y", Number(this.x));
-    const time = Highcharts.dateFormat("%H:%M:%S", Number(this.x));
     const pointData = this.points ? this.points[0] : this.point;
-    let s = `<span>${date} `;
-    s += Highcharts.dateFormat("%H:%M:%S", this.x as number) + "</span>";
-    s +=
-      "<br/>" +
-      measurementType +
-      " = " +
-      Math.round(Number(pointData.y)) +
-      " " +
-      unitSymbol;
+    const point = pointData as any;
+
+    const isGrouped =
+      point.series.hasGroupedData && point.series.currentDataGrouping;
+
+    let timeStr;
+    let value;
+
+    if (isGrouped) {
+      const groupingInfo = point.series.currentDataGrouping;
+      const start = point.x;
+      const end = start + groupingInfo.unitRange;
+
+      const startTime = Highcharts.dateFormat("%H:%M:%S", start);
+      const endTime = Highcharts.dateFormat("%H:%M:%S", end);
+      timeStr = `${startTime} - ${endTime}`;
+      value = (pointData.y ?? 0).toFixed(2);
+    } else {
+      timeStr = Highcharts.dateFormat("%H:%M:%S", Number(this.x));
+      value = (pointData.y ?? 0).toFixed(2);
+    }
+
+    let s = `<span>${date} ${timeStr}</span>`;
+    s += "<br/>" + measurementType + " = " + value + " " + unitSymbol;
+
     return s;
   },
   borderWidth: 0,
