@@ -376,7 +376,7 @@ const Graph: React.FC<GraphProps> = memo(
         const chart = this;
         const twoDaysAgo = endTime - 2 * MILLISECONDS_IN_A_DAY;
         chart.xAxis[0].setExtremes(twoDaysAgo, endTime, true, false);
-        fetchMeasurementsIfNeeded(twoDaysAgo, endTime);
+
         setIsFirstLoad(false);
       },
       [isCalendarPage, isMobile, fetchMeasurementsIfNeeded, endTime]
@@ -502,27 +502,6 @@ const Graph: React.FC<GraphProps> = memo(
         },
         scrollbar: {
           ...getScrollbarOptions(isCalendarPage, isMobile),
-          events: {
-            afterSetExtremes: function (
-              e: Highcharts.AxisSetExtremesEventObject
-            ) {
-              if (e.trigger === "scrollbar" || e.trigger === "navigator") {
-                const { min: newMin, max: newMax } = e;
-                if (newMin && newMax) {
-                  const padding = (newMax - newMin) * 0.5;
-                  const fetchStart = Math.max(0, newMin - padding);
-                  const fetchEnd = newMax + padding;
-
-                  if (fixedSessionTypeSelected) {
-                    dispatch(resetLastSelectedTimeRange());
-                  } else {
-                    dispatch(resetLastSelectedMobileTimeRange());
-                  }
-                  fetchMeasurementsIfNeeded(fetchStart, fetchEnd, true);
-                }
-              }
-            },
-          },
         },
         navigator: {
           ...getNavigatorOptions(),
