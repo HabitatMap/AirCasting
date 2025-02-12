@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useCallback, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useSelector } from "react-redux";
 import { selectThreeMonthsDailyAverage } from "../../../store/movingStreamSelectors";
@@ -15,35 +15,36 @@ const EmptyCalendar: React.FC<EmptyCalendarProps> = ({ onDayClick }) => {
   const { t } = useTranslation();
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
 
-  const handleDayClick = (date: Date) => {
-    setSelectedDate(date);
-    if (onDayClick) {
-      onDayClick(date);
-    }
-  };
+  const handleDayClick = useCallback(
+    (date: Date) => {
+      setSelectedDate(date);
+      onDayClick?.(date);
+    },
+    [onDayClick]
+  );
+
+  const monthComponents = useMemo(() => {
+    if (!threeMonthsData) return null;
+
+    return threeMonthsData.map((month) => (
+      <Month
+        key={month.monthName}
+        {...month}
+        onDayClick={handleDayClick}
+        selectedDate={selectedDate}
+      />
+    ));
+  }, [threeMonthsData, handleDayClick, selectedDate]);
+
+  if (!threeMonthsData) return null;
 
   return (
-    threeMonthsData && (
-      <S.CalendarContainer>
-        <HeaderToggle
-          titleText={t("calendarHeader.calendarTitle")}
-          componentToToggle={
-            <>
-              <S.ThreeMonths>
-                {threeMonthsData.map((month) => (
-                  <Month
-                    key={month.monthName}
-                    {...month}
-                    onDayClick={handleDayClick}
-                    selectedDate={selectedDate}
-                  />
-                ))}
-              </S.ThreeMonths>
-            </>
-          }
-        />
-      </S.CalendarContainer>
-    )
+    <S.CalendarContainer>
+      <HeaderToggle
+        titleText={t("calendarHeader.calendarTitle")}
+        componentToToggle={<S.ThreeMonths>{monthComponents}</S.ThreeMonths>}
+      />
+    </S.CalendarContainer>
   );
 };
 
