@@ -374,8 +374,6 @@ const getPlotOptions = (
       },
       dataGrouping: {
         enabled: true,
-        approximation: "average",
-        groupPixelWidth: 5,
         units: [
           ["millisecond", []],
           ["second", [2, 3, 4, 5, 6, 7, 8, 9, 10, 15, 20, 30, 40, 50]],
@@ -439,17 +437,12 @@ const getTooltipOptions = (
     const pointData = this.points ? this.points[0] : this.point;
     const point = pointData as any;
 
-    console.log("Series info:", {
-      hasDataGrouping: !!point.series.dataGrouping,
-      groupingEnabled: point.series.dataGrouping?.enabled,
-      currentDataGrouping: point.series.currentDataGrouping,
-      point: point,
-    });
-
     const isGrouped =
       point.series.hasGroupedData && point.series.currentDataGrouping;
 
     let timeStr;
+    let value;
+
     if (isGrouped) {
       const groupingInfo = point.series.currentDataGrouping;
       const start = point.x;
@@ -458,23 +451,14 @@ const getTooltipOptions = (
       const startTime = Highcharts.dateFormat("%H:%M:%S", start);
       const endTime = Highcharts.dateFormat("%H:%M:%S", end);
       timeStr = `${startTime} - ${endTime}`;
+      value = (pointData.y ?? 0).toFixed(2);
     } else {
       timeStr = Highcharts.dateFormat("%H:%M:%S", Number(this.x));
+      value = (pointData.y ?? 0).toFixed(2);
     }
 
     let s = `<span>${date} ${timeStr}</span>`;
-    s +=
-      "<br/>" +
-      measurementType +
-      " = " +
-      Math.round(Number(pointData.y)) +
-      " " +
-      unitSymbol;
-
-    if (isGrouped) {
-      const groupingInfo = point.series.currentDataGrouping;
-      s += ` (averaged over ${groupingInfo.unitName})`;
-    }
+    s += "<br/>" + measurementType + " = " + value + " " + unitSymbol;
 
     return s;
   },
