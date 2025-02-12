@@ -64,7 +64,7 @@ import {
   getResponsiveOptions,
   getScrollbarOptions,
   getTooltipOptions,
-  getXAxisOptions, // This function now also accepts session boundaries.
+  getXAxisOptions,
   getYAxisOptions,
   legendOption,
   seriesOptions,
@@ -231,7 +231,6 @@ const Graph: React.FC<GraphProps> = memo(
       if (!chartComponentRef.current?.chart || !selectedDate) return;
 
       const chart = chartComponentRef.current.chart;
-      // Get the start of the selected day in UTC
       const selectedDayStart = moment.utc(selectedDate).startOf("day");
       const selectedDayStartMs = selectedDayStart.valueOf();
       const fullDayEndMs = selectedDayStartMs + MILLISECONDS_IN_A_DAY;
@@ -253,13 +252,11 @@ const Graph: React.FC<GraphProps> = memo(
           rangeEnd = endTime;
         }
 
-        // Find available data points within this day
         const dayMeasurements = measurements.filter(
           (m) => m.time >= rangeStart && m.time <= rangeEnd
         );
 
         if (dayMeasurements.length > 0) {
-          // If we have data points, use their actual time range
           rangeStart = Math.max(rangeStart, dayMeasurements[0].time);
           rangeEnd = Math.min(
             rangeEnd,
@@ -271,7 +268,6 @@ const Graph: React.FC<GraphProps> = memo(
       // Set the visible range to the selected day
       chart.xAxis[0].setExtremes(rangeStart, rangeEnd, true, false);
 
-      // But fetch a wider range of data (2 days before and after)
       const fetchStart = Math.max(
         startTime,
         selectedDayStartMs - MILLISECONDS_IN_A_DAY * 2
@@ -282,7 +278,6 @@ const Graph: React.FC<GraphProps> = memo(
       );
       fetchMeasurementsIfNeeded(fetchStart, fetchEnd, false, true);
 
-      // Use full day format only for complete days (not first/last days)
       const useFullDayFormat = !isFirstDay && !isLastDay;
 
       updateRangeDisplay(
@@ -299,17 +294,14 @@ const Graph: React.FC<GraphProps> = memo(
       measurements,
       fetchMeasurementsIfNeeded,
     ]);
-    // --- End updated useEffect ---
 
     // Update both local state and Redux when a range selector button is clicked.
     const handleRangeSelectorClick = useCallback(
       (selectedButton: number) => {
-        // Clear selected date and immediately update UI
         onDayClick?.(null);
         setSelectedRangeIndex(selectedButton);
         lastRangeSelectorTriggerRef.current = selectedButton.toString();
 
-        // Ensure we process the range selection immediately
         if (chartComponentRef.current?.chart) {
           const chart = chartComponentRef.current.chart;
           let timeRange;
@@ -331,7 +323,6 @@ const Graph: React.FC<GraphProps> = memo(
             dispatch(setLastSelectedTimeRange(timeRange));
           }
 
-          // Get current view's end point
           const currentExtremes = chart.xAxis[0].getExtremes();
           const viewEnd = Math.min(currentExtremes.max || endTime, endTime);
           let rangeStart;
@@ -350,11 +341,9 @@ const Graph: React.FC<GraphProps> = memo(
               rangeStart = viewEnd - MILLISECONDS_IN_A_DAY;
           }
 
-          // Ensure we don't go before session start
           rangeStart = Math.max(rangeStart, startTime);
           const rangeEnd = viewEnd;
 
-          // Let the chart's afterSetExtremes handle the data fetching
           updateRangeDisplay(rangeDisplayRef, rangeStart, rangeEnd, false);
           chart.xAxis[0].setExtremes(rangeStart, rangeEnd, true);
         }
@@ -387,7 +376,6 @@ const Graph: React.FC<GraphProps> = memo(
       [isCalendarPage, isMobile]
     );
 
-    // Pass session start/end times into getXAxisOptions.
     const options = useMemo<Highcharts.Options>(() => {
       return {
         chart: {
@@ -409,8 +397,8 @@ const Graph: React.FC<GraphProps> = memo(
           lastUpdateTimeRef,
           onDayClick,
           rangeDisplayRef,
-          startTime, // session start time
-          endTime // session end time
+          startTime,
+          endTime
         ),
         yAxis: getYAxisOptions(thresholdsState, isMobile),
         series: [
