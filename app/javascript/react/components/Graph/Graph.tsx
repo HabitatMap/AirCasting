@@ -1,5 +1,6 @@
 import HighchartsReact from "highcharts-react-official";
 import Highcharts, { Chart } from "highcharts/highstock";
+import HighchartsAccessibility from "highcharts/modules/accessibility";
 import NoDataToDisplay from "highcharts/modules/no-data-to-display";
 import moment from "moment";
 import React, {
@@ -72,6 +73,8 @@ import {
 
 // Initialize the No-Data module
 NoDataToDisplay(Highcharts);
+
+HighchartsAccessibility(Highcharts);
 
 interface GraphProps {
   sessionType: SessionType;

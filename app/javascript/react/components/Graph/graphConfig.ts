@@ -125,28 +125,35 @@ const getXAxisOptions = (
             max: e.max,
           })
         );
-      }
 
-      if (e.trigger) {
-        const visibleRange = e.max - e.min;
-        const padding = visibleRange * 0.25;
-        const fetchStart = Math.max(sessionStartTime || 0, e.min - padding);
-        const fetchEnd = Math.min(
-          sessionEndTime || Date.now(),
-          e.max + padding
-        );
-
-        try {
-          await fetchMeasurementsIfNeeded(fetchStart, fetchEnd);
-          updateRangeDisplay(
-            rangeDisplayRef,
-            e.min,
-            e.max,
-            e.trigger === undefined
+        if (e.trigger) {
+          const visibleRange = e.max - e.min;
+          const padding = visibleRange * 0.25;
+          const fetchStart = Math.max(sessionStartTime || 0, e.min - padding);
+          const fetchEnd = Math.min(
+            sessionEndTime || Date.now(),
+            e.max + padding
           );
-        } catch (error) {
-          console.error("[handleSetExtremes] Error:", error);
+
+          try {
+            await fetchMeasurementsIfNeeded(fetchStart, fetchEnd);
+            updateRangeDisplay(
+              rangeDisplayRef,
+              e.min,
+              e.max,
+              e.trigger === undefined
+            );
+          } catch (error) {
+            console.error("[handleSetExtremes] Error:", error);
+          }
         }
+      } else {
+        updateRangeDisplay(
+          rangeDisplayRef,
+          e.min,
+          e.max,
+          e.trigger === undefined
+        );
       }
     },
     300,
