@@ -7,10 +7,9 @@ import {
 import { useAppDispatch, useAppSelector } from "../../../store/hooks";
 import {
   MILLISECONDS_IN_A_DAY,
+  MILLISECONDS_IN_A_MINUTE,
   MILLISECONDS_IN_A_MONTH,
 } from "../../../utils/timeRanges";
-
-const MAX_FETCH_ATTEMPTS = 5;
 const INITIAL_EDGE_FETCH_MONTHS = 1;
 
 export const useMeasurementsFetcher = (
@@ -23,12 +22,10 @@ export const useMeasurementsFetcher = (
   const isFirstRender = useRef(true);
   const fetchAttemptsRef = useRef(0);
 
-  // Get already fetched time ranges from Redux
   const fetchedTimeRanges = useAppSelector((state) =>
     streamId ? selectFetchedTimeRanges(state, streamId) : []
   );
 
-  // Helper function to find gaps in fetched ranges with size limit
   const findMissingRanges = (start: number, end: number) => {
     if (!fetchedTimeRanges.length) {
       // If requesting more than a month, return only the last month
@@ -54,8 +51,7 @@ export const useMeasurementsFetcher = (
       // If there's a gap before this range
       if (currentStart < range.start) {
         const gapEnd = Math.min(range.start, end);
-        // Only add gap if it's not too small (more than 1 minute)
-        if (gapEnd - currentStart > 60000) {
+        if (gapEnd - currentStart > MILLISECONDS_IN_A_MINUTE) {
           gaps.push({
             start: currentStart,
             end: gapEnd,
@@ -69,7 +65,7 @@ export const useMeasurementsFetcher = (
     // Check if there's a gap after the last range
     if (currentStart < end) {
       // Only add gap if it's not too small
-      if (end - currentStart > 60000) {
+      if (end - currentStart > MILLISECONDS_IN_A_MINUTE) {
         gaps.push({
           start: currentStart,
           end,
@@ -107,11 +103,6 @@ export const useMeasurementsFetcher = (
     isDaySelection: boolean = false
   ) => {
     if (!streamId || isCurrentlyFetchingRef.current) {
-      console.log("[fetchMeasurementsIfNeeded] Skipping fetch:", {
-        reason: !streamId ? "no streamId" : "already fetching",
-        streamId,
-        isCurrentlyFetching: isCurrentlyFetchingRef.current,
-      });
       return;
     }
 
@@ -120,9 +111,6 @@ export const useMeasurementsFetcher = (
     const boundedEnd = Math.min(end, sessionEndTime);
 
     if (boundedStart >= boundedEnd) {
-      console.log(
-        "[fetchMeasurementsIfNeeded] Outside session boundaries, skipping fetch"
-      );
       return;
     }
 
@@ -132,17 +120,7 @@ export const useMeasurementsFetcher = (
       // Find missing ranges in the requested time window
       const missingRanges = findMissingRanges(boundedStart, boundedEnd);
 
-      console.log(
-        "[fetchMeasurementsIfNeeded] Missing ranges:",
-        missingRanges.map((range) => ({
-          start: new Date(range.start).toISOString(),
-          end: new Date(range.end).toISOString(),
-          duration: (range.end - range.start) / (1000 * 60 * 60 * 24), // days
-        }))
-      );
-
       if (missingRanges.length === 0) {
-        console.log("[fetchMeasurementsIfNeeded] All data already fetched");
         return;
       }
 
@@ -162,7 +140,6 @@ export const useMeasurementsFetcher = (
             fetchEnd + MILLISECONDS_IN_A_DAY * 2
           );
 
-          // Ensure padding doesn't exceed one month
           if (paddedEnd - paddedStart > MILLISECONDS_IN_A_MONTH) {
             fetchStart = paddedEnd - MILLISECONDS_IN_A_MONTH;
             fetchEnd = paddedEnd;
@@ -171,7 +148,6 @@ export const useMeasurementsFetcher = (
             fetchEnd = paddedEnd;
           }
         } else if (isEdgeFetch) {
-          // Edge fetch logic with one month limit
           const baseRange = Math.min(
             MILLISECONDS_IN_A_MONTH * INITIAL_EDGE_FETCH_MONTHS,
             MILLISECONDS_IN_A_MONTH
@@ -189,16 +165,9 @@ export const useMeasurementsFetcher = (
           fetchEnd = Math.min(sessionEndTime, fetchEnd + totalRange / 2);
         }
 
-        // Final check to ensure we never exceed one month
         if (fetchEnd - fetchStart > MILLISECONDS_IN_A_MONTH) {
           fetchStart = fetchEnd - MILLISECONDS_IN_A_MONTH;
         }
-
-        console.log("[fetchMeasurementsIfNeeded] Fetching range:", {
-          start: new Date(fetchStart).toISOString(),
-          end: new Date(fetchEnd).toISOString(),
-          duration: (fetchEnd - fetchStart) / (1000 * 60 * 60 * 24), // days
-        });
 
         const result = await dispatch(
           fetchMeasurements({
