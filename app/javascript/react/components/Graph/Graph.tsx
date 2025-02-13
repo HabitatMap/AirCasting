@@ -269,7 +269,9 @@ const Graph: React.FC<GraphProps> = memo(
       }
 
       // Set the visible range to the selected day
-      chart.xAxis[0].setExtremes(rangeStart, rangeEnd, true, false);
+      chart.xAxis[0].setExtremes(rangeStart, rangeEnd, true, false, {
+        trigger: "calendarDay",
+      });
 
       const fetchStart = Math.max(
         startTime,
@@ -394,8 +396,6 @@ const Graph: React.FC<GraphProps> = memo(
           isLoading,
           fetchMeasurementsIfNeeded,
           streamId,
-          initialFetchedRangeRef,
-          initialLoadRef,
           lastTriggerRef,
           lastUpdateTimeRef,
           onDayClick,
@@ -601,6 +601,7 @@ const Graph: React.FC<GraphProps> = memo(
       <S.Container
         $isCalendarPage={isCalendarPage}
         $isMobile={isMobile}
+        $isLoading={isLoading}
         ref={graphRef}
       >
         {seriesData && seriesData.length > 0 && (
