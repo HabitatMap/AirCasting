@@ -300,9 +300,9 @@ const Graph: React.FC<GraphProps> = memo(
       fetchMeasurementsIfNeeded,
     ]);
 
-    // Update both local state and Redux when a range selector button is clicked.
     const handleRangeSelectorClick = useCallback(
       (selectedButton: number) => {
+        // Clear any selected day
         onDayClick?.(null);
         setSelectedRangeIndex(selectedButton);
         lastRangeSelectorTriggerRef.current = selectedButton.toString();
@@ -350,7 +350,10 @@ const Graph: React.FC<GraphProps> = memo(
           const rangeEnd = viewEnd;
 
           updateRangeDisplay(rangeDisplayRef, rangeStart, rangeEnd, false);
-          chart.xAxis[0].setExtremes(rangeStart, rangeEnd, true);
+          // Explicitly pass the trigger to avoid a stale navigator event.
+          chart.xAxis[0].setExtremes(rangeStart, rangeEnd, true, false, {
+            trigger: "rangeSelectorButton",
+          });
         }
       },
       [
