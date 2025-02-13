@@ -8,7 +8,6 @@ import {
   ResponsiveOptions,
   YAxisOptions,
 } from "highcharts";
-import { debounce } from "lodash";
 
 import Highcharts from "highcharts/highstock";
 import { TFunction } from "i18next";
@@ -25,10 +24,8 @@ import {
   white,
   yellow100,
 } from "../../assets/styles/colors";
-import { AppDispatch } from "../../store";
 import { updateFixedMeasurementExtremes } from "../../store/fixedStreamSlice";
 import { setHoverPosition, setHoverStreamId } from "../../store/mapSlice";
-import { updateMobileMeasurementExtremes } from "../../store/mobileStreamSlice";
 import { LatLngLiteral } from "../../types/googleMaps";
 import { GraphData, GraphPoint } from "../../types/graph";
 import { Thresholds } from "../../types/thresholds";
@@ -40,10 +37,7 @@ import {
   MILLISECONDS_IN_A_WEEK,
   MILLISECONDS_IN_AN_HOUR,
 } from "../../utils/timeRanges";
-import {
-  generateTimeRangeHTML,
-  updateRangeDisplayDOM,
-} from "./chartHooks/useChartUpdater";
+import { updateRangeDisplay } from "./chartHooks/updateRangeDisplay";
 
 const getScrollbarOptions = (isCalendarPage: boolean, isMobile: boolean) => {
   return {
@@ -60,55 +54,188 @@ const getScrollbarOptions = (isCalendarPage: boolean, isMobile: boolean) => {
     enabled: isMobile && isCalendarPage ? true : !isMobile,
     liveRedraw: true,
     minWidth: isMobile ? 30 : 8,
+    rifleColor: gray200,
+    zIndex: 3,
+    margin: 0,
+    minimumRange: MILLISECONDS_IN_A_SECOND,
   };
 };
 
 const getXAxisOptions = (
   isMobile: boolean,
-  rangeDisplayRef: React.RefObject<HTMLDivElement> | undefined,
   fixedSessionTypeSelected: boolean,
-  dispatch: AppDispatch,
+  dispatch: any,
   isLoading: boolean,
-  fetchMeasurementsIfNeeded: (start: number, end: number) => Promise<void>,
-  streamId: number | null
+  fetchMeasurementsIfNeeded: (
+    start: number,
+    end: number,
+    isEdgeFetch?: boolean
+  ) => Promise<void>,
+  streamId: number | null,
+  lastTriggerRef: React.MutableRefObject<string | null>,
+  lastUpdateTimeRef: React.MutableRefObject<number>,
+  onDayClick?: (date: Date | null) => void,
+  rangeDisplayRef?: React.RefObject<HTMLDivElement>,
+  sessionStartTime?: number,
+  sessionEndTime?: number,
+  isCalendarDaySelectedRef?: React.MutableRefObject<boolean>
 ): Highcharts.XAxisOptions => {
-  let isFetchingData = false;
-  let initialDataMin: number | null = null;
-  let fetchTimeout: NodeJS.Timeout | null = null;
+  let isFetching = false;
+  let lastNavigatorEvent: Highcharts.AxisSetExtremesEventObject | null = null;
+  let navigatorMouseUpHandler: ((event: MouseEvent) => void) | null = null;
 
-  const handleSetExtremes = debounce(
-    (e: Highcharts.AxisSetExtremesEventObject) => {
-      if (!isLoading && e.min !== undefined && e.max !== undefined) {
-        if (fixedSessionTypeSelected && streamId !== null) {
-          dispatch(
-            updateFixedMeasurementExtremes({
-              streamId,
-              min: e.min,
-              max: e.max,
-            })
-          );
-        } else {
-          dispatch(
-            updateMobileMeasurementExtremes({
-              min: e.min,
-              max: e.max,
-            })
-          );
-        }
+  let rangeSelectorActive = false;
+  const lastRangeSelectorTimeRef = { current: 0 };
+  const THRESHOLD = 1000; // 1000ms threshold
 
-        if (rangeDisplayRef?.current) {
-          const htmlContent = generateTimeRangeHTML(e.min, e.max);
-          updateRangeDisplayDOM(rangeDisplayRef.current, htmlContent, true);
-        }
+  const removeNavigatorMouseUpHandler = () => {
+    if (navigatorMouseUpHandler) {
+      document.removeEventListener("mouseup", navigatorMouseUpHandler);
+      navigatorMouseUpHandler = null;
+    }
+    lastNavigatorEvent = null;
+  };
+
+  const handleSetExtremes = async (
+    e: Highcharts.AxisSetExtremesEventObject,
+    chart: Highcharts.Chart
+  ) => {
+    console.log("afterSetExtremes event received:", {
+      trigger: e.trigger,
+      min: e.min,
+      max: e.max,
+    });
+
+    let effectiveTrigger = e.trigger || lastTriggerRef.current || "";
+
+    if (e.trigger === "rangeSelectorButton") {
+      lastRangeSelectorTimeRef.current = Date.now();
+      rangeSelectorActive = true;
+      effectiveTrigger = "rangeSelectorButton";
+      lastTriggerRef.current = "rangeSelectorButton";
+      console.log("rangeSelectorButton trigger detected");
+    } else if (e.trigger === "calendarDay") {
+      rangeSelectorActive = false;
+      effectiveTrigger = "calendarDay";
+      lastTriggerRef.current = "calendarDay";
+      console.log("calendarDay trigger detected");
+    } else if (
+      (e.trigger === "navigator" || !e.trigger) &&
+      rangeSelectorActive
+    ) {
+      const elapsed = Date.now() - lastRangeSelectorTimeRef.current;
+      if (
+        elapsed < THRESHOLD ||
+        lastTriggerRef.current === "rangeSelectorButton"
+      ) {
+        effectiveTrigger = "rangeSelectorButton";
+        console.log(
+          "navigator event overridden to rangeSelectorButton trigger"
+        );
+      } else {
+        rangeSelectorActive = false;
       }
-    },
-    300
-  );
+    } else if (e.trigger) {
+      lastTriggerRef.current = e.trigger;
+      console.log("Other trigger detected:", e.trigger);
+    }
+
+    lastUpdateTimeRef.current = Date.now();
+
+    // Decide whether to clear the custom day selection:
+    if (effectiveTrigger === "calendarDay") {
+      // If the user explicitly clicked a calendar day,
+      // retain the custom day selection even after fetching.
+      console.log("CalendarDay trigger: retaining custom day selection.");
+      // (Do nothing)
+    } else if (effectiveTrigger === "rangeSelectorButton") {
+      // When a range selector button is clicked, always clear the custom day.
+      console.log(
+        "RangeSelectorButton trigger: clearing custom day selection."
+      );
+      onDayClick?.(null);
+    } else if (
+      effectiveTrigger === "pan" ||
+      effectiveTrigger === "zoom" ||
+      effectiveTrigger === "navigator" ||
+      effectiveTrigger === "mousewheel" ||
+      effectiveTrigger === ""
+    ) {
+      // For other interactions, clear only if no custom day is active.
+      if (!isCalendarDaySelectedRef?.current) {
+        console.log(
+          "No custom day active; clearing selection for trigger:",
+          effectiveTrigger
+        );
+        onDayClick?.(null);
+      } else {
+        console.log(
+          "Custom day active; retaining selection for trigger:",
+          effectiveTrigger
+        );
+      }
+    }
+    console.log("Effective trigger after decision:", effectiveTrigger);
+
+    if (
+      e.min === undefined ||
+      e.max === undefined ||
+      isNaN(e.min) ||
+      isNaN(e.max)
+    ) {
+      console.log("Invalid extremes: ", e.min, e.max);
+      return;
+    }
+
+    updateRangeDisplay(rangeDisplayRef, e.min, e.max, e.trigger === undefined);
+
+    if (streamId) {
+      dispatch(
+        updateFixedMeasurementExtremes({
+          streamId,
+          min: e.min,
+          max: e.max,
+        })
+      );
+    }
+    console.log("Effective trigger before fetching:", effectiveTrigger);
+
+    if (
+      streamId &&
+      fixedSessionTypeSelected &&
+      (effectiveTrigger === "rangeSelectorButton" ||
+        effectiveTrigger === "navigator" ||
+        effectiveTrigger === "pan" ||
+        effectiveTrigger === "zoom" ||
+        effectiveTrigger === "calendarDay")
+    ) {
+      dispatch(
+        updateFixedMeasurementExtremes({
+          streamId,
+          min: e.min,
+          max: e.max,
+        })
+      );
+
+      const visibleRange = e.max - e.min;
+      const padding = visibleRange * 0.25;
+      const now = Date.now();
+      const fetchStart = Math.max(sessionStartTime || 0, e.min - padding);
+      const fetchEnd = Math.min(sessionEndTime || now, e.max + padding);
+
+      isFetching = true;
+      try {
+        await fetchMeasurementsIfNeeded(fetchStart, fetchEnd);
+      } catch (error) {
+        console.error("Error fetching measurements:", error);
+      } finally {
+        isFetching = false;
+      }
+    }
+  };
 
   return {
-    title: {
-      text: undefined,
-    },
+    title: { text: undefined },
     showEmpty: false,
     showLastLabel: !isMobile,
     tickColor: gray200,
@@ -118,53 +245,33 @@ const getXAxisOptions = (
       enabled: true,
       overflow: "justify",
       step: 1,
-      style: {
-        fontSize: "1.2rem",
-        fontFamily: "Roboto",
-      },
+      style: { fontSize: "1.2rem", fontFamily: "Roboto" },
     },
-    crosshair: {
-      color: white,
-      width: 2,
-    },
+    crosshair: { color: white, width: 2 },
     visible: true,
     minRange: MILLISECONDS_IN_A_SECOND,
     ordinal: false,
+    min: sessionStartTime,
+    max: sessionEndTime,
     events: {
-      afterSetExtremes: async function (
-        e: Highcharts.AxisSetExtremesEventObject
-      ) {
-        const axis = this;
-
-        handleSetExtremes(e);
-
-        if (!fixedSessionTypeSelected || streamId == null) return;
-
-        if (initialDataMin === null && e.dataMin !== undefined) {
-          initialDataMin = e.dataMin - MILLISECONDS_IN_A_MONTH;
+      afterSetExtremes: function (e: Highcharts.AxisSetExtremesEventObject) {
+        const chart = this.chart;
+        if (e.trigger !== "navigator") {
+          removeNavigatorMouseUpHandler();
+          handleSetExtremes(e, chart);
+          return;
         }
-        const onScrollbarRelease = () => {
-          if (fetchTimeout) clearTimeout(fetchTimeout);
-          fetchTimeout = setTimeout(async () => {
-            if (isLoading || isFetchingData) return;
-            const { min, max, dataMin } = axis.getExtremes();
-            if (min === undefined || dataMin === undefined) return;
 
-            const buffer = (max - min) * 0.02;
-            const isAtDataMin = min <= dataMin + buffer;
-            if (isAtDataMin) {
-              isFetchingData = true;
-              try {
-                const newStart = min - MILLISECONDS_IN_A_MONTH;
-                await fetchMeasurementsIfNeeded(newStart, min);
-              } finally {
-                isFetchingData = false;
-                fetchTimeout = null;
-              }
+        lastNavigatorEvent = e;
+        if (!navigatorMouseUpHandler) {
+          navigatorMouseUpHandler = (event: MouseEvent) => {
+            if (lastNavigatorEvent && !isFetching) {
+              handleSetExtremes(lastNavigatorEvent, chart);
             }
-          }, 800);
-        };
-        onScrollbarRelease();
+            removeNavigatorMouseUpHandler();
+          };
+          document.addEventListener("mouseup", navigatorMouseUpHandler);
+        }
       },
     },
   };
@@ -304,10 +411,10 @@ const getPlotOptions = (
   };
 };
 
-const seriesOptions = (data: GraphData) => ({
+const seriesOptions = (data: GraphData): Highcharts.SeriesSplineOptions => ({
   type: "spline",
   color: white,
-  data: data,
+  data: data as Array<[number, number]>,
   tooltip: {
     valueDecimals: 2,
   },

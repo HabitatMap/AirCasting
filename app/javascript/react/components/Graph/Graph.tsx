@@ -1,18 +1,27 @@
 import HighchartsReact from "highcharts-react-official";
 import Highcharts, { Chart } from "highcharts/highstock";
+import HighchartsAccessibility from "highcharts/modules/accessibility";
 import NoDataToDisplay from "highcharts/modules/no-data-to-display";
-import React, { useCallback, useEffect, useMemo, useRef } from "react";
+import moment from "moment";
+import React, {
+  memo,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { useTranslation } from "react-i18next";
 import { white } from "../../assets/styles/colors";
-import { RootState } from "../../store";
-import { selectFixedStreamShortInfo } from "../../store/fixedStreamSelectors";
+import { selectIsLoading, type RootState } from "../../store";
 import {
-  resetFixedMeasurementExtremes,
-  resetLastSelectedTimeRange,
-  resetTimeRange,
-  selectIsLoading,
+  selectFixedStreamShortInfo,
   selectLastSelectedFixedTimeRange,
   selectStreamMeasurements,
+} from "../../store/fixedStreamSelectors";
+import {
+  resetLastSelectedTimeRange,
+  resetTimeRange,
   setLastSelectedTimeRange,
 } from "../../store/fixedStreamSlice";
 import { useAppDispatch, useAppSelector } from "../../store/hooks";
@@ -23,7 +32,6 @@ import {
 import {
   resetLastSelectedMobileTimeRange,
   selectLastSelectedMobileTimeRange,
-  setLastSelectedMobileTimeRange,
 } from "../../store/mobileStreamSlice";
 import { selectThresholds } from "../../store/thresholdSlice";
 import { SessionType, SessionTypes } from "../../types/filters";
@@ -32,17 +40,20 @@ import { GraphData } from "../../types/graph";
 import { MobileStreamShortInfo } from "../../types/mobileStream";
 import { FixedTimeRange, MobileTimeRange } from "../../types/timeRange";
 import { parseDateString } from "../../utils/dateParser";
-import {
-  getSelectedRangeIndex,
-  mapIndexToTimeRange,
-} from "../../utils/getTimeRange";
+import { getSelectedRangeIndex } from "../../utils/getTimeRange";
 import { useMapParams } from "../../utils/mapParamsHandler";
+import {
+  MILLISECONDS_IN_A_DAY,
+  MILLISECONDS_IN_A_MONTH,
+  MILLISECONDS_IN_A_WEEK,
+} from "../../utils/timeRanges";
 import useMobileDetection from "../../utils/useScreenSizeDetection";
 import { handleLoad } from "./chartEvents";
 import {
   createFixedSeriesData,
   createMobileSeriesData,
 } from "./chartHooks/createGraphData";
+import { updateRangeDisplay } from "./chartHooks/updateRangeDisplay";
 import { useChartUpdater } from "./chartHooks/useChartUpdater";
 import { useMeasurementsFetcher } from "./chartHooks/useMeasurementsFetcher";
 import * as S from "./Graph.style";
@@ -54,7 +65,7 @@ import {
   getResponsiveOptions,
   getScrollbarOptions,
   getTooltipOptions,
-  getXAxisOptions,
+  getXAxisOptions, // updated below
   getYAxisOptions,
   legendOption,
   seriesOptions,
@@ -62,24 +73,38 @@ import {
 
 // Initialize the No-Data module
 NoDataToDisplay(Highcharts);
+HighchartsAccessibility(Highcharts);
 
 interface GraphProps {
   sessionType: SessionType;
   streamId: number | null;
   isCalendarPage: boolean;
   rangeDisplayRef?: React.RefObject<HTMLDivElement>;
+  selectedDate: Date | null;
+  onDayClick?: (date: Date | null) => void;
 }
 
-const Graph: React.FC<GraphProps> = React.memo(
-  ({ streamId, sessionType, isCalendarPage, rangeDisplayRef }) => {
+const Graph: React.FC<GraphProps> = memo(
+  ({
+    streamId,
+    sessionType,
+    isCalendarPage,
+    rangeDisplayRef,
+    selectedDate,
+    onDayClick,
+  }) => {
     const dispatch = useAppDispatch();
     const { t } = useTranslation();
     const graphRef = useRef<HTMLDivElement>(null);
     const chartComponentRef = useRef<HighchartsReact.RefObject>(null);
+
     const isMobile = useMobileDetection();
     const fixedSessionTypeSelected = sessionType === SessionTypes.FIXED;
+
     const thresholdsState = useAppSelector(selectThresholds);
     const isLoading = useAppSelector(selectIsLoading);
+
+    // Mobile vs. fixed stream info
     const mobileGraphData = useAppSelector(selectMobileStreamPoints);
     const mobileStreamShortInfo: MobileStreamShortInfo = useAppSelector(
       selectMobileStreamShortInfo
@@ -87,6 +112,8 @@ const Graph: React.FC<GraphProps> = React.memo(
     const fixedStreamShortInfo: FixedStreamShortInfo = useAppSelector(
       selectFixedStreamShortInfo
     );
+
+    // Last selected time range from Redux
     const fixedLastSelectedTimeRange = useAppSelector(
       selectLastSelectedFixedTimeRange
     );
@@ -94,24 +121,26 @@ const Graph: React.FC<GraphProps> = React.memo(
       selectLastSelectedMobileTimeRange
     );
 
+    // Use map params
     const { unitSymbol, measurementType, isIndoor } = useMapParams();
+    const isIndoorParameterInUrl = isIndoor === "true";
 
     const lastSelectedTimeRange = fixedSessionTypeSelected
       ? fixedLastSelectedTimeRange
       : mobileLastSelectedTimeRange || MobileTimeRange.All;
 
+    // Session start & end times (computed from stream info)
     const startTime = useMemo(
       () =>
         fixedSessionTypeSelected
           ? parseDateString(fixedStreamShortInfo.startTime)
           : parseDateString(mobileStreamShortInfo.startTime),
       [
-        mobileStreamShortInfo.startTime,
-        fixedStreamShortInfo.firstMeasurementTime,
         fixedSessionTypeSelected,
+        fixedStreamShortInfo.startTime,
+        mobileStreamShortInfo.startTime,
       ]
     );
-
     const endTime = useMemo(
       () =>
         fixedSessionTypeSelected
@@ -121,33 +150,38 @@ const Graph: React.FC<GraphProps> = React.memo(
           : mobileStreamShortInfo.endTime
           ? parseDateString(mobileStreamShortInfo.endTime)
           : Date.now(),
-      [mobileStreamShortInfo.endTime, fixedStreamShortInfo.endTime]
+      [
+        fixedSessionTypeSelected,
+        fixedStreamShortInfo.endTime,
+        mobileStreamShortInfo.endTime,
+      ]
+    );
+    const totalDuration = useMemo(
+      () => endTime - startTime,
+      [startTime, endTime]
     );
 
-    const isIndoorParameterInUrl = isIndoor === "true";
-
-    const measurements = useAppSelector(
-      useCallback(
-        (state: RootState) => selectStreamMeasurements(state, streamId),
-        [streamId]
-      )
+    const measurements = useAppSelector((state: RootState) =>
+      selectStreamMeasurements(state, streamId)
     );
 
+    // Generate chart series data
     const seriesData = useMemo(() => {
       return fixedSessionTypeSelected
         ? createFixedSeriesData(measurements)
         : createMobileSeriesData(mobileGraphData, true);
     }, [fixedSessionTypeSelected, measurements, mobileGraphData]);
 
-    const totalDuration = useMemo(
-      () => endTime - startTime,
-      [startTime, endTime]
+    const chartData: GraphData = seriesData as GraphData;
+
+    // Hooks to fetch & update chart data
+    const { fetchMeasurementsIfNeeded } = useMeasurementsFetcher(
+      streamId,
+      startTime,
+      endTime,
+      chartComponentRef,
+      rangeDisplayRef
     );
-
-    let chartData: GraphData = seriesData as GraphData;
-
-    const { fetchMeasurementsIfNeeded } = useMeasurementsFetcher(streamId);
-
     const { updateChartData } = useChartUpdater({
       chartComponentRef,
       seriesData,
@@ -158,32 +192,351 @@ const Graph: React.FC<GraphProps> = React.memo(
       rangeDisplayRef,
     });
 
+    // Track first load
+    const [isFirstLoad, setIsFirstLoad] = useState(true);
+
+    const lastRangeSelectorTriggerRef = useRef<string | null>(null);
+    const lastTriggerRef = useRef<string | null>(null);
+    const lastUpdateTimeRef = useRef<number>(0);
+
+    // Determine which rangeSelector button is highlighted.
+    const computedSelectedRangeIndex = useMemo(() => {
+      if (selectedDate) {
+        return -1;
+      }
+      return getSelectedRangeIndex(
+        lastSelectedTimeRange,
+        fixedSessionTypeSelected
+      );
+    }, [selectedDate, lastSelectedTimeRange, fixedSessionTypeSelected]);
+
+    // LOCAL STATE: Control the selected range button independently of Redux.
+    const [selectedRangeIndex, setSelectedRangeIndex] = useState<number>(
+      computedSelectedRangeIndex
+    );
+
+    // Ref to track if a custom (calendar) day is selected.
+    const isCalendarDaySelectedRef = useRef(!!selectedDate);
+
+    // When a custom day is selected, update the ref and force the range selector to -1.
     useEffect(() => {
-      // Reset to 24-hour range on component mount
+      isCalendarDaySelectedRef.current = !!selectedDate;
+      if (selectedDate) {
+        setSelectedRangeIndex(-1);
+      }
+    }, [selectedDate]);
+
+    // --- Updated useEffect for custom day selection ---
+    useEffect(() => {
+      if (!chartComponentRef.current?.chart || !selectedDate) return;
+
+      const chart = chartComponentRef.current.chart;
+      const selectedDayStart = moment.utc(selectedDate).startOf("day");
+      const selectedDayStartMs = selectedDayStart.valueOf();
+      const fullDayEndMs = selectedDayStartMs + MILLISECONDS_IN_A_DAY;
+
+      // Default range: full day (midnight to midnight)
+      let rangeStart = selectedDayStartMs;
+      let rangeEnd = fullDayEndMs;
+
+      // Check if this is first or last day of session
+      const isFirstDay = selectedDayStart.isSame(moment.utc(startTime), "day");
+      const isLastDay = selectedDayStart.isSame(moment.utc(endTime), "day");
+
+      if (isFirstDay || isLastDay) {
+        if (isFirstDay) {
+          rangeStart = startTime;
+        }
+        if (isLastDay) {
+          rangeEnd = endTime;
+        }
+      }
+
+      // Update range display immediately for better UX
+      updateRangeDisplay(
+        rangeDisplayRef,
+        rangeStart,
+        rangeEnd,
+        true // Use full day format for calendar day selection
+      );
+
+      const fetchStart = Math.max(
+        startTime,
+        selectedDayStartMs - MILLISECONDS_IN_A_DAY * 2
+      );
+      const fetchEnd = Math.min(
+        endTime,
+        fullDayEndMs + MILLISECONDS_IN_A_DAY * 2
+      );
+
+      // Pass the intended range and trigger
+      fetchMeasurementsIfNeeded(
+        rangeStart,
+        rangeEnd,
+        false,
+        true,
+        "calendarDay"
+      );
+    }, [selectedDate, startTime, endTime, fetchMeasurementsIfNeeded]);
+
+    // --- Updated handleRangeSelectorClick ---
+    const handleRangeSelectorClick = useCallback(
+      (selectedButton: number) => {
+        // Clear any selected day and update the ref immediately.
+        onDayClick?.(null);
+        isCalendarDaySelectedRef.current = false;
+        setSelectedRangeIndex(selectedButton);
+        lastRangeSelectorTriggerRef.current = selectedButton.toString();
+
+        if (chartComponentRef.current?.chart) {
+          const chart = chartComponentRef.current.chart;
+          let timeRange;
+
+          if (fixedSessionTypeSelected) {
+            switch (selectedButton) {
+              case 0:
+                timeRange = FixedTimeRange.Day;
+                break;
+              case 1:
+                timeRange = FixedTimeRange.Week;
+                break;
+              case 2:
+                timeRange = FixedTimeRange.Month;
+                break;
+              default:
+                timeRange = FixedTimeRange.Day;
+            }
+            dispatch(setLastSelectedTimeRange(timeRange));
+          }
+
+          const currentExtremes = chart.xAxis[0].getExtremes();
+          const viewEnd = Math.min(currentExtremes.max || endTime, endTime);
+          let rangeStart;
+
+          switch (timeRange) {
+            case FixedTimeRange.Month:
+              rangeStart = viewEnd - MILLISECONDS_IN_A_MONTH;
+              break;
+            case FixedTimeRange.Week:
+              rangeStart = viewEnd - MILLISECONDS_IN_A_WEEK;
+              break;
+            case FixedTimeRange.Day:
+              rangeStart = viewEnd - MILLISECONDS_IN_A_DAY;
+              break;
+            default:
+              rangeStart = viewEnd - MILLISECONDS_IN_A_DAY;
+          }
+
+          rangeStart = Math.max(rangeStart, startTime);
+          const rangeEnd = viewEnd;
+
+          updateRangeDisplay(rangeDisplayRef, rangeStart, rangeEnd, false);
+          // Explicitly pass the trigger "rangeSelectorButton".
+          fetchMeasurementsIfNeeded(
+            rangeStart,
+            rangeEnd,
+            false,
+            false,
+            "rangeSelectorButton"
+          );
+        }
+      },
+      [
+        fixedSessionTypeSelected,
+        dispatch,
+        onDayClick,
+        rangeDisplayRef,
+        startTime,
+        endTime,
+      ]
+    );
+
+    // On first load, fetch only the last two days.
+    const handleChartLoad = useCallback(
+      function (this: Chart) {
+        handleLoad.call(this, isCalendarPage, isMobile);
+        const chart = this;
+        const twoDaysAgo = endTime - 2 * MILLISECONDS_IN_A_DAY;
+        chart.xAxis[0].setExtremes(twoDaysAgo, endTime, true, false);
+        setIsFirstLoad(false);
+      },
+      [isCalendarPage, isMobile, fetchMeasurementsIfNeeded, endTime]
+    );
+
+    const chartOptions = useMemo(
+      () => getChartOptions(isCalendarPage, isMobile),
+      [isCalendarPage, isMobile]
+    );
+
+    const options = useMemo<Highcharts.Options>(() => {
+      return {
+        chart: {
+          ...chartOptions,
+          events: {
+            load: handleChartLoad,
+          },
+        },
+        xAxis: getXAxisOptions(
+          isMobile,
+          fixedSessionTypeSelected,
+          dispatch,
+          isLoading,
+          fetchMeasurementsIfNeeded,
+          streamId,
+          lastTriggerRef,
+          lastUpdateTimeRef,
+          onDayClick,
+          rangeDisplayRef,
+          startTime,
+          endTime,
+          isCalendarDaySelectedRef // pass the ref for calendar day check
+        ),
+        yAxis: getYAxisOptions(thresholdsState, isMobile),
+        series: [
+          {
+            ...seriesOptions(chartData as GraphData),
+          } as Highcharts.SeriesOptionsType,
+        ],
+        tooltip: getTooltipOptions(measurementType, unitSymbol),
+        plotOptions: getPlotOptions(
+          fixedSessionTypeSelected,
+          streamId,
+          dispatch,
+          isIndoorParameterInUrl
+        ),
+        rangeSelector: {
+          ...getRangeSelectorOptions(
+            isMobile,
+            fixedSessionTypeSelected,
+            totalDuration,
+            computedSelectedRangeIndex,
+            isCalendarPage,
+            t
+          ),
+          buttons: fixedSessionTypeSelected
+            ? [
+                {
+                  type: "day",
+                  count: 1,
+                  text: t("graph.24Hours"),
+                  events: {
+                    click: function () {
+                      handleRangeSelectorClick(0);
+                    },
+                  },
+                },
+                {
+                  type: "week",
+                  count: 1,
+                  text: t("graph.oneWeek"),
+                  events: {
+                    click: function () {
+                      handleRangeSelectorClick(1);
+                    },
+                  },
+                },
+                {
+                  type: "month",
+                  count: 1,
+                  text: t("graph.oneMonth"),
+                  events: {
+                    click: function () {
+                      handleRangeSelectorClick(2);
+                    },
+                  },
+                },
+              ]
+            : [
+                {
+                  type: "minute",
+                  count: 5,
+                  text: t("graph.fiveMinutes"),
+                  events: {
+                    click: function () {
+                      handleRangeSelectorClick(2);
+                    },
+                  },
+                },
+                {
+                  type: "minute",
+                  count: 60,
+                  text: t("graph.oneHour"),
+                  events: {
+                    click: function () {
+                      handleRangeSelectorClick(1);
+                    },
+                  },
+                },
+                {
+                  type: "all",
+                  text: t("graph.all"),
+                  events: {
+                    click: function () {
+                      handleRangeSelectorClick(0);
+                    },
+                  },
+                },
+              ],
+          selected: selectedRangeIndex,
+        },
+        scrollbar: {
+          ...getScrollbarOptions(isCalendarPage, isMobile),
+        },
+        navigator: {
+          ...getNavigatorOptions(),
+        },
+        responsive: getResponsiveOptions(thresholdsState, isMobile),
+        legend: legendOption,
+        noData: {
+          style: {
+            fontWeight: "bold",
+            fontSize: "15px",
+            color: white,
+          },
+          position: {
+            align: "center",
+            verticalAlign: "middle",
+          },
+          useHTML: true,
+          text: "No data available",
+        },
+      };
+    }, [
+      chartOptions,
+      computedSelectedRangeIndex,
+      chartData,
+      measurementType,
+      unitSymbol,
+      thresholdsState,
+      fixedSessionTypeSelected,
+      streamId,
+      isIndoorParameterInUrl,
+      totalDuration,
+      t,
+      fetchMeasurementsIfNeeded,
+      isLoading,
+      rangeDisplayRef,
+      isMobile,
+      isCalendarPage,
+      dispatch,
+      handleChartLoad,
+      lastRangeSelectorTriggerRef,
+      selectedRangeIndex,
+      lastTriggerRef,
+      lastUpdateTimeRef,
+      startTime,
+      endTime,
+      isCalendarDaySelectedRef,
+    ]);
+
+    // Reset time range in Redux on mount.
+    useEffect(() => {
       dispatch(resetTimeRange());
     }, [dispatch]);
 
+    // Show/hide loading indicator.
     useEffect(() => {
-      // Update the time range when it changes
-      if (lastSelectedTimeRange) {
-        if (fixedSessionTypeSelected) {
-          // Only dispatch fixed time range if in fixed session
-          dispatch(
-            setLastSelectedTimeRange(lastSelectedTimeRange as FixedTimeRange)
-          );
-        } else {
-          // Handle mobile time range separately
-          dispatch(
-            setLastSelectedMobileTimeRange(
-              lastSelectedTimeRange as MobileTimeRange
-            )
-          );
-        }
-      }
-    }, [dispatch, lastSelectedTimeRange, fixedSessionTypeSelected]);
-
-    useEffect(() => {
-      if (chartComponentRef.current && chartComponentRef.current.chart) {
+      if (chartComponentRef.current?.chart) {
         const chart = chartComponentRef.current.chart;
         if (isLoading) {
           chart.showLoading("Loading data from server...");
@@ -193,15 +546,16 @@ const Graph: React.FC<GraphProps> = React.memo(
       }
     }, [isLoading]);
 
+    // Optionally reset last selected range on mount.
     useEffect(() => {
       if (fixedSessionTypeSelected) {
         dispatch(resetLastSelectedTimeRange());
       } else {
         dispatch(resetLastSelectedMobileTimeRange());
       }
-    }, []);
+    }, [fixedSessionTypeSelected, dispatch]);
 
-    // Apply touch action to the graph container for mobile devices in Calendar page
+    // Apply additional styling for mobile and overflow handling.
     useEffect(() => {
       const applyStyles = () => {
         const graphElement = graphRef.current;
@@ -223,171 +577,20 @@ const Graph: React.FC<GraphProps> = React.memo(
       };
 
       applyStyles();
-
-      // Set up a MutationObserver to watch for changes in the DOM
       const observer = new MutationObserver(applyStyles);
-
       if (graphRef.current) {
         observer.observe(graphRef.current, { childList: true, subtree: true });
       }
-
-      // Cleanup function
       return () => {
         observer.disconnect();
       };
     }, []);
 
-    const xAxisOptions = useMemo(
-      () =>
-        getXAxisOptions(
-          isMobile,
-          rangeDisplayRef,
-          fixedSessionTypeSelected,
-          dispatch,
-          isLoading,
-          fetchMeasurementsIfNeeded,
-          streamId
-        ),
-      [
-        isMobile,
-        rangeDisplayRef,
-        fixedSessionTypeSelected,
-        dispatch,
-        isLoading,
-        fetchMeasurementsIfNeeded,
-      ]
-    );
-
-    const scrollbarOptions = useMemo(
-      () => ({
-        ...getScrollbarOptions(isCalendarPage, isMobile),
-      }),
-      [isCalendarPage, isMobile, isLoading, seriesData]
-    );
-
-    const handleChartLoad = useCallback(
-      function (this: Chart) {
-        handleLoad.call(this, isCalendarPage, isMobile);
-      },
-      [isCalendarPage, isMobile]
-    );
-
-    const chartOptions = useMemo(
-      () => getChartOptions(isCalendarPage, isMobile),
-      [isCalendarPage, isMobile]
-    );
-
-    const options = useMemo<Highcharts.Options>(
-      () => ({
-        chart: {
-          ...chartOptions,
-          events: {
-            load: handleChartLoad,
-            redraw: function (this: Chart) {
-              const chart = this as Highcharts.StockChart;
-              const selectedButton = chart.options.rangeSelector?.selected;
-              if (selectedButton !== undefined) {
-                const timeRange = mapIndexToTimeRange(
-                  selectedButton,
-                  fixedSessionTypeSelected
-                );
-                if (fixedSessionTypeSelected) {
-                  dispatch(
-                    setLastSelectedTimeRange(timeRange as FixedTimeRange)
-                  );
-                } else {
-                  dispatch(
-                    setLastSelectedMobileTimeRange(timeRange as MobileTimeRange)
-                  );
-                }
-              }
-            },
-          },
-        },
-        xAxis: xAxisOptions,
-        yAxis: getYAxisOptions(thresholdsState, isMobile),
-        series: [
-          {
-            ...seriesOptions(chartData as GraphData),
-          } as Highcharts.SeriesOptionsType,
-        ],
-        tooltip: getTooltipOptions(measurementType, unitSymbol),
-        plotOptions: getPlotOptions(
-          fixedSessionTypeSelected,
-          streamId,
-          dispatch,
-          isIndoorParameterInUrl
-        ),
-        rangeSelector: {
-          ...getRangeSelectorOptions(
-            isMobile,
-            fixedSessionTypeSelected,
-            totalDuration,
-            0,
-            isCalendarPage,
-            t
-          ),
-          selected: getSelectedRangeIndex(
-            lastSelectedTimeRange,
-            fixedSessionTypeSelected
-          ),
-        },
-        scrollbar: {
-          ...scrollbarOptions,
-        },
-        navigator: {
-          ...getNavigatorOptions(),
-        },
-        responsive: getResponsiveOptions(thresholdsState, isMobile),
-        legend: legendOption,
-        noData: {
-          style: {
-            fontWeight: "bold",
-            fontSize: "15px",
-            color: white,
-          },
-          position: {
-            align: "center",
-            verticalAlign: "middle",
-          },
-          useHTML: true,
-          text: "No data available",
-        },
-      }),
-      [
-        isCalendarPage,
-        isMobile,
-        xAxisOptions,
-        thresholdsState,
-        seriesData,
-        measurementType,
-        unitSymbol,
-        fixedSessionTypeSelected,
-        streamId,
-        isIndoorParameterInUrl,
-        totalDuration,
-        scrollbarOptions,
-        t,
-        handleChartLoad,
-        lastSelectedTimeRange,
-        dispatch,
-      ]
-    );
-
-    // Add cleanup effect for fixed streams only
-    useEffect(() => {
-      return () => {
-        // Reset measurement extremes when component unmounts, but only for fixed streams
-        if (fixedSessionTypeSelected && streamId) {
-          dispatch(resetFixedMeasurementExtremes());
-        }
-      };
-    }, [dispatch, fixedSessionTypeSelected, streamId]);
-
     return (
       <S.Container
         $isCalendarPage={isCalendarPage}
         $isMobile={isMobile}
+        $isLoading={isLoading}
         ref={graphRef}
       >
         {seriesData && seriesData.length > 0 && (

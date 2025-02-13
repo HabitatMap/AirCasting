@@ -5,6 +5,7 @@ import { media } from "../../utils/media";
 interface ContainerProps {
   $isCalendarPage?: boolean;
   $isMobile: boolean;
+  $isLoading: boolean;
 }
 
 const Container = styled.div<ContainerProps>`
@@ -24,6 +25,8 @@ const Container = styled.div<ContainerProps>`
   .highcharts-root {
     overflow: visible;
     .highcharts-scrollbar {
+      cursor: ${(props) => (props.$isLoading ? "not-allowed" : "auto")};
+      pointer-events: ${(props) => (props.$isLoading ? "none" : "auto")};
       transform: ${(props) =>
         props.$isMobile ? "translate(0, 30px)" : "translate(0, 15px)"};
     }
