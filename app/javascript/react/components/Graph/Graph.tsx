@@ -179,7 +179,8 @@ const Graph: React.FC<GraphProps> = memo(
       streamId,
       startTime,
       endTime,
-      chartComponentRef
+      chartComponentRef,
+      rangeDisplayRef
     );
     const { updateChartData } = useChartUpdater({
       chartComponentRef,
@@ -251,7 +252,14 @@ const Graph: React.FC<GraphProps> = memo(
         }
       }
 
-      // Don't set extremes directly here, let the fetcher handle it
+      // Update range display immediately for better UX
+      updateRangeDisplay(
+        rangeDisplayRef,
+        rangeStart,
+        rangeEnd,
+        true // Use full day format for calendar day selection
+      );
+
       const fetchStart = Math.max(
         startTime,
         selectedDayStartMs - MILLISECONDS_IN_A_DAY * 2

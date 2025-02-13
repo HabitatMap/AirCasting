@@ -11,13 +11,15 @@ import {
   MILLISECONDS_IN_A_MINUTE,
   MILLISECONDS_IN_A_MONTH,
 } from "../../../utils/timeRanges";
+import { updateRangeDisplay } from "./updateRangeDisplay";
 const INITIAL_EDGE_FETCH_MONTHS = 1;
 
 export const useMeasurementsFetcher = (
   streamId: number | null,
   sessionStartTime: number,
   sessionEndTime: number,
-  chartComponentRef: React.RefObject<HighchartsReact.RefObject>
+  chartComponentRef: React.RefObject<HighchartsReact.RefObject>,
+  rangeDisplayRef?: React.RefObject<HTMLDivElement>
 ) => {
   const isCurrentlyFetchingRef = useRef(false);
   const dispatch = useAppDispatch();
@@ -102,6 +104,24 @@ export const useMeasurementsFetcher = (
     }, []);
   };
 
+  const updateExtremesAndDisplay = (
+    start: number,
+    end: number,
+    trigger: string | undefined
+  ) => {
+    if (chartComponentRef?.current?.chart) {
+      const chart = chartComponentRef.current.chart;
+      chart.xAxis[0].setExtremes(start, end, true, false, { trigger });
+      // Update range display with the new extremes
+      updateRangeDisplay(
+        rangeDisplayRef,
+        start,
+        end,
+        trigger === "calendarDay"
+      );
+    }
+  };
+
   const fetchMeasurementsIfNeeded = async (
     start: number,
     end: number,
@@ -135,16 +155,13 @@ export const useMeasurementsFetcher = (
       const missingRanges = findMissingRanges(boundedStart, boundedEnd);
 
       if (missingRanges.length === 0) {
-        // Apply pending extremes if they exist
-        if (
-          pendingSetExtremesRef.current &&
-          chartComponentRef?.current?.chart
-        ) {
-          const chart = chartComponentRef.current.chart;
+        if (pendingSetExtremesRef.current) {
           const { start, end } = pendingSetExtremesRef.current;
-          chart.xAxis[0].setExtremes(start, end, true, false, {
-            trigger: lastFetchTriggerRef.current || undefined,
-          });
+          updateExtremesAndDisplay(
+            start,
+            end,
+            lastFetchTriggerRef.current || undefined
+          );
         }
         return;
       }
@@ -214,13 +231,14 @@ export const useMeasurementsFetcher = (
       }
 
       // After all fetches complete successfully
-      if (pendingSetExtremesRef.current && chartComponentRef?.current?.chart) {
-        const chart = chartComponentRef.current.chart;
+      if (pendingSetExtremesRef.current) {
         const { start, end } = pendingSetExtremesRef.current;
         requestAnimationFrame(() => {
-          chart.xAxis[0].setExtremes(start, end, true, false, {
-            trigger: lastFetchTriggerRef.current || undefined,
-          });
+          updateExtremesAndDisplay(
+            start,
+            end,
+            lastFetchTriggerRef.current || undefined
+          );
         });
       }
 
