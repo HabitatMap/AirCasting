@@ -65,7 +65,7 @@ import {
   getResponsiveOptions,
   getScrollbarOptions,
   getTooltipOptions,
-  getXAxisOptions,
+  getXAxisOptions, // updated below
   getYAxisOptions,
   legendOption,
   seriesOptions,
@@ -73,7 +73,6 @@ import {
 
 // Initialize the No-Data module
 NoDataToDisplay(Highcharts);
-
 HighchartsAccessibility(Highcharts);
 
 interface GraphProps {
@@ -175,17 +174,12 @@ const Graph: React.FC<GraphProps> = memo(
 
     const chartData: GraphData = seriesData as GraphData;
 
-    const initialFetchedRangeRef = useRef<{
-      start: number;
-      end: number;
-    } | null>(null);
-    const initialLoadRef = useRef(true);
-
     // Hooks to fetch & update chart data
     const { fetchMeasurementsIfNeeded } = useMeasurementsFetcher(
       streamId,
       startTime,
-      endTime
+      endTime,
+      chartComponentRef
     );
     const { updateChartData } = useChartUpdater({
       chartComponentRef,
@@ -201,8 +195,6 @@ const Graph: React.FC<GraphProps> = memo(
     const [isFirstLoad, setIsFirstLoad] = useState(true);
 
     const lastRangeSelectorTriggerRef = useRef<string | null>(null);
-
-    // Additional refs for debouncing extremes updates.
     const lastTriggerRef = useRef<string | null>(null);
     const lastUpdateTimeRef = useRef<number>(0);
 
@@ -222,8 +214,12 @@ const Graph: React.FC<GraphProps> = memo(
       computedSelectedRangeIndex
     );
 
-    // When a custom day is selected, force the range selector to -1.
+    // Ref to track if a custom (calendar) day is selected.
+    const isCalendarDaySelectedRef = useRef(!!selectedDate);
+
+    // When a custom day is selected, update the ref and force the range selector to -1.
     useEffect(() => {
+      isCalendarDaySelectedRef.current = !!selectedDate;
       if (selectedDate) {
         setSelectedRangeIndex(-1);
       }
@@ -247,32 +243,15 @@ const Graph: React.FC<GraphProps> = memo(
       const isLastDay = selectedDayStart.isSame(moment.utc(endTime), "day");
 
       if (isFirstDay || isLastDay) {
-        // For first/last days, show only available data range
         if (isFirstDay) {
           rangeStart = startTime;
         }
         if (isLastDay) {
           rangeEnd = endTime;
         }
-
-        const dayMeasurements = measurements.filter(
-          (m) => m.time >= rangeStart && m.time <= rangeEnd
-        );
-
-        if (dayMeasurements.length > 0) {
-          rangeStart = Math.max(rangeStart, dayMeasurements[0].time);
-          rangeEnd = Math.min(
-            rangeEnd,
-            dayMeasurements[dayMeasurements.length - 1].time
-          );
-        }
       }
 
-      // Set the visible range to the selected day
-      chart.xAxis[0].setExtremes(rangeStart, rangeEnd, true, false, {
-        trigger: "calendarDay",
-      });
-
+      // Don't set extremes directly here, let the fetcher handle it
       const fetchStart = Math.max(
         startTime,
         selectedDayStartMs - MILLISECONDS_IN_A_DAY * 2
@@ -281,29 +260,23 @@ const Graph: React.FC<GraphProps> = memo(
         endTime,
         fullDayEndMs + MILLISECONDS_IN_A_DAY * 2
       );
-      fetchMeasurementsIfNeeded(fetchStart, fetchEnd, false, true);
 
-      const useFullDayFormat = !isFirstDay && !isLastDay;
-
-      updateRangeDisplay(
-        rangeDisplayRef,
+      // Pass the intended range and trigger
+      fetchMeasurementsIfNeeded(
         rangeStart,
         rangeEnd,
-        useFullDayFormat
+        false,
+        true,
+        "calendarDay"
       );
-    }, [
-      selectedDate,
-      startTime,
-      endTime,
-      rangeDisplayRef,
-      measurements,
-      fetchMeasurementsIfNeeded,
-    ]);
+    }, [selectedDate, startTime, endTime, fetchMeasurementsIfNeeded]);
 
+    // --- Updated handleRangeSelectorClick ---
     const handleRangeSelectorClick = useCallback(
       (selectedButton: number) => {
-        // Clear any selected day
+        // Clear any selected day and update the ref immediately.
         onDayClick?.(null);
+        isCalendarDaySelectedRef.current = false;
         setSelectedRangeIndex(selectedButton);
         lastRangeSelectorTriggerRef.current = selectedButton.toString();
 
@@ -350,10 +323,14 @@ const Graph: React.FC<GraphProps> = memo(
           const rangeEnd = viewEnd;
 
           updateRangeDisplay(rangeDisplayRef, rangeStart, rangeEnd, false);
-          // Explicitly pass the trigger to avoid a stale navigator event.
-          chart.xAxis[0].setExtremes(rangeStart, rangeEnd, true, false, {
-            trigger: "rangeSelectorButton",
-          });
+          // Explicitly pass the trigger "rangeSelectorButton".
+          fetchMeasurementsIfNeeded(
+            rangeStart,
+            rangeEnd,
+            false,
+            false,
+            "rangeSelectorButton"
+          );
         }
       },
       [
@@ -373,7 +350,6 @@ const Graph: React.FC<GraphProps> = memo(
         const chart = this;
         const twoDaysAgo = endTime - 2 * MILLISECONDS_IN_A_DAY;
         chart.xAxis[0].setExtremes(twoDaysAgo, endTime, true, false);
-
         setIsFirstLoad(false);
       },
       [isCalendarPage, isMobile, fetchMeasurementsIfNeeded, endTime]
@@ -404,7 +380,8 @@ const Graph: React.FC<GraphProps> = memo(
           onDayClick,
           rangeDisplayRef,
           startTime,
-          endTime
+          endTime,
+          isCalendarDaySelectedRef // pass the ref for calendar day check
         ),
         yAxis: getYAxisOptions(thresholdsState, isMobile),
         series: [
@@ -541,6 +518,7 @@ const Graph: React.FC<GraphProps> = memo(
       lastUpdateTimeRef,
       startTime,
       endTime,
+      isCalendarDaySelectedRef,
     ]);
 
     // Reset time range in Redux on mount.
