@@ -1,3 +1,4 @@
+import HighchartsReact from "highcharts-react-official";
 import { useRef } from "react";
 import { selectFetchedTimeRanges } from "../../../store/fixedStreamSelectors";
 import {
@@ -15,12 +16,17 @@ const INITIAL_EDGE_FETCH_MONTHS = 1;
 export const useMeasurementsFetcher = (
   streamId: number | null,
   sessionStartTime: number,
-  sessionEndTime: number
+  sessionEndTime: number,
+  chartComponentRef: React.RefObject<HighchartsReact.RefObject>
 ) => {
   const isCurrentlyFetchingRef = useRef(false);
   const dispatch = useAppDispatch();
   const isFirstRender = useRef(true);
   const fetchAttemptsRef = useRef(0);
+  const lastFetchTriggerRef = useRef<string | null>(null);
+  const pendingSetExtremesRef = useRef<{ start: number; end: number } | null>(
+    null
+  );
 
   const fetchedTimeRanges = useAppSelector((state) =>
     streamId ? selectFetchedTimeRanges(state, streamId) : []
@@ -100,10 +106,18 @@ export const useMeasurementsFetcher = (
     start: number,
     end: number,
     isEdgeFetch: boolean = false,
-    isDaySelection: boolean = false
+    isDaySelection: boolean = false,
+    trigger?: string
   ) => {
     if (!streamId || isCurrentlyFetchingRef.current) {
       return;
+    }
+
+    // Store the trigger that initiated this fetch
+    if (trigger) {
+      lastFetchTriggerRef.current = trigger;
+      // Store the intended extremes
+      pendingSetExtremesRef.current = { start, end };
     }
 
     // Respect session boundaries
@@ -121,6 +135,17 @@ export const useMeasurementsFetcher = (
       const missingRanges = findMissingRanges(boundedStart, boundedEnd);
 
       if (missingRanges.length === 0) {
+        // Apply pending extremes if they exist
+        if (
+          pendingSetExtremesRef.current &&
+          chartComponentRef?.current?.chart
+        ) {
+          const chart = chartComponentRef.current.chart;
+          const { start, end } = pendingSetExtremesRef.current;
+          chart.xAxis[0].setExtremes(start, end, true, false, {
+            trigger: lastFetchTriggerRef.current || undefined,
+          });
+        }
         return;
       }
 
@@ -188,6 +213,17 @@ export const useMeasurementsFetcher = (
         }
       }
 
+      // After all fetches complete successfully
+      if (pendingSetExtremesRef.current && chartComponentRef?.current?.chart) {
+        const chart = chartComponentRef.current.chart;
+        const { start, end } = pendingSetExtremesRef.current;
+        requestAnimationFrame(() => {
+          chart.xAxis[0].setExtremes(start, end, true, false, {
+            trigger: lastFetchTriggerRef.current || undefined,
+          });
+        });
+      }
+
       if (isFirstRender.current) {
         isFirstRender.current = false;
       }
@@ -198,6 +234,8 @@ export const useMeasurementsFetcher = (
       );
     } finally {
       isCurrentlyFetchingRef.current = false;
+      // Clear pending extremes but keep the trigger
+      pendingSetExtremesRef.current = null;
     }
   };
 

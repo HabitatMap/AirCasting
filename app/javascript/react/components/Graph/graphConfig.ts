@@ -77,17 +77,13 @@ const getXAxisOptions = (
   onDayClick?: (date: Date | null) => void,
   rangeDisplayRef?: React.RefObject<HTMLDivElement>,
   sessionStartTime?: number,
-  sessionEndTime?: number
+  sessionEndTime?: number,
+  isCalendarDaySelectedRef?: React.MutableRefObject<boolean>
 ): Highcharts.XAxisOptions => {
   let isFetching = false;
   let lastNavigatorEvent: Highcharts.AxisSetExtremesEventObject | null = null;
   let navigatorMouseUpHandler: ((event: MouseEvent) => void) | null = null;
-  let navigatorDebounceTimeout: NodeJS.Timeout | null = null;
 
-  // Increase debounce delay
-  const NAVIGATOR_DEBOUNCE_DELAY = 300; // ms
-
-  // Persist a timestamp and flag for rangeSelector clicks
   let rangeSelectorActive = false;
   const lastRangeSelectorTimeRef = { current: 0 };
   const THRESHOLD = 1000; // 1000ms threshold
@@ -97,10 +93,6 @@ const getXAxisOptions = (
       document.removeEventListener("mouseup", navigatorMouseUpHandler);
       navigatorMouseUpHandler = null;
     }
-    if (navigatorDebounceTimeout) {
-      clearTimeout(navigatorDebounceTimeout);
-      navigatorDebounceTimeout = null;
-    }
     lastNavigatorEvent = null;
   };
 
@@ -108,7 +100,12 @@ const getXAxisOptions = (
     e: Highcharts.AxisSetExtremesEventObject,
     chart: Highcharts.Chart
   ) => {
-    // Compute effective trigger.
+    console.log("afterSetExtremes event received:", {
+      trigger: e.trigger,
+      min: e.min,
+      max: e.max,
+    });
+
     let effectiveTrigger = e.trigger || lastTriggerRef.current || "";
 
     if (e.trigger === "rangeSelectorButton") {
@@ -116,53 +113,69 @@ const getXAxisOptions = (
       rangeSelectorActive = true;
       effectiveTrigger = "rangeSelectorButton";
       lastTriggerRef.current = "rangeSelectorButton";
+      console.log("rangeSelectorButton trigger detected");
     } else if (e.trigger === "calendarDay") {
       rangeSelectorActive = false;
       effectiveTrigger = "calendarDay";
       lastTriggerRef.current = "calendarDay";
-    }
-    // Modified navigator handling:
-    else if ((e.trigger === "navigator" || !e.trigger) && rangeSelectorActive) {
+      console.log("calendarDay trigger detected");
+    } else if (
+      (e.trigger === "navigator" || !e.trigger) &&
+      rangeSelectorActive
+    ) {
       const elapsed = Date.now() - lastRangeSelectorTimeRef.current;
-      // If the navigator event comes in quickly OR the last explicit trigger was rangeSelectorButton,
-      // force effectiveTrigger to "rangeSelectorButton".
       if (
         elapsed < THRESHOLD ||
         lastTriggerRef.current === "rangeSelectorButton"
       ) {
         effectiveTrigger = "rangeSelectorButton";
+        console.log(
+          "navigator event overridden to rangeSelectorButton trigger"
+        );
       } else {
         rangeSelectorActive = false;
       }
     } else if (e.trigger) {
       lastTriggerRef.current = e.trigger;
+      console.log("Other trigger detected:", e.trigger);
     }
 
     lastUpdateTimeRef.current = Date.now();
 
-    // Clear the selected day for pan/zoom/navigator/rangeSelector events.
-    if (
+    // Decide whether to clear the custom day selection:
+    if (effectiveTrigger === "calendarDay") {
+      // If the user explicitly clicked a calendar day,
+      // retain the custom day selection even after fetching.
+      console.log("CalendarDay trigger: retaining custom day selection.");
+      // (Do nothing)
+    } else if (effectiveTrigger === "rangeSelectorButton") {
+      // When a range selector button is clicked, always clear the custom day.
+      console.log(
+        "RangeSelectorButton trigger: clearing custom day selection."
+      );
+      onDayClick?.(null);
+    } else if (
       effectiveTrigger === "pan" ||
       effectiveTrigger === "zoom" ||
       effectiveTrigger === "navigator" ||
-      effectiveTrigger === "rangeSelectorButton" ||
-      effectiveTrigger === "mousewheel"
+      effectiveTrigger === "mousewheel" ||
+      effectiveTrigger === ""
     ) {
-      onDayClick?.(null);
+      // For other interactions, clear only if no custom day is active.
+      if (!isCalendarDaySelectedRef?.current) {
+        console.log(
+          "No custom day active; clearing selection for trigger:",
+          effectiveTrigger
+        );
+        onDayClick?.(null);
+      } else {
+        console.log(
+          "Custom day active; retaining selection for trigger:",
+          effectiveTrigger
+        );
+      }
     }
-
-    // Fallback for rangeSelectorButton events missing min/max.
-    if (
-      (e.min === undefined ||
-        e.max === undefined ||
-        isNaN(e.min) ||
-        isNaN(e.max)) &&
-      effectiveTrigger === "rangeSelectorButton"
-    ) {
-      const currentExtremes = chart.xAxis[0].getExtremes();
-      e.min = currentExtremes.min;
-      e.max = currentExtremes.max;
-    }
+    console.log("Effective trigger after decision:", effectiveTrigger);
 
     if (
       e.min === undefined ||
@@ -170,6 +183,7 @@ const getXAxisOptions = (
       isNaN(e.min) ||
       isNaN(e.max)
     ) {
+      console.log("Invalid extremes: ", e.min, e.max);
       return;
     }
 
@@ -184,7 +198,8 @@ const getXAxisOptions = (
         })
       );
     }
-    console.log(effectiveTrigger);
+    console.log("Effective trigger before fetching:", effectiveTrigger);
+
     if (
       streamId &&
       fixedSessionTypeSelected &&
@@ -212,7 +227,7 @@ const getXAxisOptions = (
       try {
         await fetchMeasurementsIfNeeded(fetchStart, fetchEnd);
       } catch (error) {
-        // Handle error if needed.
+        console.error("Error fetching measurements:", error);
       } finally {
         isFetching = false;
       }
@@ -248,21 +263,12 @@ const getXAxisOptions = (
         }
 
         lastNavigatorEvent = e;
-
-        // Clear any existing timeout
-        if (navigatorDebounceTimeout) {
-          clearTimeout(navigatorDebounceTimeout);
-        }
-
         if (!navigatorMouseUpHandler) {
           navigatorMouseUpHandler = (event: MouseEvent) => {
-            // Add debounce to the mouseup handler
-            navigatorDebounceTimeout = setTimeout(() => {
-              if (lastNavigatorEvent && !isFetching) {
-                handleSetExtremes(lastNavigatorEvent, chart);
-              }
-              removeNavigatorMouseUpHandler();
-            }, NAVIGATOR_DEBOUNCE_DELAY);
+            if (lastNavigatorEvent && !isFetching) {
+              handleSetExtremes(lastNavigatorEvent, chart);
+            }
+            removeNavigatorMouseUpHandler();
           };
           document.addEventListener("mouseup", navigatorMouseUpHandler);
         }
