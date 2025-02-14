@@ -1,5 +1,3 @@
-import { find } from "browser-geo-tz";
-
 import HighchartsReact from "highcharts-react-official";
 import Highcharts, { Chart } from "highcharts/highstock";
 import HighchartsAccessibility from "highcharts/modules/accessibility";
@@ -223,67 +221,45 @@ const Graph: React.FC<GraphProps> = memo(
     // Ref to track if a custom (calendar) day is selected.
     const isCalendarDaySelectedRef = useRef(!!selectedDate);
 
-    const latitude = fixedStreamLatitude;
-    const longitude = fixedStreamLongitude;
-    const [timezone, setTimezone] = useState("UTC");
-
-    // Add useEffect to handle timezone lookup
-    useEffect(() => {
-      const getTimezone = async () => {
-        const zones = await find(latitude, longitude);
-        setTimezone(zones[0] || "UTC");
-      };
-      getTimezone();
-    }, [latitude, longitude]);
-
     // Update the useEffect block that handles selectedDate
     useEffect(() => {
       if (!chartComponentRef.current?.chart || !selectedDate) return;
 
-      const selectedMoment = moment.tz(selectedDate, timezone);
-      console.log("selectedMoment", selectedMoment);
-      const selectedDayStart = moment(selectedMoment).startOf("day");
-      const selectedDayStartMs = selectedDayStart.valueOf();
-      const fullDayEndMs = selectedDayStartMs + MILLISECONDS_IN_A_DAY;
+      console.log("selectedDate", selectedDate);
 
-      // Default range: full day (midnight to midnight)
-      let rangeStart = selectedDayStartMs;
-      let rangeEnd = fullDayEndMs;
+      // Get start and end of day in the target timezone
+      const selectedDayStart = moment(selectedDate).startOf("day").valueOf();
+      const selectedDayEnd = selectedDayStart + MILLISECONDS_IN_A_DAY;
 
       // Check if this is first or last day of session
-      const isFirstDay = selectedDayStart.isSame(moment(startTime), "day");
-      const isLastDay = selectedDayStart.isSame(moment(endTime), "day");
+      const isFirstDay = selectedDayStart === startTime;
+      const isLastDay = selectedDayStart === endTime;
 
-      console.log("isFirstDay", isFirstDay);
-      console.log("isLastDay", isLastDay);
-      console.log("startTime", startTime);
-      console.log("endTime", endTime);
-      if (isFirstDay || isLastDay) {
-        if (isFirstDay) {
-          rangeStart = startTime;
-        }
-        if (isLastDay) {
-          rangeEnd = endTime;
-        }
-      }
+      // Set final range values
+      let finalRangeStart = isFirstDay ? startTime : selectedDayStart;
+      let finalRangeEnd = isLastDay ? endTime : selectedDayEnd;
+
+      // Ensure range stays within session bounds
+      finalRangeStart = Math.max(finalRangeStart, startTime);
+      finalRangeEnd = Math.min(finalRangeEnd, endTime);
 
       // Update range display immediately for better UX
       updateRangeDisplay(
         rangeDisplayRef,
-        rangeStart,
-        rangeEnd,
+        finalRangeStart,
+        finalRangeEnd,
         true // Use full day format for calendar day selection
       );
 
       // Pass the intended range and trigger
       fetchMeasurementsIfNeeded(
-        rangeStart,
-        rangeEnd,
+        finalRangeStart,
+        finalRangeEnd,
         false,
         true,
         "calendarDay"
       );
-    }, [selectedDate]);
+    }, [selectedDate, onDayClick]);
 
     // --- Updated handleRangeSelectorClick ---
     const handleRangeSelectorClick = useCallback(

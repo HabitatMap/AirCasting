@@ -1,4 +1,5 @@
-import React, { useCallback } from "react";
+import moment from "moment-timezone";
+import React from "react";
 import { useSelector } from "react-redux";
 
 import { selectThresholds } from "../../../../../store/thresholdSlice";
@@ -10,6 +11,7 @@ import * as S from "./Month.style";
 interface MonthProps extends CalendarMonthlyData {
   onDayClick: (date: Date) => void;
   selectedDate: Date | null;
+  timezone: string;
 }
 
 const Month: React.FC<MonthProps> = ({
@@ -18,17 +20,15 @@ const Month: React.FC<MonthProps> = ({
   weeks,
   onDayClick,
   selectedDate,
+  timezone,
 }) => {
   const thresholds = useSelector(selectThresholds);
 
-  // Memoize the click handler
-  const handleDayClick = useCallback(
-    (date: Date) => {
-      if (!date) return;
-      onDayClick(date);
-    },
-    [onDayClick]
-  );
+  const handleDayClick = (date: Date) => {
+    if (!date) return;
+    const convertedDate = moment(date).tz(timezone).toDate();
+    onDayClick(convertedDate);
+  };
 
   return (
     <S.Month>

@@ -34,6 +34,7 @@ import { useMapParams } from "../../utils/mapParamsHandler";
 import { formatTime } from "../../utils/measurementsCalc";
 import useMobileDetection from "../../utils/useScreenSizeDetection";
 
+import { find } from "browser-geo-tz";
 import * as S from "./CalendarPage.style";
 
 interface CalendarPageProps {
@@ -57,6 +58,7 @@ const CalendarPage: React.FC<CalendarPageProps> = ({ children }) => {
   const [errorMessage, setErrorMessage] = useState("");
   const [initialDataFetched, setInitialDataFetched] = useState(false);
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
+  console.log("selectedDate CalendarPage", selectedDate);
 
   const calendarIsVisible =
     movingCalendarData.data.length &&
@@ -101,6 +103,19 @@ const CalendarPage: React.FC<CalendarPageProps> = ({ children }) => {
       dispatch(setDefaultThresholdsValues(fixedStreamData.stream));
     }
   }, [fixedStreamData, streamId, isLoading, streamEndTime]);
+  const latitude = fixedStreamData.stream.latitude;
+  const longitude = fixedStreamData.stream.longitude;
+  const [timezone, setTimezone] = useState("UTC");
+  console.log("timezone CalendarPage", timezone);
+
+  // Add useEffect to handle timezone lookup
+  useEffect(() => {
+    const getTimezone = async () => {
+      const zones = await find(latitude, longitude);
+      setTimezone(zones[0] || "UTC");
+    };
+    getTimezone();
+  }, [latitude, longitude]);
 
   useEffect(() => {
     if (!streamId) {
@@ -241,6 +256,7 @@ const CalendarPage: React.FC<CalendarPageProps> = ({ children }) => {
               maxCalendarDate={streamEndTime}
               onDayClick={handleDayClick}
               selectedDate={selectedDate}
+              timezone={timezone}
             />
           ) : (
             <EmptyCalendar />

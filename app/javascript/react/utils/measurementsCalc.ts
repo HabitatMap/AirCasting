@@ -48,37 +48,40 @@ export const formatTimeExtremes = (
   max: number,
   useFullDayFormat: boolean = false
 ) => {
-  // Convert to UTC time to match measurement timestamps
-  const minDate = moment.utc(min);
-  const maxDate = moment.utc(max);
+  // Create moments in UTC first
+  const minDateUtc = moment.utc(min);
+  const maxDateUtc = moment.utc(max);
+
+  // Convert to local time for display
+  const minDate = minDateUtc.local();
+  const maxDate = maxDateUtc.local();
 
   // Check if both timestamps fall on the same day in local time
-  const sameDay = moment(minDate).isSame(moment(maxDate), "day");
+  const sameDay = minDate.isSame(maxDate, "day");
 
-  // For full day format, always show 00:00:00-00:00:00
-  if (useFullDayFormat && sameDay) {
-    const localDate = moment(minDate).format(DateFormat.us);
-    return {
-      formattedMinTime: {
-        date: localDate,
-        time: "00:00:00",
-      },
-      formattedMaxTime: {
-        date: localDate,
-        time: "00:00:00",
-      },
-    };
-  }
+  // For full day format, check if the UTC times correspond to local midnight
+  const isFullDay =
+    useFullDayFormat &&
+    sameDay &&
+    minDate.hours() === 0 &&
+    minDate.minutes() === 0 &&
+    minDate.seconds() === 0 &&
+    maxDate.hours() === 23 &&
+    maxDate.minutes() === 59 &&
+    maxDate.seconds() === 59;
 
-  // For regular format, convert UTC to local for display
   return {
     formattedMinTime: {
-      date: moment(minDate).format(DateFormat.us),
-      time: moment(minDate).format(DateFormat.time_with_seconds),
+      date: minDate.format(DateFormat.us),
+      time: isFullDay
+        ? "00:00:00"
+        : minDate.format(DateFormat.time_with_seconds),
     },
     formattedMaxTime: {
-      date: moment(maxDate).format(DateFormat.us),
-      time: moment(maxDate).format(DateFormat.time_with_seconds),
+      date: maxDate.format(DateFormat.us),
+      time: isFullDay
+        ? "23:59:59"
+        : maxDate.format(DateFormat.time_with_seconds),
     },
   };
 };

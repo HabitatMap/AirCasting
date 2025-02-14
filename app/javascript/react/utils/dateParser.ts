@@ -5,7 +5,7 @@ export const parseDateString = (dateStr: string | null | undefined): number => {
   if (!dateStr || dateStr === "Invalid date") {
     return Date.now(); // Return current timestamp as fallback
   }
-  console.log("dateStr", dateStr);
+
   try {
     // Parse the date string to UTC timestamp to match measurement timestamps
     const timestamp = moment(dateStr).utc().valueOf();

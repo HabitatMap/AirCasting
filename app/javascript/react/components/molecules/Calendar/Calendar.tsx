@@ -15,6 +15,7 @@ interface CalendarProps {
   maxCalendarDate: string;
   onDayClick: (date: Date | null) => void;
   selectedDate: Date | null;
+  timezone: string;
 }
 
 const Calendar: React.FC<CalendarProps> = ({
@@ -23,6 +24,7 @@ const Calendar: React.FC<CalendarProps> = ({
   maxCalendarDate,
   onDayClick,
   selectedDate,
+  timezone,
 }) => {
   const {
     threeMonthsData,
@@ -104,6 +106,7 @@ const Calendar: React.FC<CalendarProps> = ({
             {...month}
             onDayClick={handleDayClick}
             selectedDate={selectedDate}
+            timezone={timezone}
           />
         ))}
       </S.ThreeMonths>

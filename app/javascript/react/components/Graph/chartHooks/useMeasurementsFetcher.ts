@@ -1,5 +1,4 @@
 import HighchartsReact from "highcharts-react-official";
-import moment from "moment";
 import { useRef } from "react";
 import { selectFetchedTimeRanges } from "../../../store/fixedStreamSelectors";
 import {
@@ -130,20 +129,7 @@ export const useMeasurementsFetcher = (
     isDaySelection: boolean = false,
     trigger?: string
   ) => {
-    console.log("Fetching Measurements:", {
-      start: moment(start).format(),
-      end: moment(end).format(),
-      isEdgeFetch,
-      isDaySelection,
-      trigger,
-      streamId,
-    });
-
     if (!streamId || isCurrentlyFetchingRef.current) {
-      console.log("Fetch skipped:", {
-        reason: !streamId ? "No streamId" : "Already fetching",
-        isCurrentlyFetching: isCurrentlyFetchingRef.current,
-      });
       return;
     }
 
@@ -260,7 +246,10 @@ export const useMeasurementsFetcher = (
         isFirstRender.current = false;
       }
     } catch (error) {
-      console.error("Fetch Error:", error);
+      console.error(
+        "[useMeasurementsFetcher] Error fetching measurements:",
+        error
+      );
     } finally {
       isCurrentlyFetchingRef.current = false;
       // Clear pending extremes but keep the trigger
