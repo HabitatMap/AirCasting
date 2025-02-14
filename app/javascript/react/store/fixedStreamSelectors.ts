@@ -117,6 +117,8 @@ const selectFixedStreamShortInfo = createSelector(
       startTime,
       endTime,
       firstMeasurementTime,
+      latitude: fixedStreamData.stream.latitude,
+      longitude: fixedStreamData.stream.longitude,
     };
   }
 );

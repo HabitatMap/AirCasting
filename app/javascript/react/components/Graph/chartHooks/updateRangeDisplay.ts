@@ -8,7 +8,9 @@ export const updateRangeDisplay = (
 ) => {
   if (!rangeDisplayRef?.current) return;
 
+  // Format times using measurement timestamps
   const formattedTime = formatTimeExtremes(min, max, useFullDayFormat);
+
   const htmlContent = `
     <div class="time-container">
       <span class="date">${formattedTime.formattedMinTime.date}</span>
@@ -20,5 +22,11 @@ export const updateRangeDisplay = (
       <span class="time">${formattedTime.formattedMaxTime.time}</span>
     </div>
   `;
-  rangeDisplayRef.current.innerHTML = htmlContent;
+
+  // Use requestAnimationFrame to prevent multiple DOM updates
+  requestAnimationFrame(() => {
+    if (rangeDisplayRef.current) {
+      rangeDisplayRef.current.innerHTML = htmlContent;
+    }
+  });
 };

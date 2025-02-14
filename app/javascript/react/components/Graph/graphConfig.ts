@@ -100,12 +100,6 @@ const getXAxisOptions = (
     e: Highcharts.AxisSetExtremesEventObject,
     chart: Highcharts.Chart
   ) => {
-    console.log("afterSetExtremes event received:", {
-      trigger: e.trigger,
-      min: e.min,
-      max: e.max,
-    });
-
     let effectiveTrigger = e.trigger || lastTriggerRef.current || "";
 
     if (e.trigger === "rangeSelectorButton") {
@@ -129,30 +123,18 @@ const getXAxisOptions = (
         lastTriggerRef.current === "rangeSelectorButton"
       ) {
         effectiveTrigger = "rangeSelectorButton";
-        console.log(
-          "navigator event overridden to rangeSelectorButton trigger"
-        );
       } else {
         rangeSelectorActive = false;
       }
     } else if (e.trigger) {
       lastTriggerRef.current = e.trigger;
-      console.log("Other trigger detected:", e.trigger);
     }
 
     lastUpdateTimeRef.current = Date.now();
 
     // Decide whether to clear the custom day selection:
     if (effectiveTrigger === "calendarDay") {
-      // If the user explicitly clicked a calendar day,
-      // retain the custom day selection even after fetching.
-      console.log("CalendarDay trigger: retaining custom day selection.");
-      // (Do nothing)
     } else if (effectiveTrigger === "rangeSelectorButton") {
-      // When a range selector button is clicked, always clear the custom day.
-      console.log(
-        "RangeSelectorButton trigger: clearing custom day selection."
-      );
       onDayClick?.(null);
     } else if (
       effectiveTrigger === "pan" ||
@@ -163,19 +145,10 @@ const getXAxisOptions = (
     ) {
       // For other interactions, clear only if no custom day is active.
       if (!isCalendarDaySelectedRef?.current) {
-        console.log(
-          "No custom day active; clearing selection for trigger:",
-          effectiveTrigger
-        );
         onDayClick?.(null);
       } else {
-        console.log(
-          "Custom day active; retaining selection for trigger:",
-          effectiveTrigger
-        );
       }
     }
-    console.log("Effective trigger after decision:", effectiveTrigger);
 
     if (
       e.min === undefined ||
@@ -183,7 +156,6 @@ const getXAxisOptions = (
       isNaN(e.min) ||
       isNaN(e.max)
     ) {
-      console.log("Invalid extremes: ", e.min, e.max);
       return;
     }
 
@@ -198,7 +170,6 @@ const getXAxisOptions = (
         })
       );
     }
-    console.log("Effective trigger before fetching:", effectiveTrigger);
 
     if (
       streamId &&

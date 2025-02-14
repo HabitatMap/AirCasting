@@ -1,8 +1,10 @@
+import { find } from "browser-geo-tz";
+
 import HighchartsReact from "highcharts-react-official";
 import Highcharts, { Chart } from "highcharts/highstock";
 import HighchartsAccessibility from "highcharts/modules/accessibility";
 import NoDataToDisplay from "highcharts/modules/no-data-to-display";
-import moment from "moment";
+import moment from "moment-timezone";
 import React, {
   memo,
   useCallback,
@@ -70,7 +72,6 @@ import {
   legendOption,
   seriesOptions,
 } from "./graphConfig";
-
 // Initialize the No-Data module
 NoDataToDisplay(Highcharts);
 HighchartsAccessibility(Highcharts);
@@ -156,6 +157,10 @@ const Graph: React.FC<GraphProps> = memo(
         mobileStreamShortInfo.endTime,
       ]
     );
+
+    const fixedStreamLatitude = fixedStreamShortInfo.latitude;
+    const fixedStreamLongitude = fixedStreamShortInfo.longitude;
+
     const totalDuration = useMemo(
       () => endTime - startTime,
       [startTime, endTime]
@@ -218,20 +223,26 @@ const Graph: React.FC<GraphProps> = memo(
     // Ref to track if a custom (calendar) day is selected.
     const isCalendarDaySelectedRef = useRef(!!selectedDate);
 
-    // When a custom day is selected, update the ref and force the range selector to -1.
-    useEffect(() => {
-      isCalendarDaySelectedRef.current = !!selectedDate;
-      if (selectedDate) {
-        setSelectedRangeIndex(-1);
-      }
-    }, [selectedDate]);
+    const latitude = fixedStreamLatitude;
+    const longitude = fixedStreamLongitude;
+    const [timezone, setTimezone] = useState("UTC");
 
-    // --- Updated useEffect for custom day selection ---
+    // Add useEffect to handle timezone lookup
+    useEffect(() => {
+      const getTimezone = async () => {
+        const zones = await find(latitude, longitude);
+        setTimezone(zones[0] || "UTC");
+      };
+      getTimezone();
+    }, [latitude, longitude]);
+
+    // Update the useEffect block that handles selectedDate
     useEffect(() => {
       if (!chartComponentRef.current?.chart || !selectedDate) return;
 
-      const chart = chartComponentRef.current.chart;
-      const selectedDayStart = moment.utc(selectedDate).startOf("day");
+      const selectedMoment = moment.tz(selectedDate, timezone);
+      console.log("selectedMoment", selectedMoment);
+      const selectedDayStart = moment(selectedMoment).startOf("day");
       const selectedDayStartMs = selectedDayStart.valueOf();
       const fullDayEndMs = selectedDayStartMs + MILLISECONDS_IN_A_DAY;
 
@@ -240,9 +251,13 @@ const Graph: React.FC<GraphProps> = memo(
       let rangeEnd = fullDayEndMs;
 
       // Check if this is first or last day of session
-      const isFirstDay = selectedDayStart.isSame(moment.utc(startTime), "day");
-      const isLastDay = selectedDayStart.isSame(moment.utc(endTime), "day");
+      const isFirstDay = selectedDayStart.isSame(moment(startTime), "day");
+      const isLastDay = selectedDayStart.isSame(moment(endTime), "day");
 
+      console.log("isFirstDay", isFirstDay);
+      console.log("isLastDay", isLastDay);
+      console.log("startTime", startTime);
+      console.log("endTime", endTime);
       if (isFirstDay || isLastDay) {
         if (isFirstDay) {
           rangeStart = startTime;
@@ -260,15 +275,6 @@ const Graph: React.FC<GraphProps> = memo(
         true // Use full day format for calendar day selection
       );
 
-      const fetchStart = Math.max(
-        startTime,
-        selectedDayStartMs - MILLISECONDS_IN_A_DAY * 2
-      );
-      const fetchEnd = Math.min(
-        endTime,
-        fullDayEndMs + MILLISECONDS_IN_A_DAY * 2
-      );
-
       // Pass the intended range and trigger
       fetchMeasurementsIfNeeded(
         rangeStart,
@@ -277,7 +283,7 @@ const Graph: React.FC<GraphProps> = memo(
         true,
         "calendarDay"
       );
-    }, [selectedDate, startTime, endTime, fetchMeasurementsIfNeeded]);
+    }, [selectedDate]);
 
     // --- Updated handleRangeSelectorClick ---
     const handleRangeSelectorClick = useCallback(
@@ -389,7 +395,7 @@ const Graph: React.FC<GraphProps> = memo(
           rangeDisplayRef,
           startTime,
           endTime,
-          isCalendarDaySelectedRef // pass the ref for calendar day check
+          isCalendarDaySelectedRef
         ),
         yAxis: getYAxisOptions(thresholdsState, isMobile),
         series: [

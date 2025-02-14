@@ -5,8 +5,18 @@
     "strict": true,
     "jsx": "react",
     "esModuleInterop": true,
-    "resolveJsonModule": true
+    "resolveJsonModule": true,
+    "types": ["moment-timezone"],
+    "moduleResolution": "node",
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["app/javascript/*"]
+    }
   },
   "exclude": ["node_modules"],
-  "include": ["app/javascript/react", "app/javascript/@types/assets.d.ts"]
+  "include": [
+    "app/javascript/react",
+    "app/javascript/@types/assets.d.ts",
+    "app/javascript/@types/moment.d.ts"
+  ]
 }
