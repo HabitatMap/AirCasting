@@ -74,7 +74,7 @@ const getXAxisOptions = (
   streamId: number | null,
   lastTriggerRef: React.MutableRefObject<string | null>,
   lastUpdateTimeRef: React.MutableRefObject<number>,
-  onDayClick?: (date: Date | null) => void,
+  onDayClick?: (timestamp: number | null) => void, // Updated: now accepts a timestamp
   rangeDisplayRef?: React.RefObject<HTMLDivElement>,
   sessionStartTime?: number,
   sessionEndTime?: number,
@@ -134,6 +134,7 @@ const getXAxisOptions = (
 
     // Decide whether to clear the custom day selection:
     if (effectiveTrigger === "calendarDay") {
+      // Leave the calendar selection as is.
     } else if (effectiveTrigger === "rangeSelectorButton") {
       onDayClick?.(null);
     } else if (
@@ -146,7 +147,6 @@ const getXAxisOptions = (
       // For other interactions, clear only if no custom day is active.
       if (!isCalendarDaySelectedRef?.current) {
         onDayClick?.(null);
-      } else {
       }
     }
 

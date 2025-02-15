@@ -13,9 +13,8 @@ interface CalendarProps {
   streamId: number;
   minCalendarDate: string;
   maxCalendarDate: string;
-  onDayClick: (date: Date | null) => void;
-  selectedDate: Date | null;
-  timezone: string;
+  onDayClick: (timestamp: number | null) => void;
+  selectedTimestamp: number | null;
 }
 
 const Calendar: React.FC<CalendarProps> = ({
@@ -23,8 +22,7 @@ const Calendar: React.FC<CalendarProps> = ({
   minCalendarDate,
   maxCalendarDate,
   onDayClick,
-  selectedDate,
-  timezone,
+  selectedTimestamp,
 }) => {
   const {
     threeMonthsData,
@@ -43,17 +41,18 @@ const Calendar: React.FC<CalendarProps> = ({
     [threeMonthsData, isMobileView]
   );
 
+  // Use timestamp (number) instead of Date.
   const handleDayClick = useCallback(
-    (date: Date) => {
-      if (!date) return;
+    (timestamp: number) => {
+      if (timestamp === undefined || timestamp === null) return;
 
-      if (selectedDate && date.getTime() === selectedDate.getTime()) {
+      if (selectedTimestamp !== null && timestamp === selectedTimestamp) {
         onDayClick(null);
       } else {
-        onDayClick(date);
+        onDayClick(timestamp);
       }
     },
-    [selectedDate, onDayClick]
+    [selectedTimestamp, onDayClick]
   );
 
   const MobileSwipeComponent = () => (
@@ -105,8 +104,7 @@ const Calendar: React.FC<CalendarProps> = ({
             key={month.monthName}
             {...month}
             onDayClick={handleDayClick}
-            selectedDate={selectedDate}
-            timezone={timezone}
+            selectedTimestamp={selectedTimestamp}
           />
         ))}
       </S.ThreeMonths>

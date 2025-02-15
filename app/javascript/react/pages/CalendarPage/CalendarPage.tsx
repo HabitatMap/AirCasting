@@ -57,8 +57,12 @@ const CalendarPage: React.FC<CalendarPageProps> = ({ children }) => {
   const { formattedMinTime, formattedMaxTime } = formatTime(startTime, endTime);
   const [errorMessage, setErrorMessage] = useState("");
   const [initialDataFetched, setInitialDataFetched] = useState(false);
-  const [selectedDate, setSelectedDate] = useState<Date | null>(null);
-  console.log("selectedDate CalendarPage", selectedDate);
+
+  // Change from Date to timestamp (number)
+  const [selectedTimestamp, setSelectedTimestamp] = useState<number | null>(
+    null
+  );
+  console.log("selectedTimestamp CalendarPage", selectedTimestamp);
 
   const calendarIsVisible =
     movingCalendarData.data.length &&
@@ -122,12 +126,13 @@ const CalendarPage: React.FC<CalendarPageProps> = ({ children }) => {
     }
   }, [streamId]);
 
-  const handleDayClick = (date: Date | null) => {
-    setSelectedDate(date);
+  // Now handleDayClick accepts a timestamp (number) or null.
+  const handleDayClick = (timestamp: number | null) => {
+    setSelectedTimestamp(timestamp);
   };
 
   useEffect(() => {
-    setSelectedDate(null);
+    setSelectedTimestamp(null);
   }, [streamId]);
 
   const renderMobileGraph = () => (
@@ -154,7 +159,7 @@ const CalendarPage: React.FC<CalendarPageProps> = ({ children }) => {
               sessionType={SessionTypes.FIXED}
               isCalendarPage={true}
               rangeDisplayRef={rangeDisplayRef}
-              selectedDate={selectedDate}
+              selectedTimestamp={selectedTimestamp}
               onDayClick={handleDayClick}
             />
             <MeasurementComponent />
@@ -232,7 +237,7 @@ const CalendarPage: React.FC<CalendarPageProps> = ({ children }) => {
             sessionType={SessionTypes.FIXED}
             isCalendarPage={true}
             rangeDisplayRef={rangeDisplayRef}
-            selectedDate={selectedDate}
+            selectedTimestamp={selectedTimestamp}
             onDayClick={handleDayClick}
           />
         }
@@ -254,8 +259,7 @@ const CalendarPage: React.FC<CalendarPageProps> = ({ children }) => {
               minCalendarDate={fixedStreamData.stream.startTime}
               maxCalendarDate={streamEndTime}
               onDayClick={handleDayClick}
-              selectedDate={selectedDate}
-              timezone={timezone}
+              selectedTimestamp={selectedTimestamp}
             />
           ) : (
             <EmptyCalendar />

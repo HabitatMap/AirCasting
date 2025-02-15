@@ -11,7 +11,6 @@ import * as S from "./Month.style";
 interface MonthProps extends CalendarMonthlyData {
   onDayClick: (timestamp: number) => void;
   selectedTimestamp: number | null;
-  timezone: string;
 }
 
 const Month: React.FC<MonthProps> = ({
@@ -20,7 +19,6 @@ const Month: React.FC<MonthProps> = ({
   weeks,
   onDayClick,
   selectedTimestamp,
-  timezone,
 }) => {
   const thresholds = useSelector(selectThresholds);
 

@@ -2,7 +2,6 @@ import HighchartsReact from "highcharts-react-official";
 import Highcharts, { Chart } from "highcharts/highstock";
 import HighchartsAccessibility from "highcharts/modules/accessibility";
 import NoDataToDisplay from "highcharts/modules/no-data-to-display";
-import moment from "moment-timezone";
 import React, {
   memo,
   useCallback,
@@ -65,11 +64,12 @@ import {
   getResponsiveOptions,
   getScrollbarOptions,
   getTooltipOptions,
-  getXAxisOptions, // updated below
+  getXAxisOptions,
   getYAxisOptions,
   legendOption,
   seriesOptions,
 } from "./graphConfig";
+
 // Initialize the No-Data module
 NoDataToDisplay(Highcharts);
 HighchartsAccessibility(Highcharts);
@@ -79,8 +79,8 @@ interface GraphProps {
   streamId: number | null;
   isCalendarPage: boolean;
   rangeDisplayRef?: React.RefObject<HTMLDivElement>;
-  selectedDate: Date | null;
-  onDayClick?: (date: Date | null) => void;
+  selectedTimestamp: number | null; // Updated: now using timestamp instead of Date
+  onDayClick?: (timestamp: number | null) => void; // Updated callback signature
 }
 
 const Graph: React.FC<GraphProps> = memo(
@@ -89,7 +89,7 @@ const Graph: React.FC<GraphProps> = memo(
     sessionType,
     isCalendarPage,
     rangeDisplayRef,
-    selectedDate,
+    selectedTimestamp,
     onDayClick,
   }) => {
     const dispatch = useAppDispatch();
@@ -156,9 +156,6 @@ const Graph: React.FC<GraphProps> = memo(
       ]
     );
 
-    const fixedStreamLatitude = fixedStreamShortInfo.latitude;
-    const fixedStreamLongitude = fixedStreamShortInfo.longitude;
-
     const totalDuration = useMemo(
       () => endTime - startTime,
       [startTime, endTime]
@@ -204,14 +201,14 @@ const Graph: React.FC<GraphProps> = memo(
 
     // Determine which rangeSelector button is highlighted.
     const computedSelectedRangeIndex = useMemo(() => {
-      if (selectedDate) {
+      if (selectedTimestamp) {
         return -1;
       }
       return getSelectedRangeIndex(
         lastSelectedTimeRange,
         fixedSessionTypeSelected
       );
-    }, [selectedDate, lastSelectedTimeRange, fixedSessionTypeSelected]);
+    }, [selectedTimestamp, lastSelectedTimeRange, fixedSessionTypeSelected]);
 
     // LOCAL STATE: Control the selected range button independently of Redux.
     const [selectedRangeIndex, setSelectedRangeIndex] = useState<number>(
@@ -219,41 +216,41 @@ const Graph: React.FC<GraphProps> = memo(
     );
 
     // Ref to track if a custom (calendar) day is selected.
-    const isCalendarDaySelectedRef = useRef(!!selectedDate);
+    const isCalendarDaySelectedRef = useRef(!!selectedTimestamp);
 
-    // Update the useEffect block that handles selectedDate
+    // Update the effect block that handles a calendar day selection.
     useEffect(() => {
-      if (!chartComponentRef.current?.chart || !selectedDate) return;
+      if (!chartComponentRef.current?.chart || !selectedTimestamp) return;
 
-      console.log("selectedDate", selectedDate);
+      console.log("selectedTimestamp", selectedTimestamp);
 
-      // Get start and end of day in the target timezone
-      const selectedDayStart = moment(selectedDate).startOf("day").valueOf();
+      // selectedTimestamp is already the UTC midnight timestamp.
+      const selectedDayStart = selectedTimestamp;
       const selectedDayEnd = selectedDayStart + MILLISECONDS_IN_A_DAY;
       console.log("selectedDayStart", selectedDayStart);
       console.log("selectedDayEnd", selectedDayEnd);
 
-      // Check if this is first or last day of session
+      // Check if this is first or last day of session.
       const isFirstDay = selectedDayStart === startTime;
       const isLastDay = selectedDayStart === endTime;
 
-      // Set final range values
+      // Set final range values.
       let finalRangeStart = isFirstDay ? startTime : selectedDayStart;
       let finalRangeEnd = isLastDay ? endTime : selectedDayEnd;
 
-      // Ensure range stays within session bounds
+      // Ensure range stays within session bounds.
       finalRangeStart = Math.max(finalRangeStart, startTime);
       finalRangeEnd = Math.min(finalRangeEnd, endTime);
 
-      // Update range display immediately for better UX
+      // Update range display immediately for better UX.
       updateRangeDisplay(
         rangeDisplayRef,
         finalRangeStart,
         finalRangeEnd,
-        true // Use full day format for calendar day selection
+        true // Use full day format for calendar day selection.
       );
 
-      // Pass the intended range and trigger
+      // Fetch measurements for the selected day.
       fetchMeasurementsIfNeeded(
         finalRangeStart,
         finalRangeEnd,
@@ -261,12 +258,18 @@ const Graph: React.FC<GraphProps> = memo(
         true,
         "calendarDay"
       );
-    }, [selectedDate, onDayClick]);
+    }, [
+      selectedTimestamp,
+      fetchMeasurementsIfNeeded,
+      rangeDisplayRef,
+      startTime,
+      endTime,
+    ]);
 
     // --- Updated handleRangeSelectorClick ---
     const handleRangeSelectorClick = useCallback(
       (selectedButton: number) => {
-        // Clear any selected day and update the ref immediately.
+        // Clear any selected day.
         onDayClick?.(null);
         isCalendarDaySelectedRef.current = false;
         setSelectedRangeIndex(selectedButton);
@@ -332,6 +335,7 @@ const Graph: React.FC<GraphProps> = memo(
         rangeDisplayRef,
         startTime,
         endTime,
+        fetchMeasurementsIfNeeded,
       ]
     );
 
@@ -511,6 +515,7 @@ const Graph: React.FC<GraphProps> = memo(
       startTime,
       endTime,
       isCalendarDaySelectedRef,
+      onDayClick,
     ]);
 
     // Reset time range in Redux on mount.
@@ -551,7 +556,7 @@ const Graph: React.FC<GraphProps> = memo(
           if (highchartsContainer) {
             highchartsContainer.style.overflow = "visible";
           }
-          const highchartsChartContainer = graphElement.querySelector(
+          const highchartsChartContainer = graphRef.current.querySelector(
             "[data-highcharts-chart]"
           ) as HTMLDivElement | null;
           if (highchartsChartContainer) {
