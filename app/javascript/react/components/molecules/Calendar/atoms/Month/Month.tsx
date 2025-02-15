@@ -26,7 +26,17 @@ const Month: React.FC<MonthProps> = ({
 
   const handleDayClick = (date: Date) => {
     if (!date) return;
-    const convertedDate = moment(date).tz(timezone).toDate();
+
+    console.log("Raw date clicked:", date);
+
+    // Convert directly from the given date without shifting to UTC
+    const convertedDate = moment(date)
+      .tz(timezone, true)
+      .startOf("day")
+      .toDate();
+
+    console.log("Final stored date:", convertedDate);
+
     onDayClick(convertedDate);
   };
 
@@ -42,10 +52,10 @@ const Month: React.FC<MonthProps> = ({
                 key={day.date}
                 {...day}
                 {...thresholds}
-                onClick={() => handleDayClick(new Date(day.date))}
+                onClick={() => handleDayClick(moment.utc(day.date).toDate())}
                 isSelected={
                   selectedDate?.toDateString() ===
-                  new Date(day.date).toDateString()
+                  moment.utc(day.date).toDate().toDateString()
                 }
               />
             ))}

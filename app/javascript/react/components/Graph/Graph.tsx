@@ -230,6 +230,8 @@ const Graph: React.FC<GraphProps> = memo(
       // Get start and end of day in the target timezone
       const selectedDayStart = moment(selectedDate).startOf("day").valueOf();
       const selectedDayEnd = selectedDayStart + MILLISECONDS_IN_A_DAY;
+      console.log("selectedDayStart", selectedDayStart);
+      console.log("selectedDayEnd", selectedDayEnd);
 
       // Check if this is first or last day of session
       const isFirstDay = selectedDayStart === startTime;

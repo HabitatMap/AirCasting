@@ -108,7 +108,6 @@ const CalendarPage: React.FC<CalendarPageProps> = ({ children }) => {
   const [timezone, setTimezone] = useState("UTC");
   console.log("timezone CalendarPage", timezone);
 
-  // Add useEffect to handle timezone lookup
   useEffect(() => {
     const getTimezone = async () => {
       const zones = await find(latitude, longitude);
