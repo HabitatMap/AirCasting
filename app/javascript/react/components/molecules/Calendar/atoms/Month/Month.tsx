@@ -9,8 +9,8 @@ import { DayNamesHeader } from "../DayNamesHeader";
 import * as S from "./Month.style";
 
 interface MonthProps extends CalendarMonthlyData {
-  onDayClick: (date: Date) => void;
-  selectedDate: Date | null;
+  onDayClick: (timestamp: number) => void;
+  selectedTimestamp: number | null;
   timezone: string;
 }
 
@@ -19,25 +19,19 @@ const Month: React.FC<MonthProps> = ({
   dayNamesHeader,
   weeks,
   onDayClick,
-  selectedDate,
+  selectedTimestamp,
   timezone,
 }) => {
   const thresholds = useSelector(selectThresholds);
 
-  const handleDayClick = (date: Date) => {
-    if (!date) return;
-
-    console.log("Raw date clicked:", date);
-
-    // Convert directly from the given date without shifting to UTC
-    const convertedDate = moment(date)
-      .tz(timezone, true)
-      .startOf("day")
-      .toDate();
-
-    console.log("Final stored date:", convertedDate);
-
-    onDayClick(convertedDate);
+  // Here we assume that each day object already has a date string in "YYYY-MM-DD" format.
+  // This way we don’t rely on new Date() which uses the browser’s local timezone.
+  const handleDayClick = (dateStr: string) => {
+    if (!dateStr) return;
+    // Parse the provided date string as UTC midnight.
+    const convertedTimestamp = moment.utc(dateStr, "YYYY-MM-DD").valueOf();
+    console.log("Final stored timestamp:", convertedTimestamp);
+    onDayClick(convertedTimestamp);
   };
 
   return (
@@ -47,18 +41,23 @@ const Month: React.FC<MonthProps> = ({
         <DayNamesHeader dayNamesHeader={dayNamesHeader} />
         {weeks.map((week) => (
           <S.Week key={week[0].date}>
-            {week.map((day) => (
-              <Day
-                key={day.date}
-                {...day}
-                {...thresholds}
-                onClick={() => handleDayClick(moment.utc(day.date).toDate())}
-                isSelected={
-                  selectedDate?.toDateString() ===
-                  moment.utc(day.date).toDate().toDateString()
-                }
-              />
-            ))}
+            {week.map((day) => {
+              // Compute the UTC midnight timestamp for comparison.
+              const dayTimestamp = moment.utc(day.date, "YYYY-MM-DD").valueOf();
+              return (
+                <Day
+                  key={day.date}
+                  {...day}
+                  {...thresholds}
+                  // Use the day.date string directly.
+                  onClick={() => handleDayClick(day.date)}
+                  isSelected={
+                    selectedTimestamp !== null &&
+                    dayTimestamp === selectedTimestamp
+                  }
+                />
+              );
+            })}
           </S.Week>
         ))}
       </S.MonthContent>
