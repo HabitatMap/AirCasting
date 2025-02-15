@@ -150,6 +150,9 @@ const fixedStreamSlice = createSlice({
       const { min, max } = action.payload;
       const measurements = state.data.measurements || [];
 
+      console.log("min", min);
+      console.log("max", max);
+
       // Filter measurements within the visible range
       const visibleMeasurements = measurements.filter(
         (m) => m.time >= min && m.time <= max
@@ -173,6 +176,9 @@ const fixedStreamSlice = createSlice({
             sum: 0,
           }
         );
+        console.log("minValue", minValue);
+        console.log("maxValue", maxValue);
+        console.log("sum", sum / visibleMeasurements.length);
 
         state.minMeasurementValue = minValue;
         state.maxMeasurementValue = maxValue;

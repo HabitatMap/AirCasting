@@ -62,7 +62,6 @@ const CalendarPage: React.FC<CalendarPageProps> = ({ children }) => {
   const [selectedTimestamp, setSelectedTimestamp] = useState<number | null>(
     null
   );
-  console.log("selectedTimestamp CalendarPage", selectedTimestamp);
 
   const calendarIsVisible =
     movingCalendarData.data.length &&
@@ -110,7 +109,6 @@ const CalendarPage: React.FC<CalendarPageProps> = ({ children }) => {
   const latitude = fixedStreamData.stream.latitude;
   const longitude = fixedStreamData.stream.longitude;
   const [timezone, setTimezone] = useState("UTC");
-  console.log("timezone CalendarPage", timezone);
 
   useEffect(() => {
     const getTimezone = async () => {

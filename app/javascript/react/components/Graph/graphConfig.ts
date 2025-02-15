@@ -107,12 +107,10 @@ const getXAxisOptions = (
       rangeSelectorActive = true;
       effectiveTrigger = "rangeSelectorButton";
       lastTriggerRef.current = "rangeSelectorButton";
-      console.log("rangeSelectorButton trigger detected");
     } else if (e.trigger === "calendarDay") {
       rangeSelectorActive = false;
       effectiveTrigger = "calendarDay";
       lastTriggerRef.current = "calendarDay";
-      console.log("calendarDay trigger detected");
     } else if (
       (e.trigger === "navigator" || !e.trigger) &&
       rangeSelectorActive

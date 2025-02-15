@@ -227,8 +227,6 @@ const Graph: React.FC<GraphProps> = memo(
       // selectedTimestamp is already the UTC midnight timestamp.
       const selectedDayStart = selectedTimestamp;
       const selectedDayEnd = selectedDayStart + MILLISECONDS_IN_A_DAY;
-      console.log("selectedDayStart", selectedDayStart);
-      console.log("selectedDayEnd", selectedDayEnd);
 
       // Check if this is first or last day of session.
       const isFirstDay = selectedDayStart === startTime;

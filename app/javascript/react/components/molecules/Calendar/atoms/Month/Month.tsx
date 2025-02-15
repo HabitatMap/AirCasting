@@ -28,7 +28,7 @@ const Month: React.FC<MonthProps> = ({
     if (!dateStr) return;
     // Parse the provided date string as UTC midnight.
     const convertedTimestamp = moment.utc(dateStr, "YYYY-MM-DD").valueOf();
-    console.log("Final stored timestamp:", convertedTimestamp);
+
     onDayClick(convertedTimestamp);
   };
 
