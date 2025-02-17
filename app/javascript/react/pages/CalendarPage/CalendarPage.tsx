@@ -34,7 +34,6 @@ import { useMapParams } from "../../utils/mapParamsHandler";
 import { formatTime } from "../../utils/measurementsCalc";
 import useMobileDetection from "../../utils/useScreenSizeDetection";
 
-import { find } from "browser-geo-tz";
 import * as S from "./CalendarPage.style";
 
 interface CalendarPageProps {
@@ -108,15 +107,6 @@ const CalendarPage: React.FC<CalendarPageProps> = ({ children }) => {
   }, [fixedStreamData, streamId, isLoading, streamEndTime]);
   const latitude = fixedStreamData.stream.latitude;
   const longitude = fixedStreamData.stream.longitude;
-  const [timezone, setTimezone] = useState("UTC");
-
-  useEffect(() => {
-    const getTimezone = async () => {
-      const zones = await find(latitude, longitude);
-      setTimezone(zones[0] || "UTC");
-    };
-    getTimezone();
-  }, [latitude, longitude]);
 
   useEffect(() => {
     if (!streamId) {

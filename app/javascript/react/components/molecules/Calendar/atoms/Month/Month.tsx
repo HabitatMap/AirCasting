@@ -1,7 +1,7 @@
 import moment from "moment-timezone";
 import React from "react";
-import { useSelector } from "react-redux";
 
+import { useAppSelector } from "@/react/store/hooks";
 import { selectThresholds } from "../../../../../store/thresholdSlice";
 import type { CalendarMonthlyData } from "../../../../../types/movingStream";
 import { Day } from "../Day";
@@ -20,14 +20,18 @@ const Month: React.FC<MonthProps> = ({
   onDayClick,
   selectedTimestamp,
 }) => {
-  const thresholds = useSelector(selectThresholds);
+  const thresholds = useAppSelector(selectThresholds);
 
   // Here we assume that each day object already has a date string in "YYYY-MM-DD" format.
   // This way we don’t rely on new Date() which uses the browser’s local timezone.
   const handleDayClick = (dateStr: string) => {
     if (!dateStr) return;
     // Parse the provided date string as UTC midnight.
-    const convertedTimestamp = moment.utc(dateStr, "YYYY-MM-DD").valueOf();
+    const convertedTimestamp = moment
+      .utc(dateStr, "YYYY-MM-DD")
+      .startOf("day")
+      .add(1, "second")
+      .valueOf();
 
     onDayClick(convertedTimestamp);
   };
@@ -41,7 +45,11 @@ const Month: React.FC<MonthProps> = ({
           <S.Week key={week[0].date}>
             {week.map((day) => {
               // Compute the UTC midnight timestamp for comparison.
-              const dayTimestamp = moment.utc(day.date, "YYYY-MM-DD").valueOf();
+              const dayTimestamp = moment
+                .utc(day.date, "YYYY-MM-DD")
+                .startOf("day")
+                .add(1, "second")
+                .valueOf();
               return (
                 <Day
                   key={day.date}
