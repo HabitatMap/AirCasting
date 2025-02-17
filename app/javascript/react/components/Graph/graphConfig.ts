@@ -102,6 +102,14 @@ const getXAxisOptions = (
   ) => {
     let effectiveTrigger = e.trigger || lastTriggerRef.current || "";
 
+    console.log("[graphConfig] handleSetExtremes called", {
+      trigger: e.trigger,
+      lastTrigger: lastTriggerRef.current,
+      effectiveTrigger,
+      min: e.min,
+      max: e.max,
+    });
+
     if (e.trigger === "rangeSelectorButton") {
       lastRangeSelectorTimeRef.current = Date.now();
       rangeSelectorActive = true;
@@ -127,6 +135,12 @@ const getXAxisOptions = (
     } else if (e.trigger) {
       lastTriggerRef.current = e.trigger;
     }
+
+    console.log("[graphConfig] After trigger processing", {
+      effectiveTrigger,
+      rangeSelectorActive,
+      lastTrigger: lastTriggerRef.current,
+    });
 
     lastUpdateTimeRef.current = Date.now();
 

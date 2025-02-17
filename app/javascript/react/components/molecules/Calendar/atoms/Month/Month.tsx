@@ -1,7 +1,7 @@
 import moment from "moment-timezone";
 import React from "react";
 
-import { useAppSelector } from "@/react/store/hooks";
+import { useAppSelector } from "../../../../../store/hooks";
 import { selectThresholds } from "../../../../../store/thresholdSlice";
 import type { CalendarMonthlyData } from "../../../../../types/movingStream";
 import { Day } from "../Day";

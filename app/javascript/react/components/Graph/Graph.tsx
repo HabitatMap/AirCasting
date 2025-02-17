@@ -156,6 +156,9 @@ const Graph: React.FC<GraphProps> = memo(
       ]
     );
 
+    console.log("[Graph] End time", endTime);
+    console.log("[Graph] Start time", startTime);
+
     const totalDuration = useMemo(
       () => endTime - startTime,
       [startTime, endTime]
@@ -222,23 +225,44 @@ const Graph: React.FC<GraphProps> = memo(
     useEffect(() => {
       if (!chartComponentRef.current?.chart || !selectedTimestamp) return;
 
-      console.log("selectedTimestamp", selectedTimestamp);
+      console.log("[Graph] Day selection effect triggered", {
+        selectedTimestamp,
+        isCalendarDaySelected: isCalendarDaySelectedRef.current,
+      });
 
       // selectedTimestamp is already the UTC midnight timestamp.
       const selectedDayStart = selectedTimestamp;
-      const selectedDayEnd = selectedDayStart + MILLISECONDS_IN_A_DAY - 1;
+      const selectedDayEnd = selectedDayStart + MILLISECONDS_IN_A_DAY - 1000;
 
       // Check if this is first or last day of session.
       const isFirstDay = selectedDayStart === startTime;
-      const isLastDay = selectedDayStart === endTime;
+      const isLastDay = selectedDayStart + MILLISECONDS_IN_A_DAY > endTime;
 
       // Set final range values.
-      let finalRangeStart = isFirstDay ? startTime : selectedDayStart;
-      let finalRangeEnd = isLastDay ? endTime : selectedDayEnd;
+      let finalRangeStart;
+      let finalRangeEnd;
+
+      if (isFirstDay) {
+        // First day - use actual start time
+        finalRangeStart = startTime;
+        finalRangeEnd = selectedDayEnd;
+      } else if (isLastDay) {
+        finalRangeStart = selectedDayStart;
+        finalRangeEnd = endTime;
+      } else {
+        finalRangeStart = selectedDayStart;
+        finalRangeEnd = selectedDayEnd;
+      }
 
       // Ensure range stays within session bounds.
       finalRangeStart = Math.max(finalRangeStart, startTime);
       finalRangeEnd = Math.min(finalRangeEnd, endTime);
+
+      console.log("[Graph] Calculated day range", {
+        finalRangeStart,
+        finalRangeEnd,
+        trigger: "calendarDay",
+      });
 
       // Update range display immediately for better UX.
       updateRangeDisplay(

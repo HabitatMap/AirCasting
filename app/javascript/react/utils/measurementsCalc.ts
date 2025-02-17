@@ -65,7 +65,7 @@ export const formatTimeExtremes = (
       date: minDate.format(DateFormat.us),
       time:
         useFullDayFormat && sameDay && isMinAtStart
-          ? "00:00:00"
+          ? "00:00:01"
           : minDate.format(DateFormat.time_with_seconds),
     },
     formattedMaxTime: {

@@ -79,7 +79,7 @@ const SessionDetailsModal: React.FC<
               streamId={streamId}
               sessionType={sessionType}
               isCalendarPage={false}
-              selectedDate={null}
+              selectedTimestamp={null}
             />
           )}
           {!isMobile && (

@@ -7,18 +7,19 @@ import * as S from "./Calendar.style";
 import HeaderToggle from "./HeaderToggle/HeaderToggle";
 
 interface EmptyCalendarProps {
-  onDayClick?: (date: Date) => void;
+  onDayClick?: (timestamp: number) => void;
 }
 
 const EmptyCalendar: React.FC<EmptyCalendarProps> = ({ onDayClick }) => {
   const threeMonthsData = useSelector(selectThreeMonthsDailyAverage);
   const { t } = useTranslation();
-  const [selectedDate, setSelectedDate] = useState<Date | null>(null);
-
+  const [selectedTimestamp, setSelectedTimestamp] = useState<number | null>(
+    null
+  );
   const handleDayClick = useCallback(
-    (date: Date) => {
-      setSelectedDate(date);
-      onDayClick?.(date);
+    (timestamp: number) => {
+      setSelectedTimestamp(timestamp);
+      onDayClick?.(timestamp);
     },
     [onDayClick]
   );
@@ -31,10 +32,10 @@ const EmptyCalendar: React.FC<EmptyCalendarProps> = ({ onDayClick }) => {
         key={month.monthName}
         {...month}
         onDayClick={handleDayClick}
-        selectedDate={selectedDate}
+        selectedTimestamp={selectedTimestamp}
       />
     ));
-  }, [threeMonthsData, handleDayClick, selectedDate]);
+  }, [threeMonthsData, handleDayClick, selectedTimestamp]);
 
   if (!threeMonthsData) return null;
 
