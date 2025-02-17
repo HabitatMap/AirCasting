@@ -44,6 +44,7 @@ import { useMapParams } from "../../utils/mapParamsHandler";
 import {
   MILLISECONDS_IN_A_DAY,
   MILLISECONDS_IN_A_MONTH,
+  MILLISECONDS_IN_A_SECOND,
   MILLISECONDS_IN_A_WEEK,
 } from "../../utils/timeRanges";
 import useMobileDetection from "../../utils/useScreenSizeDetection";
@@ -156,9 +157,6 @@ const Graph: React.FC<GraphProps> = memo(
       ]
     );
 
-    console.log("[Graph] End time", endTime);
-    console.log("[Graph] Start time", startTime);
-
     const totalDuration = useMemo(
       () => endTime - startTime,
       [startTime, endTime]
@@ -213,7 +211,6 @@ const Graph: React.FC<GraphProps> = memo(
       );
     }, [selectedTimestamp, lastSelectedTimeRange, fixedSessionTypeSelected]);
 
-    // LOCAL STATE: Control the selected range button independently of Redux.
     const [selectedRangeIndex, setSelectedRangeIndex] = useState<number>(
       computedSelectedRangeIndex
     );
@@ -225,14 +222,10 @@ const Graph: React.FC<GraphProps> = memo(
     useEffect(() => {
       if (!chartComponentRef.current?.chart || !selectedTimestamp) return;
 
-      console.log("[Graph] Day selection effect triggered", {
-        selectedTimestamp,
-        isCalendarDaySelected: isCalendarDaySelectedRef.current,
-      });
-
       // selectedTimestamp is already the UTC midnight timestamp.
       const selectedDayStart = selectedTimestamp;
-      const selectedDayEnd = selectedDayStart + MILLISECONDS_IN_A_DAY - 1000;
+      const selectedDayEnd =
+        selectedDayStart + MILLISECONDS_IN_A_DAY - MILLISECONDS_IN_A_SECOND;
 
       // Check if this is first or last day of session.
       const isFirstDay = selectedDayStart === startTime;
@@ -257,13 +250,6 @@ const Graph: React.FC<GraphProps> = memo(
       // Ensure range stays within session bounds.
       finalRangeStart = Math.max(finalRangeStart, startTime);
       finalRangeEnd = Math.min(finalRangeEnd, endTime);
-
-      console.log("[Graph] Calculated day range", {
-        finalRangeStart,
-        finalRangeEnd,
-        trigger: "calendarDay",
-      });
-
       // Update range display immediately for better UX.
       updateRangeDisplay(
         rangeDisplayRef,

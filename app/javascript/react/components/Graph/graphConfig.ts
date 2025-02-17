@@ -102,14 +102,6 @@ const getXAxisOptions = (
   ) => {
     let effectiveTrigger = e.trigger || lastTriggerRef.current || "";
 
-    console.log("[graphConfig] handleSetExtremes called", {
-      trigger: e.trigger,
-      lastTrigger: lastTriggerRef.current,
-      effectiveTrigger,
-      min: e.min,
-      max: e.max,
-    });
-
     if (e.trigger === "rangeSelectorButton") {
       lastRangeSelectorTimeRef.current = Date.now();
       rangeSelectorActive = true;
@@ -135,12 +127,6 @@ const getXAxisOptions = (
     } else if (e.trigger) {
       lastTriggerRef.current = e.trigger;
     }
-
-    console.log("[graphConfig] After trigger processing", {
-      effectiveTrigger,
-      rangeSelectorActive,
-      lastTrigger: lastTriggerRef.current,
-    });
 
     lastUpdateTimeRef.current = Date.now();
 
@@ -576,7 +562,7 @@ const getRangeSelectorOptions = (
         buttons: [
           totalDuration < MILLISECONDS_IN_A_DAY
             ? { type: "all", text: t("graph.24Hours") }
-            : { type: "hour", count: 24, text: t("graph.24Hours") },
+            : { type: "hour", count: 24 - 0, text: t("graph.24Hours") },
           totalDuration > MILLISECONDS_IN_A_WEEK
             ? { type: "day", count: 7, text: t("graph.oneWeek") }
             : { type: "all", text: t("graph.oneWeek") },
