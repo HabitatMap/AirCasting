@@ -123,6 +123,7 @@ const Graph: React.FC<GraphProps> = memo(
       : mobileLastSelectedTimeRange || MobileTimeRange.All;
 
     // Session start & end times (computed from stream info)
+    console.log("fixedStreamShortInfo", fixedStreamShortInfo.endTime);
     const startTime = useMemo(
       () =>
         fixedSessionTypeSelected
@@ -219,32 +220,30 @@ const Graph: React.FC<GraphProps> = memo(
       // Mark that a calendar day is selected.
       isCalendarDaySelectedRef.current = true;
 
-      // Assume selectedTimestamp is the UTC midnight timestamp.
+      // Calculate day boundaries
       const selectedDayStart = selectedTimestamp;
-      const selectedDayEnd =
+      let selectedDayEnd =
         selectedDayStart + MILLISECONDS_IN_A_DAY - MILLISECONDS_IN_A_SECOND;
-      console.log("selectedDayStart", selectedDayStart);
-      console.log("selectedDayEnd", selectedDayEnd);
-      console.log("startTime", startTime);
-      console.log("endTime", endTime);
 
-      const isFirstDay = selectedDayStart < startTime;
-      const isLastDay = selectedDayStart + MILLISECONDS_IN_A_DAY > endTime;
-      console.log("isFirstDay", isFirstDay);
-      console.log("isLastDay", isLastDay);
+      // Determine if this is the first or last day of the session
+      const isFirstDay = selectedDayStart <= startTime;
+      const isLastDay = selectedDayEnd >= endTime;
 
-      let finalRangeStart;
-      let finalRangeEnd;
+      // Adjust the range based on session boundaries
+      let finalRangeStart = selectedDayStart;
+      let finalRangeEnd = selectedDayEnd;
+
       if (isFirstDay) {
         finalRangeStart = startTime;
-        finalRangeEnd = selectedDayEnd;
-      } else if (isLastDay) {
-        finalRangeStart = selectedDayStart;
-        finalRangeEnd = endTime;
-      } else {
-        finalRangeStart = selectedDayStart;
-        finalRangeEnd = selectedDayEnd;
       }
+      if (isLastDay) {
+        console.log("isLastDay");
+        console.log("endTime", endTime);
+        finalRangeEnd = endTime;
+        console.log("finalRangeEnd", finalRangeEnd);
+      }
+
+      // Ensure we stay within session bounds
       finalRangeStart = Math.max(finalRangeStart, startTime);
       finalRangeEnd = Math.min(finalRangeEnd, endTime);
 
@@ -265,17 +264,16 @@ const Graph: React.FC<GraphProps> = memo(
       endTime,
     ]);
 
-    // Handle range selector button clicks.
     const handleRangeSelectorClick = useCallback(
       (selectedButton: number) => {
-        // If a custom day is active, clear it.
-        if (isCalendarDaySelectedRef.current) {
-          onDayClick?.(null);
-          isCalendarDaySelectedRef.current = false;
+        if (selectedButton === 0) {
+          setSelectedRangeIndex(-1);
+        } else {
+          setSelectedRangeIndex(selectedButton);
         }
-        setSelectedRangeIndex(selectedButton);
         lastRangeSelectorTriggerRef.current = selectedButton.toString();
 
+        // Dispatch actions or do other work as needed.
         if (chartComponentRef.current?.chart) {
           const chart = chartComponentRef.current.chart;
           let timeRange;
@@ -401,6 +399,7 @@ const Graph: React.FC<GraphProps> = memo(
                   text: t("graph.24Hours"),
                   events: {
                     click: function () {
+                      onDayClick?.(null);
                       handleRangeSelectorClick(0);
                     },
                   },
@@ -411,6 +410,7 @@ const Graph: React.FC<GraphProps> = memo(
                   text: t("graph.oneWeek"),
                   events: {
                     click: function () {
+                      onDayClick?.(null);
                       handleRangeSelectorClick(1);
                     },
                   },
@@ -421,6 +421,7 @@ const Graph: React.FC<GraphProps> = memo(
                   text: t("graph.oneMonth"),
                   events: {
                     click: function () {
+                      onDayClick?.(null);
                       handleRangeSelectorClick(2);
                     },
                   },
@@ -457,7 +458,11 @@ const Graph: React.FC<GraphProps> = memo(
                   },
                 },
               ],
-          selected: selectedRangeIndex >= 0 ? selectedRangeIndex : undefined,
+          selected: selectedTimestamp
+            ? undefined
+            : selectedRangeIndex >= 0
+            ? selectedRangeIndex
+            : undefined,
         },
         scrollbar: { ...getScrollbarOptions(isCalendarPage, isMobile) },
         navigator: { ...getNavigatorOptions() },

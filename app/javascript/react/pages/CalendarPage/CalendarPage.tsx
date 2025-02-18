@@ -1,4 +1,4 @@
-import moment from "moment";
+import moment from "moment-timezone";
 import React, { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 
@@ -57,7 +57,7 @@ const CalendarPage: React.FC<CalendarPageProps> = ({ children }) => {
   const [errorMessage, setErrorMessage] = useState("");
   const [initialDataFetched, setInitialDataFetched] = useState(false);
 
-  // Change from Date to timestamp (number)
+  // Maintain selectedTimestamp across fetches until explicitly cleared.
   const [selectedTimestamp, setSelectedTimestamp] = useState<number | null>(
     null
   );
@@ -75,7 +75,7 @@ const CalendarPage: React.FC<CalendarPageProps> = ({ children }) => {
     if (streamId && !fixedStreamData.measurements.length) {
       dispatch(fetchFixedStreamById(streamId));
     }
-  }, [streamId]);
+  }, [streamId, dispatch, fixedStreamData.measurements.length]);
 
   useEffect(() => {
     window.addEventListener("popstate", handleCalendarGoBack);
@@ -97,31 +97,23 @@ const CalendarPage: React.FC<CalendarPageProps> = ({ children }) => {
           endDate: streamEndTime,
         })
       );
-
       setInitialDataFetched(true);
     }
-
     if (fixedStreamData.stream) {
       dispatch(setDefaultThresholdsValues(fixedStreamData.stream));
     }
-  }, [fixedStreamData, streamId, isLoading, streamEndTime]);
-  const latitude = fixedStreamData.stream.latitude;
-  const longitude = fixedStreamData.stream.longitude;
+  }, [
+    fixedStreamData,
+    streamId,
+    isLoading,
+    streamEndTime,
+    dispatch,
+    initialDataFetched,
+  ]);
 
-  useEffect(() => {
-    if (!streamId) {
-      setInitialDataFetched(false);
-    }
-  }, [streamId]);
-
-  // Now handleDayClick accepts a timestamp (number) or null.
   const handleDayClick = (timestamp: number | null) => {
     setSelectedTimestamp(timestamp);
   };
-
-  useEffect(() => {
-    setSelectedTimestamp(null);
-  }, [streamId]);
 
   const renderMobileGraph = () => (
     <S.GraphContainer $isMobile={isMobile}>

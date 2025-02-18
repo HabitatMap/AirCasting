@@ -61,9 +61,6 @@ const getScrollbarOptions = (isCalendarPage: boolean, isMobile: boolean) => {
   };
 };
 
-// getXAxisOptions.ts
-
-// Updated getXAxisOptions with modifications in handleSetExtremes.
 const getXAxisOptions = (
   isMobile: boolean,
   fixedSessionTypeSelected: boolean,
@@ -128,12 +125,22 @@ const getXAxisOptions = (
         rangeSelectorActive = false;
       }
     } else if (e.trigger) {
+      console.log(
+        "e.trigger",
+        e.trigger,
+        "lastTriggerRef.current",
+        lastTriggerRef.current
+      );
       lastTriggerRef.current = e.trigger;
     }
 
-    // Instead of unconditionally forcing effectiveTrigger,
     // check if this event is not a calendar day event.
-    if (e.trigger !== "calendarDay" && isCalendarDaySelectedRef?.current) {
+    if (
+      (e.trigger === "navigator" ||
+        e.trigger === "pan" ||
+        e.trigger === "zoom") &&
+      isCalendarDaySelectedRef?.current
+    ) {
       // Clear custom day if the new event isn’t a calendar day click.
       isCalendarDaySelectedRef.current = false;
       onDayClick?.(null);

@@ -8,8 +8,6 @@ export const updateRangeDisplay = (
 ) => {
   if (!rangeDisplayRef?.current) return;
 
-  console.log("Updating range display", { min, max, useFullDayFormat });
-
   // Format times using measurement timestamps
   const formattedTime = formatTimeExtremes(min, max, useFullDayFormat);
 
