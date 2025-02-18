@@ -61,6 +61,9 @@ const getScrollbarOptions = (isCalendarPage: boolean, isMobile: boolean) => {
   };
 };
 
+// getXAxisOptions.ts
+
+// Updated getXAxisOptions with modifications in handleSetExtremes.
 const getXAxisOptions = (
   isMobile: boolean,
   fixedSessionTypeSelected: boolean,
@@ -74,7 +77,7 @@ const getXAxisOptions = (
   streamId: number | null,
   lastTriggerRef: React.MutableRefObject<string | null>,
   lastUpdateTimeRef: React.MutableRefObject<number>,
-  onDayClick?: (timestamp: number | null) => void, // Updated: now accepts a timestamp
+  onDayClick?: (timestamp: number | null) => void,
   rangeDisplayRef?: React.RefObject<HTMLDivElement>,
   sessionStartTime?: number,
   sessionEndTime?: number,
@@ -128,26 +131,17 @@ const getXAxisOptions = (
       lastTriggerRef.current = e.trigger;
     }
 
-    lastUpdateTimeRef.current = Date.now();
-
-    // Decide whether to clear the custom day selection:
-    if (effectiveTrigger === "calendarDay") {
-      // Leave the calendar selection as is.
-    } else if (effectiveTrigger === "rangeSelectorButton") {
+    // Instead of unconditionally forcing effectiveTrigger,
+    // check if this event is not a calendar day event.
+    if (e.trigger !== "calendarDay" && isCalendarDaySelectedRef?.current) {
+      // Clear custom day if the new event isn’t a calendar day click.
+      isCalendarDaySelectedRef.current = false;
       onDayClick?.(null);
-    } else if (
-      effectiveTrigger === "pan" ||
-      effectiveTrigger === "zoom" ||
-      effectiveTrigger === "navigator" ||
-      effectiveTrigger === "mousewheel" ||
-      effectiveTrigger === ""
-    ) {
-      // For other interactions, clear only if no custom day is active.
-      if (!isCalendarDaySelectedRef?.current) {
-        onDayClick?.(null);
-      }
     }
 
+    lastUpdateTimeRef.current = Date.now();
+
+    // Continue with normal processing.
     if (
       e.min === undefined ||
       e.max === undefined ||
