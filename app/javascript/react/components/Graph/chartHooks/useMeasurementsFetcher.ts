@@ -129,19 +129,7 @@ export const useMeasurementsFetcher = (
     isDaySelection: boolean = false,
     trigger?: string
   ) => {
-    console.log("[useMeasurementsFetcher] Fetch requested", {
-      start,
-      end,
-      isEdgeFetch,
-      isDaySelection,
-      trigger,
-      isCurrentlyFetching: isCurrentlyFetchingRef.current,
-    });
-
     if (!streamId || isCurrentlyFetchingRef.current) {
-      console.log("[useMeasurementsFetcher] Fetch skipped", {
-        reason: !streamId ? "no streamId" : "already fetching",
-      });
       return;
     }
 
@@ -150,10 +138,6 @@ export const useMeasurementsFetcher = (
       lastFetchTriggerRef.current = trigger;
       // Store the intended extremes
       pendingSetExtremesRef.current = { start, end };
-      console.log("[useMeasurementsFetcher] Updated refs", {
-        lastTrigger: lastFetchTriggerRef.current,
-        pendingExtremes: pendingSetExtremesRef.current,
-      });
     }
 
     // Respect session boundaries
@@ -169,12 +153,8 @@ export const useMeasurementsFetcher = (
 
       // Find missing ranges in the requested time window
       const missingRanges = findMissingRanges(boundedStart, boundedEnd);
-      console.log("[useMeasurementsFetcher] Missing ranges", missingRanges);
 
       if (missingRanges.length === 0) {
-        console.log(
-          "[useMeasurementsFetcher] No missing ranges, updating display only"
-        );
         if (pendingSetExtremesRef.current) {
           const { start, end } = pendingSetExtremesRef.current;
           updateExtremesAndDisplay(
@@ -268,7 +248,6 @@ export const useMeasurementsFetcher = (
     } catch (error) {
       console.error("[useMeasurementsFetcher] Error:", error);
     } finally {
-      console.log("[useMeasurementsFetcher] Fetch completed");
       isCurrentlyFetchingRef.current = false;
       pendingSetExtremesRef.current = null;
     }

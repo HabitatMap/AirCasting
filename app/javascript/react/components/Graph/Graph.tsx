@@ -226,10 +226,18 @@ const Graph: React.FC<GraphProps> = memo(
       const selectedDayStart = selectedTimestamp;
       const selectedDayEnd =
         selectedDayStart + MILLISECONDS_IN_A_DAY - MILLISECONDS_IN_A_SECOND;
+      console.log("selectedDayStart", selectedDayStart);
+      console.log("selectedDayEnd", selectedDayEnd);
+      console.log("endTime", endTime);
+      console.log("startTime", startTime);
+      console.log("selectedTimestamp", selectedTimestamp);
 
       // Check if this is first or last day of session.
-      const isFirstDay = selectedDayStart === startTime;
+      const isFirstDay = selectedDayStart < startTime;
       const isLastDay = selectedDayStart + MILLISECONDS_IN_A_DAY > endTime;
+
+      console.log("isFirstDay", isFirstDay);
+      console.log("isLastDay", isLastDay);
 
       // Set final range values.
       let finalRangeStart;
@@ -277,12 +285,16 @@ const Graph: React.FC<GraphProps> = memo(
     // --- Updated handleRangeSelectorClick ---
     const handleRangeSelectorClick = useCallback(
       (selectedButton: number) => {
-        // Clear any selected day.
+        // Only proceed with range selector logic if not triggered by a calendar day selection
+        if (isCalendarDaySelectedRef.current) {
+          return;
+        }
+
+        // Clear any selected day
         onDayClick?.(null);
         isCalendarDaySelectedRef.current = false;
         setSelectedRangeIndex(selectedButton);
         lastRangeSelectorTriggerRef.current = selectedButton.toString();
-
         if (chartComponentRef.current?.chart) {
           const chart = chartComponentRef.current.chart;
           let timeRange;

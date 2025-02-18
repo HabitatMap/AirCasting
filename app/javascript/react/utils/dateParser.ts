@@ -8,7 +8,7 @@ export const parseDateString = (dateStr: string | null | undefined): number => {
 
   try {
     // Parse the date string to UTC timestamp to match measurement timestamps
-    const timestamp = moment(dateStr).utc().valueOf();
+    const timestamp = moment(dateStr).valueOf();
 
     if (isNaN(timestamp)) {
       console.warn(`Invalid date string: "${dateStr}", using current time`);
