@@ -14,8 +14,6 @@ gem 'dotenv-rails'
 gem 'dry-struct'
 gem 'dry-validation'
 gem 'ed25519', require: false
-gem 'flipper'
-gem 'flipper-active_record'
 gem 'geocoder', '~> 1.2'
 gem 'haml'
 gem 'honeybadger'
