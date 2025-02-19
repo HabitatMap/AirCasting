@@ -106,7 +106,6 @@ Rails.application.routes.draw do
       resources :fixed_streams, only: %i[show]
       resources :stream_daily_averages, only: %i[index]
       get 'timelapse' => 'fixed_stream_clusters#index'
-      get 'flipper_enabled/:feature_key' => 'flipper#enabled?'
     end
 
     get 'measurements' => 'measurements#index'

@@ -102,27 +102,6 @@ yarn prettier --write app/path/to/your/file.rb
 
 Best to add elm-format and prettier to your editor to do this for you on save.
 
-## Feature flags
-
-We use Flipper as a feature flag solution. Feature flags are managed via Flipper Cloud Dashboard.
-
-Setup:
-
-1. Create an account on flippercloud.io and ask someone from the team to give you access to our organization.
-2. Copy token from an environment named "Your Environment" to `.env` file.
-
-Example of usage:
-
-```
-if Flipper.enabled?(:calendar)
-  # show calendar
-else
-  # calendar unavailable
-end
-```
-
-Documentation: https://www.flippercloud.io/docs/introduction
-
 ## API documentation
 
 Read more [here](doc/api.md).
