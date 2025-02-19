@@ -172,7 +172,6 @@ const getXAxisOptions = (
 
     if (
       streamId &&
-      fixedSessionTypeSelected &&
       (effectiveTrigger === "rangeSelectorButton" ||
         effectiveTrigger === "navigator" ||
         effectiveTrigger === "pan" ||
@@ -187,19 +186,22 @@ const getXAxisOptions = (
         })
       );
 
-      const visibleRange = e.max - e.min;
-      const padding = visibleRange * 0.25;
-      const now = Date.now();
-      const fetchStart = Math.max(sessionStartTime || 0, e.min - padding);
-      const fetchEnd = Math.min(sessionEndTime || now, e.max + padding);
+      // Only fetch measurements if this is a fixed session
+      if (fixedSessionTypeSelected) {
+        const visibleRange = e.max - e.min;
+        const padding = visibleRange * 0.25;
+        const now = Date.now();
+        const fetchStart = Math.max(sessionStartTime || 0, e.min - padding);
+        const fetchEnd = Math.min(sessionEndTime || now, e.max + padding);
 
-      isFetching = true;
-      try {
-        await fetchMeasurementsIfNeeded(fetchStart, fetchEnd);
-      } catch (error) {
-        console.error("Error fetching measurements:", error);
-      } finally {
-        isFetching = false;
+        isFetching = true;
+        try {
+          await fetchMeasurementsIfNeeded(fetchStart, fetchEnd);
+        } catch (error) {
+          console.error("Error fetching measurements:", error);
+        } finally {
+          isFetching = false;
+        }
       }
     }
   };

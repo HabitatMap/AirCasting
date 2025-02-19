@@ -31,6 +31,7 @@ import {
 import {
   resetLastSelectedMobileTimeRange,
   selectLastSelectedMobileTimeRange,
+  setLastSelectedMobileTimeRange,
 } from "../../store/mobileStreamSlice";
 import { selectThresholds } from "../../store/thresholdSlice";
 import { SessionType, SessionTypes } from "../../types/filters";
@@ -40,10 +41,12 @@ import { parseDateString } from "../../utils/dateParser";
 import { getSelectedRangeIndex } from "../../utils/getTimeRange";
 import { useMapParams } from "../../utils/mapParamsHandler";
 import {
+  MILLISECONDS_IN_A_5_MINUTES,
   MILLISECONDS_IN_A_DAY,
   MILLISECONDS_IN_A_MONTH,
   MILLISECONDS_IN_A_SECOND,
   MILLISECONDS_IN_A_WEEK,
+  MILLISECONDS_IN_AN_HOUR,
 } from "../../utils/timeRanges";
 import useMobileDetection from "../../utils/useScreenSizeDetection";
 import { handleLoad } from "./chartEvents";
@@ -237,10 +240,7 @@ const Graph: React.FC<GraphProps> = memo(
         finalRangeStart = startTime;
       }
       if (isLastDay) {
-        console.log("isLastDay");
-        console.log("endTime", endTime);
         finalRangeEnd = endTime;
-        console.log("finalRangeEnd", finalRangeEnd);
       }
 
       // Ensure we stay within session bounds
@@ -249,19 +249,23 @@ const Graph: React.FC<GraphProps> = memo(
 
       updateRangeDisplay(rangeDisplayRef, finalRangeStart, finalRangeEnd, true);
 
-      fetchMeasurementsIfNeeded(
-        finalRangeStart,
-        finalRangeEnd,
-        false,
-        true,
-        "calendarDay"
-      );
+      // Only fetch measurements for fixed sessions
+      if (fixedSessionTypeSelected) {
+        fetchMeasurementsIfNeeded(
+          finalRangeStart,
+          finalRangeEnd,
+          false,
+          true,
+          "calendarDay"
+        );
+      }
     }, [
       selectedTimestamp,
       fetchMeasurementsIfNeeded,
       rangeDisplayRef,
       startTime,
       endTime,
+      fixedSessionTypeSelected,
     ]);
 
     const handleRangeSelectorClick = useCallback(
@@ -277,6 +281,7 @@ const Graph: React.FC<GraphProps> = memo(
         if (chartComponentRef.current?.chart) {
           const chart = chartComponentRef.current.chart;
           let timeRange;
+
           if (fixedSessionTypeSelected) {
             switch (selectedButton) {
               case 0:
@@ -292,10 +297,28 @@ const Graph: React.FC<GraphProps> = memo(
                 timeRange = FixedTimeRange.Day;
             }
             dispatch(setLastSelectedTimeRange(timeRange));
+          } else {
+            // Handle mobile time range dispatch
+            switch (selectedButton) {
+              case 0:
+                timeRange = MobileTimeRange.FiveMinutes;
+                break;
+              case 1:
+                timeRange = MobileTimeRange.Hour;
+                break;
+              case 2:
+                timeRange = MobileTimeRange.All;
+                break;
+              default:
+                timeRange = MobileTimeRange.All;
+            }
+            dispatch(setLastSelectedMobileTimeRange(timeRange));
           }
+
           const currentExtremes = chart.xAxis[0].getExtremes();
           const viewEnd = Math.min(currentExtremes.max || endTime, endTime);
-          let rangeStart;
+          let rangeStart = viewEnd;
+
           switch (timeRange) {
             case FixedTimeRange.Month:
               rangeStart = viewEnd - MILLISECONDS_IN_A_MONTH;
@@ -306,19 +329,33 @@ const Graph: React.FC<GraphProps> = memo(
             case FixedTimeRange.Day:
               rangeStart = viewEnd - MILLISECONDS_IN_A_DAY;
               break;
+            case MobileTimeRange.FiveMinutes:
+              rangeStart = viewEnd - MILLISECONDS_IN_A_5_MINUTES;
+              break;
+            case MobileTimeRange.Hour:
+              rangeStart = viewEnd - MILLISECONDS_IN_AN_HOUR;
+              break;
+            case MobileTimeRange.All:
             default:
-              rangeStart = viewEnd - MILLISECONDS_IN_A_DAY;
+              rangeStart = startTime;
+              break;
           }
+
           rangeStart = Math.max(rangeStart, startTime);
           const rangeEnd = viewEnd;
           updateRangeDisplay(rangeDisplayRef, rangeStart, rangeEnd, false);
-          fetchMeasurementsIfNeeded(
-            rangeStart,
-            rangeEnd,
-            false,
-            false,
-            "rangeSelectorButton"
-          );
+
+          if (fixedSessionTypeSelected) {
+            fetchMeasurementsIfNeeded(
+              rangeStart,
+              rangeEnd,
+              false,
+              false,
+              "rangeSelectorButton"
+            );
+          }
+
+          chart.xAxis[0].setExtremes(rangeStart, rangeEnd, true, false);
         }
       },
       [
@@ -434,7 +471,7 @@ const Graph: React.FC<GraphProps> = memo(
                   text: t("graph.fiveMinutes"),
                   events: {
                     click: function () {
-                      handleRangeSelectorClick(2);
+                      handleRangeSelectorClick(0);
                     },
                   },
                 },
@@ -453,7 +490,7 @@ const Graph: React.FC<GraphProps> = memo(
                   text: t("graph.all"),
                   events: {
                     click: function () {
-                      handleRangeSelectorClick(0);
+                      handleRangeSelectorClick(2);
                     },
                   },
                 },
