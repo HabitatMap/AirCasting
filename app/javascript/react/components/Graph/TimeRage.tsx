@@ -1,4 +1,4 @@
-import React, { forwardRef, useEffect, useState } from "react";
+import React, { forwardRef, useLayoutEffect, useState } from "react";
 import * as S from "./Graph.style";
 
 interface TimeRangeProps {
@@ -17,12 +17,15 @@ const TimeRange = forwardRef<HTMLDivElement, TimeRangeProps>(
     const [isInitialized, setIsInitialized] = useState(false);
     const [isEmpty, setIsEmpty] = useState(true);
 
-    useEffect(() => {
+    useLayoutEffect(() => {
       if (ref && "current" in ref && ref.current) {
         setIsEmpty(ref.current.childElementCount === 0);
         setIsInitialized(true);
       }
-    }, []);
+    }, [ref]);
+
+    console.log(isInitialized, "isInitialized");
+    console.log(isEmpty, "isEmpty");
 
     return (
       <S.TimeRangeContainer ref={ref}>
@@ -43,5 +46,4 @@ const TimeRange = forwardRef<HTMLDivElement, TimeRangeProps>(
     );
   }
 );
-
 export default TimeRange;

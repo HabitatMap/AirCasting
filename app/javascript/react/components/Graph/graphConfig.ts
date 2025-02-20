@@ -86,6 +86,7 @@ const getXAxisOptions = (
   let navigatorMouseUpHandler: ((event: MouseEvent) => void) | null = null;
   let touchEndHandler: ((event: TouchEvent) => void) | null = null;
   let isHandlingCalendarDay = false;
+  let cleanupTimeout: NodeJS.Timeout | null = null;
 
   let rangeSelectorActive = false;
   const lastRangeSelectorTimeRef = { current: 0 };
@@ -99,6 +100,10 @@ const getXAxisOptions = (
     if (touchEndHandler) {
       document.removeEventListener("touchend", touchEndHandler);
       touchEndHandler = null;
+    }
+    if (cleanupTimeout) {
+      clearTimeout(cleanupTimeout);
+      cleanupTimeout = null;
     }
     lastNavigatorEvent = null;
   };
@@ -236,13 +241,15 @@ const getXAxisOptions = (
             removeEventHandlers();
           };
 
-          navigatorMouseUpHandler = handleEnd;
-          document.addEventListener("mouseup", navigatorMouseUpHandler);
+          removeEventHandlers();
 
+          navigatorMouseUpHandler = handleEnd;
           touchEndHandler = handleEnd;
+
+          document.addEventListener("mouseup", navigatorMouseUpHandler);
           document.addEventListener("touchend", touchEndHandler);
 
-          setTimeout(removeEventHandlers, 1000);
+          cleanupTimeout = setTimeout(removeEventHandlers, 1000);
         }
       },
     },
