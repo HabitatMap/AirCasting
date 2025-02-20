@@ -8,6 +8,9 @@ export const updateRangeDisplay = (
 ) => {
   if (!rangeDisplayRef?.current) return;
 
+  // Clear any existing content first
+  rangeDisplayRef.current.innerHTML = "";
+
   // Format times using measurement timestamps
   const formattedTime = formatTimeExtremes(min, max, useFullDayFormat);
 
@@ -23,9 +26,13 @@ export const updateRangeDisplay = (
     </div>
   `;
 
-  // Use requestAnimationFrame to prevent multiple DOM updates
+  // Use requestAnimationFrame to prevent multiple DOM updates and ensure clean render
   requestAnimationFrame(() => {
     if (rangeDisplayRef.current) {
+      // Double check if any content exists and clear it
+      if (rangeDisplayRef.current.children.length > 0) {
+        rangeDisplayRef.current.innerHTML = "";
+      }
       rangeDisplayRef.current.innerHTML = htmlContent;
     }
   });

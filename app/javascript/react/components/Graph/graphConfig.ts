@@ -85,6 +85,7 @@ const getXAxisOptions = (
   let lastNavigatorEvent: Highcharts.AxisSetExtremesEventObject | null = null;
   let navigatorMouseUpHandler: ((event: MouseEvent) => void) | null = null;
   let touchEndHandler: ((event: TouchEvent) => void) | null = null;
+  let isHandlingCalendarDay = false;
 
   let rangeSelectorActive = false;
   const lastRangeSelectorTimeRef = { current: 0 };
@@ -107,6 +108,18 @@ const getXAxisOptions = (
     chart: Highcharts.Chart
   ) => {
     const currentTrigger = e.trigger || "none";
+
+    if (isHandlingCalendarDay && currentTrigger !== "calendarDay") {
+      return;
+    }
+
+    if (currentTrigger === "calendarDay") {
+      isHandlingCalendarDay = true;
+      setTimeout(() => {
+        isHandlingCalendarDay = false;
+      }, 500);
+    }
+
     lastTriggerRef.current = currentTrigger;
 
     if (
@@ -134,7 +147,7 @@ const getXAxisOptions = (
       rangeDisplayRef,
       e.min,
       e.max,
-      currentTrigger === undefined || currentTrigger === "calendarDay"
+      currentTrigger === "calendarDay"
     );
 
     if (
@@ -202,6 +215,10 @@ const getXAxisOptions = (
       afterSetExtremes: function (e: Highcharts.AxisSetExtremesEventObject) {
         const chart = this.chart;
 
+        if (isHandlingCalendarDay && e.trigger !== "calendarDay") {
+          return;
+        }
+
         if (e.trigger !== "navigator") {
           removeEventHandlers();
           handleSetExtremes(e, chart);
@@ -213,7 +230,7 @@ const getXAxisOptions = (
 
         if (!navigatorMouseUpHandler && !touchEndHandler) {
           const handleEnd = () => {
-            if (lastNavigatorEvent && !isFetching) {
+            if (lastNavigatorEvent && !isFetching && !isHandlingCalendarDay) {
               handleSetExtremes(lastNavigatorEvent, chart);
             }
             removeEventHandlers();
