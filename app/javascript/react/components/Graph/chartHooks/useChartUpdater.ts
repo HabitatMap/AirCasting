@@ -165,7 +165,12 @@ export const useChartUpdater = ({
         updateTimeRangeDisplay(min, max);
       }
     }
-  }, [lastSelectedTimeRange, fixedSessionTypeSelected, streamId]);
+  }, [
+    lastSelectedTimeRange,
+    fixedSessionTypeSelected,
+    streamId,
+    updateTimeRangeDisplay,
+  ]);
 
   useEffect(() => {
     return () => {
