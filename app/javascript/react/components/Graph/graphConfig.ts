@@ -84,15 +84,20 @@ const getXAxisOptions = (
   let isFetching = false;
   let lastNavigatorEvent: Highcharts.AxisSetExtremesEventObject | null = null;
   let navigatorMouseUpHandler: ((event: MouseEvent) => void) | null = null;
+  let touchEndHandler: ((event: TouchEvent) => void) | null = null;
 
   let rangeSelectorActive = false;
   const lastRangeSelectorTimeRef = { current: 0 };
   const THRESHOLD = 1000; // 1000ms threshold
 
-  const removeNavigatorMouseUpHandler = () => {
+  const removeEventHandlers = () => {
     if (navigatorMouseUpHandler) {
       document.removeEventListener("mouseup", navigatorMouseUpHandler);
       navigatorMouseUpHandler = null;
+    }
+    if (touchEndHandler) {
+      document.removeEventListener("touchend", touchEndHandler);
+      touchEndHandler = null;
     }
     lastNavigatorEvent = null;
   };
@@ -198,7 +203,7 @@ const getXAxisOptions = (
         const chart = this.chart;
 
         if (e.trigger !== "navigator") {
-          removeNavigatorMouseUpHandler();
+          removeEventHandlers();
           handleSetExtremes(e, chart);
           return;
         }
@@ -206,14 +211,21 @@ const getXAxisOptions = (
         lastNavigatorEvent = e;
         lastTriggerRef.current = "navigator";
 
-        if (!navigatorMouseUpHandler) {
-          navigatorMouseUpHandler = () => {
+        if (!navigatorMouseUpHandler && !touchEndHandler) {
+          const handleEnd = () => {
             if (lastNavigatorEvent && !isFetching) {
               handleSetExtremes(lastNavigatorEvent, chart);
             }
-            removeNavigatorMouseUpHandler();
+            removeEventHandlers();
           };
+
+          navigatorMouseUpHandler = handleEnd;
           document.addEventListener("mouseup", navigatorMouseUpHandler);
+
+          touchEndHandler = handleEnd;
+          document.addEventListener("touchend", touchEndHandler);
+
+          setTimeout(removeEventHandlers, 10000);
         }
       },
     },
