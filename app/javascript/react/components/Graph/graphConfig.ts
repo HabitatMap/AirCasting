@@ -103,38 +103,6 @@ const getXAxisOptions = (
   ) => {
     let effectiveTrigger = e.trigger || lastTriggerRef.current || "";
 
-    if (e.trigger === "rangeSelectorButton") {
-      lastRangeSelectorTimeRef.current = Date.now();
-      rangeSelectorActive = true;
-      effectiveTrigger = "rangeSelectorButton";
-      lastTriggerRef.current = "rangeSelectorButton";
-    } else if (e.trigger === "calendarDay") {
-      rangeSelectorActive = false;
-      effectiveTrigger = "calendarDay";
-      lastTriggerRef.current = "calendarDay";
-    } else if (
-      (e.trigger === "navigator" || !e.trigger) &&
-      rangeSelectorActive
-    ) {
-      const elapsed = Date.now() - lastRangeSelectorTimeRef.current;
-      if (
-        elapsed < THRESHOLD ||
-        lastTriggerRef.current === "rangeSelectorButton"
-      ) {
-        effectiveTrigger = "rangeSelectorButton";
-      } else {
-        rangeSelectorActive = false;
-      }
-    } else if (e.trigger) {
-      console.log(
-        "e.trigger",
-        e.trigger,
-        "lastTriggerRef.current",
-        lastTriggerRef.current
-      );
-      lastTriggerRef.current = e.trigger;
-    }
-
     // check if this event is not a calendar day event.
     if (
       (e.trigger === "navigator" ||
