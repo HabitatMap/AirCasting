@@ -19,7 +19,14 @@ export const calculateMeasurementStats = (
 };
 
 export const isNoData = (...values: (number | null | undefined)[]): boolean => {
-  return values.some((value) => value === undefined || value === null);
+  return values.some(
+    (value) =>
+      value === undefined ||
+      value === null ||
+      value === Infinity ||
+      value === -Infinity ||
+      isNaN(value)
+  );
 };
 
 export const isValidValue = (value: number | null | undefined): boolean => {
