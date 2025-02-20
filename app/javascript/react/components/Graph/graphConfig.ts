@@ -101,23 +101,21 @@ const getXAxisOptions = (
     e: Highcharts.AxisSetExtremesEventObject,
     chart: Highcharts.Chart
   ) => {
-    let effectiveTrigger = e.trigger || lastTriggerRef.current || "";
+    const currentTrigger = e.trigger || "none";
+    lastTriggerRef.current = currentTrigger;
 
-    // check if this event is not a calendar day event.
     if (
-      (e.trigger === "navigator" ||
-        e.trigger === "pan" ||
-        e.trigger === "zoom") &&
+      (currentTrigger === "navigator" ||
+        currentTrigger === "pan" ||
+        currentTrigger === "zoom") &&
       isCalendarDaySelectedRef?.current
     ) {
-      // Clear custom day if the new event isn't a calendar day click.
       isCalendarDaySelectedRef.current = false;
       onDayClick?.(null);
     }
 
     lastUpdateTimeRef.current = Date.now();
 
-    // Continue with normal processing.
     if (
       e.min === undefined ||
       e.max === undefined ||
@@ -127,22 +125,20 @@ const getXAxisOptions = (
       return;
     }
 
-    if (e.min !== undefined && e.max !== undefined) {
-      updateRangeDisplay(
-        rangeDisplayRef,
-        e.min,
-        e.max,
-        e.trigger === undefined || e.trigger === "calendarDay"
-      );
-    }
+    updateRangeDisplay(
+      rangeDisplayRef,
+      e.min,
+      e.max,
+      currentTrigger === undefined || currentTrigger === "calendarDay"
+    );
 
     if (
       streamId &&
-      (effectiveTrigger === "rangeSelectorButton" ||
-        effectiveTrigger === "navigator" ||
-        effectiveTrigger === "pan" ||
-        effectiveTrigger === "zoom" ||
-        effectiveTrigger === "calendarDay")
+      (currentTrigger === "rangeSelectorButton" ||
+        currentTrigger === "navigator" ||
+        currentTrigger === "pan" ||
+        currentTrigger === "zoom" ||
+        currentTrigger === "calendarDay")
     ) {
       if (fixedSessionTypeSelected) {
         dispatch(
@@ -208,8 +204,10 @@ const getXAxisOptions = (
         }
 
         lastNavigatorEvent = e;
+        lastTriggerRef.current = "navigator";
+
         if (!navigatorMouseUpHandler) {
-          navigatorMouseUpHandler = (event: MouseEvent) => {
+          navigatorMouseUpHandler = () => {
             if (lastNavigatorEvent && !isFetching) {
               handleSetExtremes(lastNavigatorEvent, chart);
             }
