@@ -33,8 +33,6 @@ const Month: React.FC<MonthProps> = ({
       .add(1, "second")
       .valueOf();
 
-    console.log("convertedTimestamp", convertedTimestamp);
-
     onDayClick(convertedTimestamp);
   };
 

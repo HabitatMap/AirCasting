@@ -14,22 +14,19 @@ interface TimeRangeProps {
 
 const TimeRange = forwardRef<HTMLDivElement, TimeRangeProps>(
   ({ minTime, maxTime }, ref) => {
-    const [isInitialized, setIsInitialized] = useState(false);
-    const [isEmpty, setIsEmpty] = useState(true);
+    const [shouldShowInitial, setShouldShowInitial] = useState(true);
 
     useLayoutEffect(() => {
+      // Only check once on mount
       if (ref && "current" in ref && ref.current) {
-        setIsEmpty(ref.current.childElementCount === 0);
-        setIsInitialized(true);
+        const hasContent = ref.current.childElementCount > 0;
+        setShouldShowInitial(!hasContent);
       }
-    }, [ref]);
-
-    console.log(isInitialized, "isInitialized");
-    console.log(isEmpty, "isEmpty");
+    }, []); // Empty dependency array means this runs once on mount
 
     return (
       <S.TimeRangeContainer ref={ref}>
-        {isInitialized && isEmpty && (
+        {shouldShowInitial && (
           <>
             <S.TimeContainer>
               <S.Date>{minTime.date}</S.Date>
@@ -46,4 +43,5 @@ const TimeRange = forwardRef<HTMLDivElement, TimeRangeProps>(
     );
   }
 );
+
 export default TimeRange;

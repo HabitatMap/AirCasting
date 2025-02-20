@@ -92,7 +92,6 @@ export const useChartUpdater = ({
     },
     [rangeDisplayRef]
   );
-
   useEffect(() => {
     if (!chartComponentRef.current?.chart || isLoading) return;
 
@@ -112,12 +111,7 @@ export const useChartUpdater = ({
         clearTimeout(updateTimeoutRef.current);
       }
     };
-  }, [
-    chartComponentRef,
-    isLoading,
-    updateTimeRangeDisplay,
-    lastSelectedTimeRange,
-  ]);
+  }, []);
 
   useEffect(() => {
     if (!seriesData || isLoading || !chartComponentRef.current?.chart) return;
@@ -171,12 +165,7 @@ export const useChartUpdater = ({
         updateTimeRangeDisplay(min, max);
       }
     }
-  }, [
-    lastSelectedTimeRange,
-    fixedSessionTypeSelected,
-    streamId,
-    updateTimeRangeDisplay,
-  ]);
+  }, [lastSelectedTimeRange, fixedSessionTypeSelected, streamId]);
 
   useEffect(() => {
     return () => {
@@ -213,16 +202,9 @@ export const useChartUpdater = ({
             max,
           })
         );
-        updateTimeRangeDisplay(min, max);
       }
     }
-  }, [
-    chartComponentRef,
-    dispatch,
-    fixedSessionTypeSelected,
-    streamId,
-    updateTimeRangeDisplay,
-  ]);
+  }, [chartComponentRef, dispatch, fixedSessionTypeSelected, streamId]);
 
   return {
     updateChartData,
