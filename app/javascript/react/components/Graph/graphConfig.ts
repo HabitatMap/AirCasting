@@ -225,7 +225,7 @@ const getXAxisOptions = (
           touchEndHandler = handleEnd;
           document.addEventListener("touchend", touchEndHandler);
 
-          setTimeout(removeEventHandlers, 10000);
+          setTimeout(removeEventHandlers, 1000);
         }
       },
     },
