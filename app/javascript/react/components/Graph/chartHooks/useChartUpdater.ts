@@ -9,7 +9,7 @@ import { useAppDispatch } from "../../../store/hooks";
 import { FixedTimeRange, MobileTimeRange } from "../../../types/timeRange";
 
 import { getSelectedRangeIndex } from "../../../utils/getTimeRange";
-import { formatTimeExtremes } from "../../../utils/measurementsCalc";
+import { updateRangeDisplay } from "./updateRangeDisplay";
 
 interface UseChartUpdaterProps {
   chartComponentRef: React.RefObject<{
@@ -26,29 +26,6 @@ interface UseChartUpdaterProps {
   streamId: number | null;
   rangeDisplayRef?: React.RefObject<HTMLDivElement>;
 }
-
-export const generateTimeRangeHTML = (start: number, end: number): string => {
-  const { formattedMaxTime, formattedMinTime } = formatTimeExtremes(start, end);
-
-  return `
-    <div class="time-container">
-      <span class="date">${formattedMinTime.date}</span>
-      <span class="time">${formattedMinTime.time}</span>
-    </div>
-    <span>-</span>
-    <div class="time-container">
-      <span class="date">${formattedMaxTime.date}</span>
-      <span class="time">${formattedMaxTime.time}</span>
-    </div>
-  `;
-};
-
-export const updateRangeDisplayDOM = (
-  element: HTMLDivElement,
-  content: string
-) => {
-  element.innerHTML = content;
-};
 
 export const useChartUpdater = ({
   chartComponentRef,
@@ -110,10 +87,7 @@ export const useChartUpdater = ({
       }
 
       updateTimeoutRef.current = setTimeout(() => {
-        if (rangeDisplayRef.current) {
-          const htmlContent = generateTimeRangeHTML(min, max);
-          updateRangeDisplayDOM(rangeDisplayRef.current, htmlContent);
-        }
+        updateRangeDisplay(rangeDisplayRef, min, max);
       }, 0);
     },
     [rangeDisplayRef]

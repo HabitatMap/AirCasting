@@ -110,7 +110,7 @@ const getXAxisOptions = (
         e.trigger === "zoom") &&
       isCalendarDaySelectedRef?.current
     ) {
-      // Clear custom day if the new event isn’t a calendar day click.
+      // Clear custom day if the new event isn't a calendar day click.
       isCalendarDaySelectedRef.current = false;
       onDayClick?.(null);
     }
@@ -127,7 +127,14 @@ const getXAxisOptions = (
       return;
     }
 
-    updateRangeDisplay(rangeDisplayRef, e.min, e.max, e.trigger === undefined);
+    if (e.min !== undefined && e.max !== undefined) {
+      updateRangeDisplay(
+        rangeDisplayRef,
+        e.min,
+        e.max,
+        e.trigger === undefined || e.trigger === "calendarDay"
+      );
+    }
 
     if (
       streamId &&
