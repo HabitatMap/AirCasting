@@ -81,8 +81,8 @@ interface GraphProps {
   streamId: number | null;
   isCalendarPage: boolean;
   rangeDisplayRef?: React.RefObject<HTMLDivElement>;
-  selectedTimestamp: number | null; // using timestamp instead of Date
-  onDayClick?: (timestamp: number | null) => void; // updated callback signature
+  selectedTimestamp: number | null;
+  onDayClick?: (timestamp: number | null) => void;
 }
 
 const Graph: React.FC<GraphProps> = memo(
@@ -125,8 +125,6 @@ const Graph: React.FC<GraphProps> = memo(
       ? fixedLastSelectedTimeRange
       : mobileLastSelectedTimeRange || MobileTimeRange.All;
 
-    // Session start & end times (computed from stream info)
-    console.log("fixedStreamShortInfo", fixedStreamShortInfo.endTime);
     const startTime = useMemo(
       () =>
         fixedSessionTypeSelected

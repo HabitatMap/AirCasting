@@ -26,6 +26,7 @@ import {
 } from "../../assets/styles/colors";
 import { updateFixedMeasurementExtremes } from "../../store/fixedStreamSlice";
 import { setHoverPosition, setHoverStreamId } from "../../store/mapSlice";
+import { updateMobileMeasurementExtremes } from "../../store/mobileStreamSlice";
 import { LatLngLiteral } from "../../types/googleMaps";
 import { GraphData, GraphPoint } from "../../types/graph";
 import { Thresholds } from "../../types/thresholds";
@@ -160,16 +161,6 @@ const getXAxisOptions = (
 
     updateRangeDisplay(rangeDisplayRef, e.min, e.max, e.trigger === undefined);
 
-    if (streamId) {
-      dispatch(
-        updateFixedMeasurementExtremes({
-          streamId,
-          min: e.min,
-          max: e.max,
-        })
-      );
-    }
-
     if (
       streamId &&
       (effectiveTrigger === "rangeSelectorButton" ||
@@ -178,30 +169,36 @@ const getXAxisOptions = (
         effectiveTrigger === "zoom" ||
         effectiveTrigger === "calendarDay")
     ) {
-      dispatch(
-        updateFixedMeasurementExtremes({
-          streamId,
-          min: e.min,
-          max: e.max,
-        })
-      );
-
-      // Only fetch measurements if this is a fixed session
       if (fixedSessionTypeSelected) {
-        const visibleRange = e.max - e.min;
-        const padding = visibleRange * 0.25;
-        const now = Date.now();
-        const fetchStart = Math.max(sessionStartTime || 0, e.min - padding);
-        const fetchEnd = Math.min(sessionEndTime || now, e.max + padding);
+        dispatch(
+          updateFixedMeasurementExtremes({
+            streamId,
+            min: e.min,
+            max: e.max,
+          })
+        );
+      } else {
+        dispatch(
+          updateMobileMeasurementExtremes({
+            min: e.min,
+            max: e.max,
+          })
+        );
+      }
 
-        isFetching = true;
-        try {
-          await fetchMeasurementsIfNeeded(fetchStart, fetchEnd);
-        } catch (error) {
-          console.error("Error fetching measurements:", error);
-        } finally {
-          isFetching = false;
-        }
+      const visibleRange = e.max - e.min;
+      const padding = visibleRange * 0.25;
+      const now = Date.now();
+      const fetchStart = Math.max(sessionStartTime || 0, e.min - padding);
+      const fetchEnd = Math.min(sessionEndTime || now, e.max + padding);
+
+      isFetching = true;
+      try {
+        await fetchMeasurementsIfNeeded(fetchStart, fetchEnd);
+      } catch (error) {
+        console.error("Error fetching measurements:", error);
+      } finally {
+        isFetching = false;
       }
     }
   };
@@ -228,6 +225,7 @@ const getXAxisOptions = (
     events: {
       afterSetExtremes: function (e: Highcharts.AxisSetExtremesEventObject) {
         const chart = this.chart;
+
         if (e.trigger !== "navigator") {
           removeNavigatorMouseUpHandler();
           handleSetExtremes(e, chart);
