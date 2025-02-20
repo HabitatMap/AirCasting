@@ -7,7 +7,6 @@ import {
 } from "../../../store/fixedStreamSlice";
 import { useAppDispatch } from "../../../store/hooks";
 import { FixedTimeRange, MobileTimeRange } from "../../../types/timeRange";
-
 import { getSelectedRangeIndex } from "../../../utils/getTimeRange";
 import { updateRangeDisplay } from "./updateRangeDisplay";
 
@@ -39,15 +38,13 @@ export const useChartUpdater = ({
   const dispatch = useAppDispatch();
   const updateTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-  // Cleanup function
+  // Cleanup function without manual DOM manipulation
   useEffect(() => {
     return () => {
       if (updateTimeoutRef.current) {
         clearTimeout(updateTimeoutRef.current);
       }
-      if (rangeDisplayRef?.current) {
-        rangeDisplayRef.current.innerHTML = "";
-      }
+      // Removed manual innerHTML clearing to let React handle DOM updates.
     };
   }, []);
 
@@ -92,26 +89,16 @@ export const useChartUpdater = ({
     },
     [rangeDisplayRef]
   );
+
   useEffect(() => {
     if (!chartComponentRef.current?.chart || isLoading) return;
-
-    const chart = chartComponentRef.current.chart;
-    const { min, max } = chart.xAxis[0].getExtremes();
-
-    if (min !== undefined && max !== undefined) {
-      // Clear existing content before update
-      if (rangeDisplayRef?.current) {
-        rangeDisplayRef.current.innerHTML = "";
-      }
-      updateTimeRangeDisplay(min, max);
-    }
 
     return () => {
       if (updateTimeoutRef.current) {
         clearTimeout(updateTimeoutRef.current);
       }
     };
-  }, []);
+  }, [chartComponentRef, isLoading]);
 
   useEffect(() => {
     if (!seriesData || isLoading || !chartComponentRef.current?.chart) return;
@@ -162,15 +149,9 @@ export const useChartUpdater = ({
             max,
           })
         );
-        updateTimeRangeDisplay(min, max);
       }
     }
-  }, [
-    lastSelectedTimeRange,
-    fixedSessionTypeSelected,
-    streamId,
-    updateTimeRangeDisplay,
-  ]);
+  }, [lastSelectedTimeRange, fixedSessionTypeSelected, streamId]);
 
   useEffect(() => {
     return () => {

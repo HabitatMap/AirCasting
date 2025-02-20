@@ -22,7 +22,7 @@ const TimeRange = forwardRef<HTMLDivElement, TimeRangeProps>(
         const hasContent = ref.current.childElementCount > 0;
         setShouldShowInitial(!hasContent);
       }
-    }, []); // Empty dependency array means this runs once on mount
+    }, []);
 
     return (
       <S.TimeRangeContainer ref={ref}>
