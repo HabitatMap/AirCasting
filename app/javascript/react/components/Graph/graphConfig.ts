@@ -380,11 +380,8 @@ const getPlotOptions = (
           ["minute", [1, 2, 3, 4, 5]],
         ],
         approximation: "average",
-        groupPixelWidth: 50,
       },
-      dataLabels: {
-        allowOverlap: true,
-      },
+
       point: {
         events: {
           mouseOver: handleMouseOver,
@@ -399,9 +396,6 @@ const seriesOptions = (data: GraphData): Highcharts.SeriesSplineOptions => ({
   type: "spline",
   color: white,
   data: data as Array<[number, number]>,
-  tooltip: {
-    valueDecimals: 2,
-  },
 });
 
 const legendOption = {
@@ -428,46 +422,45 @@ const getResponsiveOptions = (
     ],
   };
 };
-
 const getTooltipOptions = (
   measurementType: string,
   unitSymbol: string
 ): Highcharts.TooltipOptions => ({
   enabled: true,
   formatter: function (this: Highcharts.TooltipFormatterContextObject): string {
-    const date = Highcharts.dateFormat("%m/%d/%Y", Number(this.x));
+    // Format the date part (month/day/year)
+    const dateStr = Highcharts.dateFormat("%m/%d/%Y", Number(this.x));
+    let s = `<span>${dateStr} `;
+
     const pointData = this.points ? this.points[0] : this.point;
     const point = pointData as any;
+    const series = point.series;
 
-    const isGrouped =
-      point.series.hasGroupedData && point.series.currentDataGrouping;
-
-    let timeStr;
-    let value;
-
-    if (isGrouped) {
-      const groupingInfo = point.series.currentDataGrouping;
-      const start = point.x;
-      const end = start + groupingInfo.unitRange;
-
-      const startTime = Highcharts.dateFormat("%H:%M:%S", start);
-      const endTime = Highcharts.dateFormat("%H:%M:%S", end);
-      timeStr = `${startTime} - ${endTime}`;
-      value = Math.round(pointData.y ?? 0);
+    if (series.hasGroupedData && series.currentDataGrouping) {
+      const groupingInfo = series.currentDataGrouping;
+      const groupingDiff = groupingInfo.totalRange;
+      const xLess = point.x;
+      const xMore = point.x + groupingDiff;
+      s += Highcharts.dateFormat("%H:%M:%S", xLess) + "-";
+      s += Highcharts.dateFormat("%H:%M:%S", xMore - 1000) + "</span>";
     } else {
-      timeStr = Highcharts.dateFormat("%H:%M:%S", Number(this.x));
-      value = Math.round(pointData.y ?? 0);
+      s += Highcharts.dateFormat("%H:%M:%S", point.x) + "</span>";
     }
 
-    let s = `<span>${date} ${timeStr}</span>`;
-    s += "<br/>" + measurementType + " = " + value + " " + unitSymbol;
-
+    s +=
+      "<br/>" +
+      measurementType +
+      " = " +
+      Math.round(pointData.y) +
+      " " +
+      unitSymbol;
     return s;
   },
   borderWidth: 0,
   style: {
     fontSize: "1.2rem",
     fontFamily: "Roboto",
+    color: "#000000",
   },
 });
 
