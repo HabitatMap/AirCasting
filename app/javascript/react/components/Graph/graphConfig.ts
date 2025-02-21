@@ -249,7 +249,7 @@ const getXAxisOptions = (
           document.addEventListener("mouseup", navigatorMouseUpHandler);
           document.addEventListener("touchend", touchEndHandler);
 
-          cleanupTimeout = setTimeout(removeEventHandlers, 1000);
+          cleanupTimeout = setTimeout(removeEventHandlers, 2000);
         }
       },
     },
