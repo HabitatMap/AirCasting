@@ -379,6 +379,8 @@ const getPlotOptions = (
           ["second", [2, 3, 4, 5, 6, 7, 8, 9, 10, 15, 20, 30, 40, 50]],
           ["minute", [1, 2, 3, 4, 5]],
         ],
+        approximation: "average",
+        groupPixelWidth: 50,
       },
       dataLabels: {
         allowOverlap: true,
@@ -451,10 +453,10 @@ const getTooltipOptions = (
       const startTime = Highcharts.dateFormat("%H:%M:%S", start);
       const endTime = Highcharts.dateFormat("%H:%M:%S", end);
       timeStr = `${startTime} - ${endTime}`;
-      value = (pointData.y ?? 0).toFixed(2);
+      value = Math.round(pointData.y ?? 0);
     } else {
       timeStr = Highcharts.dateFormat("%H:%M:%S", Number(this.x));
-      value = (pointData.y ?? 0).toFixed(2);
+      value = Math.round(pointData.y ?? 0);
     }
 
     let s = `<span>${date} ${timeStr}</span>`;
