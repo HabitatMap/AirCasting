@@ -451,7 +451,7 @@ const getTooltipOptions = (
       "<br/>" +
       measurementType +
       " = " +
-      Math.round(pointData.y) +
+      Math.round(Number(pointData.y ?? 0)) +
       " " +
       unitSymbol;
     return s;
