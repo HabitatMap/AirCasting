@@ -87,6 +87,7 @@ const getXAxisOptions = (
   let touchEndHandler: ((event: TouchEvent) => void) | null = null;
   let isHandlingCalendarDay = false;
   let cleanupTimeout: NodeJS.Timeout | null = null;
+  let handled = false;
 
   const removeEventHandlers = () => {
     if (navigatorMouseUpHandler) {
@@ -230,7 +231,11 @@ const getXAxisOptions = (
         lastTriggerRef.current = "navigator";
 
         if (!navigatorMouseUpHandler && !touchEndHandler) {
+          handled = false; // Reset flag for this interaction
+
           const handleEnd = () => {
+            if (handled) return;
+            handled = true;
             if (lastNavigatorEvent && !isFetching && !isHandlingCalendarDay) {
               handleSetExtremes(lastNavigatorEvent, chart);
             }
@@ -245,7 +250,10 @@ const getXAxisOptions = (
           document.addEventListener("mouseup", navigatorMouseUpHandler);
           document.addEventListener("touchend", touchEndHandler);
 
-          cleanupTimeout = setTimeout(removeEventHandlers, 8000);
+          // Use the safeguard timeout in case the release event is missed.
+          cleanupTimeout = setTimeout(() => {
+            handleEnd();
+          }, 8000);
         }
       },
     },
