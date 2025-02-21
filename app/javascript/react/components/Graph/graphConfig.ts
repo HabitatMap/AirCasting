@@ -374,17 +374,14 @@ const getPlotOptions = (
       },
       dataGrouping: {
         enabled: true,
-        approximation: "average",
-        groupPixelWidth: 5,
         units: [
           ["millisecond", []],
           ["second", [2, 3, 4, 5, 6, 7, 8, 9, 10, 15, 20, 30, 40, 50]],
           ["minute", [1, 2, 3, 4, 5]],
         ],
+        approximation: "average",
       },
-      dataLabels: {
-        allowOverlap: true,
-      },
+
       point: {
         events: {
           mouseOver: handleMouseOver,
@@ -399,9 +396,6 @@ const seriesOptions = (data: GraphData): Highcharts.SeriesSplineOptions => ({
   type: "spline",
   color: white,
   data: data as Array<[number, number]>,
-  tooltip: {
-    valueDecimals: 2,
-  },
 });
 
 const legendOption = {
@@ -428,23 +422,36 @@ const getResponsiveOptions = (
     ],
   };
 };
-
 const getTooltipOptions = (
   measurementType: string,
   unitSymbol: string
 ): Highcharts.TooltipOptions => ({
   enabled: true,
   formatter: function (this: Highcharts.TooltipFormatterContextObject): string {
-    const date = Highcharts.dateFormat("%m/%d/%Y", Number(this.x));
-    const time = Highcharts.dateFormat("%H:%M:%S", Number(this.x));
+    // Format the date part (month/day/year)
+    const dateStr = Highcharts.dateFormat("%m/%d/%Y", Number(this.x));
+    let s = `<span>${dateStr} `;
+
     const pointData = this.points ? this.points[0] : this.point;
-    let s = `<span>${date} `;
-    s += Highcharts.dateFormat("%H:%M:%S", this.x as number) + "</span>";
+    const point = pointData as any;
+    const series = point.series;
+
+    if (series.hasGroupedData && series.currentDataGrouping) {
+      const groupingInfo = series.currentDataGrouping;
+      const groupingDiff = groupingInfo.totalRange;
+      const xLess = point.x;
+      const xMore = point.x + groupingDiff;
+      s += Highcharts.dateFormat("%H:%M:%S", xLess) + "-";
+      s += Highcharts.dateFormat("%H:%M:%S", xMore - 1000) + "</span>";
+    } else {
+      s += Highcharts.dateFormat("%H:%M:%S", point.x) + "</span>";
+    }
+
     s +=
       "<br/>" +
       measurementType +
       " = " +
-      Math.round(Number(pointData.y)) +
+      Math.round(pointData.y) +
       " " +
       unitSymbol;
     return s;
@@ -453,6 +460,7 @@ const getTooltipOptions = (
   style: {
     fontSize: "1.2rem",
     fontFamily: "Roboto",
+    color: "#000000",
   },
 });
 
