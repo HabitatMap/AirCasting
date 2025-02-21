@@ -88,10 +88,6 @@ const getXAxisOptions = (
   let isHandlingCalendarDay = false;
   let cleanupTimeout: NodeJS.Timeout | null = null;
 
-  let rangeSelectorActive = false;
-  const lastRangeSelectorTimeRef = { current: 0 };
-  const THRESHOLD = 1000; // 1000ms threshold
-
   const removeEventHandlers = () => {
     if (navigatorMouseUpHandler) {
       document.removeEventListener("mouseup", navigatorMouseUpHandler);
@@ -249,7 +245,7 @@ const getXAxisOptions = (
           document.addEventListener("mouseup", navigatorMouseUpHandler);
           document.addEventListener("touchend", touchEndHandler);
 
-          cleanupTimeout = setTimeout(removeEventHandlers, 2000);
+          cleanupTimeout = setTimeout(removeEventHandlers, 8000);
         }
       },
     },
