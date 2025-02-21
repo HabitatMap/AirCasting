@@ -47,11 +47,16 @@ const ModalDesktopHeader: React.FC<ModalDesktopHeaderProps> = ({
 
   const { minMeasurementValue, maxMeasurementValue, averageValue } = extremes;
 
-  const noData = isNoData(
-    minMeasurementValue || streamShortInfo.minMeasurementValue,
-    maxMeasurementValue || streamShortInfo.maxMeasurementValue,
-    averageValue || streamShortInfo.averageValue
-  );
+  const min = minMeasurementValue ?? streamShortInfo.minMeasurementValue;
+  const max = maxMeasurementValue ?? streamShortInfo.maxMeasurementValue;
+  const avg = averageValue ?? streamShortInfo.averageValue;
+
+  const noData =
+    isNoData(min, max, avg) ||
+    min === Infinity ||
+    max === -Infinity ||
+    min === -Infinity ||
+    max === Infinity;
 
   newSearchParams.set(UrlParamsTypes.previousUserSettings, currentUserSettings);
   newSearchParams.set(
@@ -72,27 +77,21 @@ const ModalDesktopHeader: React.FC<ModalDesktopHeaderProps> = ({
         ) : (
           <>
             <S.AverageValueContainer>
-              <S.AverageDot
-                $color={getColorForValue(thresholds, averageValue)}
-              />
+              <S.AverageDot $color={getColorForValue(thresholds, avg)} />
               {t("sessionDetailsModal.averageValue")}
-              <S.AverageValue>{averageValue}</S.AverageValue>
+              <S.AverageValue>{avg}</S.AverageValue>
               {streamShortInfo.unitSymbol}
             </S.AverageValueContainer>
             <S.MinMaxValueContainer $isMobile={false}>
               <div>
-                <S.SmallDot
-                  $color={getColorForValue(thresholds, minMeasurementValue)}
-                />
+                <S.SmallDot $color={getColorForValue(thresholds, min)} />
                 {t("sessionDetailsModal.minValue")}
-                <S.Value>{minMeasurementValue}</S.Value>
+                <S.Value>{min}</S.Value>
               </div>
               <div>
-                <S.SmallDot
-                  $color={getColorForValue(thresholds, maxMeasurementValue)}
-                />
+                <S.SmallDot $color={getColorForValue(thresholds, max)} />
                 {t("sessionDetailsModal.maxValue")}
-                <S.Value>{maxMeasurementValue}</S.Value>
+                <S.Value>{max}</S.Value>
               </div>
             </S.MinMaxValueContainer>
           </>

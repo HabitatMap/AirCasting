@@ -7,9 +7,8 @@ import {
 } from "../../../store/fixedStreamSlice";
 import { useAppDispatch } from "../../../store/hooks";
 import { FixedTimeRange, MobileTimeRange } from "../../../types/timeRange";
-
 import { getSelectedRangeIndex } from "../../../utils/getTimeRange";
-import { formatTimeExtremes } from "../../../utils/measurementsCalc";
+import { updateRangeDisplay } from "./updateRangeDisplay";
 
 interface UseChartUpdaterProps {
   chartComponentRef: React.RefObject<{
@@ -27,37 +26,6 @@ interface UseChartUpdaterProps {
   rangeDisplayRef?: React.RefObject<HTMLDivElement>;
 }
 
-export const generateTimeRangeHTML = (min: number, max: number) => {
-  const { formattedMinTime, formattedMaxTime } = formatTimeExtremes(min, max);
-  return `
-    <div class="time-container">
-      <span class="date">${formattedMinTime.date || ""}</span>
-      <span class="time">${formattedMinTime.time || ""}</span>
-    </div>
-    <span>-</span>
-    <div class="time-container">
-      <span class="date">${formattedMaxTime.date || ""}</span>
-      <span class="time">${formattedMaxTime.time || ""}</span>
-    </div>
-  `.trim();
-};
-
-export const updateRangeDisplayDOM = (
-  element: HTMLDivElement,
-  htmlContent: string,
-  clearPrevious: boolean = false
-) => {
-  if (clearPrevious) {
-    element.innerHTML = "";
-  }
-
-  requestAnimationFrame(() => {
-    element.innerHTML = htmlContent;
-    void element.offsetHeight;
-    void element.getBoundingClientRect();
-  });
-};
-
 export const useChartUpdater = ({
   chartComponentRef,
   seriesData,
@@ -67,9 +35,18 @@ export const useChartUpdater = ({
   streamId,
   rangeDisplayRef,
 }: UseChartUpdaterProps) => {
-  const isFirstRender = useRef(true);
-  const lastRangeRef = useRef<number | null>(null);
   const dispatch = useAppDispatch();
+  const updateTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Cleanup function without manual DOM manipulation
+  useEffect(() => {
+    return () => {
+      if (updateTimeoutRef.current) {
+        clearTimeout(updateTimeoutRef.current);
+      }
+      // Removed manual innerHTML clearing to let React handle DOM updates.
+    };
+  }, []);
 
   const updateChartData = useCallback(
     (
@@ -80,13 +57,6 @@ export const useChartUpdater = ({
       },
       data: Highcharts.PointOptionsType[]
     ) => {
-      if (chart.rangeSelector) {
-        const selectedButton = chart.options.rangeSelector?.selected;
-        if (selectedButton !== undefined) {
-          lastRangeRef.current = selectedButton;
-        }
-      }
-
       chart.series[0].setData(data, true, false, false);
 
       if (fixedSessionTypeSelected && streamId && chart.xAxis[0]) {
@@ -101,10 +71,6 @@ export const useChartUpdater = ({
           );
         }
       }
-
-      if (chart.rangeSelector && lastRangeRef.current !== null) {
-        chart.rangeSelector.clickButton(lastRangeRef.current, true);
-      }
     },
     [fixedSessionTypeSelected, streamId]
   );
@@ -113,23 +79,32 @@ export const useChartUpdater = ({
     (min: number, max: number) => {
       if (!rangeDisplayRef?.current) return;
 
-      const htmlContent = generateTimeRangeHTML(min, max);
-      updateRangeDisplayDOM(rangeDisplayRef.current, htmlContent, true);
+      if (updateTimeoutRef.current) {
+        clearTimeout(updateTimeoutRef.current);
+      }
+
+      updateTimeoutRef.current = setTimeout(() => {
+        updateRangeDisplay(rangeDisplayRef, min, max);
+      }, 0);
     },
     [rangeDisplayRef]
   );
 
   useEffect(() => {
+    if (!chartComponentRef.current?.chart || isLoading) return;
+
+    return () => {
+      if (updateTimeoutRef.current) {
+        clearTimeout(updateTimeoutRef.current);
+      }
+    };
+  }, [chartComponentRef, isLoading]);
+
+  useEffect(() => {
     if (!seriesData || isLoading || !chartComponentRef.current?.chart) return;
 
     const chart = chartComponentRef.current.chart;
-
-    if (isFirstRender.current) {
-      updateChartData(chart, seriesData);
-      isFirstRender.current = false;
-    } else {
-      updateChartData(chart, seriesData);
-    }
+    updateChartData(chart, seriesData);
 
     if (lastSelectedTimeRange && chart.rangeSelector) {
       const selectedIndex = getSelectedRangeIndex(
@@ -174,25 +149,9 @@ export const useChartUpdater = ({
             max,
           })
         );
-        updateTimeRangeDisplay(min, max);
       }
     }
-  }, [
-    lastSelectedTimeRange,
-    fixedSessionTypeSelected,
-    streamId,
-    updateTimeRangeDisplay,
-  ]);
-
-  useEffect(() => {
-    if (!seriesData || isLoading || !chartComponentRef.current?.chart) return;
-
-    const chart = chartComponentRef.current.chart;
-    const { min, max } = chart.xAxis[0].getExtremes();
-    if (min !== undefined && max !== undefined) {
-      updateTimeRangeDisplay(min, max);
-    }
-  }, [seriesData, isLoading, updateTimeRangeDisplay]);
+  }, [lastSelectedTimeRange, fixedSessionTypeSelected, streamId]);
 
   useEffect(() => {
     return () => {
@@ -229,16 +188,9 @@ export const useChartUpdater = ({
             max,
           })
         );
-        updateTimeRangeDisplay(min, max);
       }
     }
-  }, [
-    chartComponentRef,
-    dispatch,
-    fixedSessionTypeSelected,
-    streamId,
-    updateTimeRangeDisplay,
-  ]);
+  }, [chartComponentRef, dispatch, fixedSessionTypeSelected, streamId]);
 
   return {
     updateChartData,

@@ -6,10 +6,9 @@ import React, {
   useRef,
   useState,
 } from "react";
-import { useSelector } from "react-redux";
 
 import { mobileStreamPath } from "../../../assets/styles/colors";
-import { useAppDispatch } from "../../../store/hooks";
+import { useAppDispatch, useAppSelector } from "../../../store/hooks";
 import { selectHoverPosition, setHoverPosition } from "../../../store/mapSlice";
 import {
   setMarkersLoading,
@@ -30,9 +29,9 @@ const StreamMarkers = ({ sessions, unitSymbol }: Props) => {
   const dispatch = useAppDispatch();
   const map = useMap();
   const markersRef = useRef<Map<string, CustomMarker>>(new Map());
-  const thresholds = useSelector(selectThresholds);
+  const thresholds = useAppSelector(selectThresholds);
   const polylineRef = useRef<google.maps.Polyline | null>(null);
-  const hoverPosition = useSelector(selectHoverPosition);
+  const hoverPosition = useAppSelector(selectHoverPosition);
   const [CustomOverlay, setCustomOverlay] = useState<
     typeof CustomMarker | null
   >(null);
