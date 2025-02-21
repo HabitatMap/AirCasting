@@ -91,11 +91,11 @@ const getXAxisOptions = (
 
   const removeEventHandlers = () => {
     if (navigatorMouseUpHandler) {
-      document.removeEventListener("mouseup", navigatorMouseUpHandler);
+      window.removeEventListener("mouseup", navigatorMouseUpHandler, true);
       navigatorMouseUpHandler = null;
     }
     if (touchEndHandler) {
-      document.removeEventListener("touchend", touchEndHandler);
+      window.removeEventListener("touchend", touchEndHandler, true);
       touchEndHandler = null;
     }
     if (cleanupTimeout) {
@@ -247,8 +247,9 @@ const getXAxisOptions = (
           navigatorMouseUpHandler = handleEnd;
           touchEndHandler = handleEnd;
 
-          document.addEventListener("mouseup", navigatorMouseUpHandler);
-          document.addEventListener("touchend", touchEndHandler);
+          // Attach event listeners to window with capturing enabled for better compatibility in Chrome.
+          window.addEventListener("mouseup", navigatorMouseUpHandler, true);
+          window.addEventListener("touchend", touchEndHandler, true);
 
           // Use the safeguard timeout in case the release event is missed.
           cleanupTimeout = setTimeout(() => {
