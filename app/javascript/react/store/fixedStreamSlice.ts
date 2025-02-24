@@ -1,18 +1,17 @@
 import {
   createAsyncThunk,
-  createSelector,
   createSlice,
-  PayloadAction,
+  type PayloadAction,
 } from "@reduxjs/toolkit";
-import { AxiosResponse } from "axios";
+import type { AxiosResponse } from "axios";
 import { apiClient, oldApiClient } from "../api/apiClient";
 import { API_ENDPOINTS } from "../api/apiEndpoints";
-import { ApiError, StatusEnum } from "../types/api";
-import { FixedStream } from "../types/fixedStream";
+import { type ApiError, StatusEnum } from "../types/api";
+import type { FixedStream } from "../types/fixedStream";
 import { FixedTimeRange } from "../types/timeRange";
 import { getErrorMessage } from "../utils/getErrorMessage";
 import { logError } from "../utils/logController";
-import { RootState } from "./index";
+import type { RootState } from "./index";
 
 export interface FixedMeasurement {
   time: number;
@@ -25,7 +24,6 @@ export interface FixedStreamState {
   minMeasurementValue: number | null;
   maxMeasurementValue: number | null;
   averageMeasurementValue: number | null;
-
   status: StatusEnum;
   error: ApiError | null;
   isLoading: boolean;
@@ -33,6 +31,7 @@ export interface FixedStreamState {
   measurements: {
     [streamId: number]: FixedMeasurement[];
   };
+  fetchedTimeRanges: { [streamId: number]: { start: number; end: number }[] };
 }
 
 const initialState: FixedStreamState = {
@@ -70,6 +69,7 @@ const initialState: FixedStreamState = {
   isLoading: false,
   lastSelectedTimeRange: FixedTimeRange.Day,
   measurements: {},
+  fetchedTimeRanges: {},
 };
 
 export const fetchFixedStreamById = createAsyncThunk<
@@ -124,6 +124,21 @@ export const fetchMeasurements = createAsyncThunk(
   }
 );
 
+export const checkDataAvailability = createAsyncThunk(
+  "fixedStream/checkDataAvailability",
+  async (
+    { streamId, start, end }: { streamId: number; start: number; end: number },
+    { getState }
+  ) => {
+    const state = getState() as RootState;
+    const fetchedRanges = state.fixedStream.fetchedTimeRanges[streamId] || [];
+
+    return fetchedRanges.some(
+      (range) => range.start <= start && range.end >= end
+    );
+  }
+);
+
 const fixedStreamSlice = createSlice({
   name: "fixedStream",
   initialState,
@@ -133,17 +148,35 @@ const fixedStreamSlice = createSlice({
       action: PayloadAction<{ streamId: number; min: number; max: number }>
     ) {
       const { min, max } = action.payload;
-      const allMeasurements = state.data.measurements || [];
+      const measurements = state.data.measurements || [];
 
-      const values = allMeasurements
-        .filter((m) => m.time >= min && m.time <= max)
-        .map((m) => m.value);
+      // Filter measurements within the visible range
+      const visibleMeasurements = measurements.filter(
+        (m) => m.time >= min && m.time <= max
+      );
 
-      if (values.length > 0) {
-        state.minMeasurementValue = Math.min(...values);
-        state.maxMeasurementValue = Math.max(...values);
-        state.averageMeasurementValue =
-          values.reduce((sum, value) => sum + value, 0) / values.length;
+      if (visibleMeasurements.length > 0) {
+        // Calculate min, max, and average in a single pass
+        const {
+          min: minValue,
+          max: maxValue,
+          sum,
+        } = visibleMeasurements.reduce(
+          (acc, measurement) => ({
+            min: Math.min(acc.min, measurement.value),
+            max: Math.max(acc.max, measurement.value),
+            sum: acc.sum + measurement.value,
+          }),
+          {
+            min: visibleMeasurements[0].value,
+            max: visibleMeasurements[0].value,
+            sum: 0,
+          }
+        );
+
+        state.minMeasurementValue = minValue;
+        state.maxMeasurementValue = maxValue;
+        state.averageMeasurementValue = sum / visibleMeasurements.length;
       } else {
         state.minMeasurementValue = null;
         state.maxMeasurementValue = null;
@@ -200,6 +233,16 @@ const fixedStreamSlice = createSlice({
     resetTimeRange: (state) => {
       state.lastSelectedTimeRange = FixedTimeRange.Day;
       localStorage.setItem("lastSelectedTimeRange", FixedTimeRange.Day);
+    },
+    updateFetchedTimeRanges: (
+      state,
+      action: PayloadAction<{ streamId: number; start: number; end: number }>
+    ) => {
+      const { streamId, start, end } = action.payload;
+      if (!state.fetchedTimeRanges[streamId]) {
+        state.fetchedTimeRanges[streamId] = [];
+      }
+      state.fetchedTimeRanges[streamId].push({ start, end });
     },
   },
   extraReducers: (builder) => {
@@ -265,8 +308,6 @@ const fixedStreamSlice = createSlice({
   },
 });
 
-export default fixedStreamSlice.reducer;
-
 export const {
   updateFixedMeasurementExtremes,
   resetFixedStreamState,
@@ -276,31 +317,7 @@ export const {
   updateStreamMeasurements,
   resetFixedMeasurementExtremes,
   resetTimeRange,
+  updateFetchedTimeRanges,
 } = fixedStreamSlice.actions;
 
-export const selectFixedStreamState = (state: RootState) => state.fixedStream;
-
-export const selectFixedData = createSelector(
-  [selectFixedStreamState],
-  (fixedStream) => fixedStream.data
-);
-
-export const selectIsLoading = createSelector(
-  [selectFixedStreamState],
-  (fixedStream) => fixedStream.isLoading
-);
-
-export const selectLastSelectedFixedTimeRange = createSelector(
-  [selectFixedStreamState],
-  (fixedStream) => fixedStream.lastSelectedTimeRange
-);
-
-export const selectStreamMeasurements = createSelector(
-  [
-    selectFixedStreamState,
-    (_state: RootState, streamId: number | null) => streamId,
-  ],
-  (fixedStream, streamId) => {
-    return streamId ? fixedStream.data.measurements || [] : [];
-  }
-);
+export default fixedStreamSlice.reducer;

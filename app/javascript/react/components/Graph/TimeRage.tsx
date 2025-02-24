@@ -1,4 +1,4 @@
-import React, { forwardRef, useEffect, useState } from "react";
+import React, { forwardRef, useLayoutEffect, useState } from "react";
 import * as S from "./Graph.style";
 
 interface TimeRangeProps {
@@ -14,19 +14,19 @@ interface TimeRangeProps {
 
 const TimeRange = forwardRef<HTMLDivElement, TimeRangeProps>(
   ({ minTime, maxTime }, ref) => {
-    const [isInitialized, setIsInitialized] = useState(false);
-    const [isEmpty, setIsEmpty] = useState(true);
+    const [shouldShowInitial, setShouldShowInitial] = useState(true);
 
-    useEffect(() => {
+    useLayoutEffect(() => {
+      // Only check once on mount
       if (ref && "current" in ref && ref.current) {
-        setIsEmpty(ref.current.childElementCount === 0);
-        setIsInitialized(true);
+        const hasContent = ref.current.childElementCount > 0;
+        setShouldShowInitial(!hasContent);
       }
     }, []);
 
     return (
       <S.TimeRangeContainer ref={ref}>
-        {isInitialized && isEmpty && (
+        {shouldShowInitial && (
           <>
             <S.TimeContainer>
               <S.Date>{minTime.date}</S.Date>

@@ -8,7 +8,6 @@ import {
   ResponsiveOptions,
   YAxisOptions,
 } from "highcharts";
-import { debounce } from "lodash";
 
 import Highcharts from "highcharts/highstock";
 import { TFunction } from "i18next";
@@ -25,7 +24,6 @@ import {
   white,
   yellow100,
 } from "../../assets/styles/colors";
-import { AppDispatch } from "../../store";
 import { updateFixedMeasurementExtremes } from "../../store/fixedStreamSlice";
 import { setHoverPosition, setHoverStreamId } from "../../store/mapSlice";
 import { updateMobileMeasurementExtremes } from "../../store/mobileStreamSlice";
@@ -40,10 +38,7 @@ import {
   MILLISECONDS_IN_A_WEEK,
   MILLISECONDS_IN_AN_HOUR,
 } from "../../utils/timeRanges";
-import {
-  generateTimeRangeHTML,
-  updateRangeDisplayDOM,
-} from "./chartHooks/useChartUpdater";
+import { updateRangeDisplay } from "./chartHooks/updateRangeDisplay";
 
 const getScrollbarOptions = (isCalendarPage: boolean, isMobile: boolean) => {
   return {
@@ -60,55 +55,147 @@ const getScrollbarOptions = (isCalendarPage: boolean, isMobile: boolean) => {
     enabled: isMobile && isCalendarPage ? true : !isMobile,
     liveRedraw: true,
     minWidth: isMobile ? 30 : 8,
+    rifleColor: gray200,
+    zIndex: 3,
+    margin: 0,
+    minimumRange: MILLISECONDS_IN_A_SECOND,
   };
 };
 
 const getXAxisOptions = (
   isMobile: boolean,
-  rangeDisplayRef: React.RefObject<HTMLDivElement> | undefined,
   fixedSessionTypeSelected: boolean,
-  dispatch: AppDispatch,
+  dispatch: any,
   isLoading: boolean,
-  fetchMeasurementsIfNeeded: (start: number, end: number) => Promise<void>,
-  streamId: number | null
+  fetchMeasurementsIfNeeded: (
+    start: number,
+    end: number,
+    isEdgeFetch?: boolean
+  ) => Promise<void>,
+  streamId: number | null,
+  lastTriggerRef: React.MutableRefObject<string | null>,
+  lastUpdateTimeRef: React.MutableRefObject<number>,
+  onDayClick?: (timestamp: number | null) => void,
+  rangeDisplayRef?: React.RefObject<HTMLDivElement>,
+  sessionStartTime?: number,
+  sessionEndTime?: number,
+  isCalendarDaySelectedRef?: React.MutableRefObject<boolean>
 ): Highcharts.XAxisOptions => {
-  let isFetchingData = false;
-  let initialDataMin: number | null = null;
-  let fetchTimeout: NodeJS.Timeout | null = null;
+  let isFetching = false;
+  let lastNavigatorEvent: Highcharts.AxisSetExtremesEventObject | null = null;
+  let navigatorMouseUpHandler: ((event: MouseEvent) => void) | null = null;
+  let touchEndHandler: ((event: TouchEvent) => void) | null = null;
+  let isHandlingCalendarDay = false;
+  let cleanupTimeout: NodeJS.Timeout | null = null;
+  let handled = false;
 
-  const handleSetExtremes = debounce(
-    (e: Highcharts.AxisSetExtremesEventObject) => {
-      if (!isLoading && e.min !== undefined && e.max !== undefined) {
-        if (fixedSessionTypeSelected && streamId !== null) {
-          dispatch(
-            updateFixedMeasurementExtremes({
-              streamId,
-              min: e.min,
-              max: e.max,
-            })
-          );
-        } else {
-          dispatch(
-            updateMobileMeasurementExtremes({
-              min: e.min,
-              max: e.max,
-            })
-          );
-        }
+  const removeEventHandlers = () => {
+    if (navigatorMouseUpHandler) {
+      window.removeEventListener("mouseup", navigatorMouseUpHandler, true);
+      navigatorMouseUpHandler = null;
+    }
+    if (touchEndHandler) {
+      window.removeEventListener("touchend", touchEndHandler, true);
+      touchEndHandler = null;
+    }
+    if (cleanupTimeout) {
+      clearTimeout(cleanupTimeout);
+      cleanupTimeout = null;
+    }
+    lastNavigatorEvent = null;
+  };
 
-        if (rangeDisplayRef?.current) {
-          const htmlContent = generateTimeRangeHTML(e.min, e.max);
-          updateRangeDisplayDOM(rangeDisplayRef.current, htmlContent, true);
-        }
+  const handleSetExtremes = async (
+    e: Highcharts.AxisSetExtremesEventObject,
+    chart: Highcharts.Chart
+  ) => {
+    const currentTrigger = e.trigger || "none";
+
+    if (isHandlingCalendarDay && currentTrigger !== "calendarDay") {
+      return;
+    }
+
+    if (currentTrigger === "calendarDay") {
+      isHandlingCalendarDay = true;
+      setTimeout(() => {
+        isHandlingCalendarDay = false;
+      }, 500);
+    }
+
+    lastTriggerRef.current = currentTrigger;
+
+    if (
+      (currentTrigger === "navigator" ||
+        currentTrigger === "pan" ||
+        currentTrigger === "zoom") &&
+      isCalendarDaySelectedRef?.current
+    ) {
+      isCalendarDaySelectedRef.current = false;
+      onDayClick?.(null);
+    }
+
+    lastUpdateTimeRef.current = Date.now();
+
+    if (
+      e.min === undefined ||
+      e.max === undefined ||
+      isNaN(e.min) ||
+      isNaN(e.max)
+    ) {
+      return;
+    }
+
+    updateRangeDisplay(
+      rangeDisplayRef,
+      e.min,
+      e.max,
+      currentTrigger === "calendarDay"
+    );
+
+    if (
+      streamId &&
+      (currentTrigger === "rangeSelectorButton" ||
+        currentTrigger === "navigator" ||
+        currentTrigger === "pan" ||
+        currentTrigger === "zoom" ||
+        currentTrigger === "calendarDay")
+    ) {
+      if (fixedSessionTypeSelected) {
+        dispatch(
+          updateFixedMeasurementExtremes({
+            streamId,
+            min: e.min,
+            max: e.max,
+          })
+        );
+      } else {
+        dispatch(
+          updateMobileMeasurementExtremes({
+            min: e.min,
+            max: e.max,
+          })
+        );
       }
-    },
-    300
-  );
+
+      const visibleRange = e.max - e.min;
+      const padding = visibleRange * 0.25;
+      const now = Date.now();
+      const fetchStart = Math.max(sessionStartTime || 0, e.min - padding);
+      const fetchEnd = Math.min(sessionEndTime || now, e.max + padding);
+
+      isFetching = true;
+      try {
+        await fetchMeasurementsIfNeeded(fetchStart, fetchEnd);
+      } catch (error) {
+        console.error("Error fetching measurements:", error);
+      } finally {
+        isFetching = false;
+      }
+    }
+  };
 
   return {
-    title: {
-      text: undefined,
-    },
+    title: { text: undefined },
     showEmpty: false,
     showLastLabel: !isMobile,
     tickColor: gray200,
@@ -118,53 +205,57 @@ const getXAxisOptions = (
       enabled: true,
       overflow: "justify",
       step: 1,
-      style: {
-        fontSize: "1.2rem",
-        fontFamily: "Roboto",
-      },
+      style: { fontSize: "1.2rem", fontFamily: "Roboto" },
     },
-    crosshair: {
-      color: white,
-      width: 2,
-    },
+    crosshair: { color: white, width: 2 },
     visible: true,
     minRange: MILLISECONDS_IN_A_SECOND,
     ordinal: false,
+    min: sessionStartTime,
+    max: sessionEndTime,
     events: {
-      afterSetExtremes: async function (
-        e: Highcharts.AxisSetExtremesEventObject
-      ) {
-        const axis = this;
+      afterSetExtremes: function (e: Highcharts.AxisSetExtremesEventObject) {
+        const chart = this.chart;
 
-        handleSetExtremes(e);
-
-        if (!fixedSessionTypeSelected || streamId == null) return;
-
-        if (initialDataMin === null && e.dataMin !== undefined) {
-          initialDataMin = e.dataMin - MILLISECONDS_IN_A_MONTH;
+        if (isHandlingCalendarDay && e.trigger !== "calendarDay") {
+          return;
         }
-        const onScrollbarRelease = () => {
-          if (fetchTimeout) clearTimeout(fetchTimeout);
-          fetchTimeout = setTimeout(async () => {
-            if (isLoading || isFetchingData) return;
-            const { min, max, dataMin } = axis.getExtremes();
-            if (min === undefined || dataMin === undefined) return;
 
-            const buffer = (max - min) * 0.02;
-            const isAtDataMin = min <= dataMin + buffer;
-            if (isAtDataMin) {
-              isFetchingData = true;
-              try {
-                const newStart = min - MILLISECONDS_IN_A_MONTH;
-                await fetchMeasurementsIfNeeded(newStart, min);
-              } finally {
-                isFetchingData = false;
-                fetchTimeout = null;
-              }
+        if (e.trigger !== "navigator") {
+          removeEventHandlers();
+          handleSetExtremes(e, chart);
+          return;
+        }
+
+        lastNavigatorEvent = e;
+        lastTriggerRef.current = "navigator";
+
+        if (!navigatorMouseUpHandler && !touchEndHandler) {
+          handled = false; // Reset flag for this interaction
+
+          const handleEnd = () => {
+            if (handled) return;
+            handled = true;
+            if (lastNavigatorEvent && !isFetching && !isHandlingCalendarDay) {
+              handleSetExtremes(lastNavigatorEvent, chart);
             }
-          }, 800);
-        };
-        onScrollbarRelease();
+            removeEventHandlers();
+          };
+
+          removeEventHandlers();
+
+          navigatorMouseUpHandler = handleEnd;
+          touchEndHandler = handleEnd;
+
+          // Attach event listeners to window with capturing enabled for better compatibility in Chrome.
+          window.addEventListener("mouseup", navigatorMouseUpHandler, true);
+          window.addEventListener("touchend", touchEndHandler, true);
+
+          // Use the safeguard timeout in case the release event is missed.
+          cleanupTimeout = setTimeout(() => {
+            handleEnd();
+          }, 8000);
+        }
       },
     },
   };
@@ -304,10 +395,10 @@ const getPlotOptions = (
   };
 };
 
-const seriesOptions = (data: GraphData) => ({
+const seriesOptions = (data: GraphData): Highcharts.SeriesSplineOptions => ({
   type: "spline",
   color: white,
-  data: data,
+  data: data as Array<[number, number]>,
   tooltip: {
     valueDecimals: 2,
   },
@@ -486,7 +577,7 @@ const getRangeSelectorOptions = (
         buttons: [
           totalDuration < MILLISECONDS_IN_A_DAY
             ? { type: "all", text: t("graph.24Hours") }
-            : { type: "hour", count: 24, text: t("graph.24Hours") },
+            : { type: "hour", count: 24 - 0, text: t("graph.24Hours") },
           totalDuration > MILLISECONDS_IN_A_WEEK
             ? { type: "day", count: 7, text: t("graph.oneWeek") }
             : { type: "all", text: t("graph.oneWeek") },
