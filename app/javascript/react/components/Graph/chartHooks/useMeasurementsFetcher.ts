@@ -129,27 +129,8 @@ export const useMeasurementsFetcher = (
     trigger?: string
   ) => {
     if (!streamId || isCurrentlyFetchingRef.current) {
-      console.log("[Fetch Skipped]", {
-        reason: !streamId ? "No streamId" : "Already fetching",
-        streamId,
-        isCurrentlyFetching: isCurrentlyFetchingRef.current,
-      });
       return;
     }
-
-    console.log("[Fetch Started]", {
-      timestamp: new Date().toISOString(),
-      trigger,
-      streamId,
-      requestedRange: {
-        start: new Date(start).toISOString(),
-        end: new Date(end).toISOString(),
-        durationMs: end - start,
-        durationMinutes: (end - start) / (1000 * 60),
-      },
-      isEdgeFetch,
-      isDaySelection,
-    });
 
     // Store the trigger that initiated this fetch
     if (trigger) {
@@ -163,10 +144,6 @@ export const useMeasurementsFetcher = (
     const boundedEnd = Math.min(end, sessionEndTime);
 
     if (boundedStart >= boundedEnd) {
-      console.log("[Fetch Invalid Range]", {
-        boundedStart: new Date(boundedStart).toISOString(),
-        boundedEnd: new Date(boundedEnd).toISOString(),
-      });
       return;
     }
 
@@ -176,17 +153,7 @@ export const useMeasurementsFetcher = (
       // Find missing ranges in the requested time window
       const missingRanges = findMissingRanges(boundedStart, boundedEnd);
 
-      console.log("[Missing Ranges]", {
-        count: missingRanges.length,
-        ranges: missingRanges.map((range) => ({
-          start: new Date(range.start).toISOString(),
-          end: new Date(range.end).toISOString(),
-          durationMinutes: (range.end - range.start) / (1000 * 60),
-        })),
-      });
-
       if (missingRanges.length === 0) {
-        console.log("[No Missing Ranges] Using cached data");
         if (pendingSetExtremesRef.current) {
           const { start, end } = pendingSetExtremesRef.current;
           updateExtremesAndDisplay(
@@ -242,12 +209,6 @@ export const useMeasurementsFetcher = (
           fetchStart = fetchEnd - MILLISECONDS_IN_A_MONTH;
         }
 
-        console.log("[Fetching Range]", {
-          start: new Date(fetchStart).toISOString(),
-          end: new Date(fetchEnd).toISOString(),
-          durationMinutes: (fetchEnd - fetchStart) / (1000 * 60),
-        });
-
         const fetchStartTime = Date.now();
         const result = await dispatch(
           fetchMeasurements({
@@ -256,15 +217,6 @@ export const useMeasurementsFetcher = (
             endTime: Math.floor(fetchEnd).toString(),
           })
         ).unwrap();
-
-        console.log("[Fetch Complete]", {
-          durationMs: Date.now() - fetchStartTime,
-          dataPointsReceived: result?.length || 0,
-          range: {
-            start: new Date(fetchStart).toISOString(),
-            end: new Date(fetchEnd).toISOString(),
-          },
-        });
 
         if (result && result.length > 0) {
           dispatch(
@@ -304,7 +256,6 @@ export const useMeasurementsFetcher = (
     } finally {
       isCurrentlyFetchingRef.current = false;
       pendingSetExtremesRef.current = null;
-      console.log("[Fetch Cleanup] Ready for next fetch");
     }
   };
 
