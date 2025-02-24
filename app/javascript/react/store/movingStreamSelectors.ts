@@ -1,14 +1,14 @@
 import { createSelector } from "@reduxjs/toolkit";
+import { memoize } from "lodash";
 import moment, { Moment } from "moment";
-
 import { RootState } from ".";
+import { DateFormat } from "../types/dateFormat";
 import {
   CalendarCellData,
   CalendarMonthlyData,
   StreamDailyAverage,
 } from "../types/movingStream";
 import { StreamDailyAverage as MovingStreamDailyAverage } from "../types/StreamDailyAverage";
-import { lastItemFromArray } from "../utils/lastArrayItem";
 
 const WEEKDAYS_COUNT = 7;
 
@@ -43,99 +43,128 @@ const getValueForDate = (
   return dailyAverage ? dailyAverage.value : null;
 };
 
-const getMonthWeeksOfDailyAveragesFor = (
-  month: Moment,
-  streamDailyAverages: StreamDailyAverage[]
-): CalendarMonthlyData => {
-  if (!month || !month.isValid() || !streamDailyAverages) {
-    throw new Error("Invalid inputs");
-  }
-
-  const { firstDayOfMonthWeek, lastDayOfMonthWeek } =
-    getMonthWeekBoundariesForDate(month);
-  let currentDate = firstDayOfMonthWeek.clone();
-
-  let weeks = [];
-
-  while (currentDate <= lastDayOfMonthWeek) {
-    let week = [];
-    for (let i = 0; i < WEEKDAYS_COUNT; i++) {
-      const isCurrentMonth = currentDate.isSame(month, "month");
-
-      const value = isCurrentMonth
-        ? getValueForDate(currentDate.format("YYYY-MM-DD"), streamDailyAverages)
-        : null;
-      const calendarCellData = prepareCalendarDataCell(currentDate, value);
-
-      week.push(calendarCellData);
-      currentDate.add(1, "day");
+const getMonthWeeksOfDailyAveragesFor = memoize(
+  (
+    month: Moment,
+    streamDailyAverages: StreamDailyAverage[]
+  ): CalendarMonthlyData => {
+    if (!month || !month.isValid() || !streamDailyAverages) {
+      throw new Error("Invalid inputs");
     }
-    weeks.push(week);
-  }
-  const dayNamesHeader = weeks[0].map((day) =>
-    moment(day.date).format("dddd").substring(0, 3)
-  );
 
-  const monthName = month.format("MMMM");
+    const { firstDayOfMonthWeek, lastDayOfMonthWeek } =
+      getMonthWeekBoundariesForDate(month);
+    let currentDate = firstDayOfMonthWeek.clone();
 
-  return { monthName, dayNamesHeader, weeks };
-};
+    const weeks = [];
+    while (currentDate <= lastDayOfMonthWeek) {
+      const week = [];
+      for (let i = 0; i < WEEKDAYS_COUNT; i++) {
+        const isCurrentMonth = currentDate.isSame(month, "month");
+        const value = isCurrentMonth
+          ? getValueForDate(
+              currentDate.format("YYYY-MM-DD"),
+              streamDailyAverages
+            )
+          : null;
+        week.push(prepareCalendarDataCell(currentDate.clone(), value));
+        currentDate.add(1, "day");
+      }
+      weeks.push(week);
+    }
 
-const sortStreamDailyAveragesByDate = (
-  streamDailyAverages: StreamDailyAverage[]
-): StreamDailyAverage[] => {
-  return [...streamDailyAverages].sort((a, b) => {
-    return moment(a.date).valueOf() - moment(b.date).valueOf();
-  });
-};
+    const dayNamesHeader = weeks[0].map((day) =>
+      moment(day.date).format("dddd").substring(0, 3)
+    );
 
-const getLatestDataPointDate = (
-  streamDailyAverages: StreamDailyAverage[]
-): string | undefined => {
-  const sortedAverages = sortStreamDailyAveragesByDate(streamDailyAverages);
-  const latestDataPointDate = lastItemFromArray(sortedAverages)?.date;
-  return latestDataPointDate;
-};
+    return {
+      monthName: month.format("MMMM"),
+      dayNamesHeader,
+      weeks,
+    };
+  },
+  (month: Moment, streamDailyAverages: StreamDailyAverage[]) =>
+    `${month.format("YYYY-MM")}-${JSON.stringify(streamDailyAverages)}`
+);
 
-const getFullWeeksOfThreeLatestMonths = (
-  streamDailyAverages: MovingStreamDailyAverage[]
-): CalendarMonthlyData[] => {
-  const latestDateWithData = getLatestDataPointDate(streamDailyAverages);
-  const latestMomentWithData = moment(latestDateWithData);
+const getVisibleMonthsData = memoize(
+  (
+    streamDailyAverages: MovingStreamDailyAverage[],
+    startDate: string,
+    endDate: string
+  ): MovingStreamDailyAverage[] => {
+    if (!streamDailyAverages || !startDate || !endDate) return [];
 
-  const secondLatestMonth = latestMomentWithData.clone().subtract(1, "month");
-  const thirdLatestMonth = latestMomentWithData.clone().subtract(2, "month");
-  const threeMonths = [
-    thirdLatestMonth,
-    secondLatestMonth,
-    latestMomentWithData,
-  ];
+    const startMoment = moment(startDate, DateFormat.us).startOf("day");
+    const endMoment = moment(endDate, DateFormat.us).endOf("day");
 
-  const threeMonthsData = threeMonths.map((month) => {
-    return getMonthWeeksOfDailyAveragesFor(month, streamDailyAverages);
-  });
+    return streamDailyAverages.filter((average) => {
+      const dateMoment = moment(average.date, DateFormat.default);
+      return dateMoment.isBetween(startMoment, endMoment, "day", "[]");
+    });
+  },
+  (streamDailyAverages, startDate, endDate) =>
+    `${startDate}-${endDate}-${streamDailyAverages.length}`
+);
 
-  return threeMonthsData;
-};
-
-const selectMovingCalendarData = (
+const _selectMovingCalendarData = (
   state: RootState
 ): MovingStreamDailyAverage[] => {
   return state.movingCalendarStream.data;
 };
 
 const selectThreeMonthsDailyAverage = createSelector(
-  selectMovingCalendarData,
-  (fixedStreamData): CalendarMonthlyData[] => {
-    const streamDailyAverages = fixedStreamData;
+  [
+    _selectMovingCalendarData,
+    (_state: RootState, startDate?: string, endDate?: string) => ({
+      startDate,
+      endDate,
+    }),
+  ],
+  (calendarData, { startDate, endDate }): CalendarMonthlyData[] => {
+    const emptyResult: CalendarMonthlyData[] = [];
+    if (!calendarData?.length || !startDate || !endDate) {
+      return emptyResult;
+    }
 
-    const monthData = getFullWeeksOfThreeLatestMonths(streamDailyAverages);
-    return monthData;
+    const endMoment = moment(endDate, DateFormat.us);
+    if (!endMoment.isValid()) {
+      return emptyResult;
+    }
+
+    const visibleData = getVisibleMonthsData(calendarData, startDate, endDate);
+
+    const latestMomentWithData = endMoment.clone().endOf("month");
+    const secondLatestMonth = latestMomentWithData.clone().subtract(1, "month");
+    const thirdLatestMonth = latestMomentWithData.clone().subtract(2, "month");
+
+    if (
+      !latestMomentWithData.isValid() ||
+      !secondLatestMonth.isValid() ||
+      !thirdLatestMonth.isValid()
+    ) {
+      return emptyResult;
+    }
+
+    const threeMonths = [
+      thirdLatestMonth,
+      secondLatestMonth,
+      latestMomentWithData,
+    ];
+
+    try {
+      return threeMonths.map((month) =>
+        getMonthWeeksOfDailyAveragesFor(month, visibleData)
+      );
+    } catch (error) {
+      console.error("Error generating calendar data:", error);
+      return emptyResult;
+    }
   }
 );
 
 const selectMovingCalendarMinMax = createSelector(
-  selectMovingCalendarData,
+  _selectMovingCalendarData,
   (calendarData) => {
     if (!calendarData || calendarData.length === 0) {
       return { min: null, max: null };

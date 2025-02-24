@@ -1,4 +1,4 @@
-import moment from "moment";
+import moment from "moment-timezone";
 import React, { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 
@@ -14,12 +14,12 @@ import { ResetButton } from "../../components/ThresholdConfigurator/ThresholdBut
 import { ThresholdButtonVariant } from "../../components/ThresholdConfigurator/ThresholdButtons/ThresholdButton";
 import { UniformDistributionButton } from "../../components/ThresholdConfigurator/ThresholdButtons/UniformDistributionButton";
 
-import { selectFixedStreamShortInfo } from "../../store/fixedStreamSelectors";
 import {
-  fetchFixedStreamById,
   selectFixedData,
+  selectFixedStreamShortInfo,
   selectIsLoading,
-} from "../../store/fixedStreamSlice";
+} from "../../store/fixedStreamSelectors";
+import { fetchFixedStreamById } from "../../store/fixedStreamSlice";
 import { useAppDispatch, useAppSelector } from "../../store/hooks";
 import {
   fetchNewMovingStream,
@@ -57,6 +57,11 @@ const CalendarPage: React.FC<CalendarPageProps> = ({ children }) => {
   const [errorMessage, setErrorMessage] = useState("");
   const [initialDataFetched, setInitialDataFetched] = useState(false);
 
+  // Maintain selectedTimestamp across fetches until explicitly cleared.
+  const [selectedTimestamp, setSelectedTimestamp] = useState<number | null>(
+    null
+  );
+
   const calendarIsVisible =
     movingCalendarData.data.length &&
     streamId &&
@@ -70,7 +75,7 @@ const CalendarPage: React.FC<CalendarPageProps> = ({ children }) => {
     if (streamId && !fixedStreamData.measurements.length) {
       dispatch(fetchFixedStreamById(streamId));
     }
-  }, [streamId]);
+  }, [streamId, dispatch, fixedStreamData.measurements.length]);
 
   useEffect(() => {
     window.addEventListener("popstate", handleCalendarGoBack);
@@ -85,37 +90,30 @@ const CalendarPage: React.FC<CalendarPageProps> = ({ children }) => {
       fixedStreamData.stream.startTime &&
       streamEndTime
     ) {
-      const startMoment = moment(fixedStreamData.stream.startTime);
-      const endMoment = moment(streamEndTime);
-
-      if (startMoment.isValid() && endMoment.isValid()) {
-        const formattedEndDate = endMoment.format("YYYY-MM-DD");
-        const newStartDate = endMoment
-          .clone()
-          .date(1)
-          .subtract(2, "months")
-          .format("YYYY-MM-DD");
-
-        dispatch(
-          fetchNewMovingStream({
-            id: streamId,
-            startDate: newStartDate,
-            endDate: formattedEndDate,
-          })
-        );
-
-        setInitialDataFetched(true);
-      }
+      dispatch(
+        fetchNewMovingStream({
+          id: streamId,
+          startDate: fixedStreamData.stream.startTime,
+          endDate: streamEndTime,
+        })
+      );
+      setInitialDataFetched(true);
     }
-
     if (fixedStreamData.stream) {
       dispatch(setDefaultThresholdsValues(fixedStreamData.stream));
     }
-  }, [fixedStreamData, streamId, isLoading, streamEndTime, initialDataFetched]);
+  }, [
+    fixedStreamData,
+    streamId,
+    isLoading,
+    streamEndTime,
+    dispatch,
+    initialDataFetched,
+  ]);
 
-  useEffect(() => {
-    setInitialDataFetched(false);
-  }, [streamId]);
+  const handleDayClick = (timestamp: number | null) => {
+    setSelectedTimestamp(timestamp);
+  };
 
   const renderMobileGraph = () => (
     <S.GraphContainer $isMobile={isMobile}>
@@ -141,6 +139,8 @@ const CalendarPage: React.FC<CalendarPageProps> = ({ children }) => {
               sessionType={SessionTypes.FIXED}
               isCalendarPage={true}
               rangeDisplayRef={rangeDisplayRef}
+              selectedTimestamp={selectedTimestamp}
+              onDayClick={handleDayClick}
             />
             <MeasurementComponent />
           </>
@@ -217,6 +217,8 @@ const CalendarPage: React.FC<CalendarPageProps> = ({ children }) => {
             sessionType={SessionTypes.FIXED}
             isCalendarPage={true}
             rangeDisplayRef={rangeDisplayRef}
+            selectedTimestamp={selectedTimestamp}
+            onDayClick={handleDayClick}
           />
         }
       />
@@ -236,6 +238,8 @@ const CalendarPage: React.FC<CalendarPageProps> = ({ children }) => {
               streamId={streamId}
               minCalendarDate={fixedStreamData.stream.startTime}
               maxCalendarDate={streamEndTime}
+              onDayClick={handleDayClick}
+              selectedTimestamp={selectedTimestamp}
             />
           ) : (
             <EmptyCalendar />

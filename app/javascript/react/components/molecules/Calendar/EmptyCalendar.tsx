@@ -1,33 +1,51 @@
-import React from "react";
-import { useSelector } from "react-redux";
-
-import { Month } from "./atoms/Month";
+import React, { useCallback, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
-import HeaderToggle from "./HeaderToggle/HeaderToggle";
+import { useSelector } from "react-redux";
 import { selectThreeMonthsDailyAverage } from "../../../store/movingStreamSelectors";
+import { Month } from "./atoms/Month";
 import * as S from "./Calendar.style";
+import HeaderToggle from "./HeaderToggle/HeaderToggle";
 
-const EmptyCalendar = () => {
+interface EmptyCalendarProps {
+  onDayClick?: (timestamp: number) => void;
+}
+
+const EmptyCalendar: React.FC<EmptyCalendarProps> = ({ onDayClick }) => {
   const threeMonthsData = useSelector(selectThreeMonthsDailyAverage);
   const { t } = useTranslation();
+  const [selectedTimestamp, setSelectedTimestamp] = useState<number | null>(
+    null
+  );
+  const handleDayClick = useCallback(
+    (timestamp: number) => {
+      setSelectedTimestamp(timestamp);
+      onDayClick?.(timestamp);
+    },
+    [onDayClick]
+  );
+
+  const monthComponents = useMemo(() => {
+    if (!threeMonthsData) return null;
+
+    return threeMonthsData.map((month) => (
+      <Month
+        key={month.monthName}
+        {...month}
+        onDayClick={handleDayClick}
+        selectedTimestamp={selectedTimestamp}
+      />
+    ));
+  }, [threeMonthsData, handleDayClick, selectedTimestamp]);
+
+  if (!threeMonthsData) return null;
 
   return (
-    threeMonthsData && (
-      <S.CalendarContainer>
-        <HeaderToggle
-          titleText={t("calendarHeader.calendarTitle")}
-          componentToToggle={
-            <>
-              <S.ThreeMonths>
-                {threeMonthsData.map((month) => (
-                  <Month key={month.monthName} {...month} />
-                ))}
-              </S.ThreeMonths>
-            </>
-          }
-        />
-      </S.CalendarContainer>
-    )
+    <S.CalendarContainer>
+      <HeaderToggle
+        titleText={t("calendarHeader.calendarTitle")}
+        componentToToggle={<S.ThreeMonths>{monthComponents}</S.ThreeMonths>}
+      />
+    </S.CalendarContainer>
   );
 };
 

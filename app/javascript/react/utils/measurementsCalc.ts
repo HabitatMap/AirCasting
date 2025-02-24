@@ -19,7 +19,14 @@ export const calculateMeasurementStats = (
 };
 
 export const isNoData = (...values: (number | null | undefined)[]): boolean => {
-  return values.some((value) => value === undefined || value === null);
+  return values.some(
+    (value) =>
+      value === undefined ||
+      value === null ||
+      value === Infinity ||
+      value === -Infinity ||
+      isNaN(value)
+  );
 };
 
 export const isValidValue = (value: number | null | undefined): boolean => {
@@ -44,22 +51,36 @@ export const formatTime = (minTime: string | null, maxTime: string | null) => {
 };
 
 export const formatTimeExtremes = (
-  minTime: number | null,
-  maxTime: number | null
+  min: number,
+  max: number,
+  useFullDayFormat: boolean = false
 ) => {
-  const formatDate = (date: number | null) => {
-    if (!date) return { date: null, time: null };
+  // Force UTC handling
+  const minDate = moment.utc(min);
+  const maxDate = moment.utc(max);
 
-    const utcDate = moment.utc(date);
+  // Check if both timestamps fall on the same day
+  const sameDay = minDate.isSame(maxDate, "day");
 
-    const dateString = utcDate.format(DateFormat.us);
-    const timeString = utcDate.format(DateFormat.time_with_seconds);
-
-    return { date: dateString, time: timeString };
-  };
+  // Determine if the minimum timestamp is exactly at the start of its day
+  const isMinAtStart = minDate.isSame(minDate.clone().startOf("day"));
+  // Determine if the maximum timestamp is exactly at the end of its day
+  const isMaxAtEnd = maxDate.isSame(maxDate.clone().endOf("day"));
 
   return {
-    formattedMinTime: formatDate(minTime),
-    formattedMaxTime: formatDate(maxTime),
+    formattedMinTime: {
+      date: minDate.format(DateFormat.us),
+      time:
+        useFullDayFormat && sameDay && isMinAtStart
+          ? "00:00:01"
+          : minDate.format(DateFormat.time_with_seconds),
+    },
+    formattedMaxTime: {
+      date: maxDate.format(DateFormat.us),
+      time:
+        useFullDayFormat && sameDay && isMaxAtEnd
+          ? "00:00:00"
+          : maxDate.format(DateFormat.time_with_seconds),
+    },
   };
 };
