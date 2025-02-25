@@ -377,7 +377,7 @@ const getPlotOptions = (
         enabled: true,
         units: isGovData
           ? [
-              ["hour", [1]],
+              ["hour", [1, 2, 3, 4, 6, 8, 12]],
               ["day", [1]],
             ]
           : [
@@ -434,25 +434,17 @@ const getTooltipOptions = (
 ): Highcharts.TooltipOptions => ({
   enabled: true,
   formatter: function (this: Highcharts.TooltipFormatterContextObject): string {
-    // Format the date part (month/day/year)
     const dateStr = Highcharts.dateFormat("%m/%d/%Y", Number(this.x));
     let s = `<span>${dateStr} `;
 
     const pointData = this.points ? this.points[0] : this.point;
     const point = pointData as any;
     const series = point.series;
-    console.log("series", series);
+
     if (series.hasGroupedData && series.currentDataGrouping) {
-      console.log(
-        "series.currentDataGrouping",
-        series.currentDataGrouping,
-        "inside"
-      );
-      // Check if there's only one data point in the grouping
       if (series.currentDataGrouping.count === 1) {
         s += Highcharts.dateFormat("%H:%M:%S", point.x) + "</span>";
       } else {
-        // More than one point: show the time range
         const groupingInfo = series.currentDataGrouping;
         const groupingDiff = groupingInfo.totalRange;
         const xLess = point.x;
