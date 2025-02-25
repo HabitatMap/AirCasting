@@ -124,10 +124,13 @@ const getXAxisOptions = (
 
     lastTriggerRef.current = currentTrigger;
 
+    console.log("currentTrigger", currentTrigger);
+
     if (
       (currentTrigger === "navigator" ||
         currentTrigger === "pan" ||
-        currentTrigger === "zoom") &&
+        currentTrigger === "zoom" ||
+        currentTrigger === "mousewheel") &&
       isCalendarDaySelectedRef?.current
     ) {
       isCalendarDaySelectedRef.current = false;
@@ -158,7 +161,9 @@ const getXAxisOptions = (
         currentTrigger === "navigator" ||
         currentTrigger === "pan" ||
         currentTrigger === "zoom" ||
-        currentTrigger === "calendarDay")
+        currentTrigger === "calendarDay" ||
+        currentTrigger === "mousewheel" ||
+        currentTrigger === "syncExtremes")
     ) {
       if (fixedSessionTypeSelected) {
         dispatch(
