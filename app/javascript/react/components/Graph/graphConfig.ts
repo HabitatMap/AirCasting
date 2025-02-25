@@ -330,7 +330,8 @@ const getPlotOptions = (
   fixedSessionTypeSelected: boolean,
   streamId: number | null,
   dispatch: any,
-  isIndoorParameterInUrl: boolean
+  isIndoorParameterInUrl: boolean,
+  isGovData: boolean
 ): PlotOptions => {
   const handleMouseOver = function (this: Highcharts.Point) {
     if (!isIndoorParameterInUrl) {
@@ -374,11 +375,16 @@ const getPlotOptions = (
       },
       dataGrouping: {
         enabled: true,
-        units: [
-          ["millisecond", []],
-          ["second", [2, 3, 4, 5, 6, 7, 8, 9, 10, 15, 20, 30, 40, 50]],
-          ["minute", [1, 2, 3, 4, 5]],
-        ],
+        units: isGovData
+          ? [
+              ["hour", [1]],
+              ["day", [1]],
+            ]
+          : [
+              ["millisecond", []],
+              ["second", [2, 3, 4, 5, 6, 7, 8, 9, 10, 15, 20, 30, 40, 50]],
+              ["minute", [1, 2, 3, 4, 5]],
+            ],
         approximation: "average",
       },
 
@@ -435,14 +441,25 @@ const getTooltipOptions = (
     const pointData = this.points ? this.points[0] : this.point;
     const point = pointData as any;
     const series = point.series;
-
+    console.log("series", series);
     if (series.hasGroupedData && series.currentDataGrouping) {
-      const groupingInfo = series.currentDataGrouping;
-      const groupingDiff = groupingInfo.totalRange;
-      const xLess = point.x;
-      const xMore = point.x + groupingDiff;
-      s += Highcharts.dateFormat("%H:%M:%S", xLess) + "-";
-      s += Highcharts.dateFormat("%H:%M:%S", xMore - 1000) + "</span>";
+      console.log(
+        "series.currentDataGrouping",
+        series.currentDataGrouping,
+        "inside"
+      );
+      // Check if there's only one data point in the grouping
+      if (series.currentDataGrouping.count === 1) {
+        s += Highcharts.dateFormat("%H:%M:%S", point.x) + "</span>";
+      } else {
+        // More than one point: show the time range
+        const groupingInfo = series.currentDataGrouping;
+        const groupingDiff = groupingInfo.totalRange;
+        const xLess = point.x;
+        const xMore = point.x + groupingDiff;
+        s += Highcharts.dateFormat("%H:%M:%S", xLess) + "-";
+        s += Highcharts.dateFormat("%H:%M:%S", xMore - 1000) + "</span>";
+      }
     } else {
       s += Highcharts.dateFormat("%H:%M:%S", point.x) + "</span>";
     }
@@ -451,7 +468,7 @@ const getTooltipOptions = (
       "<br/>" +
       measurementType +
       " = " +
-      Math.round(pointData.y) +
+      Math.round(pointData.y || 0) +
       " " +
       unitSymbol;
     return s;
@@ -460,7 +477,6 @@ const getTooltipOptions = (
   style: {
     fontSize: "1.2rem",
     fontFamily: "Roboto",
-    color: "#000000",
   },
 });
 
