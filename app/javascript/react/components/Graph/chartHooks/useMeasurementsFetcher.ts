@@ -26,6 +26,7 @@ export const useMeasurementsFetcher = (
   const dispatch = useAppDispatch();
   const isFirstRender = useRef(true);
   const fetchAttemptsRef = useRef(0);
+  // This ref will store the intended trigger (e.g. "mousewheel")
   const lastFetchTriggerRef = useRef<string | null>(null);
   const pendingSetExtremesRef = useRef<{ start: number; end: number } | null>(
     null
@@ -37,7 +38,6 @@ export const useMeasurementsFetcher = (
 
   const findMissingRanges = (start: number, end: number) => {
     if (!fetchedTimeRanges.length) {
-      // If requesting more than a month, return only the last month
       if (end - start > MILLISECONDS_IN_A_MONTH) {
         return [
           {
@@ -49,7 +49,6 @@ export const useMeasurementsFetcher = (
       return [{ start, end }];
     }
 
-    // Sort ranges by start time
     const sortedRanges = [...fetchedTimeRanges].sort(
       (a, b) => a.start - b.start
     );
@@ -57,7 +56,6 @@ export const useMeasurementsFetcher = (
     let currentStart = start;
 
     for (const range of sortedRanges) {
-      // If there's a gap before this range
       if (currentStart < range.start) {
         const gapEnd = Math.min(range.start, end);
         if (gapEnd - currentStart > MILLISECONDS_IN_A_MINUTE) {
@@ -67,13 +65,10 @@ export const useMeasurementsFetcher = (
           });
         }
       }
-      // Update currentStart to the end of this range
       currentStart = Math.max(currentStart, range.end);
     }
 
-    // Check if there's a gap after the last range
     if (currentStart < end) {
-      // Only add gap if it's not too small
       if (end - currentStart > MILLISECONDS_IN_A_MINUTE) {
         gaps.push({
           start: currentStart,
@@ -82,10 +77,8 @@ export const useMeasurementsFetcher = (
       }
     }
 
-    // Process gaps to ensure none are larger than one month
     return gaps.reduce<{ start: number; end: number }[]>((acc, gap) => {
       if (gap.end - gap.start > MILLISECONDS_IN_A_MONTH) {
-        // Split into month-sized chunks, starting from the end
         let chunkEnd = gap.end;
         while (chunkEnd > gap.start) {
           const chunkStart = Math.max(
@@ -104,6 +97,8 @@ export const useMeasurementsFetcher = (
       return acc;
     }, []);
   };
+
+  // UPDATED: Use an effective trigger when setting extremes.
   const updateExtremesAndDisplay = (
     start: number,
     end: number,
@@ -111,16 +106,23 @@ export const useMeasurementsFetcher = (
   ) => {
     if (chartComponentRef?.current?.chart) {
       const chart = chartComponentRef.current.chart;
-      chart.xAxis[0].setExtremes(start, end, true, false, { trigger });
-      // Update range display with the new extremes
+      // If trigger is "none", fall back to the last stored trigger.
+      const effectiveTrigger =
+        trigger && trigger !== "none"
+          ? trigger
+          : lastFetchTriggerRef.current || "none";
+      chart.xAxis[0].setExtremes(start, end, true, false, {
+        trigger: effectiveTrigger,
+      });
       updateRangeDisplay(
         rangeDisplayRef,
         start,
         end,
-        trigger === "calendarDay"
+        effectiveTrigger === "calendarDay"
       );
     }
   };
+
   const fetchMeasurementsIfNeeded = async (
     start: number,
     end: number,
@@ -132,14 +134,12 @@ export const useMeasurementsFetcher = (
       return;
     }
 
-    // Store the trigger that initiated this fetch
+    // Store the intended trigger and pending extremes.
     if (trigger) {
       lastFetchTriggerRef.current = trigger;
-      // Store the intended extremes
       pendingSetExtremesRef.current = { start, end };
     }
 
-    // Respect session boundaries
     const boundedStart = Math.max(start, sessionStartTime);
     const boundedEnd = Math.min(end, sessionEndTime);
 
@@ -149,8 +149,6 @@ export const useMeasurementsFetcher = (
 
     try {
       isCurrentlyFetchingRef.current = true;
-
-      // Find missing ranges in the requested time window
       const missingRanges = findMissingRanges(boundedStart, boundedEnd);
 
       if (missingRanges.length === 0) {
@@ -165,13 +163,11 @@ export const useMeasurementsFetcher = (
         return;
       }
 
-      // Fetch each missing range
       for (const range of missingRanges) {
         let fetchStart = range.start;
         let fetchEnd = range.end;
 
         if (isDaySelection) {
-          // For day selection, add padding but still respect one month limit
           const paddedStart = Math.max(
             sessionStartTime,
             fetchStart - MILLISECONDS_IN_A_DAY * 2
@@ -209,7 +205,6 @@ export const useMeasurementsFetcher = (
           fetchStart = fetchEnd - MILLISECONDS_IN_A_MONTH;
         }
 
-        const fetchStartTime = Date.now();
         const result = await dispatch(
           fetchMeasurements({
             streamId: Number(streamId),
@@ -229,7 +224,6 @@ export const useMeasurementsFetcher = (
         }
       }
 
-      // After all fetches complete successfully
       if (pendingSetExtremesRef.current) {
         const { start, end } = pendingSetExtremesRef.current;
         requestAnimationFrame(() => {

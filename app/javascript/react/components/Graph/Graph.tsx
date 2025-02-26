@@ -1,5 +1,5 @@
 import HighchartsReact from "highcharts-react-official";
-import Highcharts, { Chart } from "highcharts/highstock";
+import Highcharts from "highcharts/highstock";
 import HighchartsAccessibility from "highcharts/modules/accessibility";
 import NoDataToDisplay from "highcharts/modules/no-data-to-display";
 import React, {
@@ -182,7 +182,7 @@ const Graph: React.FC<GraphProps> = memo(
       chartComponentRef,
       rangeDisplayRef
     );
-    const { updateChartData } = useChartUpdater({
+    const { updateChartData, lastTriggerRef } = useChartUpdater({
       chartComponentRef,
       seriesData,
       isLoading,
@@ -194,7 +194,6 @@ const Graph: React.FC<GraphProps> = memo(
 
     const [isFirstLoad, setIsFirstLoad] = useState(true);
     const lastRangeSelectorTriggerRef = useRef<string | null>(null);
-    const lastTriggerRef = useRef<string | null>(null);
     const lastUpdateTimeRef = useRef<number>(0);
 
     const computedSelectedRangeIndex = useMemo(() => {
@@ -222,19 +221,15 @@ const Graph: React.FC<GraphProps> = memo(
     useEffect(() => {
       if (!chartComponentRef.current?.chart || !selectedTimestamp) return;
 
-      // Mark that a calendar day is selected.
       isCalendarDaySelectedRef.current = true;
 
-      // Calculate day boundaries
       const selectedDayStart = selectedTimestamp;
       let selectedDayEnd =
         selectedDayStart + MILLISECONDS_IN_A_DAY - MILLISECONDS_IN_A_SECOND;
 
-      // Determine if this is the first or last day of the session
       const isFirstDay = selectedDayStart <= startTime;
       const isLastDay = selectedDayEnd >= endTime;
 
-      // Adjust the range based on session boundaries
       let finalRangeStart = selectedDayStart;
       let finalRangeEnd = selectedDayEnd;
 
@@ -245,13 +240,11 @@ const Graph: React.FC<GraphProps> = memo(
         finalRangeEnd = endTime;
       }
 
-      // Ensure we stay within session bounds
       finalRangeStart = Math.max(finalRangeStart, startTime);
       finalRangeEnd = Math.min(finalRangeEnd, endTime);
 
       updateRangeDisplay(rangeDisplayRef, finalRangeStart, finalRangeEnd, true);
 
-      // Only fetch measurements for fixed sessions
       if (fixedSessionTypeSelected) {
         fetchMeasurementsIfNeeded(
           finalRangeStart,
@@ -279,7 +272,6 @@ const Graph: React.FC<GraphProps> = memo(
         }
         lastRangeSelectorTriggerRef.current = selectedButton.toString();
 
-        // Dispatch actions or do other work as needed.
         if (chartComponentRef.current?.chart) {
           const chart = chartComponentRef.current.chart;
           let timeRange;
@@ -300,7 +292,6 @@ const Graph: React.FC<GraphProps> = memo(
             }
             dispatch(setLastSelectedTimeRange(timeRange));
           } else {
-            // Handle mobile time range dispatch
             switch (selectedButton) {
               case 0:
                 timeRange = MobileTimeRange.FiveMinutes;
@@ -372,25 +363,20 @@ const Graph: React.FC<GraphProps> = memo(
     );
 
     const handleChartLoad = useCallback(
-      function (this: Chart) {
+      function (this: Highcharts.Chart) {
         handleLoad.call(this, isCalendarPage, isMobile);
         const chart = this;
         const twoDaysAgo = endTime - 2 * MILLISECONDS_IN_A_DAY;
         chart.xAxis[0].setExtremes(twoDaysAgo, endTime, true, false);
         setIsFirstLoad(false);
       },
-      [isCalendarPage, isMobile, fetchMeasurementsIfNeeded, endTime]
-    );
-
-    const chartOptions = useMemo(
-      () => getChartOptions(isCalendarPage, isMobile),
-      [isCalendarPage, isMobile]
+      [isCalendarPage, isMobile, endTime]
     );
 
     const options = useMemo<Highcharts.Options>(() => {
       return {
         chart: {
-          ...chartOptions,
+          ...getChartOptions(isCalendarPage, isMobile),
           events: { load: handleChartLoad },
         },
         xAxis: getXAxisOptions(
@@ -422,6 +408,7 @@ const Graph: React.FC<GraphProps> = memo(
           isIndoorParameterInUrl,
           isGovData
         ),
+        // Updated Range Selector: if lastTriggerRef.current equals "mousewheel", no button is selected.
         rangeSelector: {
           ...getRangeSelectorOptions(
             isMobile,
@@ -498,14 +485,15 @@ const Graph: React.FC<GraphProps> = memo(
                   },
                 },
               ],
-          selected: selectedTimestamp
-            ? undefined
-            : selectedRangeIndex >= 0
-            ? selectedRangeIndex
-            : undefined,
+          selected:
+            selectedTimestamp || lastTriggerRef.current === "mousewheel"
+              ? undefined
+              : selectedRangeIndex >= 0
+              ? selectedRangeIndex
+              : undefined,
         },
-        scrollbar: { ...getScrollbarOptions(isCalendarPage, isMobile) },
-        navigator: { ...getNavigatorOptions() },
+        scrollbar: getScrollbarOptions(isCalendarPage, isMobile),
+        navigator: getNavigatorOptions(),
         responsive: getResponsiveOptions(thresholdsState, isMobile),
         legend: legendOption,
         noData: {
@@ -516,32 +504,28 @@ const Graph: React.FC<GraphProps> = memo(
         },
       };
     }, [
-      chartOptions,
-      computedSelectedRangeIndex,
-      chartData,
-      measurementType,
-      unitSymbol,
-      thresholdsState,
-      fixedSessionTypeSelected,
-      streamId,
-      isIndoorParameterInUrl,
-      totalDuration,
-      t,
-      fetchMeasurementsIfNeeded,
-      isLoading,
-      rangeDisplayRef,
-      isMobile,
       isCalendarPage,
+      isMobile,
+      totalDuration,
+      computedSelectedRangeIndex,
+      t,
+      fixedSessionTypeSelected,
       dispatch,
-      handleChartLoad,
-      lastRangeSelectorTriggerRef,
-      selectedRangeIndex,
+      isLoading,
+      fetchMeasurementsIfNeeded,
+      streamId,
       lastTriggerRef,
       lastUpdateTimeRef,
       startTime,
       endTime,
-      isCalendarDaySelectedRef,
+      thresholdsState,
+      chartData,
+      selectedTimestamp,
+      selectedRangeIndex,
       onDayClick,
+      measurementType,
+      unitSymbol,
+      isIndoor,
     ]);
 
     useEffect(() => {

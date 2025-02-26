@@ -8,7 +8,6 @@ import {
 import { useAppDispatch } from "../../../store/hooks";
 import { FixedTimeRange, MobileTimeRange } from "../../../types/timeRange";
 import { getSelectedRangeIndex } from "../../../utils/getTimeRange";
-import { updateRangeDisplay } from "./updateRangeDisplay";
 
 interface UseChartUpdaterProps {
   chartComponentRef: React.RefObject<{
@@ -37,14 +36,14 @@ export const useChartUpdater = ({
 }: UseChartUpdaterProps) => {
   const dispatch = useAppDispatch();
   const updateTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  // This ref will hold the last trigger (e.g. "mousewheel")
+  const lastTriggerRef = useRef<string | null>(null);
 
-  // Cleanup function without manual DOM manipulation
   useEffect(() => {
     return () => {
       if (updateTimeoutRef.current) {
         clearTimeout(updateTimeoutRef.current);
       }
-      // Removed manual innerHTML clearing to let React handle DOM updates.
     };
   }, []);
 
@@ -58,7 +57,6 @@ export const useChartUpdater = ({
       data: Highcharts.PointOptionsType[]
     ) => {
       chart.series[0].setData(data, true, false, false);
-
       if (fixedSessionTypeSelected && streamId && chart.xAxis[0]) {
         const { min, max } = chart.xAxis[0].getExtremes();
         if (min !== undefined && max !== undefined) {
@@ -72,41 +70,20 @@ export const useChartUpdater = ({
         }
       }
     },
-    [fixedSessionTypeSelected, streamId]
+    [fixedSessionTypeSelected, streamId, dispatch]
   );
-
-  const updateTimeRangeDisplay = useCallback(
-    (min: number, max: number) => {
-      if (!rangeDisplayRef?.current) return;
-
-      if (updateTimeoutRef.current) {
-        clearTimeout(updateTimeoutRef.current);
-      }
-
-      updateTimeoutRef.current = setTimeout(() => {
-        updateRangeDisplay(rangeDisplayRef, min, max);
-      }, 0);
-    },
-    [rangeDisplayRef]
-  );
-
-  useEffect(() => {
-    if (!chartComponentRef.current?.chart || isLoading) return;
-
-    return () => {
-      if (updateTimeoutRef.current) {
-        clearTimeout(updateTimeoutRef.current);
-      }
-    };
-  }, [chartComponentRef, isLoading]);
 
   useEffect(() => {
     if (!seriesData || isLoading || !chartComponentRef.current?.chart) return;
-
     const chart = chartComponentRef.current.chart;
     updateChartData(chart, seriesData);
 
-    if (lastSelectedTimeRange && chart.rangeSelector) {
+    // Only update the range selector if the last trigger isn't "mousewheel"
+    if (
+      lastSelectedTimeRange &&
+      chart.rangeSelector &&
+      lastTriggerRef.current !== "mousewheel"
+    ) {
       const selectedIndex = getSelectedRangeIndex(
         lastSelectedTimeRange,
         fixedSessionTypeSelected
@@ -119,39 +96,8 @@ export const useChartUpdater = ({
     updateChartData,
     lastSelectedTimeRange,
     fixedSessionTypeSelected,
+    chartComponentRef,
   ]);
-
-  useEffect(() => {
-    if (
-      !chartComponentRef.current?.chart ||
-      !lastSelectedTimeRange ||
-      !fixedSessionTypeSelected
-    )
-      return;
-
-    const chart = chartComponentRef.current.chart;
-    const selectedIndex = getSelectedRangeIndex(
-      lastSelectedTimeRange,
-      fixedSessionTypeSelected
-    );
-
-    if (chart.rangeSelector) {
-      chart.rangeSelector.clickButton(selectedIndex, true);
-    }
-
-    if (chart.xAxis[0] && streamId) {
-      const { min, max } = chart.xAxis[0].getExtremes();
-      if (min !== undefined && max !== undefined) {
-        dispatch(
-          updateFixedMeasurementExtremes({
-            streamId,
-            min,
-            max,
-          })
-        );
-      }
-    }
-  }, [lastSelectedTimeRange, fixedSessionTypeSelected, streamId]);
 
   useEffect(() => {
     return () => {
@@ -160,39 +106,10 @@ export const useChartUpdater = ({
         dispatch(resetFixedMeasurementExtremes());
       }
     };
-  }, [fixedSessionTypeSelected, streamId]);
-
-  useEffect(() => {
-    if (!chartComponentRef.current?.chart) return;
-
-    const chart = chartComponentRef.current.chart;
-
-    // Reset to 24-hour range on initial load
-    dispatch(resetTimeRange());
-
-    if (chart.rangeSelector) {
-      const dayIndex = getSelectedRangeIndex(
-        FixedTimeRange.Day,
-        fixedSessionTypeSelected
-      );
-      chart.rangeSelector.clickButton(dayIndex, true);
-    }
-
-    if (chart.xAxis[0] && streamId) {
-      const { min, max } = chart.xAxis[0].getExtremes();
-      if (min !== undefined && max !== undefined) {
-        dispatch(
-          updateFixedMeasurementExtremes({
-            streamId,
-            min,
-            max,
-          })
-        );
-      }
-    }
-  }, [chartComponentRef, dispatch, fixedSessionTypeSelected, streamId]);
+  }, [fixedSessionTypeSelected, streamId, dispatch]);
 
   return {
     updateChartData,
+    lastTriggerRef, // Expose this so that getXAxisOptions can update it.
   };
 };

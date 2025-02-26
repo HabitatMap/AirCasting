@@ -105,32 +105,34 @@ const getXAxisOptions = (
     lastNavigatorEvent = null;
   };
 
+  // UPDATED: Use effectiveTrigger computed from event data.
   const handleSetExtremes = async (
     e: Highcharts.AxisSetExtremesEventObject,
     chart: Highcharts.Chart
   ) => {
-    const currentTrigger = e.trigger || "none";
+    const effectiveTrigger =
+      e.trigger !== "none" ? e.trigger : lastTriggerRef.current || "none";
 
-    if (isHandlingCalendarDay && currentTrigger !== "calendarDay") {
+    if (isHandlingCalendarDay && effectiveTrigger !== "calendarDay") {
       return;
     }
 
-    if (currentTrigger === "calendarDay") {
+    if (effectiveTrigger === "calendarDay") {
       isHandlingCalendarDay = true;
       setTimeout(() => {
         isHandlingCalendarDay = false;
       }, 500);
     }
 
-    lastTriggerRef.current = currentTrigger;
+    lastTriggerRef.current = effectiveTrigger;
 
-    console.log("currentTrigger", currentTrigger);
+    console.log("effectiveTrigger", effectiveTrigger);
 
     if (
-      (currentTrigger === "navigator" ||
-        currentTrigger === "pan" ||
-        currentTrigger === "zoom" ||
-        currentTrigger === "mousewheel") &&
+      (effectiveTrigger === "navigator" ||
+        effectiveTrigger === "pan" ||
+        effectiveTrigger === "zoom" ||
+        effectiveTrigger === "mousewheel") &&
       isCalendarDaySelectedRef?.current
     ) {
       isCalendarDaySelectedRef.current = false;
@@ -152,18 +154,18 @@ const getXAxisOptions = (
       rangeDisplayRef,
       e.min,
       e.max,
-      currentTrigger === "calendarDay"
+      effectiveTrigger === "calendarDay"
     );
 
     if (
       streamId &&
-      (currentTrigger === "rangeSelectorButton" ||
-        currentTrigger === "navigator" ||
-        currentTrigger === "pan" ||
-        currentTrigger === "zoom" ||
-        currentTrigger === "calendarDay" ||
-        currentTrigger === "mousewheel" ||
-        currentTrigger === "syncExtremes")
+      (effectiveTrigger === "rangeSelectorButton" ||
+        effectiveTrigger === "navigator" ||
+        effectiveTrigger === "pan" ||
+        effectiveTrigger === "zoom" ||
+        effectiveTrigger === "calendarDay" ||
+        effectiveTrigger === "mousewheel" ||
+        effectiveTrigger === "syncExtremes")
     ) {
       if (fixedSessionTypeSelected) {
         dispatch(
@@ -221,14 +223,18 @@ const getXAxisOptions = (
     events: {
       afterSetExtremes: function (e: Highcharts.AxisSetExtremesEventObject) {
         const chart = this.chart;
+        // Compute effective trigger here as well.
+        const effectiveTrigger =
+          e.trigger !== "none" ? e.trigger : lastTriggerRef.current || "none";
 
-        if (isHandlingCalendarDay && e.trigger !== "calendarDay") {
+        if (isHandlingCalendarDay && effectiveTrigger !== "calendarDay") {
           return;
         }
 
-        if (e.trigger !== "navigator") {
+        if (effectiveTrigger !== "navigator") {
           removeEventHandlers();
-          handleSetExtremes(e, chart);
+          // Override the trigger in the event object.
+          handleSetExtremes({ ...e, trigger: effectiveTrigger }, chart);
           return;
         }
 
@@ -252,11 +258,9 @@ const getXAxisOptions = (
           navigatorMouseUpHandler = handleEnd;
           touchEndHandler = handleEnd;
 
-          // Attach event listeners to window with capturing enabled for better compatibility in Chrome.
           window.addEventListener("mouseup", navigatorMouseUpHandler, true);
           window.addEventListener("touchend", touchEndHandler, true);
 
-          // Use the safeguard timeout in case the release event is missed.
           cleanupTimeout = setTimeout(() => {
             handleEnd();
           }, 8000);
