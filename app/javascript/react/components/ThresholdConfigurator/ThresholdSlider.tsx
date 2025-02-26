@@ -187,7 +187,7 @@ const ThresholdSlider: React.FC<ThresholdSliderProps> = ({
       onBlur={() => handleInputBlur(thresholdKey, inputValue)}
       style={{
         ...positionStyle,
-        zIndex: 10,
+        zIndex: 5,
         marginLeft:
           thresholdKey === "min" ? "-15px" : value === max ? "0px" : "-15px",
         left:
@@ -257,7 +257,7 @@ const ThresholdSlider: React.FC<ThresholdSliderProps> = ({
           />
           {!isMobileOldStyle &&
             renderNumberInput(thresholdKey, value, {
-              zIndex: 10,
+              zIndex: 5,
               marginLeft:
                 value === min || value === max - maxThresholdDifference
                   ? "0px"

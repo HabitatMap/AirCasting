@@ -36,6 +36,7 @@ import {
 import { selectThresholds } from "../../store/thresholdSlice";
 import { SessionType, SessionTypes } from "../../types/filters";
 import { GraphData } from "../../types/graph";
+import { SensorPrefix } from "../../types/sensors";
 import { FixedTimeRange, MobileTimeRange } from "../../types/timeRange";
 import { parseDateString } from "../../utils/dateParser";
 import { getSelectedRangeIndex } from "../../utils/getTimeRange";
@@ -118,7 +119,8 @@ const Graph: React.FC<GraphProps> = memo(
       selectLastSelectedMobileTimeRange
     );
 
-    const { unitSymbol, measurementType, isIndoor } = useMapParams();
+    const { unitSymbol, measurementType, isIndoor, sensorName } =
+      useMapParams();
     const isIndoorParameterInUrl = isIndoor === "true";
 
     const lastSelectedTimeRange = fixedSessionTypeSelected
@@ -160,6 +162,8 @@ const Graph: React.FC<GraphProps> = memo(
     const measurements = useAppSelector((state: RootState) =>
       selectStreamMeasurements(state, streamId)
     );
+
+    const isGovData = sensorName?.includes(SensorPrefix.GOVERNMENT);
 
     // Generate chart series data.
     const seriesData = useMemo(() => {
@@ -415,7 +419,8 @@ const Graph: React.FC<GraphProps> = memo(
           fixedSessionTypeSelected,
           streamId,
           dispatch,
-          isIndoorParameterInUrl
+          isIndoorParameterInUrl,
+          isGovData
         ),
         rangeSelector: {
           ...getRangeSelectorOptions(
