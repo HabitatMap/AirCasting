@@ -47,7 +47,7 @@ module FixedStreaming
     end
 
     def create_threshold_set!(params)
-      threshold_sets_repository.create!(params.merge(is_default: false))
+      threshold_sets_repository.create!(params: params.merge(is_default: false))
     end
 
     def create_stream!(data, session, threshold_set)

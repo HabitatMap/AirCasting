@@ -1,11 +1,16 @@
 module FixedStreaming
   class ParamsParser
-    def initialize(fixed_sessions_repository: FixedSessionsRepository.new)
+    def initialize(
+      contract: Contract.new,
+      fixed_sessions_repository: FixedSessionsRepository.new
+    )
+      @contract = contract
       @fixed_sessions_repository = fixed_sessions_repository
     end
 
     def call(params:, user_id:)
       data = parsed_params(params)
+      validation_result = validate_params(data)
       session = session(user_id: user_id, session_uuid: data[:session_uuid])
 
       if session
@@ -17,7 +22,7 @@ module FixedStreaming
 
     private
 
-    attr_reader :fixed_sessions_repository
+    attr_reader :contract, :fixed_sessions_repository
 
     def parsed_params(params)
       if params[:compression]
@@ -28,6 +33,10 @@ module FixedStreaming
       end
 
       ActiveSupport::JSON.decode(unzipped).deep_symbolize_keys
+    end
+
+    def validate_params(params)
+      contract.call(params)
     end
 
     def session(user_id:, session_uuid:)
