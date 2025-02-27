@@ -581,6 +581,62 @@ const Graph: React.FC<GraphProps> = memo(
       };
     }, []);
 
+    useEffect(() => {
+      if (isMobile && chartComponentRef.current?.chart) {
+        const chart = chartComponentRef.current.chart;
+        // Capture the initial extremes
+        let lastExtremes = chart.xAxis[0].getExtremes();
+        let debounceTimer: NodeJS.Timeout | null = null;
+
+        console.log("chart", chart);
+        const redrawHandler = () => {
+          // Clear any pending debounce timer
+          if (debounceTimer) {
+            clearTimeout(debounceTimer);
+          }
+          // Wait 150ms for the zoom/pinch to settle
+          debounceTimer = setTimeout(() => {
+            const currentExtremes = chart.xAxis[0].getExtremes();
+            // Check if the extremes have changed significantly
+            if (
+              currentExtremes.min !== lastExtremes.min ||
+              currentExtremes.max !== lastExtremes.max
+            ) {
+              lastExtremes = currentExtremes;
+              // Optionally update your range display
+              updateRangeDisplay(
+                rangeDisplayRef,
+                currentExtremes.min,
+                currentExtremes.max,
+                false
+              );
+              // Trigger fetching missing data; pass a custom trigger if needed.
+              fetchMeasurementsIfNeeded(
+                currentExtremes.min,
+                currentExtremes.max,
+                false,
+                false,
+                "redraw"
+              );
+            }
+          }, 150);
+        };
+
+        // Attach the redraw event listener using Highcharts’ event system
+        Highcharts.addEvent(chart, "redraw", redrawHandler);
+
+        return () => {
+          Highcharts.removeEvent(chart, "redraw", redrawHandler);
+          if (debounceTimer) clearTimeout(debounceTimer);
+        };
+      }
+    }, [
+      isMobile,
+      chartComponentRef,
+      fetchMeasurementsIfNeeded,
+      rangeDisplayRef,
+    ]);
+
     return (
       <S.Container
         $isCalendarPage={isCalendarPage}
