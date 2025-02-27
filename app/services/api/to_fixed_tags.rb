@@ -1,12 +1,17 @@
 class Api::ToFixedTags
-  def initialize(form:)
-    @form = form
+  def initialize(contract:)
+    @contract = contract
   end
 
   def call
-    return Failure.new(form.errors) if form.invalid?
+    return Failure.new(contract.errors) if contract.failure?
 
-    sessions = data[:is_active] ? FixedSession.active.filter_(data) : FixedSession.dormant.filter_(data)
+    sessions =
+      if data[:is_active]
+        FixedSession.active.filter_(data)
+      else
+        FixedSession.dormant.filter_(data)
+      end
 
     tags = sessions.tag_counts.where(['tags.name ILIKE ?', "#{data[:input]}%"])
 
@@ -15,10 +20,10 @@ class Api::ToFixedTags
 
   private
 
-  attr_reader :form
+  attr_reader :contract
 
   def data
-    form.to_h.to_h
+    contract.to_h
   end
 
   def words_first(str)
