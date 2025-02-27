@@ -1,13 +1,8 @@
 module Api
   class SensorsController < BaseController
     def index
-      form =
-        Api::ParamsForm.new(
-          params: params.to_unsafe_hash,
-          schema: Api::Sensors::Schema,
-          struct: Api::Sensors::Struct,
-        )
-      result = Api::ToSensorsArray.new(form: form).call
+      contract = Api::SensorsContract.new.call(params.to_unsafe_hash)
+      result = Api::ToSensorsArray.new(contract: contract).call
 
       if result.success?
         cache_control =
