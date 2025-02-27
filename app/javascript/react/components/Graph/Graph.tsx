@@ -369,11 +369,16 @@ const Graph: React.FC<GraphProps> = memo(
         const twoDaysAgo = endTime - 2 * MILLISECONDS_IN_A_DAY;
         chart.xAxis[0].setExtremes(twoDaysAgo, endTime, true, false);
         setIsFirstLoad(false);
+        if (chart.series.length && chart.series[0].points.length) {
+          // Trigger tooltip on the first data point.
+          chart.tooltip.refresh(chart.series[0].points[0]);
+        }
       },
       [isCalendarPage, isMobile, endTime]
     );
 
     const options = useMemo<Highcharts.Options>(() => {
+      console.log("lastTriggerRef.current", lastTriggerRef.current);
       return {
         chart: {
           ...getChartOptions(isCalendarPage, isMobile),
@@ -555,7 +560,8 @@ const Graph: React.FC<GraphProps> = memo(
       const applyStyles = () => {
         const graphElement = graphRef.current;
         if (graphElement) {
-          graphElement.style.touchAction = "pan-x";
+          graphElement.style.touchAction = isMobile ? "auto" : "pan-x";
+
           const highchartsContainer = graphElement.querySelector(
             ".highcharts-container"
           ) as HTMLDivElement | null;
@@ -580,62 +586,6 @@ const Graph: React.FC<GraphProps> = memo(
         observer.disconnect();
       };
     }, []);
-
-    useEffect(() => {
-      if (isMobile && chartComponentRef.current?.chart) {
-        const chart = chartComponentRef.current.chart;
-        // Capture the initial extremes
-        let lastExtremes = chart.xAxis[0].getExtremes();
-        let debounceTimer: NodeJS.Timeout | null = null;
-
-        console.log("chart", chart);
-        const redrawHandler = () => {
-          // Clear any pending debounce timer
-          if (debounceTimer) {
-            clearTimeout(debounceTimer);
-          }
-          // Wait 150ms for the zoom/pinch to settle
-          debounceTimer = setTimeout(() => {
-            const currentExtremes = chart.xAxis[0].getExtremes();
-            // Check if the extremes have changed significantly
-            if (
-              currentExtremes.min !== lastExtremes.min ||
-              currentExtremes.max !== lastExtremes.max
-            ) {
-              lastExtremes = currentExtremes;
-              // Optionally update your range display
-              updateRangeDisplay(
-                rangeDisplayRef,
-                currentExtremes.min,
-                currentExtremes.max,
-                false
-              );
-              // Trigger fetching missing data; pass a custom trigger if needed.
-              fetchMeasurementsIfNeeded(
-                currentExtremes.min,
-                currentExtremes.max,
-                false,
-                false,
-                "redraw"
-              );
-            }
-          }, 150);
-        };
-
-        // Attach the redraw event listener using Highcharts’ event system
-        Highcharts.addEvent(chart, "redraw", redrawHandler);
-
-        return () => {
-          Highcharts.removeEvent(chart, "redraw", redrawHandler);
-          if (debounceTimer) clearTimeout(debounceTimer);
-        };
-      }
-    }, [
-      isMobile,
-      chartComponentRef,
-      fetchMeasurementsIfNeeded,
-      rangeDisplayRef,
-    ]);
 
     return (
       <S.Container
