@@ -176,12 +176,13 @@ describe Api::Fixed::Active::SessionsController do
             'start_time_local' => '2000-10-01T02:03:04.000Z',
             'last_measurement_value' => active_stream.average_value,
             'is_indoor' => active_session.is_indoor,
-            'latitude' => active_session.latitude,
-            'longitude' => active_session.longitude,
+            'latitude' => active_session.latitude.to_f,
+            'longitude' => active_session.longitude.to_f,
             'title' => active_session.title,
             'is_active' => active_session.is_active,
             'username' => active_session.user.username,
-            'last_hourly_average_value' => nil,
+            'last_hourly_average_value' =>
+              active_stream.last_hourly_average_value,
             'streams' => {
               active_stream.sensor_name => {
                 'measurement_short_type' =>
@@ -267,12 +268,13 @@ describe Api::Fixed::Active::SessionsController do
             'start_time_local' => '2000-10-01T02:03:04.000Z',
             'last_measurement_value' => active_stream.average_value,
             'is_indoor' => active_session.is_indoor,
-            'latitude' => active_session.latitude,
-            'longitude' => active_session.longitude,
+            'latitude' => active_session.latitude.to_f,
+            'longitude' => active_session.longitude.to_f,
             'title' => active_session.title,
             'is_active' => active_session.is_active,
             'username' => active_session.user.username,
-            'last_hourly_average_value' => nil,
+            'last_hourly_average_value' =>
+              active_stream.last_hourly_average_value,
             'streams' => {
               active_stream.sensor_name => {
                 'measurement_short_type' =>
@@ -350,12 +352,13 @@ describe Api::Fixed::Active::SessionsController do
             'start_time_local' => '2000-10-01T02:03:04.000Z',
             'last_measurement_value' => queried_stream.average_value,
             'is_indoor' => session.is_indoor,
-            'latitude' => session.latitude,
-            'longitude' => session.longitude,
+            'latitude' => session.latitude.to_f,
+            'longitude' => session.longitude.to_f,
             'title' => session.title,
             'username' => session.user.username,
             'is_active' => session.is_active,
-            'last_hourly_average_value' => nil,
+            'last_hourly_average_value' =>
+              queried_stream.last_hourly_average_value,
             'streams' => {
               queried_stream.sensor_name => {
                 'measurement_short_type' =>

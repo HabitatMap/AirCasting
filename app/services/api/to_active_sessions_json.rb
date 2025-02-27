@@ -1,18 +1,20 @@
 class Api::ToActiveSessionsJson
-  def initialize(form:)
-    @form = form
+  def initialize(contract:)
+    @contract = contract
   end
 
   def call
-    return Failure.new(form.errors) if form.invalid?
+    return Failure.new(contract.errors) if contract.failure?
+
     result = data[:is_indoor] ? build_json_output(true) : build_json_output
     Success.new(result)
   end
 
   private
 
-  attr_reader :form
+  attr_reader :contract
 
+  # TODO: check if the comments is still valid
   def data
     # dry-struct allows for missing key using `meta(omittable: true)`
     # This `form` has such a key named `is_indoor`. Unfortunately, when
@@ -22,7 +24,7 @@ class Api::ToActiveSessionsJson
     #     the code that is accessing the struct (Session.filter_) is used
     #     by other callers that are passing a vanilla Ruby hash.
     #   - Passing a vanilla Ruby hash with `form.to_h.to_h`
-    form.to_h.to_h
+    contract.to_h
   end
 
   # this was changed from a mysql query to active record to work with postgres, but it might perform worse
