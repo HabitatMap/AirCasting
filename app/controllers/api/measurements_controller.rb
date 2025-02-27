@@ -3,13 +3,8 @@ module Api
     respond_to :json
 
     def index
-      form =
-        Api::ParamsForm.new(
-          params: params.to_unsafe_hash,
-          schema: Api::Measurements::Schema,
-          struct: Api::Measurements::Struct,
-        )
-      result = Api::ToMeasurementsArray.new(form: form).call
+      contract = Api::MeasurementsContract.new.call(params.to_unsafe_hash)
+      result = Api::ToMeasurementsArray.new(contract: contract).call
 
       if result.success?
         render json: result.value, status: :ok
