@@ -1,11 +1,11 @@
 module Usernames
   class IndexInteractor
-    def initialize(form:)
-      @form = form
+    def initialize(contract:)
+      @contract = contract
     end
 
     def call
-      return Failure.new(form.errors) if form.invalid?
+      return Failure.new(contract.errors) if contract.failure?
 
       case data[:session_type]
       when 'fixed'
@@ -34,10 +34,10 @@ module Usernames
 
     private
 
-    attr_reader :form
+    attr_reader :contract
 
     def data
-      form.to_h.to_h
+      contract.to_h
     end
   end
 end
