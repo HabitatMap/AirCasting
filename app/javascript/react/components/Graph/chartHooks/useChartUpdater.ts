@@ -1,3 +1,4 @@
+// useChartUpdater.ts
 import Highcharts from "highcharts";
 import { useCallback, useEffect, useRef } from "react";
 import {
@@ -36,7 +37,6 @@ export const useChartUpdater = ({
 }: UseChartUpdaterProps) => {
   const dispatch = useAppDispatch();
   const updateTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-  // This ref will hold the last trigger (e.g. "mousewheel")
   const lastTriggerRef = useRef<string | null>(null);
 
   useEffect(() => {
@@ -76,19 +76,28 @@ export const useChartUpdater = ({
   useEffect(() => {
     if (!seriesData || isLoading || !chartComponentRef.current?.chart) return;
     const chart = chartComponentRef.current.chart;
+    const currentExtremes = chart.xAxis[0].getExtremes();
+
     updateChartData(chart, seriesData);
 
-    // Only update the range selector if the last trigger isn't "mousewheel"
     if (
       lastSelectedTimeRange &&
       chart.rangeSelector &&
-      lastTriggerRef.current !== "mousewheel"
+      lastTriggerRef.current !== "mousewheel" &&
+      !isLoading
     ) {
       const selectedIndex = getSelectedRangeIndex(
         lastSelectedTimeRange,
         fixedSessionTypeSelected
       );
       chart.rangeSelector.clickButton(selectedIndex, true);
+    } else if (lastTriggerRef.current === "mousewheel") {
+      chart.xAxis[0].setExtremes(
+        currentExtremes.min,
+        currentExtremes.max,
+        true,
+        false
+      );
     }
   }, [
     seriesData,
@@ -110,6 +119,6 @@ export const useChartUpdater = ({
 
   return {
     updateChartData,
-    lastTriggerRef, // Expose this so that getXAxisOptions can update it.
+    lastTriggerRef,
   };
 };

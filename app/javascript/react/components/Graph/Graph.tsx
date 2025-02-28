@@ -578,12 +578,13 @@ const Graph: React.FC<GraphProps> = memo(
                   },
                 },
               ],
-          selected:
-            selectedTimestamp || lastTriggerRef.current === "mousewheel"
-              ? undefined
-              : selectedRangeIndex >= 0
-              ? selectedRangeIndex
-              : undefined,
+          selected: selectedTimestamp
+            ? undefined
+            : lastTriggerRef.current === "mousewheel"
+            ? undefined
+            : selectedRangeIndex >= 0
+            ? selectedRangeIndex
+            : undefined,
         },
         scrollbar: getScrollbarOptions(isCalendarPage, isMobile),
         navigator: getNavigatorOptions(),
