@@ -20,6 +20,7 @@ export const useMeasurementsFetcher = (
   sessionStartTime: number,
   sessionEndTime: number,
   chartComponentRef: React.RefObject<HighchartsReact.RefObject>,
+  fixedSessionTypeSelected: boolean,
   rangeDisplayRef?: React.RefObject<HTMLDivElement>
 ) => {
   const isCurrentlyFetchingRef = useRef(false);
@@ -149,67 +150,14 @@ export const useMeasurementsFetcher = (
 
     try {
       isCurrentlyFetchingRef.current = true;
-      const missingRanges = findMissingRanges(boundedStart, boundedEnd);
 
-      if (missingRanges.length === 0) {
-        if (pendingSetExtremesRef.current) {
-          const { start, end } = pendingSetExtremesRef.current;
-          updateExtremesAndDisplay(
-            start,
-            end,
-            lastFetchTriggerRef.current || undefined
-          );
-        }
-        return;
-      }
-
-      for (const range of missingRanges) {
-        let fetchStart = range.start;
-        let fetchEnd = range.end;
-
-        if (isDaySelection) {
-          const paddedStart = Math.max(
-            sessionStartTime,
-            fetchStart - MILLISECONDS_IN_A_DAY * 2
-          );
-          const paddedEnd = Math.min(
-            sessionEndTime,
-            fetchEnd + MILLISECONDS_IN_A_DAY - 1000 * 2
-          );
-
-          if (paddedEnd - paddedStart > MILLISECONDS_IN_A_MONTH) {
-            fetchStart = paddedEnd - MILLISECONDS_IN_A_MONTH;
-            fetchEnd = paddedEnd;
-          } else {
-            fetchStart = paddedStart;
-            fetchEnd = paddedEnd;
-          }
-        } else if (isEdgeFetch) {
-          const baseRange = Math.min(
-            MILLISECONDS_IN_A_MONTH * INITIAL_EDGE_FETCH_MONTHS,
-            MILLISECONDS_IN_A_MONTH
-          );
-          const expansionFactor = Math.min(
-            Math.pow(2, fetchAttemptsRef.current),
-            MILLISECONDS_IN_A_MONTH / baseRange
-          );
-          const totalRange = Math.min(
-            baseRange * expansionFactor,
-            MILLISECONDS_IN_A_MONTH
-          );
-
-          fetchStart = Math.max(sessionStartTime, fetchStart - totalRange / 2);
-          fetchEnd = Math.min(sessionEndTime, fetchEnd + totalRange / 2);
-        }
-        if (fetchEnd - fetchStart > MILLISECONDS_IN_A_MONTH) {
-          fetchStart = fetchEnd - MILLISECONDS_IN_A_MONTH;
-        }
-
+      // For initial mobile session fetch, skip the missing ranges check and fetch all data
+      if (trigger === "initial" && !fixedSessionTypeSelected) {
         const result = await dispatch(
           fetchMeasurements({
             streamId: Number(streamId),
-            startTime: Math.floor(fetchStart).toString(),
-            endTime: Math.floor(fetchEnd).toString(),
+            startTime: Math.floor(boundedStart).toString(),
+            endTime: Math.floor(boundedEnd).toString(),
           })
         ).unwrap();
 
@@ -217,26 +165,105 @@ export const useMeasurementsFetcher = (
           dispatch(
             updateFetchedTimeRanges({
               streamId,
-              start: fetchStart,
-              end: fetchEnd,
+              start: boundedStart,
+              end: boundedEnd,
             })
           );
         }
-      }
+      } else {
+        // Existing logic for fixed sessions and other cases
+        const missingRanges = findMissingRanges(boundedStart, boundedEnd);
 
-      if (pendingSetExtremesRef.current) {
-        const { start, end } = pendingSetExtremesRef.current;
-        requestAnimationFrame(() => {
-          updateExtremesAndDisplay(
-            start,
-            end,
-            lastFetchTriggerRef.current || undefined
-          );
-        });
-      }
+        if (missingRanges.length === 0) {
+          if (pendingSetExtremesRef.current) {
+            const { start, end } = pendingSetExtremesRef.current;
+            updateExtremesAndDisplay(
+              start,
+              end,
+              lastFetchTriggerRef.current || undefined
+            );
+          }
+          return;
+        }
 
-      if (isFirstRender.current) {
-        isFirstRender.current = false;
+        for (const range of missingRanges) {
+          let fetchStart = range.start;
+          let fetchEnd = range.end;
+
+          if (isDaySelection) {
+            const paddedStart = Math.max(
+              sessionStartTime,
+              fetchStart - MILLISECONDS_IN_A_DAY * 2
+            );
+            const paddedEnd = Math.min(
+              sessionEndTime,
+              fetchEnd + MILLISECONDS_IN_A_DAY - 1000 * 2
+            );
+
+            if (paddedEnd - paddedStart > MILLISECONDS_IN_A_MONTH) {
+              fetchStart = paddedEnd - MILLISECONDS_IN_A_MONTH;
+              fetchEnd = paddedEnd;
+            } else {
+              fetchStart = paddedStart;
+              fetchEnd = paddedEnd;
+            }
+          } else if (isEdgeFetch) {
+            const baseRange = Math.min(
+              MILLISECONDS_IN_A_MONTH * INITIAL_EDGE_FETCH_MONTHS,
+              MILLISECONDS_IN_A_MONTH
+            );
+            const expansionFactor = Math.min(
+              Math.pow(2, fetchAttemptsRef.current),
+              MILLISECONDS_IN_A_MONTH / baseRange
+            );
+            const totalRange = Math.min(
+              baseRange * expansionFactor,
+              MILLISECONDS_IN_A_MONTH
+            );
+
+            fetchStart = Math.max(
+              sessionStartTime,
+              fetchStart - totalRange / 2
+            );
+            fetchEnd = Math.min(sessionEndTime, fetchEnd + totalRange / 2);
+          }
+          if (fetchEnd - fetchStart > MILLISECONDS_IN_A_MONTH) {
+            fetchStart = fetchEnd - MILLISECONDS_IN_A_MONTH;
+          }
+
+          const result = await dispatch(
+            fetchMeasurements({
+              streamId: Number(streamId),
+              startTime: Math.floor(fetchStart).toString(),
+              endTime: Math.floor(fetchEnd).toString(),
+            })
+          ).unwrap();
+
+          if (result && result.length > 0) {
+            dispatch(
+              updateFetchedTimeRanges({
+                streamId,
+                start: fetchStart,
+                end: fetchEnd,
+              })
+            );
+          }
+        }
+
+        if (pendingSetExtremesRef.current) {
+          const { start, end } = pendingSetExtremesRef.current;
+          requestAnimationFrame(() => {
+            updateExtremesAndDisplay(
+              start,
+              end,
+              lastFetchTriggerRef.current || undefined
+            );
+          });
+        }
+
+        if (isFirstRender.current) {
+          isFirstRender.current = false;
+        }
       }
     } catch (error) {
       console.error("[Fetch Error]", {

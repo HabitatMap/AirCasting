@@ -87,6 +87,8 @@ const getXAxisOptions = (
   let touchEndHandler: ((event: TouchEvent) => void) | null = null;
   let isHandlingCalendarDay = false;
   let cleanupTimeout: NodeJS.Timeout | null = null;
+  // New variable for debouncing mousewheel events.
+  let mouseWheelTimeout: NodeJS.Timeout | null = null;
   let handled = false;
 
   const removeEventHandlers = () => {
@@ -167,6 +169,52 @@ const getXAxisOptions = (
         effectiveTrigger === "mousewheel" ||
         effectiveTrigger === "syncExtremes")
     ) {
+      // If this is a mousewheel event…
+      if (effectiveTrigger === "mousewheel") {
+        // When a fetch is already in progress, ignore further mousewheel events.
+        if (isFetching) return;
+        // Clear any pending mousewheel timeout.
+        if (mouseWheelTimeout) {
+          clearTimeout(mouseWheelTimeout);
+        }
+        // Delay fetching to let the user finish zooming out.
+        mouseWheelTimeout = setTimeout(async () => {
+          if (fixedSessionTypeSelected) {
+            dispatch(
+              updateFixedMeasurementExtremes({
+                streamId,
+                min: e.min,
+                max: e.max,
+              })
+            );
+          } else {
+            dispatch(
+              updateMobileMeasurementExtremes({
+                min: e.min,
+                max: e.max,
+              })
+            );
+          }
+
+          const visibleRange = e.max - e.min;
+          const padding = visibleRange * 0.25;
+          const now = Date.now();
+          const fetchStart = Math.max(sessionStartTime || 0, e.min - padding);
+          const fetchEnd = Math.min(sessionEndTime || now, e.max + padding);
+
+          isFetching = true;
+          try {
+            await fetchMeasurementsIfNeeded(fetchStart, fetchEnd);
+          } catch (error) {
+            console.error("Error fetching measurements:", error);
+          } finally {
+            isFetching = false;
+          }
+        }, 300); // Adjust the delay (in ms) as needed.
+        return;
+      }
+
+      // For triggers other than mousewheel, proceed immediately.
       if (fixedSessionTypeSelected) {
         dispatch(
           updateFixedMeasurementExtremes({
@@ -218,8 +266,8 @@ const getXAxisOptions = (
     visible: true,
     minRange: MILLISECONDS_IN_A_SECOND,
     ordinal: false,
-    min: sessionStartTime,
-    max: sessionEndTime,
+    min: fixedSessionTypeSelected ? sessionStartTime : null,
+    max: fixedSessionTypeSelected ? sessionEndTime : null,
     events: {
       afterSetExtremes: function (e: Highcharts.AxisSetExtremesEventObject) {
         const chart = this.chart;

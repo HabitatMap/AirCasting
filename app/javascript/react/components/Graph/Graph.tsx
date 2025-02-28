@@ -180,6 +180,7 @@ const Graph: React.FC<GraphProps> = memo(
       startTime,
       endTime,
       chartComponentRef,
+      fixedSessionTypeSelected,
       rangeDisplayRef
     );
     const { updateChartData, lastTriggerRef } = useChartUpdater({
@@ -192,7 +193,7 @@ const Graph: React.FC<GraphProps> = memo(
       rangeDisplayRef,
     });
 
-    const [isFirstLoad, setIsFirstLoad] = useState(true);
+    const isFirstLoadRef = useRef(true);
     const lastRangeSelectorTriggerRef = useRef<string | null>(null);
     const lastUpdateTimeRef = useRef<number>(0);
 
@@ -363,15 +364,51 @@ const Graph: React.FC<GraphProps> = memo(
       ]
     );
 
+    // Add this useEffect before handleChartLoad
+    useEffect(() => {
+      // Only fetch if we have all required data and haven't fetched yet
+      if (
+        !fixedSessionTypeSelected &&
+        streamId &&
+        startTime &&
+        endTime &&
+        mobileGraphData.length === 0 &&
+        isFirstLoadRef.current
+      ) {
+        console.log("Fetching initial mobile data...", { startTime, endTime });
+        fetchMeasurementsIfNeeded(startTime, endTime, false, false, "initial");
+      }
+    }, [
+      fixedSessionTypeSelected,
+      streamId,
+      startTime,
+      endTime,
+      mobileGraphData,
+      fetchMeasurementsIfNeeded,
+    ]);
+
     const handleChartLoad = useCallback(
-      function (this: Highcharts.Chart) {
+      async function (this: Highcharts.Chart) {
         handleLoad.call(this, isCalendarPage, isMobile);
         const chart = this;
-        const twoDaysAgo = endTime - 2 * MILLISECONDS_IN_A_DAY;
-        chart.xAxis[0].setExtremes(twoDaysAgo, endTime, true, false);
-        setIsFirstLoad(false);
+
+        if (fixedSessionTypeSelected) {
+          const twoDaysAgo = endTime - 2 * MILLISECONDS_IN_A_DAY;
+          chart.xAxis[0].setExtremes(twoDaysAgo, endTime, true, false);
+        } else {
+          const sessionDuration = endTime - startTime;
+          const defaultViewDuration = MILLISECONDS_IN_AN_HOUR;
+          const viewStart =
+            sessionDuration < defaultViewDuration
+              ? startTime
+              : Math.max(startTime, endTime - defaultViewDuration);
+
+          chart.xAxis[0].setExtremes(viewStart, endTime, true, false);
+        }
+
+        isFirstLoadRef.current = false;
       },
-      [isCalendarPage, isMobile, endTime]
+      [isCalendarPage, isMobile, endTime, startTime, fixedSessionTypeSelected]
     );
 
     useEffect(() => {
@@ -414,7 +451,7 @@ const Graph: React.FC<GraphProps> = memo(
           }, 150);
         };
 
-        // Attach the redraw event listener using Highcharts’ event system
+        // Attach the redraw event listener using Highcharts' event system
         Highcharts.addEvent(chart, "redraw", redrawHandler);
 
         return () => {
@@ -465,7 +502,6 @@ const Graph: React.FC<GraphProps> = memo(
           isIndoorParameterInUrl,
           isGovData
         ),
-        // Updated Range Selector: if lastTriggerRef.current equals "mousewheel", no button is selected.
         rangeSelector: {
           ...getRangeSelectorOptions(
             isMobile,
@@ -612,7 +648,7 @@ const Graph: React.FC<GraphProps> = memo(
       const applyStyles = () => {
         const graphElement = graphRef.current;
         if (graphElement) {
-          graphElement.style.touchAction = isMobile ? "auto" : "pan-x";
+          graphElement.style.touchAction = "pan-x";
 
           const highchartsContainer = graphElement.querySelector(
             ".highcharts-container"
