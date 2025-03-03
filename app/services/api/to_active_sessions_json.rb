@@ -4,7 +4,7 @@ class Api::ToActiveSessionsJson
   end
 
   def call
-    return Failure.new(contract.errors) if contract.failure?
+    return Failure.new(contract.errors.to_h) if contract.failure?
 
     result = data[:is_indoor] ? build_json_output(true) : build_json_output
     Success.new(result)
