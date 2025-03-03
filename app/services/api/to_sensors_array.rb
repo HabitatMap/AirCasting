@@ -4,7 +4,7 @@ class Api::ToSensorsArray
   end
 
   def call
-    return Failure.new(contract.errors) if contract.failure?
+    return Failure.new(contract.errors.to_h) if contract.failure?
 
     Success.new(aggregated + sensors(session_type))
   end
