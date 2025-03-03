@@ -1,16 +1,16 @@
 class Api::ScheduleSessionsExportByUuid
-  def initialize(form:)
-    @form = form
+  def initialize(contract:)
+    @contract = contract
   end
 
   def call
-    return Failure.new(form.errors) if form.invalid?
+    return Failure.new(contract.errors) if contract.failure?
 
-    session = ::Session.find_by_uuid(data.uuid)
+    session = ::Session.find_by_uuid(data[:uuid])
     unless session
       return(
         Failure.new(
-          { error: "Session with uuid: #{data[:uuid]} doesn't exist" }
+          { error: "Session with uuid: #{data[:uuid]} doesn't exist" },
         )
       )
     end
@@ -21,13 +21,13 @@ class Api::ScheduleSessionsExportByUuid
 
   private
 
-  attr_reader :form
+  attr_reader :contract
 
   def data
-    form.to_h
+    contract.to_h
   end
 
   def email
-    URI.decode(data.email)
+    URI.decode(data[:email])
   end
 end
