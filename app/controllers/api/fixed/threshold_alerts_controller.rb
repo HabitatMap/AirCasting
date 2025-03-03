@@ -13,13 +13,11 @@ module Api
       end
 
       def create
-        form =
-          Api::ParamsForm.new(
-            params: params.to_unsafe_hash[:data].symbolize_keys,
-            schema: Api::ThresholdAlerts::Schema,
-            struct: Api::ThresholdAlerts::Struct
-          )
-        result = Api::CreateThresholdAlert.new(form: form, user: current_user).call
+        contract =
+          Api::ThresholdAlertsContract.new.call(params.to_unsafe_hash[:data])
+        result =
+          Api::CreateThresholdAlert.new(contract: contract, user: current_user)
+            .call
 
         if result.success?
           render json: { id: result.value }, status: :created
