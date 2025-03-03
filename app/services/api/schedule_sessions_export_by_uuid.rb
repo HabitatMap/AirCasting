@@ -4,7 +4,7 @@ class Api::ScheduleSessionsExportByUuid
   end
 
   def call
-    return Failure.new(contract.errors) if contract.failure?
+    return Failure.new(contract.errors.to_h) if contract.failure?
 
     session = ::Session.find_by_uuid(data[:uuid])
     unless session
