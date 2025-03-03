@@ -1,22 +1,22 @@
 class Api::ToLink
-  def initialize(form:)
-    @form = form
+  def initialize(contract:)
+    @contract = contract
   end
 
   def call
-    return Failure.new(form.errors) if form.invalid?
+    return Failure.new(contract.errors.to_h) if contract.failure?
 
-    session = ::Session.find_by_url_token(params[:url_token]) or raise NotFound
-    stream = session.streams.where(sensor_name: params[:sensor_name]).first!
+    session = ::Session.find_by_url_token(data[:url_token]) or raise NotFound
+    stream = session.streams.where(sensor_name: data[:sensor_name]).first!
 
     Success.new(session.generate_link(stream))
   end
 
   private
 
-  attr_reader :form
+  attr_reader :contract
 
-  def params
-    form.to_h
+  def data
+    contract.to_h
   end
 end
