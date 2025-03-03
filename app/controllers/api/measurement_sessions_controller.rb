@@ -29,14 +29,8 @@ module Api
     end
 
     def export
-      form =
-        Api::ParamsForm.new(
-          params: params.to_unsafe_hash,
-          schema: Api::ExportSessions::Schema,
-          struct: Api::ExportSessions::Struct,
-        )
-
-      result = Api::ScheduleSessionsExport.new(form: form).call
+      contract = Api::ExportSessionsContract.new.call(params.to_unsafe_hash)
+      result = Api::ScheduleSessionsExport.new(contract: contract).call
 
       if result.success?
         render json: result.value, status: :ok
