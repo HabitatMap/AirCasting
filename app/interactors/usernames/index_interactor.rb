@@ -5,7 +5,7 @@ module Usernames
     end
 
     def call
-      return Failure.new(contract.errors) if contract.failure?
+      return Failure.new(contract.errors.to_h) if contract.failure?
 
       case data[:session_type]
       when 'fixed'

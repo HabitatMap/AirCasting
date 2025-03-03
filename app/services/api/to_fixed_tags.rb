@@ -4,7 +4,7 @@ class Api::ToFixedTags
   end
 
   def call
-    return Failure.new(contract.errors) if contract.failure?
+    return Failure.new(contract.errors.to_h) if contract.failure?
 
     sessions =
       if data[:is_active]
