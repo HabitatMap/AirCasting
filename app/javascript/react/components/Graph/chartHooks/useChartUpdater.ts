@@ -8,7 +8,6 @@ import {
 } from "../../../store/fixedStreamSlice";
 import { useAppDispatch } from "../../../store/hooks";
 import { FixedTimeRange, MobileTimeRange } from "../../../types/timeRange";
-import { getSelectedRangeIndex } from "../../../utils/getTimeRange";
 
 interface UseChartUpdaterProps {
   chartComponentRef: React.RefObject<{
@@ -38,6 +37,7 @@ export const useChartUpdater = ({
   const dispatch = useAppDispatch();
   const updateTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const lastTriggerRef = useRef<string | null>(null);
+  const hasInitializedRef = useRef<boolean>(false);
 
   useEffect(() => {
     return () => {
@@ -46,6 +46,32 @@ export const useChartUpdater = ({
       }
     };
   }, []);
+
+  useEffect(() => {
+    if (
+      !isLoading &&
+      chartComponentRef.current?.chart &&
+      seriesData &&
+      seriesData.length > 0 &&
+      fixedSessionTypeSelected &&
+      streamId
+    ) {
+      const chart = chartComponentRef.current.chart;
+      if (chart.xAxis[0]) {
+        const { min, max } = chart.xAxis[0].getExtremes();
+        if (min !== undefined && max !== undefined) {
+          dispatch(
+            updateFixedMeasurementExtremes({
+              streamId,
+              min,
+              max,
+            })
+          );
+          hasInitializedRef.current = true;
+        }
+      }
+    }
+  }, [seriesData]);
 
   const updateChartData = useCallback(
     (
@@ -67,46 +93,12 @@ export const useChartUpdater = ({
               max,
             })
           );
+          hasInitializedRef.current = true;
         }
       }
     },
     [fixedSessionTypeSelected, streamId, dispatch]
   );
-
-  useEffect(() => {
-    if (!seriesData || isLoading || !chartComponentRef.current?.chart) return;
-    const chart = chartComponentRef.current.chart;
-    const currentExtremes = chart.xAxis[0].getExtremes();
-
-    updateChartData(chart, seriesData);
-
-    if (
-      lastSelectedTimeRange &&
-      chart.rangeSelector &&
-      lastTriggerRef.current !== "mousewheel" &&
-      !isLoading
-    ) {
-      const selectedIndex = getSelectedRangeIndex(
-        lastSelectedTimeRange,
-        fixedSessionTypeSelected
-      );
-      chart.rangeSelector.clickButton(selectedIndex, true);
-    } else if (lastTriggerRef.current === "mousewheel") {
-      chart.xAxis[0].setExtremes(
-        currentExtremes.min,
-        currentExtremes.max,
-        true,
-        false
-      );
-    }
-  }, [
-    seriesData,
-    isLoading,
-    updateChartData,
-    lastSelectedTimeRange,
-    fixedSessionTypeSelected,
-    chartComponentRef,
-  ]);
 
   useEffect(() => {
     return () => {
