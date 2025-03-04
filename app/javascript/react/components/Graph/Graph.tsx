@@ -618,17 +618,6 @@ const Graph: React.FC<GraphProps> = memo(
     }, [dispatch]);
 
     useEffect(() => {
-      if (chartComponentRef.current?.chart) {
-        const chart = chartComponentRef.current.chart;
-        if (isLoading) {
-          chart.showLoading("Loading data from server...");
-        } else {
-          chart.hideLoading();
-        }
-      }
-    }, [isLoading]);
-
-    useEffect(() => {
       if (fixedSessionTypeSelected) {
         dispatch(resetLastSelectedTimeRange());
       } else {

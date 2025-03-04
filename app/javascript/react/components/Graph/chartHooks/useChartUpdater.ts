@@ -94,7 +94,18 @@ export const useChartUpdater = ({
       },
       data: Highcharts.PointOptionsType[]
     ) => {
+      console.log("[CHART DEBUG] Setting chart data", {
+        dataLength: data.length,
+      });
+
+      const startTime = performance.now();
       chart.series[0].setData(data, true, false, false);
+      console.log(
+        "[CHART DEBUG] setData completed in",
+        performance.now() - startTime,
+        "ms"
+      );
+
       if (chart.xAxis[0]) {
         const { min, max } = chart.xAxis[0].getExtremes();
         if (min !== undefined && max !== undefined) {
