@@ -24,9 +24,7 @@ import {
   white,
   yellow100,
 } from "../../assets/styles/colors";
-import { updateFixedMeasurementExtremes } from "../../store/fixedStreamSlice";
 import { setHoverPosition, setHoverStreamId } from "../../store/mapSlice";
-import { updateMobileMeasurementExtremes } from "../../store/mobileStreamSlice";
 import { LatLngLiteral } from "../../types/googleMaps";
 import { GraphData, GraphPoint } from "../../types/graph";
 import { Thresholds } from "../../types/thresholds";
@@ -80,7 +78,9 @@ const getXAxisOptions = (
   fetchMeasurementsIfNeeded: (
     start: number,
     end: number,
-    isEdgeFetch?: boolean
+    isEdgeFetch?: boolean,
+    isDaySelection?: boolean,
+    trigger?: string
   ) => Promise<void>,
   streamId: number | null,
   lastTriggerRef: React.MutableRefObject<string | null>,
@@ -91,15 +91,12 @@ const getXAxisOptions = (
   sessionEndTime?: number,
   isCalendarDaySelectedRef?: React.MutableRefObject<boolean>
 ): Highcharts.XAxisOptions => {
-  let isFetching = false;
   let lastNavigatorEvent: Highcharts.AxisSetExtremesEventObject | null = null;
   let navigatorMouseUpHandler: ((event: MouseEvent) => void) | null = null;
   let touchEndHandler: ((event: TouchEvent) => void) | null = null;
-  let isHandlingCalendarDay = false;
   let cleanupTimeout: NodeJS.Timeout | null = null;
-  // Variable for debouncing mousewheel events.
-  let mouseWheelTimeout: NodeJS.Timeout | null = null;
   let handled = false;
+  let isHandlingCalendarDay = false;
 
   const removeEventHandlers = () => {
     if (navigatorMouseUpHandler) {
@@ -121,24 +118,10 @@ const getXAxisOptions = (
     e: Highcharts.AxisSetExtremesEventObject,
     chart: ChartWithRangeSelector
   ) => {
-    // Determine the effective trigger.
     const effectiveTrigger =
       e.trigger !== "none" ? e.trigger : lastTriggerRef.current || "none";
 
-    console.log("[EXTREMES] handleSetExtremes called with", {
-      trigger: e.trigger,
-      effectiveTrigger,
-      min: e.min,
-      max: e.max,
-      minFormatted: e.min ? new Date(e.min).toISOString() : null,
-      maxFormatted: e.max ? new Date(e.max).toISOString() : null,
-      isHandlingCalendarDay,
-    });
-
     if (isHandlingCalendarDay && effectiveTrigger !== "calendarDay") {
-      console.log(
-        "[EXTREMES] Skipping non-calendarDay event during calendar handling"
-      );
       return;
     }
 
@@ -148,35 +131,21 @@ const getXAxisOptions = (
         isHandlingCalendarDay = false;
       }, 500);
 
-      // For calendarDay triggers, skip fetching - the effect that triggered this
-      // has already called fetchMeasurementsIfNeeded
-      console.log(
-        "[EXTREMES] Skipping fetch for calendarDay trigger - already handled by effect"
-      );
-
-      // Still update the trigger ref and range display
       lastTriggerRef.current = effectiveTrigger;
       lastUpdateTimeRef.current = Date.now();
 
-      // Update the range display immediately.
       if (
         e.min !== undefined &&
         e.max !== undefined &&
         !isNaN(e.min) &&
         !isNaN(e.max)
       ) {
-        updateRangeDisplay(
-          rangeDisplayRef,
-          e.min,
-          e.max,
-          true // Use full day format for calendar day
-        );
+        updateRangeDisplay(rangeDisplayRef, e.min, e.max, true);
       }
 
-      return; // Skip the rest of the function for calendarDay triggers
+      return;
     }
 
-    // Deselect day when mousewheel is used
     if (
       effectiveTrigger === "mousewheel" &&
       isCalendarDaySelectedRef?.current
@@ -187,11 +156,9 @@ const getXAxisOptions = (
       }
     }
 
-    // Update the trigger ref immediately.
     lastTriggerRef.current = effectiveTrigger;
     lastUpdateTimeRef.current = Date.now();
 
-    // Update the range display immediately.
     if (
       e.min !== undefined &&
       e.max !== undefined &&
@@ -206,111 +173,29 @@ const getXAxisOptions = (
       );
     }
 
-    // If a measurement fetch is needed for these triggers…
     if (
       streamId &&
       (effectiveTrigger === "rangeSelectorButton" ||
-        effectiveTrigger === "navigator" ||
         effectiveTrigger === "pan" ||
         effectiveTrigger === "zoom" ||
         effectiveTrigger === "calendarDay" ||
         effectiveTrigger === "mousewheel" ||
-        effectiveTrigger === "syncExtremes")
+        effectiveTrigger === "syncExtremes" ||
+        effectiveTrigger === "navigator")
     ) {
-      // Handle mousewheel events separately.
-      if (effectiveTrigger === "mousewheel") {
-        if (isFetching || isLoading) return;
-        if (mouseWheelTimeout) {
-          clearTimeout(mouseWheelTimeout);
-        }
-        // Debounce mousewheel so that fetching occurs only after user stops scrolling.
-        mouseWheelTimeout = setTimeout(async () => {
-          // Update measurement extremes.
-          if (fixedSessionTypeSelected) {
-            dispatch(
-              updateFixedMeasurementExtremes({
-                streamId,
-                min: e.min,
-                max: e.max,
-              })
-            );
-          } else {
-            dispatch(
-              updateMobileMeasurementExtremes({
-                min: e.min,
-                max: e.max,
-              })
-            );
-          }
-          const visibleRange = e.max - e.min;
-          const padding = visibleRange * 0.25;
-          const now = Date.now();
-          const fetchStart = Math.max(sessionStartTime || 0, e.min - padding);
-          const fetchEnd = Math.min(sessionEndTime || now, e.max + padding);
-
-          isFetching = true;
-          try {
-            await fetchMeasurementsIfNeeded(fetchStart, fetchEnd);
-            // Set trigger to "mousewheel" after successful fetch.
-            lastTriggerRef.current = "mousewheel";
-          } catch (error) {
-            console.error("Error fetching measurements:", error);
-          } finally {
-            isFetching = false;
-          }
-        }, 300);
-        return;
-      }
-
-      // For non-mousewheel triggers, update Redux and fetch immediately.
-      if (fixedSessionTypeSelected) {
-        dispatch(
-          updateFixedMeasurementExtremes({
-            streamId,
-            min: e.min,
-            max: e.max,
-          })
-        );
-      } else {
-        dispatch(
-          updateMobileMeasurementExtremes({
-            min: e.min,
-            max: e.max,
-          })
-        );
-      }
-
       const visibleRange = e.max - e.min;
       const padding = visibleRange * 0.25;
       const now = Date.now();
       const fetchStart = Math.max(sessionStartTime || 0, e.min - padding);
       const fetchEnd = Math.min(sessionEndTime || now, e.max + padding);
 
-      isFetching = true;
-      try {
-        await fetchMeasurementsIfNeeded(fetchStart, fetchEnd);
-      } catch (error) {
-        console.error("Error fetching measurements:", error);
-      } finally {
-        isFetching = false;
-      }
-    }
-
-    // Add this code to unselect all buttons when mousewheel is used
-    if (effectiveTrigger === "mousewheel" && chart.rangeSelector) {
-      // Cast to the extended type
-      const stockChart = chart as ChartWithRangeSelector;
-
-      // Now use the properly typed object
-      stockChart.rangeSelector?.buttons?.forEach((button) => {
-        if (button.setState) {
-          button.setState(0);
-        }
-      });
-
-      if (stockChart.rangeSelector?.selected !== undefined) {
-        stockChart.rangeSelector.selected = undefined;
-      }
+      await fetchMeasurementsIfNeeded(
+        fetchStart,
+        fetchEnd,
+        false,
+        false,
+        effectiveTrigger
+      );
     }
   };
 
@@ -334,25 +219,59 @@ const getXAxisOptions = (
     min: fixedSessionTypeSelected ? sessionStartTime : null,
     max: fixedSessionTypeSelected ? sessionEndTime : null,
     events: {
-      setExtremes: function (e) {
-        handleSetExtremes(e, this.chart as ChartWithRangeSelector);
-      },
+      afterSetExtremes: function (e: Highcharts.AxisSetExtremesEventObject) {
+        const chart = this.chart;
+        const effectiveTrigger =
+          e.trigger !== "none" ? e.trigger : lastTriggerRef.current || "none";
 
-      // Add mousewheel event handler
-      afterSetExtremes: function (e) {
-        if (e.trigger === "mousewheel") {
-          // Cast to the extended type
-          const stockChart = this.chart as ChartWithRangeSelector;
+        if (isHandlingCalendarDay && effectiveTrigger !== "calendarDay") {
+          return;
+        }
 
-          if (stockChart.rangeSelector) {
-            // Ensure no buttons are selected after mousewheel zoom
-            stockChart.rangeSelector.buttons?.forEach((button) => {
-              if (button.setState) {
-                button.setState(0); // Unselect
-              }
-            });
-            stockChart.rangeSelector.selected = undefined;
-          }
+        const rangeSelector = (chart as ChartWithRangeSelector).rangeSelector;
+        if (effectiveTrigger === "mousewheel" && rangeSelector?.buttons) {
+          rangeSelector.buttons.forEach((button) => {
+            button.setState(0);
+          });
+        }
+
+        if (effectiveTrigger !== "navigator") {
+          removeEventHandlers();
+          handleSetExtremes(
+            { ...e, trigger: effectiveTrigger },
+            chart as ChartWithRangeSelector
+          );
+          return;
+        }
+
+        lastNavigatorEvent = e;
+        lastTriggerRef.current = "navigator";
+
+        if (!navigatorMouseUpHandler && !touchEndHandler) {
+          handled = false;
+          const handleEnd = () => {
+            if (handled) return;
+            handled = true;
+            if (lastNavigatorEvent && !isHandlingCalendarDay) {
+              handleSetExtremes(
+                lastNavigatorEvent,
+                chart as ChartWithRangeSelector
+              );
+            }
+            removeEventHandlers();
+          };
+
+          removeEventHandlers();
+
+          navigatorMouseUpHandler = handleEnd;
+          touchEndHandler = handleEnd;
+
+          window.addEventListener("mouseup", navigatorMouseUpHandler, true);
+          window.addEventListener("touchend", touchEndHandler, true);
+
+          cleanupTimeout = setTimeout(() => {
+            handleEnd();
+          }, 8000);
         }
       },
     },
@@ -453,7 +372,7 @@ const getPlotOptions = (
     series: {
       lineWidth: 2,
       color: blue,
-      turboThreshold: 9999999, // above that graph will not display
+      turboThreshold: 9999999,
 
       marker: {
         fillColor: blue,
@@ -752,8 +671,6 @@ const getChartOptions = (
 };
 
 const getNavigatorOptions = (): NavigatorOptions => {
-  // The navigator is not visible in the graph component.
-  // However it is important to keep it to make sure that scrollbar will not disapear forever while fetching data.
   return {
     enabled: true,
     height: 0,

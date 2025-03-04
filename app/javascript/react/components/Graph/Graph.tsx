@@ -225,16 +225,8 @@ const Graph: React.FC<GraphProps> = memo(
 
       // Skip if we've already processed this exact timestamp
       if (lastProcessedTimestampRef.current === selectedTimestamp) {
-        console.log("[DAY SELECTION] Skipping duplicate effect run", {
-          selectedTimestamp,
-        });
         return;
       }
-
-      console.log("[DAY SELECTION] Effect triggered", {
-        selectedTimestamp,
-        current: new Date(selectedTimestamp).toISOString(),
-      });
 
       // Remember this timestamp to avoid processing it again
       lastProcessedTimestampRef.current = selectedTimestamp;
@@ -261,18 +253,10 @@ const Graph: React.FC<GraphProps> = memo(
       finalRangeStart = Math.max(finalRangeStart, startTime);
       finalRangeEnd = Math.min(finalRangeEnd, endTime);
 
-      console.log("[DAY SELECTION] Calculated day range", {
-        finalRangeStart,
-        finalRangeEnd,
-        startFormatted: new Date(finalRangeStart).toISOString(),
-        endFormatted: new Date(finalRangeEnd).toISOString(),
-      });
-
       updateRangeDisplay(rangeDisplayRef, finalRangeStart, finalRangeEnd, true);
 
       // Update the chart extremes to show the selected day
       if (chartComponentRef.current?.chart) {
-        console.log("[DAY SELECTION] Setting chart extremes directly");
         chartComponentRef.current.chart.xAxis[0].setExtremes(
           finalRangeStart,
           finalRangeEnd,
@@ -285,9 +269,6 @@ const Graph: React.FC<GraphProps> = memo(
       // Only call fetchMeasurementsIfNeeded directly if we're not letting
       // the setExtremes handler handle it
       if (fixedSessionTypeSelected) {
-        console.log(
-          "[DAY SELECTION] Calling fetchMeasurementsIfNeeded from effect"
-        );
         // Set a flag to indicate that this fetch is coming from the day selection effect
         // to avoid duplicate fetches in the setExtremes handler
         fetchMeasurementsIfNeeded(
