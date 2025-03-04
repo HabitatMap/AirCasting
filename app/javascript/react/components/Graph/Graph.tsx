@@ -364,9 +364,7 @@ const Graph: React.FC<GraphProps> = memo(
       ]
     );
 
-    // Add this useEffect before handleChartLoad
     useEffect(() => {
-      // Only fetch if we have all required data and haven't fetched yet
       if (
         !fixedSessionTypeSelected &&
         streamId &&
@@ -375,7 +373,6 @@ const Graph: React.FC<GraphProps> = memo(
         mobileGraphData.length === 0 &&
         isFirstLoadRef.current
       ) {
-        console.log("Fetching initial mobile data...", { startTime, endTime });
         fetchMeasurementsIfNeeded(startTime, endTime, false, false, "initial");
       }
     }, [
@@ -414,19 +411,16 @@ const Graph: React.FC<GraphProps> = memo(
     useEffect(() => {
       if (isMobile && chartComponentRef.current?.chart) {
         const chart = chartComponentRef.current.chart;
-        // Capture the initial extremes
         let lastExtremes = chart.xAxis[0].getExtremes();
         let debounceTimer: NodeJS.Timeout | null = null;
 
         const redrawHandler = () => {
-          // Clear any pending debounce timer
           if (debounceTimer) {
             clearTimeout(debounceTimer);
           }
-          // Wait 150ms for the zoom/pinch to settle
           debounceTimer = setTimeout(() => {
             const currentExtremes = chart.xAxis[0].getExtremes();
-            // Check if the extremes have changed significantly
+
             if (
               currentExtremes.min !== lastExtremes.min ||
               currentExtremes.max !== lastExtremes.max
@@ -439,7 +433,6 @@ const Graph: React.FC<GraphProps> = memo(
                 currentExtremes.max,
                 false
               );
-              // Trigger fetching missing data; pass a custom trigger if needed.
               fetchMeasurementsIfNeeded(
                 currentExtremes.min,
                 currentExtremes.max,
@@ -451,7 +444,6 @@ const Graph: React.FC<GraphProps> = memo(
           }, 150);
         };
 
-        // Attach the redraw event listener using Highcharts' event system
         Highcharts.addEvent(chart, "redraw", redrawHandler);
 
         return () => {
@@ -467,7 +459,6 @@ const Graph: React.FC<GraphProps> = memo(
     ]);
 
     const options = useMemo<Highcharts.Options>(() => {
-      console.log("lastTriggerRef.current", lastTriggerRef.current);
       return {
         chart: {
           ...getChartOptions(isCalendarPage, isMobile),

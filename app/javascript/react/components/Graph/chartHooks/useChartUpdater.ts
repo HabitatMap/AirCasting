@@ -1,4 +1,3 @@
-// useChartUpdater.ts
 import Highcharts from "highcharts";
 import { useCallback, useEffect, useRef } from "react";
 import {

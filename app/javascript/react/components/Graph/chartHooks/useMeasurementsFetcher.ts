@@ -99,7 +99,6 @@ export const useMeasurementsFetcher = (
     }, []);
   };
 
-  // UPDATED: Use an effective trigger when setting extremes.
   const updateExtremesAndDisplay = (
     start: number,
     end: number,
@@ -107,7 +106,6 @@ export const useMeasurementsFetcher = (
   ) => {
     if (chartComponentRef?.current?.chart) {
       const chart = chartComponentRef.current.chart;
-      // If trigger is "none", fall back to the last stored trigger.
       const effectiveTrigger =
         trigger && trigger !== "none"
           ? trigger
@@ -135,7 +133,6 @@ export const useMeasurementsFetcher = (
       return;
     }
 
-    // Store the intended trigger and pending extremes.
     if (trigger) {
       lastFetchTriggerRef.current = trigger;
       pendingSetExtremesRef.current = { start, end };
@@ -151,7 +148,6 @@ export const useMeasurementsFetcher = (
     try {
       isCurrentlyFetchingRef.current = true;
 
-      // For initial mobile session fetch, skip the missing ranges check and fetch all data
       if (trigger === "initial" && !fixedSessionTypeSelected) {
         const result = await dispatch(
           fetchMeasurements({
@@ -171,7 +167,6 @@ export const useMeasurementsFetcher = (
           );
         }
       } else {
-        // Existing logic for fixed sessions and other cases
         const missingRanges = findMissingRanges(boundedStart, boundedEnd);
 
         if (missingRanges.length === 0) {
