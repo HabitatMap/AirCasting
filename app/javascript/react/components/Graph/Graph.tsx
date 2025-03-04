@@ -244,6 +244,17 @@ const Graph: React.FC<GraphProps> = memo(
 
       updateRangeDisplay(rangeDisplayRef, finalRangeStart, finalRangeEnd, true);
 
+      // Update the chart extremes to show the selected day
+      if (chartComponentRef.current?.chart) {
+        chartComponentRef.current.chart.xAxis[0].setExtremes(
+          finalRangeStart,
+          finalRangeEnd,
+          true,
+          false,
+          { trigger: "calendarDay" }
+        );
+      }
+
       if (fixedSessionTypeSelected) {
         fetchMeasurementsIfNeeded(
           finalRangeStart,

@@ -136,6 +136,17 @@ const getXAxisOptions = (
       }, 500);
     }
 
+    // Deselect day when mousewheel is used
+    if (
+      effectiveTrigger === "mousewheel" &&
+      isCalendarDaySelectedRef?.current
+    ) {
+      isCalendarDaySelectedRef.current = false;
+      if (onDayClick) {
+        onDayClick(null);
+      }
+    }
+
     // Update the trigger ref immediately.
     lastTriggerRef.current = effectiveTrigger;
     lastUpdateTimeRef.current = Date.now();
