@@ -41,19 +41,6 @@ export const useMeasurementsFetcher = (
   );
 
   const findMissingRanges = (start: number, end: number) => {
-    console.log("[DEBUG] Finding missing ranges:", {
-      requestedRange: {
-        start: new Date(start).toISOString(),
-        end: new Date(end).toISOString(),
-        durationMs: end - start,
-      },
-      fetchedRanges: fetchedTimeRanges.map((range) => ({
-        start: new Date(range.start).toISOString(),
-        end: new Date(range.end).toISOString(),
-        durationMs: range.end - range.start,
-      })),
-    });
-
     if (!fetchedTimeRanges.length) {
       if (end - start > MILLISECONDS_IN_A_MONTH) {
         const chunks = [];
@@ -70,15 +57,6 @@ export const useMeasurementsFetcher = (
           });
           chunkEnd = chunkStart;
         }
-
-        console.log(
-          "[DEBUG] Created initial chunks:",
-          chunks.map((chunk) => ({
-            start: new Date(chunk.start).toISOString(),
-            end: new Date(chunk.end).toISOString(),
-            durationMs: chunk.end - chunk.start,
-          }))
-        );
 
         return chunks;
       }
@@ -105,15 +83,6 @@ export const useMeasurementsFetcher = (
       }
 
       mergedRanges.push(currentRange);
-
-      console.log(
-        "[DEBUG] Merged fetched ranges:",
-        mergedRanges.map((range) => ({
-          start: new Date(range.start).toISOString(),
-          end: new Date(range.end).toISOString(),
-          durationMs: range.end - range.start,
-        }))
-      );
     }
 
     const gaps: { start: number; end: number }[] = [];
@@ -174,13 +143,6 @@ export const useMeasurementsFetcher = (
           ? trigger
           : lastFetchTriggerRef.current || "none";
 
-      console.log("[DEBUG] Updating chart extremes:", {
-        start: new Date(start).toISOString(),
-        end: new Date(end).toISOString(),
-        durationMs: end - start,
-        trigger: effectiveTrigger,
-      });
-
       chart.xAxis[0].setExtremes(start, end, true, false, {
         trigger: effectiveTrigger,
       });
@@ -190,14 +152,6 @@ export const useMeasurementsFetcher = (
         end,
         effectiveTrigger === "calendarDay"
       );
-
-      // Log actual chart extremes after update
-      const actualExtremes = chart.xAxis[0].getExtremes();
-      console.log("[DEBUG] Actual chart extremes after update:", {
-        min: new Date(actualExtremes.min).toISOString(),
-        max: new Date(actualExtremes.max).toISOString(),
-        durationMs: actualExtremes.max - actualExtremes.min,
-      });
     }
   };
 
@@ -229,22 +183,7 @@ export const useMeasurementsFetcher = (
         const boundedStart = Math.max(start, sessionStartTime);
         const boundedEnd = Math.min(end, sessionEndTime);
 
-        console.log("[DEBUG] fetchMeasurementsIfNeeded called:", {
-          requestedRange: {
-            start: new Date(start).toISOString(),
-            end: new Date(end).toISOString(),
-          },
-          boundedRange: {
-            start: new Date(boundedStart).toISOString(),
-            end: new Date(boundedEnd).toISOString(),
-          },
-          isEdgeFetch,
-          isDaySelection,
-          trigger,
-        });
-
         if (boundedStart >= boundedEnd) {
-          console.log("[DEBUG] Skipping fetch: boundedStart >= boundedEnd");
           return;
         }
 
@@ -270,15 +209,12 @@ export const useMeasurementsFetcher = (
               );
             }
           } else {
-            const MIN_FETCH_RANGE = MILLISECONDS_IN_A_MINUTE * 5; // 5 minutes minimum
-
-            // Calculate total visible range
             const visibleRange = boundedEnd - boundedStart;
 
             // Calculate a reasonable fetch padding based on visible range
             const fetchPadding = Math.min(
-              visibleRange * 0.25, // 25% of the visible range
-              MILLISECONDS_IN_A_DAY // Maximum 1 day padding
+              visibleRange * 0.25,
+              MILLISECONDS_IN_A_DAY
             );
 
             // Apply padding to fetch range, but respect session bounds
@@ -291,32 +227,10 @@ export const useMeasurementsFetcher = (
               boundedEnd + fetchPadding
             );
 
-            console.log("[DEBUG] Calculated padded fetch range:", {
-              original: {
-                start: new Date(boundedStart).toISOString(),
-                end: new Date(boundedEnd).toISOString(),
-              },
-              padded: {
-                start: new Date(paddedStart).toISOString(),
-                end: new Date(paddedEnd).toISOString(),
-                padding: fetchPadding / 1000 / 60 + " minutes",
-              },
-            });
-
             // Use padded range for finding missing ranges
             const missingRanges = findMissingRanges(paddedStart, paddedEnd);
 
-            console.log(
-              "[DEBUG] Missing ranges to fetch:",
-              missingRanges.map((range) => ({
-                start: new Date(range.start).toISOString(),
-                end: new Date(range.end).toISOString(),
-                durationMs: range.end - range.start,
-              }))
-            );
-
             if (missingRanges.length === 0) {
-              console.log("[DEBUG] No missing ranges to fetch");
               if (pendingSetExtremesRef.current) {
                 const { start, end } = pendingSetExtremesRef.current;
                 updateExtremesAndDisplay(
@@ -374,18 +288,6 @@ export const useMeasurementsFetcher = (
                 fetchStart = fetchEnd - MILLISECONDS_IN_A_MONTH;
               }
 
-              console.log("[DEBUG] Fetching range:", {
-                original: {
-                  start: new Date(range.start).toISOString(),
-                  end: new Date(range.end).toISOString(),
-                },
-                adjusted: {
-                  start: new Date(fetchStart).toISOString(),
-                  end: new Date(fetchEnd).toISOString(),
-                  durationMs: fetchEnd - fetchStart,
-                },
-              });
-
               const result = await dispatch(
                 fetchMeasurements({
                   streamId: Number(streamId),
@@ -393,14 +295,6 @@ export const useMeasurementsFetcher = (
                   endTime: Math.floor(fetchEnd).toString(),
                 })
               ).unwrap();
-
-              console.log("[DEBUG] Fetch result:", {
-                dataPoints: result?.length || 0,
-                fetchRange: {
-                  start: new Date(fetchStart).toISOString(),
-                  end: new Date(fetchEnd).toISOString(),
-                },
-              });
 
               if (result && result.length > 0) {
                 dispatch(
@@ -410,14 +304,6 @@ export const useMeasurementsFetcher = (
                     end: fetchEnd,
                   })
                 );
-
-                // Log updated fetchedTimeRanges
-                console.log("[DEBUG] Updated fetched time ranges for chunk:", {
-                  added: {
-                    start: new Date(fetchStart).toISOString(),
-                    end: new Date(fetchEnd).toISOString(),
-                  },
-                });
               }
 
               return {
@@ -430,21 +316,8 @@ export const useMeasurementsFetcher = (
             // Wait for all fetches to complete
             const results = await Promise.all(fetchPromises);
 
-            console.log(
-              "[DEBUG] All chunks fetched:",
-              results.map((r) => ({
-                start: new Date(r.fetchStart).toISOString(),
-                end: new Date(r.fetchEnd).toISOString(),
-                dataPoints: r.resultLength,
-              }))
-            );
-
             if (pendingSetExtremesRef.current) {
               const { start, end } = pendingSetExtremesRef.current;
-              console.log("[DEBUG] Setting pending extremes:", {
-                start: new Date(start).toISOString(),
-                end: new Date(end).toISOString(),
-              });
 
               requestAnimationFrame(() => {
                 updateExtremesAndDisplay(
@@ -487,22 +360,7 @@ export const useMeasurementsFetcher = (
     const boundedStart = Math.max(start, sessionStartTime);
     const boundedEnd = Math.min(end, sessionEndTime);
 
-    console.log("[DEBUG] fetchMeasurementsIfNeeded called:", {
-      requestedRange: {
-        start: new Date(start).toISOString(),
-        end: new Date(end).toISOString(),
-      },
-      boundedRange: {
-        start: new Date(boundedStart).toISOString(),
-        end: new Date(boundedEnd).toISOString(),
-      },
-      isEdgeFetch,
-      isDaySelection,
-      trigger,
-    });
-
     if (boundedStart >= boundedEnd) {
-      console.log("[DEBUG] Skipping fetch: boundedStart >= boundedEnd");
       return;
     }
 
@@ -528,8 +386,6 @@ export const useMeasurementsFetcher = (
           );
         }
       } else {
-        const MIN_FETCH_RANGE = MILLISECONDS_IN_A_MINUTE * 5; // 5 minutes minimum
-
         // Calculate total visible range
         const visibleRange = boundedEnd - boundedStart;
 
@@ -546,32 +402,10 @@ export const useMeasurementsFetcher = (
         );
         const paddedEnd = Math.min(sessionEndTime, boundedEnd + fetchPadding);
 
-        console.log("[DEBUG] Calculated padded fetch range:", {
-          original: {
-            start: new Date(boundedStart).toISOString(),
-            end: new Date(boundedEnd).toISOString(),
-          },
-          padded: {
-            start: new Date(paddedStart).toISOString(),
-            end: new Date(paddedEnd).toISOString(),
-            padding: fetchPadding / 1000 / 60 + " minutes",
-          },
-        });
-
         // Use padded range for finding missing ranges
         const missingRanges = findMissingRanges(paddedStart, paddedEnd);
 
-        console.log(
-          "[DEBUG] Missing ranges to fetch:",
-          missingRanges.map((range) => ({
-            start: new Date(range.start).toISOString(),
-            end: new Date(range.end).toISOString(),
-            durationMs: range.end - range.start,
-          }))
-        );
-
         if (missingRanges.length === 0) {
-          console.log("[DEBUG] No missing ranges to fetch");
           if (pendingSetExtremesRef.current) {
             const { start, end } = pendingSetExtremesRef.current;
             updateExtremesAndDisplay(
@@ -629,18 +463,6 @@ export const useMeasurementsFetcher = (
             fetchStart = fetchEnd - MILLISECONDS_IN_A_MONTH;
           }
 
-          console.log("[DEBUG] Fetching range:", {
-            original: {
-              start: new Date(range.start).toISOString(),
-              end: new Date(range.end).toISOString(),
-            },
-            adjusted: {
-              start: new Date(fetchStart).toISOString(),
-              end: new Date(fetchEnd).toISOString(),
-              durationMs: fetchEnd - fetchStart,
-            },
-          });
-
           const result = await dispatch(
             fetchMeasurements({
               streamId: Number(streamId),
@@ -648,14 +470,6 @@ export const useMeasurementsFetcher = (
               endTime: Math.floor(fetchEnd).toString(),
             })
           ).unwrap();
-
-          console.log("[DEBUG] Fetch result:", {
-            dataPoints: result?.length || 0,
-            fetchRange: {
-              start: new Date(fetchStart).toISOString(),
-              end: new Date(fetchEnd).toISOString(),
-            },
-          });
 
           if (result && result.length > 0) {
             dispatch(
@@ -665,37 +479,13 @@ export const useMeasurementsFetcher = (
                 end: fetchEnd,
               })
             );
-
-            // Log updated fetchedTimeRanges
-            console.log("[DEBUG] Updated fetched time ranges for chunk:", {
-              added: {
-                start: new Date(fetchStart).toISOString(),
-                end: new Date(fetchEnd).toISOString(),
-              },
-            });
           }
 
           return { fetchStart, fetchEnd, resultLength: result?.length || 0 };
         });
 
-        // Wait for all fetches to complete
-        const results = await Promise.all(fetchPromises);
-
-        console.log(
-          "[DEBUG] All chunks fetched:",
-          results.map((r) => ({
-            start: new Date(r.fetchStart).toISOString(),
-            end: new Date(r.fetchEnd).toISOString(),
-            dataPoints: r.resultLength,
-          }))
-        );
-
         if (pendingSetExtremesRef.current) {
           const { start, end } = pendingSetExtremesRef.current;
-          console.log("[DEBUG] Setting pending extremes:", {
-            start: new Date(start).toISOString(),
-            end: new Date(end).toISOString(),
-          });
 
           requestAnimationFrame(() => {
             updateExtremesAndDisplay(
