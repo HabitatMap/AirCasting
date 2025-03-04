@@ -167,10 +167,7 @@ const getXAxisOptions = (
       ) {
         updateRangeDisplay(rangeDisplayRef, e.min, e.max, false);
       }
-      if (chart && chart.rangeSelector) {
-        chart.update({ rangeSelector: { selected: undefined } }, false);
-      }
-      // Show the loading overlay.
+      // Instead of updating the chart which may clear existing data, we show loading.
       chart.showLoading("Loading data from server...");
       if (mouseWheelTimeout) clearTimeout(mouseWheelTimeout);
       mouseWheelTimeout = setTimeout(() => {
@@ -196,6 +193,8 @@ const getXAxisOptions = (
           ).finally(() => {
             chart.hideLoading();
           });
+        } else {
+          chart.hideLoading();
         }
         // Clear the override flag after 2000ms.
         setOverrideRangeSelector(false);
@@ -309,6 +308,7 @@ const getXAxisOptions = (
     },
   };
 };
+
 const getYAxisOptions = (
   thresholdsState: Thresholds,
   isMobile: boolean = false
