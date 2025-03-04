@@ -97,6 +97,8 @@ const getXAxisOptions = (
   let cleanupTimeout: NodeJS.Timeout | null = null;
   let handled = false;
   let isHandlingCalendarDay = false;
+  let mouseWheelTimeout: NodeJS.Timeout | null = null;
+  let lastMouseWheelEvent: Highcharts.AxisSetExtremesEventObject | null = null;
 
   const removeEventHandlers = () => {
     if (navigatorMouseUpHandler) {
@@ -146,14 +148,60 @@ const getXAxisOptions = (
       return;
     }
 
-    if (
-      effectiveTrigger === "mousewheel" &&
-      isCalendarDaySelectedRef?.current
-    ) {
-      isCalendarDaySelectedRef.current = false;
-      if (onDayClick) {
-        onDayClick(null);
+    if (effectiveTrigger === "mousewheel") {
+      lastMouseWheelEvent = e;
+
+      if (isCalendarDaySelectedRef?.current) {
+        isCalendarDaySelectedRef.current = false;
+        if (onDayClick) {
+          onDayClick(null);
+        }
       }
+
+      lastTriggerRef.current = effectiveTrigger;
+      lastUpdateTimeRef.current = Date.now();
+
+      if (
+        e.min !== undefined &&
+        e.max !== undefined &&
+        !isNaN(e.min) &&
+        !isNaN(e.max)
+      ) {
+        updateRangeDisplay(rangeDisplayRef, e.min, e.max, false);
+      }
+
+      if (mouseWheelTimeout) {
+        clearTimeout(mouseWheelTimeout);
+      }
+
+      mouseWheelTimeout = setTimeout(() => {
+        if (lastMouseWheelEvent && streamId) {
+          const visibleRange =
+            lastMouseWheelEvent.max - lastMouseWheelEvent.min;
+          const padding = visibleRange * 0.25;
+          const now = Date.now();
+          const fetchStart = Math.max(
+            sessionStartTime || 0,
+            lastMouseWheelEvent.min - padding
+          );
+          const fetchEnd = Math.min(
+            sessionEndTime || now,
+            lastMouseWheelEvent.max + padding
+          );
+
+          fetchMeasurementsIfNeeded(
+            fetchStart,
+            fetchEnd,
+            false,
+            false,
+            "mousewheel"
+          );
+        }
+        mouseWheelTimeout = null;
+        lastMouseWheelEvent = null;
+      }, 300);
+
+      return;
     }
 
     lastTriggerRef.current = effectiveTrigger;
@@ -179,7 +227,6 @@ const getXAxisOptions = (
         effectiveTrigger === "pan" ||
         effectiveTrigger === "zoom" ||
         effectiveTrigger === "calendarDay" ||
-        effectiveTrigger === "mousewheel" ||
         effectiveTrigger === "syncExtremes" ||
         effectiveTrigger === "navigator")
     ) {
