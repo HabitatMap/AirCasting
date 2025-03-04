@@ -151,6 +151,16 @@ const getXAxisOptions = (
     if (effectiveTrigger === "mousewheel") {
       lastMouseWheelEvent = e;
 
+      // Deselect all range selector buttons when using mousewheel
+      const rangeSelector = chart.rangeSelector;
+      if (rangeSelector?.buttons) {
+        rangeSelector.buttons.forEach((button) => {
+          button.setState(0); // Set to unselected state
+        });
+        // Also reset the selected property
+        rangeSelector.selected = undefined;
+      }
+
       if (isCalendarDaySelectedRef?.current) {
         isCalendarDaySelectedRef.current = false;
         if (onDayClick) {
