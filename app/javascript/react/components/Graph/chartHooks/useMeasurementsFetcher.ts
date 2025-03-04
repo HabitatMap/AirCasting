@@ -39,6 +39,11 @@ export const useMeasurementsFetcher = (
   const fetchDebounceTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const activeFetchesRef = useRef<number>(0);
   const loadingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  // Add a ref to track the last fetched range to avoid redundant fetches
+  const lastFetchedRangeRef = useRef<{ start: number; end: number } | null>(
+    null
+  );
+  const lastUpdateTimeRef = useRef<number>(0);
 
   const fetchedTimeRanges = useAppSelector((state) =>
     streamId ? selectFetchedTimeRanges(state, streamId) : []
@@ -234,6 +239,21 @@ export const useMeasurementsFetcher = (
       return;
     }
 
+    // Check if this exact range was just fetched recently (within the last 500ms)
+    const now = Date.now();
+    if (
+      lastFetchedRangeRef.current &&
+      lastFetchedRangeRef.current.start === start &&
+      lastFetchedRangeRef.current.end === end &&
+      now - lastUpdateTimeRef.current < 500 &&
+      trigger !== "initial"
+    ) {
+      console.log(
+        "[FETCH ABORT DEBUG] Duplicate fetch request prevented for same range"
+      );
+      return;
+    }
+
     const boundedStart = Math.max(start, sessionStartTime);
     const boundedEnd = Math.min(end, sessionEndTime);
 
@@ -245,6 +265,10 @@ export const useMeasurementsFetcher = (
       });
       return;
     }
+
+    // Store this range as the last fetched range
+    lastFetchedRangeRef.current = { start, end };
+    lastUpdateTimeRef.current = now;
 
     // Force fetch for initial loads regardless of missing ranges
     const shouldForceFetch = trigger === "initial";
