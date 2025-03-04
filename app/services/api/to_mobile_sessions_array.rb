@@ -1,20 +1,20 @@
 class Api::ToMobileSessionsArray
-  def initialize(form:)
-    @form = form
+  def initialize(contract:)
+    @contract = contract
   end
 
   def call
-    return Failure.new(form.errors) if form.invalid?
+    return Failure.new(contract.errors) if contract.failure?
 
     Success.new(
       sessions: to_mobile_sessions_array(filtered.offset(offset).limit(limit)),
-      fetchableSessionsCount: filtered.count(:all)
+      fetchableSessionsCount: filtered.count(:all),
     )
   end
 
   private
 
-  attr_reader :form
+  attr_reader :contract
 
   def filtered
     MobileSession.with_user_and_streams.filter_(data)
@@ -56,20 +56,21 @@ class Api::ToMobileSessionsArray
                   threshold_very_high: stream.threshold_set.threshold_very_high,
                   threshold_very_low: stream.threshold_set.threshold_very_low,
                   unit_name: stream.unit_name,
-                  unit_symbol: stream.unit_symbol
-                }
+                  unit_symbol: stream.unit_symbol,
+                },
               )
-            end
+            end,
       }
     end
   end
 
+  #TO DO: check if the comment still applies
   def data
     # `Session.filter_` checks for the presence of `is_indoor`.
     # In this case, `is_indoor` is always `nil` therefore
     # `form.to_h[:is_indoor]` fails. For now, we can pass
     # a vanilla Ruby hash with `form.to_h.to_h`.
-    form.to_h.to_h
+    contract.to_h
   end
 
   def limit
