@@ -293,6 +293,42 @@ const fixedStreamSlice = createSlice({
         state.data.measurements = Array.from(existingMap.values()).sort(
           (a, b) => a.time - b.time
         );
+
+        // After updating measurements, calculate extremes for visible range if we have measurements
+        if (state.data.measurements.length > 0) {
+          // Use the time range from the fetch if available
+          const startTime = Number(action.meta?.arg?.startTime);
+          const endTime = Number(action.meta?.arg?.endTime);
+
+          // Filter measurements within the visible range
+          const visibleMeasurements = state.data.measurements.filter(
+            (m) => m.time >= startTime && m.time <= endTime
+          );
+
+          if (visibleMeasurements.length > 0) {
+            // Calculate min, max, and average in a single pass
+            const {
+              min: minValue,
+              max: maxValue,
+              sum,
+            } = visibleMeasurements.reduce(
+              (acc, measurement) => ({
+                min: Math.min(acc.min, measurement.value),
+                max: Math.max(acc.max, measurement.value),
+                sum: acc.sum + measurement.value,
+              }),
+              {
+                min: visibleMeasurements[0].value,
+                max: visibleMeasurements[0].value,
+                sum: 0,
+              }
+            );
+
+            state.minMeasurementValue = minValue;
+            state.maxMeasurementValue = maxValue;
+            state.averageMeasurementValue = sum / visibleMeasurements.length;
+          }
+        }
       }
     });
 

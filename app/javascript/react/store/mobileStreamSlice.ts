@@ -123,6 +123,12 @@ export const mobileStreamSlice = createSlice({
       state.lastSelectedTimeRange = MobileTimeRange.All;
       localStorage.setItem("lastSelectedMobileTimeRange", MobileTimeRange.All);
     },
+
+    resetMobileMeasurementExtremes: (state) => {
+      state.minMeasurementValue = null;
+      state.maxMeasurementValue = null;
+      state.averageMeasurementValue = null;
+    },
   },
   extraReducers: (builder) => {
     builder.addCase(fetchMobileStreamById.pending, (state) => {
@@ -156,6 +162,7 @@ export const {
   resetMobileStreamState,
   setLastSelectedMobileTimeRange,
   resetLastSelectedMobileTimeRange,
+  resetMobileMeasurementExtremes,
 } = mobileStreamSlice.actions;
 
 export default mobileStreamSlice.reducer;

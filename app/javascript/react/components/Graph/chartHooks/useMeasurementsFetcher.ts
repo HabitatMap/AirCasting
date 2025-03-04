@@ -4,8 +4,10 @@ import { selectFetchedTimeRanges } from "../../../store/fixedStreamSelectors";
 import {
   fetchMeasurements,
   updateFetchedTimeRanges,
+  updateFixedMeasurementExtremes,
 } from "../../../store/fixedStreamSlice";
 import { useAppDispatch, useAppSelector } from "../../../store/hooks";
+import { updateMobileMeasurementExtremes } from "../../../store/mobileStreamSlice";
 import {
   MILLISECONDS_IN_A_DAY,
   MILLISECONDS_IN_A_MINUTE,
@@ -207,6 +209,24 @@ export const useMeasurementsFetcher = (
                   end: boundedEnd,
                 })
               );
+
+              // Also update extremes for this initial data
+              if (fixedSessionTypeSelected) {
+                dispatch(
+                  updateFixedMeasurementExtremes({
+                    streamId,
+                    min: boundedStart,
+                    max: boundedEnd,
+                  })
+                );
+              } else {
+                dispatch(
+                  updateMobileMeasurementExtremes({
+                    min: boundedStart,
+                    max: boundedEnd,
+                  })
+                );
+              }
             }
           } else {
             const visibleRange = boundedEnd - boundedStart;
@@ -384,6 +404,24 @@ export const useMeasurementsFetcher = (
               end: boundedEnd,
             })
           );
+
+          // Also update extremes for this initial data
+          if (fixedSessionTypeSelected) {
+            dispatch(
+              updateFixedMeasurementExtremes({
+                streamId,
+                min: boundedStart,
+                max: boundedEnd,
+              })
+            );
+          } else {
+            dispatch(
+              updateMobileMeasurementExtremes({
+                min: boundedStart,
+                max: boundedEnd,
+              })
+            );
+          }
         }
       } else {
         // Calculate total visible range

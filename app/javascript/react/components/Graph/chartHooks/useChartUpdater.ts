@@ -6,6 +6,10 @@ import {
   updateFixedMeasurementExtremes,
 } from "../../../store/fixedStreamSlice";
 import { useAppDispatch } from "../../../store/hooks";
+import {
+  resetMobileMeasurementExtremes,
+  updateMobileMeasurementExtremes,
+} from "../../../store/mobileStreamSlice";
 import { FixedTimeRange, MobileTimeRange } from "../../../types/timeRange";
 
 interface UseChartUpdaterProps {
@@ -48,29 +52,38 @@ export const useChartUpdater = ({
 
   useEffect(() => {
     if (
-      !isLoading &&
       chartComponentRef.current?.chart &&
       seriesData &&
       seriesData.length > 0 &&
-      fixedSessionTypeSelected &&
       streamId
     ) {
       const chart = chartComponentRef.current.chart;
       if (chart.xAxis[0]) {
         const { min, max } = chart.xAxis[0].getExtremes();
         if (min !== undefined && max !== undefined) {
-          dispatch(
-            updateFixedMeasurementExtremes({
-              streamId,
-              min,
-              max,
-            })
-          );
-          hasInitializedRef.current = true;
+          setTimeout(() => {
+            if (fixedSessionTypeSelected) {
+              dispatch(
+                updateFixedMeasurementExtremes({
+                  streamId,
+                  min,
+                  max,
+                })
+              );
+            } else {
+              dispatch(
+                updateMobileMeasurementExtremes({
+                  min,
+                  max,
+                })
+              );
+            }
+            hasInitializedRef.current = true;
+          }, 100);
         }
       }
     }
-  }, [seriesData]);
+  }, [seriesData, isLoading, fixedSessionTypeSelected, streamId, dispatch]);
 
   const updateChartData = useCallback(
     (
@@ -82,16 +95,25 @@ export const useChartUpdater = ({
       data: Highcharts.PointOptionsType[]
     ) => {
       chart.series[0].setData(data, true, false, false);
-      if (fixedSessionTypeSelected && streamId && chart.xAxis[0]) {
+      if (chart.xAxis[0]) {
         const { min, max } = chart.xAxis[0].getExtremes();
         if (min !== undefined && max !== undefined) {
-          dispatch(
-            updateFixedMeasurementExtremes({
-              streamId,
-              min,
-              max,
-            })
-          );
+          if (fixedSessionTypeSelected && streamId) {
+            dispatch(
+              updateFixedMeasurementExtremes({
+                streamId,
+                min,
+                max,
+              })
+            );
+          } else {
+            dispatch(
+              updateMobileMeasurementExtremes({
+                min,
+                max,
+              })
+            );
+          }
           hasInitializedRef.current = true;
         }
       }
@@ -104,6 +126,8 @@ export const useChartUpdater = ({
       dispatch(resetTimeRange());
       if (fixedSessionTypeSelected && streamId) {
         dispatch(resetFixedMeasurementExtremes());
+      } else {
+        dispatch(resetMobileMeasurementExtremes());
       }
     };
   }, [fixedSessionTypeSelected, streamId, dispatch]);
