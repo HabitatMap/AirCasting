@@ -125,7 +125,20 @@ const getXAxisOptions = (
     const effectiveTrigger =
       e.trigger !== "none" ? e.trigger : lastTriggerRef.current || "none";
 
+    console.log("[EXTREMES] handleSetExtremes called with", {
+      trigger: e.trigger,
+      effectiveTrigger,
+      min: e.min,
+      max: e.max,
+      minFormatted: e.min ? new Date(e.min).toISOString() : null,
+      maxFormatted: e.max ? new Date(e.max).toISOString() : null,
+      isHandlingCalendarDay,
+    });
+
     if (isHandlingCalendarDay && effectiveTrigger !== "calendarDay") {
+      console.log(
+        "[EXTREMES] Skipping non-calendarDay event during calendar handling"
+      );
       return;
     }
 
@@ -134,6 +147,33 @@ const getXAxisOptions = (
       setTimeout(() => {
         isHandlingCalendarDay = false;
       }, 500);
+
+      // For calendarDay triggers, skip fetching - the effect that triggered this
+      // has already called fetchMeasurementsIfNeeded
+      console.log(
+        "[EXTREMES] Skipping fetch for calendarDay trigger - already handled by effect"
+      );
+
+      // Still update the trigger ref and range display
+      lastTriggerRef.current = effectiveTrigger;
+      lastUpdateTimeRef.current = Date.now();
+
+      // Update the range display immediately.
+      if (
+        e.min !== undefined &&
+        e.max !== undefined &&
+        !isNaN(e.min) &&
+        !isNaN(e.max)
+      ) {
+        updateRangeDisplay(
+          rangeDisplayRef,
+          e.min,
+          e.max,
+          true // Use full day format for calendar day
+        );
+      }
+
+      return; // Skip the rest of the function for calendarDay triggers
     }
 
     // Deselect day when mousewheel is used

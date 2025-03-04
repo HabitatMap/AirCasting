@@ -1,5 +1,5 @@
 import HighchartsReact from "highcharts-react-official";
-import { useEffect, useRef } from "react";
+import { useRef } from "react";
 import { selectFetchedTimeRanges } from "../../../store/fixedStreamSelectors";
 import {
   fetchMeasurements,
@@ -48,23 +48,6 @@ export const useMeasurementsFetcher = (
   const fetchedTimeRanges = useAppSelector((state) =>
     streamId ? selectFetchedTimeRanges(state, streamId) : []
   );
-
-  // Add debugging effect
-  useEffect(() => {
-    console.log("[FETCH INIT DEBUG]", {
-      streamId,
-      sessionStartTime,
-      sessionEndTime,
-      fixedSessionTypeSelected,
-      hasChart: !!chartComponentRef?.current?.chart,
-    });
-  }, [
-    streamId,
-    sessionStartTime,
-    sessionEndTime,
-    fixedSessionTypeSelected,
-    chartComponentRef?.current?.chart,
-  ]);
 
   const findMissingRanges = (start: number, end: number) => {
     if (!fetchedTimeRanges.length) {
@@ -217,29 +200,16 @@ export const useMeasurementsFetcher = (
     isDaySelection: boolean = false,
     trigger?: string
   ) => {
-    console.log("[FETCH CALL DEBUG]", {
-      start,
-      end,
-      range: end - start,
-      isEdgeFetch,
-      isDaySelection,
-      trigger,
-      streamId,
-      isCurrentlyFetching: isCurrentlyFetchingRef.current,
-    });
-
     if (!streamId || isCurrentlyFetchingRef.current) {
-      console.log("[FETCH ABORT DEBUG] No streamId or already fetching");
       return;
     }
 
     // Guard against invalid time ranges
     if (start >= end || end - start < 1000) {
-      console.log("[FETCH ABORT DEBUG] Invalid time range", { start, end });
       return;
     }
 
-    // Check if this exact range was just fetched recently (within the last 500ms)
+    // Check if this exact range was just fetched recently
     const now = Date.now();
     if (
       lastFetchedRangeRef.current &&
@@ -248,9 +218,6 @@ export const useMeasurementsFetcher = (
       now - lastUpdateTimeRef.current < 500 &&
       trigger !== "initial"
     ) {
-      console.log(
-        "[FETCH ABORT DEBUG] Duplicate fetch request prevented for same range"
-      );
       return;
     }
 
@@ -259,10 +226,6 @@ export const useMeasurementsFetcher = (
 
     // Additional guard for bounded range
     if (boundedStart >= boundedEnd) {
-      console.log("[FETCH ABORT DEBUG] Invalid bounded range", {
-        boundedStart,
-        boundedEnd,
-      });
       return;
     }
 
@@ -275,17 +238,11 @@ export const useMeasurementsFetcher = (
 
     // Find missing ranges first
     const missingRanges = findMissingRanges(boundedStart, boundedEnd);
-    console.log(
-      "[FETCH DEBUG] Missing ranges:",
-      missingRanges.length,
-      shouldForceFetch ? "(Forcing fetch)" : ""
-    );
 
     // Only show loading indicator if we have missing ranges to fetch or it's a forced fetch
     const shouldShowLoading = missingRanges.length > 0 || shouldForceFetch;
 
     if (!shouldShowLoading && !shouldForceFetch) {
-      console.log("[FETCH ABORT DEBUG] No missing ranges to fetch");
       return;
     }
 

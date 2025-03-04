@@ -216,9 +216,28 @@ const Graph: React.FC<GraphProps> = memo(
     // Ref to track if a custom (calendar) day is selected.
     const isCalendarDaySelectedRef = useRef(!!selectedTimestamp);
 
+    // Move this ref outside the effect to the top level of the component
+    const lastProcessedTimestampRef = useRef<number | null>(null);
+
     // When a calendar day is selected, mark the flag and fetch data.
     useEffect(() => {
       if (!chartComponentRef.current?.chart || !selectedTimestamp) return;
+
+      // Skip if we've already processed this exact timestamp
+      if (lastProcessedTimestampRef.current === selectedTimestamp) {
+        console.log("[DAY SELECTION] Skipping duplicate effect run", {
+          selectedTimestamp,
+        });
+        return;
+      }
+
+      console.log("[DAY SELECTION] Effect triggered", {
+        selectedTimestamp,
+        current: new Date(selectedTimestamp).toISOString(),
+      });
+
+      // Remember this timestamp to avoid processing it again
+      lastProcessedTimestampRef.current = selectedTimestamp;
 
       isCalendarDaySelectedRef.current = true;
 
@@ -242,10 +261,18 @@ const Graph: React.FC<GraphProps> = memo(
       finalRangeStart = Math.max(finalRangeStart, startTime);
       finalRangeEnd = Math.min(finalRangeEnd, endTime);
 
+      console.log("[DAY SELECTION] Calculated day range", {
+        finalRangeStart,
+        finalRangeEnd,
+        startFormatted: new Date(finalRangeStart).toISOString(),
+        endFormatted: new Date(finalRangeEnd).toISOString(),
+      });
+
       updateRangeDisplay(rangeDisplayRef, finalRangeStart, finalRangeEnd, true);
 
       // Update the chart extremes to show the selected day
       if (chartComponentRef.current?.chart) {
+        console.log("[DAY SELECTION] Setting chart extremes directly");
         chartComponentRef.current.chart.xAxis[0].setExtremes(
           finalRangeStart,
           finalRangeEnd,
@@ -255,7 +282,14 @@ const Graph: React.FC<GraphProps> = memo(
         );
       }
 
+      // Only call fetchMeasurementsIfNeeded directly if we're not letting
+      // the setExtremes handler handle it
       if (fixedSessionTypeSelected) {
+        console.log(
+          "[DAY SELECTION] Calling fetchMeasurementsIfNeeded from effect"
+        );
+        // Set a flag to indicate that this fetch is coming from the day selection effect
+        // to avoid duplicate fetches in the setExtremes handler
         fetchMeasurementsIfNeeded(
           finalRangeStart,
           finalRangeEnd,
@@ -706,15 +740,6 @@ const Graph: React.FC<GraphProps> = memo(
       // Store in a local variable to use in dependencies
       const isFirstLoad = isFirstLoadRef.current;
 
-      console.log("[GRAPH INITIAL FETCH DEBUG]", {
-        isFirstLoad,
-        fixedSessionTypeSelected,
-        hasStreamId: !!streamId,
-        startTime,
-        endTime,
-        timeRange: endTime - startTime,
-      });
-
       // If this is first load, trigger initial data fetch
       if (
         isFirstLoad &&
@@ -723,12 +748,6 @@ const Graph: React.FC<GraphProps> = memo(
         endTime &&
         endTime > startTime
       ) {
-        console.log("[GRAPH TRIGGERING INITIAL FETCH]", {
-          start: startTime,
-          end: endTime,
-          range: endTime - startTime,
-        });
-
         // Set to false before the fetch to prevent duplicate calls
         isFirstLoadRef.current = false;
 

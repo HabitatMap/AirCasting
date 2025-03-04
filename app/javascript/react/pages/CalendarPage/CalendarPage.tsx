@@ -90,12 +90,6 @@ const CalendarPage: React.FC<CalendarPageProps> = ({ children }) => {
       fixedStreamData.stream.startTime &&
       streamEndTime
     ) {
-      console.log("Fetching moving stream data", {
-        id: streamId,
-        startDate: fixedStreamData.stream.startTime,
-        endDate: streamEndTime,
-      });
-
       dispatch(
         fetchNewMovingStream({
           id: streamId,
@@ -117,22 +111,6 @@ const CalendarPage: React.FC<CalendarPageProps> = ({ children }) => {
     window.addEventListener("popstate", handleCalendarGoBack);
     return () => window.removeEventListener("popstate", handleCalendarGoBack);
   }, [handleCalendarGoBack]);
-
-  useEffect(() => {
-    console.log("Calendar visibility debug:", {
-      dataLength: movingCalendarData.data.length,
-      hasStreamId: !!streamId,
-      hasStartTime: !!fixedStreamData.stream.startTime,
-      initialDataFetched,
-      isLoading,
-    });
-  }, [
-    movingCalendarData.data.length,
-    streamId,
-    fixedStreamData.stream.startTime,
-    initialDataFetched,
-    isLoading,
-  ]);
 
   const handleDayClick = (timestamp: number | null) => {
     setSelectedTimestamp(timestamp);
