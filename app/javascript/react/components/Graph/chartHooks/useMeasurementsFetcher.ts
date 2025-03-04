@@ -10,26 +10,31 @@ import {
   MILLISECONDS_IN_A_DAY,
   MILLISECONDS_IN_A_MINUTE,
   MILLISECONDS_IN_A_MONTH,
+  MILLISECONDS_IN_A_SECOND,
 } from "../../../utils/timeRanges";
 import { updateRangeDisplay } from "./updateRangeDisplay";
 
 const INITIAL_EDGE_FETCH_MONTHS = 1;
+const MILLISECONDS_IN_TWO_SECONDS = 2 * MILLISECONDS_IN_A_SECOND;
 
 export const useMeasurementsFetcher = (
   streamId: number | null,
   sessionStartTime: number,
   sessionEndTime: number,
   chartComponentRef: React.RefObject<HighchartsReact.RefObject>,
+  fixedSessionTypeSelected: boolean,
   rangeDisplayRef?: React.RefObject<HTMLDivElement>
 ) => {
   const isCurrentlyFetchingRef = useRef(false);
   const dispatch = useAppDispatch();
   const isFirstRender = useRef(true);
   const fetchAttemptsRef = useRef(0);
+  // This ref will store the intended trigger (e.g. "mousewheel")
   const lastFetchTriggerRef = useRef<string | null>(null);
   const pendingSetExtremesRef = useRef<{ start: number; end: number } | null>(
     null
   );
+  const fetchDebounceTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   const fetchedTimeRanges = useAppSelector((state) =>
     streamId ? selectFetchedTimeRanges(state, streamId) : []
@@ -37,43 +42,66 @@ export const useMeasurementsFetcher = (
 
   const findMissingRanges = (start: number, end: number) => {
     if (!fetchedTimeRanges.length) {
-      // If requesting more than a month, return only the last month
       if (end - start > MILLISECONDS_IN_A_MONTH) {
-        return [
-          {
-            start: end - MILLISECONDS_IN_A_MONTH,
-            end,
-          },
-        ];
+        const chunks = [];
+        let chunkEnd = end;
+
+        while (chunkEnd > start) {
+          const chunkStart = Math.max(
+            start,
+            chunkEnd - MILLISECONDS_IN_A_MONTH
+          );
+          chunks.push({
+            start: chunkStart,
+            end: chunkEnd,
+          });
+          chunkEnd = chunkStart;
+        }
+
+        return chunks;
       }
       return [{ start, end }];
     }
 
-    // Sort ranges by start time
     const sortedRanges = [...fetchedTimeRanges].sort(
       (a, b) => a.start - b.start
     );
+
+    const mergedRanges: { start: number; end: number }[] = [];
+
+    if (sortedRanges.length > 0) {
+      let currentRange = { ...sortedRanges[0] };
+
+      for (let i = 1; i < sortedRanges.length; i++) {
+        const nextRange = sortedRanges[i];
+        if (nextRange.start <= currentRange.end + MILLISECONDS_IN_A_MINUTE) {
+          currentRange.end = Math.max(currentRange.end, nextRange.end);
+        } else {
+          mergedRanges.push(currentRange);
+          currentRange = { ...nextRange };
+        }
+      }
+
+      mergedRanges.push(currentRange);
+    }
+
     const gaps: { start: number; end: number }[] = [];
     let currentStart = start;
 
-    for (const range of sortedRanges) {
-      // If there's a gap before this range
+    for (const range of mergedRanges) {
       if (currentStart < range.start) {
         const gapEnd = Math.min(range.start, end);
-        if (gapEnd - currentStart > MILLISECONDS_IN_A_MINUTE) {
+        if (gapEnd - currentStart > MILLISECONDS_IN_A_MINUTE * 5) {
           gaps.push({
             start: currentStart,
             end: gapEnd,
           });
         }
       }
-      // Update currentStart to the end of this range
       currentStart = Math.max(currentStart, range.end);
     }
 
-    // Check if there's a gap after the last range
     if (currentStart < end) {
-      // Only add gap if it's not too small
       if (end - currentStart > MILLISECONDS_IN_A_MINUTE) {
         gaps.push({
           start: currentStart,
@@ -82,10 +110,8 @@ export const useMeasurementsFetcher = (
       }
     }
 
-    // Process gaps to ensure none are larger than one month
     return gaps.reduce<{ start: number; end: number }[]>((acc, gap) => {
       if (gap.end - gap.start > MILLISECONDS_IN_A_MONTH) {
-        // Split into month-sized chunks, starting from the end
         let chunkEnd = gap.end;
         while (chunkEnd > gap.start) {
           const chunkStart = Math.max(
@@ -104,6 +130,7 @@ export const useMeasurementsFetcher = (
       return acc;
     }, []);
   };
+
   const updateExtremesAndDisplay = (
     start: number,
     end: number,
@@ -111,16 +138,23 @@ export const useMeasurementsFetcher = (
   ) => {
     if (chartComponentRef?.current?.chart) {
       const chart = chartComponentRef.current.chart;
-      chart.xAxis[0].setExtremes(start, end, true, false, { trigger });
-      // Update range display with the new extremes
+      const effectiveTrigger =
+        trigger && trigger !== "none"
+          ? trigger
+          : lastFetchTriggerRef.current || "none";
+
+      chart.xAxis[0].setExtremes(start, end, true, false, {
+        trigger: effectiveTrigger,
+      });
       updateRangeDisplay(
         rangeDisplayRef,
         start,
         end,
-        trigger === "calendarDay"
+        effectiveTrigger === "calendarDay"
       );
     }
   };
+
   const fetchMeasurementsIfNeeded = async (
     start: number,
     end: number,
@@ -132,14 +166,197 @@ export const useMeasurementsFetcher = (
       return;
     }
 
-    // Store the trigger that initiated this fetch
+    if (
+      trigger &&
+      ["pan", "navigator", "zoom", "mousewheel"].includes(trigger)
+    ) {
+      if (fetchDebounceTimeoutRef.current) {
+        clearTimeout(fetchDebounceTimeoutRef.current);
+      }
+
+      fetchDebounceTimeoutRef.current = setTimeout(async () => {
+        if (trigger) {
+          lastFetchTriggerRef.current = trigger;
+          pendingSetExtremesRef.current = { start, end };
+        }
+
+        const boundedStart = Math.max(start, sessionStartTime);
+        const boundedEnd = Math.min(end, sessionEndTime);
+
+        if (boundedStart >= boundedEnd) {
+          return;
+        }
+
+        try {
+          isCurrentlyFetchingRef.current = true;
+
+          if (trigger === "initial" && !fixedSessionTypeSelected) {
+            const result = await dispatch(
+              fetchMeasurements({
+                streamId: Number(streamId),
+                startTime: Math.floor(boundedStart).toString(),
+                endTime: Math.floor(boundedEnd).toString(),
+              })
+            ).unwrap();
+
+            if (result && result.length > 0) {
+              dispatch(
+                updateFetchedTimeRanges({
+                  streamId,
+                  start: boundedStart,
+                  end: boundedEnd,
+                })
+              );
+            }
+          } else {
+            const visibleRange = boundedEnd - boundedStart;
+
+            // Calculate a reasonable fetch padding based on visible range
+            const fetchPadding = Math.min(
+              visibleRange * 0.25,
+              MILLISECONDS_IN_A_DAY
+            );
+
+            // Apply padding to fetch range, but respect session bounds
+            const paddedStart = Math.max(
+              sessionStartTime,
+              boundedStart - fetchPadding
+            );
+            const paddedEnd = Math.min(
+              sessionEndTime,
+              boundedEnd + fetchPadding
+            );
+
+            // Use padded range for finding missing ranges
+            const missingRanges = findMissingRanges(paddedStart, paddedEnd);
+
+            if (missingRanges.length === 0) {
+              if (pendingSetExtremesRef.current) {
+                const { start, end } = pendingSetExtremesRef.current;
+                updateExtremesAndDisplay(
+                  start,
+                  end,
+                  lastFetchTriggerRef.current || undefined
+                );
+              }
+              return;
+            }
+
+            // Process all ranges in parallel for efficiency
+            const fetchPromises = missingRanges.map(async (range) => {
+              let fetchStart = range.start;
+              let fetchEnd = range.end;
+
+              if (isDaySelection) {
+                const paddedStart = Math.max(
+                  sessionStartTime,
+                  fetchStart - MILLISECONDS_IN_A_DAY * 2
+                );
+                const paddedEnd = Math.min(
+                  sessionEndTime,
+                  fetchEnd + MILLISECONDS_IN_A_DAY - MILLISECONDS_IN_TWO_SECONDS
+                );
+
+                if (paddedEnd - paddedStart > MILLISECONDS_IN_A_MONTH) {
+                  fetchStart = paddedEnd - MILLISECONDS_IN_A_MONTH;
+                  fetchEnd = paddedEnd;
+                } else {
+                  fetchStart = paddedStart;
+                  fetchEnd = paddedEnd;
+                }
+              } else if (isEdgeFetch) {
+                const baseRange = Math.min(
+                  MILLISECONDS_IN_A_MONTH * INITIAL_EDGE_FETCH_MONTHS,
+                  MILLISECONDS_IN_A_MONTH
+                );
+                const expansionFactor = Math.min(
+                  Math.pow(2, fetchAttemptsRef.current),
+                  MILLISECONDS_IN_A_MONTH / baseRange
+                );
+                const totalRange = Math.min(
+                  baseRange * expansionFactor,
+                  MILLISECONDS_IN_A_MONTH
+                );
+
+                fetchStart = Math.max(
+                  sessionStartTime,
+                  fetchStart - totalRange / 2
+                );
+                fetchEnd = Math.min(sessionEndTime, fetchEnd + totalRange / 2);
+              }
+              if (fetchEnd - fetchStart > MILLISECONDS_IN_A_MONTH) {
+                fetchStart = fetchEnd - MILLISECONDS_IN_A_MONTH;
+              }
+
+              const result = await dispatch(
+                fetchMeasurements({
+                  streamId: Number(streamId),
+                  startTime: Math.floor(fetchStart).toString(),
+                  endTime: Math.floor(fetchEnd).toString(),
+                })
+              ).unwrap();
+
+              if (result && result.length > 0) {
+                dispatch(
+                  updateFetchedTimeRanges({
+                    streamId,
+                    start: fetchStart,
+                    end: fetchEnd,
+                  })
+                );
+              }
+
+              return {
+                fetchStart,
+                fetchEnd,
+                resultLength: result?.length || 0,
+              };
+            });
+
+            // Wait for all fetches to complete
+            const results = await Promise.all(fetchPromises);
+
+            if (pendingSetExtremesRef.current) {
+              const { start, end } = pendingSetExtremesRef.current;
+
+              requestAnimationFrame(() => {
+                updateExtremesAndDisplay(
+                  start,
+                  end,
+                  lastFetchTriggerRef.current || undefined
+                );
+              });
+            }
+
+            if (isFirstRender.current) {
+              isFirstRender.current = false;
+            }
+          }
+        } catch (error) {
+          console.error("[Fetch Error]", {
+            error,
+            streamId,
+            range: {
+              start: new Date(boundedStart).toISOString(),
+              end: new Date(boundedEnd).toISOString(),
+            },
+          });
+        } finally {
+          isCurrentlyFetchingRef.current = false;
+          pendingSetExtremesRef.current = null;
+        }
+
+        fetchDebounceTimeoutRef.current = null;
+      }, 300);
+
+      return;
+    }
+
     if (trigger) {
       lastFetchTriggerRef.current = trigger;
-      // Store the intended extremes
       pendingSetExtremesRef.current = { start, end };
     }
 
-    // Respect session boundaries
     const boundedStart = Math.max(start, sessionStartTime);
     const boundedEnd = Math.min(end, sessionEndTime);
 
@@ -150,71 +367,12 @@ export const useMeasurementsFetcher = (
     try {
       isCurrentlyFetchingRef.current = true;
 
-      // Find missing ranges in the requested time window
-      const missingRanges = findMissingRanges(boundedStart, boundedEnd);
-
-      if (missingRanges.length === 0) {
-        if (pendingSetExtremesRef.current) {
-          const { start, end } = pendingSetExtremesRef.current;
-          updateExtremesAndDisplay(
-            start,
-            end,
-            lastFetchTriggerRef.current || undefined
-          );
-        }
-        return;
-      }
-
-      // Fetch each missing range
-      for (const range of missingRanges) {
-        let fetchStart = range.start;
-        let fetchEnd = range.end;
-
-        if (isDaySelection) {
-          // For day selection, add padding but still respect one month limit
-          const paddedStart = Math.max(
-            sessionStartTime,
-            fetchStart - MILLISECONDS_IN_A_DAY * 2
-          );
-          const paddedEnd = Math.min(
-            sessionEndTime,
-            fetchEnd + MILLISECONDS_IN_A_DAY - 1000 * 2
-          );
-
-          if (paddedEnd - paddedStart > MILLISECONDS_IN_A_MONTH) {
-            fetchStart = paddedEnd - MILLISECONDS_IN_A_MONTH;
-            fetchEnd = paddedEnd;
-          } else {
-            fetchStart = paddedStart;
-            fetchEnd = paddedEnd;
-          }
-        } else if (isEdgeFetch) {
-          const baseRange = Math.min(
-            MILLISECONDS_IN_A_MONTH * INITIAL_EDGE_FETCH_MONTHS,
-            MILLISECONDS_IN_A_MONTH
-          );
-          const expansionFactor = Math.min(
-            Math.pow(2, fetchAttemptsRef.current),
-            MILLISECONDS_IN_A_MONTH / baseRange
-          );
-          const totalRange = Math.min(
-            baseRange * expansionFactor,
-            MILLISECONDS_IN_A_MONTH
-          );
-
-          fetchStart = Math.max(sessionStartTime, fetchStart - totalRange / 2);
-          fetchEnd = Math.min(sessionEndTime, fetchEnd + totalRange / 2);
-        }
-        if (fetchEnd - fetchStart > MILLISECONDS_IN_A_MONTH) {
-          fetchStart = fetchEnd - MILLISECONDS_IN_A_MONTH;
-        }
-
-        const fetchStartTime = Date.now();
+      if (trigger === "initial" && !fixedSessionTypeSelected) {
         const result = await dispatch(
           fetchMeasurements({
             streamId: Number(streamId),
-            startTime: Math.floor(fetchStart).toString(),
-            endTime: Math.floor(fetchEnd).toString(),
+            startTime: Math.floor(boundedStart).toString(),
+            endTime: Math.floor(boundedEnd).toString(),
           })
         ).unwrap();
 
@@ -222,27 +380,125 @@ export const useMeasurementsFetcher = (
           dispatch(
             updateFetchedTimeRanges({
               streamId,
-              start: fetchStart,
-              end: fetchEnd,
+              start: boundedStart,
+              end: boundedEnd,
             })
           );
         }
-      }
+      } else {
+        // Calculate total visible range
+        const visibleRange = boundedEnd - boundedStart;
 
-      // After all fetches complete successfully
-      if (pendingSetExtremesRef.current) {
-        const { start, end } = pendingSetExtremesRef.current;
-        requestAnimationFrame(() => {
-          updateExtremesAndDisplay(
-            start,
-            end,
-            lastFetchTriggerRef.current || undefined
-          );
+        // Calculate a reasonable fetch padding based on visible range
+        const fetchPadding = Math.min(
+          visibleRange * 0.25, // 25% of the visible range
+          MILLISECONDS_IN_A_DAY // Maximum 1 day padding
+        );
+
+        // Apply padding to fetch range, but respect session bounds
+        const paddedStart = Math.max(
+          sessionStartTime,
+          boundedStart - fetchPadding
+        );
+        const paddedEnd = Math.min(sessionEndTime, boundedEnd + fetchPadding);
+
+        // Use padded range for finding missing ranges
+        const missingRanges = findMissingRanges(paddedStart, paddedEnd);
+
+        if (missingRanges.length === 0) {
+          if (pendingSetExtremesRef.current) {
+            const { start, end } = pendingSetExtremesRef.current;
+            updateExtremesAndDisplay(
+              start,
+              end,
+              lastFetchTriggerRef.current || undefined
+            );
+          }
+          return;
+        }
+
+        // Process all ranges in parallel for efficiency
+        const fetchPromises = missingRanges.map(async (range) => {
+          let fetchStart = range.start;
+          let fetchEnd = range.end;
+
+          if (isDaySelection) {
+            const paddedStart = Math.max(
+              sessionStartTime,
+              fetchStart - MILLISECONDS_IN_A_DAY * 2
+            );
+            const paddedEnd = Math.min(
+              sessionEndTime,
+              fetchEnd + MILLISECONDS_IN_A_DAY - MILLISECONDS_IN_TWO_SECONDS
+            );
+
+            if (paddedEnd - paddedStart > MILLISECONDS_IN_A_MONTH) {
+              fetchStart = paddedEnd - MILLISECONDS_IN_A_MONTH;
+              fetchEnd = paddedEnd;
+            } else {
+              fetchStart = paddedStart;
+              fetchEnd = paddedEnd;
+            }
+          } else if (isEdgeFetch) {
+            const baseRange = Math.min(
+              MILLISECONDS_IN_A_MONTH * INITIAL_EDGE_FETCH_MONTHS,
+              MILLISECONDS_IN_A_MONTH
+            );
+            const expansionFactor = Math.min(
+              Math.pow(2, fetchAttemptsRef.current),
+              MILLISECONDS_IN_A_MONTH / baseRange
+            );
+            const totalRange = Math.min(
+              baseRange * expansionFactor,
+              MILLISECONDS_IN_A_MONTH
+            );
+
+            fetchStart = Math.max(
+              sessionStartTime,
+              fetchStart - totalRange / 2
+            );
+            fetchEnd = Math.min(sessionEndTime, fetchEnd + totalRange / 2);
+          }
+          if (fetchEnd - fetchStart > MILLISECONDS_IN_A_MONTH) {
+            fetchStart = fetchEnd - MILLISECONDS_IN_A_MONTH;
+          }
+
+          const result = await dispatch(
+            fetchMeasurements({
+              streamId: Number(streamId),
+              startTime: Math.floor(fetchStart).toString(),
+              endTime: Math.floor(fetchEnd).toString(),
+            })
+          ).unwrap();
+
+          if (result && result.length > 0) {
+            dispatch(
+              updateFetchedTimeRanges({
+                streamId,
+                start: fetchStart,
+                end: fetchEnd,
+              })
+            );
+          }
+
+          return { fetchStart, fetchEnd, resultLength: result?.length || 0 };
         });
-      }
 
-      if (isFirstRender.current) {
-        isFirstRender.current = false;
+        if (pendingSetExtremesRef.current) {
+          const { start, end } = pendingSetExtremesRef.current;
+
+          requestAnimationFrame(() => {
+            updateExtremesAndDisplay(
+              start,
+              end,
+              lastFetchTriggerRef.current || undefined
+            );
+          });
+        }
+
+        if (isFirstRender.current) {
+          isFirstRender.current = false;
+        }
       }
     } catch (error) {
       console.error("[Fetch Error]", {

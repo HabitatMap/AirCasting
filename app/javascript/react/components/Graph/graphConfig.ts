@@ -40,6 +40,14 @@ import {
 } from "../../utils/timeRanges";
 import { updateRangeDisplay } from "./chartHooks/updateRangeDisplay";
 
+type ChartWithRangeSelector = Highcharts.Chart & {
+  rangeSelector?: {
+    buttons?: Array<{
+      setState(state: number): void;
+    }>;
+  };
+};
+
 const getScrollbarOptions = (isCalendarPage: boolean, isMobile: boolean) => {
   return {
     barBackgroundColor: gray200,
@@ -87,6 +95,8 @@ const getXAxisOptions = (
   let touchEndHandler: ((event: TouchEvent) => void) | null = null;
   let isHandlingCalendarDay = false;
   let cleanupTimeout: NodeJS.Timeout | null = null;
+  // Variable for debouncing mousewheel events.
+  let mouseWheelTimeout: NodeJS.Timeout | null = null;
   let handled = false;
 
   const removeEventHandlers = () => {
@@ -109,57 +119,97 @@ const getXAxisOptions = (
     e: Highcharts.AxisSetExtremesEventObject,
     chart: Highcharts.Chart
   ) => {
-    const currentTrigger = e.trigger || "none";
+    // Determine the effective trigger.
+    const effectiveTrigger =
+      e.trigger !== "none" ? e.trigger : lastTriggerRef.current || "none";
 
-    if (isHandlingCalendarDay && currentTrigger !== "calendarDay") {
+    if (isHandlingCalendarDay && effectiveTrigger !== "calendarDay") {
       return;
     }
 
-    if (currentTrigger === "calendarDay") {
+    if (effectiveTrigger === "calendarDay") {
       isHandlingCalendarDay = true;
       setTimeout(() => {
         isHandlingCalendarDay = false;
       }, 500);
     }
 
-    lastTriggerRef.current = currentTrigger;
-
-    if (
-      (currentTrigger === "navigator" ||
-        currentTrigger === "pan" ||
-        currentTrigger === "zoom") &&
-      isCalendarDaySelectedRef?.current
-    ) {
-      isCalendarDaySelectedRef.current = false;
-      onDayClick?.(null);
-    }
-
+    // Update the trigger ref immediately.
+    lastTriggerRef.current = effectiveTrigger;
     lastUpdateTimeRef.current = Date.now();
 
+    // Update the range display immediately.
     if (
-      e.min === undefined ||
-      e.max === undefined ||
-      isNaN(e.min) ||
-      isNaN(e.max)
+      e.min !== undefined &&
+      e.max !== undefined &&
+      !isNaN(e.min) &&
+      !isNaN(e.max)
     ) {
-      return;
+      updateRangeDisplay(
+        rangeDisplayRef,
+        e.min,
+        e.max,
+        effectiveTrigger === "calendarDay"
+      );
     }
 
-    updateRangeDisplay(
-      rangeDisplayRef,
-      e.min,
-      e.max,
-      currentTrigger === "calendarDay"
-    );
-
+    // If a measurement fetch is needed for these triggers…
     if (
       streamId &&
-      (currentTrigger === "rangeSelectorButton" ||
-        currentTrigger === "navigator" ||
-        currentTrigger === "pan" ||
-        currentTrigger === "zoom" ||
-        currentTrigger === "calendarDay")
+      (effectiveTrigger === "rangeSelectorButton" ||
+        effectiveTrigger === "navigator" ||
+        effectiveTrigger === "pan" ||
+        effectiveTrigger === "zoom" ||
+        effectiveTrigger === "calendarDay" ||
+        effectiveTrigger === "mousewheel" ||
+        effectiveTrigger === "syncExtremes")
     ) {
+      // Handle mousewheel events separately.
+      if (effectiveTrigger === "mousewheel") {
+        if (isFetching || isLoading) return;
+        if (mouseWheelTimeout) {
+          clearTimeout(mouseWheelTimeout);
+        }
+        // Debounce mousewheel so that fetching occurs only after user stops scrolling.
+        mouseWheelTimeout = setTimeout(async () => {
+          // Update measurement extremes.
+          if (fixedSessionTypeSelected) {
+            dispatch(
+              updateFixedMeasurementExtremes({
+                streamId,
+                min: e.min,
+                max: e.max,
+              })
+            );
+          } else {
+            dispatch(
+              updateMobileMeasurementExtremes({
+                min: e.min,
+                max: e.max,
+              })
+            );
+          }
+          const visibleRange = e.max - e.min;
+          const padding = visibleRange * 0.25;
+          const now = Date.now();
+          const fetchStart = Math.max(sessionStartTime || 0, e.min - padding);
+          const fetchEnd = Math.min(sessionEndTime || now, e.max + padding);
+
+          isFetching = true;
+          try {
+            await fetchMeasurementsIfNeeded(fetchStart, fetchEnd);
+            // Set trigger to "mousewheel" after successful fetch.
+            lastTriggerRef.current = "mousewheel";
+          } catch (error) {
+            console.error("Error fetching measurements:", error);
+          } finally {
+            isFetching = false;
+          }
+        }, 300);
+        return;
+      }
+
+      // For non-mousewheel triggers, update Redux and fetch immediately.
       if (fixedSessionTypeSelected) {
         dispatch(
           updateFixedMeasurementExtremes({
@@ -211,19 +261,30 @@ const getXAxisOptions = (
     visible: true,
     minRange: MILLISECONDS_IN_A_SECOND,
     ordinal: false,
-    min: sessionStartTime,
-    max: sessionEndTime,
+    min: fixedSessionTypeSelected ? sessionStartTime : null,
+    max: fixedSessionTypeSelected ? sessionEndTime : null,
     events: {
       afterSetExtremes: function (e: Highcharts.AxisSetExtremesEventObject) {
         const chart = this.chart;
+        const effectiveTrigger =
+          e.trigger !== "none" ? e.trigger : lastTriggerRef.current || "none";
 
-        if (isHandlingCalendarDay && e.trigger !== "calendarDay") {
+        if (isHandlingCalendarDay && effectiveTrigger !== "calendarDay") {
           return;
         }
 
-        if (e.trigger !== "navigator") {
+        // If it's a mousewheel event, unselect any range selector buttons
+        const rangeSelector = (chart as ChartWithRangeSelector).rangeSelector;
+        if (effectiveTrigger === "mousewheel" && rangeSelector?.buttons) {
+          // Unselect all buttons
+          rangeSelector.buttons.forEach((button) => {
+            button.setState(0); // 0 is the unselected state
+          });
+        }
+
+        if (effectiveTrigger !== "navigator") {
           removeEventHandlers();
-          handleSetExtremes(e, chart);
+          handleSetExtremes({ ...e, trigger: effectiveTrigger }, chart);
           return;
         }
 
@@ -231,8 +292,7 @@ const getXAxisOptions = (
         lastTriggerRef.current = "navigator";
 
         if (!navigatorMouseUpHandler && !touchEndHandler) {
-          handled = false; // Reset flag for this interaction
-
+          handled = false;
           const handleEnd = () => {
             if (handled) return;
             handled = true;
@@ -247,11 +307,9 @@ const getXAxisOptions = (
           navigatorMouseUpHandler = handleEnd;
           touchEndHandler = handleEnd;
 
-          // Attach event listeners to window with capturing enabled for better compatibility in Chrome.
           window.addEventListener("mouseup", navigatorMouseUpHandler, true);
           window.addEventListener("touchend", touchEndHandler, true);
 
-          // Use the safeguard timeout in case the release event is missed.
           cleanupTimeout = setTimeout(() => {
             handleEnd();
           }, 8000);
