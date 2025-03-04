@@ -691,6 +691,49 @@ const Graph: React.FC<GraphProps> = memo(
       }
     }, [isCalendarPage, seriesData]);
 
+    useEffect(() => {
+      // Store in a local variable to use in dependencies
+      const isFirstLoad = isFirstLoadRef.current;
+
+      console.log("[GRAPH INITIAL FETCH DEBUG]", {
+        isFirstLoad,
+        fixedSessionTypeSelected,
+        hasStreamId: !!streamId,
+        startTime,
+        endTime,
+        timeRange: endTime - startTime,
+      });
+
+      // If this is first load, trigger initial data fetch
+      if (
+        isFirstLoad &&
+        streamId &&
+        startTime &&
+        endTime &&
+        endTime > startTime
+      ) {
+        console.log("[GRAPH TRIGGERING INITIAL FETCH]", {
+          start: startTime,
+          end: endTime,
+          range: endTime - startTime,
+        });
+
+        // Set to false before the fetch to prevent duplicate calls
+        isFirstLoadRef.current = false;
+
+        // Force a small delay to ensure chart is ready
+        setTimeout(() => {
+          fetchMeasurementsIfNeeded(startTime, endTime, true, false, "initial");
+        }, 50);
+      }
+    }, [
+      streamId,
+      fixedSessionTypeSelected,
+      startTime,
+      endTime,
+      fetchMeasurementsIfNeeded,
+    ]);
+
     return (
       <S.Container
         $isCalendarPage={isCalendarPage}

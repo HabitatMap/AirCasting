@@ -63,7 +63,7 @@ const CalendarPage: React.FC<CalendarPageProps> = ({ children }) => {
   );
 
   const calendarIsVisible =
-    movingCalendarData.data.length &&
+    (movingCalendarData.data.length > 0 || isLoading) &&
     streamId &&
     fixedStreamData.stream.startTime;
   const streamEndTime: string =
@@ -78,18 +78,24 @@ const CalendarPage: React.FC<CalendarPageProps> = ({ children }) => {
   }, [streamId, dispatch, fixedStreamData.measurements.length]);
 
   useEffect(() => {
-    window.addEventListener("popstate", handleCalendarGoBack);
-    return () => window.removeEventListener("popstate", handleCalendarGoBack);
-  }, [handleCalendarGoBack]);
+    if (fixedStreamData.stream) {
+      dispatch(setDefaultThresholdsValues(fixedStreamData.stream));
+    }
+  }, [fixedStreamData.stream, dispatch]);
 
   useEffect(() => {
     if (
       !initialDataFetched &&
       streamId &&
-      !isLoading &&
       fixedStreamData.stream.startTime &&
       streamEndTime
     ) {
+      console.log("Fetching moving stream data", {
+        id: streamId,
+        startDate: fixedStreamData.stream.startTime,
+        endDate: streamEndTime,
+      });
+
       dispatch(
         fetchNewMovingStream({
           id: streamId,
@@ -99,16 +105,33 @@ const CalendarPage: React.FC<CalendarPageProps> = ({ children }) => {
       );
       setInitialDataFetched(true);
     }
-    if (fixedStreamData.stream) {
-      dispatch(setDefaultThresholdsValues(fixedStreamData.stream));
-    }
   }, [
-    fixedStreamData,
+    initialDataFetched,
     streamId,
-    isLoading,
+    fixedStreamData.stream.startTime,
     streamEndTime,
     dispatch,
+  ]);
+
+  useEffect(() => {
+    window.addEventListener("popstate", handleCalendarGoBack);
+    return () => window.removeEventListener("popstate", handleCalendarGoBack);
+  }, [handleCalendarGoBack]);
+
+  useEffect(() => {
+    console.log("Calendar visibility debug:", {
+      dataLength: movingCalendarData.data.length,
+      hasStreamId: !!streamId,
+      hasStartTime: !!fixedStreamData.stream.startTime,
+      initialDataFetched,
+      isLoading,
+    });
+  }, [
+    movingCalendarData.data.length,
+    streamId,
+    fixedStreamData.stream.startTime,
     initialDataFetched,
+    isLoading,
   ]);
 
   const handleDayClick = (timestamp: number | null) => {
