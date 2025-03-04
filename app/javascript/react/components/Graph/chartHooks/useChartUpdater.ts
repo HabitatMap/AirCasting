@@ -10,7 +10,6 @@ import {
   resetMobileMeasurementExtremes,
   updateMobileMeasurementExtremes,
 } from "../../../store/mobileStreamSlice";
-import { FixedTimeRange, MobileTimeRange } from "../../../types/timeRange";
 
 interface UseChartUpdaterProps {
   chartComponentRef: React.RefObject<{
@@ -22,20 +21,16 @@ interface UseChartUpdaterProps {
   }>;
   seriesData: Highcharts.PointOptionsType[] | undefined;
   isLoading: boolean;
-  lastSelectedTimeRange: FixedTimeRange | MobileTimeRange | null;
   fixedSessionTypeSelected: boolean;
   streamId: number | null;
-  rangeDisplayRef?: React.RefObject<HTMLDivElement>;
 }
 
 export const useChartUpdater = ({
   chartComponentRef,
   seriesData,
   isLoading,
-  lastSelectedTimeRange,
   fixedSessionTypeSelected,
   streamId,
-  rangeDisplayRef,
 }: UseChartUpdaterProps) => {
   const dispatch = useAppDispatch();
   const updateTimeoutRef = useRef<NodeJS.Timeout | null>(null);
@@ -94,17 +89,7 @@ export const useChartUpdater = ({
       },
       data: Highcharts.PointOptionsType[]
     ) => {
-      console.log("[CHART DEBUG] Setting chart data", {
-        dataLength: data.length,
-      });
-
-      const startTime = performance.now();
       chart.series[0].setData(data, true, false, false);
-      console.log(
-        "[CHART DEBUG] setData completed in",
-        performance.now() - startTime,
-        "ms"
-      );
 
       if (chart.xAxis[0]) {
         const { min, max } = chart.xAxis[0].getExtremes();

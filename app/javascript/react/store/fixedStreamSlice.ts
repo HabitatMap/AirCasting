@@ -267,16 +267,12 @@ const fixedStreamSlice = createSlice({
     });
 
     builder.addCase(fetchMeasurements.pending, (state) => {
-      console.log("[REDUX DEBUG] fetchMeasurements.pending");
       state.status = StatusEnum.Pending;
       state.error = null;
       state.isLoading = true;
     });
 
     builder.addCase(fetchMeasurements.fulfilled, (state, action) => {
-      console.log("[REDUX DEBUG] fetchMeasurements.fulfilled", {
-        payloadLength: action.payload?.length || 0,
-      });
       state.status = StatusEnum.Fulfilled;
       state.error = null;
 
@@ -332,10 +328,6 @@ const fixedStreamSlice = createSlice({
             state.averageMeasurementValue = sum / visibleMeasurements.length;
           }
         }
-
-        console.log("[REDUX DEBUG] Measurements after merge", {
-          totalMeasurements: state.data.measurements.length,
-        });
       }
     });
 

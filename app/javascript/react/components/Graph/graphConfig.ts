@@ -40,13 +40,15 @@ import {
 } from "../../utils/timeRanges";
 import { updateRangeDisplay } from "./chartHooks/updateRangeDisplay";
 
-type ChartWithRangeSelector = Highcharts.Chart & {
+interface ChartWithRangeSelector extends Highcharts.Chart {
   rangeSelector?: {
     buttons?: Array<{
-      setState(state: number): void;
+      setState: (state: number) => void;
+      state?: number;
     }>;
+    selected?: number;
   };
-};
+}
 
 const getScrollbarOptions = (isCalendarPage: boolean, isMobile: boolean) => {
   return {
@@ -117,7 +119,7 @@ const getXAxisOptions = (
 
   const handleSetExtremes = async (
     e: Highcharts.AxisSetExtremesEventObject,
-    chart: Highcharts.Chart
+    chart: ChartWithRangeSelector
   ) => {
     // Determine the effective trigger.
     const effectiveTrigger =
@@ -242,6 +244,23 @@ const getXAxisOptions = (
         isFetching = false;
       }
     }
+
+    // Add this code to unselect all buttons when mousewheel is used
+    if (effectiveTrigger === "mousewheel" && chart.rangeSelector) {
+      // Cast to the extended type
+      const stockChart = chart as ChartWithRangeSelector;
+
+      // Now use the properly typed object
+      stockChart.rangeSelector?.buttons?.forEach((button) => {
+        if (button.setState) {
+          button.setState(0);
+        }
+      });
+
+      if (stockChart.rangeSelector?.selected !== undefined) {
+        stockChart.rangeSelector.selected = undefined;
+      }
+    }
   };
 
   return {
@@ -264,55 +283,25 @@ const getXAxisOptions = (
     min: fixedSessionTypeSelected ? sessionStartTime : null,
     max: fixedSessionTypeSelected ? sessionEndTime : null,
     events: {
-      afterSetExtremes: function (e: Highcharts.AxisSetExtremesEventObject) {
-        const chart = this.chart;
-        const effectiveTrigger =
-          e.trigger !== "none" ? e.trigger : lastTriggerRef.current || "none";
+      setExtremes: function (e) {
+        handleSetExtremes(e, this.chart as ChartWithRangeSelector);
+      },
 
-        if (isHandlingCalendarDay && effectiveTrigger !== "calendarDay") {
-          return;
-        }
+      // Add mousewheel event handler
+      afterSetExtremes: function (e) {
+        if (e.trigger === "mousewheel") {
+          // Cast to the extended type
+          const stockChart = this.chart as ChartWithRangeSelector;
 
-        // If it's a mousewheel event, unselect any range selector buttons
-        const rangeSelector = (chart as ChartWithRangeSelector).rangeSelector;
-        if (effectiveTrigger === "mousewheel" && rangeSelector?.buttons) {
-          // Unselect all buttons
-          rangeSelector.buttons.forEach((button) => {
-            button.setState(0); // 0 is the unselected state
-          });
-        }
-
-        if (effectiveTrigger !== "navigator") {
-          removeEventHandlers();
-          handleSetExtremes({ ...e, trigger: effectiveTrigger }, chart);
-          return;
-        }
-
-        lastNavigatorEvent = e;
-        lastTriggerRef.current = "navigator";
-
-        if (!navigatorMouseUpHandler && !touchEndHandler) {
-          handled = false;
-          const handleEnd = () => {
-            if (handled) return;
-            handled = true;
-            if (lastNavigatorEvent && !isFetching && !isHandlingCalendarDay) {
-              handleSetExtremes(lastNavigatorEvent, chart);
-            }
-            removeEventHandlers();
-          };
-
-          removeEventHandlers();
-
-          navigatorMouseUpHandler = handleEnd;
-          touchEndHandler = handleEnd;
-
-          window.addEventListener("mouseup", navigatorMouseUpHandler, true);
-          window.addEventListener("touchend", touchEndHandler, true);
-
-          cleanupTimeout = setTimeout(() => {
-            handleEnd();
-          }, 8000);
+          if (stockChart.rangeSelector) {
+            // Ensure no buttons are selected after mousewheel zoom
+            stockChart.rangeSelector.buttons?.forEach((button) => {
+              if (button.setState) {
+                button.setState(0); // Unselect
+              }
+            });
+            stockChart.rangeSelector.selected = undefined;
+          }
         }
       },
     },

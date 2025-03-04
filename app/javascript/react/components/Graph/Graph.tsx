@@ -187,10 +187,8 @@ const Graph: React.FC<GraphProps> = memo(
       chartComponentRef,
       seriesData,
       isLoading,
-      lastSelectedTimeRange,
       fixedSessionTypeSelected,
       streamId,
-      rangeDisplayRef,
     });
 
     const isFirstLoadRef = useRef(true);
@@ -655,6 +653,43 @@ const Graph: React.FC<GraphProps> = memo(
         observer.disconnect();
       };
     }, []);
+
+    useEffect(() => {
+      // Force chart resize after initial render to fill container properly
+      if (
+        chartComponentRef.current?.chart &&
+        seriesData &&
+        seriesData.length > 0
+      ) {
+        // Short delay to ensure DOM has settled
+        setTimeout(() => {
+          if (chartComponentRef.current?.chart) {
+            chartComponentRef.current.chart.reflow();
+
+            // If the calendar page has a specific issue
+            if (isCalendarPage) {
+              // Force update container heights
+              const container = graphRef.current;
+              if (container) {
+                // This forces a layout recalculation
+                const currentHeight = container.style.height;
+                container.style.height = "auto";
+                // Trigger reflow
+                container.offsetHeight;
+                container.style.height = currentHeight;
+
+                // Force chart to reflow again after DOM updates
+                setTimeout(() => {
+                  if (chartComponentRef.current?.chart) {
+                    chartComponentRef.current.chart.reflow();
+                  }
+                }, 100);
+              }
+            }
+          }
+        }, 200);
+      }
+    }, [isCalendarPage, seriesData]);
 
     return (
       <S.Container

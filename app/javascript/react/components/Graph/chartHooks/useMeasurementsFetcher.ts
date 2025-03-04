@@ -162,10 +162,7 @@ export const useMeasurementsFetcher = (
   const updateLoadingState = (increment: boolean) => {
     if (increment) {
       activeFetchesRef.current++;
-      console.log(
-        "[FETCH DEBUG] Active fetches increased to",
-        activeFetchesRef.current
-      );
+
       if (chartComponentRef?.current?.chart) {
         chartComponentRef.current.chart.showLoading(
           "Loading data from server..."
@@ -173,10 +170,7 @@ export const useMeasurementsFetcher = (
       }
     } else {
       activeFetchesRef.current = Math.max(0, activeFetchesRef.current - 1);
-      console.log(
-        "[FETCH DEBUG] Active fetches decreased to",
-        activeFetchesRef.current
-      );
+
       if (activeFetchesRef.current === 0) {
         // Clear any existing timeout
         if (loadingTimeoutRef.current) {
@@ -186,9 +180,6 @@ export const useMeasurementsFetcher = (
         // Set a new timeout to hide loading indicator after a delay
         loadingTimeoutRef.current = setTimeout(() => {
           if (chartComponentRef?.current?.chart) {
-            console.log(
-              "[FETCH DEBUG] All fetches complete, hiding loading indicator"
-            );
             chartComponentRef.current.chart.hideLoading();
           }
           loadingTimeoutRef.current = null;
@@ -204,15 +195,7 @@ export const useMeasurementsFetcher = (
     isDaySelection: boolean = false,
     trigger?: string
   ) => {
-    console.log("[FETCH DEBUG] Starting fetch request", {
-      trigger,
-      isCurrentlyFetching: isCurrentlyFetchingRef.current,
-    });
-
     if (!streamId || isCurrentlyFetchingRef.current) {
-      console.log(
-        "[FETCH DEBUG] Fetch aborted - no streamId or already fetching"
-      );
       return;
     }
 
@@ -238,11 +221,6 @@ export const useMeasurementsFetcher = (
         }
 
         try {
-          console.log("[FETCH DEBUG] Fetch in progress", {
-            boundedStart,
-            boundedEnd,
-            trigger,
-          });
           isCurrentlyFetchingRef.current = true;
           updateLoadingState(true);
 
@@ -409,9 +387,6 @@ export const useMeasurementsFetcher = (
         } catch (error) {
           console.error("[FETCH DEBUG] Fetch error", error);
         } finally {
-          console.log("[FETCH DEBUG] Fetch completed", {
-            pendingSetExtremes: pendingSetExtremesRef.current !== null,
-          });
           isCurrentlyFetchingRef.current = false;
           pendingSetExtremesRef.current = null;
           updateLoadingState(false);
@@ -435,14 +410,19 @@ export const useMeasurementsFetcher = (
       return;
     }
 
+    // Find missing ranges first
+    const missingRanges = findMissingRanges(boundedStart, boundedEnd);
+
+    // Only show loading indicator if we have missing ranges to fetch
+    const shouldShowLoading = missingRanges.length > 0;
+
     try {
-      console.log("[FETCH DEBUG] Fetch in progress", {
-        boundedStart,
-        boundedEnd,
-        trigger,
-      });
       isCurrentlyFetchingRef.current = true;
-      updateLoadingState(true);
+
+      // Only update loading state if we're actually fetching data
+      if (shouldShowLoading) {
+        updateLoadingState(true);
+      }
 
       if (trigger === "initial" && !fixedSessionTypeSelected) {
         const result = await dispatch(
@@ -596,14 +576,14 @@ export const useMeasurementsFetcher = (
         }
       }
     } catch (error) {
-      console.error("[FETCH DEBUG] Fetch error", error);
     } finally {
-      console.log("[FETCH DEBUG] Fetch completed", {
-        pendingSetExtremes: pendingSetExtremesRef.current !== null,
-      });
       isCurrentlyFetchingRef.current = false;
       pendingSetExtremesRef.current = null;
-      updateLoadingState(false);
+
+      // Only update loading state if we showed the loading indicator
+      if (shouldShowLoading) {
+        updateLoadingState(false);
+      }
     }
   };
 
