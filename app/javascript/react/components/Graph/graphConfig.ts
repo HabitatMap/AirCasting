@@ -85,11 +85,12 @@ const getXAxisOptions = (
   streamId: number | null,
   lastTriggerRef: React.MutableRefObject<string | null>,
   lastUpdateTimeRef: React.MutableRefObject<number>,
-  onDayClick?: (timestamp: number | null) => void,
-  rangeDisplayRef?: React.RefObject<HTMLDivElement>,
-  sessionStartTime?: number,
-  sessionEndTime?: number,
-  isCalendarDaySelectedRef?: React.MutableRefObject<boolean>
+  onDayClick: ((timestamp: number | null) => void) | undefined,
+  rangeDisplayRef: React.RefObject<HTMLDivElement> | undefined,
+  sessionStartTime: number | undefined,
+  sessionEndTime: number | undefined,
+  isCalendarDaySelectedRef: React.MutableRefObject<boolean> | undefined,
+  setOverrideRangeSelector: (override: boolean) => void
 ): Highcharts.XAxisOptions => {
   let lastNavigatorEvent: Highcharts.AxisSetExtremesEventObject | null = null;
   let navigatorMouseUpHandler: ((event: MouseEvent) => void) | null = null;
@@ -123,19 +124,15 @@ const getXAxisOptions = (
     const effectiveTrigger =
       e.trigger !== "none" ? e.trigger : lastTriggerRef.current || "none";
 
-    if (isHandlingCalendarDay && effectiveTrigger !== "calendarDay") {
-      return;
-    }
+    if (isHandlingCalendarDay && effectiveTrigger !== "calendarDay") return;
 
     if (effectiveTrigger === "calendarDay") {
       isHandlingCalendarDay = true;
       setTimeout(() => {
         isHandlingCalendarDay = false;
       }, 500);
-
       lastTriggerRef.current = effectiveTrigger;
       lastUpdateTimeRef.current = Date.now();
-
       if (
         e.min !== undefined &&
         e.max !== undefined &&
@@ -144,33 +141,24 @@ const getXAxisOptions = (
       ) {
         updateRangeDisplay(rangeDisplayRef, e.min, e.max, true);
       }
-
       return;
     }
 
     if (effectiveTrigger === "mousewheel") {
+      // Hold the override flag for 2000ms
+      setOverrideRangeSelector(true);
       lastMouseWheelEvent = e;
-
-      // Deselect all range selector buttons when using mousewheel
       const rangeSelector = chart.rangeSelector;
       if (rangeSelector?.buttons) {
-        rangeSelector.buttons.forEach((button) => {
-          button.setState(0); // Set to unselected state
-        });
-        // Also reset the selected property
+        rangeSelector.buttons.forEach((button) => button.setState(0));
         rangeSelector.selected = undefined;
       }
-
       if (isCalendarDaySelectedRef?.current) {
         isCalendarDaySelectedRef.current = false;
-        if (onDayClick) {
-          onDayClick(null);
-        }
+        if (onDayClick) onDayClick(null);
       }
-
       lastTriggerRef.current = effectiveTrigger;
       lastUpdateTimeRef.current = Date.now();
-
       if (
         e.min !== undefined &&
         e.max !== undefined &&
@@ -179,11 +167,12 @@ const getXAxisOptions = (
       ) {
         updateRangeDisplay(rangeDisplayRef, e.min, e.max, false);
       }
-
-      if (mouseWheelTimeout) {
-        clearTimeout(mouseWheelTimeout);
+      if (chart && chart.rangeSelector) {
+        chart.update({ rangeSelector: { selected: undefined } }, false);
       }
-
+      // Show the loading overlay.
+      chart.showLoading("Loading data from server...");
+      if (mouseWheelTimeout) clearTimeout(mouseWheelTimeout);
       mouseWheelTimeout = setTimeout(() => {
         if (lastMouseWheelEvent && streamId) {
           const visibleRange =
@@ -198,25 +187,26 @@ const getXAxisOptions = (
             sessionEndTime || now,
             lastMouseWheelEvent.max + padding
           );
-
           fetchMeasurementsIfNeeded(
             fetchStart,
             fetchEnd,
             false,
             false,
             "mousewheel"
-          );
+          ).finally(() => {
+            chart.hideLoading();
+          });
         }
+        // Clear the override flag after 2000ms.
+        setOverrideRangeSelector(false);
         mouseWheelTimeout = null;
         lastMouseWheelEvent = null;
-      }, 300);
-
+      }, 2000);
       return;
     }
 
     lastTriggerRef.current = effectiveTrigger;
     lastUpdateTimeRef.current = Date.now();
-
     if (
       e.min !== undefined &&
       e.max !== undefined &&
@@ -230,7 +220,6 @@ const getXAxisOptions = (
         effectiveTrigger === "calendarDay"
       );
     }
-
     if (
       streamId &&
       (effectiveTrigger === "rangeSelectorButton" ||
@@ -245,7 +234,6 @@ const getXAxisOptions = (
       const now = Date.now();
       const fetchStart = Math.max(sessionStartTime || 0, e.min - padding);
       const fetchEnd = Math.min(sessionEndTime || now, e.max + padding);
-
       await fetchMeasurementsIfNeeded(
         fetchStart,
         fetchEnd,
@@ -280,18 +268,11 @@ const getXAxisOptions = (
         const chart = this.chart;
         const effectiveTrigger =
           e.trigger !== "none" ? e.trigger : lastTriggerRef.current || "none";
-
-        if (isHandlingCalendarDay && effectiveTrigger !== "calendarDay") {
-          return;
-        }
-
+        if (isHandlingCalendarDay && effectiveTrigger !== "calendarDay") return;
         const rangeSelector = (chart as ChartWithRangeSelector).rangeSelector;
         if (effectiveTrigger === "mousewheel" && rangeSelector?.buttons) {
-          rangeSelector.buttons.forEach((button) => {
-            button.setState(0);
-          });
+          rangeSelector.buttons.forEach((button) => button.setState(0));
         }
-
         if (effectiveTrigger !== "navigator") {
           removeEventHandlers();
           handleSetExtremes(
@@ -300,10 +281,8 @@ const getXAxisOptions = (
           );
           return;
         }
-
         lastNavigatorEvent = e;
         lastTriggerRef.current = "navigator";
-
         if (!navigatorMouseUpHandler && !touchEndHandler) {
           handled = false;
           const handleEnd = () => {
@@ -317,15 +296,11 @@ const getXAxisOptions = (
             }
             removeEventHandlers();
           };
-
           removeEventHandlers();
-
           navigatorMouseUpHandler = handleEnd;
           touchEndHandler = handleEnd;
-
           window.addEventListener("mouseup", navigatorMouseUpHandler, true);
           window.addEventListener("touchend", touchEndHandler, true);
-
           cleanupTimeout = setTimeout(() => {
             handleEnd();
           }, 8000);
@@ -334,7 +309,6 @@ const getXAxisOptions = (
     },
   };
 };
-
 const getYAxisOptions = (
   thresholdsState: Thresholds,
   isMobile: boolean = false

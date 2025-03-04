@@ -18,18 +18,13 @@ import {
   selectLastSelectedFixedTimeRange,
   selectStreamMeasurements,
 } from "../../store/fixedStreamSelectors";
-import {
-  resetLastSelectedTimeRange,
-  resetTimeRange,
-  setLastSelectedTimeRange,
-} from "../../store/fixedStreamSlice";
+import { setLastSelectedTimeRange } from "../../store/fixedStreamSlice";
 import { useAppDispatch, useAppSelector } from "../../store/hooks";
 import {
   selectMobileStreamPoints,
   selectMobileStreamShortInfo,
 } from "../../store/mobileStreamSelectors";
 import {
-  resetLastSelectedMobileTimeRange,
   selectLastSelectedMobileTimeRange,
   setLastSelectedMobileTimeRange,
 } from "../../store/mobileStreamSlice";
@@ -174,6 +169,10 @@ const Graph: React.FC<GraphProps> = memo(
 
     const chartData: GraphData = seriesData as GraphData;
 
+    // Local override flag – when true, force computed selected index to -1.
+    const [overrideRangeSelector, setOverrideRangeSelector] =
+      useState<boolean>(false);
+
     // Hooks to fetch & update chart data.
     const { fetchMeasurementsIfNeeded } = useMeasurementsFetcher(
       streamId,
@@ -195,15 +194,25 @@ const Graph: React.FC<GraphProps> = memo(
     const lastRangeSelectorTriggerRef = useRef<string | null>(null);
     const lastUpdateTimeRef = useRef<number>(0);
 
+    // IMPORTANT UPDATE:
+    // If the last trigger was a mousewheel event—or if the override flag is true—we force the computed index to -1.
     const computedSelectedRangeIndex = useMemo(() => {
-      if (selectedTimestamp) {
-        return -1;
-      }
+      if (selectedTimestamp) return -1;
+      if (overrideRangeSelector) return -1;
+      // Note: Since lastTriggerRef is a mutable ref, its .current value might not trigger a re-render.
+      // So we combine it with our override flag.
+      if (lastTriggerRef.current === "mousewheel") return -1;
       return getSelectedRangeIndex(
         lastSelectedTimeRange,
         fixedSessionTypeSelected
       );
-    }, [selectedTimestamp, lastSelectedTimeRange, fixedSessionTypeSelected]);
+    }, [
+      selectedTimestamp,
+      overrideRangeSelector,
+      lastSelectedTimeRange,
+      fixedSessionTypeSelected,
+      // Not including lastTriggerRef.current as dependency (since it’s mutable), but we use overrideRangeSelector to control the effect.
+    ]);
 
     const [selectedRangeIndex, setSelectedRangeIndex] = useState<number>(
       computedSelectedRangeIndex
@@ -215,47 +224,26 @@ const Graph: React.FC<GraphProps> = memo(
 
     // Ref to track if a custom (calendar) day is selected.
     const isCalendarDaySelectedRef = useRef(!!selectedTimestamp);
-
-    // Move this ref outside the effect to the top level of the component
     const lastProcessedTimestampRef = useRef<number | null>(null);
 
     // When a calendar day is selected, mark the flag and fetch data.
     useEffect(() => {
       if (!chartComponentRef.current?.chart || !selectedTimestamp) return;
-
-      // Skip if we've already processed this exact timestamp
-      if (lastProcessedTimestampRef.current === selectedTimestamp) {
-        return;
-      }
-
-      // Remember this timestamp to avoid processing it again
+      if (lastProcessedTimestampRef.current === selectedTimestamp) return;
       lastProcessedTimestampRef.current = selectedTimestamp;
-
       isCalendarDaySelectedRef.current = true;
-
       const selectedDayStart = selectedTimestamp;
       let selectedDayEnd =
         selectedDayStart + MILLISECONDS_IN_A_DAY - MILLISECONDS_IN_A_SECOND;
-
       const isFirstDay = selectedDayStart <= startTime;
       const isLastDay = selectedDayEnd >= endTime;
-
       let finalRangeStart = selectedDayStart;
       let finalRangeEnd = selectedDayEnd;
-
-      if (isFirstDay) {
-        finalRangeStart = startTime;
-      }
-      if (isLastDay) {
-        finalRangeEnd = endTime;
-      }
-
+      if (isFirstDay) finalRangeStart = startTime;
+      if (isLastDay) finalRangeEnd = endTime;
       finalRangeStart = Math.max(finalRangeStart, startTime);
       finalRangeEnd = Math.min(finalRangeEnd, endTime);
-
       updateRangeDisplay(rangeDisplayRef, finalRangeStart, finalRangeEnd, true);
-
-      // Update the chart extremes to show the selected day
       if (chartComponentRef.current?.chart) {
         chartComponentRef.current.chart.xAxis[0].setExtremes(
           finalRangeStart,
@@ -265,12 +253,7 @@ const Graph: React.FC<GraphProps> = memo(
           { trigger: "calendarDay" }
         );
       }
-
-      // Only call fetchMeasurementsIfNeeded directly if we're not letting
-      // the setExtremes handler handle it
       if (fixedSessionTypeSelected) {
-        // Set a flag to indicate that this fetch is coming from the day selection effect
-        // to avoid duplicate fetches in the setExtremes handler
         fetchMeasurementsIfNeeded(
           finalRangeStart,
           finalRangeEnd,
@@ -296,11 +279,9 @@ const Graph: React.FC<GraphProps> = memo(
           setSelectedRangeIndex(selectedButton);
         }
         lastRangeSelectorTriggerRef.current = selectedButton.toString();
-
         if (chartComponentRef.current?.chart) {
           const chart = chartComponentRef.current.chart;
           let timeRange;
-
           if (fixedSessionTypeSelected) {
             switch (selectedButton) {
               case 0:
@@ -332,12 +313,10 @@ const Graph: React.FC<GraphProps> = memo(
             }
             dispatch(setLastSelectedMobileTimeRange(timeRange));
           }
-
           const currentExtremes = chart.xAxis[0].getExtremes();
           const viewEnd = Math.min(currentExtremes.max || endTime, endTime);
           let rangeStart = viewEnd;
           let rangeEnd = viewEnd;
-
           if (!fixedSessionTypeSelected && timeRange === MobileTimeRange.All) {
             rangeStart = startTime;
             rangeEnd = endTime;
@@ -360,10 +339,8 @@ const Graph: React.FC<GraphProps> = memo(
                 break;
             }
           }
-
           rangeStart = !isMobile ? Math.max(rangeStart, startTime) : rangeStart;
           updateRangeDisplay(rangeDisplayRef, rangeStart, rangeEnd, false);
-
           if (fixedSessionTypeSelected) {
             fetchMeasurementsIfNeeded(
               rangeStart,
@@ -373,7 +350,6 @@ const Graph: React.FC<GraphProps> = memo(
               "rangeSelectorButton"
             );
           }
-
           chart.xAxis[0].setExtremes(rangeStart, rangeEnd, true, false);
         }
       },
@@ -385,6 +361,7 @@ const Graph: React.FC<GraphProps> = memo(
         startTime,
         endTime,
         fetchMeasurementsIfNeeded,
+        isMobile,
       ]
     );
 
@@ -412,7 +389,6 @@ const Graph: React.FC<GraphProps> = memo(
       async function (this: Highcharts.Chart) {
         handleLoad.call(this, isCalendarPage, isMobile);
         const chart = this;
-
         if (fixedSessionTypeSelected) {
           const twoDaysAgo = endTime - 2 * MILLISECONDS_IN_A_DAY;
           chart.xAxis[0].setExtremes(twoDaysAgo, endTime, true, false);
@@ -423,10 +399,8 @@ const Graph: React.FC<GraphProps> = memo(
             sessionDuration < defaultViewDuration
               ? startTime
               : Math.max(startTime, endTime - defaultViewDuration);
-
           chart.xAxis[0].setExtremes(viewStart, endTime, true, false);
         }
-
         isFirstLoadRef.current = false;
       },
       [isCalendarPage, isMobile, endTime, startTime, fixedSessionTypeSelected]
@@ -437,20 +411,15 @@ const Graph: React.FC<GraphProps> = memo(
         const chart = chartComponentRef.current.chart;
         let lastExtremes = chart.xAxis[0].getExtremes();
         let debounceTimer: NodeJS.Timeout | null = null;
-
         const redrawHandler = () => {
-          if (debounceTimer) {
-            clearTimeout(debounceTimer);
-          }
+          if (debounceTimer) clearTimeout(debounceTimer);
           debounceTimer = setTimeout(() => {
             const currentExtremes = chart.xAxis[0].getExtremes();
-
             if (
               currentExtremes.min !== lastExtremes.min ||
               currentExtremes.max !== lastExtremes.max
             ) {
               lastExtremes = currentExtremes;
-              // Optionally update your range display
               updateRangeDisplay(
                 rangeDisplayRef,
                 currentExtremes.min,
@@ -467,9 +436,7 @@ const Graph: React.FC<GraphProps> = memo(
             }
           }, 150);
         };
-
         Highcharts.addEvent(chart, "redraw", redrawHandler);
-
         return () => {
           Highcharts.removeEvent(chart, "redraw", redrawHandler);
           if (debounceTimer) clearTimeout(debounceTimer);
@@ -483,6 +450,10 @@ const Graph: React.FC<GraphProps> = memo(
     ]);
 
     const options = useMemo<Highcharts.Options>(() => {
+      console.log(
+        `[DEBUG] 🔄 Recalculating chart options with selectedRange: ${selectedRangeIndex}`
+      );
+      console.log(`[DEBUG] lastTrigger: ${lastTriggerRef.current}`);
       return {
         chart: {
           ...getChartOptions(isCalendarPage, isMobile),
@@ -501,7 +472,9 @@ const Graph: React.FC<GraphProps> = memo(
           rangeDisplayRef,
           startTime,
           endTime,
-          isCalendarDaySelectedRef
+          isCalendarDaySelectedRef,
+          // Pass the setter so that the mousewheel branch can hold the override longer.
+          setOverrideRangeSelector
         ),
         yAxis: getYAxisOptions(thresholdsState, isMobile),
         series: [
@@ -638,23 +611,10 @@ const Graph: React.FC<GraphProps> = memo(
     ]);
 
     useEffect(() => {
-      dispatch(resetTimeRange());
-    }, [dispatch]);
-
-    useEffect(() => {
-      if (fixedSessionTypeSelected) {
-        dispatch(resetLastSelectedTimeRange());
-      } else {
-        dispatch(resetLastSelectedMobileTimeRange());
-      }
-    }, [fixedSessionTypeSelected, dispatch]);
-
-    useEffect(() => {
       const applyStyles = () => {
         const graphElement = graphRef.current;
         if (graphElement) {
           graphElement.style.touchAction = "pan-x";
-
           const highchartsContainer = graphElement.querySelector(
             ".highcharts-container"
           ) as HTMLDivElement | null;
@@ -681,30 +641,21 @@ const Graph: React.FC<GraphProps> = memo(
     }, []);
 
     useEffect(() => {
-      // Force chart resize after initial render to fill container properly
       if (
         chartComponentRef.current?.chart &&
         seriesData &&
         seriesData.length > 0
       ) {
-        // Short delay to ensure DOM has settled
         setTimeout(() => {
           if (chartComponentRef.current?.chart) {
             chartComponentRef.current.chart.reflow();
-
-            // If the calendar page has a specific issue
             if (isCalendarPage) {
-              // Force update container heights
               const container = graphRef.current;
               if (container) {
-                // This forces a layout recalculation
                 const currentHeight = container.style.height;
                 container.style.height = "auto";
-                // Trigger reflow
                 container.offsetHeight;
                 container.style.height = currentHeight;
-
-                // Force chart to reflow again after DOM updates
                 setTimeout(() => {
                   if (chartComponentRef.current?.chart) {
                     chartComponentRef.current.chart.reflow();
@@ -718,21 +669,14 @@ const Graph: React.FC<GraphProps> = memo(
     }, [isCalendarPage, seriesData]);
 
     useEffect(() => {
-      // Store in a local variable to use in dependencies
-      const isFirstLoad = isFirstLoadRef.current;
-
-      // If this is first load, trigger initial data fetch
       if (
-        isFirstLoad &&
+        isFirstLoadRef.current &&
         streamId &&
         startTime &&
         endTime &&
         endTime > startTime
       ) {
-        // Set to false before the fetch to prevent duplicate calls
         isFirstLoadRef.current = false;
-
-        // Force a small delay to ensure chart is ready
         setTimeout(() => {
           fetchMeasurementsIfNeeded(startTime, endTime, true, false, "initial");
         }, 50);
@@ -744,6 +688,12 @@ const Graph: React.FC<GraphProps> = memo(
       endTime,
       fetchMeasurementsIfNeeded,
     ]);
+
+    useEffect(() => {
+      console.log(
+        `[DEBUG] 🔘 selectedRangeIndex changed to: ${selectedRangeIndex}`
+      );
+    }, [selectedRangeIndex]);
 
     return (
       <S.Container

@@ -339,6 +339,13 @@ const fixedStreamSlice = createSlice({
           "Unknown error occurred fetching measurements",
       };
     });
+
+    builder.addCase(resetLastSelectedTimeRange, (state) => {
+      console.log(
+        "[DEBUG Redux] Resetting lastSelectedTimeRange in fixedStreamSlice"
+      );
+      state.lastSelectedTimeRange = FixedTimeRange.Day;
+    });
   },
 });
 

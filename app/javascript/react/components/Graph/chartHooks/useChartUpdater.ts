@@ -5,7 +5,7 @@ import {
   resetTimeRange,
   updateFixedMeasurementExtremes,
 } from "../../../store/fixedStreamSlice";
-import { useAppDispatch } from "../../../store/hooks";
+import { useAppDispatch, useAppSelector } from "../../../store/hooks";
 import {
   resetMobileMeasurementExtremes,
   updateMobileMeasurementExtremes,
@@ -33,6 +33,11 @@ export const useChartUpdater = ({
   streamId,
 }: UseChartUpdaterProps) => {
   const dispatch = useAppDispatch();
+  const lastSelectedTimeRange = useAppSelector((state) =>
+    fixedSessionTypeSelected
+      ? state.fixedStream.lastSelectedTimeRange
+      : state.mobileStream.lastSelectedTimeRange
+  );
   const updateTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const lastTriggerRef = useRef<string | null>(null);
   const hasInitializedRef = useRef<boolean>(false);
@@ -127,6 +132,12 @@ export const useChartUpdater = ({
       }
     };
   }, [fixedSessionTypeSelected, streamId, dispatch]);
+
+  useEffect(() => {
+    console.log(
+      `[DEBUG] 🕒 lastSelectedTimeRange changed to: ${lastSelectedTimeRange}`
+    );
+  }, [lastSelectedTimeRange]);
 
   return {
     updateChartData,
