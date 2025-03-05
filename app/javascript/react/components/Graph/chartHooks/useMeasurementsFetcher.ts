@@ -233,8 +233,15 @@ export const useMeasurementsFetcher = (
     lastFetchedRangeRef.current = { start, end };
     lastUpdateTimeRef.current = now;
 
-    // Force fetch for initial loads regardless of missing ranges
-    const shouldForceFetch = trigger === "initial";
+    // Special handling for "all" data request
+    const isAllDataRequest =
+      trigger === "rangeSelectorButton" &&
+      boundedEnd - boundedStart > MILLISECONDS_IN_A_MONTH / 2 &&
+      boundedStart <= sessionStartTime + MILLISECONDS_IN_A_DAY &&
+      boundedEnd >= sessionEndTime - MILLISECONDS_IN_A_DAY;
+
+    // Force fetch for initial loads and "all" data requests
+    const shouldForceFetch = trigger === "initial" || isAllDataRequest;
 
     // Find missing ranges first
     const missingRanges = findMissingRanges(boundedStart, boundedEnd);
@@ -291,6 +298,56 @@ export const useMeasurementsFetcher = (
           }
         }
       } else {
+        // Special handling for "all" data request - fetch entire session in chunks
+        if (isAllDataRequest) {
+          const totalDuration = sessionEndTime - sessionStartTime;
+          // If very large dataset, fetch it in reasonable chunks
+          if (totalDuration > MILLISECONDS_IN_A_MONTH) {
+            const allRanges = [];
+            let chunkStart = sessionStartTime;
+
+            while (chunkStart < sessionEndTime) {
+              const chunkEnd = Math.min(
+                chunkStart + MILLISECONDS_IN_A_MONTH,
+                sessionEndTime
+              );
+
+              allRanges.push({
+                start: chunkStart,
+                end: chunkEnd,
+              });
+
+              chunkStart = chunkEnd;
+            }
+
+            // Fetch all ranges in sequence to ensure complete data load
+            for (const range of allRanges) {
+              try {
+                const result = await dispatch(
+                  fetchMeasurements({
+                    streamId: Number(streamId),
+                    startTime: Math.floor(range.start).toString(),
+                    endTime: Math.floor(range.end).toString(),
+                  })
+                ).unwrap();
+
+                if (result && result.length > 0) {
+                  dispatch(
+                    updateFetchedTimeRanges({
+                      streamId,
+                      start: range.start,
+                      end: range.end,
+                    })
+                  );
+                }
+              } catch (error) {
+                console.error("Error fetching chunk:", error);
+              }
+            }
+          }
+        }
+
+        // Regular fetch handling for normal ranges
         // Calculate total visible range
         const visibleRange = boundedEnd - boundedStart;
 
@@ -388,6 +445,15 @@ export const useMeasurementsFetcher = (
 
           return { fetchStart, fetchEnd, resultLength: result?.length || 0 };
         });
+
+        // Wait for all fetches to complete before updating loading state
+        if (fetchPromises.length > 0) {
+          try {
+            await Promise.all(fetchPromises);
+          } catch (error) {
+            console.error("Error fetching measurement data:", error);
+          }
+        }
 
         if (pendingSetExtremesRef.current) {
           const { start, end } = pendingSetExtremesRef.current;
