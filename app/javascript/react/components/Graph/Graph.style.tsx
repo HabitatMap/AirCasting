@@ -14,16 +14,29 @@ const Container = styled.div<ContainerProps>`
   font-family: "Roboto", sans-serif;
   overflow: visible;
 
+  /* Add explicit height for calendar page */
+  height: ${(props) => (props.$isCalendarPage ? "100%" : "auto")};
+  min-height: ${(props) => (props.$isCalendarPage ? "200px" : "auto")};
+  display: flex;
+  flex-direction: column;
+
   @media ${media.desktop} {
     width: ${(props) => (props.$isCalendarPage ? "100%" : "80%")};
   }
 
   .highcharts-container {
     overflow: visible;
+    /* Ensure container fills available space */
+    width: 100% !important;
+    height: 100% !important;
   }
 
   .highcharts-root {
     overflow: visible;
+    /* Ensure root fills available space */
+    width: 100% !important;
+    height: 100% !important;
+
     .highcharts-scrollbar {
       cursor: ${(props) => (props.$isLoading ? "not-allowed" : "auto")};
       pointer-events: ${(props) => (props.$isLoading ? "none" : "auto")};

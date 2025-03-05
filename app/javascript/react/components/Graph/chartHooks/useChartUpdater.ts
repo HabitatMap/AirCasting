@@ -5,8 +5,11 @@ import {
   resetTimeRange,
   updateFixedMeasurementExtremes,
 } from "../../../store/fixedStreamSlice";
-import { useAppDispatch } from "../../../store/hooks";
-import { FixedTimeRange, MobileTimeRange } from "../../../types/timeRange";
+import { useAppDispatch, useAppSelector } from "../../../store/hooks";
+import {
+  resetMobileMeasurementExtremes,
+  updateMobileMeasurementExtremes,
+} from "../../../store/mobileStreamSlice";
 
 interface UseChartUpdaterProps {
   chartComponentRef: React.RefObject<{
@@ -18,22 +21,23 @@ interface UseChartUpdaterProps {
   }>;
   seriesData: Highcharts.PointOptionsType[] | undefined;
   isLoading: boolean;
-  lastSelectedTimeRange: FixedTimeRange | MobileTimeRange | null;
   fixedSessionTypeSelected: boolean;
   streamId: number | null;
-  rangeDisplayRef?: React.RefObject<HTMLDivElement>;
 }
 
 export const useChartUpdater = ({
   chartComponentRef,
   seriesData,
   isLoading,
-  lastSelectedTimeRange,
   fixedSessionTypeSelected,
   streamId,
-  rangeDisplayRef,
 }: UseChartUpdaterProps) => {
   const dispatch = useAppDispatch();
+  const lastSelectedTimeRange = useAppSelector((state) =>
+    fixedSessionTypeSelected
+      ? state.fixedStream.lastSelectedTimeRange
+      : state.mobileStream.lastSelectedTimeRange
+  );
   const updateTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const lastTriggerRef = useRef<string | null>(null);
   const hasInitializedRef = useRef<boolean>(false);
@@ -48,29 +52,38 @@ export const useChartUpdater = ({
 
   useEffect(() => {
     if (
-      !isLoading &&
       chartComponentRef.current?.chart &&
       seriesData &&
       seriesData.length > 0 &&
-      fixedSessionTypeSelected &&
       streamId
     ) {
       const chart = chartComponentRef.current.chart;
       if (chart.xAxis[0]) {
         const { min, max } = chart.xAxis[0].getExtremes();
         if (min !== undefined && max !== undefined) {
-          dispatch(
-            updateFixedMeasurementExtremes({
-              streamId,
-              min,
-              max,
-            })
-          );
-          hasInitializedRef.current = true;
+          setTimeout(() => {
+            if (fixedSessionTypeSelected) {
+              dispatch(
+                updateFixedMeasurementExtremes({
+                  streamId,
+                  min,
+                  max,
+                })
+              );
+            } else {
+              dispatch(
+                updateMobileMeasurementExtremes({
+                  min,
+                  max,
+                })
+              );
+            }
+            hasInitializedRef.current = true;
+          }, 100);
         }
       }
     }
-  }, [seriesData]);
+  }, [seriesData, isLoading, fixedSessionTypeSelected, streamId, dispatch]);
 
   const updateChartData = useCallback(
     (
@@ -82,16 +95,26 @@ export const useChartUpdater = ({
       data: Highcharts.PointOptionsType[]
     ) => {
       chart.series[0].setData(data, true, false, false);
-      if (fixedSessionTypeSelected && streamId && chart.xAxis[0]) {
+
+      if (chart.xAxis[0]) {
         const { min, max } = chart.xAxis[0].getExtremes();
         if (min !== undefined && max !== undefined) {
-          dispatch(
-            updateFixedMeasurementExtremes({
-              streamId,
-              min,
-              max,
-            })
-          );
+          if (fixedSessionTypeSelected && streamId) {
+            dispatch(
+              updateFixedMeasurementExtremes({
+                streamId,
+                min,
+                max,
+              })
+            );
+          } else {
+            dispatch(
+              updateMobileMeasurementExtremes({
+                min,
+                max,
+              })
+            );
+          }
           hasInitializedRef.current = true;
         }
       }
@@ -104,6 +127,8 @@ export const useChartUpdater = ({
       dispatch(resetTimeRange());
       if (fixedSessionTypeSelected && streamId) {
         dispatch(resetFixedMeasurementExtremes());
+      } else {
+        dispatch(resetMobileMeasurementExtremes());
       }
     };
   }, [fixedSessionTypeSelected, streamId, dispatch]);

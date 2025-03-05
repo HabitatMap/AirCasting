@@ -15,6 +15,7 @@ interface CalendarProps {
   maxCalendarDate: string;
   onDayClick: (timestamp: number | null) => void;
   selectedTimestamp: number | null;
+  isLoading?: boolean;
 }
 
 const Calendar: React.FC<CalendarProps> = ({
@@ -23,6 +24,7 @@ const Calendar: React.FC<CalendarProps> = ({
   maxCalendarDate,
   onDayClick,
   selectedTimestamp,
+  isLoading,
 }) => {
   const {
     threeMonthsData,

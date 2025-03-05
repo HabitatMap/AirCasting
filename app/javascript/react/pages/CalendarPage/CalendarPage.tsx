@@ -63,7 +63,7 @@ const CalendarPage: React.FC<CalendarPageProps> = ({ children }) => {
   );
 
   const calendarIsVisible =
-    movingCalendarData.data.length &&
+    (movingCalendarData.data.length > 0 || isLoading) &&
     streamId &&
     fixedStreamData.stream.startTime;
   const streamEndTime: string =
@@ -78,15 +78,15 @@ const CalendarPage: React.FC<CalendarPageProps> = ({ children }) => {
   }, [streamId, dispatch, fixedStreamData.measurements.length]);
 
   useEffect(() => {
-    window.addEventListener("popstate", handleCalendarGoBack);
-    return () => window.removeEventListener("popstate", handleCalendarGoBack);
-  }, [handleCalendarGoBack]);
+    if (fixedStreamData.stream) {
+      dispatch(setDefaultThresholdsValues(fixedStreamData.stream));
+    }
+  }, [fixedStreamData.stream, dispatch]);
 
   useEffect(() => {
     if (
       !initialDataFetched &&
       streamId &&
-      !isLoading &&
       fixedStreamData.stream.startTime &&
       streamEndTime
     ) {
@@ -99,17 +99,18 @@ const CalendarPage: React.FC<CalendarPageProps> = ({ children }) => {
       );
       setInitialDataFetched(true);
     }
-    if (fixedStreamData.stream) {
-      dispatch(setDefaultThresholdsValues(fixedStreamData.stream));
-    }
   }, [
-    fixedStreamData,
+    initialDataFetched,
     streamId,
-    isLoading,
+    fixedStreamData.stream.startTime,
     streamEndTime,
     dispatch,
-    initialDataFetched,
   ]);
+
+  useEffect(() => {
+    window.addEventListener("popstate", handleCalendarGoBack);
+    return () => window.removeEventListener("popstate", handleCalendarGoBack);
+  }, [handleCalendarGoBack]);
 
   const handleDayClick = (timestamp: number | null) => {
     setSelectedTimestamp(timestamp);

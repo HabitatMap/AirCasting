@@ -244,6 +244,12 @@ const fixedStreamSlice = createSlice({
       }
       state.fetchedTimeRanges[streamId].push({ start, end });
     },
+    clearFetchedTimeRanges: (state, action: PayloadAction<number>) => {
+      const streamId = action.payload;
+      if (state.fetchedTimeRanges[streamId]) {
+        state.fetchedTimeRanges[streamId] = [];
+      }
+    },
   },
   extraReducers: (builder) => {
     builder.addCase(fetchFixedStreamById.pending, (state) => {
@@ -274,7 +280,6 @@ const fixedStreamSlice = createSlice({
 
     builder.addCase(fetchMeasurements.fulfilled, (state, action) => {
       state.status = StatusEnum.Fulfilled;
-      state.isLoading = false;
       state.error = null;
 
       const streamId = Number(action.meta?.arg?.streamId);
@@ -293,6 +298,42 @@ const fixedStreamSlice = createSlice({
         state.data.measurements = Array.from(existingMap.values()).sort(
           (a, b) => a.time - b.time
         );
+
+        // After updating measurements, calculate extremes for visible range if we have measurements
+        if (state.data.measurements.length > 0) {
+          // Use the time range from the fetch if available
+          const startTime = Number(action.meta?.arg?.startTime);
+          const endTime = Number(action.meta?.arg?.endTime);
+
+          // Filter measurements within the visible range
+          const visibleMeasurements = state.data.measurements.filter(
+            (m) => m.time >= startTime && m.time <= endTime
+          );
+
+          if (visibleMeasurements.length > 0) {
+            // Calculate min, max, and average in a single pass
+            const {
+              min: minValue,
+              max: maxValue,
+              sum,
+            } = visibleMeasurements.reduce(
+              (acc, measurement) => ({
+                min: Math.min(acc.min, measurement.value),
+                max: Math.max(acc.max, measurement.value),
+                sum: acc.sum + measurement.value,
+              }),
+              {
+                min: visibleMeasurements[0].value,
+                max: visibleMeasurements[0].value,
+                sum: 0,
+              }
+            );
+
+            state.minMeasurementValue = minValue;
+            state.maxMeasurementValue = maxValue;
+            state.averageMeasurementValue = sum / visibleMeasurements.length;
+          }
+        }
       }
     });
 
@@ -303,7 +344,10 @@ const fixedStreamSlice = createSlice({
           (action.error && action.error.message) ||
           "Unknown error occurred fetching measurements",
       };
-      state.isLoading = false;
+    });
+
+    builder.addCase(resetLastSelectedTimeRange, (state) => {
+      state.lastSelectedTimeRange = FixedTimeRange.Day;
     });
   },
 });
@@ -318,6 +362,7 @@ export const {
   resetFixedMeasurementExtremes,
   resetTimeRange,
   updateFetchedTimeRanges,
+  clearFetchedTimeRanges,
 } = fixedStreamSlice.actions;
 
 export default fixedStreamSlice.reducer;
