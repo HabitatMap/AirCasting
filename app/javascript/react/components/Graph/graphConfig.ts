@@ -210,8 +210,7 @@ const getXAxisOptions = (
           }
         }
       }
-      // Instead of updating the chart which may clear existing data, we show loading.
-      // chart.showLoading("Loading data from server...");
+
       if (mouseWheelTimeout) clearTimeout(mouseWheelTimeout);
       mouseWheelTimeout = setTimeout(() => {
         if (lastMouseWheelEvent && streamId) {
@@ -239,7 +238,7 @@ const getXAxisOptions = (
         } else {
           chart.hideLoading();
         }
-        // Clear the override flag after 2000ms.
+
         setOverrideRangeSelector(false);
         mouseWheelTimeout = null;
         lastMouseWheelEvent = null;
