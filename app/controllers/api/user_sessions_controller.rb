@@ -8,13 +8,8 @@ class Api::UserSessionsController < Api::BaseController
 
   def sync
     GoogleAnalyticsWorker::RegisterEvent.async_call('User Sessions#sync')
-    form =
-      Api::JsonForm.new(
-        json: to_json_data(params),
-        schema: Api::UserSessions::Schema,
-        struct: Api::UserSessions::Struct
-      )
-    result = Api::ToUserSessionsHash.new(form: form).call(current_user)
+    contract = Api::UserSessionsContract.new.call(params.to_unsafe_hash)
+    result = Api::ToUserSessionsHash.new(contract: contract).call(current_user)
 
     if result.success?
       render json: result.value, status: :ok
@@ -25,14 +20,9 @@ class Api::UserSessionsController < Api::BaseController
 
   def sync_with_versioning
     GoogleAnalyticsWorker::RegisterEvent.async_call(
-      'User Sessions#sync with versioning'
+      'User Sessions#sync with versioning',
     )
-    form =
-      Api::JsonForm.new(
-        json: to_json_data(params),
-        schema: Api::UserSessions2::Schema,
-        struct: Api::UserSessions2::Struct
-      )
+    contract = Api::UserSessionsContract.new.call(to_json_data(params))
     result = Api::ToUserSessionsHash2.new(form: form, user: current_user).call
 
     if result.success?
@@ -44,14 +34,9 @@ class Api::UserSessionsController < Api::BaseController
 
   def update_session
     GoogleAnalyticsWorker::RegisterEvent.async_call(
-      'User Sessions#update session'
+      'User Sessions#update session',
     )
-    form =
-      Api::JsonForm.new(
-        json: params.to_unsafe_hash[:data],
-        schema: Api::UserSession::Schema,
-        struct: Api::UserSession::Struct
-      )
+    form = Api::UserSessionContract.new.call(params.to_unsafe_hash[:data])
     result = Api::UpdateSession.new(form: form).call
 
     if result.success?
@@ -63,7 +48,7 @@ class Api::UserSessionsController < Api::BaseController
 
   def show
     GoogleAnalyticsWorker::RegisterEvent.async_call(
-      "User Sessions#show_#{params[:id] ? 'id' : 'uuid'}"
+      "User Sessions#show_#{params[:id] ? 'id' : 'uuid'}",
     )
 
     session =
@@ -86,7 +71,7 @@ class Api::UserSessionsController < Api::BaseController
 
   def delete_session
     GoogleAnalyticsWorker::RegisterEvent.async_call(
-      'User Sessions#delete session'
+      'User Sessions#delete session',
     )
     data = decode_and_deep_symbolize(params)
 
@@ -101,7 +86,7 @@ class Api::UserSessionsController < Api::BaseController
 
   def delete_session_streams
     GoogleAnalyticsWorker::RegisterEvent.async_call(
-      'User Sessions#delete session streams'
+      'User Sessions#delete session streams',
     )
     session_data = decode_and_deep_symbolize(params)
 
@@ -114,7 +99,7 @@ class Api::UserSessionsController < Api::BaseController
             .streams
             .where(
               sensor_package_name: stream_data[:sensor_package_name],
-              sensor_name: stream_data[:sensor_name]
+              sensor_name: stream_data[:sensor_name],
             )
             .each(&:destroy)
         end

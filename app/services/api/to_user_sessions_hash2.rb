@@ -1,11 +1,11 @@
 class Api::ToUserSessionsHash2
-  def initialize(form:, user:)
-    @form = form
+  def initialize(contract:, user:)
+    @contract = contract
     @user = user
   end
 
   def call
-    return Failure.new(form.errors) if form.invalid?
+    return Failure.new(contract.errors.to_h) if contract.failure?
 
     delete_sessions(data.select(&:deleted))
 
@@ -20,10 +20,10 @@ class Api::ToUserSessionsHash2
 
   private
 
-  attr_reader :form, :user
+  attr_reader :contract, :user
 
   def data
-    form.to_h.data
+    contract.to_h[:data]
   end
 
   def delete_sessions(sessions)
