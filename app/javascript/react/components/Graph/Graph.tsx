@@ -194,12 +194,10 @@ const Graph: React.FC<GraphProps> = memo(
     const lastRangeSelectorTriggerRef = useRef<string | null>(null);
     const lastUpdateTimeRef = useRef<number>(0);
 
-    // IMPORTANT UPDATE:
     // If the last trigger was a mousewheel event—or if the override flag is true—we force the computed index to -1.
     const computedSelectedRangeIndex = useMemo(() => {
       if (selectedTimestamp) return -1;
       if (overrideRangeSelector) return -1;
-      // Note: Since lastTriggerRef is a mutable ref, its .current value might not trigger a re-render.
       // So we combine it with our override flag.
       if (lastTriggerRef.current === "mousewheel") return -1;
       return getSelectedRangeIndex(
@@ -211,7 +209,6 @@ const Graph: React.FC<GraphProps> = memo(
       overrideRangeSelector,
       lastSelectedTimeRange,
       fixedSessionTypeSelected,
-      // Not including lastTriggerRef.current as dependency (since it's mutable), but we use overrideRangeSelector to control the effect.
     ]);
 
     const [selectedRangeIndex, setSelectedRangeIndex] = useState<number>(
@@ -318,18 +315,8 @@ const Graph: React.FC<GraphProps> = memo(
           let rangeStart = viewEnd;
           let rangeEnd = viewEnd;
           if (!fixedSessionTypeSelected && timeRange === MobileTimeRange.All) {
-            console.log(
-              "[DEBUG] All button clicked - forcing a full data fetch"
-            );
             rangeStart = startTime;
             rangeEnd = endTime;
-
-            // Show loading indicator immediately
-            if (chartComponentRef.current?.chart) {
-              chartComponentRef.current.chart.showLoading(
-                "Loading all data..."
-              );
-            }
 
             // Force a data fetch for the entire session when "All" is clicked
             if (chartComponentRef.current?.chart) {
@@ -344,7 +331,7 @@ const Graph: React.FC<GraphProps> = memo(
                 endTime,
                 false,
                 false,
-                "allButtonClicked" // Special trigger for All button
+                "allButtonClicked"
               ).then(() => {
                 // Once complete, ensure we're showing the full range
                 chart.xAxis[0].setExtremes(rangeStart, rangeEnd, true, false, {
@@ -352,7 +339,7 @@ const Graph: React.FC<GraphProps> = memo(
                 });
               });
 
-              return; // Exit early after setting up the fetch
+              return;
             }
           } else {
             switch (timeRange) {

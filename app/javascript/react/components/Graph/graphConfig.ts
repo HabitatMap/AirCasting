@@ -192,14 +192,6 @@ const getXAxisOptions = (
 
         // Update measurement extremes
         if (streamId) {
-          console.log(
-            `[DEBUG] Updating measurement extremes for ${effectiveTrigger}`,
-            {
-              min: new Date(e.min).toISOString(),
-              max: new Date(e.max).toISOString(),
-            }
-          );
-
           if (fixedSessionTypeSelected) {
             dispatch(
               updateFixedMeasurementExtremes({
@@ -219,7 +211,7 @@ const getXAxisOptions = (
         }
       }
       // Instead of updating the chart which may clear existing data, we show loading.
-      chart.showLoading("Loading data from server...");
+      // chart.showLoading("Loading data from server...");
       if (mouseWheelTimeout) clearTimeout(mouseWheelTimeout);
       mouseWheelTimeout = setTimeout(() => {
         if (lastMouseWheelEvent && streamId) {
@@ -251,7 +243,7 @@ const getXAxisOptions = (
         setOverrideRangeSelector(false);
         mouseWheelTimeout = null;
         lastMouseWheelEvent = null;
-      }, 2000);
+      }, 1000);
       return;
     }
 
@@ -271,14 +263,6 @@ const getXAxisOptions = (
 
         // Update measurement extremes
         if (streamId) {
-          console.log(
-            `[DEBUG] Updating measurement extremes for ${effectiveTrigger}`,
-            {
-              min: new Date(e.min).toISOString(),
-              max: new Date(e.max).toISOString(),
-            }
-          );
-
           if (fixedSessionTypeSelected) {
             dispatch(
               updateFixedMeasurementExtremes({

@@ -31,15 +31,12 @@ export const useMeasurementsFetcher = (
   const dispatch = useAppDispatch();
   const isFirstRender = useRef(true);
   const fetchAttemptsRef = useRef(0);
-  // This ref will store the intended trigger (e.g. "mousewheel")
   const lastFetchTriggerRef = useRef<string | null>(null);
   const pendingSetExtremesRef = useRef<{ start: number; end: number } | null>(
     null
   );
-  const fetchDebounceTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const activeFetchesRef = useRef<number>(0);
   const loadingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-  // Add a ref to track the last fetched range to avoid redundant fetches
   const lastFetchedRangeRef = useRef<{ start: number; end: number } | null>(
     null
   );
@@ -188,7 +185,7 @@ export const useMeasurementsFetcher = (
             chartComponentRef.current.chart.hideLoading();
           }
           loadingTimeoutRef.current = null;
-        }, 500); // 500ms delay to give chart time to render
+        }, 500);
       }
     }
   };
@@ -201,24 +198,13 @@ export const useMeasurementsFetcher = (
     trigger?: string
   ) => {
     if (!streamId || isCurrentlyFetchingRef.current) {
-      console.log(
-        "[DEBUG] Fetch aborted: Stream ID missing or fetch in progress"
-      );
       return;
     }
 
     // Guard against invalid time ranges
     if (start >= end || end - start < 1000) {
-      console.log("[DEBUG] Fetch aborted: Invalid time range", { start, end });
       return;
     }
-
-    console.log(`[DEBUG] Fetch requested: ${trigger || "unknown"} trigger`, {
-      start: new Date(start).toISOString(),
-      end: new Date(end).toISOString(),
-      isEdgeFetch,
-      isDaySelection,
-    });
 
     // Check if this exact range was just fetched recently
     const now = Date.now();
@@ -229,7 +215,6 @@ export const useMeasurementsFetcher = (
       now - lastUpdateTimeRef.current < 500 &&
       trigger !== "initial"
     ) {
-      console.log("[DEBUG] Fetch aborted: Same range recently fetched");
       return;
     }
 
@@ -238,10 +223,6 @@ export const useMeasurementsFetcher = (
 
     // Additional guard for bounded range
     if (boundedStart >= boundedEnd) {
-      console.log("[DEBUG] Fetch aborted: Invalid bounded range", {
-        boundedStart,
-        boundedEnd,
-      });
       return;
     }
 
@@ -264,48 +245,22 @@ export const useMeasurementsFetcher = (
       (trigger === "navigator" &&
         boundedEnd - boundedStart > totalSessionDuration * 0.9);
 
-    console.log("[DEBUG] Enhanced isAllDataRequest detection:", {
-      isAllDataRequest,
-      isAllButtonClick,
-      trigger,
-      boundedStartOffset: boundedStart - sessionStartTime,
-      boundedEndOffset: sessionEndTime - boundedEnd,
-      rangeSize: boundedEnd - boundedStart,
-      totalSessionDuration,
-      isNearlyFullSession:
-        boundedEnd - boundedStart > totalSessionDuration * 0.9,
-      monthHalf: MILLISECONDS_IN_A_MONTH / 2,
-    });
-
     // Force fetch for initial loads and "all" data requests
     const shouldForceFetch =
       trigger === "initial" || isAllDataRequest || isAllButtonClick;
 
     // Find missing ranges first
     const missingRanges = findMissingRanges(boundedStart, boundedEnd);
-    console.log("[DEBUG] Missing ranges:", {
-      count: missingRanges.length,
-      ranges: missingRanges.map((r) => ({
-        start: new Date(r.start).toISOString(),
-        end: new Date(r.end).toISOString(),
-      })),
-    });
 
     // Only show loading indicator if we have missing ranges to fetch or it's a forced fetch
     const shouldShowLoading = missingRanges.length > 0 || shouldForceFetch;
 
     if (!shouldShowLoading && !shouldForceFetch) {
-      console.log("[DEBUG] Fetch aborted: No missing ranges and not forced");
       return;
     }
 
     try {
       isCurrentlyFetchingRef.current = true;
-      console.log("[DEBUG] Fetch started", {
-        shouldShowLoading,
-        shouldForceFetch,
-        isAllDataRequest,
-      });
 
       // Only update loading state if we're actually fetching data
       if (shouldShowLoading) {
@@ -313,7 +268,6 @@ export const useMeasurementsFetcher = (
       }
 
       if (trigger === "initial" && !fixedSessionTypeSelected) {
-        console.log("[DEBUG] Initial mobile fetch started");
         const result = await dispatch(
           fetchMeasurements({
             streamId: Number(streamId),
@@ -352,14 +306,8 @@ export const useMeasurementsFetcher = (
       } else {
         // Special handling for "all" data request - fetch entire session in chunks
         if (isAllDataRequest || isAllButtonClick) {
-          console.log("[DEBUG] All data request handling started");
-
           // For direct "All" button clicks, force a clean fetch of the entire session
           if (isAllButtonClick) {
-            console.log(
-              "[DEBUG] All button direct click - fetching entire session at once"
-            );
-
             try {
               // Show a clear loading state
               if (chartComponentRef?.current?.chart) {
@@ -396,25 +344,9 @@ export const useMeasurementsFetcher = (
                 chunkStart = chunkEnd;
               }
 
-              console.log(
-                "[DEBUG] All button: Created chunks for entire session",
-                {
-                  totalChunks: allRanges.length,
-                  chunks: allRanges.map((r) => ({
-                    start: new Date(r.start).toISOString(),
-                    end: new Date(r.end).toISOString(),
-                  })),
-                }
-              );
-
               // Fetch all data sequentially to ensure order
               for (let i = 0; i < allRanges.length; i++) {
                 const range = allRanges[i];
-                console.log(
-                  `[DEBUG] All button: Fetching chunk ${i + 1}/${
-                    allRanges.length
-                  }`
-                );
 
                 const result = await dispatch(
                   fetchMeasurements({
@@ -423,12 +355,6 @@ export const useMeasurementsFetcher = (
                     endTime: Math.floor(range.end).toString(),
                   })
                 ).unwrap();
-
-                console.log(
-                  `[DEBUG] All button: Chunk ${i + 1} complete, got ${
-                    result?.length || 0
-                  } points`
-                );
 
                 if (result && result.length > 0) {
                   dispatch(
@@ -441,15 +367,8 @@ export const useMeasurementsFetcher = (
                 }
               }
 
-              console.log(
-                "[DEBUG] All button: Finished fetching entire session"
-              );
-
               // After fetching all data, update measurement extremes for the entire session
               if (fixedSessionTypeSelected) {
-                console.log(
-                  "[DEBUG] Updating fixed measurement extremes for entire session"
-                );
                 dispatch(
                   updateFixedMeasurementExtremes({
                     streamId,
@@ -458,9 +377,6 @@ export const useMeasurementsFetcher = (
                   })
                 );
               } else {
-                console.log(
-                  "[DEBUG] Updating mobile measurement extremes for entire session"
-                );
                 dispatch(
                   updateMobileMeasurementExtremes({
                     min: sessionStartTime,
@@ -482,11 +398,9 @@ export const useMeasurementsFetcher = (
               // Skip the regular fetch logic since we've handled everything
               return;
             } catch (error) {
-              console.error("[DEBUG] Error during all-data fetch:", error);
+              // Keep error handling without console.error
             }
           }
-
-          // Rest of existing all-data handling...
         }
 
         // Regular fetch handling for normal ranges
@@ -508,16 +422,8 @@ export const useMeasurementsFetcher = (
 
         // Use padded range for finding missing ranges
         const missingRanges = findMissingRanges(paddedStart, paddedEnd);
-        console.log("[DEBUG] Missing ranges after padding:", {
-          count: missingRanges.length,
-          ranges: missingRanges.map((r) => ({
-            start: new Date(r.start).toISOString(),
-            end: new Date(r.end).toISOString(),
-          })),
-        });
 
         if (missingRanges.length === 0) {
-          console.log("[DEBUG] No missing ranges after padding");
           if (pendingSetExtremesRef.current) {
             const { start, end } = pendingSetExtremesRef.current;
             updateExtremesAndDisplay(
@@ -530,7 +436,6 @@ export const useMeasurementsFetcher = (
         }
 
         // Process all ranges in parallel for efficiency
-        console.log("[DEBUG] Starting parallel fetch of missing ranges");
         const fetchPromises = missingRanges.map(async (range, index) => {
           let fetchStart = range.start;
           let fetchEnd = range.end;
@@ -576,16 +481,6 @@ export const useMeasurementsFetcher = (
             fetchStart = fetchEnd - MILLISECONDS_IN_A_MONTH;
           }
 
-          console.log(
-            `[DEBUG] Fetching missing range ${index + 1}/${
-              missingRanges.length
-            }`,
-            {
-              start: new Date(fetchStart).toISOString(),
-              end: new Date(fetchEnd).toISOString(),
-            }
-          );
-
           const result = await dispatch(
             fetchMeasurements({
               streamId: Number(streamId),
@@ -593,10 +488,6 @@ export const useMeasurementsFetcher = (
               endTime: Math.floor(fetchEnd).toString(),
             })
           ).unwrap();
-
-          console.log(`[DEBUG] Missing range ${index + 1} fetch complete`, {
-            dataPoints: result?.length || 0,
-          });
 
           if (result && result.length > 0) {
             dispatch(
@@ -614,22 +505,10 @@ export const useMeasurementsFetcher = (
         // Wait for all fetches to complete before updating loading state
         if (fetchPromises.length > 0) {
           try {
-            console.log(
-              `[DEBUG] Waiting for ${fetchPromises.length} parallel fetches to complete`
-            );
             await Promise.all(fetchPromises);
-            console.log("[DEBUG] All parallel fetches complete");
 
             // Update measurement extremes after fetches complete
             if (streamId) {
-              console.log(
-                "[DEBUG] Updating measurement extremes after parallel fetches",
-                {
-                  min: boundedStart,
-                  max: boundedEnd,
-                }
-              );
-
               if (fixedSessionTypeSelected) {
                 dispatch(
                   updateFixedMeasurementExtremes({
@@ -647,9 +526,7 @@ export const useMeasurementsFetcher = (
                 );
               }
             }
-          } catch (error) {
-            console.error("[DEBUG] Error in parallel fetches:", error);
-          }
+          } catch (error) {}
         }
 
         if (pendingSetExtremesRef.current) {
@@ -669,14 +546,14 @@ export const useMeasurementsFetcher = (
         }
       }
     } catch (error) {
-      console.error("[DEBUG] Overall fetch error:", error);
+      console.error("Error in fetchMeasurementsIfNeeded", error);
     } finally {
       isCurrentlyFetchingRef.current = false;
       pendingSetExtremesRef.current = null;
-      console.log("[DEBUG] Fetch complete, loading state:", shouldShowLoading);
 
       // Only update loading state if we showed the loading indicator
       if (shouldShowLoading) {
+        console.log("shouldShowLoading in finally", shouldShowLoading);
         updateLoadingState(false);
       }
     }
