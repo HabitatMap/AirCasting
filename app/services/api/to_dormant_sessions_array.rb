@@ -1,10 +1,10 @@
 class Api::ToDormantSessionsArray
-  def initialize(form:)
-    @form = form
+  def initialize(contract:)
+    @contract = contract
   end
 
   def call
-    return Failure.new(form.errors) if form.invalid?
+    return Failure.new(contract.errors.to_h) if contract.failure?
 
     Success.new(
       sessions:
@@ -49,24 +49,27 @@ class Api::ToDormantSessionsArray
                         threshold_high: stream.threshold_set.threshold_high,
                         threshold_low: stream.threshold_set.threshold_low,
                         threshold_medium: stream.threshold_set.threshold_medium,
-                        threshold_very_high: stream.threshold_set.threshold_very_high,
-                        threshold_very_low: stream.threshold_set.threshold_very_low,
+                        threshold_very_high:
+                          stream.threshold_set.threshold_very_high,
+                        threshold_very_low:
+                          stream.threshold_set.threshold_very_low,
                         unit_name: stream.unit_name,
-                        unit_symbol: stream.unit_symbol
-                      }
+                        unit_symbol: stream.unit_symbol,
+                      },
                     )
-                  end
+                  end,
             }
           end,
       fetchableSessionsCount:
-        FixedSession.dormant.filter_(data).distinct.count(:all)
+        FixedSession.dormant.filter_(data).distinct.count(:all),
     )
   end
 
   private
 
-  attr_reader :form
+  attr_reader :contract
 
+  #TODO: check if it still applies
   def data
     # dry-struct allows for missing key using `meta(omittable: true)`
     # This `form` has such a key named `is_indoor`. Unfortunately, when
@@ -76,7 +79,7 @@ class Api::ToDormantSessionsArray
     #     the code that is accessing the struct (Session.filter_) is used
     #     by other callers that are passing a vanilla Ruby hash.
     #   - Passing a vanilla Ruby hash with `form.to_h.to_h`
-    form.to_h.to_h
+    contract.to_h.to_h
   end
 
   def limit
