@@ -77,7 +77,6 @@ eval "$(rbenv init -)"
 RAILS_ENV=test bin/rails db:create db:migrate
 bin/rspec
 yarn test
-yarn elm-test app/javascript/elm/tests
 ```
 
 ## Formatting
@@ -85,7 +84,6 @@ yarn elm-test app/javascript/elm/tests
 Check:
 
 ```bash
-yarn run elm-format --validate app/javascript/elm
 
 yarn prettier --check "**/*.{scss,js,rb}"
 ```
@@ -93,14 +91,11 @@ yarn prettier --check "**/*.{scss,js,rb}"
 Update:
 
 ```bash
-yarn run elm-format app/javascript/elm
 
 yarn prettier --write app/assets/stylesheets/path/to/your/file.scss
 yarn prettier --write app/javascript/path/to/your/file.js
 yarn prettier --write app/path/to/your/file.rb
 ```
-
-Best to add elm-format and prettier to your editor to do this for you on save.
 
 ## API documentation
 
