@@ -211,7 +211,7 @@ const Graph: React.FC<GraphProps> = memo(
       overrideRangeSelector,
       lastSelectedTimeRange,
       fixedSessionTypeSelected,
-      // Not including lastTriggerRef.current as dependency (since it’s mutable), but we use overrideRangeSelector to control the effect.
+      // Not including lastTriggerRef.current as dependency (since it's mutable), but we use overrideRangeSelector to control the effect.
     ]);
 
     const [selectedRangeIndex, setSelectedRangeIndex] = useState<number>(
@@ -318,8 +318,42 @@ const Graph: React.FC<GraphProps> = memo(
           let rangeStart = viewEnd;
           let rangeEnd = viewEnd;
           if (!fixedSessionTypeSelected && timeRange === MobileTimeRange.All) {
+            console.log(
+              "[DEBUG] All button clicked - forcing a full data fetch"
+            );
             rangeStart = startTime;
             rangeEnd = endTime;
+
+            // Show loading indicator immediately
+            if (chartComponentRef.current?.chart) {
+              chartComponentRef.current.chart.showLoading(
+                "Loading all data..."
+              );
+            }
+
+            // Force a data fetch for the entire session when "All" is clicked
+            if (chartComponentRef.current?.chart) {
+              const chart = chartComponentRef.current.chart;
+
+              // First update UI to show the full range
+              updateRangeDisplay(rangeDisplayRef, rangeStart, rangeEnd, false);
+
+              // Then fetch all data with our special trigger
+              fetchMeasurementsIfNeeded(
+                startTime,
+                endTime,
+                false,
+                false,
+                "allButtonClicked" // Special trigger for All button
+              ).then(() => {
+                // Once complete, ensure we're showing the full range
+                chart.xAxis[0].setExtremes(rangeStart, rangeEnd, true, false, {
+                  trigger: "allButtonClicked",
+                });
+              });
+
+              return; // Exit early after setting up the fetch
+            }
           } else {
             switch (timeRange) {
               case FixedTimeRange.Month:
@@ -450,10 +484,6 @@ const Graph: React.FC<GraphProps> = memo(
     ]);
 
     const options = useMemo<Highcharts.Options>(() => {
-      console.log(
-        `[DEBUG] 🔄 Recalculating chart options with selectedRange: ${selectedRangeIndex}`
-      );
-      console.log(`[DEBUG] lastTrigger: ${lastTriggerRef.current}`);
       return {
         chart: {
           ...getChartOptions(isCalendarPage, isMobile),
@@ -688,12 +718,6 @@ const Graph: React.FC<GraphProps> = memo(
       endTime,
       fetchMeasurementsIfNeeded,
     ]);
-
-    useEffect(() => {
-      console.log(
-        `[DEBUG] 🔘 selectedRangeIndex changed to: ${selectedRangeIndex}`
-      );
-    }, [selectedRangeIndex]);
 
     return (
       <S.Container

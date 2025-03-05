@@ -133,12 +133,6 @@ export const useChartUpdater = ({
     };
   }, [fixedSessionTypeSelected, streamId, dispatch]);
 
-  useEffect(() => {
-    console.log(
-      `[DEBUG] 🕒 lastSelectedTimeRange changed to: ${lastSelectedTimeRange}`
-    );
-  }, [lastSelectedTimeRange]);
-
   return {
     updateChartData,
     lastTriggerRef,

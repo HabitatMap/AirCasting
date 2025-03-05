@@ -25,6 +25,9 @@ import {
   yellow100,
 } from "../../assets/styles/colors";
 import { setHoverPosition, setHoverStreamId } from "../../store/mapSlice";
+
+import { updateFixedMeasurementExtremes } from "../../store/fixedStreamSlice";
+import { updateMobileMeasurementExtremes } from "../../store/mobileStreamSlice";
 import { LatLngLiteral } from "../../types/googleMaps";
 import { GraphData, GraphPoint } from "../../types/graph";
 import { Thresholds } from "../../types/thresholds";
@@ -140,6 +143,26 @@ const getXAxisOptions = (
         !isNaN(e.max)
       ) {
         updateRangeDisplay(rangeDisplayRef, e.min, e.max, true);
+
+        // Update measurement extremes whenever extremes change
+        if (streamId) {
+          if (fixedSessionTypeSelected) {
+            dispatch(
+              updateFixedMeasurementExtremes({
+                streamId,
+                min: e.min,
+                max: e.max,
+              })
+            );
+          } else {
+            dispatch(
+              updateMobileMeasurementExtremes({
+                min: e.min,
+                max: e.max,
+              })
+            );
+          }
+        }
       }
       return;
     }
@@ -166,6 +189,34 @@ const getXAxisOptions = (
         !isNaN(e.max)
       ) {
         updateRangeDisplay(rangeDisplayRef, e.min, e.max, false);
+
+        // Update measurement extremes
+        if (streamId) {
+          console.log(
+            `[DEBUG] Updating measurement extremes for ${effectiveTrigger}`,
+            {
+              min: new Date(e.min).toISOString(),
+              max: new Date(e.max).toISOString(),
+            }
+          );
+
+          if (fixedSessionTypeSelected) {
+            dispatch(
+              updateFixedMeasurementExtremes({
+                streamId,
+                min: e.min,
+                max: e.max,
+              })
+            );
+          } else {
+            dispatch(
+              updateMobileMeasurementExtremes({
+                min: e.min,
+                max: e.max,
+              })
+            );
+          }
+        }
       }
       // Instead of updating the chart which may clear existing data, we show loading.
       chart.showLoading("Loading data from server...");
@@ -202,6 +253,50 @@ const getXAxisOptions = (
         lastMouseWheelEvent = null;
       }, 2000);
       return;
+    }
+
+    if (
+      effectiveTrigger === "pan" ||
+      effectiveTrigger === "zoom" ||
+      effectiveTrigger === "rangeSelectorButton"
+    ) {
+      // Update the range display
+      if (
+        e.min !== undefined &&
+        e.max !== undefined &&
+        !isNaN(e.min) &&
+        !isNaN(e.max)
+      ) {
+        updateRangeDisplay(rangeDisplayRef, e.min, e.max, false);
+
+        // Update measurement extremes
+        if (streamId) {
+          console.log(
+            `[DEBUG] Updating measurement extremes for ${effectiveTrigger}`,
+            {
+              min: new Date(e.min).toISOString(),
+              max: new Date(e.max).toISOString(),
+            }
+          );
+
+          if (fixedSessionTypeSelected) {
+            dispatch(
+              updateFixedMeasurementExtremes({
+                streamId,
+                min: e.min,
+                max: e.max,
+              })
+            );
+          } else {
+            dispatch(
+              updateMobileMeasurementExtremes({
+                min: e.min,
+                max: e.max,
+              })
+            );
+          }
+        }
+      }
     }
 
     lastTriggerRef.current = effectiveTrigger;

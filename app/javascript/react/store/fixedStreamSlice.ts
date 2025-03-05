@@ -244,6 +244,12 @@ const fixedStreamSlice = createSlice({
       }
       state.fetchedTimeRanges[streamId].push({ start, end });
     },
+    clearFetchedTimeRanges: (state, action: PayloadAction<number>) => {
+      const streamId = action.payload;
+      if (state.fetchedTimeRanges[streamId]) {
+        state.fetchedTimeRanges[streamId] = [];
+      }
+    },
   },
   extraReducers: (builder) => {
     builder.addCase(fetchFixedStreamById.pending, (state) => {
@@ -341,9 +347,6 @@ const fixedStreamSlice = createSlice({
     });
 
     builder.addCase(resetLastSelectedTimeRange, (state) => {
-      console.log(
-        "[DEBUG Redux] Resetting lastSelectedTimeRange in fixedStreamSlice"
-      );
       state.lastSelectedTimeRange = FixedTimeRange.Day;
     });
   },
@@ -359,6 +362,7 @@ export const {
   resetFixedMeasurementExtremes,
   resetTimeRange,
   updateFetchedTimeRanges,
+  clearFetchedTimeRanges,
 } = fixedStreamSlice.actions;
 
 export default fixedStreamSlice.reducer;
