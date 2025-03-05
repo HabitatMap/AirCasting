@@ -10,14 +10,8 @@ module Api
           q[:time_from] = Time.strptime(q[:time_from].to_s, '%s')
           q[:time_to] = Time.strptime(q[:time_to].to_s, '%s')
 
-          form =
-            Api::ParamsForm.new(
-              params: q,
-              schema: Api::FixedSessions::Schema,
-              struct: Api::FixedSessions::Struct,
-            )
-
-          result = Api::ToDormantSessionsArray.new(form: form).call
+          contract = Api::FixedSessionsContract.new.call(q)
+          result = Api::ToDormantSessionsArray.new(contract: contract).call
 
           if result.success?
             render json: result.value, status: :ok
