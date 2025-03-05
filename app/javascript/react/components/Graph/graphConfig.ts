@@ -168,7 +168,6 @@ const getXAxisOptions = (
     }
 
     if (effectiveTrigger === "mousewheel") {
-      // Hold the override flag for 2000ms
       setOverrideRangeSelector(true);
       lastMouseWheelEvent = e;
       const rangeSelector = chart.rangeSelector;
@@ -190,7 +189,6 @@ const getXAxisOptions = (
       ) {
         updateRangeDisplay(rangeDisplayRef, e.min, e.max, false);
 
-        // Update measurement extremes
         if (streamId) {
           if (fixedSessionTypeSelected) {
             dispatch(
@@ -251,7 +249,6 @@ const getXAxisOptions = (
       effectiveTrigger === "zoom" ||
       effectiveTrigger === "rangeSelectorButton"
     ) {
-      // Update the range display
       if (
         e.min !== undefined &&
         e.max !== undefined &&
@@ -260,7 +257,6 @@ const getXAxisOptions = (
       ) {
         updateRangeDisplay(rangeDisplayRef, e.min, e.max, false);
 
-        // Update measurement extremes
         if (streamId) {
           if (fixedSessionTypeSelected) {
             dispatch(

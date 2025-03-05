@@ -262,7 +262,6 @@ export const useMeasurementsFetcher = (
     try {
       isCurrentlyFetchingRef.current = true;
 
-      // Only update loading state if we're actually fetching data
       if (shouldShowLoading) {
         updateLoadingState(true);
       }
@@ -285,7 +284,6 @@ export const useMeasurementsFetcher = (
             })
           );
 
-          // Also update extremes for this initial data
           if (fixedSessionTypeSelected) {
             dispatch(
               updateFixedMeasurementExtremes({
@@ -306,7 +304,6 @@ export const useMeasurementsFetcher = (
       } else {
         // Special handling for "all" data request - fetch entire session in chunks
         if (isAllDataRequest || isAllButtonClick) {
-          // For direct "All" button clicks, force a clean fetch of the entire session
           if (isAllButtonClick) {
             try {
               // Show a clear loading state
@@ -397,30 +394,23 @@ export const useMeasurementsFetcher = (
 
               // Skip the regular fetch logic since we've handled everything
               return;
-            } catch (error) {
-              // Keep error handling without console.error
-            }
+            } catch (error) {}
           }
         }
 
-        // Regular fetch handling for normal ranges
-        // Calculate total visible range
         const visibleRange = boundedEnd - boundedStart;
 
-        // Calculate a reasonable fetch padding based on visible range
         const fetchPadding = Math.min(
           visibleRange * 0.25, // 25% of the visible range
-          MILLISECONDS_IN_A_DAY // Maximum 1 day padding
+          MILLISECONDS_IN_A_DAY
         );
 
-        // Apply padding to fetch range, but respect session bounds
         const paddedStart = Math.max(
           sessionStartTime,
           boundedStart - fetchPadding
         );
         const paddedEnd = Math.min(sessionEndTime, boundedEnd + fetchPadding);
 
-        // Use padded range for finding missing ranges
         const missingRanges = findMissingRanges(paddedStart, paddedEnd);
 
         if (missingRanges.length === 0) {
@@ -551,9 +541,7 @@ export const useMeasurementsFetcher = (
       isCurrentlyFetchingRef.current = false;
       pendingSetExtremesRef.current = null;
 
-      // Only update loading state if we showed the loading indicator
       if (shouldShowLoading) {
-        console.log("shouldShowLoading in finally", shouldShowLoading);
         updateLoadingState(false);
       }
     }
