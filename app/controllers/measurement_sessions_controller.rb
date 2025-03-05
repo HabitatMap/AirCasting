@@ -1,13 +1,8 @@
 class MeasurementSessionsController < ApplicationController
   def show
     GoogleAnalyticsWorker::RegisterEvent.async_call('Measurement Sessions#show')
-    form =
-      Api::ParamsForm.new(
-        params: params.to_unsafe_hash,
-        schema: Api::Links::Schema,
-        struct: Api::Links::Struct
-      )
-    result = Api::ToLink.new(form: form).call
+    contract = Api::LinksContract.new.call(params.to_unsafe_hash)
+    result = Api::ToLink.new(contract: contract).call
 
     if result.success?
       redirect_to result.value
@@ -18,7 +13,7 @@ class MeasurementSessionsController < ApplicationController
 
   def show_old
     GoogleAnalyticsWorker::RegisterEvent.async_call(
-      'Measurement Sessions#show_old'
+      'Measurement Sessions#show_old',
     )
 
     # supports legacy mobile apps relesed before 06.2019

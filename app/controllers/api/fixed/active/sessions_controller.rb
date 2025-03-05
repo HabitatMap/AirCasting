@@ -5,8 +5,10 @@ module Api
         respond_to :json
 
         def index
-          GoogleAnalyticsWorker::RegisterEvent.async_call('Fixed active sessions#index')
-          result = Api::ToActiveSessionsArray.new(form: form).call
+          GoogleAnalyticsWorker::RegisterEvent.async_call(
+            'Fixed active sessions#index',
+          )
+          result = Api::ToActiveSessionsArray.new(contract: contract).call
 
           if result.success?
             render json: result.value, status: :ok
@@ -16,13 +18,18 @@ module Api
         end
 
         def index2
-          GoogleAnalyticsWorker::RegisterEvent.async_call('Fixed active sessions#index2')
+          GoogleAnalyticsWorker::RegisterEvent.async_call(
+            'Fixed active sessions#index2',
+          )
+
           # splitting the logic for governemnt data, to improve performance
-          sensor_name = form.to_h.to_h[:sensor_name]
-          if sensor_name == 'government-pm2.5' || sensor_name == 'government-no2' || sensor_name == 'government-o3'
-            result = ::FixedSessions::IndexInteractor.new(form: form).call
+          sensor_name = contract.to_h[:sensor_name]
+          if sensor_name == 'government-pm2.5' ||
+               sensor_name == 'government-no2' || sensor_name == 'government-o3'
+            result =
+              ::FixedSessions::IndexInteractor.new(contract: contract).call
           else
-            result = Api::ToActiveSessionsJson.new(form: form).call
+            result = Api::ToActiveSessionsJson.new(contract: contract).call
           end
 
           if result.success?
@@ -36,17 +43,18 @@ module Api
 
         private
 
-        def form
-          q = ActiveSupport::JSON.decode(params.to_unsafe_hash[:q]).symbolize_keys
+        def decoded_params
+          q =
+            ActiveSupport::JSON.decode(params.to_unsafe_hash[:q]).symbolize_keys
           q[:time_from] = Time.strptime(q[:time_from].to_s, '%s')
           q[:time_to] = Time.strptime(q[:time_to].to_s, '%s')
 
-          Api::ParamsForm.new(
-            params: q,
-            schema: Api::FixedSessions::Schema,
-            struct: Api::FixedSessions::Struct
-          )
-         end
+          q
+        end
+
+        def contract
+          Api::FixedSessionsContract.new.call(decoded_params)
+        end
       end
     end
   end
