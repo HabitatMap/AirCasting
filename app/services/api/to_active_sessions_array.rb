@@ -1,10 +1,10 @@
 class Api::ToActiveSessionsArray
-  def initialize(form:)
-    @form = form
+  def initialize(contract:)
+    @contract = contract
   end
 
   def call
-    return Failure.new(form.errors) if form.invalid?
+    return Failure.new(contract.errors.to_h) if contract.failure?
 
     Success.new(
       sessions:
@@ -49,33 +49,37 @@ class Api::ToActiveSessionsArray
                         threshold_high: stream.threshold_set.threshold_high,
                         threshold_low: stream.threshold_set.threshold_low,
                         threshold_medium: stream.threshold_set.threshold_medium,
-                        threshold_very_high: stream.threshold_set.threshold_very_high,
-                        threshold_very_low: stream.threshold_set.threshold_very_low,
+                        threshold_very_high:
+                          stream.threshold_set.threshold_very_high,
+                        threshold_very_low:
+                          stream.threshold_set.threshold_very_low,
                         unit_name: stream.unit_name,
-                        unit_symbol: stream.unit_symbol
-                      }
+                        unit_symbol: stream.unit_symbol,
+                      },
                     )
-                  end
+                  end,
             }
           end,
       fetchableSessionsCount:
-        FixedSession.active.filter_(data).distinct.count(:all)
+        FixedSession.active.filter_(data).distinct.count(:all),
     )
   end
 
   private
 
-  attr_reader :form
+  attr_reader :contract
 
   def last_hour_average(session)
     stream = session.streams.length >= 1 ? session.streams.first : nil
     return unless stream
     last_measurement_time = stream.measurements.last.time
-    stream.measurements
+    stream
+      .measurements
       .where(time: last_measurement_time - 1.hour..last_measurement_time)
       .average(:value)
   end
 
+  # TODO: check if it still applies
   def data
     # dry-struct allows for missing key using `meta(omittable: true)`
     # This `form` has such a key named `is_indoor`. Unfortunately, when
@@ -85,6 +89,6 @@ class Api::ToActiveSessionsArray
     #     the code that is accessing the struct (Session.filter_) is used
     #     by other callers that are passing a vanilla Ruby hash.
     #   - Passing a vanilla Ruby hash with `form.to_h.to_h`
-    form.to_h.to_h
+    contract.to_h
   end
 end
