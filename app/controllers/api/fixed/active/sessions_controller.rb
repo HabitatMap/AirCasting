@@ -4,9 +4,8 @@ module Api
       class SessionsController < BaseController
         respond_to :json
 
-        # TODO: check if this is used
         def index
-          result = Api::ToActiveSessionsArray.new(form: form).call
+          result = Api::ToActiveSessionsArray.new(contract: contract).call
 
           if result.success?
             render json: result.value, status: :ok
@@ -44,14 +43,6 @@ module Api
           q[:time_to] = Time.strptime(q[:time_to].to_s, '%s')
 
           q
-        end
-
-        def form
-          Api::ParamsForm.new(
-            params: decoded_params,
-            schema: Api::FixedSessions::Schema,
-            struct: Api::FixedSessions::Struct,
-          )
         end
 
         def contract
