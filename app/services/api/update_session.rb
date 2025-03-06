@@ -1,27 +1,29 @@
-class Api::UpdateSession
-  def initialize(form:)
-    @form = form
-  end
-
-  def call
-    return Failure.new(form.errors) if form.invalid?
-
-    session = Session.find_by_uuid(data[:uuid])
-    unless session
-      return Failure.new("Session with uuid: #{data[:uuid]} doesn't exist")
+module Api
+  class UpdateSession
+    def initialize(contract:)
+      @contract = contract
     end
 
-    session.sync(data)
-    session.reload
+    def call
+      return Failure.new(contract.errors) if contract.failure?
 
-    Success.new(session)
-  end
+      session = Session.find_by_uuid(data[:uuid])
+      unless session
+        return Failure.new("Session with uuid: #{data[:uuid]} doesn't exist")
+      end
 
-  private
+      session.sync(data)
+      session.reload
 
-  attr_reader :form
+      Success.new(session)
+    end
 
-  def data
-    form.to_h.to_h
+    private
+
+    attr_reader :contract
+
+    def data
+      contract.to_h
+    end
   end
 end
