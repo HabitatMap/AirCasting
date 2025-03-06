@@ -8,13 +8,9 @@ class Api::UserSessionsController < Api::BaseController
 
   def sync
     GoogleAnalyticsWorker::RegisterEvent.async_call('User Sessions#sync')
-    form =
-      Api::JsonForm.new(
-        json: to_json_data(params),
-        schema: Api::UserSessions::Schema,
-        struct: Api::UserSessions::Struct
-      )
-    result = Api::ToUserSessionsHash.new(form: form).call(current_user)
+    contract =
+      Api::UserSessionsContract.new.call({ data: JSON.parse(params[:data]) })
+    result = Api::ToUserSessionsHash.new(contract: contract).call(current_user)
 
     if result.success?
       render json: result.value, status: :ok
@@ -55,7 +51,7 @@ class Api::UserSessionsController < Api::BaseController
 
   def show
     GoogleAnalyticsWorker::RegisterEvent.async_call(
-      "User Sessions#show_#{params[:id] ? 'id' : 'uuid'}"
+      "User Sessions#show_#{params[:id] ? 'id' : 'uuid'}",
     )
 
     session =
@@ -78,7 +74,7 @@ class Api::UserSessionsController < Api::BaseController
 
   def delete_session
     GoogleAnalyticsWorker::RegisterEvent.async_call(
-      'User Sessions#delete session'
+      'User Sessions#delete session',
     )
     data = decode_and_deep_symbolize(params)
 
@@ -93,7 +89,7 @@ class Api::UserSessionsController < Api::BaseController
 
   def delete_session_streams
     GoogleAnalyticsWorker::RegisterEvent.async_call(
-      'User Sessions#delete session streams'
+      'User Sessions#delete session streams',
     )
     session_data = decode_and_deep_symbolize(params)
 
@@ -106,7 +102,7 @@ class Api::UserSessionsController < Api::BaseController
             .streams
             .where(
               sensor_package_name: stream_data[:sensor_package_name],
-              sensor_name: stream_data[:sensor_name]
+              sensor_name: stream_data[:sensor_name],
             )
             .each(&:destroy)
         end
