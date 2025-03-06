@@ -1,13 +1,13 @@
 class Api::ToUserSessionsHash2
-  def initialize(form:, user:)
-    @form = form
+  def initialize(contract:, user:)
+    @contract = contract
     @user = user
   end
 
   def call
-    return Failure.new(form.errors) if form.invalid?
+    return Failure.new(contract.errors.to_h) if contract.failure?
 
-    delete_sessions(data.select(&:deleted))
+    delete_sessions(data.select { |session| session[:deleted] })
 
     Success.new(
       {
@@ -20,10 +20,10 @@ class Api::ToUserSessionsHash2
 
   private
 
-  attr_reader :form, :user
+  attr_reader :contract, :user
 
   def data
-    form.to_h.data
+    contract.to_h[:data]
   end
 
   def delete_sessions(sessions)
@@ -46,7 +46,7 @@ class Api::ToUserSessionsHash2
   end
 
   def present_in_params
-    @present_in_params ||= data.select { |datum| !datum.deleted }
+    @present_in_params ||= data.select { |datum| !datum[:deleted] }
   end
 
   def uuids_present_in_database
@@ -80,8 +80,10 @@ class Api::ToUserSessionsHash2
       .select do |session_in_database|
         session_in_database.version >
           present_in_params.find do |session_in_params|
-            session_in_params.uuid == session_in_database.uuid
-          end.version
+            session_in_params[:uuid] == session_in_database.uuid
+          end[
+            :version
+          ]
       end
       .pluck(:uuid)
   end
