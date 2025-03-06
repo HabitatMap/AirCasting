@@ -41,15 +41,10 @@ class Api::UserSessionsController < Api::BaseController
 
   def update_session
     GoogleAnalyticsWorker::RegisterEvent.async_call(
-      'User Sessions#update session'
+      'User Sessions#update session',
     )
-    form =
-      Api::JsonForm.new(
-        json: params.to_unsafe_hash[:data],
-        schema: Api::UserSession::Schema,
-        struct: Api::UserSession::Struct
-      )
-    result = Api::UpdateSession.new(form: form).call
+    contract = Api::UserSessionContract.new.call(JSON.parse(params[:data]))
+    result = Api::UpdateSession.new(contract: contract).call
 
     if result.success?
       render json: result.value, status: :ok
