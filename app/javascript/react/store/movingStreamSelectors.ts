@@ -178,4 +178,40 @@ const selectMovingCalendarMinMax = createSelector(
   }
 );
 
-export { selectMovingCalendarMinMax, selectThreeMonthsDailyAverage };
+const selectEmptyCalendarData = createSelector(
+  [_selectMovingCalendarData],
+  (calendarData): CalendarMonthlyData[] => {
+    const emptyResult: CalendarMonthlyData[] = [];
+    if (!calendarData?.length) {
+      return emptyResult;
+    }
+
+    // Use current date for empty calendar
+    const now = moment();
+    const endDate = now.format(DateFormat.us);
+    const startDate = now.clone().subtract(3, "months").format(DateFormat.us);
+
+    const visibleData = getVisibleMonthsData(calendarData, startDate, endDate);
+
+    const latestMonth = now.clone().startOf("month");
+    const secondMonth = latestMonth.clone().subtract(1, "month");
+    const thirdMonth = latestMonth.clone().subtract(2, "month");
+
+    const threeMonths = [thirdMonth, secondMonth, latestMonth];
+
+    try {
+      return threeMonths.map((month) =>
+        getMonthWeeksOfDailyAveragesFor(month, visibleData)
+      );
+    } catch (error) {
+      console.error("Error generating calendar data:", error);
+      return emptyResult;
+    }
+  }
+);
+
+export {
+  selectEmptyCalendarData,
+  selectMovingCalendarMinMax,
+  selectThreeMonthsDailyAverage,
+};
