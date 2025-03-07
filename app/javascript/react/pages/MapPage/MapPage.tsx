@@ -2,8 +2,8 @@ import React from "react";
 
 import { APIProvider } from "@vis.gl/react-google-maps";
 
-import { Map } from "../../components/Map";
-import { MapButtons } from "../../components/MapButtons/MapButtons";
+import { MapButtons } from "../../components/molecules/MapButtons/MapButtons";
+import { Map } from "../../components/organisms/Map/Map";
 import { FocusTabController } from "../../utils/focusTabController";
 import useMobileDetection from "../../utils/useScreenSizeDetection";
 

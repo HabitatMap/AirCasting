@@ -7,7 +7,7 @@ import mobileChevronLeft from "../../../../../assets/icons/mobileChevronLeft.svg
 import mobileChevronRight from "../../../../../assets/icons/mobileChevronRight.svg";
 import { MovesKeys } from "../../../../../types/movesKeys";
 import useScreenSizeDetection from "../../../../../utils/useScreenSizeDetection";
-import { ScrollButton } from "../../../../ScrollButton/ScrollButton";
+import { ScrollButton } from "../../../../atoms/ScrollButton/ScrollButton";
 
 type ScrollButtonComponentProps = {
   direction: MovesKeys;
