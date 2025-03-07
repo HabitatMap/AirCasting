@@ -2,17 +2,16 @@ import moment from "moment-timezone";
 import React, { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 
-import { Graph } from "../../components/Graph";
-import MeasurementComponent from "../../components/Graph/MeasurementComponent";
-import TimeRange from "../../components/Graph/TimeRage";
 import { Calendar } from "../../components/molecules/Calendar";
 import { EmptyCalendar } from "../../components/molecules/Calendar/EmptyCalendar";
 import HeaderToggle from "../../components/molecules/Calendar/HeaderToggle/HeaderToggle";
 import { FixedStreamStationHeader } from "../../components/molecules/FixedStreamStationHeader";
-import { ThresholdsConfigurator } from "../../components/ThresholdConfigurator";
-import { ResetButton } from "../../components/ThresholdConfigurator/ThresholdButtons/ResetButton";
-import { ThresholdButtonVariant } from "../../components/ThresholdConfigurator/ThresholdButtons/ThresholdButton";
-import { UniformDistributionButton } from "../../components/ThresholdConfigurator/ThresholdButtons/UniformDistributionButton";
+import { Graph } from "../../components/organisms/Graph/Graph";
+import MeasurementComponent from "../../components/organisms/Graph/MeasurementComponent";
+import TimeRange from "../../components/organisms/Graph/TimeRage";
+import { ResetButton } from "../../components/organisms/ThresholdConfigurator/ThresholdButtons/ResetButton";
+import { ThresholdButtonVariant } from "../../components/organisms/ThresholdConfigurator/ThresholdButtons/ThresholdButton";
+import { UniformDistributionButton } from "../../components/organisms/ThresholdConfigurator/ThresholdButtons/UniformDistributionButton";
 
 import {
   selectFixedData,
@@ -34,6 +33,7 @@ import { useMapParams } from "../../utils/mapParamsHandler";
 import { formatTime } from "../../utils/measurementsCalc";
 import useMobileDetection from "../../utils/useScreenSizeDetection";
 
+import { ThresholdsConfigurator } from "../../components/organisms/ThresholdConfigurator/ThresholdConfigurator";
 import * as S from "./CalendarPage.style";
 
 interface CalendarPageProps {

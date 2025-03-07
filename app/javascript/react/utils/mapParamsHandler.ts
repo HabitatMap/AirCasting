@@ -2,14 +2,14 @@ import { debounce } from "lodash";
 import { useCallback, useEffect, useMemo } from "react";
 import { useSearchParams } from "react-router-dom";
 
-import { MAP_CONFIGS } from "../components/Map/mapUtils/mapConfigs";
-import { defaultGridSize } from "../components/SessionFilters/CrowdMapGridSize";
-import { getSensorUnitSymbol } from "../components/SessionFilters/SensorFilter";
+import { defaultGridSize } from "../components/molecules/SessionFilters/CrowdMapGridSize";
+import { getSensorUnitSymbol } from "../components/molecules/SessionFilters/SensorFilter";
 import {
   beginningOfTheYear,
   endOfTheYear,
   getLastFiveYears,
-} from "../components/SessionFilters/YearPickerButtons";
+} from "../components/molecules/SessionFilters/YearPickerButtons";
+import { MAP_CONFIGS } from "../components/organisms/Map/mapUtils/mapConfigs";
 import { FALSE, TRUE } from "../const/booleans";
 import {
   DEFAULT_MAP_BOUNDS,

@@ -1,7 +1,7 @@
 import styled from "styled-components";
 import { white } from "../../../assets/styles/colors";
 import { media } from "../../../utils/media";
-import { H3 } from "../../Typography";
+import { H3 } from "../../atoms/Typography";
 
 const ThreeMonths = styled.div`
   display: flex;

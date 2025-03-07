@@ -1,8 +1,8 @@
 import styled from "styled-components";
 
 import { gray100, gray400, red100, white } from "../../assets/styles/colors";
-import { NAVBAR_HEIGHT } from "../../components/Navbar/Navbar.style";
-import { H3 } from "../../components/Typography";
+import { H3 } from "../../components/atoms/Typography";
+import { NAVBAR_HEIGHT } from "../../components/molecules/Navbar/Navbar.style";
 import { media } from "../../utils/media";
 
 const CalendarPageLayout = styled.div`

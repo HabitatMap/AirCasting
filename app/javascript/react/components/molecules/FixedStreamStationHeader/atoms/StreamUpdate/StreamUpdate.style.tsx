@@ -1,7 +1,7 @@
 import styled from "styled-components";
 
-import { H5 } from "../../../../Typography";
 import { media } from "../../../../../utils/media";
+import { H5 } from "../../../../atoms/Typography";
 
 const DateLabel = styled(H5)`
   display: inline;

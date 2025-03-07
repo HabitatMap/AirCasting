@@ -2,7 +2,7 @@ import styled from "styled-components";
 
 import { gray100, gray300 } from "../../../assets/styles/colors";
 import { media } from "../../../utils/media";
-import { H5 } from "../../Typography";
+import { H5 } from "../../atoms/Typography";
 
 const HorizontalContainer = styled.div`
   display: flex;
