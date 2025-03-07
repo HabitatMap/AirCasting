@@ -1,6 +1,6 @@
 import React, { useMemo } from "react";
-import * as S from "./../ThresholdConfigurator.style"; // Import your styled components
 import * as colors from "../../../assets/styles/colors";
+import * as S from "./../ThresholdConfigurator.style";
 
 enum ThresholdButtonVariant {
   IconOnly = "iconOnly",
@@ -52,7 +52,7 @@ const ThresholdButton: React.FC<ThresholdButtonProps> = ({
     <S.ThresholdButton
       onClick={onClick}
       style={{ color: buttonTextColor }}
-      variant={variant}
+      $variant={variant}
     >
       {buttonContent}
     </S.ThresholdButton>

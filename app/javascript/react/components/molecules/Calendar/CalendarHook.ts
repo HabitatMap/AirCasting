@@ -2,10 +2,9 @@ import moment, { Moment } from "moment";
 import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 
-import { useAppDispatch } from "../../../store/hooks";
-import { RootState } from "../../../store/index";
+import { useAppDispatch, useAppSelector } from "../../../store/hooks";
 import { movingData } from "../../../store/movingCalendarStreamSlice";
-import { selectThreeMonthsDailyAverage } from "../../../store/movingStreamSelectors";
+import { selectCalendarData } from "../../../store/movingStreamSelectors";
 import { DateFormat } from "../../../types/dateFormat";
 import { MovesKeys } from "../../../types/movesKeys";
 import { CalendarMonthlyData } from "../../../types/movingStream";
@@ -48,8 +47,8 @@ const useCalendarHook = ({
     endDate: "",
   });
 
-  const threeMonthsData = useSelector((state: RootState) =>
-    selectThreeMonthsDailyAverage(
+  const threeMonthsData = useAppSelector((state) =>
+    selectCalendarData(
       state,
       visibleDateRange.startDate,
       visibleDateRange.endDate

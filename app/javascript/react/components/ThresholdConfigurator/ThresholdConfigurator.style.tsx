@@ -65,7 +65,7 @@ const InputContainer = styled.div<Props>`
   }
 `;
 
-const ThresholdButton = styled(Button)<{ variant: ThresholdButtonVariant }>`
+const ThresholdButton = styled(Button)<{ $variant: ThresholdButtonVariant }>`
   white-space: nowrap;
   background: ${colors.gray100};
   border: none;
@@ -79,7 +79,7 @@ const ThresholdButton = styled(Button)<{ variant: ThresholdButtonVariant }>`
   @media ${media.desktop} {
     margin-left: 0;
     ${(props) =>
-      props.variant === ThresholdButtonVariant.IconOnly &&
+      props.$variant === ThresholdButtonVariant.IconOnly &&
       `
         height: 3.2rem;
         min-width: 5.2rem;
@@ -89,7 +89,7 @@ const ThresholdButton = styled(Button)<{ variant: ThresholdButtonVariant }>`
   @media ${media.smallDesktop} {
     margin-left: 0;
     ${(props) =>
-      props.variant === ThresholdButtonVariant.IconOnly &&
+      props.$variant === ThresholdButtonVariant.IconOnly &&
       `
         height: 3.2rem;
         min-width: 5.2rem;
@@ -512,7 +512,7 @@ const Wrapper = styled.div`
 
 const OldStyleSliderHandles = styled.div`
   position: absolute;
-  top: 60%; /* Center it vertically within the input container */
+  top: 60%;
   transform: translate(-50%, -50%);
   cursor: pointer;
   z-index: 10;
@@ -541,7 +541,7 @@ const OldStyleSliderText = styled.p`
   font-weight: 600;
   color: ${colors.gray400};
   position: absolute;
-  top: -16px; /* Adjust this value to position the text above the handle */
+  top: -16px;
   left: 50%;
   transform: translateX(-50%);
   -webkit-user-select: none;

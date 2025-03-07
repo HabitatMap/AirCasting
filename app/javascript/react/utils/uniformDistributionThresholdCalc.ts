@@ -33,18 +33,31 @@ export const calculateMinMaxValues = (
     mobileStream.status === StatusEnum.Fulfilled &&
     mobileStream.data.id === sessionId
   ) {
-    const min = Math.floor(mobileStream.minMeasurementValue!);
-    const max = Math.ceil(mobileStream.maxMeasurementValue!);
-    return { min, max };
+    if (
+      mobileStream.minMeasurementValue !== undefined &&
+      mobileStream.minMeasurementValue !== null &&
+      mobileStream.maxMeasurementValue !== undefined &&
+      mobileStream.maxMeasurementValue !== null
+    ) {
+      const min = Math.floor(mobileStream.minMeasurementValue);
+      const max = Math.ceil(mobileStream.maxMeasurementValue);
+      return { min, max };
+    }
   } else if (
     fixedStream.status === StatusEnum.Fulfilled &&
     fixedStream.data.stream.sessionId === sessionId
   ) {
-    const min = Math.floor(fixedStream.minMeasurementValue!);
-    const max = Math.ceil(fixedStream.maxMeasurementValue!);
-    return { min, max };
-  } else {
-    console.warn("No stream data available or session mismatch");
-    return null;
+    if (
+      fixedStream.minMeasurementValue !== undefined &&
+      fixedStream.minMeasurementValue !== null &&
+      fixedStream.maxMeasurementValue !== undefined &&
+      fixedStream.maxMeasurementValue !== null
+    ) {
+      const min = Math.floor(fixedStream.minMeasurementValue);
+      const max = Math.ceil(fixedStream.maxMeasurementValue);
+      return { min, max };
+    }
   }
+
+  return null;
 };

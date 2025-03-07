@@ -3,7 +3,6 @@ import { createSelector } from "@reduxjs/toolkit";
 import { StatusEnum } from "../types/api";
 import { RootState } from "./";
 
-// Add selectors for each relevant slice
 const selectFixedStreamLoading = (state: RootState) =>
   state.fixedStream.status === StatusEnum.Pending;
 const selectFixedSessionsLoading = (state: RootState) =>
@@ -17,7 +16,6 @@ const selectTimelapseLoading = (state: RootState) =>
 const selectCrowdMapLoading = (state: RootState) =>
   state.crowdMap.status === StatusEnum.Pending;
 
-// Combine loading states
 export const selectIsLoading = createSelector(
   [
     selectFixedStreamLoading,
@@ -34,11 +32,14 @@ export const selectIsLoading = createSelector(
     mobileStreamLoading,
     timelapseLoading,
     crowdMapLoading
-  ) =>
-    fixedStreamLoading ||
-    fixedSessionsLoading ||
-    mobileSessionsLoading ||
-    mobileStreamLoading ||
-    timelapseLoading ||
-    crowdMapLoading
+  ) => {
+    return Boolean(
+      fixedStreamLoading ||
+        fixedSessionsLoading ||
+        mobileSessionsLoading ||
+        mobileStreamLoading ||
+        timelapseLoading ||
+        crowdMapLoading
+    );
+  }
 );
