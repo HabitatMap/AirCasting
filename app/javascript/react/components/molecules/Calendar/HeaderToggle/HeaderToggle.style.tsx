@@ -1,7 +1,7 @@
 import styled from "styled-components";
 import * as colors from "../../../../assets/styles/colors";
 import { media } from "../../../../utils/media";
-import { H1 } from "../../../Typography";
+import { H1 } from "../../../atoms/Typography";
 
 const Container = styled.div<{ $isCalendarPage?: boolean; $rotated?: boolean }>`
   display: flex;

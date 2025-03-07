@@ -1,6 +1,6 @@
 import styled, { keyframes } from "styled-components";
 import { blue, gray300, gray400, white } from "../../assets/styles/colors";
-import { Button } from "../../components/Button/Button.style";
+import { Button } from "../../components/atoms/Button/Button.style";
 import { media } from "../../utils/media";
 
 const dotFlashing = keyframes`
