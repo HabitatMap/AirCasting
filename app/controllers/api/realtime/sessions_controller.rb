@@ -12,7 +12,7 @@ module Api
 
       def show
         GoogleAnalyticsWorker::RegisterEvent.async_call(
-          'Realtime sessions#show'
+          'Realtime sessions#show',
         )
         session = FixedSession.find(params[:id])
 
@@ -21,11 +21,11 @@ module Api
 
       def sync_measurements
         GoogleAnalyticsWorker::RegisterEvent.async_call(
-          'Realtime sessions#sync_measurements'
+          'Realtime sessions#sync_measurements',
         )
         session = FixedSession.find_by_uuid(params[:uuid]) or raise NotFound
         last_measurement_sync =
-          URI.decode(params[:last_measurement_sync]).to_datetime
+          CGI.unescape(params[:last_measurement_sync]).to_datetime
         stream_measurements = true
 
         response =
@@ -38,7 +38,7 @@ module Api
 
       def create
         GoogleAnalyticsWorker::RegisterEvent.async_call(
-          'Realtime sessions#create'
+          'Realtime sessions#create',
         )
         if params[:compression]
           decoded = Base64.decode64(params[:session])
@@ -66,7 +66,7 @@ module Api
           notes:
             session.notes.map do |note|
               { number: note.number, photo_location: photo_location(note) }
-            end
+            end,
         }
       end
     end

@@ -1,5 +1,7 @@
 source 'https://rubygems.org'
 
+ruby '3.2.6'
+
 gem 'a9n'
 gem 'activeadmin'
 gem 'activerecord-import'
@@ -9,6 +11,7 @@ gem 'aws-sdk', '~> 3', require: false
 gem 'bcrypt_pbkdf', require: false
 gem 'bootsnap', '>= 1.1.0', require: false
 gem 'colored', require: false
+gem 'concurrent-ruby', '1.3.4'
 gem 'devise'
 gem 'dotenv-rails'
 gem 'dry-struct'
@@ -21,14 +24,13 @@ gem 'httparty'
 gem 'jsbundling-rails'
 gem 'newrelic_rpm'
 gem 'oj'
-gem 'paperclip', '5.3.0'
+gem 'paperclip'
 gem 'pg'
 gem 'progress', require: false
 gem 'pry-rails'
 gem 'rack-cors'
-gem 'rails', '~> 6.1.7'
+gem 'rails', '~> 7.0.8'
 gem 'rake'
-gem 'rb-gsl', '1.16.0.6'
 gem 'responders'
 gem 'rgeo'
 gem 'rubyzip', '>= 1.0.0'
@@ -49,7 +51,7 @@ gem 'whenever', require: false
 
 group :development do
   gem 'awesome_print'
-  gem 'capistrano'
+  gem 'capistrano', '3.16.0'
   gem 'capistrano-bundler', require: false
   gem 'capistrano-ext'
   gem 'capistrano-rails', require: false
