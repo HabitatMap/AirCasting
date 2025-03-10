@@ -20,7 +20,7 @@
     "@sentry/tracing": "^7.114.0",
     "@sentry/webpack-plugin": "^2.22.4",
     "@vis.gl/react-google-maps": "^1.2.0",
-    "axios": "^1.6.8",
+    "axios": "^1.8.2",
     "babel-loader": "^8.2.3",
     "clipboard": "^2.0.4",
     "coffee-loader": "^4.0.0",
