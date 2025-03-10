@@ -19,7 +19,7 @@ module Api
       def sync_measurements
         session = FixedSession.find_by_uuid(params[:uuid]) or raise NotFound
         last_measurement_sync =
-          URI.decode(params[:last_measurement_sync]).to_datetime
+          CGI.unescape(params[:last_measurement_sync]).to_datetime
         stream_measurements = true
 
         response =
