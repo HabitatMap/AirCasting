@@ -2,7 +2,7 @@ import styled from "styled-components";
 
 import { gray300 } from "../../../../../assets/styles/colors";
 import { media } from "../../../../../utils/media";
-import { H1, H5 } from "../../../../Typography";
+import { H1, H5 } from "../../../../atoms/Typography";
 
 const Label = styled(H5)`
   padding-bottom: 10px;

@@ -1,7 +1,7 @@
 import styled from "styled-components";
 
-import { H4 } from "../../../../Typography";
 import { media } from "../../../../../utils/media";
+import { H4 } from "../../../../atoms/Typography";
 
 const DayNamesHeaderContainer = styled.div`
   display: flex;
@@ -20,4 +20,4 @@ const DayName = styled(H4)`
   }
 `;
 
-export { DayNamesHeaderContainer, DayName };
+export { DayName, DayNamesHeaderContainer };
