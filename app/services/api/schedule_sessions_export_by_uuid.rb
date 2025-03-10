@@ -28,6 +28,6 @@ class Api::ScheduleSessionsExportByUuid
   end
 
   def email
-    URI.decode(data[:email])
+    CGI.unescape(data[:email])
   end
 end
