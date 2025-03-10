@@ -1,17 +1,16 @@
 import React, { useCallback, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { useSelector } from "react-redux";
-import { selectThreeMonthsDailyAverage } from "../../../store/movingStreamSelectors";
+import { useAppSelector } from "../../../store/hooks";
+import { selectEmptyCalendarData } from "../../../store/movingStreamSelectors";
 import { Month } from "./atoms/Month";
 import * as S from "./Calendar.style";
 import HeaderToggle from "./HeaderToggle/HeaderToggle";
-
 interface EmptyCalendarProps {
   onDayClick?: (timestamp: number) => void;
 }
 
 const EmptyCalendar: React.FC<EmptyCalendarProps> = ({ onDayClick }) => {
-  const threeMonthsData = useSelector(selectThreeMonthsDailyAverage);
+  const threeMonthsData = useAppSelector(selectEmptyCalendarData);
   const { t } = useTranslation();
   const [selectedTimestamp, setSelectedTimestamp] = useState<number | null>(
     null
