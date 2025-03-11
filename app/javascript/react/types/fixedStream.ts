@@ -24,7 +24,6 @@ interface FixedStreamStationInfo extends StreamUpdate, DataSource {
   max: number;
   latitude: number;
   longitude: number;
-  firstMeasurementTime: number;
 }
 
 interface StreamDailyAverage {
