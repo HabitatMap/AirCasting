@@ -98,8 +98,6 @@ const selectFixedStreamShortInfo = createSelector(
       ...newestDayMeasurements.map((m) => m.value)
     );
 
-    const firstMeasurementTime = fixedStreamData.stream.firstMeasurementTime;
-
     return {
       ...fixedStreamData.stream,
       lastMeasurementValue,
@@ -116,7 +114,6 @@ const selectFixedStreamShortInfo = createSelector(
       averageValue: newestAverageValue,
       startTime,
       endTime,
-      firstMeasurementTime,
       latitude: fixedStreamData.stream.latitude,
       longitude: fixedStreamData.stream.longitude,
     };
