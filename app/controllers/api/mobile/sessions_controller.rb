@@ -3,7 +3,6 @@ module Api
     respond_to :json
 
     def index
-      GoogleAnalyticsWorker::RegisterEvent.async_call('Mobile sessions#index')
       q = ActiveSupport::JSON.decode(params.to_unsafe_hash[:q]).symbolize_keys
       q[:time_from] = Time.strptime(q[:time_from].to_s, '%s')
       q[:time_to] = Time.strptime(q[:time_to].to_s, '%s')
@@ -12,7 +11,7 @@ module Api
         Api::ParamsForm.new(
           params: q,
           schema: Api::MobileSessions::Schema,
-          struct: Api::MobileSessions::Struct
+          struct: Api::MobileSessions::Struct,
         )
       result = Api::ToMobileSessionsArray.new(form: form).call
 
@@ -24,8 +23,6 @@ module Api
     end
 
     def show
-      GoogleAnalyticsWorker::RegisterEvent.async_call('Mobile sessions#show')
-
       if show_form.invalid?
         render json: show_form.errors, status: :bad_request
       else
@@ -35,8 +32,6 @@ module Api
     end
 
     def show2
-      GoogleAnalyticsWorker::RegisterEvent.async_call('Mobile sessions#show2')
-
       if show_form.invalid?
         render json: show_form.errors, status: :bad_request
       else
@@ -48,18 +43,25 @@ module Api
     private
 
     def stream
-      @stream ||= Stream
-        .includes(:threshold_set)
-        .joins(:session)
-        .find_by!(sensor_name: show_form.to_h.sensor_name, sessions: { id: show_form.to_h.id })
+      @stream ||=
+        Stream
+          .includes(:threshold_set)
+          .joins(:session)
+          .find_by!(
+            sensor_name: show_form.to_h.sensor_name,
+            sessions: {
+              id: show_form.to_h.id,
+            },
+          )
     end
 
     def show_form
-      @show_form ||= Api::ParamsForm.new(
-        params: params.to_unsafe_hash,
-        schema: Api::Session::Schema,
-        struct: Api::Session::Struct
-      )
+      @show_form ||=
+        Api::ParamsForm.new(
+          params: params.to_unsafe_hash,
+          schema: Api::Session::Schema,
+          struct: Api::Session::Struct,
+        )
     end
   end
 end

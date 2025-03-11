@@ -8,10 +8,6 @@ module Api
     respond_to :json
 
     def create
-      GoogleAnalyticsWorker::RegisterEvent.async_call(
-        'Measurement Sessions#create'
-      )
-
       if ActiveModel::Type::Boolean.new.cast(params[:compression])
         decoded = Base64.decode64(params[:session])
         unzipped = AirCasting::GZip.inflate(decoded)
@@ -33,15 +29,11 @@ module Api
     end
 
     def export
-      GoogleAnalyticsWorker::RegisterEvent.async_call(
-        'Measurement Sessions#export'
-      )
-
       form =
         Api::ParamsForm.new(
           params: params.to_unsafe_hash,
           schema: Api::ExportSessions::Schema,
-          struct: Api::ExportSessions::Struct
+          struct: Api::ExportSessions::Struct,
         )
 
       result = Api::ScheduleSessionsExport.new(form: form).call
@@ -54,15 +46,11 @@ module Api
     end
 
     def export_by_uuid
-      GoogleAnalyticsWorker::RegisterEvent.async_call(
-        'Measurement Sessions#export'
-      )
-
       form =
         Api::ParamsForm.new(
           params: params.to_unsafe_hash,
           schema: Api::ExportSessionByUuid::Schema,
-          struct: Api::ExportSessionByUuid::Struct
+          struct: Api::ExportSessionByUuid::Struct,
         )
 
       result = Api::ScheduleSessionsExportByUuid.new(form: form).call
@@ -82,7 +70,7 @@ module Api
         notes:
           session.notes.map do |note|
             { number: note.number, photo_location: photo_location(note) }
-          end
+          end,
       }
     end
   end

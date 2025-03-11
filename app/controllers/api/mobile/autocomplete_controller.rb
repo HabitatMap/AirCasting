@@ -1,9 +1,6 @@
 module Api
   class Mobile::AutocompleteController < ApplicationController
     def tags
-      GoogleAnalyticsWorker::RegisterEvent.async_call(
-        'Autocomplete Mobile#tags'
-      )
       q = params.to_unsafe_hash[:q].symbolize_keys
 
       q[:time_from] = Time.strptime(q[:time_from].to_s, '%s')
@@ -13,7 +10,7 @@ module Api
         Api::ParamsForm.new(
           params: q,
           schema: Api::MobileTagsParams::Schema,
-          struct: Api::MobileTagsParams::Struct
+          struct: Api::MobileTagsParams::Struct,
         )
 
       result = Api::ToMobileTags.new(form: form).call

@@ -3,12 +3,11 @@ module Api
     respond_to :json
 
     def index
-      GoogleAnalyticsWorker::RegisterEvent.async_call('Measurements#index')
       form =
         Api::ParamsForm.new(
           params: params.to_unsafe_hash,
           schema: Api::Measurements::Schema,
-          struct: Api::Measurements::Struct
+          struct: Api::Measurements::Struct,
         )
       result = Api::ToMeasurementsArray.new(form: form).call
 
