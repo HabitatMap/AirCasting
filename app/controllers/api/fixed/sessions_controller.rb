@@ -3,9 +3,6 @@ module Api
     respond_to :json
 
     def show_all_streams
-      GoogleAnalyticsWorker::RegisterEvent.async_call(
-        'Fixed Sessions#show_all_streams',
-      )
       hash =
         Api::ToFixedSessionWithStreamsHash.new(
           session: session,
