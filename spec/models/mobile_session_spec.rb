@@ -67,6 +67,7 @@ describe MobileSession do
         'unit_name' => stream.unit_name,
         'unit_symbol' => stream.unit_symbol,
         'threshold_set_id' => stream.threshold_set_id,
+        'last_hourly_average_id' => nil,
       }
 
       expect(a[1]).to eq(expected_response)
