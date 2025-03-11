@@ -6,9 +6,61 @@ import store from "../../../../../store/index";
 import { Note } from "../../../../../types/note";
 import { NotesPopover } from "../NotesPopover/NotesPopover";
 
-export class CustomMarker extends google.maps.OverlayView {
+// Define interfaces for our fallback implementation
+interface MapPanes {
+  overlayLayer?: HTMLElement;
+  overlayMouseTarget?: HTMLElement;
+  floatPane?: HTMLElement;
+  [key: string]: HTMLElement | undefined;
+}
+
+interface Projection {
+  fromLatLngToDivPixel(latLng: any): { x: number; y: number };
+}
+
+// Define the minimum interface needed for the OverlayView base class
+interface OverlayViewBase {
+  setMap(map: any | null): void;
+  getMap(): any | null;
+  getPanes(): MapPanes | null;
+  getProjection(): Projection | null;
+  draw(): void;
+  onAdd(): void;
+  onRemove(): void;
+}
+
+// Create the base marker class
+const BaseMarker: new () => OverlayViewBase =
+  ((typeof google !== "undefined" &&
+    google.maps &&
+    google.maps.OverlayView) as any) ||
+  class implements OverlayViewBase {
+    private map: any | null = null;
+
+    setMap(_map: any | null): void {
+      this.map = _map;
+    }
+
+    getMap(): any | null {
+      return this.map;
+    }
+
+    getPanes(): MapPanes | null {
+      return {};
+    }
+    getProjection(): Projection | null {
+      return {
+        fromLatLngToDivPixel: () => ({ x: 0, y: 0 }),
+      };
+    }
+    draw(): void {}
+    onAdd(): void {}
+    onRemove(): void {}
+  };
+
+export class CustomMarker extends BaseMarker {
   private div: HTMLDivElement | null = null;
-  private position: google.maps.LatLng;
+  private position: any; // Using 'any' to accommodate both real and fallback LatLng
   private color: string;
   private title: string;
   private size: number;
@@ -18,24 +70,40 @@ export class CustomMarker extends google.maps.OverlayView {
   private onClick?: () => void;
   private clickableAreaSize: number;
   private zIndex: number = 0;
-  private paneName: keyof google.maps.MapPanes;
+  private paneName: string; // Changed from keyof google.maps.MapPanes
   private notes: Note[];
   private noteContainers: Map<string, Root> = new Map();
   private notesPopover: HTMLDivElement | null = null;
+  private map: any | null = null;
 
   constructor(
-    position: google.maps.LatLngLiteral,
+    position: any, // Using 'any' instead of google.maps.LatLngLiteral
     color: string,
     title: string,
     size: number = 12,
     clickableAreaSize: number = 20,
-    paneName: keyof google.maps.MapPanes = "overlayMouseTarget",
+    paneName: string = "overlayMouseTarget",
     notes: Note[] = [],
     content?: React.ReactNode,
     onClick?: () => void
   ) {
     super();
-    this.position = new google.maps.LatLng(position);
+
+    // Check if Google Maps API is loaded before using its objects
+    if (typeof google !== "undefined" && google.maps && google.maps.LatLng) {
+      this.position = new google.maps.LatLng(position.lat, position.lng);
+    } else {
+      // Fallback for when the API isn't loaded yet
+      this.position = {
+        lat: () => position.lat,
+        lng: () => position.lng,
+        toJSON: () => ({ lat: position.lat, lng: position.lng }),
+      };
+      console.warn(
+        "Google Maps API not loaded yet. Some features might not work correctly."
+      );
+    }
+
     this.color = color;
     this.title = title;
     this.size = size;
@@ -44,6 +112,17 @@ export class CustomMarker extends google.maps.OverlayView {
     this.clickableAreaSize = clickableAreaSize;
     this.paneName = paneName;
     this.notes = notes;
+  }
+
+  // Override setMap to store the map instance
+  setMap(map: any | null): void {
+    super.setMap(map);
+    this.map = map;
+  }
+
+  // Add getMap method to return the current map instance
+  getMap(): any | null {
+    return this.map;
   }
 
   onAdd() {
@@ -106,6 +185,8 @@ export class CustomMarker extends google.maps.OverlayView {
     if (!this.div) return;
 
     const overlayProjection = this.getProjection();
+    if (!overlayProjection) return;
+
     const position = overlayProjection.fromLatLngToDivPixel(this.position);
 
     if (position) {
