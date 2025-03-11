@@ -1,103 +1,94 @@
 require 'rails_helper'
 
 describe SaveMeasurements do
-  let(:user) { create_user!(username: 'OpenAq') }
+  let!(:user) { create(:user, username: 'AirNow') }
+  let(:air_now_stream) do
+    AirNow::Stream.new(
+      sensor_name: 'PM2.5',
+      latitude: 50.06,
+      longitude: 19.94,
+      time_zone: 'Europe/Warsaw',
+    )
+  end
+  let(:air_now_measurement) do
+    AirNow::Measurement.new(
+      value: 5,
+      sensor_name: 'PM2.5',
+      latitude: 50.06,
+      longitude: 19.94,
+      time_zone: 'Europe/Warsaw',
+      time_local: Time.current,
+      time_with_time_zone: Time.current.in_time_zone('Europe/Warsaw'),
+    )
+  end
+
   subject { described_class.new(user: user) }
 
-  context "when there is no session and stream persisted with the new stream's coordinates and sensor_name" do
-    it 'creates a new session' do
-      streams = {
-        build_air_now_stream(sensor_name: 'PM2.5') => [build_air_now_measurement]
-      }
+  context 'when there is no session and stream persisted with given coordinates and sensor_name' do
+    it 'creates a session, stream and measurement' do
+      streams = { air_now_stream => [air_now_measurement] }
 
-      expect { subject.call(streams: streams) }.to change { Session.count }
-        .from(0)
-        .to(1)
-    end
-
-    it 'creates a new stream' do
-      streams = {
-        build_air_now_stream(sensor_name: 'PM2.5') => [build_air_now_measurement]
-      }
-
-      expect { subject.call(streams: streams) }.to change { Stream.count }
-        .from(0)
-        .to(1)
-    end
-
-    it 'creates a new measurement' do
-      streams = {
-        build_air_now_stream(sensor_name: 'PM2.5') => [build_air_now_measurement]
-      }
-
-      expect { subject.call(streams: streams) }.to change { Measurement.count }
-        .from(0)
-        .to(1)
+      expect { subject.call(streams: streams) }.to change {
+          [Session.count, Stream.count, Measurement.count]
+        }
+        .from([0, 0, 0])
+        .to([1, 1, 1])
     end
   end
 
-  context "when there is a session and stream persisted with the new stream's coordinates and sensor_name" do
-    it 'does not create a new session' do
-      stream = build_air_now_stream(sensor_name: 'PM2.5')
-      persisted_session =
-        create_session!(latitude: stream.latitude, longitude: stream.longitude, type: 'FixedSession', user: user)
-      persisted_stream =
-        create_stream!(
-          min_latitude: stream.latitude,
-          max_latitude: stream.latitude,
-          min_longitude: stream.longitude,
-          max_longitude: stream.longitude,
-          start_latitude: stream.latitude,
-          start_longitude: stream.longitude,
-          sensor_name: stream.sensor_name,
-          session: persisted_session
+  context 'when there is a session and stream persisted with the given coordinates and sensor_name' do
+    it 'creates only a measurement' do
+      threshold_set = create(:threshold_set, :air_now_pm2_5)
+      session =
+        create(:fixed_session, user: user, latitude: 50.06, longitude: 19.94)
+      stream =
+        create(
+          :stream,
+          session: session,
+          threshold_set: threshold_set,
+          min_latitude: 50.06,
+          min_longitude: 19.94,
+          sensor_name: 'Government-PM2.5',
         )
-      measurement = build_air_now_measurement(location: persisted_session.title)
-      streams = { stream => [measurement] }
 
-      expect { subject.call(streams: streams) }.to_not change { Session.count }
+      streams = { air_now_stream => [air_now_measurement] }
+
+      expect { subject.call(streams: streams) }.to change { Session.count }.by(
+        0,
+      ).and change { Stream.count }.by(0)
+
+      measurement = Measurement.last
+      expect(measurement.stream_id).to eq(stream.id)
     end
 
-    it 'does not create a new stream' do
-      stream = build_air_now_stream(sensor_name: 'PM2.5')
-      persisted_session =
-        create_session!(latitude: stream.latitude, longitude: stream.longitude, type: 'FixedSession', user: user)
-      persisted_stream =
-        create_stream!(
-          min_latitude: stream.latitude,
-          max_latitude: stream.latitude,
-          min_longitude: stream.longitude,
-          max_longitude: stream.longitude,
-          start_latitude: stream.latitude,
-          start_longitude: stream.longitude,
-          sensor_name: stream.sensor_name,
-          session: persisted_session
-        )
-      measurement = build_air_now_measurement
-      streams = { stream => [measurement] }
+    context 'when given coordinates are within tolerance (round(3) precision)' do
+      it 'creates only a measurement' do
+        threshold_set = create(:threshold_set, :air_now_pm2_5)
+        session =
+          create(
+            :fixed_session,
+            user: user,
+            latitude: 50.06 + 0.0001,
+            longitude: 19.94 + 0.0001,
+          )
+        stream =
+          create(
+            :stream,
+            session: session,
+            threshold_set: threshold_set,
+            min_latitude: 50.06 + 0.0001,
+            min_longitude: 19.94 + 0.0001,
+            sensor_name: 'Government-PM2.5',
+          )
 
-      expect { subject.call(streams: streams) }.to_not change { Stream.count }
-    end
+        streams = { air_now_stream => [air_now_measurement] }
 
-    it 'does not create a new session when coordinates are within tolerance' do
-      stream = build_air_now_stream(sensor_name: 'PM2.5')
-      persisted_session =
-        create_session!(latitude: stream.latitude, longitude: stream.longitude, type: 'FixedSession', user: user)
-      persisted_stream =
-        create_stream!(
-          min_latitude: stream.latitude,
-          max_latitude: stream.latitude,
-          min_longitude: stream.longitude + 0.0001,
-          max_longitude: stream.longitude + 0.0001,
-          start_latitude: stream.latitude,
-          start_longitude: stream.longitude,
-          sensor_name: stream.sensor_name,
-          session: persisted_session
-        )
-      measurement = build_air_now_measurement
-      streams = { stream => [measurement] }
+        expect { subject.call(streams: streams) }.to change { Session.count }
+          .by(0).and change { Stream.count }.by(0)
 
-      expect { subject.call(streams: streams) }.to_not change { Session.count }
+        measurement = Measurement.last
+        expect(measurement.stream_id).to eq(stream.id)
+      end
     end
   end
 end
