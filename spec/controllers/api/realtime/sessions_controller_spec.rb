@@ -6,11 +6,26 @@ describe Api::Realtime::SessionsController do
     let!(:user) { create_user! }
     let!(:start_time_local) { DateTime.new(2000, 10, 1, 2, 3) }
     let!(:end_time_local) { DateTime.new(2001, 11, 4, 5, 6) }
-    let!(:session) { create_fixed_session!(user: user, title: title, start_time_local: start_time_local, end_time_local: end_time_local) }
-    let!(:stream) { create_stream!(session: session, sensor_name: 'sensor-name') }
-    let!(:other_stream) { create_stream!(session: session, sensor_name: 'yet another-sensor-name') }
-    let!(:measurement) { create_measurement!(stream: stream, time: start_time_local) }
-    let!(:other_measurement) { create_measurement!(stream: other_stream, time: start_time_local) }
+    let!(:session) do
+      create_fixed_session!(
+        user: user,
+        title: title,
+        start_time_local: start_time_local,
+        end_time_local: end_time_local,
+      )
+    end
+    let!(:stream) do
+      create_stream!(session: session, sensor_name: 'sensor-name')
+    end
+    let!(:other_stream) do
+      create_stream!(session: session, sensor_name: 'yet another-sensor-name')
+    end
+    let!(:measurement) do
+      create_measurement!(stream: stream, time: start_time_local)
+    end
+    let!(:other_measurement) do
+      create_measurement!(stream: other_stream, time: start_time_local)
+    end
 
     context 'when last_measurement_sync is before measurements creation' do
       let(:last_measurement_sync) { '1999-05-11T17:09:02' }
@@ -22,10 +37,15 @@ describe Api::Realtime::SessionsController do
       it 'returns session as synchronizable' do
         session.update!(last_measurement_at: other_measurement.time)
 
-        get :sync_measurements, params: { uuid: session.uuid, last_measurement_sync: last_measurement_sync }
+        get :sync_measurements,
+            params: {
+              uuid: session.uuid,
+              last_measurement_sync: last_measurement_sync,
+            }
 
         actual_response = json_response.deep_symbolize_keys
-        actual_response[:streams] = actual_response[:streams].transform_keys(&:to_sym)
+        actual_response[:streams] =
+          actual_response[:streams].transform_keys(&:to_sym)
 
         expected_response = {
           id: session.id,
@@ -46,7 +66,7 @@ describe Api::Realtime::SessionsController do
           last_measurement_at: session.last_measurement_at.iso8601(3),
           version: session.version,
           time_zone: session.time_zone,
-          tag_list: "",
+          tag_list: '',
           type: session.type,
           streams: {
             stream.sensor_name.to_sym => {
@@ -73,6 +93,7 @@ describe Api::Realtime::SessionsController do
               start_longitude: stream.start_longitude.to_f,
               start_latitude: stream.start_latitude.to_f,
               size: stream.size,
+              last_hourly_average_id: nil,
               measurements: [
                 {
                   id: measurement.id,
@@ -84,7 +105,8 @@ describe Api::Realtime::SessionsController do
                   milliseconds: measurement.milliseconds,
                   measured_value: measurement.measured_value,
                   location: measurement.location.to_s,
-                  time_with_time_zone: measurement.time_with_time_zone.iso8601(3),
+                  time_with_time_zone:
+                    measurement.time_with_time_zone.iso8601(3),
                 },
               ],
             },
@@ -99,7 +121,8 @@ describe Api::Realtime::SessionsController do
               threshold_very_low: other_stream.threshold_set.threshold_very_low,
               threshold_low: other_stream.threshold_set.threshold_low,
               threshold_high: other_stream.threshold_set.threshold_high,
-              threshold_very_high: other_stream.threshold_set.threshold_very_high,
+              threshold_very_high:
+                other_stream.threshold_set.threshold_very_high,
               threshold_medium: other_stream.threshold_set.threshold_medium,
               session_id: other_stream.session_id,
               sensor_package_name: other_stream.sensor_package_name,
@@ -112,6 +135,7 @@ describe Api::Realtime::SessionsController do
               start_longitude: other_stream.start_longitude.to_f,
               start_latitude: other_stream.start_latitude.to_f,
               size: other_stream.size,
+              last_hourly_average_id: nil,
               measurements: [
                 {
                   id: other_measurement.id,
@@ -123,7 +147,8 @@ describe Api::Realtime::SessionsController do
                   milliseconds: other_measurement.milliseconds,
                   measured_value: other_measurement.measured_value,
                   location: other_measurement.location.to_s,
-                  time_with_time_zone: other_measurement.time_with_time_zone.iso8601(3),
+                  time_with_time_zone:
+                    other_measurement.time_with_time_zone.iso8601(3),
                 },
               ],
             },
@@ -143,10 +168,15 @@ describe Api::Realtime::SessionsController do
 
       it 'returns session as synchronizable' do
         session.update!(last_measurement_at: other_measurement.time)
-        get :sync_measurements, params: { uuid: session.uuid, last_measurement_sync: last_measurement_sync }
+        get :sync_measurements,
+            params: {
+              uuid: session.uuid,
+              last_measurement_sync: last_measurement_sync,
+            }
 
         actual_response = json_response.deep_symbolize_keys
-        actual_response[:streams] = actual_response[:streams].transform_keys(&:to_sym)
+        actual_response[:streams] =
+          actual_response[:streams].transform_keys(&:to_sym)
 
         expected_response = {
           id: session.id,
@@ -167,7 +197,7 @@ describe Api::Realtime::SessionsController do
           last_measurement_at: session.last_measurement_at.iso8601(3),
           version: session.version,
           time_zone: session.time_zone,
-          tag_list: "",
+          tag_list: '',
           type: session.type,
           streams: {
             stream.sensor_name.to_sym => {
@@ -194,6 +224,7 @@ describe Api::Realtime::SessionsController do
               start_longitude: stream.start_longitude.to_f,
               start_latitude: stream.start_latitude.to_f,
               size: stream.size,
+              last_hourly_average_id: nil,
               measurements: [],
             },
             other_stream.sensor_name.to_sym => {
@@ -207,7 +238,8 @@ describe Api::Realtime::SessionsController do
               threshold_very_low: other_stream.threshold_set.threshold_very_low,
               threshold_low: other_stream.threshold_set.threshold_low,
               threshold_high: other_stream.threshold_set.threshold_high,
-              threshold_very_high: other_stream.threshold_set.threshold_very_high,
+              threshold_very_high:
+                other_stream.threshold_set.threshold_very_high,
               threshold_medium: other_stream.threshold_set.threshold_medium,
               session_id: other_stream.session_id,
               sensor_package_name: other_stream.sensor_package_name,
@@ -220,6 +252,7 @@ describe Api::Realtime::SessionsController do
               start_longitude: other_stream.start_longitude.to_f,
               start_latitude: other_stream.start_latitude.to_f,
               size: other_stream.size,
+              last_hourly_average_id: nil,
               measurements: [],
             },
           },
