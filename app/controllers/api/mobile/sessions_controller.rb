@@ -22,15 +22,6 @@ module Api
       end
     end
 
-    def show
-      if show_form.invalid?
-        render json: show_form.errors, status: :bad_request
-      else
-        hash = Api::ToMobileSessionHash.new(stream: stream).call
-        render json: hash, status: :ok
-      end
-    end
-
     def show2
       if show_form.invalid?
         render json: show_form.errors, status: :bad_request
