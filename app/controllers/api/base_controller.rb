@@ -32,7 +32,7 @@ module Api
     protected
 
     def photo_location(note)
-      if note.photo_exists?
+      if note.photo.present?
         'http://' + request.host + ':' + request.port.to_s +
           note.photo.url(:medium)
       end

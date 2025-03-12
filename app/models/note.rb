@@ -21,14 +21,10 @@ class Note < ApplicationRecord
                     }
   do_not_validate_attachment_file_type :photo
 
-  def photo_exists?
-    File.exist?(File.join(Rails.root, 'public', photo.to_s.split('?').first))
-  end
-
   def as_json(opts = nil)
     result = super(opts)
 
-    if photo_exists?
+    if photo.present?
       result.merge!(
         { photo: photo.url(:medium), photo_thumbnail: photo.url(:thumbnail) },
       )
