@@ -28,7 +28,6 @@ Rails.application.routes.draw do
         query_string: /.+/,
       },
       :as => :short_session
-  get 's/:url_token' => 'measurement_sessions#show_old' # legacy API - supports mobile apps released before 06.2019
 
   namespace :api do
     namespace :v2 do
@@ -96,7 +95,6 @@ Rails.application.routes.draw do
 
     namespace :mobile do
       get 'sessions' => 'sessions#index'
-      get 'sessions/:id' => 'sessions#show'
       get 'sessions2/:id' => 'sessions#show2'
       get 'streams/:id' => 'streams#show'
       get 'autocomplete/tags' => 'autocomplete#tags'

@@ -4,7 +4,6 @@ module Api
     INT_Q_ATTRS = %i[time_from time_to grid_size_x grid_size_y]
 
     def show
-      GoogleAnalyticsWorker::RegisterEvent.async_call('Mobile regions#show')
       data = params.to_unsafe_hash
       data[:stream_ids] ||= []
 

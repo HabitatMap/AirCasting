@@ -9,9 +9,6 @@ module Api
       respond_to :json
 
       def create
-        GoogleAnalyticsWorker::RegisterEvent.async_call(
-          'Realtime measurements#create'
-        )
         if params[:compression]
           decoded = Base64.decode64(params[:data])
           unzipped = AirCasting::GZip.inflate(decoded)
@@ -26,7 +23,7 @@ module Api
           RealtimeMeasurementBuilder.new(
             session_uuid,
             stream_data,
-            current_user
+            current_user,
           ).build!
 
         if result

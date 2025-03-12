@@ -91,9 +91,12 @@ describe Api::Fixed::Active::SessionsController do
                 'start_longitude' => active_stream.start_longitude,
                 'threshold_high' => active_stream.threshold_set.threshold_high,
                 'threshold_low' => active_stream.threshold_set.threshold_low,
-                'threshold_medium' => active_stream.threshold_set.threshold_medium,
-                'threshold_very_high' => active_stream.threshold_set.threshold_very_high,
-                'threshold_very_low' => active_stream.threshold_set.threshold_very_low,
+                'threshold_medium' =>
+                  active_stream.threshold_set.threshold_medium,
+                'threshold_very_high' =>
+                  active_stream.threshold_set.threshold_very_high,
+                'threshold_very_low' =>
+                  active_stream.threshold_set.threshold_very_low,
                 'unit_name' => active_stream.unit_name,
                 'unit_symbol' => active_stream.unit_symbol,
               },
@@ -138,8 +141,7 @@ describe Api::Fixed::Active::SessionsController do
           latitude: active_session.latitude,
           longitude: active_session.longitude,
         )
-      daily_stream_average =
-        create_stream_daily_average!(stream: active_stream)
+      daily_stream_average = create_stream_daily_average!(stream: active_stream)
 
       create_measurement!(stream: dormant_stream)
 
@@ -174,11 +176,13 @@ describe Api::Fixed::Active::SessionsController do
             'start_time_local' => '2000-10-01T02:03:04.000Z',
             'last_measurement_value' => active_stream.average_value,
             'is_indoor' => active_session.is_indoor,
-            'latitude' => active_session.latitude,
-            'longitude' => active_session.longitude,
+            'latitude' => active_session.latitude.to_f,
+            'longitude' => active_session.longitude.to_f,
             'title' => active_session.title,
             'is_active' => active_session.is_active,
             'username' => active_session.user.username,
+            'last_hourly_average_value' =>
+              active_stream.last_hourly_average_value,
             'streams' => {
               active_stream.sensor_name => {
                 'measurement_short_type' =>
@@ -229,8 +233,7 @@ describe Api::Fixed::Active::SessionsController do
           longitude: active_session.longitude,
           sensor_name: 'Government-PM2.5',
         )
-      daily_stream_average =
-        create_stream_daily_average!(stream: active_stream)
+      daily_stream_average = create_stream_daily_average!(stream: active_stream)
 
       create_measurement!(stream: dormant_stream)
 
@@ -265,11 +268,13 @@ describe Api::Fixed::Active::SessionsController do
             'start_time_local' => '2000-10-01T02:03:04.000Z',
             'last_measurement_value' => active_stream.average_value,
             'is_indoor' => active_session.is_indoor,
-            'latitude' => active_session.latitude,
-            'longitude' => active_session.longitude,
+            'latitude' => active_session.latitude.to_f,
+            'longitude' => active_session.longitude.to_f,
             'title' => active_session.title,
             'is_active' => active_session.is_active,
             'username' => active_session.user.username,
+            'last_hourly_average_value' =>
+              active_stream.last_hourly_average_value,
             'streams' => {
               active_stream.sensor_name => {
                 'measurement_short_type' =>
@@ -347,11 +352,13 @@ describe Api::Fixed::Active::SessionsController do
             'start_time_local' => '2000-10-01T02:03:04.000Z',
             'last_measurement_value' => queried_stream.average_value,
             'is_indoor' => session.is_indoor,
-            'latitude' => session.latitude,
-            'longitude' => session.longitude,
+            'latitude' => session.latitude.to_f,
+            'longitude' => session.longitude.to_f,
             'title' => session.title,
             'username' => session.user.username,
             'is_active' => session.is_active,
+            'last_hourly_average_value' =>
+              queried_stream.last_hourly_average_value,
             'streams' => {
               queried_stream.sensor_name => {
                 'measurement_short_type' =>
@@ -403,15 +410,16 @@ describe Api::Fixed::Active::SessionsController do
   end
 
   def create_stream!(session:, latitude:, longitude:, sensor_name: 'AirBeam2-F')
-    threshold_set = ThresholdSet.create!(
-      threshold_very_low: 20,
-      threshold_low: 60,
-      threshold_medium: 70,
-      threshold_high: 80,
-      threshold_very_high: 100,
-      unit_symbol: 'F',
-      sensor_name: sensor_name,
-    )
+    threshold_set =
+      ThresholdSet.create!(
+        threshold_very_low: 20,
+        threshold_low: 60,
+        threshold_medium: 70,
+        threshold_high: 80,
+        threshold_very_high: 100,
+        unit_symbol: 'F',
+        sensor_name: sensor_name,
+      )
 
     Stream.create!(
       session: session,
@@ -439,7 +447,7 @@ describe Api::Fixed::Active::SessionsController do
       value: 123,
       milliseconds: 123,
       stream: stream,
-      location: "SRID=4326;POINT(123 123)",
+      location: 'SRID=4326;POINT(123 123)',
     )
   end
 end

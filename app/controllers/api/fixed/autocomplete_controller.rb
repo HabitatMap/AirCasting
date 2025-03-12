@@ -1,20 +1,13 @@
 module Api
   class Fixed::AutocompleteController < ApplicationController
     def tags
-      GoogleAnalyticsWorker::RegisterEvent.async_call('Autocomplete Fixed#tags')
       q = params.to_unsafe_hash[:q].symbolize_keys
 
       q[:time_from] = Time.strptime(q[:time_from].to_s, '%s')
       q[:time_to] = Time.strptime(q[:time_to].to_s, '%s')
 
-      form =
-        Api::ParamsForm.new(
-          params: q,
-          schema: Api::FixedTagsParams::Schema,
-          struct: Api::FixedTagsParams::Struct
-        )
-
-      result = Api::ToFixedTags.new(form: form).call
+      contract = Api::FixedTagsParamsContract.new.call(q)
+      result = Api::ToFixedTags.new(contract: contract).call
 
       if result.success?
         render json: result.value, status: :ok
