@@ -7,6 +7,9 @@ export const initializeSentry = () => {
     case "aircasting.habitatmap.org":
       sentryEnvironment = "Production";
       break;
+    case "aircasting.lunarlogic.com":
+      sentryEnvironment = "Staging";
+      break;
     case "172.104.20.165":
       sentryEnvironment = "Experimental";
       break;
