@@ -122,17 +122,25 @@ const Graph: React.FC<GraphProps> = memo(
       ? fixedLastSelectedTimeRange
       : mobileLastSelectedTimeRange || MobileTimeRange.All;
 
-    const startTime = useMemo(
-      () =>
-        fixedSessionTypeSelected
-          ? parseDateString(fixedStreamShortInfo.startTime)
-          : parseDateString(mobileStreamShortInfo.startTime),
-      [
-        fixedSessionTypeSelected,
-        fixedStreamShortInfo.startTime,
-        mobileStreamShortInfo.startTime,
-      ]
+    const measurements = useAppSelector((state: RootState) =>
+      selectStreamMeasurements(state, streamId)
     );
+
+    const startTime = useMemo(() => {
+      const firstMeasurementTime =
+        measurements.length > 0 ? measurements[0].time : null;
+      return firstMeasurementTime
+        ? firstMeasurementTime
+        : fixedSessionTypeSelected
+        ? parseDateString(fixedStreamShortInfo.startTime)
+        : parseDateString(mobileStreamShortInfo.startTime);
+    }, [
+      fixedSessionTypeSelected,
+      fixedStreamShortInfo.startTime,
+      mobileStreamShortInfo.startTime,
+      measurements,
+    ]);
+
     const endTime = useMemo(
       () =>
         fixedSessionTypeSelected
@@ -152,10 +160,6 @@ const Graph: React.FC<GraphProps> = memo(
     const totalDuration = useMemo(
       () => endTime - startTime,
       [startTime, endTime]
-    );
-
-    const measurements = useAppSelector((state: RootState) =>
-      selectStreamMeasurements(state, streamId)
     );
 
     const isGovData = sensorName?.includes(SensorPrefix.GOVERNMENT);
