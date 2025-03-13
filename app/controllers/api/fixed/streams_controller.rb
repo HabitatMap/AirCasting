@@ -3,8 +3,11 @@ module Api
     respond_to :json
 
     def show
-      GoogleAnalyticsWorker::RegisterEvent.async_call('Fixed Streams#show')
-      hash = Api::ToFixedSessionHash.new(measurements_limit: measurements_limit, stream: stream).call
+      hash =
+        Api::ToFixedSessionHash.new(
+          measurements_limit: measurements_limit,
+          stream: stream,
+        ).call
       render json: hash, status: :ok
     end
 

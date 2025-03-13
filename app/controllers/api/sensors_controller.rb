@@ -1,13 +1,11 @@
 module Api
   class SensorsController < BaseController
     def index
-      GoogleAnalyticsWorker::RegisterEvent.async_call('Sensors#index')
-
       form =
         Api::ParamsForm.new(
           params: params.to_unsafe_hash,
           schema: Api::Sensors::Schema,
-          struct: Api::Sensors::Struct
+          struct: Api::Sensors::Struct,
         )
       result = Api::ToSensorsArray.new(form: form).call
 

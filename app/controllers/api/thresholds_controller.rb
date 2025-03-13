@@ -3,12 +3,10 @@ module Api
     respond_to :json
 
     def show
-      GoogleAnalyticsWorker::RegisterEvent.async_call('Thresholds#show')
-
       render json:
-        ThresholdSetSerializer.new.call(
-          Stream.thresholds(id, unit_symbol)
-        )
+               ThresholdSetSerializer.new.call(
+                 Stream.thresholds(id, unit_symbol),
+               )
     end
 
     private
