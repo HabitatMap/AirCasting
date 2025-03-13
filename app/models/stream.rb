@@ -7,6 +7,7 @@ class Stream < ApplicationRecord
   has_many :stream_hourly_averages, dependent: :destroy
 
   has_many :measurements, dependent: :delete_all
+  has_many :fixed_measurements, dependent: :delete_all
   has_many :stream_daily_averages, dependent: :delete_all
   has_many :threshold_alerts, dependent: :destroy
 
