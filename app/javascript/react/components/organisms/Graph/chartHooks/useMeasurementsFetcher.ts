@@ -201,6 +201,15 @@ export const useMeasurementsFetcher = (
       return;
     }
 
+    // For mobile sessions, if we've already loaded data, don't fetch again
+    if (
+      !fixedSessionTypeSelected &&
+      trigger !== "initial" &&
+      fetchedTimeRanges.length > 0
+    ) {
+      return;
+    }
+
     // Guard against invalid time ranges
     if (start >= end || end - start < 1000) {
       return;
@@ -230,7 +239,52 @@ export const useMeasurementsFetcher = (
     lastFetchedRangeRef.current = { start, end };
     lastUpdateTimeRef.current = now;
 
-    // Add this specific check for the "allButtonClicked" trigger
+    // Mobile sessions: For initial load, always fetch the entire time range from session start to end
+    if (!fixedSessionTypeSelected && trigger === "initial") {
+      try {
+        isCurrentlyFetchingRef.current = true;
+        updateLoadingState(true);
+
+        const result = await dispatch(
+          fetchMeasurements({
+            streamId: Number(streamId),
+            startTime: Math.floor(sessionStartTime).toString(),
+            endTime: Math.floor(sessionEndTime).toString(),
+          })
+        ).unwrap();
+
+        if (result && result.length > 0) {
+          dispatch(
+            updateFetchedTimeRanges({
+              streamId,
+              start: sessionStartTime,
+              end: sessionEndTime,
+            })
+          );
+
+          dispatch(
+            updateMobileMeasurementExtremes({
+              min: boundedStart,
+              max: boundedEnd,
+            })
+          );
+        }
+
+        return;
+      } catch (error) {
+        console.error(
+          "Error in fetchMeasurementsIfNeeded for mobile initial load",
+          error
+        );
+      } finally {
+        isCurrentlyFetchingRef.current = false;
+        updateLoadingState(false);
+        return;
+      }
+    }
+
+    // For fixed sessions or other cases, continue with the existing logic
+    // Add this special handling for "all" data request - fetch entire session in chunks
     const isAllButtonClick = trigger === "allButtonClicked";
 
     // Special handling for "all" data request

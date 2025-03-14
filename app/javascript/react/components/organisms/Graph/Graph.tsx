@@ -322,29 +322,12 @@ const Graph: React.FC<GraphProps> = memo(
             rangeStart = startTime;
             rangeEnd = endTime;
 
-            // Force a data fetch for the entire session when "All" is clicked
-            if (chartComponentRef.current?.chart) {
-              const chart = chartComponentRef.current.chart;
-
-              // First update UI to show the full range
-              updateRangeDisplay(rangeDisplayRef, rangeStart, rangeEnd, false);
-
-              // Then fetch all data with our special trigger
-              fetchMeasurementsIfNeeded(
-                startTime,
-                endTime,
-                false,
-                false,
-                "allButtonClicked"
-              ).then(() => {
-                // Once complete, ensure we're showing the full range
-                chart.xAxis[0].setExtremes(rangeStart, rangeEnd, true, false, {
-                  trigger: "allButtonClicked",
-                });
-              });
-
-              return;
-            }
+            // For mobile sessions, we've already loaded all data, just update the UI
+            updateRangeDisplay(rangeDisplayRef, rangeStart, rangeEnd, false);
+            chart.xAxis[0].setExtremes(rangeStart, rangeEnd, true, false, {
+              trigger: "allButtonClicked",
+            });
+            return;
           } else {
             switch (timeRange) {
               case FixedTimeRange.Month:
@@ -366,6 +349,8 @@ const Graph: React.FC<GraphProps> = memo(
           }
           rangeStart = !isMobile ? Math.max(rangeStart, startTime) : rangeStart;
           updateRangeDisplay(rangeDisplayRef, rangeStart, rangeEnd, false);
+
+          // Only fetch data for fixed sessions, mobile sessions have all data already
           if (fixedSessionTypeSelected) {
             fetchMeasurementsIfNeeded(
               rangeStart,
@@ -375,6 +360,7 @@ const Graph: React.FC<GraphProps> = memo(
               "rangeSelectorButton"
             );
           }
+
           chart.xAxis[0].setExtremes(rangeStart, rangeEnd, true, false);
         }
       },
@@ -399,6 +385,8 @@ const Graph: React.FC<GraphProps> = memo(
         mobileGraphData.length === 0 &&
         isFirstLoadRef.current
       ) {
+        // For mobile sessions, fetch ALL data on initial load
+        isFirstLoadRef.current = false;
         fetchMeasurementsIfNeeded(startTime, endTime, false, false, "initial");
       }
     }, [
@@ -418,6 +406,8 @@ const Graph: React.FC<GraphProps> = memo(
           const twoDaysAgo = endTime - 2 * MILLISECONDS_IN_A_DAY;
           chart.xAxis[0].setExtremes(twoDaysAgo, endTime, true, false);
         } else {
+          // For mobile sessions, we've already loaded all the data
+          // Set initial view to either all data or last hour, whichever is smaller
           const sessionDuration = endTime - startTime;
           const defaultViewDuration = MILLISECONDS_IN_AN_HOUR;
           const viewStart =
@@ -451,13 +441,16 @@ const Graph: React.FC<GraphProps> = memo(
                 currentExtremes.max,
                 false
               );
-              fetchMeasurementsIfNeeded(
-                currentExtremes.min,
-                currentExtremes.max,
-                false,
-                false,
-                "redraw"
-              );
+              // Only fetch data for fixed sessions, mobile sessions have all data
+              if (fixedSessionTypeSelected) {
+                fetchMeasurementsIfNeeded(
+                  currentExtremes.min,
+                  currentExtremes.max,
+                  false,
+                  false,
+                  "redraw"
+                );
+              }
             }
           }, 150);
         };
@@ -472,6 +465,7 @@ const Graph: React.FC<GraphProps> = memo(
       chartComponentRef,
       fetchMeasurementsIfNeeded,
       rangeDisplayRef,
+      fixedSessionTypeSelected,
     ]);
 
     const options = useMemo<Highcharts.Options>(() => {
@@ -698,9 +692,19 @@ const Graph: React.FC<GraphProps> = memo(
         endTime > startTime
       ) {
         isFirstLoadRef.current = false;
-        setTimeout(() => {
-          fetchMeasurementsIfNeeded(startTime, endTime, true, false, "initial");
-        }, 50);
+        // Only fetch measurements on initial load for fixed sessions
+        // Mobile sessions are handled in a separate useEffect
+        if (fixedSessionTypeSelected) {
+          setTimeout(() => {
+            fetchMeasurementsIfNeeded(
+              startTime,
+              endTime,
+              true,
+              false,
+              "initial"
+            );
+          }, 50);
+        }
       }
     }, [
       streamId,
