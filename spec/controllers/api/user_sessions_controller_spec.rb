@@ -134,6 +134,11 @@ describe Api::UserSessionsController do
                    sensor_name: stream.sensor_name,
                    deleted: true,
                  },
+                 other_key: {
+                   sensor_package_name: 'other',
+                   sensor_name: 'other',
+                   deleted: false,
+                 },
                },
              }.to_json,
            }
