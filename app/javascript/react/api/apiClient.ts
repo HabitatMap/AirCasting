@@ -1,15 +1,8 @@
 import axios, { AxiosResponse } from "axios";
 import { camelizeKeys } from "humps";
 
-const ensureHttps = (url: string): string => {
-  if (url && url.startsWith("http:")) {
-    return url.replace("http:", "https:");
-  }
-  return url;
-};
-
-const API_BASE_URL = ensureHttps(process.env.API_BASE_URL || "");
-const API_STREAM_URL = ensureHttps(process.env.API_STREAM_URL || "");
+const API_BASE_URL = process.env.API_BASE_URL;
+const API_STREAM_URL = process.env.API_STREAM_URL;
 
 const apiClient = axios.create({
   baseURL: API_STREAM_URL,
