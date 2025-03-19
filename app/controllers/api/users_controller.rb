@@ -36,15 +36,10 @@ module Api
     end
 
     def settings
-      data = params.to_unsafe_hash[:data].deep_symbolize_keys
-      cast_data = cast_bool_params(data)
-      form =
-        Api::ParamsForm.new(
-          params: cast_data,
-          schema: Api::UserSettings::Schema,
-          struct: Api::UserSettings::Struct,
-        )
-      result = Api::UpdateUserSettings.new(form: form, user: current_user).call
+      contract =
+        Api::UserSettingsContract.new.call(params.to_unsafe_hash[:data])
+      result =
+        Api::UpdateUserSettings.new(contract: contract, user: current_user).call
 
       if result.success?
         render json: result.value, status: :ok
@@ -55,16 +50,6 @@ module Api
 
     def user_params
       params.require(:user).permit!
-    end
-
-    def cast_bool_params(data)
-      data.transform_values do |v|
-        if %w[true false].include? v
-          ActiveModel::Type::Boolean.new.cast(v)
-        else
-          v
-        end
-      end
     end
 
     private
