@@ -82,10 +82,4 @@ Rails.application.configure do
 
   config.sass.inline_source_maps = true
   config.sass.line_comments = true
-
-  # Enable SSL in development
-  config.force_ssl = true
-  config.webpacker.dev_server.https = true
-  config.webpacker.dev_server.key = Rails.root.join("config/certs/localhost.key")
-  config.webpacker.dev_server.cert = Rails.root.join("config/certs/localhost.crt")
 end
