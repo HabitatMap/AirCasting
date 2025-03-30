@@ -17,6 +17,23 @@ module Api
         end
         data = deep_symbolize ActiveSupport::JSON.decode(unzipped)
 
+        # hot fix for AirBeam sending `time` with seconds out of range (e.g. \"time\":\"2024-09-26T12:25:87\")
+
+        measurement_time = data[:measurements].first[:time]
+        begin
+          measurement_time.to_datetime
+        rescue Date::Error
+          data[:measurements].first[:time] =
+            measurement_time.sub(/T(\d{2}):(\d{2}):(\d{2,})/) do |match|
+              hour = $1
+              minute = $2
+              # Set the seconds to 00 regardless of value
+              "T#{hour}:#{minute}:00"
+            end
+        end
+
+        # end of hot fix
+
         session_uuid = data.delete(:session_uuid)
         stream_data = { data[:stream_name] => data }
         result =
