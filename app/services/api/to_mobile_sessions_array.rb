@@ -1,10 +1,12 @@
 class Api::ToMobileSessionsArray
   def initialize(form:)
     @form = form
+    @cache_sessions_worker = CacheSessionsWorker.new
   end
 
   def call
     return Failure.new(form.errors) if form.invalid?
+    cache_sessions_worker.perform(session_type: 'mobile', data: data)
 
     Success.new(
       sessions: to_mobile_sessions_array(filtered.offset(offset).limit(limit)),
@@ -14,7 +16,7 @@ class Api::ToMobileSessionsArray
 
   private
 
-  attr_reader :form
+  attr_reader :form, :cache_sessions_worker
 
   def filtered
     MobileSession.with_user_and_streams.filter_(data)
