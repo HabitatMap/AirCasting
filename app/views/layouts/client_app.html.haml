@@ -12,6 +12,11 @@
         rel: 'canonical',
         href: request.original_url.gsub(/^http:/, 'https:')
       }/
+    :javascript
+      window.APP_CONFIG = {
+        API_STREAM_URL: '#{ENV['API_STREAM_URL'] || 'http://localhost:3000/api/v3'}',
+        API_BASE_URL: '#{ENV['API_BASE_URL'] || 'http://localhost:3000/api/v2'}'
+      };
     = javascript_include_tag *webpack_asset_urls('react-app', 'js'), defer: true
     = stylesheet_link_tag *webpack_asset_urls('react-app', 'css'), defer: true
     = javascript_include_tag "https://maps.googleapis.com/maps/api/js?key=#{A9n.google_maps_api_key}&libraries=places&v=quarterly"
