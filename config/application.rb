@@ -34,6 +34,9 @@ module AirCasting
     config.action_controller.default_url_options = { host: A9n.host_ }
 
     config.middleware.use Rack::Deflater
+
+    # Add selective SSL middleware
+    config.middleware.use SelectiveSsl
   end
 end
 
