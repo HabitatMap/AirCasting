@@ -7,6 +7,11 @@
       content: 'AirCasting station graph showing health and environmental data (air quality, temperature, humidity, sound levels and more) changing in time.'
     }/
     %title AirCasting
+    - unless request.path.start_with?('/api/') || request.head?
+      %link{
+        rel: 'canonical',
+        href: request.original_url.gsub(/^http:/, 'https:')
+      }/
     = javascript_include_tag *webpack_asset_urls('react-app', 'js'), defer: true
     = stylesheet_link_tag *webpack_asset_urls('react-app', 'css'), defer: true
     = javascript_include_tag "https://maps.googleapis.com/maps/api/js?key=#{A9n.google_maps_api_key}&libraries=places&v=quarterly"
