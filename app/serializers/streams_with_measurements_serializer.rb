@@ -9,7 +9,6 @@ class StreamsWithMeasurementsSerializer
     {
       id: stream.id,
       sensor_name: stream.sensor_name,
-      sensor_package_name: stream.sensor_package_name,
       measurement_type: stream.measurement_type,
       measurements:
         stream.measurements.map do |measurement|
