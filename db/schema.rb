@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2025_02_20_105049) do
+ActiveRecord::Schema.define(version: 2025_04_03_122255) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -152,6 +152,7 @@ ActiveRecord::Schema.define(version: 2025_02_20_105049) do
     t.index ["min_longitude"], name: "index_streams_on_min_longitude"
     t.index ["sensor_name", "measurement_type"], name: "index_streams_on_sensor_name_and_measurement_type"
     t.index ["sensor_name"], name: "index_streams_on_sensor_name"
+    t.index ["sensor_package_name"], name: "index_streams_on_sensor_package_name"
     t.index ["session_id"], name: "index_streams_on_session_id"
     t.index ["threshold_set_id"], name: "index_streams_on_threshold_set_id"
   end
