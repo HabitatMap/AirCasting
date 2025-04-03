@@ -103,6 +103,7 @@ Rails.application.routes.draw do
     namespace :v3 do
       resources :fixed_streams, only: %i[show]
       resources :stream_daily_averages, only: %i[index]
+      resources :streams, only: %i[index]
       get 'timelapse' => 'fixed_stream_clusters#index'
     end
 

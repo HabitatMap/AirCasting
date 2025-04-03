@@ -25,6 +25,12 @@ class StreamsRepository
       .find_by(sessions: { uuid: session_uuid }, sensor_name: sensor_name)
   end
 
+  def all_by_sensor_package(sensor_package_name:)
+    Stream
+      .includes(:measurements)
+      .where(sensor_package_name: sensor_package_name)
+  end
+
   def calculate_bounding_box!(
     stream,
     calculator = Outliers::CalculateBoundingBox.new
