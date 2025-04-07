@@ -480,7 +480,6 @@ const Graph: React.FC<GraphProps> = memo(
           isMobile,
           fixedSessionTypeSelected,
           dispatch,
-          isLoading,
           fetchMeasurementsIfNeeded,
           streamId,
           lastTriggerRef,
