@@ -5,8 +5,8 @@ import { API_ENDPOINTS } from "../api/apiEndpoints";
 import { ApiError, StatusEnum } from "../types/api";
 import { TimelapseData, TimeRanges } from "../types/timelapse";
 import { getErrorMessage } from "../utils/getErrorMessage";
-import { RootState } from "./index";
 import { logError } from "../utils/logController";
+import { RootState } from "./index";
 
 interface TimelapseState {
   data: TimelapseData;
@@ -78,6 +78,9 @@ const timelapseSlice = createSlice({
     setTimelapseTimeRange(state, action: PayloadAction<TimeRanges>) {
       state.timelapseTimeRange = action.payload;
     },
+    resetTimelapseData(state) {
+      state.timelapseTimeRange = TimeRanges.HOURS_24;
+    },
   },
   extraReducers: (builder) => {
     builder.addCase(fetchTimelapseData.pending, (state) => {
@@ -111,6 +114,9 @@ const timelapseSlice = createSlice({
   },
 });
 
-export const { setCurrentTimestamp, setTimelapseTimeRange } =
-  timelapseSlice.actions;
+export const {
+  setCurrentTimestamp,
+  setTimelapseTimeRange,
+  resetTimelapseData,
+} = timelapseSlice.actions;
 export default timelapseSlice.reducer;

@@ -10,7 +10,10 @@ import { useTranslation } from "react-i18next";
 import type { PopupProps } from "reactjs-popup/dist/types";
 import closeTimelapseButton from "../../../../assets/icons/closeTimelapseButton.svg";
 import { useAppDispatch, useAppSelector } from "../../../../store/hooks";
-import { setCurrentTimestamp } from "../../../../store/timelapseSlice";
+import {
+  resetTimelapseData,
+  setCurrentTimestamp,
+} from "../../../../store/timelapseSlice";
 import { DateFormat } from "../../../../types/dateFormat";
 
 import {
@@ -61,8 +64,9 @@ const TimelapseComponent: React.FC<
 
   const closeHandler = useCallback(() => {
     resetTimelapse();
+    dispatch(resetTimelapseData());
     onClose();
-  }, [onClose, resetTimelapse]);
+  }, [onClose, resetTimelapse, dispatch]);
 
   const handleNextStep = useCallback(() => {
     if (currentStep < filteredTimestamps.length - 1) {
