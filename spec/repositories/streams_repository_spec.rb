@@ -37,20 +37,6 @@ describe StreamsRepository do
     end
   end
 
-  describe '#all_by_sensor_package' do
-    it 'returns all streams with the given sensor package name' do
-      stream_1 = create(:stream, sensor_package_name: 'AirBeam3:123')
-      stream_2 = create(:stream, sensor_package_name: 'AirBeam3:123')
-      create(:stream, sensor_package_name: 'AirBeam2:456')
-
-      result =
-        subject.all_by_sensor_package(sensor_package_name: 'AirBeam3:123')
-
-      expect(result).to contain_exactly(stream_1, stream_2)
-      expect(result.first.association(:measurements).loaded?).to eq(true)
-    end
-  end
-
   it '#calculate_bounding_box! recalculates the bounding box and saves to database' do
     stream =
       create_stream!(

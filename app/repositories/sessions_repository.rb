@@ -7,7 +7,13 @@ class SessionsRepository
     Session.where('last_measurement_at > ?', Time.current - 7.days)
   end
 
-  def fixed_active_government_sessions(sensor_name:, west:, east:, north:, south:)
+  def fixed_active_government_sessions(
+    sensor_name:,
+    west:,
+    east:,
+    north:,
+    south:
+  )
     sensor_name = ActiveRecord::Base.connection.quote(sensor_name)
 
     sql = <<-SQL
@@ -41,5 +47,21 @@ class SessionsRepository
     SQL
 
     ActiveRecord::Base.connection.execute(sql)
+  end
+
+  def filter_by_sensor_package_name_and_datetime(
+    sensor_package_name:,
+    start_datetime:,
+    end_datetime:
+  )
+    Session
+      .includes(:streams)
+      .joins(:streams)
+      .where('streams.sensor_package_name = ?', sensor_package_name)
+      .where(
+        'sessions.start_time_local >= ? AND sessions.start_time_local <= ?',
+        start_datetime,
+        end_datetime,
+      )
   end
 end
