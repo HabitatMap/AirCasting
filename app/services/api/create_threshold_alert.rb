@@ -1,13 +1,13 @@
 module Api
   class CreateThresholdAlert
-    def initialize(form:, user:, streams_repository: StreamsRepository.new)
-      @form = form
+    def initialize(contract:, user:, streams_repository: StreamsRepository.new)
+      @contract = contract
       @user = user
       @streams_repository = streams_repository
     end
 
     def call
-      return Failure.new(form.errors) if form.invalid?
+      return Failure.new(contract.errors.to_h) if contract.failure?
 
       alert =
         ThresholdAlert.create(
@@ -29,10 +29,10 @@ module Api
 
     private
 
-    attr_reader :form, :user, :streams_repository
+    attr_reader :contract, :user, :streams_repository
 
     def data
-      form.to_h
+      contract.to_h
     end
 
     def stream

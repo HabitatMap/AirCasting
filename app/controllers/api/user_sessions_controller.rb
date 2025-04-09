@@ -6,30 +6,11 @@ class Api::UserSessionsController < Api::BaseController
 
   respond_to :json
 
-  def sync
-    form =
-      Api::JsonForm.new(
-        json: to_json_data(params),
-        schema: Api::UserSessions::Schema,
-        struct: Api::UserSessions::Struct,
-      )
-    result = Api::ToUserSessionsHash.new(form: form).call(current_user)
-
-    if result.success?
-      render json: result.value, status: :ok
-    else
-      render json: result.errors, status: :bad_request
-    end
-  end
-
   def sync_with_versioning
-    form =
-      Api::JsonForm.new(
-        json: to_json_data(params),
-        schema: Api::UserSessions2::Schema,
-        struct: Api::UserSessions2::Struct,
-      )
-    result = Api::ToUserSessionsHash2.new(form: form, user: current_user).call
+    contract =
+      Api::UserSessions2Contract.new.call({ data: JSON.parse(params[:data]) })
+    result =
+      Api::ToUserSessionsHash2.new(contract: contract, user: current_user).call
 
     if result.success?
       render json: result.value, status: :ok
@@ -39,13 +20,8 @@ class Api::UserSessionsController < Api::BaseController
   end
 
   def update_session
-    form =
-      Api::JsonForm.new(
-        json: params.to_unsafe_hash[:data],
-        schema: Api::UserSession::Schema,
-        struct: Api::UserSession::Struct,
-      )
-    result = Api::UpdateSession.new(form: form).call
+    contract = Api::UserSessionContract.new.call(JSON.parse(params[:data]))
+    result = Api::UpdateSession.new(contract: contract).call
 
     if result.success?
       render json: result.value, status: :ok

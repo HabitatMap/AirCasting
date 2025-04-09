@@ -1,20 +1,20 @@
 class Api::ToSensorsArray
-  def initialize(form:)
-    @form = form
+  def initialize(contract:)
+    @contract = contract
   end
 
   def call
-    return Failure.new(form.errors) if form.invalid?
+    return Failure.new(contract.errors.to_h) if contract.failure?
 
-    Success.new(aggregated + sensors(data.session_type))
+    Success.new(aggregated + sensors(session_type))
   end
 
   private
 
-  attr_reader :form
+  attr_reader :contract
 
-  def data
-    form.to_h
+  def session_type
+    contract.to_h.fetch(:session_type)
   end
 
   def aggregated
@@ -30,10 +30,16 @@ class Api::ToSensorsArray
   end
 
   def sensors(session_type)
-    excluded_sensors = [
-      "AirBeam2-PM1", "AirBeam3-PM1", "AirBeamMini-PM1",
-      "AirBeam2-PM2.5", "AirBeam3-PM2.5", "AirBeamMini-PM2.5",
-      "AirBeam2-PM10", "AirBeam3-PM10", "AirBeamMini-PM10",
+    excluded_sensors = %w[
+      AirBeam2-PM1
+      AirBeam3-PM1
+      AirBeamMini-PM1
+      AirBeam2-PM2.5
+      AirBeam3-PM2.5
+      AirBeamMini-PM2.5
+      AirBeam2-PM10
+      AirBeam3-PM10
+      AirBeamMini-PM10
     ]
 
     Stream
@@ -45,7 +51,7 @@ class Api::ToSensorsArray
         :sensor_name,
         :measurement_type,
         :unit_symbol,
-        'count(*) as session_count'
+        'count(*) as session_count',
       )
       .group(:sensor_name, :measurement_type, :unit_symbol)
       .map { |stream| stream.attributes.symbolize_keys }
