@@ -137,7 +137,27 @@ export const useMapParams = () => {
   const gridSize = parseInt(
     getParam(UrlParamsTypes.gridSize, defaultGridSize.toString())!
   );
-  const limit = parseInt(getParam(UrlParamsTypes.limit, "100")!);
+
+  const sessionType = useMemo(
+    () =>
+      getParam(UrlParamsTypes.sessionType, SessionTypes.FIXED) as SessionType,
+    [searchParams]
+  );
+
+  const isActive = useMemo(() => {
+    const activeParam = getParam(UrlParamsTypes.isActive, TRUE);
+
+    if (sessionType === SessionTypes.MOBILE) {
+      return true;
+    }
+
+    return activeParam === TRUE;
+  }, [searchParams, sessionType]);
+
+  const limit = parseInt(
+    getParam(UrlParamsTypes.limit, !isActive ? "1000" : "100")!
+  );
+
   const updateLimit = useCallback(
     (newLimit: number) => {
       setUrlParams([{ key: UrlParamsTypes.limit, value: newLimit.toString() }]);
@@ -215,11 +235,6 @@ export const useMapParams = () => {
     getParam(UrlParamsTypes.sessionId, null) !== null
       ? parseInt(getParam(UrlParamsTypes.sessionId, "0")!)
       : null;
-  const sessionType = useMemo(
-    () =>
-      getParam(UrlParamsTypes.sessionType, SessionTypes.FIXED) as SessionType,
-    [searchParams]
-  );
   const updateSessionType = useCallback(
     (selectedSessionType: SessionType) => {
       setUrlParams([
@@ -280,16 +295,6 @@ export const useMapParams = () => {
     },
     [currentUserSettings, setUrlParams]
   );
-
-  const isActive = useMemo(() => {
-    const activeParam = getParam(UrlParamsTypes.isActive, TRUE);
-
-    if (sessionType === SessionTypes.MOBILE) {
-      return true;
-    }
-
-    return activeParam === TRUE;
-  }, [searchParams, sessionType]);
 
   const updateIsActive = useCallback(
     (newIsActive: boolean) => {

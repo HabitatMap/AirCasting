@@ -9,6 +9,7 @@ import {
   YAxisOptions,
 } from "highcharts";
 
+import { AppDispatch } from "@/react/store";
 import Highcharts from "highcharts/highstock";
 import { TFunction } from "i18next";
 import {
@@ -75,8 +76,7 @@ const getScrollbarOptions = (isCalendarPage: boolean, isMobile: boolean) => {
 const getXAxisOptions = (
   isMobile: boolean,
   fixedSessionTypeSelected: boolean,
-  dispatch: any,
-  isLoading: boolean,
+  dispatch: AppDispatch,
   fetchMeasurementsIfNeeded: (
     start: number,
     end: number,
@@ -386,13 +386,11 @@ const getYAxisOptions = (
   thresholdsState: Thresholds,
   isMobile: boolean = false
 ): YAxisOptions => {
-  const min = Number(thresholdsState.min);
-  const max = Number(thresholdsState.max);
-  const low = Number(thresholdsState.low);
-  const middle = Number(thresholdsState.middle);
-  const high = Number(thresholdsState.high);
-
-  const tickInterval = (max - min) / 4;
+  const min = Math.floor(Number(thresholdsState.min));
+  const max = Math.ceil(Number(thresholdsState.max));
+  const low = Math.round(Number(thresholdsState.low));
+  const middle = Math.round(Number(thresholdsState.middle));
+  const high = Math.round(Number(thresholdsState.high));
 
   return {
     title: {
@@ -407,7 +405,6 @@ const getYAxisOptions = (
     tickLength: isMobile ? 0 : 25,
     minorGridLineWidth: 0,
     showLastLabel: true,
-    tickInterval: tickInterval,
     tickPosition: "inside",
     offset: isMobile ? 0 : 25,
     labels: {
@@ -422,6 +419,7 @@ const getYAxisOptions = (
     minPadding: 0,
     min: min,
     max: max,
+    tickPositions: [min, low, middle, high, max],
     plotBands: [
       {
         from: min,

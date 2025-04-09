@@ -13,6 +13,7 @@ import {
   selectIsDormantSessionsType,
   setFiltersButtonClosed,
 } from "../../../store/sessionFiltersSlice";
+import { resetTimelapseData } from "../../../store/timelapseSlice";
 import { SessionTypes } from "../../../types/filters";
 import { UserSettings } from "../../../types/userStates";
 import { useMapParams } from "../../../utils/mapParamsHandler";
@@ -63,6 +64,7 @@ const MapButtons: React.FC = () => {
     if (activeButtons.includes(ButtonTypes.TIMELAPSE)) {
       setActiveButtons([]);
       goToUserSettings(UserSettings.MapView);
+      dispatch(resetTimelapseData());
     } else {
       setActiveButtons([ButtonTypes.TIMELAPSE]);
       goToUserSettings(UserSettings.TimelapseView);
@@ -82,6 +84,7 @@ const MapButtons: React.FC = () => {
       }
       if (currentUserSettings === UserSettings.TimelapseView) {
         goToUserSettings(UserSettings.MapView);
+        dispatch(resetTimelapseData());
       }
     }
     setActiveCopyLinkButton(false);
