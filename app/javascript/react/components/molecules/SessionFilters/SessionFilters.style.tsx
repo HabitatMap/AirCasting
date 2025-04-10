@@ -276,9 +276,10 @@ const CrowdMapGridSizeWrapper = styled.div<{ $isVisible: boolean }>`
 
 const SectionButtonsContainer = styled.div`
   display: grid;
-  grid-template-columns: repeat(5, 1fr);
+  grid-template-columns: repeat(6, 1fr);
   justify-content: space-between;
   grid-gap: 0.8rem;
+  align-items: center;
 `;
 
 const SectionButton = styled(Button)<{ $isActive: boolean }>`
@@ -666,6 +667,29 @@ const DormantYearPickerWrapper = styled.div`
   grid-gap: 0.4rem;
 `;
 
+const ChevronButton = styled.button<{
+  $isDisabled: boolean;
+  $rotated?: boolean;
+}>`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border: none;
+  background-color: transparent;
+  cursor: ${(props) => (props.$isDisabled ? "not-allowed" : "pointer")};
+  opacity: ${(props) => (props.$isDisabled ? 0.5 : 1)};
+  transition: background-color 0.4s ease, color 0.3s ease;
+  height: 25px;
+  padding: 0;
+
+  img {
+    width: 1rem;
+    height: 1rem;
+    transition: transform 0.2s ease;
+    transform: ${(props) => (props.$rotated ? "rotate(180deg)" : "none")};
+  }
+`;
+
 export {
   BackButton,
   BasicParameterButton,
@@ -674,6 +698,7 @@ export {
   ButtonSpan,
   ButtonsWrapper,
   ChevronBackButton,
+  ChevronButton,
   ChevronIcon,
   CloseSelectedItemButton,
   CrowdMapGridSizeWrapper,
