@@ -11,12 +11,12 @@ describe("Cluster Calculations", () => {
   describe("calculateClusterAverage", () => {
     it("calculates the average value of markers correctly", () => {
       const average = calculateClusterAverage(mockMarkers);
-      expect(average).toBe(20); // (10 + 20 + 30) / 3 = 20
+      expect(average).toBe(20);
     });
 
     it("handles empty marker array", () => {
       const average = calculateClusterAverage([]);
-      expect(average).toBe(0); // or NaN, depending on your requirements
+      expect(average).toBe(0);
     });
   });
 
