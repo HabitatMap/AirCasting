@@ -6,7 +6,6 @@ import { FixedMarkers } from "./FixedMarkers";
 
 const ZOOM_FOR_SELECTED_SESSION = 15;
 
-// Define the marker type used in FixedMarkers
 type FixedMarker = google.maps.Marker & {
   value: number;
   sessionId: number;
@@ -14,7 +13,6 @@ type FixedMarker = google.maps.Marker & {
   clustered: boolean;
 };
 
-// Define the mock clusterer type
 type MockClusterer = {
   addMarker: jest.Mock;
   removeMarker: jest.Mock;
@@ -32,7 +30,6 @@ type MockClusterer = {
   [key: string]: jest.Mock | any[];
 };
 
-// Create a function to get a new mock clusterer instance
 function createMockClusterer(): MockClusterer {
   const mockClusterer: MockClusterer = {
     addMarker: jest.fn(),
@@ -40,7 +37,6 @@ function createMockClusterer(): MockClusterer {
     clearMarkers: jest.fn(),
     render: jest.fn(),
     addListener: jest.fn((event: string, callback: Function) => {
-      // Store the callback for later use
       (mockClusterer as any)[event] = callback;
       return { remove: jest.fn() };
     }),
@@ -54,7 +50,6 @@ function createMockClusterer(): MockClusterer {
     onRemove: jest.fn(),
     markers: [],
     click: jest.fn((marker) => {
-      // Call the click handler if it exists
       const clickHandler = (mockClusterer as any).click;
       if (clickHandler) {
         clickHandler(marker);
@@ -71,7 +66,6 @@ jest.mock("@vis.gl/react-google-maps", () => ({
     setZoom: jest.fn(),
     getZoom: jest.fn(() => 14),
     addListener: jest.fn((event, callback) => {
-      // Store the callback for later use
       (window as any).mapListeners = (window as any).mapListeners || {};
       (window as any).mapListeners[event] = callback;
       return { remove: jest.fn() };
@@ -107,7 +101,6 @@ jest.mock("../../../../store/fixedStreamSelectors", () => ({
   selectFixedStreamStatus: jest.fn(),
 }));
 
-// Add this mock
 jest.mock("../../../../utils/mapParamsHandler", () => ({
   useMapParams: () => ({
     unitSymbol: "µg/m³",
@@ -117,7 +110,6 @@ jest.mock("../../../../utils/mapParamsHandler", () => ({
   }),
 }));
 
-// Mock CustomMarkerOverlay
 jest.mock("./CustomOverlays/CustomMarkerOverlay", () => {
   const CustomMarkerOverlay = jest
     .fn()
@@ -140,7 +132,6 @@ jest.mock("./CustomOverlays/CustomMarkerOverlay", () => {
   };
 });
 
-// Mock the MarkerClusterer
 jest.mock("@googlemaps/markerclusterer", () => {
   const mockClusterer = createMockClusterer();
   return {
@@ -149,7 +140,6 @@ jest.mock("@googlemaps/markerclusterer", () => {
   };
 });
 
-// Add this mock before describe block
 jest.mock("../../../../utils/mapEventListeners", () => ({
   __esModule: true,
   default: () => ({
@@ -184,7 +174,6 @@ describe("FixedMarkers", () => {
     const { MarkerClusterer } = require("@googlemaps/markerclusterer");
     mockClusterer = new MarkerClusterer();
 
-    // Set up the click handler
     mockClusterer.addListener("click", (marker: any) => {
       if (marker.userData && marker.userData.streamId) {
         mockOnMarkerClick(Number(marker.userData.streamId), marker.sessionId);
@@ -217,7 +206,6 @@ describe("FixedMarkers", () => {
 
     expect(mockClusterer.addMarkers).toHaveBeenCalled();
 
-    // Get the last call to addMarkers
     const lastCall =
       mockClusterer.addMarkers.mock.calls[
         mockClusterer.addMarkers.mock.calls.length - 1
@@ -240,7 +228,7 @@ describe("FixedMarkers", () => {
       },
       {
         id: 2,
-        point: { lat: 40.7129, lng: -74.007, streamId: "2" }, // Very close to first marker
+        point: { lat: 40.7129, lng: -74.007, streamId: "2" },
         averageValue: 75,
         lastMeasurementValue: 80,
         time: 1714857600,
@@ -271,7 +259,6 @@ describe("FixedMarkers", () => {
       />
     );
 
-    // Update with new sessions
     const newSessions = [
       ...mockSessions,
       {
@@ -300,7 +287,6 @@ describe("FixedMarkers", () => {
 
   describe("threshold-based color changes", () => {
     it("updates marker colors when thresholds change", async () => {
-      // Initial render with default thresholds
       const { rerender } = testRenderer(
         <FixedMarkers
           sessions={mockSessions}
@@ -310,7 +296,6 @@ describe("FixedMarkers", () => {
         />
       );
 
-      // Mock the useAppSelector to return different thresholds
       jest
         .spyOn(require("../../../../store/hooks"), "useAppSelector")
         .mockImplementation((selector) => {
@@ -338,7 +323,6 @@ describe("FixedMarkers", () => {
         );
       });
 
-      // Verify that updateMarkerOverlays was called with new thresholds
       expect(mockClusterer.addMarkers).toHaveBeenCalled();
     });
 
@@ -440,7 +424,6 @@ describe("FixedMarkers", () => {
 
   describe("marker pulsation", () => {
     it("pulsates marker when hovering over session list tile", async () => {
-      // Initial render without pulsation
       const { rerender } = testRenderer(
         <FixedMarkers
           sessions={mockSessions}
@@ -450,31 +433,28 @@ describe("FixedMarkers", () => {
         />
       );
 
-      // Rerender with pulsatingSessionId set to first session
       await act(async () => {
         rerender(
           <FixedMarkers
             sessions={mockSessions}
             onMarkerClick={mockOnMarkerClick}
             selectedStreamId={null}
-            pulsatingSessionId={1} // First session's ID
+            pulsatingSessionId={1}
           />
         );
       });
 
-      // Rerender with pulsatingSessionId set to second session
       await act(async () => {
         rerender(
           <FixedMarkers
             sessions={mockSessions}
             onMarkerClick={mockOnMarkerClick}
             selectedStreamId={null}
-            pulsatingSessionId={2} // Second session's ID
+            pulsatingSessionId={2}
           />
         );
       });
 
-      // Rerender with pulsatingSessionId set back to null
       await act(async () => {
         rerender(
           <FixedMarkers
@@ -529,7 +509,6 @@ describe("FixedMarkers", () => {
       mockClusterer = new MarkerClusterer();
       mockOnMarkerClick = jest.fn();
 
-      // Set up the mock map
       mockMap = {
         panTo: jest.fn(),
         setZoom: jest.fn(),
@@ -546,14 +525,12 @@ describe("FixedMarkers", () => {
         })),
       };
 
-      // Mock the useMap hook to return our mock map
       jest
         .spyOn(require("@vis.gl/react-google-maps"), "useMap")
         .mockReturnValue(mockMap);
     });
 
     it("opens session details modal when clicking a marker", async () => {
-      // Set up the click handler
       mockClusterer.addListener("click", (marker: any) => {
         if (marker.userData && marker.userData.streamId) {
           mockOnMarkerClick(Number(marker.userData.streamId), marker.sessionId);
@@ -571,7 +548,6 @@ describe("FixedMarkers", () => {
         );
       });
 
-      // Create a mock marker
       const mockMarker = {
         position: mockSessions[0].point,
         userData: { streamId: mockSessions[0].point.streamId },
@@ -579,13 +555,11 @@ describe("FixedMarkers", () => {
         getPosition: jest.fn(() => mockSessions[0].point),
       };
 
-      // Simulate marker click
       const clickHandler = (mockClusterer as any).click;
       if (clickHandler) {
         clickHandler(mockMarker);
       }
 
-      // Verify that onMarkerClick was called with the correct streamId and sessionId
       expect(mockOnMarkerClick).toHaveBeenCalledWith(
         Number(mockSessions[0].point.streamId),
         mockSessions[0].id
@@ -624,7 +598,6 @@ describe("FixedMarkers", () => {
         clickHandler(mockMarker);
       }
 
-      // Verify that map was centered on the marker's position
       expect(mockMap.panTo).toHaveBeenCalledWith(mockSessions[0].point);
       expect(mockMap.setZoom).toHaveBeenCalledWith(ZOOM_FOR_SELECTED_SESSION);
     });
