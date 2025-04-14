@@ -113,5 +113,7 @@ Rails.application.routes.draw do
     get 'autocomplete/usernames' => 'autocomplete#usernames'
   end
 
-  get '*path', to: 'client_app#index', via: :all
+  get '*path',
+      to: 'client_app#index',
+      constraints: ->(req) { req.path.exclude?('/rails/active_storage') }
 end

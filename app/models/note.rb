@@ -21,12 +21,31 @@ class Note < ApplicationRecord
                     }
   do_not_validate_attachment_file_type :photo
 
+  has_one_attached :pic
+
   def as_json(opts = nil)
     result = super(opts)
 
     if photo.present?
       result.merge!(
         { photo: photo.url(:medium), photo_thumbnail: photo.url(:thumbnail) },
+      )
+    end
+
+    if pic.attached?
+      result.merge!(
+        {
+          photo:
+            Rails.application.routes.url_helpers.rails_blob_url(
+              pic,
+              only_path: true,
+            ),
+          photo_thumbnail:
+            Rails.application.routes.url_helpers.rails_blob_url(
+              pic,
+              only_path: true,
+            ),
+        },
       )
     end
 
