@@ -21,7 +21,7 @@ Every response is returned in JSON format.
 - [Averages](#averages)
 - [Region](#region)
 - [Last Session](#last-session)
-- [Streams with measurements with given sensor package name](#streams-with-measurements-with-given-sensor-package-name)
+- [Sessions for given time range and sensor package name](#sessions-for-given-time-range-and-sensor-package-name)
 - [Parameters description](#parameters-description)
 - [FAQ](#faq)
     - [How to encode URLs](#how-to-encode-urls)
@@ -684,63 +684,81 @@ GET `/api/v2/data/sessions/last`
   { "id": 10105 }
   ```
 
-# Streams with measurements with given sensor package name
+# Sessions for given time range and sensor package name
 
 **Endpoint**
 
-GET `/api/v3/streams`
+GET `/api/v3/sessions`
+
+**Parameters**
+
+| name                 | type                           | required | additional info                    |
+| :------------------- | :----------------------------- | :------- | :-------------------------------   |
+| sensor_package_name  | string                         | yes      |                                    |
+| start_datetime       | datetime (YYYY-MM-DDTHH:mm:ss) | yes      | used to filter sessions start time |
+| end_datetime         | datetime (YYYY-MM-DDTHH:mm:ss) | yes      | used to filter sessions start time |
 
 **Example**
 
 - request
 
   ```
-  curl http://aircasting.habitatmap.org/api/v3/streams?sensor_package_name=AirBeam3:94e686f5a350
+  curl http://aircasting.habitatmap.org/api/v3/sessions?sensor_package_name=sensor_package_name=AirBeam:001896108717&start_datetime=2025-04-08T12:00:00&end_datetime=2025-04-10T12:00:00
   ```
 
 - response
 
   ```json
   {
-    "streams": [
-      {
-        "id": 2576017,
-        "sensor_name": "AirBeam3-RH",
-        "measurement_type": "Humidity",
-        "measurements": [
-          {
-            "value": 42.0,
-            "time": "2024-03-29 17:14:11",
-            "latitude": 39.341948018,
-            "longitude": -76.634075297
-          },
-          {
-            "value": 39.0,
-            "time": "2024-03-29 17:14:12",
-            "latitude": 39.341948018,
-            "longitude": -76.634075297
-          }
-        ]
-      },
-      {
-        "id": 2576018,
-        "sensor_name": "AirBeam3-PM2.5",
-        "measurement_type": "Particulate Matter",
-        "measurements": [
-          {
-            "value": 0.0,
-            "time": "2024-03-29 17:14:11",
-            "latitude": 39.341948018,
-            "longitude": -76.634075297
-          },
-          {
-            "value": 0.0,
-            "time": "2024-03-29 17:14:12",
-            "latitude": 39.341948018,
-            "longitude": -76.634075297
-          }
-        ]
-      }
+    "sessions": [
+        {
+            "id": 1918068,
+            "title": "longfellow5",
+            "start_datetime": "2025-04-08T16:51:39",
+            "end_datetime": "2025-04-08T17:58:45",
+            "type": "MobileSession",
+            "streams": [
+                {
+                    "id": 2760409,
+                    "sensor_name": "AirBeam-F",
+                    "measurement_type": "Temperature"
+                },
+                {
+                    "id": 2760407,
+                    "sensor_name": "AirBeam-RH",
+                    "measurement_type": "Humidity"
+                },
+                {
+                    "id": 2760408,
+                    "sensor_name": "AirBeam-PM",
+                    "measurement_type": "Particulate Matter"
+                }
+            ]
+        },
+        {
+            "id": 1918198,
+            "title": "longfellow6",
+            "start_datetime": "2025-04-09T17:21:18",
+            "end_datetime": "2025-04-09T18:28:27",
+            "type": "MobileSession",
+            "streams": [
+                {
+                    "id": 2760948,
+                    "sensor_name": "AirBeam-RH",
+                    "measurement_type": "Humidity"
+                },
+                {
+                    "id": 2760949,
+                    "sensor_name": "AirBeam-PM",
+                    "measurement_type": "Particulate Matter"
+                },
+                {
+                    "id": 2760950,
+                    "sensor_name": "AirBeam-F",
+                    "measurement_type": "Temperature"
+                }
+            ]
+        }
     ]
   }
   ```
