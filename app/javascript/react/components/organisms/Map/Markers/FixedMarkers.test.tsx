@@ -511,7 +511,7 @@ describe("FixedMarkers", () => {
             sessions={closeMarkers}
             onMarkerClick={mockOnMarkerClick}
             selectedStreamId={null}
-            pulsatingSessionId={1} // First session's ID
+            pulsatingSessionId={1}
           />
         );
       });
@@ -593,11 +593,9 @@ describe("FixedMarkers", () => {
     });
 
     it("centers map on marker when clicked", async () => {
-      // Set up the click handler
       mockClusterer.addListener("click", (marker: any) => {
         if (marker.userData && marker.userData.streamId) {
           mockOnMarkerClick(Number(marker.userData.streamId), marker.sessionId);
-          // Center the map on the marker
           mockMap.panTo(marker.position);
           mockMap.setZoom(ZOOM_FOR_SELECTED_SESSION);
         }
@@ -614,7 +612,6 @@ describe("FixedMarkers", () => {
         );
       });
 
-      // Create a mock marker
       const mockMarker = {
         position: mockSessions[0].point,
         userData: { streamId: mockSessions[0].point.streamId },
@@ -622,7 +619,6 @@ describe("FixedMarkers", () => {
         getPosition: jest.fn(() => mockSessions[0].point),
       };
 
-      // Simulate marker click
       const clickHandler = (mockClusterer as any).click;
       if (clickHandler) {
         clickHandler(mockMarker);
@@ -633,6 +629,4 @@ describe("FixedMarkers", () => {
       expect(mockMap.setZoom).toHaveBeenCalledWith(ZOOM_FOR_SELECTED_SESSION);
     });
   });
-
-  // Add more tests here for other functionalities
 });
