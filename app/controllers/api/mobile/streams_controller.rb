@@ -3,7 +3,6 @@ module Api
     respond_to :json
 
     def show
-      GoogleAnalyticsWorker::RegisterEvent.async_call('Mobile streams#show')
       hash = Api::ToMobileSessionHash.new(stream: stream).call
       render json: hash, status: :ok
     end

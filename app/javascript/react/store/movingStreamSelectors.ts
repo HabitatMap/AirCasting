@@ -178,4 +178,94 @@ const selectMovingCalendarMinMax = createSelector(
   }
 );
 
-export { selectMovingCalendarMinMax, selectThreeMonthsDailyAverage };
+const selectEmptyCalendarData = createSelector(
+  [_selectMovingCalendarData],
+  (calendarData): CalendarMonthlyData[] => {
+    const emptyResult: CalendarMonthlyData[] = [];
+    if (!calendarData?.length) {
+      return emptyResult;
+    }
+
+    // Use current date for empty calendar
+    const now = moment();
+    const endDate = now.format(DateFormat.us);
+    const startDate = now.clone().subtract(3, "months").format(DateFormat.us);
+
+    const visibleData = getVisibleMonthsData(calendarData, startDate, endDate);
+
+    const latestMonth = now.clone().startOf("month");
+    const secondMonth = latestMonth.clone().subtract(1, "month");
+    const thirdMonth = latestMonth.clone().subtract(2, "month");
+
+    const threeMonths = [thirdMonth, secondMonth, latestMonth];
+
+    try {
+      return threeMonths.map((month) =>
+        getMonthWeeksOfDailyAveragesFor(month, visibleData)
+      );
+    } catch (error) {
+      console.error("Error generating calendar data:", error);
+      return emptyResult;
+    }
+  }
+);
+
+const selectCalendarData = createSelector(
+  [
+    _selectMovingCalendarData,
+    (_state: RootState, startDate?: string, endDate?: string) =>
+      startDate && endDate ? `${startDate}-${endDate}` : "",
+  ],
+  (calendarData, dateKey): CalendarMonthlyData[] => {
+    const emptyResult: CalendarMonthlyData[] = [];
+    if (!calendarData?.length || !dateKey) {
+      return emptyResult;
+    }
+
+    const [startDate, endDate] = dateKey.split("-");
+    if (!startDate || !endDate) {
+      return emptyResult;
+    }
+
+    const endMoment = moment(endDate, DateFormat.us);
+    if (!endMoment.isValid()) {
+      return emptyResult;
+    }
+
+    const visibleData = getVisibleMonthsData(calendarData, startDate, endDate);
+
+    const latestMomentWithData = endMoment.clone().endOf("month");
+    const secondLatestMonth = latestMomentWithData.clone().subtract(1, "month");
+    const thirdLatestMonth = latestMomentWithData.clone().subtract(2, "month");
+
+    if (
+      !latestMomentWithData.isValid() ||
+      !secondLatestMonth.isValid() ||
+      !thirdLatestMonth.isValid()
+    ) {
+      return emptyResult;
+    }
+
+    const threeMonths = [
+      thirdLatestMonth,
+      secondLatestMonth,
+      latestMomentWithData,
+    ];
+
+    try {
+      return threeMonths.map((month) =>
+        getMonthWeeksOfDailyAveragesFor(month, visibleData)
+      );
+    } catch (error) {
+      console.error("Error generating calendar data:", error);
+      return emptyResult;
+    }
+  }
+);
+
+export {
+  selectCalendarData,
+  selectEmptyCalendarData,
+  selectMovingCalendarMinMax,
+  selectThreeMonthsDailyAverage,
+};

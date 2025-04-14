@@ -8,12 +8,10 @@ module Api
     respond_to :json
 
     def show
-      GoogleAnalyticsWorker::RegisterEvent.async_call('User#show')
       respond_with current_user
     end
 
     def create
-      GoogleAnalyticsWorker::RegisterEvent.async_call('User#create')
       user = User.new(user_params.to_unsafe_hash)
 
       if user.save
@@ -24,7 +22,6 @@ module Api
     end
 
     def destroy
-      GoogleAnalyticsWorker::RegisterEvent.async_call('User#destroy')
       current_user.destroy
       head :no_content
     end
@@ -39,14 +36,13 @@ module Api
     end
 
     def settings
-      GoogleAnalyticsWorker::RegisterEvent.async_call('User#settings')
       data = params.to_unsafe_hash[:data].deep_symbolize_keys
       cast_data = cast_bool_params(data)
       form =
         Api::ParamsForm.new(
           params: cast_data,
           schema: Api::UserSettings::Schema,
-          struct: Api::UserSettings::Struct
+          struct: Api::UserSettings::Struct,
         )
       result = Api::UpdateUserSettings.new(form: form, user: current_user).call
 
@@ -63,7 +59,7 @@ module Api
 
     def cast_bool_params(data)
       data.transform_values do |v|
-        if ["true", "false"].include? v
+        if %w[true false].include? v
           ActiveModel::Type::Boolean.new.cast(v)
         else
           v

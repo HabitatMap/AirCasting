@@ -37,7 +37,14 @@ export const formatTime = (minTime: string | null, maxTime: string | null) => {
   const formatDate = (time: string | null) => {
     if (!time) return { date: null, time: null };
 
-    const dateMoment = moment(time);
+    // Check if time is a valid date string before creating moment object
+    const dateMoment = moment(time, moment.ISO_8601);
+
+    // Check if the created moment is valid
+    if (!dateMoment.isValid()) {
+      return { date: null, time: null };
+    }
+
     const dateString = dateMoment.format(DateFormat.us);
     const timeString = dateMoment.format(DateFormat.time_with_seconds);
 
@@ -55,9 +62,25 @@ export const formatTimeExtremes = (
   max: number,
   useFullDayFormat: boolean = false
 ) => {
+  // Make sure min and max are valid numbers before creating moment objects
+  if (!isValidValue(min) || !isValidValue(max)) {
+    return {
+      formattedMinTime: { date: null, time: null },
+      formattedMaxTime: { date: null, time: null },
+    };
+  }
+
   // Force UTC handling
   const minDate = moment.utc(min);
   const maxDate = moment.utc(max);
+
+  // Verify both dates are valid
+  if (!minDate.isValid() || !maxDate.isValid()) {
+    return {
+      formattedMinTime: { date: null, time: null },
+      formattedMaxTime: { date: null, time: null },
+    };
+  }
 
   // Check if both timestamps fall on the same day
   const sameDay = minDate.isSame(maxDate, "day");

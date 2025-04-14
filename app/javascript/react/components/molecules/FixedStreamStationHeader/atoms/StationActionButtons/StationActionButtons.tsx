@@ -4,10 +4,10 @@ import { useTranslation } from "react-i18next";
 import copyLinkIcon from "../../../../../assets/icons/copyLinkIcon.svg";
 import downloadImage from "../../../../../assets/icons/download.svg";
 
-import { ActionButton } from "../../../../ActionButton/ActionButton.style";
-import { Button } from "../../../../Button/Button.style";
-import { CopyLinkComponent } from "../../../../Popups/CopyLinkComponent";
-import { ExportDataComponent } from "../../../../Popups/ExportDataComponent";
+import { ActionButton } from "../../../../atoms/ActionButton/ActionButton.style";
+import { Button } from "../../../../atoms/Button/Button.style";
+import { CopyLinkComponent } from "../../../../molecules/Popups/CopyLinkComponent";
+import { ExportDataComponent } from "../../../../molecules/Popups/ExportDataComponent";
 import * as S from "./StationActionButtons.style";
 
 interface Props {

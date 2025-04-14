@@ -13,8 +13,6 @@ module Api
     ]
 
     def index
-      GoogleAnalyticsWorker::RegisterEvent.async_call('Averages#index')
-
       data = prepare_data(params)
 
       data[:time_from] = data[:time_from] || 1.year.ago.to_i
@@ -24,8 +22,6 @@ module Api
     end
 
     def index2
-      GoogleAnalyticsWorker::RegisterEvent.async_call('Averages#index2')
-
       data = prepare_data(params)
 
       data[:time_from] = data[:time_from] || Time.new(2_010).to_i

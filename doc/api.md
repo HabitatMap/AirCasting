@@ -17,13 +17,14 @@ Every response is returned in JSON format.
   - [Fixed Dormant](#fixed-dormant)
 - [Mobile Session with Stream and Measurements](#mobile-session-with-stream-and-measurements)
 - [Measurements](#measurements)
-- [Streams](#streams)
+- [All session streams](#all-session-streams)
 - [Averages](#averages)
 - [Region](#region)
 - [Last Session](#last-session)
+- [Streams with measurements with given sensor package name](#streams-with-measurements-with-given-sensor-package-name)
 - [Parameters description](#parameters-description)
 - [FAQ](#faq)
-  - [How to encode URLs](#how-to-encode-urls)
+    - [How to encode URLs](#how-to-encode-urls)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
@@ -681,6 +682,67 @@ GET `/api/v2/data/sessions/last`
 
   ```json
   { "id": 10105 }
+  ```
+
+# Streams with measurements with given sensor package name
+
+**Endpoint**
+
+GET `/api/v3/streams`
+
+**Example**
+
+- request
+
+  ```
+  curl http://aircasting.habitatmap.org/api/v3/streams?sensor_package_name=AirBeam3:94e686f5a350
+  ```
+
+- response
+
+  ```json
+  {
+    "streams": [
+      {
+        "id": 2576017,
+        "sensor_name": "AirBeam3-RH",
+        "measurement_type": "Humidity",
+        "measurements": [
+          {
+            "value": 42.0,
+            "time": "2024-03-29 17:14:11",
+            "latitude": 39.341948018,
+            "longitude": -76.634075297
+          },
+          {
+            "value": 39.0,
+            "time": "2024-03-29 17:14:12",
+            "latitude": 39.341948018,
+            "longitude": -76.634075297
+          }
+        ]
+      },
+      {
+        "id": 2576018,
+        "sensor_name": "AirBeam3-PM2.5",
+        "measurement_type": "Particulate Matter",
+        "measurements": [
+          {
+            "value": 0.0,
+            "time": "2024-03-29 17:14:11",
+            "latitude": 39.341948018,
+            "longitude": -76.634075297
+          },
+          {
+            "value": 0.0,
+            "time": "2024-03-29 17:14:12",
+            "latitude": 39.341948018,
+            "longitude": -76.634075297
+          }
+        ]
+      }
+    ]
+  }
   ```
 
 # Parameters description

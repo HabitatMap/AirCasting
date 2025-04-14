@@ -1,7 +1,7 @@
 import styled from "styled-components";
 import * as colors from "../../../../assets/styles/colors";
 import { media } from "../../../../utils/media";
-import { H1, H3 } from "../../../Typography";
+import { H1 } from "../../../atoms/Typography";
 
 const Container = styled.div<{ $isCalendarPage?: boolean; $rotated?: boolean }>`
   display: flex;
@@ -34,7 +34,7 @@ const Heading = styled(H1)`
   }
 `;
 
-const DateField = styled(H3)`
+const DateField = styled.div`
   display: none;
 
   @media ${media.desktop} {
@@ -42,6 +42,8 @@ const DateField = styled(H3)`
     align-items: center;
     font-size: 16px;
     color: ${colors.gray300};
+    font-weight: 500;
+    line-height: 1.2;
 
     span {
       margin: 0 0.6rem;

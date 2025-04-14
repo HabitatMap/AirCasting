@@ -2,14 +2,14 @@ import { debounce } from "lodash";
 import { useCallback, useEffect, useMemo } from "react";
 import { useSearchParams } from "react-router-dom";
 
-import { MAP_CONFIGS } from "../components/Map/mapUtils/mapConfigs";
-import { defaultGridSize } from "../components/SessionFilters/CrowdMapGridSize";
-import { getSensorUnitSymbol } from "../components/SessionFilters/SensorFilter";
+import { defaultGridSize } from "../components/molecules/SessionFilters/CrowdMapGridSize";
+import { getSensorUnitSymbol } from "../components/molecules/SessionFilters/SensorFilter";
 import {
   beginningOfTheYear,
   endOfTheYear,
   getLastFiveYears,
-} from "../components/SessionFilters/YearPickerButtons";
+} from "../components/molecules/SessionFilters/YearPickerButtons";
+import { MAP_CONFIGS } from "../components/organisms/Map/mapUtils/mapConfigs";
 import { FALSE, TRUE } from "../const/booleans";
 import {
   DEFAULT_MAP_BOUNDS,
@@ -137,7 +137,27 @@ export const useMapParams = () => {
   const gridSize = parseInt(
     getParam(UrlParamsTypes.gridSize, defaultGridSize.toString())!
   );
-  const limit = parseInt(getParam(UrlParamsTypes.limit, "100")!);
+
+  const sessionType = useMemo(
+    () =>
+      getParam(UrlParamsTypes.sessionType, SessionTypes.FIXED) as SessionType,
+    [searchParams]
+  );
+
+  const isActive = useMemo(() => {
+    const activeParam = getParam(UrlParamsTypes.isActive, TRUE);
+
+    if (sessionType === SessionTypes.MOBILE) {
+      return true;
+    }
+
+    return activeParam === TRUE;
+  }, [searchParams, sessionType]);
+
+  const limit = parseInt(
+    getParam(UrlParamsTypes.limit, !isActive ? "1000" : "100")!
+  );
+
   const updateLimit = useCallback(
     (newLimit: number) => {
       setUrlParams([{ key: UrlParamsTypes.limit, value: newLimit.toString() }]);
@@ -215,11 +235,6 @@ export const useMapParams = () => {
     getParam(UrlParamsTypes.sessionId, null) !== null
       ? parseInt(getParam(UrlParamsTypes.sessionId, "0")!)
       : null;
-  const sessionType = useMemo(
-    () =>
-      getParam(UrlParamsTypes.sessionType, SessionTypes.FIXED) as SessionType,
-    [searchParams]
-  );
   const updateSessionType = useCallback(
     (selectedSessionType: SessionType) => {
       setUrlParams([
@@ -280,16 +295,6 @@ export const useMapParams = () => {
     },
     [currentUserSettings, setUrlParams]
   );
-
-  const isActive = useMemo(() => {
-    const activeParam = getParam(UrlParamsTypes.isActive, TRUE);
-
-    if (sessionType === SessionTypes.MOBILE) {
-      return true;
-    }
-
-    return activeParam === TRUE;
-  }, [searchParams, sessionType]);
 
   const updateIsActive = useCallback(
     (newIsActive: boolean) => {

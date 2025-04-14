@@ -10,7 +10,7 @@ import {
 } from "react-router-dom";
 
 import GlobalStyles from "./assets/styles/global-styles";
-import { Navbar } from "./components/Navbar";
+import { Navbar } from "./components/molecules/Navbar/Navbar";
 import { CalendarPage } from "./pages/CalendarPage/CalendarPage";
 import { MapPage } from "./pages/MapPage";
 import { NotFoundPage } from "./pages/NotFoundPage";
