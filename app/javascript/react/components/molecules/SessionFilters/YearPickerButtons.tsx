@@ -14,7 +14,7 @@ export const endOfTheYear = (year: number): number =>
   new Date(`${year}-12-31T23:59:59Z`).getTime() / 1000;
 
 // The earliest year available in the app
-export const EARLIEST_YEAR = 2012;
+export const EARLIEST_YEAR = 2011;
 
 // Updated function to replace getLastFiveYears
 export const getAvailableYears = (count: number = 5): number[] => {
