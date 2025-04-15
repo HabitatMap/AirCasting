@@ -6,10 +6,7 @@ import {
   updateFixedMeasurementExtremes,
 } from "../../../../store/fixedStreamSlice";
 import { useAppDispatch, useAppSelector } from "../../../../store/hooks";
-import {
-  resetMobileMeasurementExtremes,
-  updateMobileMeasurementExtremes,
-} from "../../../../store/mobileStreamSlice";
+import { updateMobileMeasurementExtremes } from "../../../../store/mobileStreamSlice";
 
 interface UseChartUpdaterProps {
   chartComponentRef: React.RefObject<{
@@ -127,8 +124,6 @@ export const useChartUpdater = ({
       dispatch(resetTimeRange());
       if (fixedSessionTypeSelected && streamId) {
         dispatch(resetFixedMeasurementExtremes());
-      } else {
-        dispatch(resetMobileMeasurementExtremes());
       }
     };
   }, [fixedSessionTypeSelected, streamId, dispatch]);

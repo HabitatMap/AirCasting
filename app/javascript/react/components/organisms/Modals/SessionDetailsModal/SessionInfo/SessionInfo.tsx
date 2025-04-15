@@ -50,12 +50,14 @@ const SessionInfo: React.FC<SessionInfoProps> = ({
 
   const toggleVisibility = () => setIsVisible(!isVisible);
 
+  console.log("streamShortInfo", streamShortInfo);
+
   const commonProps = {
     streamShortInfo,
     thresholds,
     extremes,
   };
-
+  console.log("extremes", extremes);
   if (isMobile) {
     return (
       <S.InfoContainer>
