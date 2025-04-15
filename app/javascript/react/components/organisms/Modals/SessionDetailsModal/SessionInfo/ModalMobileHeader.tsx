@@ -40,10 +40,6 @@ const ModalMobileHeader: React.FC<ModalMobileHeaderProps> = ({
     averageValue
   );
 
-  console.log("noData", noData);
-  console.log("minMeasurementValue", minMeasurementValue);
-  console.log("maxMeasurementValue", maxMeasurementValue);
-  console.log("averageValue", averageValue);
   return (
     <S.ModalMobileHeader>
       <S.HeaderWrapper onClick={toggleVisibility}>

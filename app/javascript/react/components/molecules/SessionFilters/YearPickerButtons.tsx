@@ -60,7 +60,6 @@ const YearPickerButtons = () => {
 
   const handleYear = useCallback(
     (year: number) => {
-      // Only update the time param, don't change which years are visible
       updateTime(year);
       dispatch(setFetchingData(true));
     },
@@ -68,7 +67,6 @@ const YearPickerButtons = () => {
   );
 
   const handlePreviousYears = () => {
-    console.log("handlePreviousYears", centerYear);
     if (centerYear > EARLIEST_YEAR) {
       setCenterYear((prev) => Math.max(prev - 1, EARLIEST_YEAR));
     }
@@ -89,12 +87,10 @@ const YearPickerButtons = () => {
     const currentDate = new Date();
     const latestYear = currentDate.getFullYear();
 
-    // Ensure centerYear doesn't go below EARLIEST_YEAR
     const adjustedCenterYear = Math.max(centerYear, EARLIEST_YEAR);
 
     for (let i = 0; i < 4; i++) {
       const year = adjustedCenterYear - i;
-      // Don't add years earlier than EARLIEST_YEAR
       if (year >= EARLIEST_YEAR) {
         years.push(year);
       }
