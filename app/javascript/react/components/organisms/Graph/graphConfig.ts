@@ -306,13 +306,15 @@ const getXAxisOptions = (
       const now = Date.now();
       const fetchStart = Math.max(sessionStartTime || 0, e.min - padding);
       const fetchEnd = Math.min(sessionEndTime || now, e.max + padding);
-      await fetchMeasurementsIfNeeded(
-        fetchStart,
-        fetchEnd,
-        false,
-        false,
-        effectiveTrigger
-      );
+      if (fixedSessionTypeSelected) {
+        await fetchMeasurementsIfNeeded(
+          fetchStart,
+          fetchEnd,
+          false,
+          false,
+          effectiveTrigger
+        );
+      }
     }
   };
 

@@ -318,27 +318,13 @@ const Graph: React.FC<GraphProps> = memo(
             rangeStart = startTime;
             rangeEnd = endTime;
 
-            // Force a data fetch for the entire session when "All" is clicked
+            // Update UI to show the full range without fetching data
             if (chartComponentRef.current?.chart) {
               const chart = chartComponentRef.current.chart;
-
-              // First update UI to show the full range
               updateRangeDisplay(rangeDisplayRef, rangeStart, rangeEnd, false);
-
-              // Then fetch all data with our special trigger
-              fetchMeasurementsIfNeeded(
-                startTime,
-                endTime,
-                false,
-                false,
-                "allButtonClicked"
-              ).then(() => {
-                // Once complete, ensure we're showing the full range
-                chart.xAxis[0].setExtremes(rangeStart, rangeEnd, true, false, {
-                  trigger: "allButtonClicked",
-                });
+              chart.xAxis[0].setExtremes(rangeStart, rangeEnd, true, false, {
+                trigger: "allButtonClicked",
               });
-
               return;
             }
           } else {

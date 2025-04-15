@@ -7,7 +7,7 @@ import { getSensorUnitSymbol } from "../components/molecules/SessionFilters/Sens
 import {
   beginningOfTheYear,
   endOfTheYear,
-  getLastFiveYears,
+  getAvailableYears,
 } from "../components/molecules/SessionFilters/YearPickerButtons";
 import { MAP_CONFIGS } from "../components/organisms/Map/mapUtils/mapConfigs";
 import { FALSE, TRUE } from "../const/booleans";
@@ -285,11 +285,11 @@ export const useMapParams = () => {
         { key: UrlParamsTypes.isActive, value: TRUE },
         {
           key: UrlParamsTypes.timeFrom,
-          value: beginningOfTheYear(getLastFiveYears()[0]).toString(),
+          value: beginningOfTheYear(getAvailableYears()[0]).toString(),
         },
         {
           key: UrlParamsTypes.timeTo,
-          value: endOfTheYear(getLastFiveYears()[0]).toString(),
+          value: endOfTheYear(getAvailableYears()[0]).toString(),
         },
       ]);
     },
@@ -369,11 +369,11 @@ export const useMapParams = () => {
   );
   const timeFrom = getParam(
     UrlParamsTypes.timeFrom,
-    beginningOfTheYear(getLastFiveYears()[0]).toString()
+    beginningOfTheYear(getAvailableYears()[0]).toString()
   )!;
   const timeTo = getParam(
     UrlParamsTypes.timeTo,
-    endOfTheYear(getLastFiveYears()[0]).toString()
+    endOfTheYear(getAvailableYears()[0]).toString()
   )!;
   const unitSymbol = getParam(
     UrlParamsTypes.unitSymbol,
