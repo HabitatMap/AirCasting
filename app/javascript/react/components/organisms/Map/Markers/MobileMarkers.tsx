@@ -49,6 +49,9 @@ const MobileMarkers = ({
   const { unitSymbol } = useMapParams();
   const mobileStreamData = useSelector(selectMobileStreamData);
   const mobileStreamStatus = useSelector(selectMobileStreamStatus);
+  const markersLoading = useSelector(
+    (state: { markersLoading: boolean }) => state.markersLoading
+  );
 
   const markerRefs = useRef<Map<string, CustomMarker>>(new Map());
   const markerOverlays = useRef<Map<string, CustomMarkerOverlay>>(new Map());
@@ -274,7 +277,7 @@ const MobileMarkers = ({
         centerMapOnBounds(minLatitude, maxLatitude, minLongitude, maxLongitude);
       }
     }
-    if (selectedStreamId === null) {
+    if (selectedStreamId === null && selectedMarkerKey !== null) {
       setSelectedMarkerKey(null);
     }
   }, [
@@ -282,6 +285,7 @@ const MobileMarkers = ({
     mobileStreamData,
     mobileStreamStatus,
     centerMapOnBounds,
+    selectedMarkerKey,
   ]);
 
   useEffect(() => {
@@ -328,10 +332,22 @@ const MobileMarkers = ({
 
     updateMarkers();
 
-    if (!selectedStreamId && markerRefs.current.size >= sessions.length) {
+    if (
+      !selectedStreamId &&
+      markerRefs.current.size >= sessions.length &&
+      markersLoading
+    ) {
       dispatch(setMarkersLoading(false));
     }
-  }, [sessions, map, createMarker, updateMarkers, selectedStreamId, dispatch]);
+  }, [
+    sessions,
+    map,
+    createMarker,
+    updateMarkers,
+    selectedStreamId,
+    dispatch,
+    markersLoading,
+  ]);
 
   useEffect(() => {
     return () => {
