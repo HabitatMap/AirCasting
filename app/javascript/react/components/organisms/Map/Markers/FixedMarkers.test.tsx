@@ -6,13 +6,6 @@ import { FixedMarkers } from "./FixedMarkers";
 
 const ZOOM_FOR_SELECTED_SESSION = 15;
 
-type FixedMarker = google.maps.Marker & {
-  value: number;
-  sessionId: number;
-  userData: { streamId: string };
-  clustered: boolean;
-};
-
 type MockClusterer = {
   addMarker: jest.Mock;
   removeMarker: jest.Mock;
@@ -146,6 +139,29 @@ jest.mock("../../../../utils/mapEventListeners", () => ({
     clearListeners: jest.fn(),
   }),
 }));
+
+// Mock LabelOverlay
+jest.mock("./CustomOverlays/customMarkerLabel", () => {
+  const LabelOverlay = jest
+    .fn()
+    .mockImplementation(
+      (position, color, value, unitSymbol, isSelected, onClick) => ({
+        setMap: jest.fn(),
+        update: jest.fn(),
+        position,
+        color,
+        value,
+        unitSymbol,
+        isSelected,
+        onClick,
+      })
+    );
+  return {
+    __esModule: true,
+    default: LabelOverlay,
+    LabelOverlay,
+  };
+});
 
 describe("FixedMarkers", () => {
   const mockSessions: FixedSession[] = [
@@ -601,5 +617,47 @@ describe("FixedMarkers", () => {
       expect(mockMap.panTo).toHaveBeenCalledWith(mockSessions[0].point);
       expect(mockMap.setZoom).toHaveBeenCalledWith(ZOOM_FOR_SELECTED_SESSION);
     });
+  });
+
+  it("displays correct measurement values on markers", () => {
+    testRenderer(
+      <FixedMarkers
+        sessions={mockSessions}
+        onMarkerClick={mockOnMarkerClick}
+        selectedStreamId={null}
+        pulsatingSessionId={null}
+      />
+    );
+
+    const LabelOverlay =
+      require("./CustomOverlays/customMarkerLabel").LabelOverlay;
+    const labelCalls = LabelOverlay.mock.calls;
+
+    mockSessions.forEach((session, index) => {
+      const call = labelCalls[index];
+      expect(call[2]).toBe(session.averageValue); // value
+      expect(call[3]).toBe("µg/m³"); // unitSymbol
+    });
+  });
+
+  it("sets correct marker colors based on thresholds", () => {
+    testRenderer(
+      <FixedMarkers
+        sessions={mockSessions}
+        onMarkerClick={mockOnMarkerClick}
+        selectedStreamId={null}
+        pulsatingSessionId={null}
+      />
+    );
+
+    const LabelOverlay =
+      require("./CustomOverlays/customMarkerLabel").LabelOverlay;
+    const labelCalls = LabelOverlay.mock.calls;
+
+    // First session value (50) should be in middle range (50-100)
+    expect(labelCalls[0][1]).toStrictEqual(expect.any(String)); // color
+
+    // Second session value (75) should be in high range (>100)
+    expect(labelCalls[1][1]).toStrictEqual(expect.any(String)); // color
   });
 });

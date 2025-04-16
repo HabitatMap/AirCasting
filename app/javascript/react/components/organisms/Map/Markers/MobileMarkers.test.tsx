@@ -446,4 +446,68 @@ describe("MobileMarkers", () => {
       expect(marker.setColor).toHaveBeenCalled();
     });
   });
+
+  it("displays correct measurement values on markers", async () => {
+    await act(async () => {
+      renderComponent({
+        sessions: mockSessions,
+        onMarkerClick: mockOnMarkerClick,
+        selectedStreamId: null,
+        pulsatingSessionId: null,
+      });
+    });
+
+    const LabelOverlay =
+      require("./CustomOverlays/customMarkerLabel").LabelOverlay;
+    const labelCalls = LabelOverlay.mock.calls;
+
+    mockSessions.forEach((session, index) => {
+      const call = labelCalls[index];
+      expect(call[2]).toBe(session.lastMeasurementValue); // value
+      expect(call[3]).toBe("µg/m³"); // unitSymbol
+    });
+  });
+
+  it("updates marker values when sessions change", async () => {
+    const { rerender } = renderComponent({
+      sessions: mockSessions,
+      onMarkerClick: mockOnMarkerClick,
+      selectedStreamId: null,
+      pulsatingSessionId: null,
+    });
+
+    const updatedSessions = [
+      ...mockSessions,
+      {
+        id: 3,
+        point: { lat: 41.8781, lng: -87.6298, streamId: "3" },
+        lastMeasurementValue: 65,
+        time: 1714857600,
+      },
+    ];
+
+    await act(async () => {
+      rerender(
+        <Provider store={store}>
+          <MobileMarkers
+            sessions={updatedSessions}
+            onMarkerClick={mockOnMarkerClick}
+            selectedStreamId={null}
+            pulsatingSessionId={null}
+          />
+        </Provider>
+      );
+    });
+
+    const LabelOverlay =
+      require("./CustomOverlays/customMarkerLabel").LabelOverlay;
+    const labelCalls = LabelOverlay.mock.calls;
+
+    // Check that each marker has the correct value
+    updatedSessions.forEach((session, index) => {
+      const call = labelCalls[index];
+      expect(call[2]).toBe(session.lastMeasurementValue);
+      expect(call[3]).toBe("µg/m³");
+    });
+  });
 });

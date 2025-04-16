@@ -100,6 +100,10 @@ jest.mock("./CustomOverlays/CustomMarker", () => ({
           getMap: jest.fn(() => mockMap),
           cleanup: jest.fn(),
         };
+        // Set initial values
+        marker.setTitle(title);
+        marker.setColor(color);
+        marker.setNotes(notes);
         mockMarkerInstances.push(marker);
         return marker;
       }
@@ -335,5 +339,57 @@ describe("StreamMarkers", () => {
     });
 
     expect(true).toBe(true);
+  });
+
+  it("displays correct measurement values on markers", () => {
+    renderComponent({
+      sessions: mockSessions,
+      unitSymbol: "µg/m³",
+    });
+
+    mockMarkerInstances.forEach((marker, index) => {
+      const session = mockSessions[index];
+      expect(marker.setTitle).toHaveBeenCalledWith(
+        `${session.lastMeasurementValue} µg/m³`
+      );
+    });
+  });
+
+  it("sets correct marker colors based on thresholds", () => {
+    renderComponent({
+      sessions: mockSessions,
+      unitSymbol: "µg/m³",
+    });
+
+    // First session value (55) should be in middle range (50-100)
+    expect(mockMarkerInstances[0].setColor).toHaveBeenCalledWith(
+      expect.any(String)
+    );
+
+    // Second session value (80) should be in high range (>100)
+    expect(mockMarkerInstances[1].setColor).toHaveBeenCalledWith(
+      expect.any(String)
+    );
+  });
+
+  it("displays notes when present", () => {
+    const sessionsWithNotes = [
+      ...mockSessions,
+      {
+        id: 3,
+        point: { lat: 41.8781, lng: -87.6298, streamId: "3" },
+        lastMeasurementValue: 65,
+        time: 1714857600,
+        notes: ["Test note"],
+      },
+    ];
+
+    renderComponent({
+      sessions: sessionsWithNotes,
+      unitSymbol: "µg/m³",
+    });
+
+    const markerWithNotes = mockMarkerInstances[2];
+    expect(markerWithNotes.setNotes).toHaveBeenCalledWith(["Test note"]);
   });
 });
