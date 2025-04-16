@@ -251,7 +251,6 @@ const StreamMarkers = ({ sessions, unitSymbol }: Props) => {
       dispatch(setTotalMarkers(sortedSessions.length));
       dispatch(setMarkersLoading(false));
       isInitialLoading.current = false;
-      const idleListener = map.addListener("idle", handleIdle);
 
       dispatch(setHoverPosition(null));
     });
