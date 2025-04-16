@@ -4,13 +4,58 @@ import { testRenderer } from "../../../../setupTests";
 import { FixedSession } from "../../../../types/sessionType";
 import { FixedMarkers } from "./FixedMarkers";
 
-const ZOOM_FOR_SELECTED_SESSION = 15;
+// Types for mock objects
+type MockBounds = {
+  extend: jest.Mock;
+  getNorthEast: jest.Mock;
+  getSouthWest: jest.Mock;
+  contains: jest.Mock;
+};
 
-type FixedMarker = google.maps.Marker & {
-  value: number;
-  sessionId: number;
+type MockMap = {
+  panTo: jest.Mock;
+  setZoom: jest.Mock;
+  getZoom: jest.Mock;
+  addListener: jest.Mock;
+  removeListener: jest.Mock;
+  getBounds: jest.Mock;
+  fitBounds: jest.Mock;
+  panToBounds: jest.Mock;
+  controls: any[];
+  data: jest.Mock;
+  getCenter: jest.Mock;
+  setMap: jest.Mock;
+  setCenter: jest.Mock;
+};
+
+type MockMarker = {
+  setMap: jest.Mock;
+  setPosition: jest.Mock;
+  setColor: jest.Mock;
+  setSize: jest.Mock;
+  setPulsating: jest.Mock;
+  setClickableAreaSize: jest.Mock;
+  setZIndex: jest.Mock;
+  getPosition: jest.Mock;
+  onClick: () => void;
+  pulsating: boolean;
+  position: { lat: number; lng: number };
   userData: { streamId: string };
-  clustered: boolean;
+  sessionId: number;
+};
+
+type MockMarkerOverlay = {
+  setMap: jest.Mock;
+  setIsSelected: jest.Mock;
+  setShouldPulse: jest.Mock;
+  setColor: jest.Mock;
+  update: jest.Mock;
+};
+
+type MockLabelOverlay = {
+  setMap: jest.Mock;
+  update: jest.Mock;
+  setZIndex: jest.Mock;
 };
 
 type MockClusterer = {
@@ -25,10 +70,20 @@ type MockClusterer = {
   getMap: jest.Mock;
   onAdd: jest.Mock;
   onRemove: jest.Mock;
-  markers: any[];
+  markers: MockMarker[];
   click: jest.Mock;
-  [key: string]: jest.Mock | any[];
+  [key: string]: jest.Mock | MockMarker[];
 };
+
+type FixedMarkersProps = {
+  sessions: FixedSession[];
+  onMarkerClick: (streamId: number | null, id: number | null) => void;
+  selectedStreamId: number | null;
+  pulsatingSessionId: number | null;
+  onClusterClick?: (clusterData: MockClusterer) => void;
+};
+
+const ZOOM_FOR_SELECTED_SESSION = 15;
 
 function createMockClusterer(): MockClusterer {
   const mockClusterer: MockClusterer = {
@@ -147,6 +202,29 @@ jest.mock("../../../../utils/mapEventListeners", () => ({
   }),
 }));
 
+// Mock LabelOverlay
+jest.mock("./CustomOverlays/customMarkerLabel", () => {
+  const LabelOverlay = jest
+    .fn()
+    .mockImplementation(
+      (position, color, value, unitSymbol, isSelected, onClick) => ({
+        setMap: jest.fn(),
+        update: jest.fn(),
+        position,
+        color,
+        value,
+        unitSymbol,
+        isSelected,
+        onClick,
+      })
+    );
+  return {
+    __esModule: true,
+    default: LabelOverlay,
+    LabelOverlay,
+  };
+});
+
 describe("FixedMarkers", () => {
   const mockSessions: FixedSession[] = [
     {
@@ -174,7 +252,7 @@ describe("FixedMarkers", () => {
     const { MarkerClusterer } = require("@googlemaps/markerclusterer");
     mockClusterer = new MarkerClusterer();
 
-    mockClusterer.addListener("click", (marker: any) => {
+    mockClusterer.addListener("click", (marker: MockMarker) => {
       if (marker.userData && marker.userData.streamId) {
         mockOnMarkerClick(Number(marker.userData.streamId), marker.sessionId);
       }
@@ -531,7 +609,7 @@ describe("FixedMarkers", () => {
     });
 
     it("opens session details modal when clicking a marker", async () => {
-      mockClusterer.addListener("click", (marker: any) => {
+      mockClusterer.addListener("click", (marker: MockMarker) => {
         if (marker.userData && marker.userData.streamId) {
           mockOnMarkerClick(Number(marker.userData.streamId), marker.sessionId);
         }
@@ -567,7 +645,7 @@ describe("FixedMarkers", () => {
     });
 
     it("centers map on marker when clicked", async () => {
-      mockClusterer.addListener("click", (marker: any) => {
+      mockClusterer.addListener("click", (marker: MockMarker) => {
         if (marker.userData && marker.userData.streamId) {
           mockOnMarkerClick(Number(marker.userData.streamId), marker.sessionId);
           mockMap.panTo(marker.position);
@@ -601,5 +679,47 @@ describe("FixedMarkers", () => {
       expect(mockMap.panTo).toHaveBeenCalledWith(mockSessions[0].point);
       expect(mockMap.setZoom).toHaveBeenCalledWith(ZOOM_FOR_SELECTED_SESSION);
     });
+  });
+
+  it("displays correct measurement values on markers", () => {
+    testRenderer(
+      <FixedMarkers
+        sessions={mockSessions}
+        onMarkerClick={mockOnMarkerClick}
+        selectedStreamId={null}
+        pulsatingSessionId={null}
+      />
+    );
+
+    const LabelOverlay =
+      require("./CustomOverlays/customMarkerLabel").LabelOverlay;
+    const labelCalls = LabelOverlay.mock.calls;
+
+    mockSessions.forEach((session, index) => {
+      const call = labelCalls[index];
+      expect(call[2]).toBe(session.averageValue); // value
+      expect(call[3]).toBe("µg/m³"); // unitSymbol
+    });
+  });
+
+  it("sets correct marker colors based on thresholds", () => {
+    testRenderer(
+      <FixedMarkers
+        sessions={mockSessions}
+        onMarkerClick={mockOnMarkerClick}
+        selectedStreamId={null}
+        pulsatingSessionId={null}
+      />
+    );
+
+    const LabelOverlay =
+      require("./CustomOverlays/customMarkerLabel").LabelOverlay;
+    const labelCalls = LabelOverlay.mock.calls;
+
+    // First session value (50) should be in middle range (50-100)
+    expect(labelCalls[0][1]).toStrictEqual(expect.any(String)); // color
+
+    // Second session value (75) should be in high range (>100)
+    expect(labelCalls[1][1]).toStrictEqual(expect.any(String)); // color
   });
 });
