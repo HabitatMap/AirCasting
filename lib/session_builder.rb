@@ -19,7 +19,11 @@ class SessionBuilder
     stream_data = data.delete(:streams)
 
     data = build_local_start_and_end_time(data)
-    data[:time_zone] = TimeZoneFinderWrapper.instance.time_zone_at(lat: data[:latitude], lng: data[:longitude])
+    data[:time_zone] =
+      TimeZoneFinderWrapper.instance.time_zone_at(
+        lat: data[:latitude],
+        lng: data[:longitude],
+      )
 
     allowed = Session.attribute_names + %w[notes_attributes tag_list user]
     filtered = data.select { |k, _| allowed.include?(k.to_s) }
@@ -56,10 +60,23 @@ class SessionBuilder
   def self.prepare_notes(note_data, photos)
     return note_data if photos.empty?
 
-    note_data.zip(photos).map do |datum, photo|
-      base64_photo = photo.blank? ? "" : "data:image/jpeg;base64,#{photo}"
-      datum.merge(photo: base64_photo)
-    end
+    note_data
+      .zip(photos)
+      .map do |datum, photo|
+        next if photo.blank?
+
+        # paperclip - remove after migration
+        base64_photo = "data:image/jpeg;base64,#{photo}"
+
+        attached_photo =
+          ActiveStorage::Blob.create_and_upload!(
+            io: StringIO.new(Base64.decode64(photo)),
+            filename: "photo_#{SecureRandom.hex(8)}.jpg",
+            content_type: 'image/jpeg',
+          )
+
+        datum.merge(s3_photo: attached_photo).merge(photo: base64_photo)
+      end
   end
 
   def self.normalize_tags(tags)
