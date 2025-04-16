@@ -5,6 +5,69 @@ import { Provider } from "react-redux";
 import type { MobileSession } from "../../../../types/sessionType";
 import { MobileMarkers } from "./MobileMarkers";
 
+// Types for mock objects
+type MockBounds = {
+  extend: jest.Mock;
+  getNorthEast: jest.Mock;
+  getSouthWest: jest.Mock;
+  contains: jest.Mock;
+};
+
+type MockMap = {
+  panTo: jest.Mock;
+  setZoom: jest.Mock;
+  getZoom: jest.Mock;
+  addListener: jest.Mock;
+  removeListener: jest.Mock;
+  getBounds: jest.Mock;
+  fitBounds: jest.Mock;
+  panToBounds: jest.Mock;
+  controls: any[];
+  data: jest.Mock;
+  getCenter: jest.Mock;
+  setMap: jest.Mock;
+  setCenter: jest.Mock;
+};
+
+type MockMarker = {
+  setMap: jest.Mock;
+  setPosition: jest.Mock;
+  setColor: jest.Mock;
+  setSize: jest.Mock;
+  setPulsating: jest.Mock;
+  setClickableAreaSize: jest.Mock;
+  setZIndex: jest.Mock;
+  getPosition: jest.Mock;
+  onClick: () => void;
+  pulsating: boolean;
+  position: { lat: number; lng: number };
+};
+
+type MockMarkerOverlay = {
+  setMap: jest.Mock;
+  setIsSelected: jest.Mock;
+  setShouldPulse: jest.Mock;
+  setColor: jest.Mock;
+  update: jest.Mock;
+};
+
+type MockLabelOverlay = {
+  setMap: jest.Mock;
+  update: jest.Mock;
+  setZIndex: jest.Mock;
+};
+
+type MobileMarkersProps = {
+  sessions: MobileSession[];
+  onMarkerClick: (
+    streamId: number | null,
+    id: number | null,
+    isSelected: boolean
+  ) => void;
+  selectedStreamId: number | null;
+  pulsatingSessionId: number | null;
+};
+
 const ZOOM_FOR_SELECTED_SESSION = 16;
 
 // Mock Google Maps API
@@ -36,10 +99,10 @@ global.google = {
       getBounds: jest.fn(),
     })),
   },
-} as any;
+} as unknown as typeof google;
 
 // Mock CustomMarker
-let mockMarkerInstances: any[] = [];
+let mockMarkerInstances: MockMarker[] = [];
 let mockMarkerClickHandlers: Function[] = [];
 
 jest.mock("./CustomOverlays/CustomMarker", () => {
@@ -61,7 +124,7 @@ jest.mock("./CustomOverlays/CustomMarker", () => {
           // Store the click handler for later use
           mockMarkerClickHandlers.push(clickHandler);
 
-          const marker = {
+          const marker: MockMarker = {
             setMap: jest.fn(),
             setPosition: jest.fn(),
             setColor: jest.fn(),
@@ -112,7 +175,7 @@ jest.mock("./CustomOverlays/customMarkerLabel", () => {
 });
 
 // Mock useMap hook
-let mockMap: any;
+let mockMap: MockMap;
 jest.mock("@vis.gl/react-google-maps", () => ({
   useMap: () => {
     if (!mockMap) {
@@ -223,7 +286,7 @@ describe("MobileMarkers", () => {
     mockOnMarkerClick = jest.fn();
   });
 
-  const renderComponent = (props: any) => {
+  const renderComponent = (props: MobileMarkersProps) => {
     return render(
       <Provider store={store}>
         <MobileMarkers {...props} />

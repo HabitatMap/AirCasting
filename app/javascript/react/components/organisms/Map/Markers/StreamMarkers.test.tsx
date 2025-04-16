@@ -6,6 +6,42 @@ import { Provider } from "react-redux";
 import type { MobileSession } from "../../../../types/sessionType";
 import { StreamMarkers } from "./StreamMarkers";
 
+// Types for mock objects
+type MockBounds = {
+  extend: jest.Mock;
+  getNorthEast: jest.Mock;
+  getSouthWest: jest.Mock;
+  contains: jest.Mock;
+};
+
+type MockMap = {
+  panTo: jest.Mock;
+  setZoom: jest.Mock;
+  getZoom: jest.Mock;
+  addListener: jest.Mock;
+  removeListener: jest.Mock;
+  getBounds: jest.Mock;
+  fitBounds: jest.Mock;
+  panToBounds: jest.Mock;
+  controls: any[];
+  data: jest.Mock;
+  getCenter: jest.Mock;
+  setMap: jest.Mock;
+  setCenter: jest.Mock;
+  getMap: jest.Mock;
+};
+
+type MockPolyline = {
+  setMap: jest.Mock;
+  setPath: jest.Mock;
+  getPath: jest.Mock;
+};
+
+type StreamMarkersProps = {
+  sessions: MobileSession[];
+  unitSymbol: string;
+};
+
 // Mock Google Maps API
 global.google = {
   maps: {
@@ -16,12 +52,7 @@ global.google = {
       onRemove: jest.fn(),
     })),
     LatLngBounds: jest.fn().mockImplementation(() => {
-      const bounds: {
-        extend: jest.Mock;
-        getNorthEast: jest.Mock;
-        getSouthWest: jest.Mock;
-        contains: jest.Mock;
-      } = {
+      const bounds: MockBounds = {
         extend: jest.fn().mockReturnValue(undefined),
         getNorthEast: jest.fn(() => ({ lat: () => 40, lng: () => -74 })),
         getSouthWest: jest.fn(() => ({ lat: () => 34, lng: () => -118 })),
@@ -44,14 +75,16 @@ global.google = {
       removeListener: jest.fn(),
     },
   },
-} as any;
+} as unknown as typeof google;
 
 global.requestAnimationFrame = jest.fn((callback: FrameRequestCallback) => {
   callback(0);
   return 0;
 });
 
-let mockMap: any;
+let mockMap: MockMap;
+let mockMarkerInstances: any[] = [];
+
 jest.mock("@vis.gl/react-google-maps", () => ({
   useMap: () => {
     if (!mockMap) {
@@ -84,7 +117,6 @@ jest.mock("@vis.gl/react-google-maps", () => ({
 }));
 
 // Mock CustomMarker
-let mockMarkerInstances: any[] = [];
 jest.mock("./CustomOverlays/CustomMarker", () => ({
   CustomMarker: jest
     .fn()
@@ -202,8 +234,37 @@ describe("StreamMarkers", () => {
     },
   ];
 
+  const mockSessionsWithNotes: MobileSession[] = [
+    ...mockSessions,
+    {
+      id: 3,
+      point: { lat: 41.8781, lng: -87.6298, streamId: "3" },
+      lastMeasurementValue: 65,
+      time: 1714857600,
+      notes: [
+        {
+          createdAt: "2024-01-01T00:00:00Z",
+          date: "2024-01-01",
+          id: 1,
+          latitude: 41.8781,
+          longitude: -87.6298,
+          number: 1,
+          photoContentType: "",
+          photoFileName: "",
+          photoFileSize: 0,
+          photoUpdatedAt: "",
+          sessionId: 3,
+          text: "Test note",
+          updatedAt: "2024-01-01T00:00:00Z",
+          photo: "",
+          photoThumbnail: "",
+        },
+      ],
+    },
+  ];
+
   let store: ReturnType<typeof createMockStore>;
-  let mockPolyline: any;
+  let mockPolyline: MockPolyline;
 
   beforeEach(() => {
     jest.clearAllMocks();
@@ -246,7 +307,7 @@ describe("StreamMarkers", () => {
     };
   });
 
-  const renderComponent = (props: any) => {
+  const renderComponent = (props: StreamMarkersProps) => {
     return render(
       <Provider store={store}>
         <StreamMarkers {...props} />
@@ -322,19 +383,8 @@ describe("StreamMarkers", () => {
   });
 
   it("handles sessions with notes", () => {
-    const sessionsWithNotes = [
-      ...mockSessions,
-      {
-        id: 3,
-        point: { lat: 41.8781, lng: -87.6298, streamId: "3" },
-        lastMeasurementValue: 65,
-        time: 1714857600,
-        notes: ["Test note"],
-      },
-    ];
-
     renderComponent({
-      sessions: sessionsWithNotes,
+      sessions: mockSessionsWithNotes,
       unitSymbol: "µg/m³",
     });
 
@@ -380,7 +430,25 @@ describe("StreamMarkers", () => {
         point: { lat: 41.8781, lng: -87.6298, streamId: "3" },
         lastMeasurementValue: 65,
         time: 1714857600,
-        notes: ["Test note"],
+        notes: [
+          {
+            createdAt: "2024-01-01T00:00:00Z",
+            date: "2024-01-01",
+            id: 1,
+            latitude: 41.8781,
+            longitude: -87.6298,
+            number: 1,
+            photoContentType: "",
+            photoFileName: "",
+            photoFileSize: 0,
+            photoUpdatedAt: "",
+            sessionId: 3,
+            text: "Test note",
+            updatedAt: "2024-01-01T00:00:00Z",
+            photo: "",
+            photoThumbnail: "",
+          },
+        ],
       },
     ];
 
@@ -390,6 +458,24 @@ describe("StreamMarkers", () => {
     });
 
     const markerWithNotes = mockMarkerInstances[2];
-    expect(markerWithNotes.setNotes).toHaveBeenCalledWith(["Test note"]);
+    expect(markerWithNotes.setNotes).toHaveBeenCalledWith([
+      {
+        createdAt: "2024-01-01T00:00:00Z",
+        date: "2024-01-01",
+        id: 1,
+        latitude: 41.8781,
+        longitude: -87.6298,
+        number: 1,
+        photoContentType: "",
+        photoFileName: "",
+        photoFileSize: 0,
+        photoUpdatedAt: "",
+        sessionId: 3,
+        text: "Test note",
+        updatedAt: "2024-01-01T00:00:00Z",
+        photo: "",
+        photoThumbnail: "",
+      },
+    ]);
   });
 });

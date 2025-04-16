@@ -4,7 +4,59 @@ import { testRenderer } from "../../../../setupTests";
 import { FixedSession } from "../../../../types/sessionType";
 import { FixedMarkers } from "./FixedMarkers";
 
-const ZOOM_FOR_SELECTED_SESSION = 15;
+// Types for mock objects
+type MockBounds = {
+  extend: jest.Mock;
+  getNorthEast: jest.Mock;
+  getSouthWest: jest.Mock;
+  contains: jest.Mock;
+};
+
+type MockMap = {
+  panTo: jest.Mock;
+  setZoom: jest.Mock;
+  getZoom: jest.Mock;
+  addListener: jest.Mock;
+  removeListener: jest.Mock;
+  getBounds: jest.Mock;
+  fitBounds: jest.Mock;
+  panToBounds: jest.Mock;
+  controls: any[];
+  data: jest.Mock;
+  getCenter: jest.Mock;
+  setMap: jest.Mock;
+  setCenter: jest.Mock;
+};
+
+type MockMarker = {
+  setMap: jest.Mock;
+  setPosition: jest.Mock;
+  setColor: jest.Mock;
+  setSize: jest.Mock;
+  setPulsating: jest.Mock;
+  setClickableAreaSize: jest.Mock;
+  setZIndex: jest.Mock;
+  getPosition: jest.Mock;
+  onClick: () => void;
+  pulsating: boolean;
+  position: { lat: number; lng: number };
+  userData: { streamId: string };
+  sessionId: number;
+};
+
+type MockMarkerOverlay = {
+  setMap: jest.Mock;
+  setIsSelected: jest.Mock;
+  setShouldPulse: jest.Mock;
+  setColor: jest.Mock;
+  update: jest.Mock;
+};
+
+type MockLabelOverlay = {
+  setMap: jest.Mock;
+  update: jest.Mock;
+  setZIndex: jest.Mock;
+};
 
 type MockClusterer = {
   addMarker: jest.Mock;
@@ -18,10 +70,20 @@ type MockClusterer = {
   getMap: jest.Mock;
   onAdd: jest.Mock;
   onRemove: jest.Mock;
-  markers: any[];
+  markers: MockMarker[];
   click: jest.Mock;
-  [key: string]: jest.Mock | any[];
+  [key: string]: jest.Mock | MockMarker[];
 };
+
+type FixedMarkersProps = {
+  sessions: FixedSession[];
+  onMarkerClick: (streamId: number | null, id: number | null) => void;
+  selectedStreamId: number | null;
+  pulsatingSessionId: number | null;
+  onClusterClick?: (clusterData: MockClusterer) => void;
+};
+
+const ZOOM_FOR_SELECTED_SESSION = 15;
 
 function createMockClusterer(): MockClusterer {
   const mockClusterer: MockClusterer = {
@@ -190,7 +252,7 @@ describe("FixedMarkers", () => {
     const { MarkerClusterer } = require("@googlemaps/markerclusterer");
     mockClusterer = new MarkerClusterer();
 
-    mockClusterer.addListener("click", (marker: any) => {
+    mockClusterer.addListener("click", (marker: MockMarker) => {
       if (marker.userData && marker.userData.streamId) {
         mockOnMarkerClick(Number(marker.userData.streamId), marker.sessionId);
       }
@@ -547,7 +609,7 @@ describe("FixedMarkers", () => {
     });
 
     it("opens session details modal when clicking a marker", async () => {
-      mockClusterer.addListener("click", (marker: any) => {
+      mockClusterer.addListener("click", (marker: MockMarker) => {
         if (marker.userData && marker.userData.streamId) {
           mockOnMarkerClick(Number(marker.userData.streamId), marker.sessionId);
         }
@@ -583,7 +645,7 @@ describe("FixedMarkers", () => {
     });
 
     it("centers map on marker when clicked", async () => {
-      mockClusterer.addListener("click", (marker: any) => {
+      mockClusterer.addListener("click", (marker: MockMarker) => {
         if (marker.userData && marker.userData.streamId) {
           mockOnMarkerClick(Number(marker.userData.streamId), marker.sessionId);
           mockMap.panTo(marker.position);
