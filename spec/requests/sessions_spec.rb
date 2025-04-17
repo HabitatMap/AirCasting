@@ -4,7 +4,7 @@ describe 'GET api/v3/sessions' do
   it 'returns list of sessions with streams' do
     session = create(:mobile_session, start_time_local: '2025-01-15T09:00')
     stream =
-      create(:stream, session: session, sensor_package_name: 'AirBeam3:123')
+      create(:stream, session: session, sensor_package_name: 'AirBeam3:123abc')
 
     expected_response = {
       sessions: [
@@ -28,7 +28,7 @@ describe 'GET api/v3/sessions' do
 
     get '/api/v3/sessions',
         params: {
-          sensor_package_name: 'AirBeam3:123',
+          sensor_package_name: 'AirBeam3:123Abc',
           start_datetime: '2025-01-15T00:00',
           end_datetime: '2025-01-16T00:00',
         }
