@@ -97,6 +97,8 @@ const SessionName = styled(H2)`
   -webkit-line-clamp: 1;
   -webkit-box-orient: vertical;
   overflow: hidden;
+  text-overflow: ellipsis;
+  text-transform: none;
 
   @media ${media.smallDesktop} {
     font-size: 2.4rem;
