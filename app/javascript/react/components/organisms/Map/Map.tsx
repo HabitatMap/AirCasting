@@ -1,22 +1,19 @@
-import React, {
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
+"use client";
+
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 
-import { Map as GoogleMap, MapEvent } from "@vis.gl/react-google-maps";
+import { Map as GoogleMap, type MapEvent } from "@vis.gl/react-google-maps";
 
+import React from "react";
 import clockIcon from "../../../assets/icons/clockIcon.svg";
 import filterIcon from "../../../assets/icons/filterIcon.svg";
 import mapLegend from "../../../assets/icons/mapLegend.svg";
 import pinImage from "../../../assets/icons/pinImage.svg";
 import { TRUE } from "../../../const/booleans";
 import { MIN_ZOOM } from "../../../const/coordinates";
-import { RootState, selectIsLoading } from "../../../store";
+import { type RootState, selectIsLoading } from "../../../store";
 import {
   selectFixedSessionsList,
   selectFixedSessionsPoints,
@@ -76,7 +73,7 @@ import {
   setCurrentTimestamp,
 } from "../../../store/timelapseSlice";
 import { SessionTypes } from "../../../types/filters";
-import { SessionList } from "../../../types/sessionType";
+import type { SessionList } from "../../../types/sessionType";
 import { UserSettings } from "../../../types/userStates";
 import * as Cookies from "../../../utils/cookies";
 import { UrlParamsTypes, useMapParams } from "../../../utils/mapParamsHandler";
@@ -427,28 +424,42 @@ const Map = () => {
   ]);
 
   useEffect(() => {
-    dispatch(fetchThresholds(thresholdFilters));
-  }, [thresholdFilters]);
+    if (thresholdFilters) {
+      dispatch(fetchThresholds(thresholdFilters));
+    }
+  }, [thresholdFilters, dispatch]);
 
   useEffect(() => {
-    if (!isFirstRenderForThresholds.current) {
+    // Only reset thresholds if this is not the first render and defaultThresholds are loaded
+    if (
+      !isFirstRenderForThresholds.current &&
+      defaultThresholds &&
+      defaultThresholds.max !== 0
+    ) {
       dispatch(resetUserThresholds());
     }
-    // #DirtyButWorks :nervous-laugh: -> refactor when moving thresholds to url
-    if (defaultThresholds.max !== 0) {
+
+    // Only update the ref if defaultThresholds has been loaded
+    if (defaultThresholds && defaultThresholds.max !== 0) {
       isFirstRenderForThresholds.current = false;
     }
-  }, [defaultThresholds]);
+  }, [defaultThresholds, dispatch]);
 
   useEffect(() => {
-    if (isFirstRenderForThresholds.current) {
+    // Only set user threshold values on first render and if initialThresholds are valid
+    if (
+      isFirstRenderForThresholds.current &&
+      initialThresholds &&
+      initialThresholds.max !== 0
+    ) {
       dispatch(setUserThresholdValues(initialThresholds));
     }
-    // #DirtyButWorks :nervous-laugh: -> refactor when moving thresholds to url
-    if (initialThresholds.max === 0) {
+
+    // Update the ref if initialThresholds is not yet loaded
+    if (initialThresholds && initialThresholds.max === 0) {
       isFirstRenderForThresholds.current = false;
     }
-  }, [initialThresholds]);
+  }, [initialThresholds, dispatch]);
 
   useEffect(() => {
     if (currentUserSettings !== UserSettings.ModalView) {
@@ -513,14 +524,18 @@ const Map = () => {
   useEffect(() => {
     if (currentUserSettings === UserSettings.TimelapseView) {
       const storedBounds = {
-        east: parseFloat(Cookies.get("mapBoundsEast") || boundEast.toString()),
-        north: parseFloat(
+        east: Number.parseFloat(
+          Cookies.get("mapBoundsEast") || boundEast.toString()
+        ),
+        north: Number.parseFloat(
           Cookies.get("mapBoundsNorth") || boundNorth.toString()
         ),
-        south: parseFloat(
+        south: Number.parseFloat(
           Cookies.get("mapBoundsSouth") || boundSouth.toString()
         ),
-        west: parseFloat(Cookies.get("mapBoundsWest") || boundWest.toString()),
+        west: Number.parseFloat(
+          Cookies.get("mapBoundsWest") || boundWest.toString()
+        ),
       };
 
       const timelapseFilters = {
