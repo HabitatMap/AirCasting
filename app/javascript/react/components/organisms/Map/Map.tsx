@@ -999,7 +999,7 @@ const Map = () => {
         currentUserSettings
       ) &&
         !isMobile && (
-          <S.DesktopContainer>
+          <S.DesktopContainer data-testid="desktop-session-list">
             <SessionsListView
               sessions={listSessions.map((session) => ({
                 id: session.id,
