@@ -4,10 +4,10 @@ import { render, screen } from "@testing-library/react";
 import React from "react";
 import { Provider } from "react-redux";
 import { BrowserRouter } from "react-router-dom";
+import { MapWrapper } from "../../../test/utils/map-wrapper";
 import { UserSettings } from "../../../types/userStates";
 import { useMapParams } from "../../../utils/mapParamsHandler";
 import useMobileDetection from "../../../utils/useScreenSizeDetection";
-import { MapWrapper } from "./map-wrapper";
 
 // Mock the Google Maps component
 jest.mock("@vis.gl/react-google-maps", () => ({
