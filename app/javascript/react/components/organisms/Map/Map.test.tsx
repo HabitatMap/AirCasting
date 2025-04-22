@@ -4,6 +4,7 @@ import { render, screen } from "@testing-library/react";
 import React from "react";
 import { Provider } from "react-redux";
 import { BrowserRouter } from "react-router-dom";
+import { UserSettings } from "../../../types/userStates";
 import { useMapParams } from "../../../utils/mapParamsHandler";
 import useMobileDetection from "../../../utils/useScreenSizeDetection";
 import { MapWrapper } from "./map-wrapper";
@@ -449,7 +450,7 @@ describe("Map Component", () => {
   it("renders SessionDetailsModal when in ModalView", () => {
     (useMapParams as jest.Mock).mockReturnValue({
       ...mockMapParams,
-      currentUserSettings: "ModalView",
+      currentUserSettings: UserSettings.ModalView,
     });
     renderWithProviders(<MapWrapper disableEffects={true} />);
     expect(screen.getByTestId("session-details-modal")).toBeInTheDocument();
@@ -458,7 +459,7 @@ describe("Map Component", () => {
   it("renders TimelapseComponent when in TimelapseView", () => {
     (useMapParams as jest.Mock).mockReturnValue({
       ...mockMapParams,
-      currentUserSettings: "TimelapseView",
+      currentUserSettings: UserSettings.TimelapseView,
     });
     renderWithProviders(<MapWrapper disableEffects={true} />);
     expect(screen.getByTestId("timelapse-component")).toBeInTheDocument();
