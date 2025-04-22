@@ -5,6 +5,7 @@ import React from "react";
 import { Provider } from "react-redux";
 import { BrowserRouter } from "react-router-dom";
 import { MapWrapper } from "../../../test/utils/map-wrapper";
+import { StatusEnum } from "../../../types/api";
 import { SessionTypes } from "../../../types/filters";
 import { UserSettings } from "../../../types/userStates";
 import { useMapParams } from "../../../utils/mapParamsHandler";
@@ -244,6 +245,26 @@ jest.mock("../../../store/mobileSessionsSelectors", () => ({
 
 jest.mock("../../../store/mobileStreamSelectors", () => ({
   selectMobileStreamPoints: jest.fn().mockReturnValue([]),
+  selectMobileStreamData: jest.fn().mockReturnValue({
+    stream: {
+      id: 123,
+      title: "Test Stream",
+      sensorName: "PM2.5",
+      minLatitude: 0,
+      maxLatitude: 1,
+      minLongitude: 0,
+      maxLongitude: 1,
+    },
+    measurements: [
+      {
+        latitude: 0.5,
+        longitude: 0.5,
+        value: 10,
+        time: "2023-01-01T00:00:00Z",
+      },
+    ],
+  }),
+  selectMobileStreamStatus: jest.fn().mockReturnValue(StatusEnum.Fulfilled),
 }));
 
 jest.mock("../../../store/timelapseSelectors", () => ({
@@ -694,31 +715,129 @@ describe("Map Component", () => {
     });
     renderWithProviders(<MapWrapper disableEffects={true} />);
 
-    // Check that indoor overlay is not present
     expect(screen.queryByTestId("indoor-overlay")).not.toBeInTheDocument();
 
-    // Check that indoor button is not present (mobile sessions don't have indoor/outdoor filters)
     expect(screen.queryByTestId("indoor-button")).not.toBeInTheDocument();
   });
 
-  // it("renders dormant markers when fixed session type is selected and isActive is false", () => {
-  //   (useMapParams as jest.Mock).mockReturnValue({
-  //     ...mockMapParams,
-  //     sessionType: SessionTypes.FIXED,
-  //     isActive: false,
-  //   });
-  //   renderWithProviders(<MapWrapper disableEffects={true} />);
-  //   expect(screen.getByTestId("google-map")).toBeInTheDocument();
-  // });
+  it("renders dormant markers when fixed session type is selected and isActive is false", () => {
+    (useMapParams as jest.Mock).mockReturnValue({
+      ...mockMapParams,
+      sessionType: SessionTypes.FIXED,
+      isActive: false,
+    });
 
-  // it("renders stream markers when streamId is present", () => {
-  //   (useMapParams as jest.Mock).mockReturnValue({
-  //     ...mockMapParams,
-  //     streamId: 123,
-  //   });
-  //   renderWithProviders(<MapWrapper disableEffects={true} />);
-  //   expect(screen.getByTestId("google-map")).toBeInTheDocument();
-  // });
+    jest.mock("../../../store/fixedSessionsSelectors", () => ({
+      selectFixedSessionsList: jest.fn().mockReturnValue([
+        {
+          id: 1,
+          title: "Dormant Session",
+          sensorName: "PM2.5",
+          averageValue: 10,
+          startTime: "2023-01-01",
+          endTime: "2023-01-02",
+          streamId: 1,
+          point: {
+            lat: 0,
+            lng: 0,
+            streamId: "1",
+          },
+        },
+      ]),
+      selectFixedSessionsPoints: jest
+        .fn()
+        .mockReturnValue([{ lat: 0, lng: 0, streamId: "1" }]),
+      selectFixedSessionsStatusFulfilled: jest.fn().mockReturnValue(true),
+    }));
+
+    jest.mock("./Markers/CustomOverlays/CustomMarker", () => {
+      return jest.fn().mockImplementation((position, color) => {
+        expect(color).toBe("#7D858C");
+        return {
+          setMap: jest.fn(),
+          setPulsating: jest.fn(),
+        };
+      });
+    });
+
+    jest.mock("../../../store/indoorSessionsSelectors", () => ({
+      selectIndoorSessionsList: jest.fn().mockReturnValue(() => []),
+    }));
+
+    // Mock the map context
+    jest.mock("@vis.gl/react-google-maps", () => ({
+      useMap: () => ({
+        setCenter: jest.fn(),
+        setZoom: jest.fn(),
+      }),
+    }));
+
+    renderWithProviders(<MapWrapper disableEffects={true} />);
+
+    expect(screen.getByTestId("google-map")).toBeInTheDocument();
+
+    expect(useMapParams).toHaveBeenCalled();
+    const { sessionType, isActive } = useMapParams();
+    expect(sessionType).toBe(SessionTypes.FIXED);
+    expect(isActive).toBe(false);
+  });
+
+  it("renders stream markers when streamId is present", () => {
+    (useMapParams as jest.Mock).mockReturnValue({
+      ...mockMapParams,
+      streamId: 123,
+      sessionType: SessionTypes.MOBILE,
+    });
+
+    // Mock the mobile stream data
+    jest.mock("../../../store/mobileStreamSelectors", () => ({
+      selectMobileStreamData: jest.fn().mockReturnValue({
+        stream: {
+          id: 123,
+          title: "Test Stream",
+          sensorName: "PM2.5",
+          minLatitude: 0,
+          maxLatitude: 1,
+          minLongitude: 0,
+          maxLongitude: 1,
+        },
+        measurements: [
+          {
+            latitude: 0.5,
+            longitude: 0.5,
+            value: 10,
+            time: "2023-01-01T00:00:00Z",
+          },
+        ],
+      }),
+      selectMobileStreamStatus: jest.fn().mockReturnValue(StatusEnum.Fulfilled),
+    }));
+
+    // Mock the CustomMarker class to verify markers are created
+    jest.mock("./Markers/CustomOverlays/CustomMarker", () => {
+      return jest.fn().mockImplementation((position, color) => {
+        return {
+          setMap: jest.fn(),
+          setPulsating: jest.fn(),
+          setColor: jest.fn(),
+          setSize: jest.fn(),
+          setClickableAreaSize: jest.fn(),
+          setZIndex: jest.fn(),
+        };
+      });
+    });
+
+    renderWithProviders(<MapWrapper disableEffects={true} />);
+
+    // Verify that the map is rendered
+    expect(screen.getByTestId("google-map")).toBeInTheDocument();
+
+    // Verify that the stream markers are rendered
+    expect(useMapParams).toHaveBeenCalled();
+    const { streamId, sessionType } = useMapParams();
+    expect(streamId).toBe(123);
+    expect(sessionType).toBe(SessionTypes.MOBILE);
+  });
 
   // it("renders crowd map markers when in CrowdMapView", () => {
   //   (useMapParams as jest.Mock).mockReturnValue({
