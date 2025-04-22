@@ -265,7 +265,7 @@ jest.mock("../../../store/markersLoadingSlice", () => ({
 }));
 
 jest.mock("../../../store/indoorSessionsSelectors", () => ({
-  selectIndoorSessionsList: jest.fn().mockReturnValue([
+  selectIndoorSessionsList: jest.fn().mockImplementation((isDormant) => () => [
     {
       id: 1,
       title: "Test Indoor Session",
@@ -376,6 +376,7 @@ const createMockStore = () => {
         fetchingData: false,
         hoverStreamId: null,
         hoverPosition: null,
+        sessionsListExpanded: true,
       }),
       markersLoading: () => ({ loading: false }),
       sessionFilter: () => ({
@@ -442,12 +443,24 @@ const createMockStore = () => {
 
 // Mock the MobileSessionFilters component
 jest.mock("../../molecules/SessionFilters/MobileSessionFilters", () => ({
-  MobileSessionFilters: () => (
-    <div data-testid="mobile-filters">
-      <button data-testid="indoor-button">Indoor</button>
-      <button data-testid="outdoor-button">Outdoor</button>
-    </div>
-  ),
+  MobileSessionFilters: () => {
+    const { sessionType } = useMapParams();
+
+    return (
+      <div data-testid="mobile-filters">
+        {sessionType === "fixed" ? (
+          <>
+            <button data-testid="indoor-button" data-selected="true">
+              Indoor
+            </button>
+            <button data-testid="outdoor-button">Outdoor</button>
+          </>
+        ) : (
+          <div>Mobile Session Filters</div>
+        )}
+      </div>
+    );
+  },
 }));
 
 // Mock the MobileSessionList component
@@ -653,52 +666,40 @@ describe("Map Component", () => {
     expect(screen.getByTestId("google-map")).toBeInTheDocument();
   });
 
-  // it("renders indoor overlay when isIndoor is true", () => {
-  //   (useMapParams as jest.Mock).mockReturnValue({
-  //     ...mockMapParams,
-  //     isIndoor: true,
-  //     currentUserSettings: UserSettings.MapView,
-  //     sessionType: SessionTypes.FIXED,
-  //   });
-  //   renderWithProviders(<MapWrapper disableEffects={true} />);
+  it("renders indoor overlay and button when indoor sessions are selected", () => {
+    (useMapParams as jest.Mock).mockReturnValue({
+      ...mockMapParams,
+      isIndoor: "true",
+      sessionType: SessionTypes.FIXED,
+      currentUserSettings: UserSettings.FiltersView,
+    });
+    renderWithProviders(<MapWrapper disableSpecificEffects={true} />);
 
-  //   // Then check for the indoor overlay
-  //   const indoorOverlay = screen.getByTestId("indoor-overlay");
-  //   expect(indoorOverlay).toBeInTheDocument();
+    // Check if indoor button is selected in filters
+    const indoorButton = screen.getByTestId("indoor-button");
+    expect(indoorButton).toHaveAttribute("data-selected", "true");
 
-  //   const indoorOverlayInfo = screen.getByTestId("indoor-overlay-info");
-  //   expect(indoorOverlayInfo).toBeInTheDocument();
-  // });
+    // Check for the indoor overlay text
+    const indoorOverlay = screen.getByTestId("indoor-overlay");
+    expect(indoorOverlay).toBeInTheDocument();
+    expect(screen.getByText("filters.indoorMapOverlay")).toBeInTheDocument();
+  });
 
-  // it("shows indoor overlay with correct message when indoor sessions are selected", () => {
-  //   // Set up the initial state with fixed sessions and indoor view
-  //   (useMapParams as jest.Mock).mockReturnValue({
-  //     ...mockMapParams,
-  //     sessionType: SessionTypes.FIXED,
-  //     isIndoor: true,
-  //     currentUserSettings: UserSettings.MapView,
-  //   });
+  it("does not show indoor overlay for mobile sessions", () => {
+    (useMapParams as jest.Mock).mockReturnValue({
+      ...mockMapParams,
+      isIndoor: true,
+      sessionType: SessionTypes.MOBILE,
+      currentUserSettings: UserSettings.FiltersView,
+    });
+    renderWithProviders(<MapWrapper disableEffects={true} />);
 
-  //   renderWithProviders(<MapWrapper disableEffects={true} />);
+    // Check that indoor overlay is not present
+    expect(screen.queryByTestId("indoor-overlay")).not.toBeInTheDocument();
 
-  //   // Verify the indoor overlay is shown with the correct message
-  //   const indoorOverlay = screen.getByTestId("indoor-overlay");
-  //   expect(indoorOverlay).toBeInTheDocument();
-
-  //   const overlayText = screen.getByText((content, element) => {
-  //     const text = element?.textContent || "";
-  //     return Boolean(
-  //       text.includes("Indoor sessions aren't mapped") &&
-  //         text.includes(
-  //           "To graph indoor sessions, select from the sessions list"
-  //         )
-  //     );
-  //   });
-  //   expect(overlayText).toBeInTheDocument();
-
-  //   // Verify the map is still visible but with the overlay
-  //   expect(screen.getByTestId("google-map")).toBeInTheDocument();
-  // });
+    // Check that indoor button is not present (mobile sessions don't have indoor/outdoor filters)
+    expect(screen.queryByTestId("indoor-button")).not.toBeInTheDocument();
+  });
 
   // it("renders dormant markers when fixed session type is selected and isActive is false", () => {
   //   (useMapParams as jest.Mock).mockReturnValue({
