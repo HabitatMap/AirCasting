@@ -58,24 +58,24 @@ class SessionBuilder
   end
 
   def self.prepare_notes(note_data, photos)
-    return note_data if photos.empty?
-
     note_data
       .zip(photos)
       .map do |datum, photo|
-        next if photo.blank?
+        if photo.blank?
+          datum
+        else
+          # paperclip - remove after migration
+          base64_photo = "data:image/jpeg;base64,#{photo}"
 
-        # paperclip - remove after migration
-        base64_photo = "data:image/jpeg;base64,#{photo}"
+          attached_photo =
+            ActiveStorage::Blob.create_and_upload!(
+              io: StringIO.new(Base64.decode64(photo)),
+              filename: "photo_#{SecureRandom.hex(8)}.jpg",
+              content_type: 'image/jpeg',
+            )
 
-        attached_photo =
-          ActiveStorage::Blob.create_and_upload!(
-            io: StringIO.new(Base64.decode64(photo)),
-            filename: "photo_#{SecureRandom.hex(8)}.jpg",
-            content_type: 'image/jpeg',
-          )
-
-        datum.merge(s3_photo: attached_photo).merge(photo: base64_photo)
+          datum.merge(s3_photo: attached_photo).merge(photo: base64_photo)
+        end
       end
   end
 
