@@ -160,14 +160,13 @@ jest.mock("../../../store/sessionFiltersSlice", () => ({
 }));
 
 jest.mock("../../../store/fixedSessionsSlice", () => ({
-  cleanSessions: jest.fn(() => ({ type: "fixedSessions/cleanSessions" })),
   fetchActiveFixedSessions: jest.fn(() => ({
     type: "fixedSessions/fetchActiveFixedSessions",
-    unwrap: () => Promise.resolve(),
+    payload: Promise.resolve(),
   })),
   fetchDormantFixedSessions: jest.fn(() => ({
     type: "fixedSessions/fetchDormantFixedSessions",
-    unwrap: () => Promise.resolve(),
+    payload: Promise.resolve(),
   })),
 }));
 
@@ -285,8 +284,8 @@ jest.mock("../../../store/markersLoadingSlice", () => ({
   setTotalMarkers: jest.fn(() => ({ type: "markersLoading/setTotalMarkers" })),
 }));
 
-jest.mock("../../../store/indoorSessionsSelectors", () => ({
-  selectIndoorSessionsList: jest.fn().mockImplementation((isDormant) => () => [
+jest.mock("../../../store/indoorSessionsSelectors", () => {
+  const mockSessions = [
     {
       id: 1,
       title: "Test Indoor Session",
@@ -296,8 +295,14 @@ jest.mock("../../../store/indoorSessionsSelectors", () => ({
       endTime: "2023-01-02",
       streamId: 1,
     },
-  ]),
-}));
+  ];
+
+  return {
+    selectIndoorSessionsList: jest
+      .fn()
+      .mockImplementation((isDormant) => () => mockSessions),
+  };
+});
 
 jest.mock("../../../utils/cookies", () => ({
   set: jest.fn(),
@@ -839,51 +844,36 @@ describe("Map Component", () => {
     expect(sessionType).toBe(SessionTypes.MOBILE);
   });
 
-  // it("renders crowd map markers when in CrowdMapView", () => {
-  //   (useMapParams as jest.Mock).mockReturnValue({
-  //     ...mockMapParams,
-  //     currentUserSettings: UserSettings.CrowdMapView,
-  //   });
-  //   renderWithProviders(<MapWrapper disableEffects={true} />);
-  //   expect(screen.getByTestId("google-map")).toBeInTheDocument();
-  // });
+  it("renders legend when in MapLegendView", () => {
+    (useMapParams as jest.Mock).mockReturnValue({
+      ...mockMapParams,
+      currentUserSettings: UserSettings.MapLegendView,
+    });
+    renderWithProviders(<MapWrapper disableEffects={true} />);
+    expect(screen.getByText("map.legendTile")).toBeInTheDocument();
+  });
 
-  // it("renders legend when in MapLegendView", () => {
-  //   (useMapParams as jest.Mock).mockReturnValue({
-  //     ...mockMapParams,
-  //     currentUserSettings: UserSettings.MapLegendView,
-  //   });
-  //   renderWithProviders(<MapWrapper disableEffects={true} />);
-  //   expect(screen.getByText("map.legendTile")).toBeInTheDocument();
-  // });
+  it("renders mobile session list when in SessionListView on mobile", () => {
+    (useMobileDetection as jest.Mock).mockReturnValue(true);
+    (useMapParams as jest.Mock).mockReturnValue({
+      ...mockMapParams,
+      currentUserSettings: UserSettings.SessionListView,
+    });
+    renderWithProviders(<MapWrapper disableEffects={true} />);
+    expect(screen.getByText("map.listSessions")).toBeInTheDocument();
+  });
 
-  // it("renders mobile session list when in SessionListView on mobile", () => {
-  //   (useMobileDetection as jest.Mock).mockReturnValue(true);
-  //   (useMapParams as jest.Mock).mockReturnValue({
-  //     ...mockMapParams,
-  //     currentUserSettings: UserSettings.SessionListView,
-  //   });
-  //   renderWithProviders(<MapWrapper disableEffects={true} />);
-  //   expect(screen.getByText("map.listSessions")).toBeInTheDocument();
-  // });
+  it("renders mobile session filters when in FiltersView", () => {
+    (useMapParams as jest.Mock).mockReturnValue({
+      ...mockMapParams,
+      currentUserSettings: UserSettings.FiltersView,
+    });
+    renderWithProviders(<MapWrapper disableEffects={true} />);
 
-  // it("renders mobile session filters when in FiltersView", () => {
-  //   (useMapParams as jest.Mock).mockReturnValue({
-  //     ...mockMapParams,
-  //     currentUserSettings: UserSettings.FiltersView,
-  //   });
-  //   renderWithProviders(<MapWrapper disableEffects={true} />);
-  //   expect(screen.getByText("filters.editFilters")).toBeInTheDocument();
-  // });
+    const mobileFilters = screen.getByTestId("mobile-filters");
+    expect(mobileFilters).toBeInTheDocument();
 
-  // it("shows loading overlay when selectors or markers are loading", () => {
-  //   (useAppSelector as jest.Mock).mockImplementation((selector) => {
-  //     if (selector === selectIsLoading || selector === selectMarkersLoading) {
-  //       return true;
-  //     }
-  //     return false;
-  //   });
-  //   renderWithProviders(<MapWrapper disableEffects={true} />);
-  //   expect(screen.getByTestId("google-map")).toBeInTheDocument();
-  // });
+    expect(screen.getByTestId("indoor-button")).toBeInTheDocument();
+    expect(screen.getByTestId("outdoor-button")).toBeInTheDocument();
+  });
 });

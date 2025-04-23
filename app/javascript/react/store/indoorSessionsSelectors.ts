@@ -44,12 +44,15 @@ const selectIndoorSessionsPoints = (isDormant: boolean) =>
 
 const selectIndoorSessionsList = (isDormant: boolean) =>
   createSelector(
-    [selectIndoorSessionsState],
-    (indoorSessionsState): SessionList[] => {
-      const sessions = isDormant
-        ? indoorSessionsState.dormantIndoorSessions
-        : indoorSessionsState.activeIndoorSessions;
-
+    [
+      // Add a more specific selector to get just the sessions array
+      (state: RootState) =>
+        isDormant
+          ? state.indoorSessions.dormantIndoorSessions
+          : state.indoorSessions.activeIndoorSessions,
+    ],
+    (sessions): SessionList[] => {
+      // Now this will only re-run if the sessions array reference changes
       return sessions.map(
         ({
           id,

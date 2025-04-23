@@ -183,17 +183,28 @@ const Map = () => {
   const tagsToSelect = useAppSelector(selectTags);
 
   const fixedSessionTypeSelected: boolean = sessionType === SessionTypes.FIXED;
-  const listSessions = useAppSelector((state) => {
-    if (fixedSessionTypeSelected) {
-      if (isIndoorParameterInUrl) {
-        return selectIndoorSessionsList(isDormant)(state);
+
+  const selectListSessions = useMemo(
+    () => (state: RootState) => {
+      if (fixedSessionTypeSelected) {
+        if (isIndoorParameterInUrl) {
+          return selectIndoorSessionsList(isDormant)(state);
+        } else {
+          return selectFixedSessionsList(state, fixedSessionsType);
+        }
       } else {
-        return selectFixedSessionsList(state, fixedSessionsType);
+        return selectMobileSessionsList(state);
       }
-    } else {
-      return selectMobileSessionsList(state);
-    }
-  });
+    },
+    [
+      fixedSessionTypeSelected,
+      isIndoorParameterInUrl,
+      isDormant,
+      fixedSessionsType,
+    ]
+  );
+
+  const listSessions = useAppSelector(selectListSessions);
 
   const fixedStreamData = useAppSelector(selectFixedData);
 
