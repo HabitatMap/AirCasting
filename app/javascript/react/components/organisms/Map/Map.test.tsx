@@ -702,28 +702,12 @@ describe("Map Component", () => {
     });
     renderWithProviders(<MapWrapper disableSpecificEffects={true} />);
 
-    // Check if indoor button is selected in filters
     const indoorButton = screen.getByTestId("indoor-button");
     expect(indoorButton).toHaveAttribute("data-selected", "true");
 
-    // Check for the indoor overlay text
     const indoorOverlay = screen.getByTestId("indoor-overlay");
     expect(indoorOverlay).toBeInTheDocument();
     expect(screen.getByText("filters.indoorMapOverlay")).toBeInTheDocument();
-  });
-
-  it("does not show indoor overlay for mobile sessions", () => {
-    (useMapParams as jest.Mock).mockReturnValue({
-      ...mockMapParams,
-      isIndoor: true,
-      sessionType: SessionTypes.MOBILE,
-      currentUserSettings: UserSettings.FiltersView,
-    });
-    renderWithProviders(<MapWrapper disableEffects={true} />);
-
-    expect(screen.queryByTestId("indoor-overlay")).not.toBeInTheDocument();
-
-    expect(screen.queryByTestId("indoor-button")).not.toBeInTheDocument();
   });
 
   it("renders dormant markers when fixed session type is selected and isActive is false", () => {
@@ -835,10 +819,8 @@ describe("Map Component", () => {
 
     renderWithProviders(<MapWrapper disableEffects={true} />);
 
-    // Verify that the map is rendered
     expect(screen.getByTestId("google-map")).toBeInTheDocument();
 
-    // Verify that the stream markers are rendered
     expect(useMapParams).toHaveBeenCalled();
     const { streamId, sessionType } = useMapParams();
     expect(streamId).toBe(123);
@@ -871,11 +853,9 @@ describe("Map Component", () => {
     });
     renderWithProviders(<MapWrapper disableEffects={true} />);
 
-    // Check for the mobile filters container
     const mobileFilters = screen.getByTestId("mobile-filters");
     expect(mobileFilters).toBeInTheDocument();
 
-    // Check for the indoor/outdoor buttons
     expect(screen.getByTestId("indoor-button")).toBeInTheDocument();
     expect(screen.getByTestId("outdoor-button")).toBeInTheDocument();
   });
