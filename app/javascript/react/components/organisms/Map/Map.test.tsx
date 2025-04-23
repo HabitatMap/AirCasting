@@ -160,13 +160,14 @@ jest.mock("../../../store/sessionFiltersSlice", () => ({
 }));
 
 jest.mock("../../../store/fixedSessionsSlice", () => ({
+  cleanSessions: jest.fn(() => ({ type: "fixedSessions/cleanSessions" })),
   fetchActiveFixedSessions: jest.fn(() => ({
     type: "fixedSessions/fetchActiveFixedSessions",
-    payload: Promise.resolve(),
+    unwrap: () => Promise.resolve(),
   })),
   fetchDormantFixedSessions: jest.fn(() => ({
     type: "fixedSessions/fetchDormantFixedSessions",
-    payload: Promise.resolve(),
+    unwrap: () => Promise.resolve(),
   })),
 }));
 
@@ -870,9 +871,11 @@ describe("Map Component", () => {
     });
     renderWithProviders(<MapWrapper disableEffects={true} />);
 
+    // Check for the mobile filters container
     const mobileFilters = screen.getByTestId("mobile-filters");
     expect(mobileFilters).toBeInTheDocument();
 
+    // Check for the indoor/outdoor buttons
     expect(screen.getByTestId("indoor-button")).toBeInTheDocument();
     expect(screen.getByTestId("outdoor-button")).toBeInTheDocument();
   });
