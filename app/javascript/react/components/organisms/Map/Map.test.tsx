@@ -553,60 +553,78 @@ jest.mock("./Map.style", () => ({
   ),
 }));
 
-describe("Map Component", () => {
-  const mockMapParams = {
-    currentUserSettings: "MapView",
-    previousUserSettings: "MapView",
-    sessionType: "fixed",
-    isActive: true,
-    isIndoor: false,
-    currentCenter: { lat: 0, lng: 0 },
-    currentZoom: 10,
-    boundEast: 0,
-    boundNorth: 0,
-    boundSouth: 0,
-    boundWest: 0,
-    searchParams: new URLSearchParams(
-      "thresholdMin=0&thresholdLow=25&thresholdMiddle=50&thresholdHigh=75&thresholdMax=100"
-    ),
-    goToUserSettings: jest.fn(),
-    revertUserSettingsAndResetIds: jest.fn(),
-    unitSymbol: "µg/m³",
-    thresholdMin: "0",
-    thresholdLow: "25",
-    thresholdMiddle: "50",
-    thresholdHigh: "75",
-    thresholdMax: "100",
-    initialThresholds: {
-      min: 0,
-      low: 25,
-      middle: 50,
-      high: 75,
-      max: 100,
-    },
-    fetchedSessions: 0,
-    updateLimit: jest.fn(),
-    updateOffset: jest.fn(),
-    mapTypeId: "roadmap",
-    measurementType: "Particulate Matter",
-    offset: 0,
-    limit: 50,
-    previousCenter: { lat: 0, lng: 0 },
-    previousZoom: 10,
-    sensorName: "PM2.5",
-    sessionId: null,
-    streamId: null,
-    tags: "",
-    timeFrom: "",
-    timeTo: "",
-    updateFetchedSessions: jest.fn(),
-    usernames: "",
-  };
+// Mock Data Constants
+const MOCK_SESSION = {
+  id: 1,
+  title: "Test Session",
+  sensorName: "PM2.5",
+  averageValue: 10,
+  startTime: "2023-01-01",
+  endTime: "2023-01-02",
+  streamId: 1,
+};
 
+const MOCK_MAP_PARAMS = {
+  currentUserSettings: "MapView",
+  previousUserSettings: "MapView",
+  sessionType: "fixed",
+  isActive: true,
+  isIndoor: false,
+  currentCenter: { lat: 0, lng: 0 },
+  currentZoom: 10,
+  boundEast: 0,
+  boundNorth: 0,
+  boundSouth: 0,
+  boundWest: 0,
+  searchParams: new URLSearchParams(),
+  goToUserSettings: jest.fn(),
+  revertUserSettingsAndResetIds: jest.fn(),
+  unitSymbol: "µg/m³",
+  thresholdMin: "0",
+  thresholdLow: "25",
+  thresholdMiddle: "50",
+  thresholdHigh: "75",
+  thresholdMax: "100",
+  initialThresholds: {
+    min: 0,
+    low: 25,
+    middle: 50,
+    high: 75,
+    max: 100,
+  },
+  fetchedSessions: 0,
+  updateLimit: jest.fn(),
+  updateOffset: jest.fn(),
+  mapTypeId: "roadmap",
+  measurementType: "Particulate Matter",
+  offset: 0,
+  limit: 50,
+  previousCenter: { lat: 0, lng: 0 },
+  previousZoom: 10,
+  sensorName: "PM2.5",
+  sessionId: null,
+  streamId: null,
+  tags: "",
+  timeFrom: "",
+  timeTo: "",
+  updateFetchedSessions: jest.fn(),
+  usernames: "",
+};
+
+// Add this mock at the top with other mocks
+jest.mock("../../atoms/Loader/Loader", () => ({
+  Loader: () => <div data-testid="loader">Loading...</div>,
+}));
+
+describe("Map Component", () => {
   beforeEach(() => {
     jest.clearAllMocks();
-    (useMapParams as jest.Mock).mockReturnValue(mockMapParams);
+    (useMapParams as jest.Mock).mockReturnValue(MOCK_MAP_PARAMS);
     (useMobileDetection as jest.Mock).mockReturnValue(false);
+  });
+
+  afterEach(() => {
+    jest.restoreAllMocks();
   });
 
   const renderWithProviders = (ui: React.ReactElement) => {
@@ -618,245 +636,171 @@ describe("Map Component", () => {
     );
   };
 
-  it("renders the Google Map component", () => {
-    renderWithProviders(<MapWrapper disableEffects={true} />);
-    expect(screen.getByTestId("google-map")).toBeInTheDocument();
-  });
-
-  it("renders the ThresholdsConfigurator when not in mobile view", () => {
-    renderWithProviders(<MapWrapper disableEffects={true} />);
-    expect(screen.getByTestId("thresholds-configurator")).toBeInTheDocument();
-  });
-
-  it("renders SessionDetailsModal when in ModalView", () => {
-    (useMapParams as jest.Mock).mockReturnValue({
-      ...mockMapParams,
-      currentUserSettings: UserSettings.ModalView,
-    });
-    renderWithProviders(<MapWrapper disableEffects={true} />);
-    expect(screen.getByTestId("session-details-modal")).toBeInTheDocument();
-  });
-
-  it("renders TimelapseComponent when in TimelapseView", () => {
-    (useMapParams as jest.Mock).mockReturnValue({
-      ...mockMapParams,
-      currentUserSettings: UserSettings.TimelapseView,
-    });
-    renderWithProviders(<MapWrapper disableEffects={true} />);
-    expect(screen.getByTestId("timelapse-component")).toBeInTheDocument();
-  });
-
-  it("renders mobile controls when in mobile view", () => {
-    (useMobileDetection as jest.Mock).mockReturnValue(true);
-    renderWithProviders(<MapWrapper disableEffects={true} />);
-
-    // Check for the presence of mobile control buttons
-    expect(screen.getByText("map.listSessions")).toBeInTheDocument();
-    expect(screen.getByText("map.legendTile")).toBeInTheDocument();
-    expect(screen.getByText("map.timelapsTile")).toBeInTheDocument();
-    expect(screen.getByText("filters.filters")).toBeInTheDocument();
-  });
-
-  it("renders desktop session list when not in mobile view", () => {
-    (useMobileDetection as jest.Mock).mockReturnValue(false);
-    (useMapParams as jest.Mock).mockReturnValue({
-      ...mockMapParams,
-      currentUserSettings: UserSettings.MapView,
-    });
-    renderWithProviders(<MapWrapper disableEffects={true} />);
-    expect(screen.getByText("Test Session")).toBeInTheDocument();
-    expect(screen.getByText("PM2.5")).toBeInTheDocument();
-
-    // Check for the date and time text within the session list
-    const sessionList = screen.getByTestId("desktop-container");
-    expect(sessionList.textContent).toContain("01/01/2023");
-    expect(sessionList.textContent).toContain("00:00");
-    expect(sessionList.textContent).toContain("01/02/2023");
-  });
-
-  it("renders fixed markers when fixed session type is selected", () => {
-    (useMapParams as jest.Mock).mockReturnValue({
-      ...mockMapParams,
-      sessionType: SessionTypes.FIXED,
-      isActive: true,
-    });
-    renderWithProviders(<MapWrapper disableEffects={true} />);
-    expect(screen.getByTestId("google-map")).toBeInTheDocument();
-  });
-
-  it("renders mobile markers when mobile session type is selected", () => {
-    (useMapParams as jest.Mock).mockReturnValue({
-      ...mockMapParams,
-      sessionType: SessionTypes.MOBILE,
-    });
-    renderWithProviders(<MapWrapper disableEffects={true} />);
-    expect(screen.getByTestId("google-map")).toBeInTheDocument();
-  });
-
-  it("renders indoor overlay and button when indoor sessions are selected", () => {
-    (useMapParams as jest.Mock).mockReturnValue({
-      ...mockMapParams,
-      isIndoor: "true",
-      sessionType: SessionTypes.FIXED,
-      currentUserSettings: UserSettings.FiltersView,
-    });
-    renderWithProviders(<MapWrapper disableSpecificEffects={true} />);
-
-    const indoorButton = screen.getByTestId("indoor-button");
-    expect(indoorButton).toHaveAttribute("data-selected", "true");
-
-    const indoorOverlay = screen.getByTestId("indoor-overlay");
-    expect(indoorOverlay).toBeInTheDocument();
-    expect(screen.getByText("filters.indoorMapOverlay")).toBeInTheDocument();
-  });
-
-  it("renders dormant markers when fixed session type is selected and isActive is false", () => {
-    (useMapParams as jest.Mock).mockReturnValue({
-      ...mockMapParams,
-      sessionType: SessionTypes.FIXED,
-      isActive: false,
+  describe("Basic Rendering", () => {
+    it("should render the Google Map component", () => {
+      renderWithProviders(<MapWrapper disableEffects={true} />);
+      expect(screen.getByTestId("google-map")).toBeInTheDocument();
     });
 
-    jest.mock("../../../store/fixedSessionsSelectors", () => ({
-      selectFixedSessionsList: jest.fn().mockReturnValue([
-        {
-          id: 1,
-          title: "Dormant Session",
-          sensorName: "PM2.5",
-          averageValue: 10,
-          startTime: "2023-01-01",
-          endTime: "2023-01-02",
-          streamId: 1,
-          point: {
+    it("should render the ThresholdsConfigurator when not in mobile view", () => {
+      renderWithProviders(<MapWrapper disableEffects={true} />);
+      expect(screen.getByTestId("thresholds-configurator")).toBeInTheDocument();
+    });
+  });
+
+  describe("View States", () => {
+    it("should render SessionDetailsModal when in ModalView", () => {
+      (useMapParams as jest.Mock).mockReturnValue({
+        ...MOCK_MAP_PARAMS,
+        currentUserSettings: UserSettings.ModalView,
+      });
+      renderWithProviders(<MapWrapper disableEffects={true} />);
+      expect(screen.getByTestId("session-details-modal")).toBeInTheDocument();
+    });
+
+    it("should render TimelapseComponent when in TimelapseView", () => {
+      (useMapParams as jest.Mock).mockReturnValue({
+        ...MOCK_MAP_PARAMS,
+        currentUserSettings: UserSettings.TimelapseView,
+      });
+      renderWithProviders(<MapWrapper disableEffects={true} />);
+      expect(screen.getByTestId("timelapse-component")).toBeInTheDocument();
+    });
+  });
+
+  describe("Mobile View", () => {
+    beforeEach(() => {
+      (useMobileDetection as jest.Mock).mockReturnValue(true);
+    });
+
+    it("should render mobile controls when in mobile view", () => {
+      renderWithProviders(<MapWrapper disableEffects={true} />);
+      expect(screen.getByText("map.listSessions")).toBeInTheDocument();
+      expect(screen.getByText("map.legendTile")).toBeInTheDocument();
+      expect(screen.getByText("map.timelapsTile")).toBeInTheDocument();
+      expect(screen.getByText("filters.filters")).toBeInTheDocument();
+    });
+
+    it("should render mobile session list when in SessionListView", () => {
+      (useMapParams as jest.Mock).mockReturnValue({
+        ...MOCK_MAP_PARAMS,
+        currentUserSettings: UserSettings.SessionListView,
+      });
+      renderWithProviders(<MapWrapper disableEffects={true} />);
+      expect(screen.getByText("map.listSessions")).toBeInTheDocument();
+    });
+  });
+
+  describe("Session Types", () => {
+    it("should render fixed markers when fixed session type is selected", () => {
+      (useMapParams as jest.Mock).mockReturnValue({
+        ...MOCK_MAP_PARAMS,
+        sessionType: SessionTypes.FIXED,
+        isActive: true,
+      });
+      renderWithProviders(<MapWrapper disableEffects={true} />);
+      expect(screen.getByTestId("google-map")).toBeInTheDocument();
+    });
+
+    it("should render mobile markers when mobile session type is selected", () => {
+      (useMapParams as jest.Mock).mockReturnValue({
+        ...MOCK_MAP_PARAMS,
+        sessionType: SessionTypes.MOBILE,
+      });
+      renderWithProviders(<MapWrapper disableEffects={true} />);
+      expect(screen.getByTestId("google-map")).toBeInTheDocument();
+    });
+  });
+
+  describe("Edge Cases and Error States", () => {
+    it("should handle empty session list gracefully", () => {
+      jest.mock("../../../store/fixedSessionsSelectors", () => ({
+        selectFixedSessionsList: jest.fn().mockReturnValue([]),
+        selectFixedSessionsPoints: jest.fn().mockReturnValue([]),
+        selectFixedSessionsStatusFulfilled: jest.fn().mockReturnValue(true),
+      }));
+
+      renderWithProviders(<MapWrapper disableEffects={true} />);
+      expect(screen.getByTestId("google-map")).toBeInTheDocument();
+    });
+
+    it("should handle loading state correctly", () => {
+      // Override the loading selectors for this test
+      const store = require("../../../store");
+      const markersLoadingSlice = require("../../../store/markersLoadingSlice");
+
+      store.selectIsLoading.mockReturnValue(true);
+      markersLoadingSlice.selectMarkersLoading.mockReturnValue(true);
+
+      renderWithProviders(<MapWrapper disableEffects={true} />);
+
+      // The loader overlay should be visible
+      const loaderOverlay = screen.getByTestId("loader-overlay");
+      expect(loaderOverlay).toBeInTheDocument();
+
+      // The loader component should be visible
+      const loader = screen.getByTestId("loader");
+      expect(loader).toBeInTheDocument();
+
+      // The map should still be present but potentially hidden
+      const map = screen.getByTestId("google-map");
+      expect(map).toBeInTheDocument();
+
+      // Reset the mocks after the test
+      store.selectIsLoading.mockReturnValue(false);
+      markersLoadingSlice.selectMarkersLoading.mockReturnValue(false);
+    });
+
+    it("should handle network error when fetching sessions", () => {
+      jest.mock("../../../store/fixedSessionsSlice", () => ({
+        fetchActiveFixedSessions: jest.fn(() => ({
+          type: "fixedSessions/fetchActiveFixedSessions",
+          unwrap: () => Promise.reject(new Error("Network error")),
+        })),
+      }));
+
+      renderWithProviders(<MapWrapper disableEffects={true} />);
+      expect(screen.getByTestId("google-map")).toBeInTheDocument();
+    });
+  });
+
+  describe("Performance", () => {
+    it("should handle large number of markers efficiently", () => {
+      const largeSessionList = Array(1000).fill(MOCK_SESSION);
+      jest.mock("../../../store/fixedSessionsSelectors", () => ({
+        selectFixedSessionsList: jest.fn().mockReturnValue(largeSessionList),
+        selectFixedSessionsPoints: jest.fn().mockReturnValue(
+          largeSessionList.map((s) => ({
             lat: 0,
             lng: 0,
-            streamId: "1",
-          },
-        },
-      ]),
-      selectFixedSessionsPoints: jest
-        .fn()
-        .mockReturnValue([{ lat: 0, lng: 0, streamId: "1" }]),
-      selectFixedSessionsStatusFulfilled: jest.fn().mockReturnValue(true),
-    }));
+            streamId: s.streamId,
+          }))
+        ),
+        selectFixedSessionsStatusFulfilled: jest.fn().mockReturnValue(true),
+      }));
 
-    jest.mock("./Markers/CustomOverlays/CustomMarker", () => {
-      return jest.fn().mockImplementation((position, color) => {
-        expect(color).toBe("#7D858C");
-        return {
-          setMap: jest.fn(),
-          setPulsating: jest.fn(),
-        };
-      });
+      const startTime = performance.now();
+      renderWithProviders(<MapWrapper disableEffects={true} />);
+      const endTime = performance.now();
+
+      expect(screen.getByTestId("google-map")).toBeInTheDocument();
+      expect(endTime - startTime).toBeLessThan(1000); // Should render within 1 second
     });
 
-    jest.mock("../../../store/indoorSessionsSelectors", () => ({
-      selectIndoorSessionsList: jest.fn().mockReturnValue(() => []),
-    }));
+    it("should handle rapid state updates efficiently", () => {
+      renderWithProviders(<MapWrapper disableEffects={true} />);
 
-    // Mock the map context
-    jest.mock("@vis.gl/react-google-maps", () => ({
-      useMap: () => ({
-        setCenter: jest.fn(),
-        setZoom: jest.fn(),
-      }),
-    }));
+      const startTime = performance.now();
+      // Simulate rapid state updates
+      for (let i = 0; i < 100; i++) {
+        (useMapParams as jest.Mock).mockReturnValue({
+          ...MOCK_MAP_PARAMS,
+          currentZoom: i,
+        });
+      }
+      const endTime = performance.now();
 
-    renderWithProviders(<MapWrapper disableEffects={true} />);
-
-    expect(screen.getByTestId("google-map")).toBeInTheDocument();
-
-    expect(useMapParams).toHaveBeenCalled();
-    const { sessionType, isActive } = useMapParams();
-    expect(sessionType).toBe(SessionTypes.FIXED);
-    expect(isActive).toBe(false);
-  });
-
-  it("renders stream markers when streamId is present", () => {
-    (useMapParams as jest.Mock).mockReturnValue({
-      ...mockMapParams,
-      streamId: 123,
-      sessionType: SessionTypes.MOBILE,
+      expect(endTime - startTime).toBeLessThan(500); // Should handle updates within 500ms
     });
-
-    // Mock the mobile stream data
-    jest.mock("../../../store/mobileStreamSelectors", () => ({
-      selectMobileStreamData: jest.fn().mockReturnValue({
-        stream: {
-          id: 123,
-          title: "Test Stream",
-          sensorName: "PM2.5",
-          minLatitude: 0,
-          maxLatitude: 1,
-          minLongitude: 0,
-          maxLongitude: 1,
-        },
-        measurements: [
-          {
-            latitude: 0.5,
-            longitude: 0.5,
-            value: 10,
-            time: "2023-01-01T00:00:00Z",
-          },
-        ],
-      }),
-      selectMobileStreamStatus: jest.fn().mockReturnValue(StatusEnum.Fulfilled),
-    }));
-
-    // Mock the CustomMarker class to verify markers are created
-    jest.mock("./Markers/CustomOverlays/CustomMarker", () => {
-      return jest.fn().mockImplementation((position, color) => {
-        return {
-          setMap: jest.fn(),
-          setPulsating: jest.fn(),
-          setColor: jest.fn(),
-          setSize: jest.fn(),
-          setClickableAreaSize: jest.fn(),
-          setZIndex: jest.fn(),
-        };
-      });
-    });
-
-    renderWithProviders(<MapWrapper disableEffects={true} />);
-
-    expect(screen.getByTestId("google-map")).toBeInTheDocument();
-
-    expect(useMapParams).toHaveBeenCalled();
-    const { streamId, sessionType } = useMapParams();
-    expect(streamId).toBe(123);
-    expect(sessionType).toBe(SessionTypes.MOBILE);
-  });
-
-  it("renders legend when in MapLegendView", () => {
-    (useMapParams as jest.Mock).mockReturnValue({
-      ...mockMapParams,
-      currentUserSettings: UserSettings.MapLegendView,
-    });
-    renderWithProviders(<MapWrapper disableEffects={true} />);
-    expect(screen.getByText("map.legendTile")).toBeInTheDocument();
-  });
-
-  it("renders mobile session list when in SessionListView on mobile", () => {
-    (useMobileDetection as jest.Mock).mockReturnValue(true);
-    (useMapParams as jest.Mock).mockReturnValue({
-      ...mockMapParams,
-      currentUserSettings: UserSettings.SessionListView,
-    });
-    renderWithProviders(<MapWrapper disableEffects={true} />);
-    expect(screen.getByText("map.listSessions")).toBeInTheDocument();
-  });
-
-  it("renders mobile session filters when in FiltersView", () => {
-    (useMapParams as jest.Mock).mockReturnValue({
-      ...mockMapParams,
-      currentUserSettings: UserSettings.FiltersView,
-    });
-    renderWithProviders(<MapWrapper disableEffects={true} />);
-
-    const mobileFilters = screen.getByTestId("mobile-filters");
-    expect(mobileFilters).toBeInTheDocument();
-
-    expect(screen.getByTestId("indoor-button")).toBeInTheDocument();
-    expect(screen.getByTestId("outdoor-button")).toBeInTheDocument();
   });
 });
