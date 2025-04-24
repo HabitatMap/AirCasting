@@ -44,12 +44,13 @@ const selectIndoorSessionsPoints = (isDormant: boolean) =>
 
 const selectIndoorSessionsList = (isDormant: boolean) =>
   createSelector(
-    [selectIndoorSessionsState],
-    (indoorSessionsState): SessionList[] => {
-      const sessions = isDormant
-        ? indoorSessionsState.dormantIndoorSessions
-        : indoorSessionsState.activeIndoorSessions;
-
+    [
+      (state: RootState) =>
+        isDormant
+          ? state.indoorSessions.dormantIndoorSessions
+          : state.indoorSessions.activeIndoorSessions,
+    ],
+    (sessions): SessionList[] => {
       return sessions.map(
         ({
           id,
