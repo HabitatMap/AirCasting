@@ -10,9 +10,13 @@ export const renderWithProviders = (
   options?: { initialState?: Partial<RootState> }
 ) => {
   const store = createMockStore(options?.initialState);
-  return render(
+  const renderResult = render(
     <Provider store={store}>
       <BrowserRouter>{ui}</BrowserRouter>
     </Provider>
   );
+  return {
+    store,
+    ...renderResult,
+  };
 };

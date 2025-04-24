@@ -1,6 +1,7 @@
 import "@testing-library/jest-dom";
-import { screen } from "@testing-library/react";
+import { act, screen } from "@testing-library/react";
 import React from "react";
+import { setLastSelectedTimeRange } from "../../../../store/fixedStreamSlice";
 import { MOCK_MAP_PARAMS } from "../../../../test/mocks/mapMocks";
 import { renderWithProviders } from "../../../../test/utils/renderWithProviders";
 import { StatusEnum } from "../../../../types/api";
@@ -453,6 +454,38 @@ describe("Graph Component", () => {
         { initialState }
       );
       expect(screen.getByTestId("highcharts-graph")).toBeInTheDocument();
+    });
+  });
+
+  describe("Time Range Selection", () => {
+    it("should update when time range changes", async () => {
+      const { store } = renderWithProviders(
+        <Graph
+          sessionType={SessionTypes.FIXED}
+          streamId={1}
+          isCalendarPage={false}
+          selectedTimestamp={null}
+        />,
+        { initialState }
+      );
+
+      // Initial state should show graph with day range
+      expect(screen.getByTestId("highcharts-graph")).toBeInTheDocument();
+      const options = JSON.parse(
+        screen.getByText(/Options:/).textContent?.replace("Options: ", "") ||
+          "{}"
+      );
+      expect(options.rangeSelector.selected).toBe(0);
+
+      await act(async () => {
+        store.dispatch(setLastSelectedTimeRange(FixedTimeRange.Week));
+      });
+
+      const updatedOptions = JSON.parse(
+        screen.getByText(/Options:/).textContent?.replace("Options: ", "") ||
+          "{}"
+      );
+      expect(updatedOptions.rangeSelector.selected).toBe(0);
     });
   });
 });
