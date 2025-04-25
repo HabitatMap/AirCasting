@@ -30,27 +30,32 @@ class Note < ApplicationRecord
   def as_json(opts = nil)
     result = super(opts)
 
+    result.merge({ photo: photo_url, photo_thumbnail: photo_thumbnail_url })
+  end
+
+  def photo_url
     if s3_photo.attached?
-      result.merge!(
-        {
-          photo:
-            Rails.application.routes.url_helpers.rails_blob_url(
-              s3_photo,
-              only_path: true,
-            ),
-          photo_thumbnail:
-            Rails.application.routes.url_helpers.rails_representation_url(
-              s3_photo.variant(resize_to_limit: [100, 100]).processed,
-              only_path: true,
-            ),
-        },
+      Rails.application.routes.url_helpers.rails_blob_url(
+        s3_photo,
+        only_path: true,
       )
     elsif photo_exists?
-      result.merge!(
-        { photo: photo.url(:medium), photo_thumbnail: photo.url(:thumbnail) },
-      )
+      photo.url(:medium)
+    else
+      nil
     end
+  end
 
-    result
+  def photo_thumbnail_url
+    if s3_photo.attached?
+      Rails.application.routes.url_helpers.rails_representation_url(
+        s3_photo.variant(resize_to_limit: [100, 100]).processed,
+        only_path: true,
+      )
+    elsif photo_exists?
+      photo.url(:thumbnail)
+    else
+      nil
+    end
   end
 end
