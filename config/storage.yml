@@ -12,7 +12,7 @@ amazon:
   access_key_id: <%= A9n.aws_access_key_id %>
   secret_access_key: <%= A9n.aws_secret_access_key %>
   region: us-east-1
-  bucket: <%= A9n.aws_bucket %>
+  bucket: <%= A9n.aws_s3_bucket %>
 # Remember not to checkin your GCS keyfile to a repository
 # google:
 #   service: GCS
