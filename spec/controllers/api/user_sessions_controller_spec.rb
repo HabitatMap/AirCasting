@@ -6,91 +6,6 @@ describe Api::UserSessionsController do
   before { sign_in(user) }
   before { allow(controller).to receive(:current_user) { user } }
 
-  describe '#sync' do
-    it "returns session for upload when it's not present in the db" do
-      post :sync, format: :json, params: { data: session_data(uuid: 'abc') }
-
-      expected = { 'download' => [], 'upload' => %w[abc], 'deleted' => [] }
-
-      expect(json_response).to eq(expected)
-    end
-
-    it "doesn't crush when to data provided in the params" do
-      post :sync, format: :json, params: {}
-
-      expect(response).to have_http_status(200)
-    end
-
-    it "returns session as deleted when it's already deleted in the db" do
-      session = create_session!(user: user, uuid: 'abc')
-      session.destroy
-
-      post :sync, format: :json, params: { data: session_data(uuid: 'abc') }
-
-      expected = { 'download' => [], 'upload' => [], 'deleted' => %w[abc] }
-
-      expect(json_response).to eq(expected)
-    end
-
-    it 'deletes a session and returns it as deleted if it was mark for deletion' do
-      session = create_session!(user: user, uuid: 'abc')
-
-      post :sync,
-           format: :json,
-           params: {
-             data: session_data(uuid: 'abc', deleted: true)
-           }
-
-      expected = { 'download' => [], 'upload' => [], 'deleted' => %w[abc] }
-
-      expect(user.sessions.count).to eq(0)
-      expect(json_response).to eq(expected)
-    end
-
-    it "returns session for download when present it's in the db, but not in the mobile app" do
-      session = create_session!(user: user)
-      stream = create_stream!(session: session)
-      create_measurements!(stream: stream)
-
-      post :sync, format: :json, params: { data: '[]' }
-
-      expected = { 'download' => [session.id], 'upload' => [], 'deleted' => [] }
-
-      expect(json_response).to eq(expected)
-    end
-
-    it "syncs the session data if it's present in db and wasn't mark for deletion" do
-      session =
-        create_session!(
-          user: user,
-          uuid: 'abc',
-          title: 'old title',
-          tag_list: 'old'
-        )
-      stream = create_stream!(session: session)
-      create_measurements!(stream: stream)
-
-      post :sync,
-           format: :json,
-           params: {
-             data:
-               session_data(
-                 uuid: 'abc',
-                 title: 'new title',
-                 tag_list: 'new other'
-               )
-           }
-
-      expected = { 'download' => [], 'upload' => [], 'deleted' => [] }
-
-      synced_session = user.sessions.first
-
-      expect(json_response).to eq(expected)
-      expect(synced_session.title).to eq('new title')
-      expect(synced_session.tags.map(&:name)).to match_array(%w[new other])
-    end
-  end
-
   describe '#show' do
     let(:stream) { FactoryBot.create(:stream) }
 
@@ -100,7 +15,7 @@ describe Api::UserSessionsController do
           :mobile_session,
           user: user,
           streams: [stream],
-          tag_list: 'hello world'
+          tag_list: 'hello world',
         )
       end
 
@@ -113,7 +28,7 @@ describe Api::UserSessionsController do
         get :show, params: { id: session.id }, format: :json
         expect(json_response).to include (
                   {
-                    location: short_session_url(session, host: A9n.host)
+                    location: short_session_url(session, host: A9n.host),
                   }.as_json
                 )
       end
@@ -136,8 +51,8 @@ describe Api::UserSessionsController do
             photo_updated_at: nil,
             session_id: session.id,
             text: session.notes.first.text,
-            updated_at: session.notes.first.updated_at
-          }.as_json
+            updated_at: session.notes.first.updated_at,
+          }.as_json,
         )
       end
 
@@ -156,7 +71,7 @@ describe Api::UserSessionsController do
       let(:note) do
         FactoryBot.create(
           :note,
-          photo: File.new(Rails.root + 'spec' + 'fixtures' + 'test.jpg')
+          photo: File.new(Rails.root + 'spec' + 'fixtures' + 'test.jpg'),
         )
       end
       let(:session) do
@@ -193,8 +108,8 @@ describe Api::UserSessionsController do
                title: new_title,
                tag_list: new_tag_list,
                notes: [],
-               streams: {}
-             }.to_json
+               streams: {},
+             }.to_json,
            }
       session.reload
 
@@ -217,10 +132,10 @@ describe Api::UserSessionsController do
                  ignored_key: {
                    sensor_package_name: stream.sensor_package_name,
                    sensor_name: stream.sensor_name,
-                   deleted: true
-                 }
-               }
-             }.to_json
+                   deleted: true,
+                 },
+               },
+             }.to_json,
            }
       session.reload
 
@@ -239,8 +154,8 @@ describe Api::UserSessionsController do
                title: session.title,
                tag_list: session.tag_list.to_s,
                notes: [{ number: note.number, text: new_text }],
-               streams: {}
-             }.to_json
+               streams: {},
+             }.to_json,
            }
 
       expected = session.notes.first
@@ -259,8 +174,8 @@ describe Api::UserSessionsController do
                title: session.title,
                tag_list: session.tag_list.to_s,
                notes: [],
-               streams: {}
-             }.to_json
+               streams: {},
+             }.to_json,
            }
 
       expect(session.notes).to eq([])
@@ -275,8 +190,8 @@ describe Api::UserSessionsController do
                title: session.title,
                tag_list: session.tag_list.to_s,
                notes: [],
-               streams: {}
-             }.to_json
+               streams: {},
+             }.to_json,
            }
 
       session.reload
@@ -290,7 +205,7 @@ describe Api::UserSessionsController do
       post :sync_with_versioning,
            format: :json,
            params: {
-             data: session_data2(uuid: 'abc')
+             data: session_data2(uuid: 'abc'),
            }
 
       expected = { 'download' => [], 'upload' => %w[abc], 'deleted' => [] }
@@ -305,7 +220,7 @@ describe Api::UserSessionsController do
       post :sync_with_versioning,
            format: :json,
            params: {
-             data: session_data2(uuid: 'abc')
+             data: session_data2(uuid: 'abc'),
            }
 
       expected = { 'download' => [], 'upload' => [], 'deleted' => %w[abc] }
@@ -319,7 +234,7 @@ describe Api::UserSessionsController do
       post :sync_with_versioning,
            format: :json,
            params: {
-             data: session_data2(uuid: 'abc', deleted: true)
+             data: session_data2(uuid: 'abc', deleted: true),
            }
 
       expected = { 'download' => [], 'upload' => [], 'deleted' => %w[abc] }
@@ -348,7 +263,7 @@ describe Api::UserSessionsController do
       post :sync_with_versioning,
            format: :json,
            params: {
-             data: session_data2(uuid: 'abc', version: 1)
+             data: session_data2(uuid: 'abc', version: 1),
            }
 
       expected = { 'download' => %w[abc], 'upload' => [], 'deleted' => [] }
@@ -364,8 +279,8 @@ describe Api::UserSessionsController do
       {
         deleted: attributes.fetch(:deleted, false),
         uuid: attributes.fetch(:uuid, 'uuid'),
-        version: attributes.fetch(:version, 1)
-      }
+        version: attributes.fetch(:version, 1),
+      },
     ].to_json
   end
 
