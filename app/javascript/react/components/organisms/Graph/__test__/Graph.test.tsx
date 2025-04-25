@@ -25,12 +25,20 @@ jest.mock("highcharts/highstock", () => ({
 
 jest.mock("highcharts-react-official", () => {
   const HighchartsReact = React.forwardRef<HTMLDivElement, { options: any }>(
-    ({ options }, ref) => (
-      <div data-testid="highcharts-graph" ref={ref}>
-        <div>Highcharts Graph</div>
-        <div>Options: {JSON.stringify(options)}</div>
-      </div>
-    )
+    ({ options }, ref) => {
+      // Store the options in a ref so we can access them in tests
+      const optionsRef = React.useRef(options);
+      React.useEffect(() => {
+        optionsRef.current = options;
+      }, [options]);
+
+      return (
+        <div data-testid="highcharts-graph" ref={ref}>
+          <div>Highcharts Graph</div>
+          <div>Options: {JSON.stringify(optionsRef.current)}</div>
+        </div>
+      );
+    }
   );
   HighchartsReact.displayName = "HighchartsReact";
   return {
