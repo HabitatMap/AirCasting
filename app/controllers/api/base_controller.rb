@@ -32,7 +32,12 @@ module Api
     protected
 
     def photo_location(note)
-      if note.photo_exists?
+      if note.s3_photo.attached?
+        Rails.application.routes.url_helpers.rails_representation_url(
+          note.s3_photo.variant(resize_to_limit: [600, 600]).processed,
+          host: A9n.host_,
+        )
+      elsif note.photo_exists?
         'http://' + request.host + ':' + request.port.to_s +
           note.photo.url(:medium)
       end
