@@ -10,11 +10,16 @@ task migrate_photos_to_active_storage: :environment do
           File.join(Rails.root, 'public', note.photo.to_s.split('?').first)
         puts "Migrating photo for Note ID: #{note.id}"
 
+        content_type = note.photo_content_type
+        mime_type = Mime::Type.lookup(content_type)
+        extension = mime_type.symbol.to_s
+        filename = "photo_#{SecureRandom.hex(8)}.#{extension}"
+
         # Attach the file to Active Storage
         note.s3_photo.attach(
           io: File.open(paperclip_path),
-          filename: File.basename(paperclip_path),
-          content_type: note.photo_content_type,
+          filename: filename,
+          content_type: content_type,
         )
 
         puts "Successfully migrated photo for Note ID: #{note.id}"

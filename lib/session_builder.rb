@@ -64,15 +64,21 @@ class SessionBuilder
         if photo.blank?
           datum
         else
-          # paperclip - remove after migration
-          base64_photo = "data:image/jpeg;base64,#{photo}"
+          decoded = Base64.decode64(photo)
+          content_type = Marcel::MimeType.for(StringIO.new(decoded))
+          mime_type = Mime::Type.lookup(content_type)
+          extension = mime_type.symbol.to_s
+          filename = "photo_#{SecureRandom.hex(8)}.#{extension}"
 
           attached_photo =
             ActiveStorage::Blob.create_and_upload!(
-              io: StringIO.new(Base64.decode64(photo)),
-              filename: "photo_#{SecureRandom.hex(8)}.jpg",
-              content_type: 'image/jpeg',
+              io: StringIO.new(decoded),
+              filename: filename,
+              content_type: content_type,
             )
+
+          # paperclip - remove after migration
+          base64_photo = "data:image/jpeg;base64,#{photo}"
 
           datum.merge(s3_photo: attached_photo).merge(photo: base64_photo)
         end
