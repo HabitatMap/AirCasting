@@ -8,7 +8,14 @@ export class MapPage {
   }
 
   getByRole(
-    role: "button" | "combobox" | "option",
+    role:
+      | "button"
+      | "combobox"
+      | "option"
+      | "heading"
+      | "spinbutton"
+      | "textbox"
+      | "link",
     options?: { name: string; exact?: boolean }
   ): Locator {
     return this.page.getByRole(role, options);
@@ -34,7 +41,7 @@ export class MapPage {
     await this.waitForLoadState();
   }
 
-  async clickTimeRangeButton(timeRange: "WEEK" | "MONTH") {
+  async clickTimeRangeButton(timeRange: "HOURS" | "WEEK" | "MONTH") {
     await this.page.getByRole("button", { name: timeRange }).click();
   }
 
@@ -104,5 +111,60 @@ export class MapPage {
 
   async refreshMap() {
     await this.page.getByRole("button", { name: "Refresh map" }).click();
+  }
+
+  async clickImage(index: number) {
+    await this.page.locator("image").nth(index).click();
+  }
+
+  async doubleClickImage(index: number) {
+    await this.page.locator("image").nth(index).dblclick();
+  }
+
+  async clickScrollbarThumb() {
+    await this.page.locator(".highcharts-scrollbar-thumb").click();
+  }
+
+  async clickBackground() {
+    await this.page.locator(".highcharts-background").click();
+  }
+
+  async clickOverlay(index: number) {
+    await this.page.getByTestId("overlay").nth(index).click();
+  }
+
+  async clickCalendarIcon() {
+    await this.page.getByRole("link", { name: "Calendar icon" }).click();
+  }
+
+  async clickBackToSession() {
+    // Wait for the URL to contain the fixed_stream path with CALENDAR_VIEW
+    await this.page.waitForURL(/.*fixed_stream.*CALENDAR_VIEW.*/);
+
+    // Wait for the page to be fully loaded
+    await this.waitForLoadState();
+
+    // Wait for any loading indicators to disappear
+    await this.page.waitForSelector(".highcharts-loading", { state: "hidden" });
+
+    // Use the exact locator structure that matches the button with both image and text
+    const backButton = this.page
+      .locator("#react-app div")
+      .filter({ hasText: "Back to sessionAirBeamUser" })
+      .getByLabel("Map page", { exact: true });
+
+    await backButton.waitFor({ state: "visible", timeout: 10000 });
+    await backButton.click();
+
+    // Wait for navigation back to the main page with MODAL_VIEW
+    await this.page.waitForURL(/.*MODAL_VIEW.*/);
+    await this.waitForLoadState();
+  }
+
+  async clickCloseIcon() {
+    await this.page
+      .getByTestId("overlay")
+      .getByRole("button", { name: "Close icon" })
+      .click();
   }
 }
