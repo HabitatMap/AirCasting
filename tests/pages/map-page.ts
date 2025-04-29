@@ -53,9 +53,22 @@ export class MapPage {
   }
 
   async resetThresholdValues() {
-    await this.page
-      .getByRole("button", { name: "Reset the threshold values to" })
-      .click();
+    // Wait for the page to be fully loaded
+    await this.waitForLoadState();
+
+    // Wait for any loading indicators to disappear
+    await this.page.waitForSelector(".highcharts-loading", { state: "hidden" });
+
+    // Use the correct button text and structure
+    const resetButton = this.page.getByRole("button", {
+      name: "Reset the threshold values to default",
+    });
+
+    await resetButton.waitFor({ state: "visible", timeout: 10000 });
+    await resetButton.click();
+
+    // Wait for the values to be reset
+    await this.waitForLoadState();
   }
 
   async distributeMeasurements() {
