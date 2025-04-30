@@ -1,6 +1,8 @@
+import moment from "moment";
 import React from "react";
 import { useTranslation } from "react-i18next";
 
+import { DateFormat } from "../../../../../types/dateFormat";
 import { StreamUpdate } from "../../../../../types/fixedStream";
 import { formatTime } from "../../../../../utils/measurementsCalc";
 import {
@@ -18,7 +20,14 @@ const StreamUpdate: React.FC<StreamUpdate> = ({
 }) => {
   const { t } = useTranslation();
 
-  const formattedTime = formatTime(startTime, endTime);
+  const formattedStartTime = startTime
+    ? moment(startTime, DateFormat.us_with_time).toISOString()
+    : null;
+  const formattedEndTime = endTime
+    ? moment(endTime, DateFormat.us_with_time).toISOString()
+    : null;
+
+  const formattedTime = formatTime(formattedStartTime, formattedEndTime);
 
   return (
     <HorizontalContainer>
