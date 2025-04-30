@@ -1,0 +1,50 @@
+import { test } from "@playwright/test";
+
+test("test", async ({ page }) => {
+  await page.goto(
+    "http://localhost:3000/?streamId=2597281&thresholdMin=0&thresholdLow=9&thresholdMiddle=35&thresholdHigh=55&thresholdMax=150&sessionType=fixed&previousUserSettings=MAP_VIEW&currentUserSettings=MODAL_VIEW&sessionId=1875408&measurementType=Particulate+Matter&sensorName=Government-PM2.5&unitSymbol=%C2%B5g%2Fm%C2%B3&usernames=&tags=&isIndoor=false&isActive=true&timeFrom=1735689600&timeTo=1767225599&fetchedSessions=16&boundEast=-73.37466729032256&boundNorth=40.93662879130742&boundSouth=40.45752305499353&boundWest=-74.58434470967742&currentCenter=%7B%22lat%22%3A40.69750662508967%2C%22lng%22%3A-73.979506%7D&currentZoom=11.123352446381977&previousCenter=%7B%22lat%22%3A40.69750662508967%2C%22lng%22%3A-73.979506%7D&previousZoom=11.123352446381977"
+  );
+  await page.getByRole("link", { name: "Calendar icon" }).click();
+  await page
+    .locator("div")
+    .filter({ hasText: /^213$/ })
+    .locator("div")
+    .nth(1)
+    .click();
+  await page
+    .locator("div")
+    .filter({ hasText: /^267$/ })
+    .locator("div")
+    .nth(1)
+    .click();
+  await page.getByRole("button", { name: "HOURS" }).click();
+  await page.getByRole("button", { name: "WEEK" }).click();
+  await page.getByRole("button", { name: "MONTH" }).click();
+  await page.locator("image").nth(1).click();
+  await page
+    .getByRole("button", { name: "Move calendar page one step back" })
+    .click();
+  await page
+    .getByRole("button", { name: "Move calendar page one step back" })
+    .click();
+  await page.getByRole("spinbutton").nth(3).click();
+  await page.getByRole("spinbutton").nth(3).fill("95");
+  await page.getByRole("spinbutton").nth(3).press("Enter");
+  await page
+    .getByRole("button", { name: "Scale to fit data Distribute" })
+    .click();
+  await page
+    .getByRole("button", { name: "Reset to default Reset the" })
+    .click();
+  await page
+    .getByRole("button", { name: "Get link to the session you" })
+    .click();
+  await page.getByTestId("overlay").click();
+  await page.getByRole("button", { name: "DOWNLOAD DATA" }).click();
+  await page
+    .getByRole("textbox", { name: "email address" })
+    .fill("test@example.com");
+  await page.getByRole("textbox", { name: "email address" }).press("Enter");
+  await page.getByRole("button", { name: "email data" }).click();
+  await page.locator(".highcharts-scrollbar-thumb").click();
+});
