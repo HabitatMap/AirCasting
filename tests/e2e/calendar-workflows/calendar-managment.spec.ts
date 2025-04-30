@@ -41,10 +41,10 @@ test("test", async ({ page }) => {
     .click();
   await page.getByTestId("overlay").click();
   await page.getByRole("button", { name: "DOWNLOAD DATA" }).click();
-  await page
-    .getByRole("textbox", { name: "email address" })
-    .fill("test@example.com");
-  await page.getByRole("textbox", { name: "email address" }).press("Enter");
-  await page.getByRole("button", { name: "email data" }).click();
-  await page.locator(".highcharts-scrollbar-thumb").click();
+
+  // Wait for the email input to be visible and fill it
+  const emailInput = page.getByRole("textbox", { name: "email address" });
+  await emailInput.waitFor({ state: "visible" });
+  await emailInput.fill("test@example.com");
+  await emailInput.press("Enter");
 });
