@@ -4,7 +4,7 @@ import { render, screen } from "@testing-library/react";
 import React from "react";
 import { Provider } from "react-redux";
 import { BrowserRouter } from "react-router-dom";
-import { MapWrapper } from "../../../test/utils/mapWrapper";
+import { MapWrapper } from "../../../test-utils/utils/mapWrapper";
 import { StatusEnum } from "../../../types/api";
 import { SessionTypes } from "../../../types/filters";
 import { UserSettings } from "../../../types/userStates";

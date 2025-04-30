@@ -32,6 +32,7 @@ const Day: React.FC<DayProps> = ({
         true
       )}
       $hasValue={value !== null}
+      data-testid="calendar-cell"
     >
       <S.DayNumber $isVisible={true}>{dayNumber}</S.DayNumber>
       <S.ValueContainer $isVisible={true}>

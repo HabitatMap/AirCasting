@@ -1,9 +1,12 @@
 import "@testing-library/jest-dom";
 import { screen } from "@testing-library/react";
 import React from "react";
-import { MOCK_MAP_PARAMS, MOCK_SESSION } from "../../../../test/mocks/mapMocks";
-import { MapWrapper } from "../../../../test/utils/mapWrapper";
-import { renderWithProviders } from "../../../../test/utils/renderWithProviders";
+import {
+  MOCK_MAP_PARAMS,
+  MOCK_SESSION,
+} from "../../../../test-utils/mocks/mapMocks";
+import { MapWrapper } from "../../../../test-utils/utils/mapWrapper";
+import { renderWithProviders } from "../../../../test-utils/utils/renderWithProviders";
 import { StatusEnum } from "../../../../types/api";
 import { SessionTypes } from "../../../../types/filters";
 import { UserSettings } from "../../../../types/userStates";
