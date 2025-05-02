@@ -1,10 +1,12 @@
 class Api::ToDormantSessionsArray
   def initialize(form:)
     @form = form
+    @cache_sessions_worker = CacheSessionsWorker.new
   end
 
   def call
     return Failure.new(form.errors) if form.invalid?
+    cache_sessions_worker.perform(session_type: 'fixed_dormant', data: data)
 
     Success.new(
       sessions:
@@ -65,7 +67,7 @@ class Api::ToDormantSessionsArray
 
   private
 
-  attr_reader :form
+  attr_reader :form, :cache_sessions_worker
 
   def data
     # dry-struct allows for missing key using `meta(omittable: true)`

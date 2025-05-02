@@ -59,6 +59,10 @@ Rails.application.configure do
   # Use a different cache store in production.
   # config.cache_store = :mem_cache_store
 
+  config.custom_cache_stores = {
+  redis_store: ActiveSupport::Cache::RedisCacheStore.new(url: ENV['REDIS_URL'], namespace: 'quick_cache')
+  }
+
   # Use a real queuing backend for Active Job (and separate queues per environment).
   # config.active_job.queue_adapter     = :resque
   # config.active_job.queue_name_prefix = "air_casting_production"
