@@ -1,6 +1,7 @@
 import { configureStore } from "@reduxjs/toolkit";
+import { RootState } from "../../store";
 
-export const createMockStore = () => {
+export const createMockStore = (initialState?: Partial<RootState>) => {
   return configureStore({
     reducer: {
       fixedSessions: () => ({
@@ -13,132 +14,61 @@ export const createMockStore = () => {
         isDormantSessionsFetched: false,
         fetchableSessionsCount: 0,
         error: null,
+        ...initialState?.fixedSessions,
       }),
       mobileSessions: () => ({
         points: [],
         list: [],
         status: "idle",
-        sessions: [],
-        fetchableSessionsCount: 0,
-        error: null,
+        ...initialState?.mobileSessions,
       }),
       fixedStream: () => ({
-        data: {
-          measurements: [],
-          averageValue: 0,
-          endTime: "",
-          id: 0,
-          maxLatitude: 0,
-          maxLongitude: 0,
-          minLatitude: 0,
-          minLongitude: 0,
-          notes: [],
-          sensorName: "",
-          sensorUnit: "",
-          startLatitude: 0,
-          startLongitude: 0,
-          startTime: "",
-          streamId: 0,
-          title: "",
-          username: "",
-        },
-        status: "idle",
-        error: null,
-        isLoading: false,
+        measurements: [],
+        dailyAverages: [],
+        thresholds: [],
+        ...initialState?.fixedStream,
       }),
       mobileStream: () => ({
-        data: {
-          measurements: [],
-          averageValue: 0,
-          endTime: "",
-          id: 0,
-          maxLatitude: 0,
-          maxLongitude: 0,
-          minLatitude: 0,
-          minLongitude: 0,
-          notes: [],
-          sensorName: "",
-          sensorUnit: "",
-          startLatitude: 0,
-          startLongitude: 0,
-          startTime: "",
-          streamId: 0,
-          title: "",
-          username: "",
-        },
-        minMeasurementValue: 0,
-        maxMeasurementValue: 0,
-        averageMeasurementValue: 0,
-        status: "idle",
-        error: null,
-        isLoading: false,
-        lastSelectedTimeRange: "all",
+        measurements: [],
+        dailyAverages: [],
+        thresholds: [],
+        ...initialState?.mobileStream,
       }),
-      timelapse: () => ({
-        data: {},
-        status: "idle",
-        currentTimestamp: "",
-        isLoading: false,
-      }),
-      map: () => ({
-        fetchingData: false,
-        hoverStreamId: null,
-        hoverPosition: null,
-        sessionsListExpanded: true,
-      }),
-      markersLoading: () => ({ loading: false }),
-      sessionFilter: () => ({
-        type: "fixed",
-        isDormant: false,
-        tags: [],
-        fixedSessionsType: "active",
-      }),
-      threshold: () => ({
-        defaultValues: { min: 0, low: 25, middle: 50, high: 75, max: 100 },
-        userValues: { min: 0, low: 25, middle: 50, high: 75, max: 100 },
-        status: "idle",
-        error: null,
-        sliderWidth: 0,
-        thumbPositions: { low: 0, middle: 50, high: 100 },
-        errorMessage: "",
-        isThresholdsSet: true,
-        isDefaultThresholdsSet: true,
+      cluster: () => ({
+        ...initialState?.cluster,
       }),
       crowdMap: () => ({
-        status: "idle",
-        rectangles: [],
-        fetchingData: false,
-      }),
-      realtimeMapUpdates: () => ({ realtimeMapUpdates: false }),
-      cluster: () => ({
-        visible: false,
-        clusterAverage: 0,
-        clusterSize: 0,
+        ...initialState?.crowdMap,
       }),
       indoorSessions: () => ({
-        sessions: [],
-        status: "idle",
-        error: null,
+        ...initialState?.indoorSessions,
+      }),
+      map: () => ({
+        ...initialState?.map,
+      }),
+      markersLoading: () => ({
+        ...initialState?.markersLoading,
+      }),
+      movingCalendarStream: () => ({
+        ...initialState?.movingCalendarStream,
+      }),
+      realtimeMapUpdates: () => ({
+        ...initialState?.realtimeMapUpdates,
+      }),
+      rectangle: () => ({
+        ...initialState?.rectangle,
       }),
       sensors: () => ({
-        data: [],
-        status: "idle",
-        error: null,
+        ...initialState?.sensors,
       }),
-      loading: () => ({
-        fixedSessions: false,
-        mobileSessions: false,
-        fixedStream: false,
-        mobileStream: false,
-        timelapse: false,
-        crowdMap: false,
-        indoorSessions: false,
+      sessionFilter: () => ({
+        ...initialState?.sessionFilter,
       }),
-      mapParams: () => ({
-        isIndoor: true,
-        currentUserSettings: "MapView",
-        sessionType: "fixed",
-        isActive: true,
+      threshold: () => ({
+        ...initialState?.threshold,
+      }),
+      timelapse: () => ({
+        ...initialState?.timelapse,
       }),
     },
     middleware: (getDefaultMiddleware) =>
