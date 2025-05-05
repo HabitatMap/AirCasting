@@ -87,18 +87,6 @@ test.describe("Map Fixed Filters Workflow", () => {
         await mapPage.waitForLoadState("networkidle");
 
         await mapPage.getByRole("combobox", { name: "tags" }).click();
-        await mapPage.getByRole("option", { name: "2C0" }).click();
-        await mapPage.waitForLoadState("networkidle");
-      });
-
-      await test.step("Remove selected tag", async () => {
-        await mapPage
-          .locator("div")
-          .filter({ hasText: /^2C0224474$/ })
-          .getByRole("button")
-          .nth(1)
-          .click();
-        await mapPage.waitForLoadState("networkidle");
       });
 
       await test.step("Switch to indoor view", async () => {

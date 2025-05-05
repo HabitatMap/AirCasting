@@ -9,18 +9,29 @@ test("Test the calendar workflow", async ({ page }) => {
 
   await test.step("Open calendar view and select dates", async () => {
     await page.getByRole("link", { name: "Calendar icon" }).click();
-    await page
-      .locator("div")
-      .filter({ hasText: /^213$/ })
-      .locator("div")
-      .nth(1)
-      .click();
-    await page
-      .locator("div")
-      .filter({ hasText: /^267$/ })
-      .locator("div")
-      .nth(1)
-      .click();
+
+    // Wait for calendar to be visible and interactive
+    await page.waitForSelector('[data-testid="calendar-cell"]', {
+      state: "visible",
+      timeout: 60000,
+    });
+
+    // Wait for at least one calendar cell to be present and visible
+    const calendarCells = page.getByTestId("calendar-cell");
+    await calendarCells.first().waitFor({ state: "visible", timeout: 60000 });
+
+    // Get all visible calendar cells
+    const cells = await calendarCells.all();
+    expect(cells.length).toBeGreaterThan(0);
+
+    // Click the first visible cell
+    await cells[0].click();
+
+    // Wait a bit for any animations or state updates
+    await page.waitForTimeout(1000);
+
+    // Click the second visible cell
+    await cells[1].click();
   });
 
   await test.step("Change time view settings", async () => {

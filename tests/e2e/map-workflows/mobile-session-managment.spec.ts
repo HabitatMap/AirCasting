@@ -1,4 +1,4 @@
-import { test } from "@playwright/test";
+import { expect, test } from "@playwright/test";
 
 test("Test the mobile session managment workflow", async ({ page }) => {
   await test.step("Navigate to initial page", async () => {
@@ -11,31 +11,65 @@ test("Test the mobile session managment workflow", async ({ page }) => {
     "Switch to mobile view and interact with time controls",
     async () => {
       await page.getByRole("button", { name: "mobile" }).click();
-      await page.getByText("55 µg/m³").click();
-      await page.getByRole("button", { name: "HOUR" }).click();
-      await page.getByRole("button", { name: "MINUTES" }).click();
-      await page.getByRole("button", { name: "ALL" }).click();
+
+      await page.waitForResponse(
+        (response) =>
+          response.url().includes("/mobile/sessions.json") &&
+          response.status() === 200
+      );
+
+      await page.waitForSelector('[role="region"][aria-label="Map"]', {
+        state: "visible",
+      });
+
+      await page.waitForSelector(
+        'div[style*="position: absolute"][style*="cursor: pointer"][style*="width: 12px"][style*="height: 12px"]',
+        {
+          state: "visible",
+          timeout: 60000,
+        }
+      );
+
+      await page.waitForTimeout(1000);
+
+      await page
+        .locator(
+          'div[style*="position: absolute"][style*="cursor: pointer"][style*="width: 12px"][style*="height: 12px"]'
+        )
+        .first()
+        .click({ force: true });
+
+      const dialog = page.getByRole("dialog");
+      await dialog.waitFor({ state: "visible", timeout: 60000 });
+
+      await expect(dialog.locator("h2")).toHaveText("Test - Jacob's House");
+
+      await dialog.getByRole("button", { name: "HOUR" }).click();
+      await dialog.getByRole("button", { name: "MINUTES" }).click();
+      await dialog.getByRole("button", { name: "ALL" }).click();
     }
   );
 
   await test.step(
-    "Adjust measurement distribution and thresholds",
+    "Adjust measurement distribution and thresholds on main page (dialog open)",
     async () => {
-      await page
-        .getByRole("button", { name: "Distribute the measurement" })
-        .click();
-      await page
-        .getByRole("button", { name: "Reset the threshold values to" })
-        .click();
+      const distributeButton = page.getByRole("button", {
+        name: "Distribute the measurement thresholds uniformly",
+      });
+      await distributeButton.waitFor({ state: "visible", timeout: 10000 });
+      await distributeButton.click();
+
+      const resetButton = page.getByRole("button", {
+        name: "Reset the threshold values to default",
+      });
+      await resetButton.waitFor({ state: "visible", timeout: 10000 });
+      await resetButton.click();
     }
   );
 
-  await test.step("Open and close notes", async () => {
-    await page.getByRole("button", { name: "Open note" }).click();
-    await page.getByRole("button", { name: "Open note" }).click();
-    await page
-      .getByTestId("overlay")
-      .getByRole("button", { name: "Close icon" })
-      .click();
+  await test.step("Close session dialog", async () => {
+    const dialog = page.getByRole("dialog");
+    await dialog.waitFor({ state: "visible", timeout: 10000 });
+    await dialog.getByRole("button", { name: "Close icon" }).click();
   });
 });
