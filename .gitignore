@@ -65,3 +65,11 @@ node_modules/
 /playwright-report/
 /blob-report/
 /playwright/.cache/
+
+# Playwright test output
+test-results/
+playwright-report/
+
+# General screenshots (if saved elsewhere)
+screenshots/
+*.png

@@ -16,15 +16,12 @@ test("Test the calendar workflow", async ({ page }) => {
       timeout: 60000,
     });
 
-    // Wait for at least one calendar cell to be present and visible
     const calendarCells = page.getByTestId("calendar-cell");
     await calendarCells.first().waitFor({ state: "visible", timeout: 60000 });
 
-    // Get all visible calendar cells
     const cells = await calendarCells.all();
     expect(cells.length).toBeGreaterThan(0);
 
-    // Click the first visible cell
     await cells[0].click();
 
     // Wait a bit for any animations or state updates
@@ -35,9 +32,78 @@ test("Test the calendar workflow", async ({ page }) => {
   });
 
   await test.step("Change time view settings", async () => {
+    const getStartDate = () =>
+      page.locator(".time-container").first().locator(".date");
+    const getStartTime = () =>
+      page.locator(".time-container").first().locator(".time");
+    const getEndDate = () =>
+      page.locator(".time-container").last().locator(".date");
+    const getEndTime = () =>
+      page.locator(".time-container").last().locator(".time");
+
+    const parseDateTime = async (
+      dateLocator: import("@playwright/test").Locator,
+      timeLocator: import("@playwright/test").Locator
+    ): Promise<Date> => {
+      const dateStr = await dateLocator.textContent();
+      const timeStr = await timeLocator.textContent();
+      if (!dateStr || !timeStr) {
+        throw new Error("Date or time string is null");
+      }
+      return new Date(`${dateStr} ${timeStr}`);
+    };
+
+    // --- HOURS ---
     await page.getByRole("button", { name: "HOURS" }).click();
+    // Add a brief wait for UI to update, if necessary
+    await page.waitForTimeout(500); // Adjust as needed, or use a more specific waitFor
+    let startDate = await parseDateTime(getStartDate(), getStartTime());
+    let endDate = await parseDateTime(getEndDate(), getEndTime());
+    let diffInHours =
+      (endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60);
+    expect(diffInHours).toBe(24);
+
+    // --- WEEK ---
     await page.getByRole("button", { name: "WEEK" }).click();
+    await page.waitForTimeout(500); // Adjust as needed
+    startDate = await parseDateTime(getStartDate(), getStartTime());
+    endDate = await parseDateTime(getEndDate(), getEndTime());
+    let diffInDays =
+      (endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24);
+    expect(diffInDays).toBe(7);
+
+    // --- MONTH ---
     await page.getByRole("button", { name: "MONTH" }).click();
+    await page.waitForTimeout(500); // Adjust as needed
+    startDate = await parseDateTime(getStartDate(), getStartTime());
+    endDate = await parseDateTime(getEndDate(), getEndTime());
+
+    const expectedEndDate = new Date(startDate);
+    expectedEndDate.setMonth(startDate.getMonth() + 1);
+
+    // Adjust for year rollover
+    if (startDate.getMonth() === 11 && expectedEndDate.getMonth() !== 0) {
+      // December to January
+      expectedEndDate.setFullYear(startDate.getFullYear() + 1);
+    } else if (
+      expectedEndDate.getMonth() === 0 &&
+      startDate.getMonth() !== 11 &&
+      expectedEndDate.getFullYear() !== startDate.getFullYear() + 1
+    ) {
+      // handles cases where setting month rolls over year incorrectly for short months
+      // e.g. Jan 31st + 1 month should be Feb 28/29, not Mar 3rd.
+      // Date object handles this, but if we only checked month and year, this is needed.
+      // For direct date comparison, this complexity is mostly handled by Date object itself.
+    }
+
+    // Compare year, month, and day. Time should ideally be the same or checked if it varies.
+    expect(endDate.getFullYear()).toBe(expectedEndDate.getFullYear());
+    expect(endDate.getMonth()).toBe(expectedEndDate.getMonth());
+    expect(endDate.getDate()).toBe(expectedEndDate.getDate());
+    // Optionally, check if the time components are also identical if they should be
+    expect(await getStartTime().textContent()).toBe(
+      await getEndTime().textContent()
+    );
   });
 
   await test.step("Navigate calendar and adjust settings", async () => {
