@@ -167,6 +167,8 @@ test.describe("Map Fixed Filters Workflow", () => {
           .getByRole("button", { name: "Temperature", exact: true })
           .click();
 
+        await mapPage.waitForTimeout(1000);
+
         const temperatureParameterButton = mapPage.getByRole("button", {
           name: "parameter Temperature",
         });

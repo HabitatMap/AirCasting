@@ -26,7 +26,7 @@ class Csv::AppendNotesContent
       format_time(note.date),
       note.latitude,
       note.longitude,
-      format_url(note)
+      format_url(note),
     ]
   end
 
@@ -35,8 +35,15 @@ class Csv::AppendNotesContent
   end
 
   def format_url(note)
-    return 'No photo was attached' unless note.photo_file_name
-
-    host + note.photo.url
+    if note.s3_photo.attached?
+      Rails.application.routes.url_helpers.rails_blob_url(
+        note.s3_photo,
+        host: host,
+      )
+    elsif note.photo_exists?
+      host + note.photo.url(:medium)
+    else
+      'No photo was attached'
+    end
   end
 end

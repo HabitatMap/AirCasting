@@ -31,6 +31,10 @@ export class MapPage {
     await this.page.waitForLoadState(state);
   }
 
+  async waitForTimeout(ms: number) {
+    await this.page.waitForTimeout(ms);
+  }
+
   async navigateToMap() {
     await this.page.goto("http://localhost:3000");
     await this.waitForLoadState();
