@@ -178,7 +178,10 @@ const SessionsListView: React.FC<SessionsListViewProps> = ({
         />
       </S.SessionInfoTile>
       {sessionsListExpanded && (
-        <S.SessionListContainer ref={sessionListRef}>
+        <S.SessionListContainer
+          ref={sessionListRef}
+          data-testid="desktop-session-list-items-container"
+        >
           {memoizedSessions.map((session) => (
             <div key={session.id}>
               <SessionsListTile

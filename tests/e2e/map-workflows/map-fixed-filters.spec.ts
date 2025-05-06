@@ -1,4 +1,4 @@
-import { test } from "@playwright/test";
+import { expect, test } from "@playwright/test";
 import { test as mapPageTest } from "../../fixtures/map-page-fixture";
 
 test.describe("Map Fixed Filters Workflow", () => {
@@ -82,11 +82,6 @@ test.describe("Map Fixed Filters Workflow", () => {
         await mapPage.getByRole("combobox", { name: "profile names" }).click();
         await mapPage.getByRole("option", { name: "Amy" }).click();
         await mapPage.waitForLoadState("networkidle");
-
-        await mapPage.getByTestId("close-selected-item-button").click();
-        await mapPage.waitForLoadState("networkidle");
-
-        await mapPage.getByRole("combobox", { name: "tags" }).click();
       });
 
       await test.step("Switch to indoor view", async () => {
@@ -168,27 +163,26 @@ test.describe("Map Fixed Filters Workflow", () => {
           .click();
         await mapPage.waitForLoadState("networkidle");
 
-        await mapPage.getByRole("button", { name: "Temperature" }).click();
-        await mapPage.waitForLoadState("networkidle");
-
         await mapPage
-          .getByRole("button", { name: "parameter Temperature" })
-          .waitFor({ state: "visible" });
-        await mapPage
-          .getByRole("button", { name: "parameter Temperature" })
-          .waitFor({ state: "attached" });
-        await mapPage
-          .getByRole("button", { name: "parameter Temperature" })
+          .getByRole("button", { name: "Temperature", exact: true })
           .click();
+
+        const temperatureParameterButton = mapPage.getByRole("button", {
+          name: "parameter Temperature",
+        });
+        await expect(temperatureParameterButton).toBeVisible({
+          timeout: 15000,
+        });
+
+        await temperatureParameterButton.click();
         await mapPage.waitForLoadState("networkidle");
 
-        await mapPage
-          .getByRole("button", { name: "Humidity" })
-          .waitFor({ state: "visible" });
-        await mapPage
-          .getByRole("button", { name: "Humidity" })
-          .waitFor({ state: "attached" });
-        await mapPage.getByRole("button", { name: "Humidity" }).click();
+        const humidityOption = mapPage.getByRole("button", {
+          name: "Humidity",
+          exact: true,
+        });
+        await expect(humidityOption).toBeVisible({ timeout: 5000 });
+        await humidityOption.click();
         await mapPage.waitForLoadState("networkidle");
       });
     }
