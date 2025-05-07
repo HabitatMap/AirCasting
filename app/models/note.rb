@@ -24,7 +24,7 @@ class Note < ApplicationRecord
   has_one_attached :s3_photo
 
   def photo_exists?
-    File.exists?(File.join(Rails.root, 'public', photo.to_s.split('?').first))
+    File.exist?(File.join(Rails.root, 'public', photo.to_s.split('?').first))
   end
 
   def as_json(opts = nil)

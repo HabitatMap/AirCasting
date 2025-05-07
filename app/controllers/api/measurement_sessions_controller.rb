@@ -29,14 +29,8 @@ module Api
     end
 
     def export
-      form =
-        Api::ParamsForm.new(
-          params: params.to_unsafe_hash,
-          schema: Api::ExportSessions::Schema,
-          struct: Api::ExportSessions::Struct,
-        )
-
-      result = Api::ScheduleSessionsExport.new(form: form).call
+      contract = Api::ExportSessionsContract.new.call(params.to_unsafe_hash)
+      result = Api::ScheduleSessionsExport.new(contract: contract).call
 
       if result.success?
         render json: result.value, status: :ok
@@ -46,14 +40,9 @@ module Api
     end
 
     def export_by_uuid
-      form =
-        Api::ParamsForm.new(
-          params: params.to_unsafe_hash,
-          schema: Api::ExportSessionByUuid::Schema,
-          struct: Api::ExportSessionByUuid::Struct,
-        )
-
-      result = Api::ScheduleSessionsExportByUuid.new(form: form).call
+      contract =
+        Api::ExportSessionByUuidContract.new.call(params.to_unsafe_hash)
+      result = Api::ScheduleSessionsExportByUuid.new(contract: contract).call
 
       if result.success?
         render json: result.value, status: :ok
