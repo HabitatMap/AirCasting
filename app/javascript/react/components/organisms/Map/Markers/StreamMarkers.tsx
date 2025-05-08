@@ -17,7 +17,9 @@ import {
   setMarkersLoading,
   setTotalMarkers,
 } from "../../../../store/markersLoadingSlice";
+import { selectMobileStreamData } from "../../../../store/mobileStreamSelectors";
 import { selectThresholds } from "../../../../store/thresholdSlice";
+import { Note } from "../../../../types/note";
 import { MobileSession } from "../../../../types/sessionType";
 import { getColorForValue } from "../../../../utils/thresholdColors";
 import { CustomMarker } from "./CustomOverlays/CustomMarker";
@@ -35,6 +37,7 @@ const StreamMarkers = ({ sessions, unitSymbol }: Props) => {
   const thresholds = useAppSelector(selectThresholds);
   const polylineRef = useRef<google.maps.Polyline | null>(null);
   const hoverPosition = useAppSelector(selectHoverPosition);
+  const mobileStreamData = useAppSelector(selectMobileStreamData);
   const [CustomOverlay, setCustomOverlay] = useState<
     typeof CustomMarker | null
   >(null);
@@ -81,25 +84,21 @@ const StreamMarkers = ({ sessions, unitSymbol }: Props) => {
     dispatch(setMarkersLoading(false));
   }, [dispatch]);
 
-  const firstSessionWithNotes = useMemo(() => {
-    return sortedSessions.find(
-      (session) => session.notes && session.notes?.length > 0
-    );
-  }, [sortedSessions]);
-
   const createOrUpdateMarker = useCallback(
-    (session: MobileSession) => {
+    (session: MobileSession, allNotes: Note[]) => {
       if (!CustomOverlay) return;
 
       const markerId = session.id.toString();
       const position = { lat: session.point.lat, lng: session.point.lng };
       const title = `${session.lastMeasurementValue} ${unitSymbol}`;
 
-      const shouldShowNotes =
-        firstSessionWithNotes &&
-        session.point.lat === firstSessionWithNotes.point.lat &&
-        session.point.lng === firstSessionWithNotes.point.lng;
-      const notes = shouldShowNotes ? session.notes || [] : [];
+      const notesForThisMarker = allNotes.filter(
+        (note) =>
+          note.latitude != null &&
+          note.longitude != null &&
+          note.latitude === position.lat &&
+          note.longitude === position.lng
+      );
 
       let marker = markersRef.current.get(markerId);
 
@@ -115,14 +114,14 @@ const StreamMarkers = ({ sessions, unitSymbol }: Props) => {
           12,
           20,
           "overlayMouseTarget",
-          notes
+          notesForThisMarker
         );
         marker.setMap(map);
         markersRef.current.set(markerId, marker);
       } else {
         marker.setPosition(position);
         marker.setTitle(title);
-        marker.setNotes(notes);
+        marker.setNotes(notesForThisMarker);
 
         if (marker.getMap() !== map) {
           marker.setMap(map);
@@ -131,7 +130,7 @@ const StreamMarkers = ({ sessions, unitSymbol }: Props) => {
 
       return marker;
     },
-    [map, unitSymbol, CustomOverlay, firstSessionWithNotes, thresholds]
+    [map, unitSymbol, CustomOverlay, thresholds]
   );
 
   useEffect(() => {
@@ -182,7 +181,6 @@ const StreamMarkers = ({ sessions, unitSymbol }: Props) => {
   useEffect(() => {
     if (!map || !CustomOverlay) return;
 
-    // Clean up existing markers and polyline first
     const cleanup = () => {
       markersRef.current.forEach((marker) => {
         marker.setMap(null);
@@ -196,7 +194,6 @@ const StreamMarkers = ({ sessions, unitSymbol }: Props) => {
       }
     };
 
-    // Always clean up before setting new markers
     cleanup();
 
     dispatch(setMarkersLoading(true));
@@ -204,7 +201,7 @@ const StreamMarkers = ({ sessions, unitSymbol }: Props) => {
 
     if (sessions.length === 0) {
       dispatch(setMarkersLoading(false));
-      return cleanup; // Return cleanup function for useEffect
+      return cleanup;
     }
 
     if (sortedSessions.length > 0) {
@@ -217,10 +214,11 @@ const StreamMarkers = ({ sessions, unitSymbol }: Props) => {
 
     requestAnimationFrame(() => {
       const activeMarkerIds = new Set<string>();
+      const allNotesForStream = mobileStreamData.notes || [];
 
       sortedSessions.forEach((session) => {
         const markerId = session.id.toString();
-        createOrUpdateMarker(session);
+        createOrUpdateMarker(session, allNotesForStream);
         activeMarkerIds.add(markerId);
       });
 
@@ -255,7 +253,6 @@ const StreamMarkers = ({ sessions, unitSymbol }: Props) => {
       dispatch(setHoverPosition(null));
     });
 
-    // Return cleanup function
     return cleanup;
   }, [
     map,
@@ -266,6 +263,7 @@ const StreamMarkers = ({ sessions, unitSymbol }: Props) => {
     createOrUpdateMarker,
     CustomOverlay,
     centerMapOnBounds,
+    mobileStreamData.notes,
   ]);
 
   useEffect(() => {
