@@ -160,6 +160,31 @@ jest.mock("../../../../store/hooks", () => ({
     if (selector.name === "selectHoverPosition") {
       return null;
     }
+    if (selector.name === "selectMobileStreamData") {
+      return {
+        notes: [
+          {
+            createdAt: "2024-01-01T00:00:00Z",
+            date: "2024-01-01",
+            id: 1,
+            latitude: 41.8781,
+            longitude: -87.6298,
+            number: 1,
+            photo: "",
+            photoContentType: "",
+            photoFileName: "",
+            photoFileSize: 0,
+            photoThumbnail: "",
+            photoUpdatedAt: "",
+            sessionId: 3,
+            text: "Test note",
+            updatedAt: "2024-01-01T00:00:00Z",
+          },
+        ],
+        measurements: [],
+        streamId: "someStreamId",
+      };
+    }
     return {};
   },
 }));
