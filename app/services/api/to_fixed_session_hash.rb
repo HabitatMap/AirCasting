@@ -1,5 +1,10 @@
 class Api::ToFixedSessionHash
-  def initialize(measurements_limit:, stream:)
+  def initialize(
+    note_seralizer: NoteSerializer.new,
+    measurements_limit:,
+    stream:
+  )
+    @note_seralizer = note_seralizer
     @measurements_limit = measurements_limit
     @stream = stream
   end
@@ -21,7 +26,7 @@ class Api::ToFixedSessionHash
       maxLongitude: stream.max_longitude,
       minLatitude: stream.min_latitude,
       minLongitude: stream.min_longitude,
-      notes: notes.map(&:as_json),
+      notes: session.notes.map { |note| note_seralizer.call(note: note) },
       isIndoor: session.is_indoor,
       lastMeasurementValue: stream.average_value,
       threshold_high: stream.threshold_set.threshold_high,
@@ -37,7 +42,7 @@ class Api::ToFixedSessionHash
 
   private
 
-  attr_reader :stream, :measurements_limit
+  attr_reader :note_seralizer, :stream, :measurements_limit
 
   def session
     @session ||= stream.session
@@ -62,7 +67,7 @@ class Api::ToFixedSessionHash
             value: m.value,
             time: format_time(m.time),
             longitude: m.longitude,
-            latitude: m.latitude
+            latitude: m.latitude,
           }
         end
         .reverse
