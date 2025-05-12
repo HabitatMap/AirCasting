@@ -100,6 +100,18 @@ const StreamMarkers = ({ sessions, unitSymbol }: Props) => {
           note.longitude === position.lng
       );
 
+      const sessionNotes =
+        notesForThisMarker.length > 0 ? session.notes || [] : [];
+
+      const combinedNotes = [...notesForThisMarker];
+      sessionNotes.forEach((note) => {
+        if (
+          !combinedNotes.some((existingNote) => existingNote.id === note.id)
+        ) {
+          combinedNotes.push(note);
+        }
+      });
+
       let marker = markersRef.current.get(markerId);
 
       if (!marker) {
@@ -114,14 +126,14 @@ const StreamMarkers = ({ sessions, unitSymbol }: Props) => {
           12,
           20,
           "overlayMouseTarget",
-          notesForThisMarker
+          combinedNotes
         );
         marker.setMap(map);
         markersRef.current.set(markerId, marker);
       } else {
         marker.setPosition(position);
         marker.setTitle(title);
-        marker.setNotes(notesForThisMarker);
+        marker.setNotes(combinedNotes);
 
         if (marker.getMap() !== map) {
           marker.setMap(map);
