@@ -11,9 +11,14 @@ import * as S from "./NotesPopover.style";
 interface NotesPopoverProps {
   notes: Note[];
   initialSlide?: number;
+  onSlideChange?: (note: Note) => void;
 }
 
-const NotesPopover = ({ notes, initialSlide = 0 }: NotesPopoverProps) => {
+const NotesPopover = ({
+  notes,
+  initialSlide = 0,
+  onSlideChange,
+}: NotesPopoverProps) => {
   const [currentSlide, setCurrentSlide] = useState(0);
   const { t } = useTranslation();
   const isOneNote = notes.length === 1;
@@ -22,15 +27,31 @@ const NotesPopover = ({ notes, initialSlide = 0 }: NotesPopoverProps) => {
   const originalIndex = initialSlide;
 
   const handlePrevSlide = () => {
-    setCurrentSlide((prev) => (prev > 0 ? prev - 1 : notes.length - 1));
+    setCurrentSlide((prev) => {
+      const newIndex = prev > 0 ? prev - 1 : notes.length - 1;
+      if (onSlideChange) onSlideChange(notes[newIndex]);
+      return newIndex;
+    });
   };
 
   const handleNextSlide = () => {
-    setCurrentSlide((prev) => (prev < notes.length - 1 ? prev + 1 : 0));
+    setCurrentSlide((prev) => {
+      const newIndex = prev < notes.length - 1 ? prev + 1 : 0;
+      if (onSlideChange) onSlideChange(notes[newIndex]);
+      return newIndex;
+    });
+  };
+
+  const handleDotClick = (index: number) => {
+    setCurrentSlide(() => {
+      if (onSlideChange) onSlideChange(notes[index]);
+      return index;
+    });
   };
 
   const handleOpen = () => {
     setCurrentSlide(initialSlide);
+    if (onSlideChange) onSlideChange(notes[initialSlide]);
   };
 
   return (
@@ -62,8 +83,7 @@ const NotesPopover = ({ notes, initialSlide = 0 }: NotesPopoverProps) => {
                     <S.SliderDot
                       key={index}
                       $active={index === currentSlide}
-                      $original={index === originalIndex}
-                      onClick={() => setCurrentSlide(index)}
+                      onClick={() => handleDotClick(index)}
                     />
                   ))}
                 </S.SliderDots>

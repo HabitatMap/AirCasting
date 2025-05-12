@@ -103,7 +103,24 @@ export class CustomMarker extends google.maps.OverlayView {
       const root = createRoot(noteContainer);
       root.render(
         <Provider store={store}>
-          <NotesPopover notes={this.notes} initialSlide={initialSlide} />
+          <NotesPopover
+            notes={this.notes}
+            initialSlide={initialSlide}
+            onSlideChange={(note) => {
+              const map = this.getMap && this.getMap();
+              if (
+                map &&
+                window.google &&
+                window.google.maps &&
+                typeof (map as google.maps.Map).panTo === "function"
+              ) {
+                (map as google.maps.Map).panTo({
+                  lat: note.latitude,
+                  lng: note.longitude,
+                });
+              }
+            }}
+          />
         </Provider>
       );
 
