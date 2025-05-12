@@ -22,6 +22,7 @@ export class CustomMarker extends google.maps.OverlayView {
   private notes: Note[];
   private noteContainers: Map<string, Root> = new Map();
   private notesPopover: HTMLDivElement | null = null;
+  private invisible: boolean = false;
 
   constructor(
     position: google.maps.LatLngLiteral,
@@ -32,7 +33,8 @@ export class CustomMarker extends google.maps.OverlayView {
     paneName: keyof google.maps.MapPanes = "overlayMouseTarget",
     notes: Note[] = [],
     content?: React.ReactNode,
-    onClick?: () => void
+    onClick?: () => void,
+    invisible: boolean = false
   ) {
     super();
     this.position = new google.maps.LatLng(position);
@@ -44,6 +46,7 @@ export class CustomMarker extends google.maps.OverlayView {
     this.clickableAreaSize = clickableAreaSize;
     this.paneName = paneName;
     this.notes = notes;
+    this.invisible = invisible;
   }
 
   onAdd() {
@@ -54,17 +57,18 @@ export class CustomMarker extends google.maps.OverlayView {
     this.div.style.width = `${this.clickableAreaSize}px`;
     this.div.style.height = `${this.clickableAreaSize}px`;
 
-    const innerDiv = document.createElement("div");
-    innerDiv.style.width = `${this.size}px`;
-    innerDiv.style.height = `${this.size}px`;
-    innerDiv.style.borderRadius = "50%";
-    innerDiv.style.backgroundColor = this.color;
-    innerDiv.style.position = "absolute";
-    innerDiv.style.top = "50%";
-    innerDiv.style.left = "50%";
-    innerDiv.style.transform = "translate(-50%, -50%)";
-
-    this.div.appendChild(innerDiv);
+    if (!this.invisible) {
+      const innerDiv = document.createElement("div");
+      innerDiv.style.width = `${this.size}px`;
+      innerDiv.style.height = `${this.size}px`;
+      innerDiv.style.borderRadius = "50%";
+      innerDiv.style.backgroundColor = this.color;
+      innerDiv.style.position = "absolute";
+      innerDiv.style.top = "50%";
+      innerDiv.style.left = "50%";
+      innerDiv.style.transform = "translate(-50%, -50%)";
+      this.div.appendChild(innerDiv);
+    }
 
     if (this.content) {
       this.root = createRoot(this.div);
@@ -75,7 +79,7 @@ export class CustomMarker extends google.maps.OverlayView {
       this.div.addEventListener("click", this.onClick);
     }
 
-    if (this.pulsating) {
+    if (this.pulsating && !this.invisible) {
       this.div.classList.add("pulsating-marker");
     }
 

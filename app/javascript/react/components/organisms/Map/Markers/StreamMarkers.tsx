@@ -200,12 +200,22 @@ const StreamMarkers = ({ sessions, unitSymbol }: Props) => {
       });
       markersRef.current.clear();
 
+      // Cleanup for invisible note markers
+      if (noteMarkersRef.current) {
+        noteMarkersRef.current.forEach((marker) => {
+          marker.setMap(null);
+          marker.cleanup();
+        });
+        noteMarkersRef.current.clear();
+      }
+
       if (polylineRef.current) {
         polylineRef.current.setMap(null);
         polylineRef.current = null;
       }
     };
 
+    // Always clean up before setting new markers
     cleanup();
 
     dispatch(setMarkersLoading(true));
@@ -216,22 +226,62 @@ const StreamMarkers = ({ sessions, unitSymbol }: Props) => {
       return cleanup;
     }
 
-    if (sortedSessions.length > 0) {
-      const bounds = new google.maps.LatLngBounds();
-      sortedSessions.forEach((session) => {
-        bounds.extend({ lat: session.point.lat, lng: session.point.lng });
-      });
-      centerMapOnBounds(bounds);
-    }
-
     requestAnimationFrame(() => {
       const activeMarkerIds = new Set<string>();
       const allNotesForStream = mobileStreamData.notes || [];
+
+      // Track all visible marker locations
+      const markerLocations = new Set<string>();
 
       sortedSessions.forEach((session) => {
         const markerId = session.id.toString();
         createOrUpdateMarker(session, allNotesForStream);
         activeMarkerIds.add(markerId);
+        markerLocations.add(`${session.point.lat},${session.point.lng}`);
+      });
+
+      // Create invisible markers for notes without a session marker at their location
+      if (!noteMarkersRef.current) noteMarkersRef.current = new Map();
+      allNotesForStream.forEach((note) => {
+        const key = `${note.latitude},${note.longitude}`;
+        if (!markerLocations.has(key)) {
+          const noteMarkerId = `note-invisible-${note.id}`;
+          let noteMarker = noteMarkersRef.current.get(noteMarkerId);
+          if (!noteMarker) {
+            noteMarker = new CustomOverlay(
+              { lat: note.latitude, lng: note.longitude },
+              "", // no color needed
+              "", // no title needed
+              12,
+              20,
+              "overlayMouseTarget",
+              [note],
+              undefined,
+              undefined,
+              true // invisible
+            );
+            noteMarker.setMap(map);
+            noteMarkersRef.current.set(noteMarkerId, noteMarker);
+          } else {
+            noteMarker.setPosition({ lat: note.latitude, lng: note.longitude });
+            noteMarker.setNotes([note]);
+            if (noteMarker.getMap() !== map) {
+              noteMarker.setMap(map);
+            }
+          }
+        }
+      });
+
+      // Cleanup stale invisible note markers
+      noteMarkersRef.current.forEach((marker, markerId) => {
+        const noteId = markerId.replace("note-invisible-", "");
+        const note = allNotesForStream.find((n) => n.id.toString() === noteId);
+        const key = note ? `${note.latitude},${note.longitude}` : null;
+        if (!note || (key !== null && markerLocations.has(key))) {
+          marker.setMap(null);
+          marker.cleanup();
+          noteMarkersRef.current.delete(markerId);
+        }
       });
 
       const path = sortedSessions.map((session) => ({
@@ -290,6 +340,9 @@ const StreamMarkers = ({ sessions, unitSymbol }: Props) => {
       }
     });
   }, [thresholds, sortedSessions]);
+
+  // Add a ref for invisible note markers
+  const noteMarkersRef = React.useRef<Map<string, CustomMarker>>(new Map());
 
   return !isInitialLoading.current && hoverPosition ? (
     <HoverMarker position={hoverPosition} />

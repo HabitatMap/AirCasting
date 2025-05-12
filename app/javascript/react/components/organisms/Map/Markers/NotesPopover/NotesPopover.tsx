@@ -45,6 +45,7 @@ const NotesPopover = ({ notes }: NotesPopoverProps) => {
         closeOnDocumentClick
         offsetX={10}
         offsetY={10}
+        onOpen={() => setCurrentSlide(0)}
       >
         {notes.length > 0 && (
           <S.NoteContainer $oneNote={isOneNote}>
