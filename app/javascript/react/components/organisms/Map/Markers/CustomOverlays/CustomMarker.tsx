@@ -90,10 +90,20 @@ export class CustomMarker extends google.maps.OverlayView {
       noteContainer.style.top = "-35px";
       noteContainer.style.left = "0px";
 
+      let initialSlide = 0;
+      if (this.invisible && this.notes.length > 1) {
+        initialSlide = this.notes.findIndex(
+          (note) =>
+            note.latitude === this.position.lat() &&
+            note.longitude === this.position.lng()
+        );
+        if (initialSlide === -1) initialSlide = 0;
+      }
+
       const root = createRoot(noteContainer);
       root.render(
         <Provider store={store}>
-          <NotesPopover notes={this.notes} />
+          <NotesPopover notes={this.notes} initialSlide={initialSlide} />
         </Provider>
       );
 

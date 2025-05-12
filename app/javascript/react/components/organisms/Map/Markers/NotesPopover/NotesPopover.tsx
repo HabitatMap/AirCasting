@@ -10,14 +10,16 @@ import * as S from "./NotesPopover.style";
 
 interface NotesPopoverProps {
   notes: Note[];
+  initialSlide?: number;
 }
 
-const NotesPopover = ({ notes }: NotesPopoverProps) => {
+const NotesPopover = ({ notes, initialSlide = 0 }: NotesPopoverProps) => {
   const [currentSlide, setCurrentSlide] = useState(0);
   const { t } = useTranslation();
   const isOneNote = notes.length === 1;
   const isMultipleNotes = notes.length > 1;
   const NOTE_CHARACTER_LIMIT = 60;
+  const originalIndex = initialSlide;
 
   const handlePrevSlide = () => {
     setCurrentSlide((prev) => (prev > 0 ? prev - 1 : notes.length - 1));
@@ -25,6 +27,10 @@ const NotesPopover = ({ notes }: NotesPopoverProps) => {
 
   const handleNextSlide = () => {
     setCurrentSlide((prev) => (prev < notes.length - 1 ? prev + 1 : 0));
+  };
+
+  const handleOpen = () => {
+    setCurrentSlide(initialSlide);
   };
 
   return (
@@ -45,7 +51,7 @@ const NotesPopover = ({ notes }: NotesPopoverProps) => {
         closeOnDocumentClick
         offsetX={10}
         offsetY={10}
-        onOpen={() => setCurrentSlide(0)}
+        onOpen={handleOpen}
       >
         {notes.length > 0 && (
           <S.NoteContainer $oneNote={isOneNote}>
@@ -56,6 +62,7 @@ const NotesPopover = ({ notes }: NotesPopoverProps) => {
                     <S.SliderDot
                       key={index}
                       $active={index === currentSlide}
+                      $original={index === originalIndex}
                       onClick={() => setCurrentSlide(index)}
                     />
                   ))}

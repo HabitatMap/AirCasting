@@ -4,6 +4,7 @@ import {
   gray100,
   gray400,
   grey,
+  theme,
   white,
 } from "../../../../../assets/styles/colors";
 import { media } from "../../../../../utils/media";
@@ -147,15 +148,15 @@ const SliderDots = styled.div`
   flex: 1;
 `;
 
-const SliderDot = styled.button<{ $active: boolean }>`
-  width: 0.8rem;
-  height: 0.8rem;
+const SliderDot = styled.button<{ $active: boolean; $original?: boolean }>`
+  width: ${(props) => (props.$original ? "1.2rem" : "0.8rem")};
+  height: ${(props) => (props.$original ? "1.2rem" : "0.8rem")};
   border-radius: 50%;
-  border: none;
+  border: ${(props) => (props.$original ? `2px solid ${theme}` : "none")};
   background-color: ${(props) => (props.$active ? grey : "#D9D9D9")};
   cursor: pointer;
   padding: 0;
-  transition: background-color 0.2s;
+  transition: background-color 0.2s, border 0.2s, width 0.2s, height 0.2s;
 
   &:hover {
     background-color: ${grey};
@@ -192,6 +193,18 @@ const NoteDate = styled(NoteText)`
   white-space: nowrap;
 `;
 
+const OriginalNoteBadge = styled.span`
+  display: inline-block;
+  background: #007bff;
+  color: #fff;
+  font-size: 0.75rem;
+  font-weight: bold;
+  border-radius: 0.5rem;
+  padding: 0.2rem 0.6rem;
+  margin-left: 0.5rem;
+  vertical-align: middle;
+`;
+
 export {
   DataContainer,
   NoteButton,
@@ -203,6 +216,7 @@ export {
   NoteText,
   NoteTextContainer,
   NoteWrapper,
+  OriginalNoteBadge,
   Photo,
   ReadMore,
   SlideContainer,

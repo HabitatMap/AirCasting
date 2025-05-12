@@ -200,7 +200,6 @@ const StreamMarkers = ({ sessions, unitSymbol }: Props) => {
       });
       markersRef.current.clear();
 
-      // Cleanup for invisible note markers
       if (noteMarkersRef.current) {
         noteMarkersRef.current.forEach((marker) => {
           marker.setMap(null);
@@ -215,7 +214,6 @@ const StreamMarkers = ({ sessions, unitSymbol }: Props) => {
       }
     };
 
-    // Always clean up before setting new markers
     cleanup();
 
     dispatch(setMarkersLoading(true));
@@ -227,47 +225,69 @@ const StreamMarkers = ({ sessions, unitSymbol }: Props) => {
     }
 
     requestAnimationFrame(() => {
-      const activeMarkerIds = new Set<string>();
       const allNotesForStream = mobileStreamData.notes || [];
-
-      // Track all visible marker locations
       const markerLocations = new Set<string>();
 
+      // Only create visible session markers (no notes attached)
       sortedSessions.forEach((session) => {
         const markerId = session.id.toString();
-        createOrUpdateMarker(session, allNotesForStream);
-        activeMarkerIds.add(markerId);
+        // Create marker with no notes
+        let marker = markersRef.current.get(markerId);
+        const position = { lat: session.point.lat, lng: session.point.lng };
+        const title = `${session.lastMeasurementValue} ${unitSymbol}`;
+        if (!marker) {
+          const color = getColorForValue(
+            thresholds,
+            session.lastMeasurementValue
+          );
+          marker = new CustomOverlay(
+            position,
+            color,
+            title,
+            12,
+            20,
+            "overlayMouseTarget",
+            [] // No notes attached
+          );
+          marker.setMap(map);
+          markersRef.current.set(markerId, marker);
+        } else {
+          marker.setPosition(position);
+          marker.setTitle(title);
+          marker.setNotes([]); // No notes attached
+          if (marker.getMap() !== map) {
+            marker.setMap(map);
+          }
+        }
         markerLocations.add(`${session.point.lat},${session.point.lng}`);
       });
 
-      // Create invisible markers for notes without a session marker at their location
+      // Create invisible markers for each note location, each with all notes for the session
       if (!noteMarkersRef.current) noteMarkersRef.current = new Map();
       allNotesForStream.forEach((note) => {
         const key = `${note.latitude},${note.longitude}`;
-        if (!markerLocations.has(key)) {
-          const noteMarkerId = `note-invisible-${note.id}`;
-          let noteMarker = noteMarkersRef.current.get(noteMarkerId);
-          if (!noteMarker) {
-            noteMarker = new CustomOverlay(
-              { lat: note.latitude, lng: note.longitude },
-              "", // no color needed
-              "", // no title needed
-              12,
-              20,
-              "overlayMouseTarget",
-              [note],
-              undefined,
-              undefined,
-              true // invisible
-            );
+        const noteMarkerId = `note-invisible-${note.id}`;
+        let noteMarker = noteMarkersRef.current.get(noteMarkerId);
+        if (!noteMarker) {
+          noteMarker = new CustomOverlay(
+            { lat: note.latitude, lng: note.longitude },
+            "", // no color needed
+            "", // no title needed
+            12,
+            20,
+            "overlayMouseTarget",
+            allNotesForStream, // Attach all notes for the session
+            undefined,
+            undefined,
+            true // invisible
+          );
+          noteMarker.setMap(map);
+          noteMarkersRef.current.set(noteMarkerId, noteMarker);
+        } else {
+          noteMarker.setPosition({ lat: note.latitude, lng: note.longitude });
+          noteMarker.setNotes(allNotesForStream);
+          if (noteMarker.getMap() !== map) {
             noteMarker.setMap(map);
-            noteMarkersRef.current.set(noteMarkerId, noteMarker);
-          } else {
-            noteMarker.setPosition({ lat: note.latitude, lng: note.longitude });
-            noteMarker.setNotes([note]);
-            if (noteMarker.getMap() !== map) {
-              noteMarker.setMap(map);
-            }
           }
         }
       });
@@ -277,7 +297,7 @@ const StreamMarkers = ({ sessions, unitSymbol }: Props) => {
         const noteId = markerId.replace("note-invisible-", "");
         const note = allNotesForStream.find((n) => n.id.toString() === noteId);
         const key = note ? `${note.latitude},${note.longitude}` : null;
-        if (!note || (key !== null && markerLocations.has(key))) {
+        if (!note) {
           marker.setMap(null);
           marker.cleanup();
           noteMarkersRef.current.delete(markerId);
@@ -302,7 +322,9 @@ const StreamMarkers = ({ sessions, unitSymbol }: Props) => {
       }
 
       markersRef.current.forEach((marker, markerId) => {
-        if (!activeMarkerIds.has(markerId)) {
+        if (
+          !sortedSessions.some((session) => session.id.toString() === markerId)
+        ) {
           marker.setMap(null);
           markersRef.current.delete(markerId);
         }
