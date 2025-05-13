@@ -9,13 +9,15 @@ class Api::ToUserSessionsHash2
 
     delete_sessions(data.select { |session| session[:deleted] })
 
-    Success.new(
-      {
-        upload: new_in_params,
-        download: new_in_database + outdated,
-        deleted: deleted,
-      },
-    )
+    Rails.logger.info("Input data: #{data.inspect}")
+    result = {
+      upload: new_in_params,
+      download: new_in_database + outdated,
+      deleted: deleted,
+    }
+    Rails.logger.info("Output result: #{result.inspect}")
+
+    Success.new(result)
   end
 
   private
