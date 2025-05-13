@@ -363,7 +363,6 @@ const StreamMarkers = ({ sessions, unitSymbol }: Props) => {
     });
   }, [thresholds, sortedSessions]);
 
-  // Add a ref for invisible note markers
   const noteMarkersRef = React.useRef<Map<string, CustomMarker>>(new Map());
 
   return !isInitialLoading.current && hoverPosition ? (

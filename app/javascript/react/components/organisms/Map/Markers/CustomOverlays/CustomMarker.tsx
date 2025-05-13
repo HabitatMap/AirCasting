@@ -160,7 +160,7 @@ export class CustomMarker extends google.maps.OverlayView {
       // Clean up note containers
       this.noteContainers.forEach((root) => {
         try {
-          root.unmount();
+          Promise.resolve().then(() => root.unmount());
         } catch (e) {
           console.warn("Error unmounting note container:", e);
         }
@@ -264,7 +264,7 @@ export class CustomMarker extends google.maps.OverlayView {
       // Clean up existing note containers
       this.noteContainers.forEach((root) => {
         try {
-          root.unmount();
+          Promise.resolve().then(() => root.unmount());
         } catch (e) {
           console.warn("Error unmounting note container:", e);
         }
@@ -297,7 +297,7 @@ export class CustomMarker extends google.maps.OverlayView {
   clearNotes() {
     // Clear all note containers in one batch
     this.noteContainers.forEach((root) => {
-      root.unmount();
+      Promise.resolve().then(() => root.unmount());
     });
     this.noteContainers.clear();
 

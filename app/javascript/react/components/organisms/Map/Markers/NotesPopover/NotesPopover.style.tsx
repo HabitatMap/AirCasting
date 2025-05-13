@@ -192,18 +192,6 @@ const NoteDate = styled(NoteText)`
   white-space: nowrap;
 `;
 
-const OriginalNoteBadge = styled.span`
-  display: inline-block;
-  background: #007bff;
-  color: #fff;
-  font-size: 0.75rem;
-  font-weight: bold;
-  border-radius: 0.5rem;
-  padding: 0.2rem 0.6rem;
-  margin-left: 0.5rem;
-  vertical-align: middle;
-`;
-
 export {
   DataContainer,
   NoteButton,
@@ -215,7 +203,6 @@ export {
   NoteText,
   NoteTextContainer,
   NoteWrapper,
-  OriginalNoteBadge,
   Photo,
   ReadMore,
   SlideContainer,
