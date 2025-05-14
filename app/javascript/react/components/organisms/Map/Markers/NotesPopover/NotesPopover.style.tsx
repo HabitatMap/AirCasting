@@ -70,9 +70,6 @@ const SlideContainer = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
-  position: relative;
-  width: 100%;
-  padding: 0 0.5rem;
 `;
 
 const SlideContent = styled.div`
@@ -131,12 +128,9 @@ const SliderButton = styled.button`
   width: 3.2rem;
   height: 3.2rem;
   min-width: 3.2rem;
-  position: relative;
-  z-index: 5;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 
   &:hover {
-    background: ${grey};
+    opacity: 0.8;
   }
 
   &:disabled {
@@ -149,7 +143,6 @@ const SliderButtonIcon = styled.img<{ $left?: boolean }>`
   width: 1.6rem;
   height: 1.6rem;
   transform: ${(props) => (props.$left ? "rotate(180deg)" : "none")};
-  opacity: 0.8;
 `;
 
 const SliderDots = styled.div`
