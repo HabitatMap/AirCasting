@@ -225,6 +225,14 @@ const StreamMarkers = ({ sessions, unitSymbol }: Props) => {
       return cleanup;
     }
 
+    if (sortedSessions.length > 0) {
+      const bounds = new google.maps.LatLngBounds();
+      sortedSessions.forEach((session) => {
+        bounds.extend({ lat: session.point.lat, lng: session.point.lng });
+      });
+      centerMapOnBounds(bounds);
+    }
+
     requestAnimationFrame(() => {
       const allNotesForStream = mobileStreamData.notes || [];
       const markerLocations = new Set<string>();
@@ -287,8 +295,6 @@ const StreamMarkers = ({ sessions, unitSymbol }: Props) => {
         const noteMarkerId = `note-${locationKey}`;
         let noteMarker = noteMarkersRef.current.get(noteMarkerId);
 
-        // Find the index of the first note at this location in the overall sorted notes array
-        // This will be used to set the initial slide index
         const initialSlideInGlobal = allNotesSorted.findIndex(
           (note) => note.latitude === lat && note.longitude === lng
         );
