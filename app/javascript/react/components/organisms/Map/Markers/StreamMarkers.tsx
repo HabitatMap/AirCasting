@@ -9,6 +9,7 @@ import React, {
 
 import { mobileStreamPath } from "../../../../assets/styles/colors";
 import { useAppDispatch, useAppSelector } from "../../../../store/hooks";
+import store from "../../../../store/index";
 import {
   selectHoverPosition,
   setHoverPosition,
@@ -264,43 +265,71 @@ const StreamMarkers = ({ sessions, unitSymbol }: Props) => {
 
       // Create invisible markers for each note location, each with all notes for the session
       if (!noteMarkersRef.current) noteMarkersRef.current = new Map();
+
+      // Group notes by location
+      const notesByLocation = new Map<string, Note[]>();
       allNotesForStream.forEach((note) => {
         const key = `${note.latitude},${note.longitude}`;
-        const noteMarkerId = `note-invisible-${note.id}`;
+        if (!notesByLocation.has(key)) {
+          notesByLocation.set(key, []);
+        }
+        notesByLocation.get(key)?.push(note);
+      });
+
+      // Sort all notes by date for consistent navigation order
+      const allNotesSorted = [...allNotesForStream].sort(
+        (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
+      );
+
+      // Create markers at each note location with only the notes at that location
+      notesByLocation.forEach((locationNotes, locationKey) => {
+        const [lat, lng] = locationKey.split(",").map(Number);
+        const noteMarkerId = `note-${locationKey}`;
         let noteMarker = noteMarkersRef.current.get(noteMarkerId);
+
+        // Find the index of the first note at this location in the overall sorted notes array
+        // This will be used to set the initial slide index
+        const initialSlideInGlobal = allNotesSorted.findIndex(
+          (note) => note.latitude === lat && note.longitude === lng
+        );
+
         if (!noteMarker) {
           noteMarker = new CustomOverlay(
-            { lat: note.latitude, lng: note.longitude },
+            { lat, lng },
             "", // no color needed
             "", // no title needed
-            12,
-            20,
-            "overlayMouseTarget",
-            allNotesForStream, // Attach all notes for the session
-            undefined,
-            undefined,
-            true // invisible
+            12, // size
+            20, // clickable area size
+            "overlayMouseTarget", // pane name
+            allNotesSorted, // notes array
+            undefined, // content
+            undefined, // onClick
+            false // invisible
           );
+          // Set initial slide separately since we can't pass it in the constructor
+          if (noteMarker) {
+            noteMarker.setNotes(allNotesSorted, initialSlideInGlobal);
+          }
           noteMarker.setMap(map);
           noteMarkersRef.current.set(noteMarkerId, noteMarker);
         } else {
-          noteMarker.setPosition({ lat: note.latitude, lng: note.longitude });
-          noteMarker.setNotes(allNotesForStream);
+          noteMarker.setPosition({ lat, lng });
+          noteMarker.setNotes(allNotesSorted, initialSlideInGlobal);
           if (noteMarker.getMap() !== map) {
             noteMarker.setMap(map);
           }
         }
       });
 
-      // Cleanup stale invisible note markers
+      // Cleanup stale markers
       noteMarkersRef.current.forEach((marker, markerId) => {
-        const noteId = markerId.replace("note-invisible-", "");
-        const note = allNotesForStream.find((n) => n.id.toString() === noteId);
-        const key = note ? `${note.latitude},${note.longitude}` : null;
-        if (!note) {
-          marker.setMap(null);
-          marker.cleanup();
-          noteMarkersRef.current.delete(markerId);
+        if (markerId.startsWith("note-")) {
+          const locationKey = markerId.replace("note-", "");
+          if (!notesByLocation.has(locationKey)) {
+            marker.setMap(null);
+            marker.cleanup();
+            noteMarkersRef.current.delete(markerId);
+          }
         }
       });
 
@@ -364,6 +393,34 @@ const StreamMarkers = ({ sessions, unitSymbol }: Props) => {
   }, [thresholds, sortedSessions]);
 
   const noteMarkersRef = React.useRef<Map<string, CustomMarker>>(new Map());
+
+  // Add Redux subscription to update all marker popovers
+  React.useEffect(() => {
+    let lastOpenMarkerKey: string | null = null;
+    let lastInitialSlide: number | null = null;
+
+    const unsubscribe = store.subscribe(() => {
+      const state = store.getState();
+      const openMarkerKey = state.popover.openMarkerKey;
+      const initialSlide = state.popover.initialSlide;
+
+      if (
+        openMarkerKey !== lastOpenMarkerKey ||
+        initialSlide !== lastInitialSlide
+      ) {
+        lastOpenMarkerKey = openMarkerKey;
+        lastInitialSlide = initialSlide;
+
+        if (map && (map as any).__customMarkers) {
+          (map as any).__customMarkers.forEach((marker: CustomMarker) => {
+            marker.setNotes(marker.getNotes(), initialSlide);
+          });
+        }
+      }
+    });
+
+    return () => unsubscribe();
+  }, [map]);
 
   return !isInitialLoading.current && hoverPosition ? (
     <HoverMarker position={hoverPosition} />
