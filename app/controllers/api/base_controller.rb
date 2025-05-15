@@ -37,9 +37,6 @@ module Api
           note.s3_photo.variant(resize_to_limit: [600, 600]).processed,
           host: A9n.host_,
         )
-      elsif note.photo_exists?
-        'http://' + request.host + ':' + request.port.to_s +
-          note.photo.url(:medium)
       end
     end
   end

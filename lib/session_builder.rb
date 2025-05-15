@@ -77,10 +77,7 @@ class SessionBuilder
               content_type: content_type,
             )
 
-          # paperclip - remove after migration
-          base64_photo = "data:image/jpeg;base64,#{photo}"
-
-          datum.merge(s3_photo: attached_photo).merge(photo: base64_photo)
+          datum.merge(s3_photo: attached_photo)
         end
       end
   end

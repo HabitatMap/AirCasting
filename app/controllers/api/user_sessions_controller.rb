@@ -7,13 +7,10 @@ class Api::UserSessionsController < Api::BaseController
   respond_to :json
 
   def sync_with_versioning
-    form =
-      Api::JsonForm.new(
-        json: to_json_data(params),
-        schema: Api::UserSessions2::Schema,
-        struct: Api::UserSessions2::Struct,
-      )
-    result = Api::ToUserSessionsHash2.new(form: form, user: current_user).call
+    contract =
+      Api::UserSessions2Contract.new.call({ data: JSON.parse(params[:data]) })
+    result =
+      Api::ToUserSessionsHash2.new(contract: contract, user: current_user).call
 
     if result.success?
       render json: result.value, status: :ok
@@ -23,13 +20,8 @@ class Api::UserSessionsController < Api::BaseController
   end
 
   def update_session
-    form =
-      Api::JsonForm.new(
-        json: params.to_unsafe_hash[:data],
-        schema: Api::UserSession::Schema,
-        struct: Api::UserSession::Struct,
-      )
-    result = Api::UpdateSession.new(form: form).call
+    contract = Api::UserSessionContract.new.call(JSON.parse(params[:data]))
+    result = Api::UpdateSession.new(contract: contract).call
 
     if result.success?
       render json: result.value, status: :ok
@@ -107,9 +99,9 @@ class Api::UserSessionsController < Api::BaseController
   end
 
   def prepare_notes(notes)
-    notes.map do |note|
-      note.as_json.merge(photo_location: photo_location(note))
-    end
+    note_serializer = NoteSerializer.new
+
+    notes.map { |note| note_serializer.call(note: note) }
   end
 
   def to_json_data(params)

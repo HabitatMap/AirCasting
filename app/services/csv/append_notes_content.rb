@@ -40,8 +40,6 @@ class Csv::AppendNotesContent
         note.s3_photo,
         host: host,
       )
-    elsif note.photo_exists?
-      host + note.photo.url(:medium)
     else
       'No photo was attached'
     end
