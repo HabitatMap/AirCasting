@@ -1,8 +1,8 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 
-import { Map as GoogleMap, type MapEvent } from "@vis.gl/react-google-maps";
+import { Map as GoogleMap } from "@vis.gl/react-google-maps";
 
 import React from "react";
 import clockIcon from "../../../assets/icons/clockIcon.svg";
@@ -13,35 +13,22 @@ import { TRUE } from "../../../const/booleans";
 import { MIN_ZOOM } from "../../../const/coordinates";
 import { type RootState, selectIsLoading } from "../../../store";
 import {
-  selectFixedSessionsList,
-  selectFixedSessionsPoints,
-  selectFixedSessionsStatusFulfilled,
-} from "../../../store/fixedSessionsSelectors";
-import {
   cleanSessions,
   fetchActiveFixedSessions,
   fetchDormantFixedSessions,
 } from "../../../store/fixedSessionsSlice";
-import { selectFixedData } from "../../../store/fixedStreamSelectors";
 import {
   fetchFixedStreamById,
   resetFixedStreamState,
 } from "../../../store/fixedStreamSlice";
 import { useAppDispatch, useAppSelector } from "../../../store/hooks";
-import { selectIndoorSessionsList } from "../../../store/indoorSessionsSelectors";
 import {
   fetchActiveIndoorSessions,
   fetchDormantIndoorSessions,
 } from "../../../store/indoorSessionsSlice";
 import { selectFetchingData, setFetchingData } from "../../../store/mapSlice";
 import { selectMarkersLoading } from "../../../store/markersLoadingSlice";
-import {
-  selectMobileSessionPointsBySessionId,
-  selectMobileSessionsList,
-  selectMobileSessionsPoints,
-} from "../../../store/mobileSessionsSelectors";
 import { fetchMobileSessions } from "../../../store/mobileSessionsSlice";
-import { selectMobileStreamPoints } from "../../../store/mobileStreamSelectors";
 import {
   fetchMobileStreamById,
   resetMobileStreamState,
@@ -51,7 +38,6 @@ import {
   FixedSessionsTypes,
   resetTags,
   selectFixedSessionsType,
-  selectIsDormantSessionsType,
   selectTags,
   setFixedSessionsType,
 } from "../../../store/sessionFiltersSlice";
@@ -61,21 +47,12 @@ import {
   selectDefaultThresholds,
   setUserThresholdValues,
 } from "../../../store/thresholdSlice";
-import {
-  selectCurrentTimestamp,
-  selectTimelapseData,
-  selectTimelapseIsLoading,
-} from "../../../store/timelapseSelectors";
-import {
-  fetchTimelapseData,
-  setCurrentTimestamp,
-} from "../../../store/timelapseSlice";
+import { fetchTimelapseData } from "../../../store/timelapseSlice";
 import { SessionTypes } from "../../../types/filters";
 import type { SessionList } from "../../../types/sessionType";
 import { UserSettings } from "../../../types/userStates";
 import * as Cookies from "../../../utils/cookies";
 import { UrlParamsTypes, useMapParams } from "../../../utils/mapParamsHandler";
-import { useHandleScrollEnd } from "../../../utils/scrollEnd";
 import useMobileDetection from "../../../utils/useScreenSizeDetection";
 import { Loader } from "../../atoms/Loader/Loader";
 import { SectionButton } from "../../atoms/SectionButton/SectionButton";
@@ -86,6 +63,13 @@ import { SessionDetailsModal } from "../../organisms/Modals/SessionDetailsModal"
 import { TimelapseComponent } from "../../organisms/Modals/TimelapseModal";
 import { ThresholdButtonVariant } from "../../organisms/ThresholdConfigurator/ThresholdButtons/ThresholdButton";
 import { ThresholdsConfigurator } from "../../organisms/ThresholdConfigurator/ThresholdConfigurator";
+import { useMapInitialization } from "./hooks/useMapInitialization";
+import { useMapMarkers } from "./hooks/useMapMarkers";
+import { useMapScrollEnd } from "./hooks/useMapScrollEnd";
+import { useMapSessionCounts } from "./hooks/useMapSessionCounts";
+import { useMapSessionList } from "./hooks/useMapSessionList";
+import { useMapSessions } from "./hooks/useMapSessions";
+import { useMapUI } from "./hooks/useMapUI";
 import { Legend } from "./Legend/Legend";
 import * as S from "./Map.style";
 import mapStyles from "./mapUtils/mapStyles";
@@ -141,118 +125,29 @@ const Map = () => {
   const { t } = useTranslation();
   const isIndoorParameterInUrl = isIndoor === TRUE;
 
-  // State
-  const [mapInstance, setMapInstance] = useState<google.maps.Map | null>(null);
-  const [pulsatingSessionId, setPulsatingSessionId] = useState<number | null>(
-    null
-  );
-
-  // Selectors
+  // Selectors that are not duplicated
   const defaultThresholds = useAppSelector(selectDefaultThresholds);
-  const fetchableMobileSessionsCount = useAppSelector(
-    (state: RootState) => state.mobileSessions.fetchableSessionsCount
-  );
-  const fetchableFixedSessionsCount = useAppSelector(
-    (state: RootState) => state.fixedSessions.fetchableSessionsCount
-  );
-
   const fetchingData = useAppSelector(selectFetchingData);
   const fixedSessionsType = useAppSelector(selectFixedSessionsType);
-  const fixedPoints = useAppSelector((state) =>
-    selectFixedSessionsPoints(state, fixedSessionsType)
-  );
-
-  const fixedSessionsStatusFulfilled = useAppSelector(
-    selectFixedSessionsStatusFulfilled
-  );
-
   const selectorsLoading = useAppSelector(selectIsLoading);
   const markersLoading = useAppSelector(selectMarkersLoading);
-  const mobilePoints = sessionId
-    ? useAppSelector(selectMobileSessionPointsBySessionId(sessionId))
-    : useAppSelector(selectMobileSessionsPoints);
-  const mobileStreamPoints = useAppSelector(selectMobileStreamPoints);
   const realtimeMapUpdates = useAppSelector(
     (state: RootState) => state.realtimeMapUpdates.realtimeMapUpdates
   );
-  const timelapseData = useAppSelector(selectTimelapseData);
-  const currentTimestamp = useAppSelector(selectCurrentTimestamp);
-  const isDormant = useAppSelector(selectIsDormantSessionsType);
   const tagsToSelect = useAppSelector(selectTags);
 
   const fixedSessionTypeSelected: boolean = sessionType === SessionTypes.FIXED;
 
-  const selectListSessions = useMemo(
-    () => (state: RootState) => {
-      if (fixedSessionTypeSelected) {
-        if (isIndoorParameterInUrl) {
-          return selectIndoorSessionsList(isDormant)(state);
-        } else {
-          return selectFixedSessionsList(state, fixedSessionsType);
-        }
-      } else {
-        return selectMobileSessionsList(state);
-      }
-    },
-    [
-      fixedSessionTypeSelected,
-      isIndoorParameterInUrl,
-      isDormant,
-      fixedSessionsType,
-    ]
-  );
-
-  const listSessions = useAppSelector(selectListSessions);
-
-  const fixedStreamData = useAppSelector(selectFixedData);
-
-  const memoizedMapStyles = useMemo(() => mapStyles, []);
-
-  // update fixed session type based on the URL)
-  useEffect(() => {
-    if (isActive) {
-      if (fixedSessionsType !== FixedSessionsTypes.ACTIVE) {
-        dispatch(setFixedSessionsType(FixedSessionsTypes.ACTIVE));
-      }
-    } else {
-      if (fixedSessionsType !== FixedSessionsTypes.DORMANT) {
-        dispatch(setFixedSessionsType(FixedSessionsTypes.DORMANT));
-      }
-    }
-  }, [isActive, fixedSessionsType, dispatch]);
-
-  const fetchableIndoorSessionsCount = listSessions.length;
-
-  const fetchableSessionsCount = useMemo(() => {
-    return sessionType === SessionTypes.FIXED
-      ? isIndoorParameterInUrl
-        ? fetchableIndoorSessionsCount
-        : fetchableFixedSessionsCount
-      : fetchableMobileSessionsCount;
-  }, [
-    fetchableFixedSessionsCount,
-    fetchableMobileSessionsCount,
-    sessionType,
-    fetchableIndoorSessionsCount,
-    isIndoorParameterInUrl,
-  ]);
-
-  const memoizedTimelapseData = useMemo(() => timelapseData, [timelapseData]);
-
+  // Prepare data for filters
   const newSearchParams = new URLSearchParams(searchParams.toString());
   const preparedUnitSymbol = unitSymbol.replace(/"/g, "");
   const encodedUnitSymbol = encodeURIComponent(preparedUnitSymbol);
   const sensorNamedDecoded = decodeURIComponent(sensorName);
   const tagsDecoded = tags && decodeURIComponent(tags);
   const usernamesDecoded = usernames && decodeURIComponent(usernames);
-
-  const isTimelapseView = currentUserSettings === UserSettings.TimelapseView;
-
-  const isTimelapseDisabled =
-    listSessions.length === 0 || isDormant || isIndoorParameterInUrl;
-
   const zoomLevel = !Number.isNaN(currentZoom) ? Math.round(currentZoom) : 5;
 
+  // Move filters declaration before hook calls
   const filters = useMemo(
     () =>
       JSON.stringify({
@@ -291,6 +186,106 @@ const Map = () => {
     ]
   );
 
+  // Now initialize hooks after filters is defined
+  const {
+    mapInstance,
+    handleMapIdle,
+    handleZoomChanged: mapInitHandleZoomChanged,
+  } = useMapInitialization({
+    currentCenter,
+    currentZoom,
+    currentUserSettings,
+    previousUserSettings,
+    sessionType,
+    isFirstRender,
+    searchParams,
+    navigate,
+  });
+
+  const { pulsatingSessionId, setPulsatingSessionId, handleMarkerClick } =
+    useMapMarkers({
+      currentUserSettings,
+      previousUserSettings,
+      fixedSessionTypeSelected,
+      isMobile,
+      searchParams,
+      navigate,
+      revertUserSettingsAndResetIds,
+    });
+
+  const {
+    fixedPoints,
+    fixedSessionsStatusFulfilled,
+    mobilePoints,
+    mobileStreamPoints,
+    fixedStreamData,
+    timelapseData,
+    currentTimestamp,
+    isDormant,
+    isTimelapseLoading,
+  } = useMapSessions({
+    sessionType,
+    sessionId,
+    streamId,
+    isActive,
+    isIndoor: isIndoorParameterInUrl,
+    currentUserSettings,
+    fixedSessionTypeSelected,
+  });
+
+  const { listSessions } = useMapSessionList({
+    sessionType,
+    isIndoor: isIndoorParameterInUrl,
+    isDormant,
+  });
+
+  const { fetchableSessionsCount } = useMapSessionCounts({
+    sessionType,
+  });
+
+  const {
+    selectorsLoading: selectorsLoadingFromUI,
+    markersLoading: markersLoadingFromUI,
+    openFilters,
+    openTimelapse,
+  } = useMapUI({
+    currentUserSettings,
+    previousUserSettings,
+    goToUserSettings,
+    dispatch,
+  });
+
+  const handleScrollEnd = useMapScrollEnd({
+    offset,
+    listSessions,
+    updateOffset,
+    updateFetchedSessions,
+    filters,
+    fetchableSessionsCount,
+    isDormant,
+    sessionType,
+  });
+
+  const memoizedMapStyles = useMemo(() => mapStyles, []);
+
+  // update fixed session type based on the URL)
+  useEffect(() => {
+    if (isActive) {
+      if (fixedSessionsType !== FixedSessionsTypes.ACTIVE) {
+        dispatch(setFixedSessionsType(FixedSessionsTypes.ACTIVE));
+      }
+    } else {
+      if (fixedSessionsType !== FixedSessionsTypes.DORMANT) {
+        dispatch(setFixedSessionsType(FixedSessionsTypes.DORMANT));
+      }
+    }
+  }, [isActive, fixedSessionsType, dispatch]);
+
+  const isTimelapseView = currentUserSettings === UserSettings.TimelapseView;
+
+  const isTimelapseDisabled =
+    listSessions.length === 0 || isDormant || isIndoorParameterInUrl;
+
   const indoorSessionsFilters = useMemo(
     () =>
       JSON.stringify({
@@ -318,6 +313,7 @@ const Map = () => {
     return `${sensorName}?unit_symbol=${encodedUnitSymbol}`;
   }, [sensorName, encodedUnitSymbol]);
 
+  // Add back the applyMapStylesBasedOnZoom function
   const applyMapStylesBasedOnZoom = (
     mapInstance: google.maps.Map | null,
     mapStylesZoomedIn: any,
@@ -336,6 +332,29 @@ const Map = () => {
         styles: defaultMapStyles,
       });
     }
+  };
+
+  // Use mapInitHandleZoomChanged for onZoomChanged prop and handleMapZoomStyles for internal use
+  const handleMapZoomStyles = useCallback(() => {
+    if (mapInstance) {
+      applyMapStylesBasedOnZoom(
+        mapInstance,
+        mapStylesZoomedIn,
+        memoizedMapStyles
+      );
+    }
+  }, [mapInstance, memoizedMapStyles]);
+
+  const renderTimelapseMarkers = () => {
+    if (
+      currentUserSettings === UserSettings.TimelapseView &&
+      currentTimestamp &&
+      timelapseData[currentTimestamp] &&
+      !isTimelapseLoading
+    ) {
+      return <TimelapseMarkers sessions={timelapseData[currentTimestamp]} />;
+    }
+    return null;
   };
 
   // Effects
@@ -561,145 +580,6 @@ const Map = () => {
     }
   }, [currentUserSettings, fixedPoints]);
 
-  const handleScrollEnd = useHandleScrollEnd(
-    offset,
-    listSessions,
-    updateOffset,
-    updateFetchedSessions,
-    filters,
-    fetchableMobileSessionsCount,
-    fetchableFixedSessionsCount,
-    isDormant
-  );
-
-  const handleMapIdle = useCallback(
-    (event: MapEvent) => {
-      const map = event.map;
-      if (!mapInstance) {
-        setMapInstance(map);
-        map.setOptions({
-          clickableIcons: false,
-        });
-      }
-
-      applyMapStylesBasedOnZoom(map, mapStylesZoomedIn, memoizedMapStyles);
-
-      if (isFirstRender.current) {
-        if (currentUserSettings === UserSettings.MapView) {
-          newSearchParams.set(UrlParamsTypes.sessionType, sessionType);
-          newSearchParams.set(UrlParamsTypes.isActive, TRUE);
-          map.setCenter(currentCenter);
-          map.setZoom(currentZoom);
-        }
-        isFirstRender.current = false;
-      } else {
-        if (
-          [UserSettings.MapView, UserSettings.CrowdMapView].includes(
-            currentUserSettings
-          )
-        ) {
-          const currentCenter = JSON.stringify(
-            map.getCenter()?.toJSON() || previousCenter
-          );
-          const currentZoom = (map.getZoom() || previousZoom).toString();
-          const bounds = map?.getBounds();
-          if (!bounds) {
-            return;
-          }
-          const north = bounds.getNorthEast().lat();
-          const south = bounds.getSouthWest().lat();
-          const east = bounds.getNorthEast().lng();
-          const west = bounds.getSouthWest().lng();
-
-          newSearchParams.set(UrlParamsTypes.boundEast, east.toString());
-          newSearchParams.set(UrlParamsTypes.boundNorth, north.toString());
-          newSearchParams.set(UrlParamsTypes.boundSouth, south.toString());
-          newSearchParams.set(UrlParamsTypes.boundWest, west.toString());
-          newSearchParams.set(UrlParamsTypes.currentCenter, currentCenter);
-          newSearchParams.set(UrlParamsTypes.currentZoom, currentZoom);
-          Cookies.set(UrlParamsTypes.boundEast, east.toString());
-          Cookies.set(UrlParamsTypes.boundNorth, north.toString());
-          Cookies.set(UrlParamsTypes.boundSouth, south.toString());
-          Cookies.set(UrlParamsTypes.boundWest, west.toString());
-          Cookies.set(UrlParamsTypes.currentCenter, currentCenter);
-          Cookies.set(UrlParamsTypes.currentZoom, currentZoom);
-          navigate(`?${newSearchParams.toString()}`);
-        }
-      }
-    },
-    [currentUserSettings, mapInstance, searchParams, dispatch]
-  );
-
-  // ref to currentUserSettings to get the current value from URL
-  const currentUserSettingsRef = useRef(currentUserSettings);
-
-  useEffect(() => {
-    currentUserSettingsRef.current = currentUserSettings;
-  }, [currentUserSettings]);
-
-  const handleMarkerClick = (
-    selectedStreamId: number | null,
-    id: number | null
-  ) => {
-    if (currentUserSettings !== UserSettings.SessionListView) {
-      setPreviousZoomInTheURL();
-    }
-
-    if (selectedStreamId) {
-      fixedSessionTypeSelected
-        ? dispatch(fetchFixedStreamById(selectedStreamId))
-        : dispatch(fetchMobileStreamById(selectedStreamId));
-    }
-
-    if (isMobile) {
-      if (fixedSessionTypeSelected) {
-        newSearchParams.set(
-          UrlParamsTypes.previousUserSettings,
-          currentUserSettingsRef.current
-        );
-        newSearchParams.set(
-          UrlParamsTypes.currentUserSettings,
-          UserSettings.CalendarView
-        );
-        newSearchParams.set(UrlParamsTypes.sessionId, id?.toString() || "");
-        newSearchParams.set(
-          UrlParamsTypes.streamId,
-          selectedStreamId?.toString() || ""
-        );
-
-        navigate(`/fixed_stream?${newSearchParams.toString()}`, {
-          replace: true,
-        });
-        return;
-      }
-    }
-
-    if (!streamId) {
-      newSearchParams.set(UrlParamsTypes.sessionId, id?.toString() || "");
-      newSearchParams.set(
-        UrlParamsTypes.streamId,
-        selectedStreamId?.toString() || ""
-      );
-      newSearchParams.set(
-        UrlParamsTypes.previousUserSettings,
-        currentUserSettingsRef.current
-      );
-      newSearchParams.set(
-        UrlParamsTypes.currentUserSettings,
-        UserSettings.ModalView
-      );
-
-      navigate(`?${newSearchParams.toString()}`);
-    }
-
-    if (streamId) {
-      revertUserSettingsAndResetIds();
-      fixedSessionTypeSelected
-        ? dispatch(resetFixedStreamState())
-        : dispatch(resetMobileStreamState());
-    }
-  };
-
   const setPreviousZoomOnTheMap = () => {
     if (
       [UserSettings.MapView, UserSettings.CrowdMapView].includes(
@@ -765,55 +645,17 @@ const Map = () => {
     }
   };
 
-  const handleMapZoomStyles = useCallback(() => {
-    if (mapInstance) {
-      applyMapStylesBasedOnZoom(
-        mapInstance,
-        mapStylesZoomedIn,
-        memoizedMapStyles
-      );
-    }
-  }, [mapInstance, memoizedMapStyles]);
-
-  const handleZoomChanged = () => {
-    if (mapInstance) {
-      handleMapZoomStyles();
-    }
-  };
-
-  const openFilters = () => {
-    goToUserSettings(UserSettings.FiltersView);
-  };
-
-  const openTimelapse = () => {
-    // Clear existing timelapse markers before switching views
-    dispatch(setCurrentTimestamp(""));
-
-    // Add a small delay to ensure markers are cleared before view changes
-    setTimeout(() => {
-      goToUserSettings(
-        currentUserSettings === UserSettings.TimelapseView
-          ? previousUserSettings
-          : UserSettings.TimelapseView
-      );
-    }, 0);
-  };
-
-  const isTimelapseLoading = useAppSelector(selectTimelapseIsLoading);
-
-  const renderTimelapseMarkers = () => {
-    if (
-      currentUserSettings === UserSettings.TimelapseView &&
-      currentTimestamp &&
-      memoizedTimelapseData[currentTimestamp] &&
-      !isTimelapseLoading
-    ) {
-      return (
-        <TimelapseMarkers sessions={memoizedTimelapseData[currentTimestamp]} />
-      );
-    }
-    return null;
-  };
+  // Add this right before the return statement to ensure map is initialized correctly
+  const onGoogleMapLoad = useCallback(
+    (map: google.maps.Map) => {
+      if (map) {
+        map.setOptions({
+          styles: memoizedMapStyles,
+        });
+      }
+    },
+    [memoizedMapStyles]
+  );
 
   return (
     <>
@@ -840,10 +682,12 @@ const Map = () => {
         onIdle={handleMapIdle}
         minZoom={MIN_ZOOM}
         isFractionalZoomEnabled={true}
-        styles={memoizedMapStyles}
-        onZoomChanged={handleZoomChanged}
+        onZoomChanged={mapInitHandleZoomChanged}
         tilt={0}
         reuseMaps={true}
+        options={{
+          styles: memoizedMapStyles,
+        }}
       >
         {fixedSessionsStatusFulfilled &&
           fixedSessionTypeSelected &&

@@ -1,0 +1,1201 @@
+# Test info
+
+- Name: Test the mobile session managment workflow
+- Location: /Users/ewelinasarad/Projects/AirCasting/tests/e2e/map-workflows/mobile-session-managment.spec.ts:3:5
+
+# Error details
+
+```
+Error: locator.click: Test timeout of 30000ms exceeded.
+Call log:
+  - waiting for locator('div:nth-child(47) > div').first()
+    - locator resolved to <div></div>
+  - attempting click action
+    2 × waiting for element to be visible, enabled and stable
+      - element is visible, enabled and stable
+      - scrolling into view if needed
+      - done scrolling
+      - <div></div> from <div title="">…</div> subtree intercepts pointer events
+    - retrying click action
+    - waiting 20ms
+    - waiting for element to be visible, enabled and stable
+    - element is visible, enabled and stable
+    - scrolling into view if needed
+    - done scrolling
+    - <div></div> from <div title="">…</div> subtree intercepts pointer events
+  - retrying click action
+    - waiting 100ms
+    - waiting for element to be visible, enabled and stable
+    - element is visible, enabled and stable
+    - scrolling into view if needed
+    - done scrolling
+    - <div class="sc-dmcuvF bXaWio">…</div> from <div class="sc-fuRENl igEGYw">…</div> subtree intercepts pointer events
+  - retrying click action
+    - waiting 100ms
+    2 × waiting for element to be visible, enabled and stable
+      - element is visible, enabled and stable
+      - scrolling into view if needed
+      - done scrolling
+      - <div></div> from <div title="">…</div> subtree intercepts pointer events
+    - retrying click action
+      - waiting 500ms
+      - waiting for element to be visible, enabled and stable
+      - element is visible, enabled and stable
+      - scrolling into view if needed
+      - done scrolling
+      - <div></div> from <div title="">…</div> subtree intercepts pointer events
+    - retrying click action
+      - waiting 500ms
+      - waiting for element to be visible, enabled and stable
+      - element is visible, enabled and stable
+      - scrolling into view if needed
+      - done scrolling
+      - <div></div> from <div title="">…</div> subtree intercepts pointer events
+    - retrying click action
+      - waiting 500ms
+      - waiting for element to be visible, enabled and stable
+      - element is visible, enabled and stable
+      - scrolling into view if needed
+      - done scrolling
+      - <div class="sc-dmcuvF bXaWio">…</div> from <div class="sc-fuRENl igEGYw">…</div> subtree intercepts pointer events
+    - retrying click action
+      - waiting 500ms
+      - waiting for element to be visible, enabled and stable
+      - element is visible, enabled and stable
+      - scrolling into view if needed
+      - done scrolling
+      - <div></div> from <div title="">…</div> subtree intercepts pointer events
+    - retrying click action
+      - waiting 500ms
+      - waiting for element to be visible, enabled and stable
+      - element is visible, enabled and stable
+      - scrolling into view if needed
+      - done scrolling
+      - <div></div> from <div title="">…</div> subtree intercepts pointer events
+    - retrying click action
+      - waiting 500ms
+      - waiting for element to be visible, enabled and stable
+      - element is visible, enabled and stable
+      - scrolling into view if needed
+      - done scrolling
+      - <div>…</div> intercepts pointer events
+    - retrying click action
+      - waiting 500ms
+      - waiting for element to be visible, enabled and stable
+      - element is visible, enabled and stable
+      - scrolling into view if needed
+      - done scrolling
+      - <div class="sc-dmcuvF bXaWio">…</div> from <div class="sc-fuRENl igEGYw">…</div> subtree intercepts pointer events
+    - retrying click action
+      - waiting 500ms
+    2 × waiting for element to be visible, enabled and stable
+      - element is visible, enabled and stable
+      - scrolling into view if needed
+      - done scrolling
+      - <div></div> from <div title="">…</div> subtree intercepts pointer events
+    - retrying click action
+      - waiting 500ms
+    - waiting for element to be visible, enabled and stable
+    - element is visible, enabled and stable
+    - scrolling into view if needed
+    - done scrolling
+    - <div>…</div> intercepts pointer events
+  6 × retrying click action
+      - waiting 500ms
+      - waiting for element to be visible, enabled and stable
+      - element is visible, enabled and stable
+      - scrolling into view if needed
+      - done scrolling
+      - <div class="sc-dmcuvF bXaWio">…</div> from <div class="sc-fuRENl igEGYw">…</div> subtree intercepts pointer events
+    - retrying click action
+      - waiting 500ms
+      - waiting for element to be visible, enabled and stable
+      - element is visible, enabled and stable
+      - scrolling into view if needed
+      - done scrolling
+      - <div></div> from <div title="">…</div> subtree intercepts pointer events
+    - retrying click action
+      - waiting 500ms
+      - waiting for element to be visible, enabled and stable
+      - element is visible, enabled and stable
+      - scrolling into view if needed
+      - done scrolling
+      - <div></div> from <div title="">…</div> subtree intercepts pointer events
+    - retrying click action
+      - waiting 500ms
+      - waiting for element to be visible, enabled and stable
+      - element is visible, enabled and stable
+      - scrolling into view if needed
+      - done scrolling
+      - <div></div> from <div title="">…</div> subtree intercepts pointer events
+  - retrying click action
+    - waiting 500ms
+    - waiting for element to be visible, enabled and stable
+    - element is visible, enabled and stable
+    - scrolling into view if needed
+    - done scrolling
+    - <div class="sc-dmcuvF bXaWio">…</div> from <div class="sc-fuRENl igEGYw">…</div> subtree intercepts pointer events
+  2 × retrying click action
+      - waiting 500ms
+      - waiting for element to be visible, enabled and stable
+      - element is visible, enabled and stable
+      - scrolling into view if needed
+      - done scrolling
+      - <div></div> from <div title="">…</div> subtree intercepts pointer events
+  - retrying click action
+    - waiting 500ms
+    - waiting for element to be visible, enabled and stable
+    - element is visible, enabled and stable
+    - scrolling into view if needed
+    - done scrolling
+    - <div>…</div> intercepts pointer events
+  2 × retrying click action
+      - waiting 500ms
+      - waiting for element to be visible, enabled and stable
+      - element is visible, enabled and stable
+      - scrolling into view if needed
+      - done scrolling
+      - <div></div> from <div title="">…</div> subtree intercepts pointer events
+  - retrying click action
+    - waiting 500ms
+
+    at /Users/ewelinasarad/Projects/AirCasting/tests/e2e/map-workflows/mobile-session-managment.spec.ts:31:61
+    at /Users/ewelinasarad/Projects/AirCasting/tests/e2e/map-workflows/mobile-session-managment.spec.ts:10:3
+```
+
+# Page snapshot
+
+```yaml
+- banner:
+  - link "AirCasting page":
+    - /url: https://habitatmap.org/aircasting
+    - img "Aircasting logo"
+  - combobox "Search for a location"
+  - button "Go to browser location":
+    - img "Search location icon"
+  - listbox
+  - button "Refresh map"
+  - text: update when map moves
+  - checkbox
+  - text: Map
+  - checkbox
+  - text: Satellite Terrain
+  - checkbox
+  - link "navbar.altAirbeamIcon":
+    - /url: https://habitatmap.org/airbeam/buy-it-now
+    - img "navbar.altAirbeamIcon"
+  - navigation:
+    - button "Open menu":
+      - img "Open menu"
+  - list:
+    - listitem:
+      - link "HabitatMap page":
+        - /url: https://habitatmap.org/aircasting
+        - img "HabitatMap logo"
+      - button "Close icon":
+        - img "Close icon"
+    - listitem:
+      - link "AirBeam":
+        - /url: https://habitatmap.org/airbeam
+      - list:
+        - listitem:
+          - link "User Stories":
+            - /url: https://habitatmap.org/airbeam/user-stories
+        - listitem:
+          - link "How It Works":
+            - /url: https://habitatmap.org/airbeam/how-it-works
+        - listitem:
+          - link "FAQ":
+            - /url: https://habitatmap.org/airbeam/FAQ
+        - listitem:
+          - link "AirBeam3 User’s Guide":
+            - /url: https://habitatmap.org/airbeam/users-guide
+        - listitem:
+          - link "AirBeam Mini User’s Guide":
+            - /url: https://habitatmap.org/airbeam/users-guide-airbeammini
+        - listitem:
+          - link "Buy it Now":
+            - /url: https://habitatmap.org/airbeam/buy-it-now
+    - listitem:
+      - link "AirCasting":
+        - /url: https://habitatmap.org/aircasting
+      - list:
+        - listitem:
+          - link "AirCasting Maps":
+            - /url: /
+        - listitem:
+          - link "Android App":
+            - /url: https://play.google.com/store/apps/details?id=pl.llp.aircasting&hl=en_US
+        - listitem:
+          - link "iOS App":
+            - /url: https://apps.apple.com/us/app/aircasting/id1587685281#?platform=iphone
+        - listitem:
+          - link "AirCasting Actions":
+            - /url: https://aircastingactions.org/
+    - listitem:
+      - link "About HabitatMap":
+        - /url: https://habitatmap.org/about
+      - list:
+        - listitem:
+          - link "History & People":
+            - /url: https://habitatmap.org/about/history
+        - listitem:
+          - link "Press":
+            - /url: https://habitatmap.org/about/press
+        - listitem:
+          - link "Blog":
+            - /url: https://habitatmap.org/blog
+    - link "Search icon":
+      - /url: https://habitatmap.org/search
+      - img "Search icon"
+    - link "Donate":
+      - /url: https://habitatmap.org/donate
+    - link "Get AirBeam":
+      - /url: https://habitatmap.org/airbeam/buy-it-now
+- button "Filters Filters icon":
+  - heading "Filters" [level=4]
+- button "Copy link Chain icon":
+  - heading "Copy link" [level=4]
+- button "mobile"
+- button "fixed"
+- button:
+  - img
+- button "parameter Particulate Matter":
+  - heading "parameter" [level=6]
+  - heading "Particulate Matter" [level=4]
+  - img
+- button:
+  - img
+- button "sensor AirBeam-PM2.5":
+  - heading "sensor" [level=6]
+  - heading "AirBeam-PM2.5" [level=4]
+  - img
+- button:
+  - img
+- combobox "profile names"
+- button:
+  - img
+- combobox "tags"
+- button:
+  - img
+- checkbox
+- text: crowdMap off
+- button:
+  - img
+- text: timeframe
+- button "filters.previousYear" [disabled]:
+  - img "filters.previousYear"
+- button "2025"
+- button "2024"
+- button "2023"
+- button "2022"
+- button "filters.nextYear":
+  - img "filters.nextYear"
+- button:
+  - img
+- button "Keyboard shortcuts"
+- region "Map"
+- text: 22 µg/m³ 3 µg/m³
+- link "Open this area in Google Maps (opens a new window)":
+  - /url: https://maps.google.com/maps?ll=37.088772,-95.722383&z=5&t=m&hl=en-US&gl=US&mapclient=apiv3
+  - img "Google"
+- button "Keyboard shortcuts"
+- text: Map data ©2025 Google, INEGI
+- 'button "Map Scale: 200 km per 45 pixels"': 200 km
+- link "Terms":
+  - /url: https://www.google.com/intl/en-US_US/help/terms_maps.html
+- heading "Set values for color breakpoints" [level=3]
+- spinbutton: "0"
+- slider: "9"
+- spinbutton: "9"
+- slider: "35"
+- spinbutton: "35"
+- slider: "55"
+- spinbutton: "55"
+- spinbutton: "150"
+- superscript: (µg/m³)
+- button "Reset the threshold values to default":
+  - img "Reset the threshold values to default"
+- button "Arrow Icon Sessions (100 of 2133)":
+  - img "Arrow Icon"
+  - text: Sessions (100 of 2133)
+- button "Export"
+- heading "avg. 5" [level=5]
+- heading "WoLong" [level=4]
+- heading "AirBeam3-PM2.5" [level=5]
+- heading "05/15/2025 17:14 - 05/15/2025 17:15" [level=5]:
+  - strong: 05/15/2025
+  - text: 17:14 -
+  - strong: 05/15/2025
+  - text: 17:15
+- heading "avg. 12" [level=5]
+- heading "Tina’s afternoon" [level=4]
+- heading "AirBeam3-PM2.5" [level=5]
+- heading "05/15/2025 15:17 - 05/15/2025 16:41" [level=5]:
+  - strong: 05/15/2025
+  - text: 15:17 -
+  - strong: 05/15/2025
+  - text: 16:41
+- heading "avg. 13" [level=5]
+- heading "Eli 5/15/25 2:25pm" [level=4]
+- heading "AirBeam3-PM2.5" [level=5]
+- heading "05/15/2025 14:24 - 05/15/2025 15:53" [level=5]:
+  - strong: 05/15/2025
+  - text: 14:24 -
+  - strong: 05/15/2025
+  - text: 15:53
+- heading "avg. 5" [level=5]
+- heading "Hawthorne may 15" [level=4]
+- heading "AirBeam3-PM2.5" [level=5]
+- heading "05/15/2025 14:04 - 05/15/2025 14:29" [level=5]:
+  - strong: 05/15/2025
+  - text: 14:04 -
+  - strong: 05/15/2025
+  - text: 14:29
+- heading "avg. 3" [level=5]
+- heading "Imported from AirBeam storage" [level=4]
+- heading "AirBeam3-PM2.5" [level=5]
+- heading "05/15/2025 12:57 - 05/15/2025 12:59" [level=5]:
+  - strong: 05/15/2025
+  - text: 12:57 -
+  - strong: 05/15/2025
+  - text: 12:59
+- heading "avg. 9" [level=5]
+- heading "Tina’s Day out" [level=4]
+- heading "AirBeam3-PM2.5" [level=5]
+- heading "05/15/2025 12:38 - 05/15/2025 13:32" [level=5]:
+  - strong: 05/15/2025
+  - text: 12:38 -
+  - strong: 05/15/2025
+  - text: 13:32
+- heading "avg. 17" [level=5]
+- heading "Cs" [level=4]
+- heading "AirBeam3-PM2.5" [level=5]
+- heading "05/15/2025 11:21 - 05/15/2025 11:46" [level=5]:
+  - strong: 05/15/2025
+  - text: 11:21 -
+  - strong: 05/15/2025
+  - text: 11:46
+- heading "avg. 18" [level=5]
+- heading "School construction" [level=4]
+- heading "AirBeam3-PM2.5" [level=5]
+- heading "05/15/2025 11:21 - 05/15/2025 12:47" [level=5]:
+  - strong: 05/15/2025
+  - text: 11:21 -
+  - strong: 05/15/2025
+  - text: 12:47
+- heading "avg. 0" [level=5]
+- heading "Air point 2" [level=4]
+- heading "AirBeam3-PM2.5" [level=5]
+- heading "05/15/2025 11:08 - 05/15/2025 11:19" [level=5]:
+  - strong: 05/15/2025
+  - text: 11:08 -
+  - strong: 05/15/2025
+  - text: 11:19
+- heading "avg. 0" [level=5]
+- heading "Air point 1" [level=4]
+- heading "AirBeam3-PM2.5" [level=5]
+- heading "05/15/2025 10:54 - 05/15/2025 11:05" [level=5]:
+  - strong: 05/15/2025
+  - text: 10:54 -
+  - strong: 05/15/2025
+  - text: 11:05
+- heading "avg. 7" [level=5]
+- heading "I10-P8" [level=4]
+- heading "AirBeam3-PM2.5" [level=5]
+- heading "05/15/2025 09:26 - 05/15/2025 10:39" [level=5]:
+  - strong: 05/15/2025
+  - text: 09:26 -
+  - strong: 05/15/2025
+  - text: 10:39
+- heading "avg. 12" [level=5]
+- heading "5/15" [level=4]
+- heading "AirBeam3-PM2.5" [level=5]
+- heading "05/15/2025 07:25 - 05/15/2025 08:44" [level=5]:
+  - strong: 05/15/2025
+  - text: 07:25 -
+  - strong: 05/15/2025
+  - text: 08:44
+- heading "avg. 6" [level=5]
+- heading "blah" [level=4]
+- heading "AirBeam3-PM2.5" [level=5]
+- heading "05/14/2025 20:30 - 05/14/2025 20:31" [level=5]:
+  - strong: 05/14/2025
+  - text: 20:30 -
+  - strong: 05/14/2025
+  - text: 20:31
+- heading "avg. 4" [level=5]
+- heading "Gas emissions at home" [level=4]
+- heading "AirBeam3-PM2.5" [level=5]
+- heading "05/14/2025 15:34 - 05/14/2025 15:43" [level=5]:
+  - strong: 05/14/2025
+  - text: 15:34 -
+  - strong: 05/14/2025
+  - text: 15:43
+- heading "avg. 1" [level=5]
+- heading "GEOG152W1" [level=4]
+- heading "AirBeamMini-PM2.5" [level=5]
+- heading "05/14/2025 14:08 - 05/14/2025 14:37" [level=5]:
+  - strong: 05/14/2025
+  - text: 14:08 -
+  - strong: 05/14/2025
+  - text: 14:37
+- heading "avg. 1" [level=5]
+- heading "GEOG152W2" [level=4]
+- heading "AirBeamMini-PM2.5" [level=5]
+- heading "05/14/2025 14:06 - 05/14/2025 14:28" [level=5]:
+  - strong: 05/14/2025
+  - text: 14:06 -
+  - strong: 05/14/2025
+  - text: 14:28
+- heading "avg. 1" [level=5]
+- heading "GEOG152W6" [level=4]
+- heading "AirBeamMini-PM2.5" [level=5]
+- heading "05/14/2025 14:05 - 05/14/2025 14:26" [level=5]:
+  - strong: 05/14/2025
+  - text: 14:05 -
+  - strong: 05/14/2025
+  - text: 14:26
+- heading "avg. 2" [level=5]
+- heading "Chikn 2" [level=4]
+- heading "AirBeam3-PM2.5" [level=5]
+- heading "05/14/2025 14:00 - 05/15/2025 11:23" [level=5]:
+  - strong: 05/14/2025
+  - text: 14:00 -
+  - strong: 05/15/2025
+  - text: 11:23
+- heading "avg. 2" [level=5]
+- heading "GEOG152W3" [level=4]
+- heading "AirBeamMini-PM2.5" [level=5]
+- heading "05/14/2025 13:59 - 05/14/2025 14:22" [level=5]:
+  - strong: 05/14/2025
+  - text: 13:59 -
+  - strong: 05/14/2025
+  - text: 14:22
+- heading "avg. 1" [level=5]
+- heading "GEOG152W4" [level=4]
+- heading "AirBeamMini-PM2.5" [level=5]
+- heading "05/14/2025 13:54 - 05/14/2025 14:43" [level=5]:
+  - strong: 05/14/2025
+  - text: 13:54 -
+  - strong: 05/14/2025
+  - text: 14:43
+- heading "avg. 0" [level=5]
+- heading "Dans office" [level=4]
+- heading "AirBeam3-PM2.5" [level=5]
+- heading "05/14/2025 12:30 - 05/14/2025 12:38" [level=5]:
+  - strong: 05/14/2025
+  - text: 12:30 -
+  - strong: 05/14/2025
+  - text: 12:38
+- heading "avg. 1" [level=5]
+- heading "GEOG152W4" [level=4]
+- heading "AirBeamMini-PM2.5" [level=5]
+- heading "05/14/2025 11:04 - 05/14/2025 11:37" [level=5]:
+  - strong: 05/14/2025
+  - text: 11:04 -
+  - strong: 05/14/2025
+  - text: 11:37
+- heading "avg. 2" [level=5]
+- heading "GOEG152W5" [level=4]
+- heading "AirBeamMini-PM2.5" [level=5]
+- heading "05/14/2025 10:39 - 05/14/2025 11:26" [level=5]:
+  - strong: 05/14/2025
+  - text: 10:39 -
+  - strong: 05/14/2025
+  - text: 11:26
+- heading "avg. 1" [level=5]
+- heading "GEOG152W2" [level=4]
+- heading "AirBeamMini-PM2.5" [level=5]
+- heading "05/14/2025 10:38 - 05/14/2025 10:53" [level=5]:
+  - strong: 05/14/2025
+  - text: 10:38 -
+  - strong: 05/14/2025
+  - text: 10:53
+- heading "avg. 2" [level=5]
+- heading "GEOG152W6" [level=4]
+- heading "AirBeamMini-PM2.5" [level=5]
+- heading "05/14/2025 10:36 - 05/14/2025 11:08" [level=5]:
+  - strong: 05/14/2025
+  - text: 10:36 -
+  - strong: 05/14/2025
+  - text: 11:08
+- heading "avg. 2" [level=5]
+- heading "GEOG152W1" [level=4]
+- heading "AirBeamMini-PM2.5" [level=5]
+- heading "05/14/2025 10:28 - 05/14/2025 11:01" [level=5]:
+  - strong: 05/14/2025
+  - text: 10:28 -
+  - strong: 05/14/2025
+  - text: 11:01
+- heading "avg. 51" [level=5]
+- heading "105" [level=4]
+- heading "AirBeam3-PM2.5" [level=5]
+- heading "05/14/2025 10:26 - 05/14/2025 20:15" [level=5]:
+  - strong: 05/14/2025
+  - text: 10:26 -
+  - strong: 05/14/2025
+  - text: 20:15
+- heading "avg. 8" [level=5]
+- heading "GEOG152 W 3" [level=4]
+- heading "AirBeamMini-PM2.5" [level=5]
+- heading "05/14/2025 10:26 - 05/14/2025 11:04" [level=5]:
+  - strong: 05/14/2025
+  - text: 10:26 -
+  - strong: 05/14/2025
+  - text: 11:04
+- heading "avg. 12" [level=5]
+- heading "Waukesha ad70" [level=4]
+- heading "AirBeam3-PM2.5" [level=5]
+- heading "05/14/2025 10:19 - 05/14/2025 11:01" [level=5]:
+  - strong: 05/14/2025
+  - text: 10:19 -
+  - strong: 05/14/2025
+  - text: 11:01
+- heading "avg. 16" [level=5]
+- heading "Waukesha" [level=4]
+- heading "AirBeam3-PM2.5" [level=5]
+- heading "05/14/2025 09:58 - 05/14/2025 09:59" [level=5]:
+  - strong: 05/14/2025
+  - text: 09:58 -
+  - strong: 05/14/2025
+  - text: 09:59
+- heading "avg. 13" [level=5]
+- heading "Waukesha" [level=4]
+- heading "AirBeam3-PM2.5" [level=5]
+- heading "05/14/2025 09:52 - 05/14/2025 10:11" [level=5]:
+  - strong: 05/14/2025
+  - text: 09:52 -
+  - strong: 05/14/2025
+  - text: 10:11
+- heading "avg. 2" [level=5]
+- heading "Imported from SD card" [level=4]
+- heading "AirBeam3-PM2.5" [level=5]
+- heading "05/14/2025 09:51 - 05/14/2025 10:12" [level=5]:
+  - strong: 05/14/2025
+  - text: 09:51 -
+  - strong: 05/14/2025
+  - text: 10:12
+- heading "avg. 15" [level=5]
+- heading "Waukesha" [level=4]
+- heading "AirBeam3-PM2.5" [level=5]
+- heading "05/14/2025 09:32 - 05/14/2025 10:55" [level=5]:
+  - strong: 05/14/2025
+  - text: 09:32 -
+  - strong: 05/14/2025
+  - text: 10:55
+- heading "avg. 13" [level=5]
+- heading "Waukesha" [level=4]
+- heading "AirBeam3-PM2.5" [level=5]
+- heading "05/14/2025 09:29 - 05/14/2025 09:49" [level=5]:
+  - strong: 05/14/2025
+  - text: 09:29 -
+  - strong: 05/14/2025
+  - text: 09:49
+- heading "avg. 12" [level=5]
+- heading "Waukesha" [level=4]
+- heading "AirBeam3-PM2.5" [level=5]
+- heading "05/14/2025 09:28 - 05/14/2025 11:19" [level=5]:
+  - strong: 05/14/2025
+  - text: 09:28 -
+  - strong: 05/14/2025
+  - text: 11:19
+- heading "avg. 12" [level=5]
+- heading "Waukesha" [level=4]
+- heading "AirBeam3-PM2.5" [level=5]
+- heading "05/14/2025 09:27 - 05/14/2025 11:19" [level=5]:
+  - strong: 05/14/2025
+  - text: 09:27 -
+  - strong: 05/14/2025
+  - text: 11:19
+- heading "avg. 7" [level=5]
+- heading "Waukesha" [level=4]
+- heading "AirBeam3-PM2.5" [level=5]
+- heading "05/14/2025 09:24 - 05/14/2025 11:06" [level=5]:
+  - strong: 05/14/2025
+  - text: 09:24 -
+  - strong: 05/14/2025
+  - text: 11:06
+- heading "avg. 11" [level=5]
+- heading "waukesha" [level=4]
+- heading "AirBeam3-PM2.5" [level=5]
+- heading "05/14/2025 09:23 - 05/14/2025 09:57" [level=5]:
+  - strong: 05/14/2025
+  - text: 09:23 -
+  - strong: 05/14/2025
+  - text: 09:57
+- heading "avg. 0" [level=5]
+- heading "T1" [level=4]
+- heading "AirBeam3-PM2.5" [level=5]
+- heading "05/13/2025 18:10 - 05/13/2025 18:14" [level=5]:
+  - strong: 05/13/2025
+  - text: 18:10 -
+  - strong: 05/13/2025
+  - text: 18:14
+- heading "avg. 0" [level=5]
+- heading "T1" [level=4]
+- heading "AirBeam3-PM2.5" [level=5]
+- heading "05/13/2025 18:09 - 05/13/2025 18:09" [level=5]:
+  - strong: 05/13/2025
+  - text: 18:09 -
+  - strong: 05/13/2025
+  - text: 18:09
+- heading "avg. 3" [level=5]
+- heading "aw1 wk04 2005 may 13 2025" [level=4]
+- heading "AirBeam3-PM2.5" [level=5]
+- heading "05/13/2025 17:58 - 05/13/2025 18:55" [level=5]:
+  - strong: 05/13/2025
+  - text: 17:58 -
+  - strong: 05/13/2025
+  - text: 18:55
+- heading "avg. 1" [level=5]
+- heading "NSF 101 around Campus" [level=4]
+- heading "AirBeam3-PM2.5" [level=5]
+- heading "05/13/2025 17:41 - 05/13/2025 18:16" [level=5]:
+  - strong: 05/13/2025
+  - text: 17:41 -
+  - strong: 05/13/2025
+  - text: 18:16
+- heading "avg. 0" [level=5]
+- heading "Natural test run" [level=4]
+- heading "AirBeam3-PM2.5" [level=5]
+- heading "05/13/2025 17:36 - 05/13/2025 17:42" [level=5]:
+  - strong: 05/13/2025
+  - text: 17:36 -
+  - strong: 05/13/2025
+  - text: 17:42
+- heading "avg. 6" [level=5]
+- heading "ab_fh_05132025_329pm_schoolyard2" [level=4]
+- heading "AirBeam3-PM2.5" [level=5]
+- heading "05/13/2025 15:29 - 05/13/2025 15:38" [level=5]:
+  - strong: 05/13/2025
+  - text: 15:29 -
+  - strong: 05/13/2025
+  - text: 15:38
+- heading "avg. 5" [level=5]
+- heading "ab_fh_05132025_303pm_schoolyard1" [level=4]
+- heading "AirBeam3-PM2.5" [level=5]
+- heading "05/13/2025 15:04 - 05/13/2025 15:25" [level=5]:
+  - strong: 05/13/2025
+  - text: 15:04 -
+  - strong: 05/13/2025
+  - text: 15:25
+- heading "avg. 6" [level=5]
+- heading "ab_fh_05132025_245pm_parameter" [level=4]
+- heading "AirBeam3-PM2.5" [level=5]
+- heading "05/13/2025 14:50 - 05/13/2025 14:57" [level=5]:
+  - strong: 05/13/2025
+  - text: 14:50 -
+  - strong: 05/13/2025
+  - text: 14:57
+- heading "avg. 8" [level=5]
+- heading "ab_fh_05132025_1248pm_schoolyard2" [level=4]
+- heading "AirBeam3-PM2.5" [level=5]
+- heading "05/13/2025 12:48 - 05/13/2025 13:02" [level=5]:
+  - strong: 05/13/2025
+  - text: 12:48 -
+  - strong: 05/13/2025
+  - text: 13:02
+- heading "avg. 6" [level=5]
+- heading "ab_fh_05132025_1220pm_schoolyard1" [level=4]
+- heading "AirBeam3-PM2.5" [level=5]
+- heading "05/13/2025 12:20 - 05/13/2025 12:43" [level=5]:
+  - strong: 05/13/2025
+  - text: 12:20 -
+  - strong: 05/13/2025
+  - text: 12:43
+- heading "avg. 7" [level=5]
+- heading "ab_fh_05132025_12_parameter" [level=4]
+- heading "AirBeam3-PM2.5" [level=5]
+- heading "05/13/2025 12:03 - 05/13/2025 12:12" [level=5]:
+  - strong: 05/13/2025
+  - text: 12:03 -
+  - strong: 05/13/2025
+  - text: 12:12
+- heading "avg. 6" [level=5]
+- heading "super" [level=4]
+- heading "AirBeamMini-PM2.5" [level=5]
+- heading "05/13/2025 11:38 - 05/13/2025 11:38" [level=5]:
+  - strong: 05/13/2025
+  - text: 11:38 -
+  - strong: 05/13/2025
+  - text: 11:38
+- heading "avg. 10" [level=5]
+- heading "ab_fh_05132025_845am_schoolyard2" [level=4]
+- heading "AirBeam3-PM2.5" [level=5]
+- heading "05/13/2025 09:42 - 05/13/2025 09:52" [level=5]:
+  - strong: 05/13/2025
+  - text: 09:42 -
+  - strong: 05/13/2025
+  - text: 09:52
+- heading "avg. 7" [level=5]
+- heading "ab_fh_05132025_845am_schoolyard1" [level=4]
+- heading "AirBeam3-PM2.5" [level=5]
+- heading "05/13/2025 09:12 - 05/13/2025 09:38" [level=5]:
+  - strong: 05/13/2025
+  - text: 09:12 -
+  - strong: 05/13/2025
+  - text: 09:38
+- heading "avg. 1" [level=5]
+- heading "susy" [level=4]
+- heading "AirBeam3-PM2.5" [level=5]
+- heading "05/13/2025 08:54 - 05/13/2025 08:58" [level=5]:
+  - strong: 05/13/2025
+  - text: 08:54 -
+  - strong: 05/13/2025
+  - text: 08:58
+- heading "avg. 6" [level=5]
+- heading "ab_fh_05132025_845am_parameter" [level=4]
+- heading "AirBeam3-PM2.5" [level=5]
+- heading "05/13/2025 08:52 - 05/13/2025 09:04" [level=5]:
+  - strong: 05/13/2025
+  - text: 08:52 -
+  - strong: 05/13/2025
+  - text: 09:04
+- heading "avg. 2" [level=5]
+- heading "Imported from SD card" [level=4]
+- heading "AirBeam3-PM2.5" [level=5]
+- heading "05/13/2025 08:37 - 05/14/2025 08:30" [level=5]:
+  - strong: 05/13/2025
+  - text: 08:37 -
+  - strong: 05/14/2025
+  - text: 08:30
+- heading "avg. 140" [level=5]
+- heading "Riho experiment cooking yakisoba" [level=4]
+- heading "AirBeamMini-PM2.5" [level=5]
+- heading "05/12/2025 18:47 - 05/12/2025 18:53" [level=5]:
+  - strong: 05/12/2025
+  - text: 18:47 -
+  - strong: 05/12/2025
+  - text: 18:53
+- heading "avg. 1" [level=5]
+- heading "walk Audit 2.0" [level=4]
+- heading "AirBeam3-PM2.5" [level=5]
+- heading "05/12/2025 15:32 - 05/12/2025 15:56" [level=5]:
+  - strong: 05/12/2025
+  - text: 15:32 -
+  - strong: 05/12/2025
+  - text: 15:56
+- heading "avg. 6" [level=5]
+- heading "ab_foresthome_05122025_3pm_schoolyard2" [level=4]
+- heading "AirBeam3-PM2.5" [level=5]
+- heading "05/12/2025 15:30 - 05/12/2025 15:38" [level=5]:
+  - strong: 05/12/2025
+  - text: 15:30 -
+  - strong: 05/12/2025
+  - text: 15:38
+- heading "avg. 0" [level=5]
+- heading "Walk audit 2.1" [level=4]
+- heading "AirBeam3-PM2.5" [level=5]
+- heading "05/12/2025 15:30 - 05/12/2025 15:56" [level=5]:
+  - strong: 05/12/2025
+  - text: 15:30 -
+  - strong: 05/12/2025
+  - text: 15:56
+- heading "avg. 1" [level=5]
+- heading "walk Audit 2.0" [level=4]
+- heading "AirBeam3-PM2.5" [level=5]
+- heading "05/12/2025 15:29 - 05/12/2025 15:31" [level=5]:
+  - strong: 05/12/2025
+  - text: 15:29 -
+  - strong: 05/12/2025
+  - text: 15:31
+- heading "avg. 3" [level=5]
+- heading "ab_foresthome_05122025_3pm_schoolyard1" [level=4]
+- heading "AirBeam3-PM2.5" [level=5]
+- heading "05/12/2025 15:04 - 05/12/2025 15:27" [level=5]:
+  - strong: 05/12/2025
+  - text: 15:04 -
+  - strong: 05/12/2025
+  - text: 15:27
+- heading "avg. 0" [level=5]
+- heading "IH Lab 1" [level=4]
+- heading "AirBeam3-PM2.5" [level=5]
+- heading "05/12/2025 14:57 - 05/12/2025 15:09" [level=5]:
+  - strong: 05/12/2025
+  - text: 14:57 -
+  - strong: 05/12/2025
+  - text: 15:09
+- heading "avg. 4" [level=5]
+- heading "ab_foresthome_05122025_3pm_perimeter" [level=4]
+- heading "AirBeam3-PM2.5" [level=5]
+- heading "05/12/2025 14:53 - 05/12/2025 15:01" [level=5]:
+  - strong: 05/12/2025
+  - text: 14:53 -
+  - strong: 05/12/2025
+  - text: 15:01
+- heading "avg. 22" [level=5]
+- heading "1" [level=4]
+- heading "AirBeam3-PM2.5" [level=5]
+- heading "05/12/2025 14:25 - 05/12/2025 15:35" [level=5]:
+  - strong: 05/12/2025
+  - text: 14:25 -
+  - strong: 05/12/2025
+  - text: 15:35
+- heading "avg. 7" [level=5]
+- heading "Geo150 af m5" [level=4]
+- heading "AirBeamMini-PM2.5" [level=5]
+- heading "05/12/2025 14:20 - 05/12/2025 14:51" [level=5]:
+  - strong: 05/12/2025
+  - text: 14:20 -
+  - strong: 05/12/2025
+  - text: 14:51
+- heading "avg. 6" [level=5]
+- heading "GEOG1524_af_m4" [level=4]
+- heading "AirBeamMini-PM2.5" [level=5]
+- heading "05/12/2025 14:17 - 05/12/2025 14:54" [level=5]:
+  - strong: 05/12/2025
+  - text: 14:17 -
+  - strong: 05/12/2025
+  - text: 14:54
+- heading "avg. 7" [level=5]
+- heading "Geog_152_afternoon_group3" [level=4]
+- heading "AirBeamMini-PM2.5" [level=5]
+- heading "05/12/2025 14:14 - 05/12/2025 14:32" [level=5]:
+  - strong: 05/12/2025
+  - text: 14:14 -
+  - strong: 05/12/2025
+  - text: 14:32
+- heading "avg. 5" [level=5]
+- heading "GEOG152M2" [level=4]
+- heading "AirBeamMini-PM2.5" [level=5]
+- heading "05/12/2025 14:11 - 05/12/2025 14:38" [level=5]:
+  - strong: 05/12/2025
+  - text: 14:11 -
+  - strong: 05/12/2025
+  - text: 14:38
+- heading "avg. 5" [level=5]
+- heading "GEOG152_MondayAfternoonGroup1" [level=4]
+- heading "AirBeamMini-PM2.5" [level=5]
+- heading "05/12/2025 14:08 - 05/12/2025 14:24" [level=5]:
+  - strong: 05/12/2025
+  - text: 14:08 -
+  - strong: 05/12/2025
+  - text: 14:24
+- heading "avg. 5" [level=5]
+- heading "Zubhy tes" [level=4]
+- heading "AirBeamMini-PM2.5" [level=5]
+- heading "05/12/2025 13:59 - 05/12/2025 13:59" [level=5]:
+  - strong: 05/12/2025
+  - text: 13:59 -
+  - strong: 05/12/2025
+  - text: 13:59
+- heading "avg. 0" [level=5]
+- heading "1" [level=4]
+- heading "AirBeam3-PM2.5" [level=5]
+- heading "05/12/2025 13:35 - 05/12/2025 13:47" [level=5]:
+  - strong: 05/12/2025
+  - text: 13:35 -
+  - strong: 05/12/2025
+  - text: 13:47
+- heading "avg. 14" [level=5]
+- heading "ab_foresthome_05122025_12pm_schookyard2" [level=4]
+- heading "AirBeam3-PM2.5" [level=5]
+- heading "05/12/2025 12:51 - 05/12/2025 13:00" [level=5]:
+  - strong: 05/12/2025
+  - text: 12:51 -
+  - strong: 05/12/2025
+  - text: 13:00
+- heading "avg. 4" [level=5]
+- heading "test1" [level=4]
+- heading "AirBeam3-PM2.5" [level=5]
+- heading "05/12/2025 12:28 - 05/12/2025 12:48" [level=5]:
+  - strong: 05/12/2025
+  - text: 12:28 -
+  - strong: 05/12/2025
+  - text: 12:48
+- heading "avg. 5" [level=5]
+- heading "ab_foresthome_05122025_12pm_schoolyard1" [level=4]
+- heading "AirBeam3-PM2.5" [level=5]
+- heading "05/12/2025 12:20 - 05/12/2025 12:47" [level=5]:
+  - strong: 05/12/2025
+  - text: 12:20 -
+  - strong: 05/12/2025
+  - text: 12:47
+- heading "avg. 5" [level=5]
+- heading "ab_foresthome_05122025_12pm_perimeter" [level=4]
+- heading "AirBeam3-PM2.5" [level=5]
+- heading "05/12/2025 12:05 - 05/12/2025 12:13" [level=5]:
+  - strong: 05/12/2025
+  - text: 12:05 -
+  - strong: 05/12/2025
+  - text: 12:13
+- heading "avg. 4" [level=5]
+- heading "GEOG152M5" [level=4]
+- heading "AirBeamMini-PM2.5" [level=5]
+- heading "05/12/2025 11:10 - 05/12/2025 11:37" [level=5]:
+  - strong: 05/12/2025
+  - text: 11:10 -
+  - strong: 05/12/2025
+  - text: 11:37
+- heading "avg. 3" [level=5]
+- heading "GEOG152M3" [level=4]
+- heading "AirBeamMini-PM2.5" [level=5]
+- heading "05/12/2025 11:09 - 05/12/2025 11:28" [level=5]:
+  - strong: 05/12/2025
+  - text: 11:09 -
+  - strong: 05/12/2025
+  - text: 11:28
+- heading "avg. 4" [level=5]
+- heading "GEOG152M2" [level=4]
+- heading "AirBeamMini-PM2.5" [level=5]
+- heading "05/12/2025 11:08 - 05/12/2025 11:35" [level=5]:
+  - strong: 05/12/2025
+  - text: 11:08 -
+  - strong: 05/12/2025
+  - text: 11:35
+- heading "avg. 6" [level=5]
+- heading "GEOG152M5" [level=4]
+- heading "AirBeamMini-PM2.5" [level=5]
+- heading "05/12/2025 10:56 - 05/12/2025 11:38" [level=5]:
+  - strong: 05/12/2025
+  - text: 10:56 -
+  - strong: 05/12/2025
+  - text: 11:38
+- heading "avg. 4" [level=5]
+- heading "GEOG152 M 1" [level=4]
+- heading "AirBeamMini-PM2.5" [level=5]
+- heading "05/12/2025 10:52 - 05/12/2025 11:14" [level=5]:
+  - strong: 05/12/2025
+  - text: 10:52 -
+  - strong: 05/12/2025
+  - text: 11:14
+- heading "avg. 4" [level=5]
+- heading "GEOG152M4" [level=4]
+- heading "AirBeamMini-PM2.5" [level=5]
+- heading "05/12/2025 10:49 - 05/12/2025 11:26" [level=5]:
+  - strong: 05/12/2025
+  - text: 10:49 -
+  - strong: 05/12/2025
+  - text: 11:26
+- heading "avg. 3" [level=5]
+- heading "Zuba_test3" [level=4]
+- heading "AirBeamMini-PM2.5" [level=5]
+- heading "05/12/2025 10:36 - 05/12/2025 10:36" [level=5]:
+  - strong: 05/12/2025
+  - text: 10:36 -
+  - strong: 05/12/2025
+  - text: 10:36
+- heading "avg. 4" [level=5]
+- heading "ab_foresthome_05122025_845am_schoolyard2" [level=4]
+- heading "AirBeam3-PM2.5" [level=5]
+- heading "05/12/2025 09:45 - 05/12/2025 09:57" [level=5]:
+  - strong: 05/12/2025
+  - text: 09:45 -
+  - strong: 05/12/2025
+  - text: 09:57
+- heading "avg. 3" [level=5]
+- heading "ab_foresthome_05122025_845am_schoolyard1" [level=4]
+- heading "AirBeam3-PM2.5" [level=5]
+- heading "05/12/2025 09:05 - 05/12/2025 09:40" [level=5]:
+  - strong: 05/12/2025
+  - text: 09:05 -
+  - strong: 05/12/2025
+  - text: 09:40
+- heading "avg. 4" [level=5]
+- heading "ab_foresthome_05122025_845am_perimeter" [level=4]
+- heading "AirBeam3-PM2.5" [level=5]
+- heading "05/12/2025 08:46 - 05/12/2025 08:56" [level=5]:
+  - strong: 05/12/2025
+  - text: 08:46 -
+  - strong: 05/12/2025
+  - text: 08:56
+- heading "avg. 3" [level=5]
+- heading "aw wk04 2003 may 12 2025" [level=4]
+- heading "AirBeam3-PM2.5" [level=5]
+- heading "05/12/2025 08:19 - 05/12/2025 09:16" [level=5]:
+  - strong: 05/12/2025
+  - text: 08:19 -
+  - strong: 05/12/2025
+  - text: 09:16
+- heading "avg. 1" [level=5]
+- heading "test2 511 2025" [level=4]
+- heading "AirBeam3-PM2.5" [level=5]
+- heading "05/11/2025 22:44 - 05/11/2025 22:53" [level=5]:
+  - strong: 05/11/2025
+  - text: 22:44 -
+  - strong: 05/11/2025
+  - text: 22:53
+- heading "avg. 1" [level=5]
+- heading "test 511 2025 device5" [level=4]
+- heading "AirBeam3-PM2.5" [level=5]
+- heading "05/11/2025 22:23 - 05/11/2025 22:43" [level=5]:
+  - strong: 05/11/2025
+  - text: 22:23 -
+  - strong: 05/11/2025
+  - text: 22:43
+- heading "avg. 0" [level=5]
+- heading "test 511 2025 device7" [level=4]
+- heading "AirBeam3-PM2.5" [level=5]
+- heading "05/11/2025 22:21 - 05/11/2025 22:53" [level=5]:
+  - strong: 05/11/2025
+  - text: 22:21 -
+  - strong: 05/11/2025
+  - text: 22:53
+- heading "avg. 7" [level=5]
+- heading "Test_Zubby2" [level=4]
+- heading "AirBeamMini-PM2.5" [level=5]
+- heading "05/11/2025 20:21 - 05/11/2025 20:27" [level=5]:
+  - strong: 05/11/2025
+  - text: 20:21 -
+  - strong: 05/11/2025
+  - text: 20:27
+- heading "avg. 3" [level=5]
+- heading "Session 3" [level=4]
+- heading "AirBeam3-PM2.5" [level=5]
+- heading "05/11/2025 18:44 - 05/12/2025 00:35" [level=5]:
+  - strong: 05/11/2025
+  - text: 18:44 -
+  - strong: 05/12/2025
+  - text: 00:35
+- heading "avg. 2" [level=5]
+- heading "Home" [level=4]
+- heading "AirBeamMini-PM2.5" [level=5]
+- heading "05/11/2025 18:12 - 05/11/2025 18:12" [level=5]:
+  - strong: 05/11/2025
+  - text: 18:12 -
+  - strong: 05/11/2025
+  - text: 18:12
+- heading "avg. 1" [level=5]
+- heading "Central Park Picnic" [level=4]
+- heading "AirBeamMini-PM2.5" [level=5]
+- heading "05/11/2025 17:20 - 05/11/2025 18:10" [level=5]:
+  - strong: 05/11/2025
+  - text: 17:20 -
+  - strong: 05/11/2025
+  - text: 18:10
+- heading "avg. 1" [level=5]
+- heading "Central Park picnic" [level=4]
+- heading "AirBeamMini-PM2.5" [level=5]
+- heading "05/11/2025 16:42 - 05/11/2025 17:19" [level=5]:
+  - strong: 05/11/2025
+  - text: 16:42 -
+  - strong: 05/11/2025
+  - text: 17:19
+- heading "avg. 3" [level=5]
+- heading "5/11 eris" [level=4]
+- heading "AirBeam3-PM2.5" [level=5]
+- heading "05/11/2025 16:41 - 05/11/2025 16:58" [level=5]:
+  - strong: 05/11/2025
+  - text: 16:41 -
+  - strong: 05/11/2025
+  - text: 16:58
+- heading "avg. 6" [level=5]
+- heading "Riho experiment Perimeter parking lot 3" [level=4]
+- heading "AirBeamMini-PM2.5" [level=5]
+- heading "05/11/2025 16:06 - 05/11/2025 16:11" [level=5]:
+  - strong: 05/11/2025
+  - text: 16:06 -
+  - strong: 05/11/2025
+  - text: 16:11
+- heading "avg. 6" [level=5]
+- heading "Riho experiment Perimeter parking lot 2" [level=4]
+- heading "AirBeamMini-PM2.5" [level=5]
+- heading "05/11/2025 15:56 - 05/11/2025 16:03" [level=5]:
+  - strong: 05/11/2025
+  - text: 15:56 -
+  - strong: 05/11/2025
+  - text: 16:03
+- heading "avg. 6" [level=5]
+- heading "Riho experiment perimeter parking lot" [level=4]
+- heading "AirBeamMini-PM2.5" [level=5]
+- heading "05/11/2025 15:49 - 05/11/2025 15:54" [level=5]:
+  - strong: 05/11/2025
+  - text: 15:49 -
+  - strong: 05/11/2025
+  - text: 15:54
+- heading "avg. 3" [level=5]
+- heading "5/11 bell park 2" [level=4]
+- heading "AirBeam3-PM2.5" [level=5]
+- heading "05/11/2025 15:44 - 05/11/2025 15:56" [level=5]:
+  - strong: 05/11/2025
+  - text: 15:44 -
+  - strong: 05/11/2025
+  - text: 15:56
+- heading "avg. 2" [level=5]
+- heading "Riho experiment Barnes & Noble kids book section" [level=4]
+- heading "AirBeamMini-PM2.5" [level=5]
+- heading "05/11/2025 15:38 - 05/11/2025 15:43" [level=5]:
+  - strong: 05/11/2025
+  - text: 15:38 -
+  - strong: 05/11/2025
+  - text: 15:43
+```
+
+# Test source
+
+```ts
+   1 | import { test } from "@playwright/test";
+   2 |
+   3 | test("Test the mobile session managment workflow", async ({ page }) => {
+   4 |   await test.step("Navigate to initial page", async () => {
+   5 |     await page.goto(
+   6 |       "http://localhost:3000/?sessionId=&streamId=&isActive=true&sessionType=fixed&boundEast=-67.59738290534534&boundNorth=48.63169261089525&boundSouth=23.481713124525914&boundWest=-123.84738290534534&currentCenter=%7B%22lat%22%3A37.08877211846209%2C%22lng%22%3A-95.72238290534534%7D&currentZoom=5&thresholdMin=0&thresholdLow=9&thresholdMiddle=35&thresholdHigh=55&thresholdMax=150"
+   7 |     );
+   8 |   });
+   9 |
+  10 |   await test.step(
+  11 |     "Switch to mobile view and click first map marker",
+  12 |     async () => {
+  13 |       await page.getByRole("button", { name: "mobile" }).click();
+  14 |
+  15 |       // Wait for mobile sessions API call to complete
+  16 |       await page.waitForResponse(
+  17 |         (response) =>
+  18 |           response.url().includes("/mobile/sessions.json") &&
+  19 |           response.status() === 200
+  20 |       );
+  21 |
+  22 |       // Wait for map container to be ready
+  23 |       await page.waitForSelector('[role="region"][aria-label="Map"]', {
+  24 |         state: "visible",
+  25 |         timeout: 10000,
+  26 |       });
+  27 |
+  28 |       // Add a small buffer for rendering after API/Map waits
+  29 |       await page.waitForTimeout(1000);
+  30 |
+> 31 |       await page.locator("div:nth-child(47) > div").first().click();
+     |                                                             ^ Error: locator.click: Test timeout of 30000ms exceeded.
+  32 |     }
+  33 |   );
+  34 |
+  35 |   await test.step("Interact with session dialog", async () => {
+  36 |     // Wait for the session dialog to be visible after clicking the marker
+  37 |     const dialog = page.getByRole("dialog");
+  38 |     await dialog.waitFor({ state: "visible", timeout: 60000 });
+  39 |
+  40 |     // Interact with time controls within the specific dialog context
+  41 |     await dialog.getByRole("button", { name: "HOUR" }).click();
+  42 |     await dialog.getByRole("button", { name: "MINUTES" }).click();
+  43 |     await dialog.getByRole("button", { name: "ALL" }).click();
+  44 |
+  45 |     // DO NOT CLOSE DIALOG YET
+  46 |   });
+  47 |
+  48 |   await test.step(
+  49 |     "Adjust measurement distribution and thresholds on main page (dialog open)",
+  50 |     async () => {
+  51 |       const distributeButton = page.getByRole("button", {
+  52 |         name: "Distribute the measurement thresholds uniformly",
+  53 |       });
+  54 |       await distributeButton.waitFor({ state: "visible", timeout: 10000 });
+  55 |       await distributeButton.click();
+  56 |
+  57 |       const resetButton = page.getByRole("button", {
+  58 |         name: "Reset the threshold values to default",
+  59 |       });
+  60 |       await resetButton.waitFor({ state: "visible", timeout: 10000 });
+  61 |       await resetButton.click();
+  62 |     }
+  63 |   );
+  64 |
+  65 |   // Now, close the dialog as a final step
+  66 |   await test.step("Close session dialog", async () => {
+  67 |     const dialog = page.getByRole("dialog");
+  68 |     await dialog.waitFor({ state: "visible", timeout: 10000 });
+  69 |     await dialog.getByRole("button", { name: "Close icon" }).click();
+  70 |   });
+  71 | });
+  72 |
+```
