@@ -1,5 +1,5 @@
 import moment from "moment";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import attachmentIcon from "../../../../../assets/icons/attachmentIcon.svg";
 import arrowRightIcon from "../../../../../assets/icons/chevronRight.svg";
@@ -10,31 +10,68 @@ import * as S from "./NotesPopover.style";
 
 interface NotesPopoverProps {
   notes: Note[];
+  initialSlide?: number;
+  open?: boolean;
+  onOpen?: () => void;
+  onClose?: () => void;
+  onSlideChange?: (note: Note, index: number) => void;
 }
 
-const NotesPopover = ({ notes }: NotesPopoverProps) => {
-  const [currentSlide, setCurrentSlide] = useState(0);
+const NotesPopover = ({
+  notes,
+  initialSlide = 0,
+  open,
+  onOpen,
+  onClose,
+  onSlideChange,
+}: NotesPopoverProps) => {
+  const [currentSlide, setCurrentSlide] = useState(initialSlide);
   const { t } = useTranslation();
   const isOneNote = notes.length === 1;
   const isMultipleNotes = notes.length > 1;
   const NOTE_CHARACTER_LIMIT = 60;
 
+  // Update currentSlide when initialSlide prop changes
+  useEffect(() => {
+    setCurrentSlide(initialSlide);
+  }, [initialSlide]);
+
   const handlePrevSlide = () => {
-    setCurrentSlide((prev) => (prev > 0 ? prev - 1 : notes.length - 1));
+    setCurrentSlide((prev) => {
+      const newIndex = prev > 0 ? prev - 1 : notes.length - 1;
+      if (onSlideChange) onSlideChange(notes[newIndex], newIndex);
+      return newIndex;
+    });
   };
 
   const handleNextSlide = () => {
-    setCurrentSlide((prev) => (prev < notes.length - 1 ? prev + 1 : 0));
+    setCurrentSlide((prev) => {
+      const newIndex = prev < notes.length - 1 ? prev + 1 : 0;
+      if (onSlideChange) onSlideChange(notes[newIndex], newIndex);
+      return newIndex;
+    });
+  };
+
+  const handleDotClick = (index: number) => {
+    setCurrentSlide(() => {
+      if (onSlideChange) onSlideChange(notes[index], index);
+      return index;
+    });
   };
 
   return (
     <S.NoteWrapper>
       <S.NotesPopup
+        key={`${open ? "open" : "closed"}-${initialSlide}`}
+        open={open}
+        onOpen={onOpen}
+        onClose={onClose}
         trigger={
-          <S.NoteButton>
+          <S.NoteButton $active={open ?? false}>
             <S.NoteButtonIcon
               src={attachmentIcon}
               alt={t("map.note.altOpenNote")}
+              $active={open ?? false}
             />
           </S.NoteButton>
         }
@@ -55,7 +92,7 @@ const NotesPopover = ({ notes }: NotesPopoverProps) => {
                     <S.SliderDot
                       key={index}
                       $active={index === currentSlide}
-                      onClick={() => setCurrentSlide(index)}
+                      onClick={() => handleDotClick(index)}
                     />
                   ))}
                 </S.SliderDots>

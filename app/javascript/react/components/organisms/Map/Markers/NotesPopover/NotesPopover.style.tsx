@@ -4,6 +4,7 @@ import {
   gray100,
   gray400,
   grey,
+  theme,
   white,
 } from "../../../../../assets/styles/colors";
 import { media } from "../../../../../utils/media";
@@ -14,9 +15,9 @@ const NoteWrapper = styled.div`
   width: fit-content;
 `;
 
-const NoteButton = styled.button`
+const NoteButton = styled.button<{ $active: boolean }>`
   position: absolute;
-  background-color: ${white};
+  background-color: ${(props) => (props.$active ? theme : white)};
   border: none;
   border-radius: 5px;
   cursor: pointer;
@@ -29,9 +30,13 @@ const NoteButton = styled.button`
   z-index: 3;
 `;
 
-const NoteButtonIcon = styled.img`
+const NoteButtonIcon = styled.img<{ $active: boolean }>`
   width: 2rem;
   height: 2rem;
+  filter: ${(props) =>
+    props.$active
+      ? "brightness(0) saturate(100%) invert(100%) sepia(100%) saturate(0%) hue-rotate(157deg) brightness(101%) contrast(104%)"
+      : "none"};
 `;
 
 const NotesPopup = styled(Popup)`
@@ -72,6 +77,7 @@ const SlideContent = styled.div`
   flex-direction: column-reverse;
   align-items: center;
   margin: 0 1.4rem;
+  flex: 1;
 
   @media ${media.desktop} {
     flex-direction: row;

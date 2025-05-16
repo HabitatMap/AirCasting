@@ -127,7 +127,7 @@ jest.mock("./CustomOverlays/CustomMarker", () => ({
           setPosition: jest.fn(),
           setColor: jest.fn(),
           setTitle: jest.fn(),
-          setNotes: jest.fn(),
+          setNotes: jest.fn((notesArg, initialSlideArg) => {}),
           getPosition: jest.fn(() => position),
           getMap: jest.fn(() => mockMap),
           cleanup: jest.fn(),
@@ -135,7 +135,7 @@ jest.mock("./CustomOverlays/CustomMarker", () => ({
         // Set initial values
         marker.setTitle(title);
         marker.setColor(color);
-        marker.setNotes(notes);
+        marker.setNotes(notes, 0);
         mockMarkerInstances.push(marker);
         return marker;
       }
@@ -159,6 +159,31 @@ jest.mock("../../../../store/hooks", () => ({
     }
     if (selector.name === "selectHoverPosition") {
       return null;
+    }
+    if (selector.name === "selectMobileStreamData") {
+      return {
+        notes: [
+          {
+            createdAt: "2024-01-01T00:00:00Z",
+            date: "2024-01-01",
+            id: 1,
+            latitude: 41.8781,
+            longitude: -87.6298,
+            number: 1,
+            photo: "",
+            photoContentType: "",
+            photoFileName: "",
+            photoFileSize: 0,
+            photoThumbnail: "",
+            photoUpdatedAt: "",
+            sessionId: 3,
+            text: "Test note",
+            updatedAt: "2024-01-01T00:00:00Z",
+          },
+        ],
+        measurements: [],
+        streamId: "someStreamId",
+      };
     }
     return {};
   },
@@ -397,8 +422,8 @@ describe("StreamMarkers", () => {
       unitSymbol: "µg/m³",
     });
 
-    mockMarkerInstances.forEach((marker, index) => {
-      const session = mockSessions[index];
+    mockSessions.forEach((session, index) => {
+      const marker = mockMarkerInstances[index];
       expect(marker.setTitle).toHaveBeenCalledWith(
         `${session.lastMeasurementValue} µg/m³`
       );
@@ -457,25 +482,20 @@ describe("StreamMarkers", () => {
       unitSymbol: "µg/m³",
     });
 
-    const markerWithNotes = mockMarkerInstances[2];
-    expect(markerWithNotes.setNotes).toHaveBeenCalledWith([
-      {
-        createdAt: "2024-01-01T00:00:00Z",
-        date: "2024-01-01",
-        id: 1,
-        latitude: 41.8781,
-        longitude: -87.6298,
-        number: 1,
-        photoContentType: "",
-        photoFileName: "",
-        photoFileSize: 0,
-        photoUpdatedAt: "",
-        sessionId: 3,
-        text: "Test note",
-        updatedAt: "2024-01-01T00:00:00Z",
-        photo: "",
-        photoThumbnail: "",
-      },
-    ]);
+    // Find the marker at the note's location that actually received the note
+    const markerWithNotes = mockMarkerInstances.find(
+      (marker) =>
+        marker.getPosition().lat === 41.8781 &&
+        marker.getPosition().lng === -87.6298 &&
+        marker.setNotes.mock.calls.some(
+          ([notesArg]: [any]) =>
+            Array.isArray(notesArg) &&
+            notesArg.some((note) => note.text === "Test note")
+        )
+    );
+    expect(markerWithNotes.setNotes).toHaveBeenCalledWith(
+      expect.arrayContaining([expect.objectContaining({ text: "Test note" })]),
+      expect.any(Number)
+    );
   });
 });
