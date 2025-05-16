@@ -58,3 +58,6 @@ coverage/
 
 .tool-versions
 .env
+playwright-report/
+test-results/
+screenshots/
