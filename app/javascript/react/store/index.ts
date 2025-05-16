@@ -12,13 +12,13 @@ import markersLoadingReducer from "./markersLoadingSlice";
 import mobileSessionsReducer from "./mobileSessionsSlice";
 import mobileStreamReducer from "./mobileStreamSlice";
 import movingStreamReducer from "./movingCalendarStreamSlice";
+import popoverReducer from "./popoverSlice";
 import realtimeMapUpdatesReducer from "./realtimeMapUpdatesSlice";
 import rectangleReducer from "./rectangleSlice";
 import sensorsReducer from "./sensorsSlice";
 import sessionFilterReducer from "./sessionFiltersSlice";
 import thresholdReducer from "./thresholdSlice";
 import timelapseReducer from "./timelapseSlice";
-
 const store = configureStore({
   reducer: {
     cluster: clusterReducer,
@@ -31,6 +31,7 @@ const store = configureStore({
     mobileSessions: mobileSessionsReducer,
     mobileStream: mobileStreamReducer,
     movingCalendarStream: movingStreamReducer,
+    popover: popoverReducer,
     realtimeMapUpdates: realtimeMapUpdatesReducer,
     rectangle: rectangleReducer,
     sensors: sensorsReducer,

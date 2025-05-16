@@ -9,6 +9,7 @@ import React, {
 
 import { mobileStreamPath } from "../../../../assets/styles/colors";
 import { useAppDispatch, useAppSelector } from "../../../../store/hooks";
+import store from "../../../../store/index";
 import {
   selectHoverPosition,
   setHoverPosition,
@@ -17,7 +18,9 @@ import {
   setMarkersLoading,
   setTotalMarkers,
 } from "../../../../store/markersLoadingSlice";
+import { selectMobileStreamData } from "../../../../store/mobileStreamSelectors";
 import { selectThresholds } from "../../../../store/thresholdSlice";
+import { Note } from "../../../../types/note";
 import { MobileSession } from "../../../../types/sessionType";
 import { getColorForValue } from "../../../../utils/thresholdColors";
 import { CustomMarker } from "./CustomOverlays/CustomMarker";
@@ -35,6 +38,7 @@ const StreamMarkers = ({ sessions, unitSymbol }: Props) => {
   const thresholds = useAppSelector(selectThresholds);
   const polylineRef = useRef<google.maps.Polyline | null>(null);
   const hoverPosition = useAppSelector(selectHoverPosition);
+  const mobileStreamData = useAppSelector(selectMobileStreamData);
   const [CustomOverlay, setCustomOverlay] = useState<
     typeof CustomMarker | null
   >(null);
@@ -81,58 +85,54 @@ const StreamMarkers = ({ sessions, unitSymbol }: Props) => {
     dispatch(setMarkersLoading(false));
   }, [dispatch]);
 
-  const firstSessionWithNotes = useMemo(() => {
-    return sortedSessions.find(
-      (session) => session.notes && session.notes?.length > 0
-    );
-  }, [sortedSessions]);
+  /**
+   * Creates or updates a marker for a given session
+   * @param session - The mobile session to create a marker for
+   * @param map - The Google Maps instance
+   * @param CustomOverlay - The custom marker overlay class
+   * @param thresholds - The threshold values for coloring
+   * @param unitSymbol - The unit symbol to display
+   * @param markersRef - Reference to the markers map
+   * @returns The created or updated marker
+   */
+  const createOrUpdateMarker = (
+    session: MobileSession,
+    map: google.maps.Map,
+    CustomOverlay: typeof CustomMarker,
+    thresholds: any,
+    unitSymbol: string,
+    markersRef: React.MutableRefObject<Map<string, CustomMarker>>
+  ) => {
+    const markerId = session.id.toString();
+    const position = { lat: session.point.lat, lng: session.point.lng };
+    const title = `${session.lastMeasurementValue} ${unitSymbol}`;
 
-  const createOrUpdateMarker = useCallback(
-    (session: MobileSession) => {
-      if (!CustomOverlay) return;
+    let marker = markersRef.current.get(markerId);
 
-      const markerId = session.id.toString();
-      const position = { lat: session.point.lat, lng: session.point.lng };
-      const title = `${session.lastMeasurementValue} ${unitSymbol}`;
-
-      const shouldShowNotes =
-        firstSessionWithNotes &&
-        session.point.lat === firstSessionWithNotes.point.lat &&
-        session.point.lng === firstSessionWithNotes.point.lng;
-      const notes = shouldShowNotes ? session.notes || [] : [];
-
-      let marker = markersRef.current.get(markerId);
-
-      if (!marker) {
-        const color = getColorForValue(
-          thresholds,
-          session.lastMeasurementValue
-        );
-        marker = new CustomOverlay(
-          position,
-          color,
-          title,
-          12,
-          20,
-          "overlayMouseTarget",
-          notes
-        );
+    if (!marker) {
+      const color = getColorForValue(thresholds, session.lastMeasurementValue);
+      marker = new CustomOverlay(
+        position,
+        color,
+        title,
+        12,
+        20,
+        "overlayMouseTarget",
+        []
+      );
+      marker.setMap(map);
+      markersRef.current.set(markerId, marker);
+    } else {
+      marker.setPosition(position);
+      marker.setTitle(title);
+      marker.setNotes([]);
+      if (marker.getMap() !== map) {
         marker.setMap(map);
-        markersRef.current.set(markerId, marker);
-      } else {
-        marker.setPosition(position);
-        marker.setTitle(title);
-        marker.setNotes(notes);
-
-        if (marker.getMap() !== map) {
-          marker.setMap(map);
-        }
       }
+    }
 
-      return marker;
-    },
-    [map, unitSymbol, CustomOverlay, firstSessionWithNotes, thresholds]
-  );
+    return marker;
+  };
 
   useEffect(() => {
     if (window.google && window.google.maps && !CustomOverlay) {
@@ -182,7 +182,6 @@ const StreamMarkers = ({ sessions, unitSymbol }: Props) => {
   useEffect(() => {
     if (!map || !CustomOverlay) return;
 
-    // Clean up existing markers and polyline first
     const cleanup = () => {
       markersRef.current.forEach((marker) => {
         marker.setMap(null);
@@ -190,13 +189,20 @@ const StreamMarkers = ({ sessions, unitSymbol }: Props) => {
       });
       markersRef.current.clear();
 
+      if (noteMarkersRef.current) {
+        noteMarkersRef.current.forEach((marker) => {
+          marker.setMap(null);
+          marker.cleanup();
+        });
+        noteMarkersRef.current.clear();
+      }
+
       if (polylineRef.current) {
         polylineRef.current.setMap(null);
         polylineRef.current = null;
       }
     };
 
-    // Always clean up before setting new markers
     cleanup();
 
     dispatch(setMarkersLoading(true));
@@ -204,7 +210,7 @@ const StreamMarkers = ({ sessions, unitSymbol }: Props) => {
 
     if (sessions.length === 0) {
       dispatch(setMarkersLoading(false));
-      return cleanup; // Return cleanup function for useEffect
+      return cleanup;
     }
 
     if (sortedSessions.length > 0) {
@@ -216,12 +222,88 @@ const StreamMarkers = ({ sessions, unitSymbol }: Props) => {
     }
 
     requestAnimationFrame(() => {
-      const activeMarkerIds = new Set<string>();
+      const allNotesForStream = mobileStreamData.notes || [];
+      const markerLocations = new Set<string>();
 
+      // Create markers for sessions
       sortedSessions.forEach((session) => {
-        const markerId = session.id.toString();
-        createOrUpdateMarker(session);
-        activeMarkerIds.add(markerId);
+        createOrUpdateMarker(
+          session,
+          map,
+          CustomOverlay,
+          thresholds,
+          unitSymbol,
+          markersRef
+        );
+        markerLocations.add(`${session.point.lat},${session.point.lng}`);
+      });
+
+      // Create invisible markers for each note location, each with all notes for the session
+      if (!noteMarkersRef.current) noteMarkersRef.current = new Map();
+
+      // Group notes by location
+      const notesByLocation = new Map<string, Note[]>();
+      allNotesForStream.forEach((note) => {
+        const key = `${note.latitude},${note.longitude}`;
+        if (!notesByLocation.has(key)) {
+          notesByLocation.set(key, []);
+        }
+        notesByLocation.get(key)?.push(note);
+      });
+
+      // Sort all notes by date for consistent navigation order
+      const allNotesSorted = [...allNotesForStream].sort(
+        (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
+      );
+
+      // Create markers at each note location with only the notes at that location
+      notesByLocation.forEach((locationNotes, locationKey) => {
+        const [lat, lng] = locationKey.split(",").map(Number);
+        const noteMarkerId = `note-${locationKey}`;
+        let noteMarker = noteMarkersRef.current.get(noteMarkerId);
+
+        const initialSlideInGlobal = allNotesSorted.findIndex(
+          (note) => note.latitude === lat && note.longitude === lng
+        );
+
+        if (!noteMarker) {
+          noteMarker = new CustomOverlay(
+            { lat, lng },
+            "", // no color needed
+            "", // no title needed
+            12, // size
+            20, // clickable area size
+            "overlayMouseTarget", // pane name
+            allNotesSorted, // notes array
+            undefined, // content
+            undefined, // onClick
+            false // invisible
+          );
+          // Set initial slide separately since we can't pass it in the constructor
+          if (noteMarker) {
+            noteMarker.setNotes(allNotesSorted, initialSlideInGlobal);
+          }
+          noteMarker.setMap(map);
+          noteMarkersRef.current.set(noteMarkerId, noteMarker);
+        } else {
+          noteMarker.setPosition({ lat, lng });
+          noteMarker.setNotes(allNotesSorted, initialSlideInGlobal);
+          if (noteMarker.getMap() !== map) {
+            noteMarker.setMap(map);
+          }
+        }
+      });
+
+      // Cleanup stale markers
+      noteMarkersRef.current.forEach((marker, markerId) => {
+        if (markerId.startsWith("note-")) {
+          const locationKey = markerId.replace("note-", "");
+          if (!notesByLocation.has(locationKey)) {
+            marker.setMap(null);
+            marker.cleanup();
+            noteMarkersRef.current.delete(markerId);
+          }
+        }
       });
 
       const path = sortedSessions.map((session) => ({
@@ -242,7 +324,9 @@ const StreamMarkers = ({ sessions, unitSymbol }: Props) => {
       }
 
       markersRef.current.forEach((marker, markerId) => {
-        if (!activeMarkerIds.has(markerId)) {
+        if (
+          !sortedSessions.some((session) => session.id.toString() === markerId)
+        ) {
           marker.setMap(null);
           markersRef.current.delete(markerId);
         }
@@ -255,7 +339,6 @@ const StreamMarkers = ({ sessions, unitSymbol }: Props) => {
       dispatch(setHoverPosition(null));
     });
 
-    // Return cleanup function
     return cleanup;
   }, [
     map,
@@ -263,9 +346,9 @@ const StreamMarkers = ({ sessions, unitSymbol }: Props) => {
     sessions,
     dispatch,
     handleIdle,
-    createOrUpdateMarker,
     CustomOverlay,
     centerMapOnBounds,
+    mobileStreamData.notes,
   ]);
 
   useEffect(() => {
@@ -280,6 +363,36 @@ const StreamMarkers = ({ sessions, unitSymbol }: Props) => {
       }
     });
   }, [thresholds, sortedSessions]);
+
+  const noteMarkersRef = React.useRef<Map<string, CustomMarker>>(new Map());
+
+  // Add Redux subscription to update all marker popovers
+  React.useEffect(() => {
+    let lastOpenMarkerKey: string | null = null;
+    let lastInitialSlide: number | null = null;
+
+    const unsubscribe = store.subscribe(() => {
+      const state = store.getState();
+      const openMarkerKey = state.popover.openMarkerKey;
+      const initialSlide = state.popover.initialSlide;
+
+      if (
+        openMarkerKey !== lastOpenMarkerKey ||
+        initialSlide !== lastInitialSlide
+      ) {
+        lastOpenMarkerKey = openMarkerKey;
+        lastInitialSlide = initialSlide;
+
+        if (map && (map as any).__customMarkers) {
+          (map as any).__customMarkers.forEach((marker: CustomMarker) => {
+            marker.setNotes(marker.getNotes(), initialSlide);
+          });
+        }
+      }
+    });
+
+    return () => unsubscribe();
+  }, [map]);
 
   return !isInitialLoading.current && hoverPosition ? (
     <HoverMarker position={hoverPosition} />

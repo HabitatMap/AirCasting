@@ -68,11 +68,10 @@ export const navItems = [
         href: urls.press,
         label: "navbar.sections.press",
       },
+      {
+        href: urls.blog,
+        label: "navbar.sections.blog",
+      },
     ],
-  },
-  {
-    isNavTitle: true,
-    href: urls.blog,
-    label: "navbar.sections.blog",
   },
 ];
