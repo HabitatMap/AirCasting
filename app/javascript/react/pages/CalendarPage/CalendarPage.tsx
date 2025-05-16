@@ -119,6 +119,7 @@ const CalendarPage: React.FC<CalendarPageProps> = ({ children }) => {
   const renderMobileGraph = () => (
     <S.GraphContainer $isMobile={isMobile}>
       <HeaderToggle
+        data-testid="graph-header"
         isCalendarPage={true}
         titleText={
           <S.StyledContainer>
@@ -131,11 +132,13 @@ const CalendarPage: React.FC<CalendarPageProps> = ({ children }) => {
               {t("calendarHeader.selectRange")}
             </S.SelectLabelContainer>
             <TimeRange
+              data-testid="time-range"
               ref={rangeDisplayRef}
               minTime={formattedMinTime}
               maxTime={formattedMaxTime}
             />
             <Graph
+              data-testid="graph"
               streamId={Number(streamId)}
               sessionType={SessionTypes.FIXED}
               isCalendarPage={true}
@@ -153,6 +156,7 @@ const CalendarPage: React.FC<CalendarPageProps> = ({ children }) => {
   const renderThresholdContainer = () => (
     <S.ThresholdContainer $isMobile={isMobile}>
       <HeaderToggle
+        data-testid="threshold-toggle"
         titleText={
           <S.StyledContainer>
             {t("calendarHeader.legendTitle")}
@@ -160,6 +164,7 @@ const CalendarPage: React.FC<CalendarPageProps> = ({ children }) => {
             {!isMobile && (
               <S.ThresholdButtonsContainer>
                 <ResetButton
+                  data-testid="reset-threshold"
                   variant={ThresholdButtonVariant.TextWithIcon}
                   swapIconTextPosition={true}
                 />
@@ -175,6 +180,7 @@ const CalendarPage: React.FC<CalendarPageProps> = ({ children }) => {
         componentToToggle={
           isMobile ? (
             <ThresholdsConfigurator
+              data-testid="threshold-configurator"
               resetButtonVariant={ThresholdButtonVariant.TextWithIcon}
               resetButtonText={t("thresholdConfigurator.resetButton")}
               useColorBoxStyle
@@ -188,7 +194,10 @@ const CalendarPage: React.FC<CalendarPageProps> = ({ children }) => {
           ) : (
             <S.SliderWrapper>
               {errorMessage && <S.ErrorMessage>{errorMessage}</S.ErrorMessage>}
-              <ThresholdsConfigurator noDisclaimers={true} />
+              <ThresholdsConfigurator
+                data-testid="threshold-configurator"
+                noDisclaimers={true}
+              />
             </S.SliderWrapper>
           )
         }
@@ -231,11 +240,12 @@ const CalendarPage: React.FC<CalendarPageProps> = ({ children }) => {
       {children}
       <S.CalendarPageLayout>
         <S.StationDataContainer>
-          <FixedStreamStationHeader />
+          <FixedStreamStationHeader data-testid="fixed-stream-station-header" />
           {isMobile && renderMobileGraph()}
           {renderThresholdContainer()}
           {calendarIsVisible ? (
             <Calendar
+              data-testid="calendar"
               streamId={streamId}
               minCalendarDate={fixedStreamData.stream.startTime}
               maxCalendarDate={streamEndTime}

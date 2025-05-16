@@ -531,7 +531,7 @@ describe("Map Component", () => {
       }
       const endTime = performance.now();
 
-      expect(endTime - startTime).toBeLessThan(500); // Should handle updates within 500ms
+      expect(endTime - startTime).toBeLessThan(500);
     });
   });
 });

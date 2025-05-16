@@ -46,7 +46,10 @@ const MobileSessionList: React.FC<MobileSessionListProps> = ({
             {t("map.mobileResults", { results, fetchableSessionsCount })}
           </S.Title>
         </S.HorizontalContainer>
-        <S.SessionListStyled ref={sessionListRef}>
+        <S.SessionListStyled
+          ref={sessionListRef}
+          data-testid="mobile-session-list-items-container"
+        >
           {sessions.map((session) => (
             <div key={session.id}>
               <SessionsListTile

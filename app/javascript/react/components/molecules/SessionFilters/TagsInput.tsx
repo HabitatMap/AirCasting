@@ -175,7 +175,10 @@ const TagsInput = () => {
           {decodedTagsArray.map((item, index) => (
             <S.SelectedItemTile key={index}>
               <S.SelectedItem>{item}</S.SelectedItem>
-              <S.CloseSelectedItemButton onClick={() => handleOnClose(item)} />
+              <S.CloseSelectedItemButton
+                data-testid="close-selected-item-button"
+                onClick={() => handleOnClose(item)}
+              />
             </S.SelectedItemTile>
           ))}
         </S.SelectedItemsWrapper>
