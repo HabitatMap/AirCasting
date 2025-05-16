@@ -414,14 +414,8 @@ export class CustomMarker extends google.maps.OverlayView {
   }
 
   static closeAllPopovers(map: google.maps.Map | null) {
-    console.log("[CustomMarker] closeAllPopovers called");
     if (map && (map as any).__customMarkers) {
-      (map as any).__customMarkers.forEach((marker: CustomMarker) => {
-        console.log(
-          "[CustomMarker] Hiding popover for marker at",
-          marker.position.toJSON()
-        );
-      });
+      (map as any).__customMarkers.forEach((marker: CustomMarker) => {});
     }
   }
 

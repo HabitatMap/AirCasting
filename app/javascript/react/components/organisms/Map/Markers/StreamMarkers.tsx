@@ -85,66 +85,54 @@ const StreamMarkers = ({ sessions, unitSymbol }: Props) => {
     dispatch(setMarkersLoading(false));
   }, [dispatch]);
 
-  const createOrUpdateMarker = useCallback(
-    (session: MobileSession, allNotes: Note[]) => {
-      if (!CustomOverlay) return;
+  /**
+   * Creates or updates a marker for a given session
+   * @param session - The mobile session to create a marker for
+   * @param map - The Google Maps instance
+   * @param CustomOverlay - The custom marker overlay class
+   * @param thresholds - The threshold values for coloring
+   * @param unitSymbol - The unit symbol to display
+   * @param markersRef - Reference to the markers map
+   * @returns The created or updated marker
+   */
+  const createOrUpdateMarker = (
+    session: MobileSession,
+    map: google.maps.Map,
+    CustomOverlay: typeof CustomMarker,
+    thresholds: any,
+    unitSymbol: string,
+    markersRef: React.MutableRefObject<Map<string, CustomMarker>>
+  ) => {
+    const markerId = session.id.toString();
+    const position = { lat: session.point.lat, lng: session.point.lng };
+    const title = `${session.lastMeasurementValue} ${unitSymbol}`;
 
-      const markerId = session.id.toString();
-      const position = { lat: session.point.lat, lng: session.point.lng };
-      const title = `${session.lastMeasurementValue} ${unitSymbol}`;
+    let marker = markersRef.current.get(markerId);
 
-      const notesForThisMarker = allNotes.filter(
-        (note) =>
-          note.latitude != null &&
-          note.longitude != null &&
-          note.latitude === position.lat &&
-          note.longitude === position.lng
+    if (!marker) {
+      const color = getColorForValue(thresholds, session.lastMeasurementValue);
+      marker = new CustomOverlay(
+        position,
+        color,
+        title,
+        12,
+        20,
+        "overlayMouseTarget",
+        []
       );
-
-      const sessionNotes =
-        notesForThisMarker.length > 0 ? session.notes || [] : [];
-
-      const combinedNotes = [...notesForThisMarker];
-      sessionNotes.forEach((note) => {
-        if (
-          !combinedNotes.some((existingNote) => existingNote.id === note.id)
-        ) {
-          combinedNotes.push(note);
-        }
-      });
-
-      let marker = markersRef.current.get(markerId);
-
-      if (!marker) {
-        const color = getColorForValue(
-          thresholds,
-          session.lastMeasurementValue
-        );
-        marker = new CustomOverlay(
-          position,
-          color,
-          title,
-          12,
-          20,
-          "overlayMouseTarget",
-          combinedNotes
-        );
+      marker.setMap(map);
+      markersRef.current.set(markerId, marker);
+    } else {
+      marker.setPosition(position);
+      marker.setTitle(title);
+      marker.setNotes([]);
+      if (marker.getMap() !== map) {
         marker.setMap(map);
-        markersRef.current.set(markerId, marker);
-      } else {
-        marker.setPosition(position);
-        marker.setTitle(title);
-        marker.setNotes(combinedNotes);
-
-        if (marker.getMap() !== map) {
-          marker.setMap(map);
-        }
       }
+    }
 
-      return marker;
-    },
-    [map, unitSymbol, CustomOverlay, thresholds]
-  );
+    return marker;
+  };
 
   useEffect(() => {
     if (window.google && window.google.maps && !CustomOverlay) {
@@ -237,37 +225,16 @@ const StreamMarkers = ({ sessions, unitSymbol }: Props) => {
       const allNotesForStream = mobileStreamData.notes || [];
       const markerLocations = new Set<string>();
 
-      // Only create visible session markers (no notes attached)
+      // Create markers for sessions
       sortedSessions.forEach((session) => {
-        const markerId = session.id.toString();
-        // Create marker with no notes
-        let marker = markersRef.current.get(markerId);
-        const position = { lat: session.point.lat, lng: session.point.lng };
-        const title = `${session.lastMeasurementValue} ${unitSymbol}`;
-        if (!marker) {
-          const color = getColorForValue(
-            thresholds,
-            session.lastMeasurementValue
-          );
-          marker = new CustomOverlay(
-            position,
-            color,
-            title,
-            12,
-            20,
-            "overlayMouseTarget",
-            [] // No notes attached
-          );
-          marker.setMap(map);
-          markersRef.current.set(markerId, marker);
-        } else {
-          marker.setPosition(position);
-          marker.setTitle(title);
-          marker.setNotes([]); // No notes attached
-          if (marker.getMap() !== map) {
-            marker.setMap(map);
-          }
-        }
+        createOrUpdateMarker(
+          session,
+          map,
+          CustomOverlay,
+          thresholds,
+          unitSymbol,
+          markersRef
+        );
         markerLocations.add(`${session.point.lat},${session.point.lng}`);
       });
 
@@ -379,7 +346,6 @@ const StreamMarkers = ({ sessions, unitSymbol }: Props) => {
     sessions,
     dispatch,
     handleIdle,
-    createOrUpdateMarker,
     CustomOverlay,
     centerMapOnBounds,
     mobileStreamData.notes,
