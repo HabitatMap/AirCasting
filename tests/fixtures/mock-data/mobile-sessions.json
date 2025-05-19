@@ -1,0 +1,38 @@
+{
+  "sessions": [
+    {
+      "id": 1,
+      "title": "Test Mobile Session",
+      "startTimeLocal": "2024-03-20T10:00:00Z",
+      "endTimeLocal": "2024-03-20T11:00:00Z",
+      "type": "mobile",
+      "username": "test_user",
+      "streams": {
+        "1": {
+          "id": 1,
+          "sensorName": "Particulate Matter",
+          "averageValue": 27.5,
+          "startLatitude": 40.7128,
+          "startLongitude": -74.0060,
+          "maxLatitude": 40.7129,
+          "maxLongitude": -74.0061,
+          "minLatitude": 40.7128,
+          "minLongitude": -74.0060,
+          "measurementShortType": "PM2.5",
+          "measurementType": "Particulate Matter",
+          "measurementsCount": 2,
+          "sensorPackageName": "AirBeam2",
+          "sessionId": 1,
+          "size": 2,
+          "thresholdHigh": 35.4,
+          "thresholdLow": 12.0,
+          "thresholdMedium": 23.7,
+          "thresholdVeryHigh": 55.4,
+          "thresholdVeryLow": 0.0,
+          "unitName": "micrograms per cubic meter",
+          "unitSymbol": "µg/m³"
+        }
+      }
+    }
+  ]
+}

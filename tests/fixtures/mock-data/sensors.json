@@ -1,0 +1,39 @@
+{
+  "sensors": [
+    {
+      "id": "airbeam-pm25",
+      "name": "AirBeam-PM2.5",
+      "measurement_type": "Particulate Matter",
+      "unit_symbol": "µg/m³",
+      "session_count": 1
+    },
+    {
+      "id": "gov-pm25",
+      "name": "Government-PM2.5",
+      "measurement_type": "Particulate Matter",
+      "unit_symbol": "µg/m³",
+      "session_count": 1
+    },
+    {
+      "id": "airbeam-pm10",
+      "name": "AirBeam-PM10",
+      "measurement_type": "Particulate Matter",
+      "unit_symbol": "µg/m³",
+      "session_count": 1
+    },
+    {
+      "id": "airbeam-rh",
+      "name": "AirBeam-RH",
+      "measurement_type": "Humidity",
+      "unit_symbol": "%",
+      "session_count": 1
+    },
+    {
+      "id": "airbeam-temp",
+      "name": "AirBeam-F",
+      "measurement_type": "Temperature",
+      "unit_symbol": "F",
+      "session_count": 1
+    }
+  ]
+}

@@ -1,0 +1,25 @@
+{
+  "calendar_data": {
+    "2024-03": {
+      "1": {
+        "value": 95,
+        "color": "rgb(150, 215, 136)"
+      },
+      "2": {
+        "value": 95,
+        "color": "rgb(150, 215, 136)"
+      },
+      "3": {
+        "value": 95,
+        "color": "rgb(150, 215, 136)"
+      }
+    }
+  },
+  "thresholds": {
+    "min": 0,
+    "low": 9,
+    "middle": 35,
+    "high": 55,
+    "max": 150
+  }
+}

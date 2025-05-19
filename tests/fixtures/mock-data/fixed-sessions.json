@@ -1,0 +1,25 @@
+{
+  "sessions": [
+    {
+      "id": 1875408,
+      "uuid": "test-uuid-1",
+      "title": "Laval - Chomedey",
+      "startTimeLocal": "2024-03-20T10:00:00Z",
+      "endTimeLocal": "2024-03-20T11:00:00Z",
+      "latitude": 40.69750662508967,
+      "longitude": -73.979506,
+      "lastMeasurementValue": 27.5,
+      "lastHourlyAverageValue": 27.5,
+      "isIndoor": false,
+      "username": "test_user",
+      "streams": {
+        "1": {
+          "id": 1,
+          "sensorName": "Government-PM2.5",
+          "unitSymbol": "µg/m³",
+          "measurementShortType": "PM2.5"
+        }
+      }
+    }
+  ]
+}
