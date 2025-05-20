@@ -1,6 +1,6 @@
 class Api::ToSessionHash2
-  def initialize(note_seralizer: NoteSerializer.new, stream:)
-    @note_seralizer = note_seralizer
+  def initialize(note_serializer: NoteSerializer.new, stream:)
+    @note_serializer = note_serializer
     @stream = stream
   end
 
@@ -22,7 +22,7 @@ class Api::ToSessionHash2
       url_token: session.url_token,
       user_id: user.id,
       uuid: session.uuid,
-      notes: notes.map { |note| note_seralizer.call(note: note) },
+      notes: notes.map { |note| note_serializer.call(note: note) },
       streams: {
         stream.sensor_name => {
           average_value: stream.average_value,
@@ -55,7 +55,7 @@ class Api::ToSessionHash2
 
   private
 
-  attr_reader :note_seralizer, :stream
+  attr_reader :note_serializer, :stream
 
   def session
     @session ||= stream.session

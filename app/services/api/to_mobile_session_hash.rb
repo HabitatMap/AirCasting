@@ -1,6 +1,6 @@
 class Api::ToMobileSessionHash
-  def initialize(note_seralizer: NoteSerializer.new, stream:)
-    @note_seralizer = note_seralizer
+  def initialize(note_serializer: NoteSerializer.new, stream:)
+    @note_serializer = note_serializer
     @stream = stream
   end
 
@@ -22,7 +22,7 @@ class Api::ToMobileSessionHash
       minLongitude: stream.min_longitude,
       startLatitude: stream.start_latitude,
       startLongitude: stream.start_longitude,
-      notes: notes.map { |note| note_seralizer.call(note: note) },
+      notes: notes.map { |note| note_serializer.call(note: note) },
     }
   end
 
