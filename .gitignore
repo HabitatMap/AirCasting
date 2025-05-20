@@ -59,17 +59,42 @@ coverage/
 .tool-versions
 .env
 
-# Playwright
+# Playwright and Testing
 node_modules/
 /test-results/
 /playwright-report/
 /blob-report/
 /playwright/.cache/
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.auth/
+/allure-results/
+/allure-report/
+/test-report/
+/artifacts/
+/error-context.md
+**/error-context.md
+/screenshots/
+**/*.png
+**/*.jpg
+**/*.jpeg
+**/state.json
+**/trace.zip
+**/.trace/
+/results/
+/report/
+/logs/
+**/mochawesome-report/
+/test-output/
+/.nyc_output/
 
-# Playwright test output
-test-results/
-playwright-report/
+# Visual regression tests
+**/visual-regression-results/
 
 # General screenshots (if saved elsewhere)
 screenshots/
 *.png
+*.mp4
+*.webm
+*.trace.json
