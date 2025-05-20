@@ -99,9 +99,9 @@ class Api::UserSessionsController < Api::BaseController
   end
 
   def prepare_notes(notes)
-    notes.map do |note|
-      note.as_json.merge(photo_location: photo_location(note))
-    end
+    note_serializer = NoteSerializer.new
+
+    notes.map { |note| note_serializer.call(note: note) }
   end
 
   def to_json_data(params)

@@ -6,7 +6,7 @@ class FixedRegionInfo
       average: stats[:average],
       number_of_contributors: number_of_contributors(stream_ids),
       number_of_samples: stats[:count],
-      number_of_instruments: stream_ids.count
+      number_of_instruments: stream_ids.count,
     }
   end
 
@@ -24,7 +24,7 @@ class FixedRegionInfo
           .where(time: (end_time - 1.hour)..end_time)
           .select('AVG(value) as average, count(*) as count')
           .group(:stream_id)
-          .first
+          .take
 
       acc[:average] += stats.average.fdiv(stream_ids.length)
       acc[:count] += stats.count

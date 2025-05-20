@@ -1,7 +1,8 @@
 module Api
   class ToFixedSessionWithStreamsHash
-    def initialize(contract:)
+    def initialize(contract:, note_seralizer: NoteSerializer.new)
       @contract = contract
+      @note_seralizer = note_seralizer
     end
 
     def call
@@ -15,7 +16,7 @@ module Api
 
     private
 
-    attr_reader :contract
+    attr_reader :contract, :note_seralizer
 
     def data
       contract.to_h
@@ -30,7 +31,7 @@ module Api
         end_time: format_time(session.end_time_local),
         latitude: session.latitude,
         longitude: session.longitude,
-        notes: session.notes.map(&:as_json),
+        notes: session.notes.map { |note| note_seralizer.call(note: note) },
         is_indoor: session.is_indoor,
         streams:
           session.streams.map do |stream|

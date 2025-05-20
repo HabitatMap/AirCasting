@@ -120,19 +120,15 @@ describe Api::Mobile::SessionsController do
         'uuid' => session.uuid,
         'notes' => [
           {
-            'created_at' => format_time_with_miliseconds(note.created_at),
             'date' => format_time(note.date),
             'id' => note.id,
             'latitude' => note.latitude,
             'longitude' => note.longitude,
             'number' => note.number,
-            'photo_content_type' => note.photo_content_type,
-            'photo_file_name' => note.photo_file_name,
-            'photo_file_size' => note.photo_file_size,
-            'photo_updated_at' => note.photo_updated_at,
-            'session_id' => session.id,
             'text' => note.text,
-            'updated_at' => format_time_with_miliseconds(note.updated_at),
+            'photo' => nil,
+            'photo_thumbnail' => nil,
+            'photo_location' => nil,
           },
         ],
         'streams' => {
@@ -260,9 +256,5 @@ describe Api::Mobile::SessionsController do
 
   def format_time_to_i(time)
     time.to_datetime.strftime('%Q').to_i
-  end
-
-  def format_time_with_miliseconds(time)
-    time.strftime('%FT%T.%LZ')
   end
 end
