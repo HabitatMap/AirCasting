@@ -98,25 +98,29 @@ describe MeasurementsRepository do
 
     context 'when with_hour_shift is true' do
       it 'returns average values calculated for preceding hour' do
-        stream_1 = create_stream!
-        stream_2 = create_stream!
+        stream_1 = create(:stream)
+        stream_2 = create(:stream)
 
-        create_measurement!(
+        create(
+          :measurement,
           stream: stream_1,
           value: 10,
           time_with_time_zone: Time.parse('2024-11-22 10:30:00 +00:00'),
         )
-        create_measurement!(
+        create(
+          :measurement,
           stream: stream_1,
           value: 12,
           time_with_time_zone: Time.parse('2024-11-22 11:00:00 +00:00'),
         )
-        create_measurement!(
+        create(
+          :measurement,
           stream: stream_2,
           value: 4,
           time_with_time_zone: Time.parse('2024-11-22 11:30:00 +00:00'),
         )
-        create_measurement!(
+        create(
+          :measurement,
           stream: stream_2,
           value: 2,
           time_with_time_zone: Time.parse('2024-11-22 12:30:00 +00:00'),
@@ -139,25 +143,29 @@ describe MeasurementsRepository do
 
     context 'when with_hour_shift is false' do
       it 'returns average values calculated for succeeding hour' do
-        stream_1 = create_stream!
-        stream_2 = create_stream!
+        stream_1 = create(:stream)
+        stream_2 = create(:stream)
 
-        create_measurement!(
+        create(
+          :measurement,
           stream: stream_1,
           value: 10,
           time_with_time_zone: Time.parse('2024-11-22 10:30:00 +00:00'),
         )
-        create_measurement!(
+        create(
+          :measurement,
           stream: stream_1,
           value: 12,
           time_with_time_zone: Time.parse('2024-11-22 11:00:00 +00:00'),
         )
-        create_measurement!(
+        create(
+          :measurement,
           stream: stream_2,
           value: 4,
           time_with_time_zone: Time.parse('2024-11-22 11:30:00 +00:00'),
         )
-        create_measurement!(
+        create(
+          :measurement,
           stream: stream_2,
           value: 2,
           time_with_time_zone: Time.parse('2024-11-22 12:30:00 +00:00'),

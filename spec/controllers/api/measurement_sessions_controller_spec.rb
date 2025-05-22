@@ -2,7 +2,7 @@ require 'rails_helper'
 
 shared_examples_for 'session creation' do
   let(:session) { double('session', notes: [note]) }
-  let(:note) { FactoryBot.create(:note, photo: photo, number: 10) }
+  let(:note) { FactoryBot.create(:note, :with_photo, number: 10) }
   let(:photo) { File.new(Rails.root + 'spec' + 'fixtures' + 'test.jpg') }
   let(:photos) { 'some_files' }
 
@@ -22,11 +22,16 @@ shared_examples_for 'session creation' do
     end
 
     it 'returns JSON with locations of note photos' do
+      expected_photo_location =
+        Rails.application.routes.url_helpers.rails_representation_url(
+          note.s3_photo.variant(resize_to_limit: [600, 600]).processed,
+          host: A9n.host_,
+        )
       expect(json_response['notes'].first).to eq(
         {
-          'photo_location' => 'http://test.host:80' + note.photo.url(:medium),
-          'number' => note.number
-        }
+          'photo_location' => expected_photo_location,
+          'number' => note.number,
+        },
       )
     end
   end
@@ -58,7 +63,7 @@ describe Api::MeasurementSessionsController do
              params: {
                session: 'session',
                compression: false,
-               photos: photos
+               photos: photos,
              }
       end
 
@@ -79,7 +84,7 @@ describe Api::MeasurementSessionsController do
              params: {
                session: 'zipped_and_encoded',
                compression: true,
-               photos: photos
+               photos: photos,
              }
       end
 

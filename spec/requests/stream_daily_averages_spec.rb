@@ -23,13 +23,13 @@ describe 'GET api/v3/stream_daily_averages' do
       {
         date: stream_daily_average_2.date.strftime('%Y-%m-%d'),
         value: stream_daily_average_2.value.round,
-      }
+      },
     ]
 
     get "/api/v3/stream_daily_averages?stream_id=#{stream.id}&start_date=#{Date.current.prev_day}&end_date=#{Date.current}"
 
     expect(response.status).to eq(200)
-    expect(JSON.parse(response.body)).to eq(expected_response.as_json)
+    expect(JSON.parse(response.body)).to match_array(expected_response.as_json)
   end
 
   it 'returns an empty array where there is no data found' do

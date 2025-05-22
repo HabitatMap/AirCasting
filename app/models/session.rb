@@ -243,17 +243,15 @@ class Session < ApplicationRecord
       self.version += 1
       self.save!
 
-      (session_data[:streams] || []).each do |key, stream_data|
-        if stream_data[:deleted]
-          streams_to_destroy =
-            streams.where(
-              sensor_package_name: stream_data[:sensor_package_name],
-              sensor_name: stream_data[:sensor_name],
-            )
+      session_data[:streams_to_delete].each do |stream_data|
+        streams_to_destroy =
+          streams.where(
+            sensor_package_name: stream_data[:sensor_package_name],
+            sensor_name: stream_data[:sensor_name],
+          )
 
-          streams_to_destroy.update_all(last_hourly_average_id: nil)
-          streams_to_destroy.each(&:destroy)
-        end
+        streams_to_destroy.update_all(last_hourly_average_id: nil)
+        streams_to_destroy.each(&:destroy)
       end
 
       notes.where.not({ number: note_numbers(session_data) }).destroy_all

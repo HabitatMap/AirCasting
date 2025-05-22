@@ -34,24 +34,20 @@ describe Api::UserSessionsController do
       end
 
       it 'should contain notes' do
+        note = create(:note, session: session)
         get :show, params: { id: session.id }, format: :json
 
         expect(json_response['notes'].first).to eq(
           {
-            created_at: session.notes.first.created_at,
+            id: note.id,
             date: session.notes.first.date,
-            id: session.notes.first.id,
             latitude: session.notes.first.latitude,
             longitude: session.notes.first.longitude,
             number: session.notes.first.number,
-            photo_content_type: nil,
-            photo_file_name: nil,
-            photo_file_size: nil,
             photo_location: nil,
-            photo_updated_at: nil,
-            session_id: session.id,
             text: session.notes.first.text,
-            updated_at: session.notes.first.updated_at,
+            photo: nil,
+            photo_thumbnail: nil,
           }.as_json,
         )
       end
@@ -68,19 +64,18 @@ describe Api::UserSessionsController do
     end
 
     context 'session has notes with photos' do
-      let(:note) do
-        FactoryBot.create(
-          :note,
-          photo: File.new(Rails.root + 'spec' + 'fixtures' + 'test.jpg'),
-        )
-      end
-      let(:session) do
-        FactoryBot.create(:mobile_session, user: user, notes: [note])
-      end
-
       it 'should provide paths to note photos' do
+        session = create(:mobile_session, user: user)
+        note = create(:note, :with_photo, session: session)
+
         get :show, params: { id: session.id }, format: :json
-        expected = 'http://test.host:80' + note.photo.url(:medium)
+
+        expected =
+          Rails.application.routes.url_helpers.rails_representation_url(
+            note.s3_photo.variant(resize_to_limit: [600, 600]).processed,
+            host: A9n.host_,
+          )
+
         expect(json_response['notes'].first['photo_location']).to eq(expected)
       end
     end
@@ -133,6 +128,11 @@ describe Api::UserSessionsController do
                    sensor_package_name: stream.sensor_package_name,
                    sensor_name: stream.sensor_name,
                    deleted: true,
+                 },
+                 other_key: {
+                   sensor_package_name: 'other',
+                   sensor_name: 'other',
+                   deleted: false,
                  },
                },
              }.to_json,

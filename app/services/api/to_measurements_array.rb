@@ -1,33 +1,37 @@
 class Api::ToMeasurementsArray
-  def initialize(form:)
-    @form = form
+  def initialize(contract:)
+    @contract = contract
   end
 
   def call
-    return Failure.new(form.errors) if form.invalid?
+    return Failure.new(contract.errors.to_h) if contract.failure?
 
     Success.new(measurements.map { |m| to_hash(m) })
   end
 
   private
 
-  attr_reader :form
+  attr_reader :contract
+
+  def data
+    contract.to_h
+  end
 
   def measurements
-    form.to_h[:start_time] != 0 && form.to_h[:end_time] != 0 ? page : all
+    data.key?(:start_time) && data.key?(:end_time) ? page : all
   end
 
   def page
-    start_time = Time.at(form.to_h[:start_time] / 1_000)
-    end_time = Time.at(form.to_h[:end_time] / 1_000)
+    start_time = Time.at(data[:start_time] / 1_000)
+    end_time = Time.at(data[:end_time] / 1_000)
 
     Measurement
-      .with_streams(form.to_h[:stream_ids].split(','))
+      .with_streams(data[:stream_ids].split(','))
       .where(time: start_time..end_time)
   end
 
   def all
-    Measurement.with_streams(form.to_h[:stream_ids])
+    Measurement.with_streams(data[:stream_ids])
   end
 
   def to_hash(measurement)
