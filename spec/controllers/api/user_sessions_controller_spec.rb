@@ -39,12 +39,12 @@ describe Api::UserSessionsController do
 
         expect(json_response['notes'].first).to eq(
           {
+            id: note.id,
             date: session.notes.first.date,
             latitude: session.notes.first.latitude,
             longitude: session.notes.first.longitude,
             number: session.notes.first.number,
             photo_location: nil,
-            session_id: session.id,
             text: session.notes.first.text,
             photo: nil,
             photo_thumbnail: nil,
