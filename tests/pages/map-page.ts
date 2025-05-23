@@ -46,7 +46,23 @@ export class MapPage {
   }
 
   async clickTimeRangeButton(timeRange: "HOURS" | "WEEK" | "MONTH") {
-    await this.page.getByRole("button", { name: timeRange }).click();
+    // Wait for initial loading to complete
+    await this.waitForLoadingOverlay();
+    await this.page.waitForSelector(".highcharts-loading", { state: "hidden" });
+
+    // Wait for the button to be visible and clickable
+    const button = this.page.getByRole("button", { name: timeRange });
+    await button.waitFor({ state: "visible", timeout: 10000 });
+
+    // Force click to bypass overlay
+    await button.click({ force: true });
+
+    // Wait for loading state to complete
+    await this.waitForLoadState("networkidle");
+    await this.waitForLoadingOverlay();
+
+    // Wait for chart to be ready
+    await this.page.waitForSelector(".highcharts-loading", { state: "hidden" });
   }
 
   async setThresholdValue(value: string) {
@@ -183,5 +199,9 @@ export class MapPage {
       .getByTestId("overlay")
       .getByRole("button", { name: "Close icon" })
       .click();
+  }
+
+  async waitForLoadingOverlay() {
+    await this.page.waitForSelector(".loading-overlay", { state: "hidden" });
   }
 }

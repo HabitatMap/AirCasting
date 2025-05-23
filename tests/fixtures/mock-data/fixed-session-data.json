@@ -1,0 +1,34 @@
+{
+  "session": {
+    "id": 1874470,
+    "title": "Laval - Chomedey",
+    "is_active": true,
+    "type": "fixed"
+  },
+  "stream": {
+    "sessionId": 2595727,
+    "latitude": 45.5472,
+    "longitude": -73.7472,
+    "min": 0.0,
+    "low": 9.0,
+    "middle": 35.0,
+    "high": 55.0,
+    "max": 150.0
+  },
+  "measurements": [
+    {
+      "time": 1709251200000,
+      "value": 25,
+      "latitude": 45.55,
+      "longitude": -73.74,
+      "streamId": 67890
+    },
+    {
+      "time": 1709337600000,
+      "value": 30,
+      "latitude": 45.55,
+      "longitude": -73.74,
+      "streamId": 67890
+    }
+  ]
+}
