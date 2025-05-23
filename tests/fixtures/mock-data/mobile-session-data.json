@@ -1,0 +1,64 @@
+{
+  "session": {
+    "id": 1922065,
+    "title": "NYC ",
+    "start_time_local": "2025-05-22T18:01:55.000Z",
+    "end_time_local": "2025-05-22T18:20:20.000Z",
+    "type": "MobileSession",
+    "username": "philbuildthefuturenow",
+    "is_active": true,
+    "streams": {
+      "AirBeamMini-PM2.5": {
+        "average_value": 1,
+        "id": 2774975,
+        "sessionId": 1922065,
+        "max_latitude": 40.715483661,
+        "max_longitude": -73.988480729,
+        "measurement_short_type": "PM",
+        "measurement_type": "Particulate Matter",
+        "measurements_count": 1105,
+        "min_latitude": 40.696485056,
+        "min_longitude": -74.006331296,
+        "sensor_name": "AirBeamMini-PM2.5",
+        "sensor_package_name": "AirBeamMini:cc8da26a69e8",
+        "session_id": 1922065,
+        "size": 1105,
+        "start_latitude": 40.714827551,
+        "start_longitude": -74.005400003,
+        "threshold_high": 55,
+        "threshold_low": 12,
+        "threshold_medium": 35,
+        "threshold_very_high": 150,
+        "threshold_very_low": 0,
+        "unit_name": "micrograms per cubic meter",
+        "unit_symbol": "µg/m³"
+      }
+    }
+  },
+  "stream": {
+    "sessionId": 2774975,
+    "latitude": 40.714827551,
+    "longitude": -74.005400003,
+    "min": 0,
+    "low": 12,
+    "middle": 35,
+    "high": 55,
+    "max": 150
+  },
+  "measurements": [
+    {
+      "value": 1,
+      "time": 1747936916000,
+      "longitude": -74.005400003,
+      "latitude": 40.714827551,
+      "streamId": 2774975
+    },
+    {
+      "value": 1,
+      "time": 1747936917000,
+      "longitude": -74.005344998,
+      "latitude": 40.714801676,
+      "streamId": 2774975
+    }
+  ]
+}
