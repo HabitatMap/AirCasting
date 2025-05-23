@@ -1,0 +1,44 @@
+{
+  "thresholds": {
+    "AirBeam-PM2.5": {
+      "unit_symbol": "µg/m³",
+      "threshold_very_low": 0.0,
+      "threshold_low": 12.0,
+      "threshold_medium": 35.0,
+      "threshold_high": 55.0,
+      "threshold_very_high": 150.0
+    },
+    "Government-PM2.5": {
+      "unit_symbol": "µg/m³",
+      "threshold_very_low": 0.0,
+      "threshold_low": 12.0,
+      "threshold_medium": 35.0,
+      "threshold_high": 55.0,
+      "threshold_very_high": 150.0
+    },
+    "AirBeam-PM10": {
+      "unit_symbol": "µg/m³",
+      "threshold_very_low": 0.0,
+      "threshold_low": 20.0,
+      "threshold_medium": 50.0,
+      "threshold_high": 100.0,
+      "threshold_very_high": 200.0
+    },
+    "AirBeam-RH": {
+      "unit_symbol": "%",
+      "threshold_very_low": 0.0,
+      "threshold_low": 25.0,
+      "threshold_medium": 50.0,
+      "threshold_high": 75.0,
+      "threshold_very_high": 100.0
+    },
+    "AirBeam-F": {
+      "unit_symbol": "F",
+      "threshold_very_low": 15.0,
+      "threshold_low": 45.0,
+      "threshold_medium": 75.0,
+      "threshold_high": 105.0,
+      "threshold_very_high": 135.0
+    }
+  }
+}
