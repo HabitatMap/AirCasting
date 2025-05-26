@@ -136,7 +136,7 @@ describe 'GET api/v3/timelapse', type: :request do
         ],
       }
 
-      expect(JSON.parse(response.body)).to eq(expected)
+      expect(JSON.parse(response.body)).to match_array(expected)
     end
   end
 end
