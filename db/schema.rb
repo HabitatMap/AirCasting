@@ -10,8 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2025_04_03_122255) do
-
+ActiveRecord::Schema[7.0].define(version: 2025_04_03_122255) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
   enable_extension "postgis"
@@ -21,7 +20,7 @@ ActiveRecord::Schema.define(version: 2025_04_03_122255) do
     t.string "record_type", null: false
     t.bigint "record_id", null: false
     t.bigint "blob_id", null: false
-    t.datetime "created_at", null: false
+    t.datetime "created_at", precision: nil, null: false
     t.index ["blob_id"], name: "index_active_storage_attachments_on_blob_id"
     t.index ["record_type", "record_id", "name", "blob_id"], name: "index_active_storage_attachments_uniqueness", unique: true
   end
@@ -33,7 +32,7 @@ ActiveRecord::Schema.define(version: 2025_04_03_122255) do
     t.text "metadata"
     t.bigint "byte_size", null: false
     t.string "checksum", null: false
-    t.datetime "created_at", null: false
+    t.datetime "created_at", precision: nil, null: false
     t.string "service_name", null: false
     t.index ["key"], name: "index_active_storage_blobs_on_key", unique: true
   end
@@ -45,8 +44,8 @@ ActiveRecord::Schema.define(version: 2025_04_03_122255) do
   end
 
   create_table "deleted_sessions", id: :serial, force: :cascade do |t|
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.datetime "created_at", precision: nil, null: false
+    t.datetime "updated_at", precision: nil, null: false
     t.string "uuid"
     t.integer "user_id"
     t.index ["user_id"], name: "index_deleted_sessions_on_user_id"
@@ -57,20 +56,20 @@ ActiveRecord::Schema.define(version: 2025_04_03_122255) do
     t.float "value"
     t.decimal "latitude", precision: 12, scale: 9
     t.decimal "longitude", precision: 12, scale: 9
-    t.datetime "time"
+    t.datetime "time", precision: nil
     t.integer "timezone_offset"
     t.integer "stream_id"
     t.integer "milliseconds", default: 0
     t.float "measured_value"
     t.geometry "location", limit: {:srid=>4326, :type=>"geometry"}, null: false
-    t.datetime "time_with_time_zone"
+    t.timestamptz "time_with_time_zone"
     t.index ["stream_id", "time"], name: "index_measurements_on_stream_id_and_time"
   end
 
   create_table "notes", id: :serial, force: :cascade do |t|
-    t.datetime "created_at"
-    t.datetime "updated_at"
-    t.datetime "date"
+    t.datetime "created_at", precision: nil
+    t.datetime "updated_at", precision: nil
+    t.datetime "date", precision: nil
     t.text "text"
     t.decimal "longitude", precision: 12, scale: 9
     t.decimal "latitude", precision: 12, scale: 9
@@ -78,26 +77,26 @@ ActiveRecord::Schema.define(version: 2025_04_03_122255) do
     t.string "photo_file_name"
     t.string "photo_content_type"
     t.integer "photo_file_size"
-    t.datetime "photo_updated_at"
+    t.datetime "photo_updated_at", precision: nil
     t.integer "number"
     t.index ["session_id"], name: "index_notes_on_session_id"
   end
 
   create_table "sessions", id: :serial, force: :cascade do |t|
-    t.datetime "created_at"
-    t.datetime "updated_at"
+    t.datetime "created_at", precision: nil
+    t.datetime "updated_at", precision: nil
     t.integer "user_id"
     t.string "uuid"
     t.string "url_token"
     t.text "title"
     t.boolean "contribute"
-    t.datetime "start_time_local"
-    t.datetime "end_time_local"
+    t.datetime "start_time_local", precision: nil
+    t.datetime "end_time_local", precision: nil
     t.string "type", null: false
     t.boolean "is_indoor"
     t.decimal "latitude", precision: 12, scale: 9
     t.decimal "longitude", precision: 12, scale: 9
-    t.datetime "last_measurement_at"
+    t.datetime "last_measurement_at", precision: nil
     t.integer "version", default: 1
     t.string "time_zone", default: "UTC", null: false
     t.index ["contribute"], name: "index_sessions_on_contribute"
@@ -113,17 +112,17 @@ ActiveRecord::Schema.define(version: 2025_04_03_122255) do
     t.bigint "stream_id", null: false
     t.integer "value", null: false
     t.date "date", null: false
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
     t.index ["stream_id", "date"], name: "index_stream_daily_averages_on_stream_id_and_date", unique: true
   end
 
   create_table "stream_hourly_averages", force: :cascade do |t|
     t.bigint "stream_id", null: false
     t.integer "value", null: false
-    t.datetime "date_time", null: false
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
+    t.datetime "date_time", precision: nil, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
     t.index ["stream_id", "date_time"], name: "index_stream_hourly_averages_on_stream_id_and_date_time", unique: true
   end
 
@@ -164,7 +163,7 @@ ActiveRecord::Schema.define(version: 2025_04_03_122255) do
     t.string "tagger_type"
     t.integer "tagger_id"
     t.string "context"
-    t.datetime "created_at"
+    t.datetime "created_at", precision: nil
     t.index ["context"], name: "index_taggings_on_context"
     t.index ["tag_id", "taggable_id", "taggable_type", "context", "tagger_id", "tagger_type"], name: "taggings_idx", unique: true
     t.index ["tag_id"], name: "index_taggings_on_tag_id"
@@ -188,11 +187,11 @@ ActiveRecord::Schema.define(version: 2025_04_03_122255) do
     t.string "sensor_name"
     t.float "threshold_value"
     t.integer "frequency"
-    t.datetime "last_email_at"
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
+    t.datetime "last_email_at", precision: nil
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
     t.integer "timezone_offset", default: 0
-    t.datetime "last_check_at"
+    t.datetime "last_check_at", precision: nil
     t.bigint "stream_id", null: false
     t.index ["session_uuid", "sensor_name"], name: "index_threshold_alerts_on_session_uuid_and_sensor_name"
     t.index ["stream_id"], name: "index_threshold_alerts_on_stream_id"
@@ -208,8 +207,8 @@ ActiveRecord::Schema.define(version: 2025_04_03_122255) do
     t.float "threshold_medium"
     t.float "threshold_high"
     t.float "threshold_very_high"
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
     t.index ["sensor_name", "unit_symbol"], name: "index_threshold_sets_on_sensor_name_and_unit_symbol"
   end
 
@@ -217,22 +216,22 @@ ActiveRecord::Schema.define(version: 2025_04_03_122255) do
     t.string "email", default: "", null: false
     t.string "encrypted_password", limit: 128, default: "", null: false
     t.string "reset_password_token"
-    t.datetime "reset_password_sent_at"
-    t.datetime "remember_created_at"
+    t.datetime "reset_password_sent_at", precision: nil
+    t.datetime "remember_created_at", precision: nil
     t.integer "sign_in_count", default: 0
-    t.datetime "current_sign_in_at"
-    t.datetime "last_sign_in_at"
+    t.datetime "current_sign_in_at", precision: nil
+    t.datetime "last_sign_in_at", precision: nil
     t.string "current_sign_in_ip"
     t.string "last_sign_in_ip"
     t.string "authentication_token"
-    t.datetime "created_at"
-    t.datetime "updated_at"
+    t.datetime "created_at", precision: nil
+    t.datetime "updated_at", precision: nil
     t.string "username"
     t.boolean "send_emails"
     t.boolean "admin", default: false
     t.boolean "session_stopped_alert", default: false
     t.string "deletion_confirmation_code"
-    t.datetime "deletion_code_valid_until"
+    t.datetime "deletion_code_valid_until", precision: nil
     t.index ["authentication_token"], name: "index_users_on_authentication_token", unique: true
     t.index ["email"], name: "index_users_on_email", unique: true
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
