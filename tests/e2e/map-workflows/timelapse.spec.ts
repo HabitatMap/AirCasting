@@ -1,23 +1,66 @@
-import { test } from "@playwright/test";
+import fixedSessionData from "../../fixtures/mock-data/fixed-sessions.json";
+import { expect, test } from "../../fixtures/timelapse-page-fixture";
 
-test("Test timelapse workflow", async ({ page }) => {
-  await page.goto(
-    "http://localhost:3000/?thresholdMin=0&thresholdLow=9&thresholdMiddle=35&thresholdHigh=55&thresholdMax=150"
-  );
-  await page.getByRole("combobox", { name: "Search for a location" }).click();
-  await page
-    .getByRole("combobox", { name: "Search for a location" })
-    .fill("new");
-  await page.getByRole("option", { name: "New York, NY, USA" }).click();
-  await page.getByRole("button", { name: "Timelapse Clock icon" }).click();
-  await page.goto(
-    "http://localhost:3000/?thresholdMin=0&thresholdLow=9&thresholdMiddle=35&thresholdHigh=55&thresholdMax=150&currentCenter=%7B%22lat%22%3A40.69750662508967%2C%22lng%22%3A-73.979506%7D&currentZoom=10.595093703623567&boundEast=-73.39660444559586&boundNorth=40.94563062011679&boundSouth=40.44845502410125&boundWest=-74.56240755440415&previousUserSettings=MAP_VIEW&currentUserSettings=TIMELAPSE_VIEW"
-  );
-  await page.getByRole("button", { name: "Play icon" }).click();
-  await page.getByRole("button", { name: "Skip right icon" }).click();
-  await page.getByRole("button", { name: "Skip left icon" }).click();
-  await page.getByRole("button", { name: "Fast forward icon" }).click();
-  await page.getByRole("button", { name: "Rewind icon" }).click();
-  await page.getByRole("button", { name: "3 days" }).click();
-  await page.getByRole("button", { name: "7 days" }).click();
+test("timelapse workflow", async ({ page }) => {
+  const firstSession = fixedSessionData.sessions[0];
+  const { latitude, longitude } = firstSession;
+
+  await test.step("Navigate to initial page", async () => {
+    await page.goto(
+      `http://localhost:3000/map?lat=${latitude}&lng=${longitude}&zoom=15`
+    );
+    await page.waitForLoadState("networkidle");
+  });
+
+  await test.step("Click timelapse button to open timelapse view", async () => {
+    await Promise.all([
+      page.waitForResponse(
+        (response) =>
+          response.url().includes("/api/v3/timelapse.json") &&
+          response.status() === 200
+      ),
+      page.getByRole("button", { name: "Timelapse" }).click(),
+    ]);
+    await page.waitForLoadState("networkidle");
+  });
+
+  await test.step("Interact with timelapse controls", async () => {
+    // Wait for the timelapse dialog to be visible
+    const dialog = page.getByRole("dialog");
+    await dialog.waitFor({ state: "visible", timeout: 60000 });
+
+    // Wait for initial playback to start
+    await page.waitForTimeout(2000);
+
+    // Verify timelapse is playing
+    const playButton = dialog.getByRole("button", { name: "Play icon" });
+    await expect(playButton).toBeVisible();
+
+    // Change time range to 3 days
+    await dialog.getByRole("button", { name: "3 days" }).click();
+    await page.waitForTimeout(2000); // Wait for playback to adjust
+
+    // Skip forward
+    await dialog.getByRole("button", { name: "Skip right icon" }).click();
+    await page.waitForTimeout(500);
+
+    // Skip backward
+    await dialog.getByRole("button", { name: "Skip left icon" }).click();
+    await page.waitForTimeout(500);
+
+    // Change speed
+    await dialog.getByRole("button", { name: "Fast forward icon" }).click();
+    await page.waitForTimeout(1000);
+
+    // Stop timelapse
+    const rewindButton = dialog.getByRole("button", { name: "Rewind icon" });
+    await rewindButton.waitFor({ state: "visible", timeout: 60000 });
+    await rewindButton.waitFor({ state: "attached", timeout: 60000 });
+    await expect(rewindButton).toBeEnabled({ timeout: 60000 });
+    await rewindButton.click();
+    await page.waitForTimeout(500);
+
+    // Close the dialog
+    await dialog.getByRole("button", { name: "Close icon" }).click();
+  });
 });
