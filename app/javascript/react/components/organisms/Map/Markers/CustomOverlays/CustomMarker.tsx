@@ -25,6 +25,7 @@ export class CustomMarker extends google.maps.OverlayView {
   private notesPopover: HTMLDivElement | null = null;
   private invisible: boolean = false;
   private initialSlide: number = 0;
+  private clickHandler: (() => void) | null = null;
 
   constructor(
     position: google.maps.LatLngLiteral,
@@ -83,14 +84,16 @@ export class CustomMarker extends google.maps.OverlayView {
       this.div.addEventListener("click", this.onClick);
     }
 
-    // Ensure only one popover is open at a time on marker click
+    // Store click handler for cleanup
+    this.clickHandler = () => {
+      const map = this.getMap && this.getMap();
+      if (map && map instanceof window.google.maps.Map) {
+        CustomMarker.closeAllPopovers(map);
+      }
+    };
+
     if (this.div) {
-      this.div.addEventListener("click", () => {
-        const map = this.getMap && this.getMap();
-        if (map && map instanceof window.google.maps.Map) {
-          CustomMarker.closeAllPopovers(map);
-        }
-      });
+      this.div.addEventListener("click", this.clickHandler);
     }
 
     if (this.pulsating && !this.invisible) {
@@ -103,63 +106,73 @@ export class CustomMarker extends google.maps.OverlayView {
     const initialSlide = state.popover.initialSlide;
 
     if (this.notes && this.notes.length > 0) {
-      const noteContainer = document.createElement("div");
-      noteContainer.setAttribute("data-note-container", "marker");
-      noteContainer.style.position = "absolute";
-      noteContainer.style.top = "-35px";
-      noteContainer.style.left = "0px";
-      noteContainer.style.zIndex = "1000";
-
-      const root = createRoot(noteContainer);
-      root.render(
-        <Provider store={store}>
-          <NotesPopover
-            notes={this.notes}
-            initialSlide={markerKey === openMarkerKey ? initialSlide : 0}
-            open={markerKey === openMarkerKey}
-            onOpen={() => {
-              const markerLat = this.position.lat();
-              const markerLng = this.position.lng();
-              const noteIndex = this.notes.findIndex(
-                (note) =>
-                  note.latitude === markerLat && note.longitude === markerLng
-              );
-              store.dispatch(
-                openPopover({
-                  markerKey,
-                  initialSlide: noteIndex >= 0 ? noteIndex : 0,
-                })
-              );
-            }}
-            onClose={() => store.dispatch(closePopover())}
-            onSlideChange={(note, index) => {
-              const newKey = `${note.latitude},${note.longitude}`;
-              if (newKey !== markerKey) {
-                store.dispatch(
-                  openPopover({ markerKey: newKey, initialSlide: index })
-                );
-              }
-            }}
-          />
-        </Provider>
-      );
-
-      this.div.appendChild(noteContainer);
-      this.noteContainers.set("marker", root);
-
-      // Register this marker for global lookup
-      const map = this.getMap();
-      if (map) {
-        if (!(map as any).__customMarkers) {
-          (map as any).__customMarkers = new Set();
-        }
-        (map as any).__customMarkers.add(this);
-      }
+      this.createNoteContainer(markerKey, openMarkerKey || "", initialSlide);
     }
 
     const panes = this.getPanes();
     const pane = panes ? panes[this.paneName] : null;
     pane && pane.appendChild(this.div);
+  }
+
+  private createNoteContainer(
+    markerKey: string,
+    openMarkerKey: string,
+    initialSlide: number
+  ) {
+    if (!this.div) return;
+
+    const noteContainer = document.createElement("div");
+    noteContainer.setAttribute("data-note-container", "marker");
+    noteContainer.style.position = "absolute";
+    noteContainer.style.top = "-35px";
+    noteContainer.style.left = "0px";
+    noteContainer.style.zIndex = "1000";
+
+    const root = createRoot(noteContainer);
+    root.render(
+      <Provider store={store}>
+        <NotesPopover
+          notes={this.notes}
+          initialSlide={markerKey === openMarkerKey ? initialSlide : 0}
+          open={markerKey === openMarkerKey}
+          onOpen={() => {
+            const markerLat = this.position.lat();
+            const markerLng = this.position.lng();
+            const noteIndex = this.notes.findIndex(
+              (note) =>
+                note.latitude === markerLat && note.longitude === markerLng
+            );
+            store.dispatch(
+              openPopover({
+                markerKey,
+                initialSlide: noteIndex >= 0 ? noteIndex : 0,
+              })
+            );
+          }}
+          onClose={() => store.dispatch(closePopover())}
+          onSlideChange={(note, index) => {
+            const newKey = `${note.latitude},${note.longitude}`;
+            if (newKey !== markerKey) {
+              store.dispatch(
+                openPopover({ markerKey: newKey, initialSlide: index })
+              );
+            }
+          }}
+        />
+      </Provider>
+    );
+
+    this.div.appendChild(noteContainer);
+    this.noteContainers.set("marker", root);
+
+    // Register this marker for global lookup
+    const map = this.getMap();
+    if (map) {
+      if (!(map as any).__customMarkers) {
+        (map as any).__customMarkers = new Set();
+      }
+      (map as any).__customMarkers.add(this);
+    }
   }
 
   draw() {
@@ -188,31 +201,43 @@ export class CustomMarker extends google.maps.OverlayView {
   }
 
   onRemove() {
-    setTimeout(() => {
-      // Deregister from global lookup
-      const map = this.getMap();
-      if (map && (map as any).__customMarkers) {
-        (map as any).__customMarkers.delete(this);
-      }
+    // Deregister from global lookup
+    const map = this.getMap();
+    if (map && (map as any).__customMarkers) {
+      (map as any).__customMarkers.delete(this);
+    }
 
-      if (this.div) {
-        if (this.onClick) {
-          this.div.removeEventListener("click", this.onClick);
-        }
-        this.div.parentNode?.removeChild(this.div);
-        this.div = null;
+    if (this.div) {
+      if (this.onClick) {
+        this.div.removeEventListener("click", this.onClick);
       }
+      if (this.clickHandler) {
+        this.div.removeEventListener("click", this.clickHandler);
+      }
+      this.div.parentNode?.removeChild(this.div);
+      this.div = null;
+    }
 
-      // Clean up note containers
-      this.noteContainers.forEach((root) => {
-        try {
-          Promise.resolve().then(() => root.unmount());
-        } catch (e) {
-          console.warn("Error unmounting note container:", e);
-        }
-      });
-      this.noteContainers.clear();
-    }, 0);
+    // Clean up React roots
+    if (this.root) {
+      this.root.unmount();
+      this.root = undefined;
+    }
+
+    // Clean up note containers
+    this.noteContainers.forEach((root) => {
+      try {
+        root.unmount();
+      } catch (e) {
+        console.warn("Error unmounting note container:", e);
+      }
+    });
+    this.noteContainers.clear();
+
+    if (this.notesPopover) {
+      this.notesPopover.remove();
+      this.notesPopover = null;
+    }
   }
 
   setPosition(position: google.maps.LatLngLiteral | google.maps.LatLng) {
@@ -306,72 +331,37 @@ export class CustomMarker extends google.maps.OverlayView {
     this.notes = notes;
     this.initialSlide = initialSlide;
 
-    // Schedule cleanup and update for next tick
-    setTimeout(() => {
-      // Clean up existing note containers
-      this.noteContainers.forEach((root) => {
-        try {
-          Promise.resolve().then(() => root.unmount());
-        } catch (e) {
-          console.warn("Error unmounting note container:", e);
-        }
-      });
-      this.noteContainers.clear();
-
-      // Only add new note container if there are notes at this marker's position
-      if (this.notes && this.notes.length > 0 && this.div) {
-        const noteContainer = document.createElement("div");
-        noteContainer.setAttribute("data-note-container", "marker");
-        noteContainer.style.position = "absolute";
-        noteContainer.style.top = "-35px";
-        noteContainer.style.left = "0px";
-        noteContainer.style.zIndex = "1000";
-
-        const markerKey = `${this.position.lat()},${this.position.lng()}`;
-        const state = store.getState();
-        const openMarkerKey = state.popover.openMarkerKey;
-        const reduxInitialSlide = state.popover.initialSlide;
-
-        const root = createRoot(noteContainer);
-        root.render(
-          <Provider store={store}>
-            <NotesPopover
-              notes={this.notes}
-              initialSlide={markerKey === openMarkerKey ? reduxInitialSlide : 0}
-              open={markerKey === openMarkerKey}
-              onOpen={() => {
-                const markerLat = this.position.lat();
-                const markerLng = this.position.lng();
-                const noteIndex = this.notes.findIndex(
-                  (note) =>
-                    note.latitude === markerLat && note.longitude === markerLng
-                );
-                store.dispatch(
-                  openPopover({
-                    markerKey,
-                    initialSlide: noteIndex >= 0 ? noteIndex : 0,
-                  })
-                );
-              }}
-              onClose={() => store.dispatch(closePopover())}
-              onSlideChange={(note, index) => {
-                const newKey = `${note.latitude},${note.longitude}`;
-                if (newKey !== markerKey) {
-                  store.dispatch(
-                    openPopover({ markerKey: newKey, initialSlide: index })
-                  );
-                }
-              }}
-            />
-          </Provider>
-        );
-
-        this.div.appendChild(noteContainer);
-        this.noteContainers.set("marker", root);
+    // Clean up existing note containers immediately
+    this.noteContainers.forEach((root) => {
+      try {
+        root.unmount();
+      } catch (e) {
+        console.warn("Error unmounting note container:", e);
       }
+    });
+    this.noteContainers.clear();
 
-      this.draw();
-    }, 0);
+    // Remove existing note elements
+    if (this.div) {
+      const noteElements = this.div.querySelectorAll("[data-note-container]");
+      noteElements.forEach((el) => el.remove());
+    }
+
+    // Only add new note container if there are notes at this marker's position
+    if (this.notes && this.notes.length > 0 && this.div) {
+      const markerKey = `${this.position.lat()},${this.position.lng()}`;
+      const state = store.getState();
+      const openMarkerKey = state.popover.openMarkerKey;
+      const reduxInitialSlide = state.popover.initialSlide;
+
+      this.createNoteContainer(
+        markerKey,
+        openMarkerKey || "",
+        reduxInitialSlide
+      );
+    }
+
+    this.draw();
   }
 
   clearNotes() {
@@ -395,22 +385,7 @@ export class CustomMarker extends google.maps.OverlayView {
 
   cleanup() {
     this.setMap(null);
-
-    // Batch cleanup operations
-    if (this.div) {
-      if (this.onClick) {
-        this.div.removeEventListener("click", this.onClick);
-      }
-
-      // Clear notes first
-      this.clearNotes();
-
-      // Remove main div
-      if (this.div.parentNode) {
-        this.div.parentNode.removeChild(this.div);
-      }
-      this.div = null;
-    }
+    this.onRemove();
   }
 
   static closeAllPopovers(map: google.maps.Map | null) {
