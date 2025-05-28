@@ -54,12 +54,11 @@ module Api
     private
 
     def session_json(session)
+      note_serializer = NoteSerializer.new
+
       {
         location: short_session_url(session, host: A9n.host_),
-        notes:
-          session.notes.map do |note|
-            { number: note.number, photo_location: photo_location(note) }
-          end,
+        notes: session.notes.map { |note| note_serializer.call(note: note) },
       }
     end
   end

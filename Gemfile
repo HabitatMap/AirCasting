@@ -25,7 +25,6 @@ gem 'image_processing', '~> 1.2'
 gem 'jsbundling-rails'
 gem 'newrelic_rpm'
 gem 'oj'
-gem 'paperclip'
 gem 'pg'
 gem 'progress', require: false
 gem 'pry-rails'

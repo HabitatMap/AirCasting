@@ -10,28 +10,4 @@ class Note < ApplicationRecord
   validates :session, presence: true
 
   has_one_attached :s3_photo
-
-  def as_json(opts = nil)
-    result = super(opts)
-
-    result.merge({ photo: photo_url, photo_thumbnail: photo_thumbnail_url })
-  end
-
-  def photo_url
-    if s3_photo.attached?
-      Rails.application.routes.url_helpers.rails_blob_url(
-        s3_photo,
-        only_path: true,
-      )
-    end
-  end
-
-  def photo_thumbnail_url
-    if s3_photo.attached?
-      Rails.application.routes.url_helpers.rails_representation_url(
-        s3_photo.variant(resize_to_limit: [100, 100]).processed,
-        only_path: true,
-      )
-    end
-  end
 end
