@@ -1,4 +1,8 @@
 class MeasurementsRepository
+  def import(measurements:)
+    Measurement.import(measurements)
+  end
+
   def last_2_days(stream_id:)
     last_measurement_time =
       Measurement.where(stream_id: stream_id).reorder(time: :desc).first.time
