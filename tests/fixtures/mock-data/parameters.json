@@ -1,0 +1,53 @@
+{
+  "parameters": [
+    {
+      "id": "pm",
+      "name": "Particulate Matter",
+      "sensors": [
+        {
+          "id": "gov-pm25",
+          "name": "Government-PM2.5",
+          "unit_symbol": "µg/m³"
+        },
+        {
+          "id": "airbeam-pm25",
+          "name": "AirBeam-PM2.5",
+          "unit_symbol": "µg/m³"
+        }
+      ]
+    },
+    {
+      "id": "humidity",
+      "name": "Humidity",
+      "sensors": [
+        {
+          "id": "gov-humidity",
+          "name": "Government-Humidity",
+          "unit_symbol": "%"
+        }
+      ]
+    },
+    {
+      "id": "no2",
+      "name": "Nitrogen Dioxide",
+      "sensors": [
+        {
+          "id": "gov-no2",
+          "name": "Government-NO2",
+          "unit_symbol": "ppb"
+        }
+      ]
+    },
+    {
+      "id": "temperature",
+      "name": "Temperature",
+      "sensors": [
+        {
+          "id": "gov-temp",
+          "name": "Government-Temperature",
+          "unit_symbol": "°C"
+        }
+      ]
+    }
+  ]
+}
