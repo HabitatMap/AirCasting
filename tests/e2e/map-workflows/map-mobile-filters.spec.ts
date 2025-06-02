@@ -1,14 +1,49 @@
 import { test } from "@playwright/test";
 import { test as mapPageTest } from "../../fixtures/map-page-fixture";
+import mobileSessionData from "../../fixtures/mock-data/mobile-session-data.json";
 
 test.describe("Map Mobile Filters Workflow", () => {
   mapPageTest(
     "should handle all filter interactions correctly",
     async ({ mapPage }) => {
       await test.step("Navigate to initial page", async () => {
-        await mapPage.goto(
-          "http://localhost:3000/?thresholdMin=0&thresholdLow=9&thresholdMiddle=35&thresholdHigh=55&thresholdMax=150"
-        );
+        const queryParams = new URLSearchParams({
+          thresholdMin: mobileSessionData.stream.min.toString(),
+          thresholdLow: mobileSessionData.stream.low.toString(),
+          thresholdMiddle: mobileSessionData.stream.middle.toString(),
+          thresholdHigh: mobileSessionData.stream.high.toString(),
+          thresholdMax: mobileSessionData.stream.max.toString(),
+          sessionType: mobileSessionData.session.type,
+          previousUserSettings: "MAP_VIEW",
+          currentUserSettings: "MAP_VIEW",
+          sessionId: "",
+          streamId: "",
+          measurementType:
+            mobileSessionData.session.streams["AirBeamMini-PM2.5"]
+              .measurement_type,
+          sensorName:
+            mobileSessionData.session.streams["AirBeamMini-PM2.5"].sensor_name,
+          unitSymbol:
+            mobileSessionData.session.streams["AirBeamMini-PM2.5"].unit_symbol,
+          usernames: "",
+          tags: "",
+          isIndoor: "false",
+          isActive: "true",
+          timeFrom: "1735689600",
+          timeTo: "1767225599",
+          fetchedSessions: "100",
+          boundEast: "-67.59738290534534",
+          boundNorth: "48.63169261089525",
+          boundSouth: "23.481713124525914",
+          boundWest: "-123.84738290534534",
+          currentCenter: JSON.stringify({
+            lat: 37.08877211846209,
+            lng: -95.72238290534534,
+          }),
+          currentZoom: "5",
+        });
+
+        await mapPage.goto(`http://localhost:3000/?${queryParams.toString()}`);
       });
 
       await test.step("Switch to mobile view and select profile", async () => {
@@ -20,9 +55,43 @@ test.describe("Map Mobile Filters Workflow", () => {
       });
 
       await test.step("Navigate to mobile session view", async () => {
-        await mapPage.goto(
-          "http://localhost:3000/?thresholdMin=0&thresholdLow=9&thresholdMiddle=35&thresholdHigh=55&thresholdMax=150&sessionType=mobile&previousUserSettings=MAP_VIEW&currentUserSettings=MAP_VIEW&sessionId=&streamId=&measurementType=Particulate+Matter&sensorName=AirBeam-PM2.5&unitSymbol=%C2%B5g%2Fm%C2%B3&usernames=&tags=&isIndoor=false&isActive=true&timeFrom=1735689600&timeTo=1767225599&fetchedSessions=100&boundEast=-67.59738290534534&boundNorth=48.63169261089525&boundSouth=23.481713124525914&boundWest=-123.84738290534534&currentCenter=%7B%22lat%22%3A37.08877211846209%2C%22lng%22%3A-95.72238290534534%7D&currentZoom=5"
-        );
+        const queryParams = new URLSearchParams({
+          thresholdMin: mobileSessionData.stream.min.toString(),
+          thresholdLow: mobileSessionData.stream.low.toString(),
+          thresholdMiddle: mobileSessionData.stream.middle.toString(),
+          thresholdHigh: mobileSessionData.stream.high.toString(),
+          thresholdMax: mobileSessionData.stream.max.toString(),
+          sessionType: mobileSessionData.session.type,
+          previousUserSettings: "MAP_VIEW",
+          currentUserSettings: "MAP_VIEW",
+          sessionId: "",
+          streamId: "",
+          measurementType:
+            mobileSessionData.session.streams["AirBeamMini-PM2.5"]
+              .measurement_type,
+          sensorName:
+            mobileSessionData.session.streams["AirBeamMini-PM2.5"].sensor_name,
+          unitSymbol:
+            mobileSessionData.session.streams["AirBeamMini-PM2.5"].unit_symbol,
+          usernames: "",
+          tags: "",
+          isIndoor: "false",
+          isActive: "true",
+          timeFrom: "1735689600",
+          timeTo: "1767225599",
+          fetchedSessions: "100",
+          boundEast: "-67.59738290534534",
+          boundNorth: "48.63169261089525",
+          boundSouth: "23.481713124525914",
+          boundWest: "-123.84738290534534",
+          currentCenter: JSON.stringify({
+            lat: 37.08877211846209,
+            lng: -95.72238290534534,
+          }),
+          currentZoom: "5",
+        });
+
+        await mapPage.goto(`http://localhost:3000/?${queryParams.toString()}`);
       });
 
       await test.step("Select tag and toggle filters", async () => {
@@ -39,9 +108,43 @@ test.describe("Map Mobile Filters Workflow", () => {
       });
 
       await test.step("Navigate to crowd map view", async () => {
-        await mapPage.goto(
-          "http://localhost:3000/?thresholdMin=0&thresholdLow=9&thresholdMiddle=35&thresholdHigh=55&thresholdMax=150&sessionType=mobile&previousUserSettings=MAP_VIEW&currentUserSettings=CROWD_MAP_VIEW&sessionId=&streamId=&measurementType=Particulate+Matter&sensorName=AirBeam-PM2.5&unitSymbol=%C2%B5g%2Fm%C2%B3&usernames=&tags=&isIndoor=false&isActive=true&timeFrom=1735689600&timeTo=1767225599&fetchedSessions=100&boundEast=-67.59738290534534&boundNorth=48.63169261089525&boundSouth=23.481713124525914&boundWest=-123.84738290534534&currentCenter=%7B%22lat%22%3A37.08877211846209%2C%22lng%22%3A-95.72238290534534%7D&currentZoom=5"
-        );
+        const queryParams = new URLSearchParams({
+          thresholdMin: mobileSessionData.stream.min.toString(),
+          thresholdLow: mobileSessionData.stream.low.toString(),
+          thresholdMiddle: mobileSessionData.stream.middle.toString(),
+          thresholdHigh: mobileSessionData.stream.high.toString(),
+          thresholdMax: mobileSessionData.stream.max.toString(),
+          sessionType: mobileSessionData.session.type,
+          previousUserSettings: "MAP_VIEW",
+          currentUserSettings: "CROWD_MAP_VIEW",
+          sessionId: "",
+          streamId: "",
+          measurementType:
+            mobileSessionData.session.streams["AirBeamMini-PM2.5"]
+              .measurement_type,
+          sensorName:
+            mobileSessionData.session.streams["AirBeamMini-PM2.5"].sensor_name,
+          unitSymbol:
+            mobileSessionData.session.streams["AirBeamMini-PM2.5"].unit_symbol,
+          usernames: "",
+          tags: "",
+          isIndoor: "false",
+          isActive: "true",
+          timeFrom: "1735689600",
+          timeTo: "1767225599",
+          fetchedSessions: "100",
+          boundEast: "-67.59738290534534",
+          boundNorth: "48.63169261089525",
+          boundSouth: "23.481713124525914",
+          boundWest: "-123.84738290534534",
+          currentCenter: JSON.stringify({
+            lat: 37.08877211846209,
+            lng: -95.72238290534534,
+          }),
+          currentZoom: "5",
+        });
+
+        await mapPage.goto(`http://localhost:3000/?${queryParams.toString()}`);
       });
 
       await test.step("Select time range and toggle crowd map", async () => {
@@ -56,9 +159,44 @@ test.describe("Map Mobile Filters Workflow", () => {
       });
 
       await test.step("Navigate to map view with grid", async () => {
-        await mapPage.goto(
-          "http://localhost:3000/?thresholdMin=0&thresholdLow=9&thresholdMiddle=35&thresholdHigh=55&thresholdMax=150&sessionType=mobile&previousUserSettings=CROWD_MAP_VIEW&currentUserSettings=MAP_VIEW&sessionId=&streamId=&measurementType=Particulate+Matter&sensorName=AirBeam-PM2.5&unitSymbol=%C2%B5g%2Fm%C2%B3&usernames=&tags=&isIndoor=false&isActive=true&timeFrom=1672531200&timeTo=1704067199&fetchedSessions=100&boundEast=-67.59738290534534&boundNorth=48.63169261089525&boundSouth=23.481713124525914&boundWest=-123.84738290534534&currentCenter=%7B%22lat%22%3A37.08877211846209%2C%22lng%22%3A-95.72238290534534%7D&currentZoom=5&gridSize=11"
-        );
+        const queryParams = new URLSearchParams({
+          thresholdMin: mobileSessionData.stream.min.toString(),
+          thresholdLow: mobileSessionData.stream.low.toString(),
+          thresholdMiddle: mobileSessionData.stream.middle.toString(),
+          thresholdHigh: mobileSessionData.stream.high.toString(),
+          thresholdMax: mobileSessionData.stream.max.toString(),
+          sessionType: mobileSessionData.session.type,
+          previousUserSettings: "CROWD_MAP_VIEW",
+          currentUserSettings: "MAP_VIEW",
+          sessionId: "",
+          streamId: "",
+          measurementType:
+            mobileSessionData.session.streams["AirBeamMini-PM2.5"]
+              .measurement_type,
+          sensorName:
+            mobileSessionData.session.streams["AirBeamMini-PM2.5"].sensor_name,
+          unitSymbol:
+            mobileSessionData.session.streams["AirBeamMini-PM2.5"].unit_symbol,
+          usernames: "",
+          tags: "",
+          isIndoor: "false",
+          isActive: "true",
+          timeFrom: "1672531200",
+          timeTo: "1704067199",
+          fetchedSessions: "100",
+          boundEast: "-67.59738290534534",
+          boundNorth: "48.63169261089525",
+          boundSouth: "23.481713124525914",
+          boundWest: "-123.84738290534534",
+          currentCenter: JSON.stringify({
+            lat: 37.08877211846209,
+            lng: -95.72238290534534,
+          }),
+          currentZoom: "5",
+          gridSize: "11",
+        });
+
+        await mapPage.goto(`http://localhost:3000/?${queryParams.toString()}`);
       });
 
       await test.step(
