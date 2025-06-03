@@ -1,3 +1,4 @@
+import { Response } from "@playwright/test";
 import fixedSessionData from "../../fixtures/mock-data/fixed-sessions.json";
 import { expect, test } from "../../fixtures/timelapse-page-fixture";
 
@@ -15,7 +16,7 @@ test("timelapse workflow", async ({ page }) => {
   await test.step("Click timelapse button to open timelapse view", async () => {
     await Promise.all([
       page.waitForResponse(
-        (response) =>
+        (response: Response) =>
           response.url().includes("/api/v3/timelapse.json") &&
           response.status() === 200
       ),

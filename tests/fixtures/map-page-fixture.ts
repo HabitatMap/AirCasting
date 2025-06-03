@@ -1,9 +1,10 @@
-import { test as base } from "@playwright/test";
+import { test as base, Route } from "@playwright/test";
 import { MockUtils } from "../helpers/mock-utils";
 import { MapPage } from "../pages/map-page";
 import dormantSessionsData from "./mock-data/dormant-sessions.json";
 import fixedSessionData from "./mock-data/fixed-session-data.json";
 import fixedSessionsData from "./mock-data/fixed-sessions.json";
+import mobileSessionData from "./mock-data/mobile-session-data.json";
 import parametersData from "./mock-data/parameters.json";
 import profilesData from "./mock-data/profiles.json";
 import sensorsData from "./mock-data/sensors.json";
@@ -211,6 +212,127 @@ export const test = base.extend<MapPageFixtures>({
         body: JSON.stringify(dormantSessionsData),
       });
     });
+
+    // Mock mobile sessions endpoint
+    await page.route("**/api/mobile/sessions.json*", async (route) => {
+      console.log("[MOCK] Using mock data for /api/mobile/sessions.json");
+      await route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: JSON.stringify({
+          sessions: [mobileSessionData.session],
+          fetchableSessionsCount: 1588,
+        }),
+      });
+    });
+
+    // Mock /api/averages2.json endpoint
+    await page.route("**/api/averages2.json*", async (route: Route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: JSON.stringify([
+          {
+            value: 6.162962962962963,
+            west: -94.84244791666667,
+            east: -94.46831597222221,
+            south: 38.52315566126471,
+            north: 38.813896458708214,
+          },
+          {
+            value: 6.825525040387722,
+            west: -88.48220486111111,
+            east: -88.10807291666666,
+            south: 42.01204523058679,
+            north: 42.3027860280303,
+          },
+          {
+            value: 1.6754555198285102,
+            west: -88.48220486111111,
+            east: -88.10807291666666,
+            south: 42.302786028030305,
+            north: 42.59352682547381,
+          },
+          {
+            value: 4.469683050068902,
+            west: -88.10807291666667,
+            east: -87.73394097222221,
+            south: 41.72130443314329,
+            north: 42.01204523058679,
+          },
+          {
+            value: 7.0339248434238,
+            west: -88.10807291666667,
+            east: -87.73394097222221,
+            south: 42.01204523058679,
+            north: 42.3027860280303,
+          },
+          {
+            value: 0.0,
+            west: -88.10807291666667,
+            east: -87.73394097222221,
+            south: 42.302786028030305,
+            north: 42.59352682547381,
+          },
+          {
+            value: 3.726023359493018,
+            west: -88.10807291666667,
+            east: -87.73394097222221,
+            south: 42.88426762291732,
+            north: 43.175008420360825,
+          },
+          {
+            value: 252.266658205356,
+            west: -87.73394097222223,
+            east: -87.35980902777777,
+            south: 37.94167406637769,
+            north: 38.2324148638212,
+          },
+          {
+            value: 4.489980111276151,
+            west: -87.73394097222223,
+            east: -87.35980902777777,
+            south: 41.72130443314329,
+            north: 42.01204523058679,
+          },
+          {
+            value: 9.252805912948261,
+            west: -84.74088541666667,
+            east: -84.36675347222221,
+            south: 39.104637256151726,
+            north: 39.39537805359523,
+          },
+        ]),
+      });
+    });
+
+    // Mock /api/mobile/autocomplete/tags endpoint
+    await page.route(
+      "**/api/mobile/autocomplete/tags*",
+      async (route: Route) => {
+        await route.fulfill({
+          status: 200,
+          contentType: "application/json",
+          body: JSON.stringify([
+            "A:",
+            "Airdata",
+            "amas",
+            "at",
+            "Avg:",
+            "blue",
+            "Canadian",
+            "cc70",
+            "chicken",
+            "dee8",
+            "diesel",
+            "forest",
+            "gr",
+            "Greenfield",
+            "GT",
+          ]),
+        });
+      }
+    );
 
     const mapPage = new MapPage(page);
     await use(mapPage);
