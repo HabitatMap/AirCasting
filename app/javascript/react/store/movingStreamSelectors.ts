@@ -87,25 +87,21 @@ const getMonthWeeksOfDailyAveragesFor = memoize(
     `${month.format("YYYY-MM")}-${JSON.stringify(streamDailyAverages)}`
 );
 
-const getVisibleMonthsData = memoize(
-  (
-    streamDailyAverages: MovingStreamDailyAverage[],
-    startDate: string,
-    endDate: string
-  ): MovingStreamDailyAverage[] => {
-    if (!streamDailyAverages || !startDate || !endDate) return [];
+const getVisibleMonthsData = (
+  streamDailyAverages: MovingStreamDailyAverage[],
+  startDate: string,
+  endDate: string
+): MovingStreamDailyAverage[] => {
+  if (!streamDailyAverages || !startDate || !endDate) return [];
 
-    const startMoment = moment(startDate, DateFormat.us).startOf("day");
-    const endMoment = moment(endDate, DateFormat.us).endOf("day");
+  const startMoment = moment(startDate, DateFormat.us).startOf("day");
+  const endMoment = moment(endDate, DateFormat.us).endOf("day");
 
-    return streamDailyAverages.filter((average) => {
-      const dateMoment = moment(average.date, DateFormat.default);
-      return dateMoment.isBetween(startMoment, endMoment, "day", "[]");
-    });
-  },
-  (streamDailyAverages, startDate, endDate) =>
-    `${startDate}-${endDate}-${streamDailyAverages.length}`
-);
+  return streamDailyAverages.filter((average) => {
+    const dateMoment = moment(average.date, DateFormat.default);
+    return dateMoment.isBetween(startMoment, endMoment, "day", "[]");
+  });
+};
 
 const _selectMovingCalendarData = (
   state: RootState
