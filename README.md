@@ -118,3 +118,28 @@ YourKit is kindly supporting open source projects with its full-featured Java Pr
 ## License
 
 The project is licensed under the GNU Affero GPLv3. For more information see COPYING and visit [http://www.gnu.org/licenses/agpl.html](http://www.gnu.org/licenses/agpl.html).
+
+## Frontend Tests
+
+We use two types of frontend tests:
+
+### Unit Tests
+
+- **Frameworks:** [Jest](https://jestjs.io/) and [React Testing Library (RTL)](https://testing-library.com/docs/react-testing-library/intro/)
+- **How to run:**
+  ```bash
+  yarn test
+  ```
+- **Docs:**
+  - [Jest Documentation](https://jestjs.io/docs/getting-started)
+  - [React Testing Library Documentation](https://testing-library.com/docs/)
+
+### End-to-End (E2E) Tests
+
+- **Framework:** [Playwright](https://playwright.dev/)
+- **How to run:**
+  ```bash
+  yarn playwright test
+  ```
+- **Docs:**
+  - [Playwright Documentation](https://playwright.dev/docs/intro)
