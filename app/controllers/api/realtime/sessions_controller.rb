@@ -19,7 +19,7 @@ module Api
       def sync_measurements
         session = FixedSession.find_by_uuid(params[:uuid]) or raise NotFound
         last_measurement_sync =
-          URI.decode(params[:last_measurement_sync]).to_datetime
+          CGI.unescape(params[:last_measurement_sync]).to_datetime
         stream_measurements = true
 
         response =
@@ -52,12 +52,10 @@ module Api
       private
 
       def session_json(session)
+        note_serializer = NoteSerializer.new
         {
           location: short_session_url(session, host: A9n.host_),
-          notes:
-            session.notes.map do |note|
-              { number: note.number, photo_location: photo_location(note) }
-            end,
+          notes: session.notes.map { |note| note_serializer.call(note: note) },
         }
       end
     end

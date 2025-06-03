@@ -179,17 +179,14 @@ describe MobileSession do
   end
 
   describe '#sync' do
-    let(:session) { FactoryBot.create(:mobile_session) }
-    let!(:note) { FactoryBot.create(:note, session: session) }
-    let(:data) { { tag_list: 'some tag or other', notes: [] } }
+    it 'should normalize tags and delete notes' do
+      session = create(:mobile_session)
+      note = create(:note, session: session)
+      data = { tag_list: 'some tag or other', notes: [], streams_to_delete: [] }
 
-    before { session.reload.sync(data) }
+      session.sync(data)
 
-    it 'should normalize tags' do
       expect(session.reload.tags.count).to eq(4)
-    end
-
-    it 'should delete notes' do
       expect(Note.exists?(note.id)).to be(false)
     end
   end

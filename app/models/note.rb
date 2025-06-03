@@ -9,53 +9,5 @@ class Note < ApplicationRecord
   validates :longitude, presence: true
   validates :session, presence: true
 
-  has_attached_file :photo,
-                    {
-                      styles: {
-                        thumbnail: '100x100',
-                        medium: '600x600',
-                      },
-                      url: '/system/:hash.:extension',
-                      path: ':rails_root/public/system/:hash.:extension',
-                      hash_secret: A9n.attachment_secret,
-                    }
-  do_not_validate_attachment_file_type :photo
-
   has_one_attached :s3_photo
-
-  def photo_exists?
-    File.exists?(File.join(Rails.root, 'public', photo.to_s.split('?').first))
-  end
-
-  def as_json(opts = nil)
-    result = super(opts)
-
-    result.merge({ photo: photo_url, photo_thumbnail: photo_thumbnail_url })
-  end
-
-  def photo_url
-    if s3_photo.attached?
-      Rails.application.routes.url_helpers.rails_blob_url(
-        s3_photo,
-        only_path: true,
-      )
-    elsif photo_exists?
-      photo.url(:medium)
-    else
-      nil
-    end
-  end
-
-  def photo_thumbnail_url
-    if s3_photo.attached?
-      Rails.application.routes.url_helpers.rails_representation_url(
-        s3_photo.variant(resize_to_limit: [100, 100]).processed,
-        only_path: true,
-      )
-    elsif photo_exists?
-      photo.url(:thumbnail)
-    else
-      nil
-    end
-  end
 end

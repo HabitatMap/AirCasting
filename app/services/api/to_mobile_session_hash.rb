@@ -1,5 +1,6 @@
 class Api::ToMobileSessionHash
-  def initialize(stream:)
+  def initialize(note_serializer: NoteSerializer.new, stream:)
+    @note_serializer = note_serializer
     @stream = stream
   end
 
@@ -21,13 +22,13 @@ class Api::ToMobileSessionHash
       minLongitude: stream.min_longitude,
       startLatitude: stream.start_latitude,
       startLongitude: stream.start_longitude,
-      notes: notes.map(&:as_json),
+      notes: notes.map { |note| note_serializer.call(note: note) },
     }
   end
 
   private
 
-  attr_reader :stream
+  attr_reader :note_serializer, :stream
 
   def session
     @session ||= stream.session
@@ -53,7 +54,7 @@ class Api::ToMobileSessionHash
               value: record_fields[0],
               time: format_time(record_fields[1]),
               longitude: record_fields[2],
-              latitude: record_fields[3]
+              latitude: record_fields[3],
             }
           end
       end
