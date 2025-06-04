@@ -1,5 +1,5 @@
 import { test } from "../../fixtures/map-page-fixture";
-import fixedSessionData from "../../fixtures/mock-data/fixed-session-data.json";
+import fixedSessionData from "../../mock-data/fixed-session-data.json";
 
 test.describe("Fixed Session Management Tests", () => {
   test("should handle session management actions", async ({ mapPage }) => {

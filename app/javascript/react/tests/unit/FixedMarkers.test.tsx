@@ -1,8 +1,8 @@
 import { act } from "@testing-library/react";
 import React from "react";
-import { testRenderer } from "../../../../setupTests";
-import { FixedSession } from "../../../../types/sessionType";
-import { FixedMarkers } from "./FixedMarkers";
+import { FixedMarkers } from "../../components/organisms/Map/Markers/FixedMarkers";
+import { testRenderer } from "../../setupTests";
+import { FixedSession } from "../../types/sessionType";
 
 // Types for mock objects
 type MockBounds = {
@@ -141,7 +141,7 @@ jest.mock("@vis.gl/react-google-maps", () => ({
 }));
 
 // Mock the store hooks
-jest.mock("../../../../store/hooks", () => ({
+jest.mock("../../store/hooks", () => ({
   useAppDispatch: () => jest.fn(),
   useAppSelector: jest.fn((selector) => ({
     cluster: { visible: false, clusterAverage: 0, clusterSize: 0 },
@@ -151,12 +151,12 @@ jest.mock("../../../../store/hooks", () => ({
 }));
 
 // Mock the selectors
-jest.mock("../../../../store/fixedStreamSelectors", () => ({
+jest.mock("../../store/fixedStreamSelectors", () => ({
   selectFixedStreamData: jest.fn(),
   selectFixedStreamStatus: jest.fn(),
 }));
 
-jest.mock("../../../../utils/mapParamsHandler", () => ({
+jest.mock("../../utils/mapParamsHandler", () => ({
   useMapParams: () => ({
     unitSymbol: "µg/m³",
     currentUserSettings: "map",
@@ -165,27 +165,30 @@ jest.mock("../../../../utils/mapParamsHandler", () => ({
   }),
 }));
 
-jest.mock("./CustomOverlays/CustomMarkerOverlay", () => {
-  const CustomMarkerOverlay = jest
-    .fn()
-    .mockImplementation((position, color, isSelected, shouldPulse) => ({
-      setMap: jest.fn(),
-      setShouldPulse: jest.fn(),
-      setIsSelected: jest.fn(),
-      setColor: jest.fn(),
-      update: jest.fn(),
-      position,
-      color,
-      isSelected,
-      shouldPulse,
-    }));
+jest.mock(
+  "../../components/organisms/Map/Markers/CustomOverlays/CustomMarkerOverlay",
+  () => {
+    const CustomMarkerOverlay = jest
+      .fn()
+      .mockImplementation((position, color, isSelected, shouldPulse) => ({
+        setMap: jest.fn(),
+        setShouldPulse: jest.fn(),
+        setIsSelected: jest.fn(),
+        setColor: jest.fn(),
+        update: jest.fn(),
+        position,
+        color,
+        isSelected,
+        shouldPulse,
+      }));
 
-  return {
-    __esModule: true,
-    default: CustomMarkerOverlay,
-    CustomMarkerOverlay,
-  };
-});
+    return {
+      __esModule: true,
+      default: CustomMarkerOverlay,
+      CustomMarkerOverlay,
+    };
+  }
+);
 
 jest.mock("@googlemaps/markerclusterer", () => {
   const mockClusterer = createMockClusterer();
@@ -195,7 +198,7 @@ jest.mock("@googlemaps/markerclusterer", () => {
   };
 });
 
-jest.mock("../../../../utils/mapEventListeners", () => ({
+jest.mock("../../utils/mapEventListeners", () => ({
   __esModule: true,
   default: () => ({
     clearListeners: jest.fn(),
@@ -203,27 +206,30 @@ jest.mock("../../../../utils/mapEventListeners", () => ({
 }));
 
 // Mock LabelOverlay
-jest.mock("./CustomOverlays/customMarkerLabel", () => {
-  const LabelOverlay = jest
-    .fn()
-    .mockImplementation(
-      (position, color, value, unitSymbol, isSelected, onClick) => ({
-        setMap: jest.fn(),
-        update: jest.fn(),
-        position,
-        color,
-        value,
-        unitSymbol,
-        isSelected,
-        onClick,
-      })
-    );
-  return {
-    __esModule: true,
-    default: LabelOverlay,
-    LabelOverlay,
-  };
-});
+jest.mock(
+  "../../components/organisms/Map/Markers/CustomOverlays/customMarkerLabel",
+  () => {
+    const LabelOverlay = jest
+      .fn()
+      .mockImplementation(
+        (position, color, value, unitSymbol, isSelected, onClick) => ({
+          setMap: jest.fn(),
+          update: jest.fn(),
+          position,
+          color,
+          value,
+          unitSymbol,
+          isSelected,
+          onClick,
+        })
+      );
+    return {
+      __esModule: true,
+      default: LabelOverlay,
+      LabelOverlay,
+    };
+  }
+);
 
 describe("FixedMarkers", () => {
   const mockSessions: FixedSession[] = [
@@ -375,11 +381,10 @@ describe("FixedMarkers", () => {
       );
 
       jest
-        .spyOn(require("../../../../store/hooks"), "useAppSelector")
+        .spyOn(require("../../store/hooks"), "useAppSelector")
         .mockImplementation((selector) => {
           if (
-            selector ===
-            require("../../../../store/thresholdSlice").selectThresholds
+            selector === require("../../store/thresholdSlice").selectThresholds
           ) {
             return { low: 30, middle: 60, high: 90, min: 0, max: 100 };
           }
@@ -692,7 +697,7 @@ describe("FixedMarkers", () => {
     );
 
     const LabelOverlay =
-      require("./CustomOverlays/customMarkerLabel").LabelOverlay;
+      require("../../components/organisms/Map/Markers/CustomOverlays/customMarkerLabel").LabelOverlay;
     const labelCalls = LabelOverlay.mock.calls;
 
     mockSessions.forEach((session, index) => {
@@ -713,7 +718,7 @@ describe("FixedMarkers", () => {
     );
 
     const LabelOverlay =
-      require("./CustomOverlays/customMarkerLabel").LabelOverlay;
+      require("../../components/organisms/Map/Markers/CustomOverlays/customMarkerLabel").LabelOverlay;
     const labelCalls = LabelOverlay.mock.calls;
 
     // First session value (50) should be in middle range (50-100)

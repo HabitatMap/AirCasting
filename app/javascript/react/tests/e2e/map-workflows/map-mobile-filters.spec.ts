@@ -1,6 +1,6 @@
 import { test } from "@playwright/test";
 import { test as mapPageTest } from "../../fixtures/map-page-fixture";
-import mobileSessionData from "../../fixtures/mock-data/mobile-session-data.json";
+import mobileSessionData from "../../mock-data/mobile-session-data.json";
 
 test.describe("Map Mobile Filters Workflow", () => {
   mapPageTest(

@@ -1,5 +1,5 @@
 import { test } from "../../fixtures/mobile-page-fixture";
-import mobileSessionData from "../../fixtures/mock-data/mobile-session-data.json";
+import mobileSessionData from "../../mock-data/mobile-session-data.json";
 
 test("Test the mobile session managment workflow", async ({ page }) => {
   await test.step("Navigate to initial page", async () => {

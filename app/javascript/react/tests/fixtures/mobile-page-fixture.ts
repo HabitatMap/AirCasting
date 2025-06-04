@@ -1,8 +1,8 @@
 import { test as base, Page, Request, Route } from "@playwright/test";
 import { MockUtils } from "../helpers/mock-utils";
-import mobileSessionData from "./mock-data/mobile-session-data.json";
-import profilesData from "./mock-data/profiles.json";
-import tagsData from "./mock-data/tags.json";
+import mobileSessionData from "../mock-data/mobile-session-data.json";
+import profilesData from "../mock-data/profiles.json";
+import tagsData from "../mock-data/tags.json";
 
 type MobilePageFixtures = {
   page: Page;

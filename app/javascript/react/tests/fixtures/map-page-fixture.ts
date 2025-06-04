@@ -1,15 +1,15 @@
 import { test as base, Route } from "@playwright/test";
 import { MockUtils } from "../helpers/mock-utils";
+import dormantSessionsData from "../mock-data/dormant-sessions.json";
+import fixedSessionData from "../mock-data/fixed-session-data.json";
+import fixedSessionsData from "../mock-data/fixed-sessions.json";
+import mobileSessionData from "../mock-data/mobile-session-data.json";
+import parametersData from "../mock-data/parameters.json";
+import profilesData from "../mock-data/profiles.json";
+import sensorsData from "../mock-data/sensors.json";
+import tagsData from "../mock-data/tags.json";
+import thresholdsData from "../mock-data/thresholds.json";
 import { MapPage } from "../pages/map-page";
-import dormantSessionsData from "./mock-data/dormant-sessions.json";
-import fixedSessionData from "./mock-data/fixed-session-data.json";
-import fixedSessionsData from "./mock-data/fixed-sessions.json";
-import mobileSessionData from "./mock-data/mobile-session-data.json";
-import parametersData from "./mock-data/parameters.json";
-import profilesData from "./mock-data/profiles.json";
-import sensorsData from "./mock-data/sensors.json";
-import tagsData from "./mock-data/tags.json";
-import thresholdsData from "./mock-data/thresholds.json";
 
 type MapPageFixtures = {
   mapPage: MapPage;

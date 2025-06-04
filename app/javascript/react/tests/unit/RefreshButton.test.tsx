@@ -1,9 +1,9 @@
 import "@testing-library/jest-dom";
 import { screen } from "@testing-library/react";
 import React from "react";
-import { renderWithProvider } from "../../../setupTests";
+import { renderWithProvider } from "../../setupTests";
 
-import { RefreshMapButton } from ".";
+import { RefreshMapButton } from "../../components/atoms/RefreshMapButton";
 
 // Mock the translation hook
 jest.mock("react-i18next", () => ({

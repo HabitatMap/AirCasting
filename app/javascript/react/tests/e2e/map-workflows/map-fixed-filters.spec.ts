@@ -1,6 +1,6 @@
 import { expect, test } from "../../fixtures/map-page-fixture";
-import fixedSessionData from "../../fixtures/mock-data/fixed-session-data.json";
-import profilesData from "../../fixtures/mock-data/profiles.json";
+import fixedSessionData from "../../mock-data/fixed-session-data.json";
+import profilesData from "../../mock-data/profiles.json";
 
 test.describe("Map Fixed Filters Workflow", () => {
   test("should handle all filter interactions correctly", async ({

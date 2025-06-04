@@ -1,11 +1,11 @@
 import { test as base, Page } from "@playwright/test";
 import { Action } from "@reduxjs/toolkit";
-import { RootState } from "../../app/javascript/react/store";
-import { createMockStore } from "../../app/javascript/react/test-utils/utils/mockStore";
-import { StatusEnum } from "../../app/javascript/react/types/api";
-import { FixedTimeRange } from "../../app/javascript/react/types/timeRange";
+import { RootState } from "../../store";
+import { StatusEnum } from "../../types/api";
+import { FixedTimeRange } from "../../types/timeRange";
 import { MockUtils } from "../helpers/mock-utils";
-import calendarData from "./mock-data/calendar-data.json";
+import calendarData from "../mock-data/calendar-data.json";
+import { createMockStore } from "../test-utils/mockStore";
 
 // Define a type for our store
 type MockReduxStore = {

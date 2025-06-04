@@ -1,6 +1,6 @@
 import { Response } from "@playwright/test";
-import fixedSessionData from "../../fixtures/mock-data/fixed-sessions.json";
 import { expect, test } from "../../fixtures/timelapse-page-fixture";
+import fixedSessionData from "../../mock-data/fixed-sessions.json";
 
 test("timelapse workflow", async ({ page }) => {
   const firstSession = fixedSessionData.sessions[0];

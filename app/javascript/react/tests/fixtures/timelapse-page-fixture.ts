@@ -1,7 +1,7 @@
 import { test as base, Request, Route } from "@playwright/test";
 import { MockUtils } from "../helpers/mock-utils";
-import fixedSessionData from "./mock-data/fixed-sessions.json";
-import timelapseSessionData from "./mock-data/timelapse-sessions.json";
+import fixedSessionData from "../mock-data/fixed-sessions.json";
+import timelapseSessionData from "../mock-data/timelapse-sessions.json";
 
 type TimelapsePageFixtures = {
   page: any;

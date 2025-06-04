@@ -17,10 +17,7 @@ export class MockUtils {
         if (url.includes("/mobile/sessions.json")) {
           const mockData = JSON.parse(
             fs.readFileSync(
-              path.join(
-                __dirname,
-                "../fixtures/mock-data/mobile-sessions.json"
-              ),
+              path.join(__dirname, "../mock-data/mobile-sessions.json"),
               "utf-8"
             )
           );
@@ -36,7 +33,7 @@ export class MockUtils {
         if (url.includes("/fixed/active/sessions2.json")) {
           const mockData = JSON.parse(
             fs.readFileSync(
-              path.join(__dirname, "../fixtures/mock-data/fixed-sessions.json"),
+              path.join(__dirname, "../mock-data/fixed-sessions.json"),
               "utf-8"
             )
           );
@@ -52,7 +49,7 @@ export class MockUtils {
         if (url.includes("/fixed/dormant/sessions.json")) {
           const mockData = JSON.parse(
             fs.readFileSync(
-              path.join(__dirname, "../fixtures/mock-data/fixed-sessions.json"),
+              path.join(__dirname, "../mock-data/fixed-sessions.json"),
               "utf-8"
             )
           );
@@ -141,7 +138,7 @@ export class MockUtils {
         if (url.includes("/sensors")) {
           const mockData = JSON.parse(
             fs.readFileSync(
-              path.join(__dirname, "../fixtures/mock-data/sensors.json"),
+              path.join(__dirname, "../mock-data/sensors.json"),
               "utf-8"
             )
           );
@@ -157,7 +154,7 @@ export class MockUtils {
         if (url.includes("/thresholds/")) {
           const mockData = JSON.parse(
             fs.readFileSync(
-              path.join(__dirname, "../fixtures/mock-data/thresholds.json"),
+              path.join(__dirname, "../mock-data/thresholds.json"),
               "utf-8"
             )
           );
@@ -192,7 +189,7 @@ export class MockUtils {
       console.log(`Intercepting parameters request: ${route.request().url()}`);
       const mockData = JSON.parse(
         fs.readFileSync(
-          path.join(__dirname, "../fixtures/mock-data/parameters.json"),
+          path.join(__dirname, "../mock-data/parameters.json"),
           "utf-8"
         )
       );

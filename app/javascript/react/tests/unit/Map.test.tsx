@@ -1,48 +1,93 @@
 import "@testing-library/jest-dom";
 import { screen } from "@testing-library/react";
 import React from "react";
-import {
-  MOCK_MAP_PARAMS,
-  MOCK_SESSION,
-} from "../../../../test-utils/mocks/mapMocks";
-import { MapWrapper } from "../../../../test-utils/utils/mapWrapper";
-import { renderWithProviders } from "../../../../test-utils/utils/renderWithProviders";
-import { StatusEnum } from "../../../../types/api";
-import { SessionTypes } from "../../../../types/filters";
-import { UserSettings } from "../../../../types/userStates";
-import { useMapParams } from "../../../../utils/mapParamsHandler";
-import useMobileDetection from "../../../../utils/useScreenSizeDetection";
+import { StatusEnum } from "../../types/api";
+import { SessionTypes } from "../../types/filters";
+import { UserSettings } from "../../types/userStates";
+import { useMapParams } from "../../utils/mapParamsHandler";
+import useMobileDetection from "../../utils/useScreenSizeDetection";
+import { createMockMapParams, MOCK_SESSION } from "../mock-data/mapMocks";
+import { MapWrapper } from "../test-utils/mapWrapper";
+import { renderWithProviders } from "../test-utils/renderWithProviders";
 
 jest.mock("@vis.gl/react-google-maps", () => ({
   Map: () => <div data-testid="google-map">Google Map</div>,
 }));
 
-jest.mock("../../../../utils/mapParamsHandler", () => ({
-  useMapParams: jest.fn().mockReturnValue(MOCK_MAP_PARAMS),
-  UrlParamsTypes: {
-    sessionId: "sessionId",
-    streamId: "streamId",
-    isActive: "isActive",
-    sessionType: "sessionType",
-    boundEast: "boundEast",
-    boundNorth: "boundNorth",
-    boundSouth: "boundSouth",
-    boundWest: "boundWest",
-    currentCenter: "currentCenter",
-    currentZoom: "currentZoom",
-    previousUserSettings: "previousUserSettings",
-    currentUserSettings: "currentUserSettings",
-    previousCenter: "previousCenter",
-    previousZoom: "previousZoom",
-    thresholdMin: "thresholdMin",
-    thresholdLow: "thresholdLow",
-    thresholdMiddle: "thresholdMiddle",
-    thresholdHigh: "thresholdHigh",
-    thresholdMax: "thresholdMax",
-  },
-}));
+jest.mock("../../utils/mapParamsHandler", () => {
+  const mockFn = () => jest.fn();
+  return {
+    useMapParams: jest.fn().mockReturnValue({
+      currentUserSettings: "MapView",
+      previousUserSettings: "MapView",
+      sessionType: "fixed",
+      isActive: true,
+      isIndoor: false,
+      currentCenter: { lat: 0, lng: 0 },
+      currentZoom: 10,
+      boundEast: 0,
+      boundNorth: 0,
+      boundSouth: 0,
+      boundWest: 0,
+      searchParams: new URLSearchParams(),
+      goToUserSettings: mockFn(),
+      revertUserSettingsAndResetIds: mockFn(),
+      unitSymbol: "µg/m³",
+      thresholdMin: "0",
+      thresholdLow: "25",
+      thresholdMiddle: "50",
+      thresholdHigh: "75",
+      thresholdMax: "100",
+      initialThresholds: {
+        min: 0,
+        low: 25,
+        middle: 50,
+        high: 75,
+        max: 100,
+      },
+      fetchedSessions: 0,
+      updateLimit: mockFn(),
+      updateOffset: mockFn(),
+      mapTypeId: "roadmap",
+      measurementType: "PM2.5",
+      offset: 0,
+      limit: 50,
+      previousCenter: { lat: 0, lng: 0 },
+      previousZoom: 10,
+      sensorName: "PM2.5",
+      sessionId: null,
+      streamId: null,
+      tags: "",
+      timeFrom: "",
+      timeTo: "",
+      updateFetchedSessions: mockFn(),
+      usernames: "",
+    }),
+    UrlParamsTypes: {
+      sessionId: "sessionId",
+      streamId: "streamId",
+      isActive: "isActive",
+      sessionType: "sessionType",
+      boundEast: "boundEast",
+      boundNorth: "boundNorth",
+      boundSouth: "boundSouth",
+      boundWest: "boundWest",
+      currentCenter: "currentCenter",
+      currentZoom: "currentZoom",
+      previousUserSettings: "previousUserSettings",
+      currentUserSettings: "currentUserSettings",
+      previousCenter: "previousCenter",
+      previousZoom: "previousZoom",
+      thresholdMin: "thresholdMin",
+      thresholdLow: "thresholdLow",
+      thresholdMiddle: "thresholdMiddle",
+      thresholdHigh: "thresholdHigh",
+      thresholdMax: "thresholdMax",
+    },
+  };
+});
 
-jest.mock("../../../../utils/useScreenSizeDetection", () => jest.fn());
+jest.mock("../../utils/useScreenSizeDetection", () => jest.fn());
 
 jest.mock("react-i18next", () => ({
   useTranslation: () => ({
@@ -57,20 +102,20 @@ jest.mock("react-i18next", () => ({
   },
 }));
 
-jest.mock("../../../organisms/Modals/SessionDetailsModal", () => ({
+jest.mock("../../components/organisms/Modals/SessionDetailsModal", () => ({
   SessionDetailsModal: () => (
     <div data-testid="session-details-modal">Session Details Modal</div>
   ),
 }));
 
-jest.mock("../../../organisms/Modals/TimelapseModal", () => ({
+jest.mock("../../components/organisms/Modals/TimelapseModal", () => ({
   TimelapseComponent: () => (
     <div data-testid="timelapse-component">Timelapse Component</div>
   ),
 }));
 
 jest.mock(
-  "../../../organisms/ThresholdConfigurator/ThresholdConfigurator",
+  "../../components/organisms/ThresholdConfigurator/ThresholdConfigurator",
   () => ({
     ThresholdsConfigurator: () => (
       <div data-testid="thresholds-configurator">Thresholds Configurator</div>
@@ -78,7 +123,7 @@ jest.mock(
   })
 );
 
-jest.mock("../../../../store/thresholdSlice", () => ({
+jest.mock("../../store/thresholdSlice", () => ({
   fetchThresholds: jest.fn(() => ({ type: "threshold/fetchThresholds" })),
   resetUserThresholds: jest.fn(() => ({
     type: "threshold/resetUserThresholds",
@@ -98,11 +143,11 @@ jest.mock("../../../../store/thresholdSlice", () => ({
   }),
 }));
 
-jest.mock("../../../../store/sensorsSlice", () => ({
+jest.mock("../../store/sensorsSlice", () => ({
   fetchSensors: jest.fn(() => ({ type: "sensors/fetchSensors" })),
 }));
 
-jest.mock("../../../../store/sessionFiltersSlice", () => ({
+jest.mock("../../store/sessionFiltersSlice", () => ({
   resetTags: jest.fn(() => ({ type: "sessionFilter/resetTags" })),
   selectFixedSessionsType: jest.fn().mockReturnValue("active"),
   selectIsDormantSessionsType: jest.fn().mockReturnValue(false),
@@ -116,7 +161,7 @@ jest.mock("../../../../store/sessionFiltersSlice", () => ({
   },
 }));
 
-jest.mock("../../../../store/fixedSessionsSlice", () => ({
+jest.mock("../../store/fixedSessionsSlice", () => ({
   cleanSessions: jest.fn(() => ({ type: "fixedSessions/cleanSessions" })),
   fetchActiveFixedSessions: jest.fn(() => ({
     type: "fixedSessions/fetchActiveFixedSessions",
@@ -128,14 +173,14 @@ jest.mock("../../../../store/fixedSessionsSlice", () => ({
   })),
 }));
 
-jest.mock("../../../../store/mobileSessionsSlice", () => ({
+jest.mock("../../store/mobileSessionsSlice", () => ({
   fetchMobileSessions: jest.fn(() => ({
     type: "mobileSessions/fetchMobileSessions",
     unwrap: () => Promise.resolve({ sessions: [] }),
   })),
 }));
 
-jest.mock("../../../../store/indoorSessionsSlice", () => ({
+jest.mock("../../store/indoorSessionsSlice", () => ({
   fetchActiveIndoorSessions: jest.fn(() => ({
     type: "indoorSessions/fetchActiveIndoorSessions",
     unwrap: () => Promise.resolve(),
@@ -146,7 +191,7 @@ jest.mock("../../../../store/indoorSessionsSlice", () => ({
   })),
 }));
 
-jest.mock("../../../../store/fixedStreamSlice", () => ({
+jest.mock("../../store/fixedStreamSlice", () => ({
   fetchFixedStreamById: jest.fn(() => ({
     type: "fixedStream/fetchFixedStreamById",
   })),
@@ -155,7 +200,7 @@ jest.mock("../../../../store/fixedStreamSlice", () => ({
   })),
 }));
 
-jest.mock("../../../../store/mobileStreamSlice", () => ({
+jest.mock("../../store/mobileStreamSlice", () => ({
   fetchMobileStreamById: jest.fn(() => ({
     type: "mobileStream/fetchMobileStreamById",
   })),
@@ -164,21 +209,21 @@ jest.mock("../../../../store/mobileStreamSlice", () => ({
   })),
 }));
 
-jest.mock("../../../../store/timelapseSlice", () => ({
+jest.mock("../../store/timelapseSlice", () => ({
   fetchTimelapseData: jest.fn(() => ({ type: "timelapse/fetchTimelapseData" })),
   setCurrentTimestamp: jest.fn(() => ({
     type: "timelapse/setCurrentTimestamp",
   })),
 }));
 
-jest.mock("../../../../store/mapSlice", () => ({
+jest.mock("../../store/mapSlice", () => ({
   selectFetchingData: jest.fn().mockReturnValue(false),
   setFetchingData: jest.fn(() => ({ type: "map/setFetchingData" })),
   selectHoverPosition: jest.fn().mockReturnValue(null),
   selectSessionsListExpanded: jest.fn().mockReturnValue(true),
 }));
 
-jest.mock("../../../../store/fixedSessionsSelectors", () => ({
+jest.mock("../../store/fixedSessionsSelectors", () => ({
   selectFixedSessionsList: jest.fn().mockReturnValue([
     {
       id: 1,
@@ -194,13 +239,13 @@ jest.mock("../../../../store/fixedSessionsSelectors", () => ({
   selectFixedSessionsStatusFulfilled: jest.fn().mockReturnValue(true),
 }));
 
-jest.mock("../../../../store/mobileSessionsSelectors", () => ({
+jest.mock("../../store/mobileSessionsSelectors", () => ({
   selectMobileSessionPointsBySessionId: jest.fn().mockReturnValue([]),
   selectMobileSessionsList: jest.fn().mockReturnValue([]),
   selectMobileSessionsPoints: jest.fn().mockReturnValue([]),
 }));
 
-jest.mock("../../../../store/mobileStreamSelectors", () => ({
+jest.mock("../../store/mobileStreamSelectors", () => ({
   selectMobileStreamPoints: jest.fn().mockReturnValue([]),
   selectMobileStreamData: jest.fn().mockReturnValue({
     stream: {
@@ -224,17 +269,17 @@ jest.mock("../../../../store/mobileStreamSelectors", () => ({
   selectMobileStreamStatus: jest.fn().mockReturnValue(StatusEnum.Fulfilled),
 }));
 
-jest.mock("../../../../store/timelapseSelectors", () => ({
+jest.mock("../../store/timelapseSelectors", () => ({
   selectCurrentTimestamp: jest.fn().mockReturnValue(""),
   selectTimelapseData: jest.fn().mockReturnValue({}),
   selectTimelapseIsLoading: jest.fn().mockReturnValue(false),
 }));
 
-jest.mock("../../../../store/fixedStreamSelectors", () => ({
+jest.mock("../../store/fixedStreamSelectors", () => ({
   selectFixedData: jest.fn().mockReturnValue({ measurements: [] }),
 }));
 
-jest.mock("../../../../store/markersLoadingSlice", () => ({
+jest.mock("../../store/markersLoadingSlice", () => ({
   selectMarkersLoading: jest.fn().mockReturnValue(false),
   setMarkersLoading: jest.fn(() => ({
     type: "markersLoading/setMarkersLoading",
@@ -242,7 +287,7 @@ jest.mock("../../../../store/markersLoadingSlice", () => ({
   setTotalMarkers: jest.fn(() => ({ type: "markersLoading/setTotalMarkers" })),
 }));
 
-jest.mock("../../../../store/indoorSessionsSelectors", () => {
+jest.mock("../../store/indoorSessionsSelectors", () => {
   const mockSessions = [
     {
       id: 1,
@@ -262,44 +307,47 @@ jest.mock("../../../../store/indoorSessionsSelectors", () => {
   };
 });
 
-jest.mock("../../../../utils/cookies", () => ({
+jest.mock("../../utils/cookies", () => ({
   set: jest.fn(),
   get: jest.fn().mockReturnValue("0"),
 }));
 
-jest.mock("../../../../utils/scrollEnd", () => ({
+jest.mock("../../utils/scrollEnd", () => ({
   useHandleScrollEnd: jest.fn().mockReturnValue(jest.fn()),
 }));
 
-jest.mock("../../../../store", () => ({
+jest.mock("../../store", () => ({
   selectIsLoading: jest.fn().mockReturnValue(false),
 }));
 
 // Mock the MobileSessionFilters component
-jest.mock("../../../molecules/SessionFilters/MobileSessionFilters", () => ({
-  MobileSessionFilters: () => {
-    const { sessionType } = useMapParams();
+jest.mock(
+  "../../components/molecules/SessionFilters/MobileSessionFilters",
+  () => ({
+    MobileSessionFilters: () => {
+      const { sessionType } = useMapParams();
 
-    return (
-      <div data-testid="mobile-filters">
-        {sessionType === "fixed" ? (
-          <>
-            <button data-testid="indoor-button" data-selected="true">
-              Indoor
-            </button>
-            <button data-testid="outdoor-button">Outdoor</button>
-          </>
-        ) : (
-          <div>Mobile Session Filters</div>
-        )}
-      </div>
-    );
-  },
-}));
+      return (
+        <div data-testid="mobile-filters">
+          {sessionType === "fixed" ? (
+            <>
+              <button data-testid="indoor-button" data-selected="true">
+                Indoor
+              </button>
+              <button data-testid="outdoor-button">Outdoor</button>
+            </>
+          ) : (
+            <div>Mobile Session Filters</div>
+          )}
+        </div>
+      );
+    },
+  })
+);
 
 // Mock the MobileSessionList component
 jest.mock(
-  "../../../molecules/SessionsListView/MobileSessionList/MobileSessionList",
+  "../../components/molecules/SessionsListView/MobileSessionList/MobileSessionList",
   () => ({
     MobileSessionList: () => (
       <div data-testid="mobile-session-list">
@@ -310,7 +358,7 @@ jest.mock(
 );
 
 // Mock the indoor overlay component
-jest.mock("../Map.style", () => ({
+jest.mock("../../components/organisms/Map/Map.style", () => ({
   ContainerStyle: {
     width: "100%",
     height: "100%",
@@ -363,7 +411,7 @@ jest.mock("../Map.style", () => ({
 describe("Map Component", () => {
   beforeEach(() => {
     jest.clearAllMocks();
-    (useMapParams as jest.Mock).mockReturnValue(MOCK_MAP_PARAMS);
+    (useMapParams as jest.Mock).mockReturnValue(createMockMapParams());
     (useMobileDetection as jest.Mock).mockReturnValue(false);
   });
 
@@ -386,7 +434,7 @@ describe("Map Component", () => {
   describe("View States", () => {
     it("should render SessionDetailsModal when in ModalView", () => {
       (useMapParams as jest.Mock).mockReturnValue({
-        ...MOCK_MAP_PARAMS,
+        ...createMockMapParams(),
         currentUserSettings: UserSettings.ModalView,
       });
       renderWithProviders(<MapWrapper disableEffects={true} />);
@@ -395,7 +443,7 @@ describe("Map Component", () => {
 
     it("should render TimelapseComponent when in TimelapseView", () => {
       (useMapParams as jest.Mock).mockReturnValue({
-        ...MOCK_MAP_PARAMS,
+        ...createMockMapParams(),
         currentUserSettings: UserSettings.TimelapseView,
       });
       renderWithProviders(<MapWrapper disableEffects={true} />);
@@ -418,7 +466,7 @@ describe("Map Component", () => {
 
     it("should render mobile session list when in SessionListView", () => {
       (useMapParams as jest.Mock).mockReturnValue({
-        ...MOCK_MAP_PARAMS,
+        ...createMockMapParams(),
         currentUserSettings: UserSettings.SessionListView,
       });
       renderWithProviders(<MapWrapper disableEffects={true} />);
@@ -429,7 +477,7 @@ describe("Map Component", () => {
   describe("Session Types", () => {
     it("should render fixed markers when fixed session type is selected", () => {
       (useMapParams as jest.Mock).mockReturnValue({
-        ...MOCK_MAP_PARAMS,
+        ...createMockMapParams(),
         sessionType: SessionTypes.FIXED,
         isActive: true,
       });
@@ -439,7 +487,7 @@ describe("Map Component", () => {
 
     it("should render mobile markers when mobile session type is selected", () => {
       (useMapParams as jest.Mock).mockReturnValue({
-        ...MOCK_MAP_PARAMS,
+        ...createMockMapParams(),
         sessionType: SessionTypes.MOBILE,
       });
       renderWithProviders(<MapWrapper disableEffects={true} />);
@@ -449,7 +497,7 @@ describe("Map Component", () => {
 
   describe("Edge Cases and Error States", () => {
     it("should handle empty session list gracefully", () => {
-      jest.mock("../../../../store/fixedSessionsSelectors", () => ({
+      jest.mock("../../store/fixedSessionsSelectors", () => ({
         selectFixedSessionsList: jest.fn().mockReturnValue([]),
         selectFixedSessionsPoints: jest.fn().mockReturnValue([]),
         selectFixedSessionsStatusFulfilled: jest.fn().mockReturnValue(true),
@@ -461,8 +509,8 @@ describe("Map Component", () => {
 
     it("should handle loading state correctly", () => {
       // Override the loading selectors for this test
-      const store = require("../../../../store");
-      const markersLoadingSlice = require("../../../../store/markersLoadingSlice");
+      const store = require("../../store");
+      const markersLoadingSlice = require("../../store/markersLoadingSlice");
 
       store.selectIsLoading.mockReturnValue(true);
       markersLoadingSlice.selectMarkersLoading.mockReturnValue(true);
@@ -483,7 +531,7 @@ describe("Map Component", () => {
     });
 
     it("should handle network error when fetching sessions", () => {
-      jest.mock("../../../../store/fixedSessionsSlice", () => ({
+      jest.mock("../../store/fixedSessionsSlice", () => ({
         fetchActiveFixedSessions: jest.fn(() => ({
           type: "fixedSessions/fetchActiveFixedSessions",
           unwrap: () => Promise.reject(new Error("Network error")),
@@ -498,7 +546,7 @@ describe("Map Component", () => {
   describe("Performance", () => {
     it("should handle large number of markers efficiently", () => {
       const largeSessionList = Array(1000).fill(MOCK_SESSION);
-      jest.mock("../../../../store/fixedSessionsSelectors", () => ({
+      jest.mock("../../store/fixedSessionsSelectors", () => ({
         selectFixedSessionsList: jest.fn().mockReturnValue(largeSessionList),
         selectFixedSessionsPoints: jest.fn().mockReturnValue(
           largeSessionList.map((s) => ({
@@ -525,7 +573,7 @@ describe("Map Component", () => {
       // Simulate rapid state updates
       for (let i = 0; i < 100; i++) {
         (useMapParams as jest.Mock).mockReturnValue({
-          ...MOCK_MAP_PARAMS,
+          ...createMockMapParams(),
           currentZoom: i,
         });
       }
