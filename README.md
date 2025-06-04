@@ -126,6 +126,8 @@ We use two types of frontend tests:
 ### Unit Tests
 
 - **Frameworks:** [Jest](https://jestjs.io/) and [React Testing Library (RTL)](https://testing-library.com/docs/react-testing-library/intro/)
+- **Location:** `app/javascript/react/tests/`
+  - `unit/` - Unit tests for React components and utilities
 - **How to run:**
   ```bash
   yarn test
@@ -137,6 +139,7 @@ We use two types of frontend tests:
 ### End-to-End (E2E) Tests
 
 - **Framework:** [Playwright](https://playwright.dev/)
+- **Location:** `app/javascript/react/tests/e2e/`
 - **How to run:**
   ```bash
   yarn playwright test

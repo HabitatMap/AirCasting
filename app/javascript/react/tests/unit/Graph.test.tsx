@@ -8,8 +8,8 @@ import { SessionTypes } from "../../types/filters";
 import { FixedTimeRange, MobileTimeRange } from "../../types/timeRange";
 import { useMapParams } from "../../utils/mapParamsHandler";
 import useMobileDetection from "../../utils/useScreenSizeDetection";
+import { renderWithProviders } from "../helpers/renderWithProviders";
 import { createMockMapParams } from "../mock-data/mapMocks";
-import { renderWithProviders } from "../test-utils/renderWithProviders";
 
 // Mock Highcharts
 jest.mock("highcharts/highstock", () => ({

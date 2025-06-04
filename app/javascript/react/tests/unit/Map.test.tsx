@@ -6,9 +6,9 @@ import { SessionTypes } from "../../types/filters";
 import { UserSettings } from "../../types/userStates";
 import { useMapParams } from "../../utils/mapParamsHandler";
 import useMobileDetection from "../../utils/useScreenSizeDetection";
+import { MapWrapper } from "../helpers/mapWrapper";
+import { renderWithProviders } from "../helpers/renderWithProviders";
 import { createMockMapParams, MOCK_SESSION } from "../mock-data/mapMocks";
-import { MapWrapper } from "../test-utils/mapWrapper";
-import { renderWithProviders } from "../test-utils/renderWithProviders";
 
 jest.mock("@vis.gl/react-google-maps", () => ({
   Map: () => <div data-testid="google-map">Google Map</div>,
