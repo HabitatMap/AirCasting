@@ -2,16 +2,10 @@ import { configureStore } from "@reduxjs/toolkit";
 import { act, render } from "@testing-library/react";
 import React from "react";
 import { Provider } from "react-redux";
-import type { MobileSession } from "../../../../types/sessionType";
-import { MobileMarkers } from "./MobileMarkers";
+import { MobileMarkers } from "../../components/organisms/Map/Markers/MobileMarkers";
+import type { MobileSession } from "../../types/sessionType";
 
 // Types for mock objects
-type MockBounds = {
-  extend: jest.Mock;
-  getNorthEast: jest.Mock;
-  getSouthWest: jest.Mock;
-  contains: jest.Mock;
-};
 
 type MockMap = {
   panTo: jest.Mock;
@@ -41,20 +35,6 @@ type MockMarker = {
   onClick: () => void;
   pulsating: boolean;
   position: { lat: number; lng: number };
-};
-
-type MockMarkerOverlay = {
-  setMap: jest.Mock;
-  setIsSelected: jest.Mock;
-  setShouldPulse: jest.Mock;
-  setColor: jest.Mock;
-  update: jest.Mock;
-};
-
-type MockLabelOverlay = {
-  setMap: jest.Mock;
-  update: jest.Mock;
-  setZIndex: jest.Mock;
 };
 
 type MobileMarkersProps = {
@@ -105,74 +85,83 @@ global.google = {
 let mockMarkerInstances: MockMarker[] = [];
 let mockMarkerClickHandlers: Function[] = [];
 
-jest.mock("./CustomOverlays/CustomMarker", () => {
-  return {
-    CustomMarker: jest
-      .fn()
-      .mockImplementation(
-        (
-          position,
-          color,
-          label,
-          width,
-          height,
-          className,
-          _,
-          __,
-          clickHandler
-        ) => {
-          // Store the click handler for later use
-          mockMarkerClickHandlers.push(clickHandler);
-
-          const marker: MockMarker = {
-            setMap: jest.fn(),
-            setPosition: jest.fn(),
-            setColor: jest.fn(),
-            setSize: jest.fn(),
-            setPulsating: jest.fn().mockImplementation((value: boolean) => {
-              marker.pulsating = value;
-            }),
-            setClickableAreaSize: jest.fn(),
-            setZIndex: jest.fn(),
-            getPosition: jest.fn(() => position),
-            onClick: () => {
-              if (typeof clickHandler === "function") {
-                clickHandler();
-              }
-            },
-            pulsating: false,
+jest.mock(
+  "../../components/organisms/Map/Markers/CustomOverlays/CustomMarker",
+  () => {
+    return {
+      CustomMarker: jest
+        .fn()
+        .mockImplementation(
+          (
             position,
-          };
-          mockMarkerInstances.push(marker);
-          return marker;
-        }
-      ),
-  };
-});
+            color,
+            label,
+            width,
+            height,
+            className,
+            _,
+            __,
+            clickHandler
+          ) => {
+            // Store the click handler for later use
+            mockMarkerClickHandlers.push(clickHandler);
+
+            const marker: MockMarker = {
+              setMap: jest.fn(),
+              setPosition: jest.fn(),
+              setColor: jest.fn(),
+              setSize: jest.fn(),
+              setPulsating: jest.fn().mockImplementation((value: boolean) => {
+                marker.pulsating = value;
+              }),
+              setClickableAreaSize: jest.fn(),
+              setZIndex: jest.fn(),
+              getPosition: jest.fn(() => position),
+              onClick: () => {
+                if (typeof clickHandler === "function") {
+                  clickHandler();
+                }
+              },
+              pulsating: false,
+              position,
+            };
+            mockMarkerInstances.push(marker);
+            return marker;
+          }
+        ),
+    };
+  }
+);
 
 // Mock CustomMarkerOverlay
-jest.mock("./CustomOverlays/customMarkerOverlay", () => {
-  return {
-    CustomMarkerOverlay: jest.fn().mockImplementation(() => ({
-      setMap: jest.fn(),
-      setIsSelected: jest.fn(),
-      setShouldPulse: jest.fn(),
-      setColor: jest.fn(),
-      update: jest.fn(),
-    })),
-  };
-});
+jest.mock(
+  "../../components/organisms/Map/Markers/CustomOverlays/customMarkerOverlay",
+  () => {
+    return {
+      CustomMarkerOverlay: jest.fn().mockImplementation(() => ({
+        setMap: jest.fn(),
+        setIsSelected: jest.fn(),
+        setShouldPulse: jest.fn(),
+        setColor: jest.fn(),
+        update: jest.fn(),
+      })),
+    };
+  }
+);
 
 // Mock LabelOverlay
-jest.mock("./CustomOverlays/customMarkerLabel", () => {
-  return {
-    LabelOverlay: jest.fn().mockImplementation(() => ({
-      setMap: jest.fn(),
-      update: jest.fn(),
-      setZIndex: jest.fn(),
-    })),
-  };
-});
+jest.mock(
+  "../../components/organisms/Map/Markers/CustomOverlays/customMarkerLabel",
+  () => {
+    return {
+      LabelOverlay: jest.fn().mockImplementation(() => ({
+        setMap: jest.fn(),
+        update: jest.fn(),
+        setZIndex: jest.fn(),
+      })),
+    };
+  }
+);
 
 // Mock useMap hook
 let mockMap: MockMap;
@@ -204,7 +193,7 @@ jest.mock("@vis.gl/react-google-maps", () => ({
 }));
 
 // Mock useMapParams
-jest.mock("../../../../utils/mapParamsHandler", () => ({
+jest.mock("../../utils/mapParamsHandler", () => ({
   useMapParams: () => ({
     unitSymbol: "µg/m³",
   }),
@@ -315,7 +304,8 @@ describe("MobileMarkers", () => {
 
     // Check if CustomMarker was called for each session
     expect(
-      require("./CustomOverlays/CustomMarker").CustomMarker
+      require("../../components/organisms/Map/Markers/CustomOverlays/CustomMarker")
+        .CustomMarker
     ).toHaveBeenCalledTimes(mockSessions.length);
     expect(mockMarkerInstances.length).toBe(mockSessions.length);
   });
@@ -521,7 +511,7 @@ describe("MobileMarkers", () => {
     });
 
     const LabelOverlay =
-      require("./CustomOverlays/customMarkerLabel").LabelOverlay;
+      require("../../components/organisms/Map/Markers/CustomOverlays/customMarkerLabel").LabelOverlay;
     const labelCalls = LabelOverlay.mock.calls;
 
     mockSessions.forEach((session, index) => {
@@ -563,7 +553,7 @@ describe("MobileMarkers", () => {
     });
 
     const LabelOverlay =
-      require("./CustomOverlays/customMarkerLabel").LabelOverlay;
+      require("../../components/organisms/Map/Markers/CustomOverlays/customMarkerLabel").LabelOverlay;
     const labelCalls = LabelOverlay.mock.calls;
 
     // Check that each marker has the correct value

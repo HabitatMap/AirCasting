@@ -1,0 +1,509 @@
+{
+  "fetchableSessionsCount": 94,
+  "sessions": [
+    {
+      "id": 1922350,
+      "uuid": "test-uuid-dormant-1",
+      "title": "Archer Heights 5/26 Gardening",
+      "startTimeLocal": "2025-05-26T12:10:12.000Z",
+      "endTimeLocal": "2025-05-26T13:10:12.000Z",
+      "latitude": 41.8,
+      "longitude": -87.7,
+      "lastMeasurementValue": 10.5,
+      "lastHourlyAverageValue": 10.5,
+      "isIndoor": false,
+      "username": "TestUser1",
+      "streams": {
+        "1": {
+          "id": 1,
+          "sensorName": "Government-PM2.5",
+          "unitSymbol": "µg/m³",
+          "measurementShortType": "PM2.5"
+        }
+      }
+    },
+    {
+      "id": 1922253,
+      "uuid": "test-uuid-dormant-2",
+      "title": "Outdoor Fixed 2 May 24",
+      "startTimeLocal": "2025-05-24T16:39:49.000Z",
+      "endTimeLocal": "2025-05-24T17:39:49.000Z",
+      "latitude": 41.9,
+      "longitude": -87.6,
+      "lastMeasurementValue": 11.5,
+      "lastHourlyAverageValue": 11.5,
+      "isIndoor": false,
+      "username": "TestUser2",
+      "streams": {
+        "1": {
+          "id": 1,
+          "sensorName": "Government-PM2.5",
+          "unitSymbol": "µg/m³",
+          "measurementShortType": "PM2.5"
+        }
+      }
+    },
+    {
+      "id": 1922231,
+      "uuid": "test-uuid-dormant-3",
+      "title": "Outdoor fixed May 24",
+      "startTimeLocal": "2025-05-24T10:07:34.000Z",
+      "endTimeLocal": "2025-05-24T11:07:34.000Z",
+      "latitude": 41.7,
+      "longitude": -87.5,
+      "lastMeasurementValue": 12.5,
+      "lastHourlyAverageValue": 12.5,
+      "isIndoor": false,
+      "username": "TestUser3",
+      "streams": {
+        "1": {
+          "id": 1,
+          "sensorName": "Government-PM2.5",
+          "unitSymbol": "µg/m³",
+          "measurementShortType": "PM2.5"
+        }
+      }
+    },
+    {
+      "id": 1922162,
+      "uuid": "test-uuid-dormant-4",
+      "title": "Warren 1",
+      "startTimeLocal": "2025-05-23T17:06:17.000Z",
+      "endTimeLocal": "2025-05-23T18:06:17.000Z",
+      "latitude": 41.6,
+      "longitude": -87.4,
+      "lastMeasurementValue": 13.5,
+      "lastHourlyAverageValue": 13.5,
+      "isIndoor": false,
+      "username": "TestUser4",
+      "streams": {
+        "1": {
+          "id": 1,
+          "sensorName": "Government-PM2.5",
+          "unitSymbol": "µg/m³",
+          "measurementShortType": "PM2.5"
+        }
+      }
+    },
+    {
+      "id": 1922131,
+      "uuid": "test-uuid-dormant-5",
+      "title": "Madero CY Mid-Afternoon 5/23",
+      "startTimeLocal": "2025-05-23T11:54:22.000Z",
+      "endTimeLocal": "2025-05-23T12:54:22.000Z",
+      "latitude": 41.5,
+      "longitude": -87.3,
+      "lastMeasurementValue": 14.5,
+      "lastHourlyAverageValue": 14.5,
+      "isIndoor": false,
+      "username": "TestUser5",
+      "streams": {
+        "1": {
+          "id": 1,
+          "sensorName": "Government-PM2.5",
+          "unitSymbol": "µg/m³",
+          "measurementShortType": "PM2.5"
+        }
+      }
+    },
+    {
+      "id": 1922111,
+      "uuid": "test-uuid-dormant-6",
+      "title": "test",
+      "startTimeLocal": "2025-05-23T08:50:11.000Z",
+      "endTimeLocal": "2025-05-23T09:50:11.000Z",
+      "latitude": 41.4,
+      "longitude": -87.2,
+      "lastMeasurementValue": 15.5,
+      "lastHourlyAverageValue": 15.5,
+      "isIndoor": false,
+      "username": "TestUser6",
+      "streams": {
+        "1": {
+          "id": 1,
+          "sensorName": "Government-PM2.5",
+          "unitSymbol": "µg/m³",
+          "measurementShortType": "PM2.5"
+        }
+      }
+    },
+    {
+      "id": 1921742,
+      "uuid": "test-uuid-dormant-7",
+      "title": "DAQ collocation 2",
+      "startTimeLocal": "2025-05-20T13:11:38.000Z",
+      "endTimeLocal": "2025-05-20T14:11:38.000Z",
+      "latitude": 41.3,
+      "longitude": -87.1,
+      "lastMeasurementValue": 16.5,
+      "lastHourlyAverageValue": 16.5,
+      "isIndoor": false,
+      "username": "TestUser7",
+      "streams": {
+        "1": {
+          "id": 1,
+          "sensorName": "Government-PM2.5",
+          "unitSymbol": "µg/m³",
+          "measurementShortType": "PM2.5"
+        }
+      }
+    },
+    {
+      "id": 1921741,
+      "uuid": "test-uuid-dormant-8",
+      "title": "DAQ collocation 1",
+      "startTimeLocal": "2025-05-20T13:10:31.000Z",
+      "endTimeLocal": "2025-05-20T14:10:31.000Z",
+      "latitude": 41.2,
+      "longitude": -87.0,
+      "lastMeasurementValue": 17.5,
+      "lastHourlyAverageValue": 17.5,
+      "isIndoor": false,
+      "username": "TestUser8",
+      "streams": {
+        "1": {
+          "id": 1,
+          "sensorName": "Government-PM2.5",
+          "unitSymbol": "µg/m³",
+          "measurementShortType": "PM2.5"
+        }
+      }
+    },
+    {
+      "id": 1921735,
+      "uuid": "test-uuid-dormant-9",
+      "title": "DAQ collocation 5",
+      "startTimeLocal": "2025-05-20T12:58:01.000Z",
+      "endTimeLocal": "2025-05-20T13:58:01.000Z",
+      "latitude": 41.1,
+      "longitude": -86.9,
+      "lastMeasurementValue": 18.5,
+      "lastHourlyAverageValue": 18.5,
+      "isIndoor": false,
+      "username": "TestUser9",
+      "streams": {
+        "1": {
+          "id": 1,
+          "sensorName": "Government-PM2.5",
+          "unitSymbol": "µg/m³",
+          "measurementShortType": "PM2.5"
+        }
+      }
+    },
+    {
+      "id": 1921734,
+      "uuid": "test-uuid-dormant-10",
+      "title": "DAQ collocation 6",
+      "startTimeLocal": "2025-05-20T12:53:48.000Z",
+      "endTimeLocal": "2025-05-20T13:53:48.000Z",
+      "latitude": 41.0,
+      "longitude": -86.8,
+      "lastMeasurementValue": 19.5,
+      "lastHourlyAverageValue": 19.5,
+      "isIndoor": false,
+      "username": "TestUser10",
+      "streams": {
+        "1": {
+          "id": 1,
+          "sensorName": "Government-PM2.5",
+          "unitSymbol": "µg/m³",
+          "measurementShortType": "PM2.5"
+        }
+      }
+    },
+    {
+      "id": 1921730,
+      "uuid": "test-uuid-dormant-11",
+      "title": "DAQ collocation 3",
+      "startTimeLocal": "2025-05-20T12:44:59.000Z",
+      "endTimeLocal": "2025-05-20T13:44:59.000Z",
+      "latitude": 40.9,
+      "longitude": -86.7,
+      "lastMeasurementValue": 20.5,
+      "lastHourlyAverageValue": 20.5,
+      "isIndoor": false,
+      "username": "TestUser11",
+      "streams": {
+        "1": {
+          "id": 1,
+          "sensorName": "Government-PM2.5",
+          "unitSymbol": "µg/m³",
+          "measurementShortType": "PM2.5"
+        }
+      }
+    },
+    {
+      "id": 1921729,
+      "uuid": "test-uuid-dormant-12",
+      "title": "DAQ collocation 8",
+      "startTimeLocal": "2025-05-20T12:42:12.000Z",
+      "endTimeLocal": "2025-05-20T13:42:12.000Z",
+      "latitude": 40.8,
+      "longitude": -86.6,
+      "lastMeasurementValue": 21.5,
+      "lastHourlyAverageValue": 21.5,
+      "isIndoor": false,
+      "username": "TestUser12",
+      "streams": {
+        "1": {
+          "id": 1,
+          "sensorName": "Government-PM2.5",
+          "unitSymbol": "µg/m³",
+          "measurementShortType": "PM2.5"
+        }
+      }
+    },
+    {
+      "id": 1921728,
+      "uuid": "test-uuid-dormant-13",
+      "title": "DAQ collocation 7",
+      "startTimeLocal": "2025-05-20T12:36:41.000Z",
+      "endTimeLocal": "2025-05-20T13:36:41.000Z",
+      "latitude": 40.7,
+      "longitude": -86.5,
+      "lastMeasurementValue": 22.5,
+      "lastHourlyAverageValue": 22.5,
+      "isIndoor": false,
+      "username": "TestUser13",
+      "streams": {
+        "1": {
+          "id": 1,
+          "sensorName": "Government-PM2.5",
+          "unitSymbol": "µg/m³",
+          "measurementShortType": "PM2.5"
+        }
+      }
+    },
+    {
+      "id": 1921727,
+      "uuid": "test-uuid-dormant-14",
+      "title": "DAQ collocation 10",
+      "startTimeLocal": "2025-05-20T12:35:53.000Z",
+      "endTimeLocal": "2025-05-20T13:35:53.000Z",
+      "latitude": 40.6,
+      "longitude": -86.4,
+      "lastMeasurementValue": 23.5,
+      "lastHourlyAverageValue": 23.5,
+      "isIndoor": false,
+      "username": "TestUser14",
+      "streams": {
+        "1": {
+          "id": 1,
+          "sensorName": "Government-PM2.5",
+          "unitSymbol": "µg/m³",
+          "measurementShortType": "PM2.5"
+        }
+      }
+    },
+    {
+      "id": 1921726,
+      "uuid": "test-uuid-dormant-15",
+      "title": "DAQ collocation 9",
+      "startTimeLocal": "2025-05-20T12:34:51.000Z",
+      "endTimeLocal": "2025-05-20T13:34:51.000Z",
+      "latitude": 40.5,
+      "longitude": -86.3,
+      "lastMeasurementValue": 24.5,
+      "lastHourlyAverageValue": 24.5,
+      "isIndoor": false,
+      "username": "TestUser15",
+      "streams": {
+        "1": {
+          "id": 1,
+          "sensorName": "Government-PM2.5",
+          "unitSymbol": "µg/m³",
+          "measurementShortType": "PM2.5"
+        }
+      }
+    },
+    {
+      "id": 1921562,
+      "uuid": "test-uuid-dormant-16",
+      "title": "MDF",
+      "startTimeLocal": "2025-05-19T10:58:35.000Z",
+      "endTimeLocal": "2025-05-19T11:58:35.000Z",
+      "latitude": 40.4,
+      "longitude": -86.2,
+      "lastMeasurementValue": 25.5,
+      "lastHourlyAverageValue": 25.5,
+      "isIndoor": false,
+      "username": "TestUser16",
+      "streams": {
+        "1": {
+          "id": 1,
+          "sensorName": "Government-PM2.5",
+          "unitSymbol": "µg/m³",
+          "measurementShortType": "PM2.5"
+        }
+      }
+    },
+    {
+      "id": 1920712,
+      "uuid": "test-uuid-dormant-17",
+      "title": "home dust storm ab3",
+      "startTimeLocal": "2025-05-12T17:54:09.000Z",
+      "endTimeLocal": "2025-05-12T18:54:09.000Z",
+      "latitude": 40.3,
+      "longitude": -86.1,
+      "lastMeasurementValue": 26.5,
+      "lastHourlyAverageValue": 26.5,
+      "isIndoor": false,
+      "username": "TestUser17",
+      "streams": {
+        "1": {
+          "id": 1,
+          "sensorName": "Government-PM2.5",
+          "unitSymbol": "µg/m³",
+          "measurementShortType": "PM2.5"
+        }
+      }
+    },
+    {
+      "id": 1920711,
+      "uuid": "test-uuid-dormant-18",
+      "title": "home dust storm ab2",
+      "startTimeLocal": "2025-05-12T17:53:26.000Z",
+      "endTimeLocal": "2025-05-12T18:53:26.000Z",
+      "latitude": 40.2,
+      "longitude": -86.0,
+      "lastMeasurementValue": 27.5,
+      "lastHourlyAverageValue": 27.5,
+      "isIndoor": false,
+      "username": "TestUser18",
+      "streams": {
+        "1": {
+          "id": 1,
+          "sensorName": "Government-PM2.5",
+          "unitSymbol": "µg/m³",
+          "measurementShortType": "PM2.5"
+        }
+      }
+    },
+    {
+      "id": 1920505,
+      "uuid": "test-uuid-dormant-19",
+      "title": "Test AirBeam 4",
+      "startTimeLocal": "2025-05-10T23:35:59.000Z",
+      "endTimeLocal": "2025-05-10T00:35:59.000Z",
+      "latitude": 40.1,
+      "longitude": -85.9,
+      "lastMeasurementValue": 28.5,
+      "lastHourlyAverageValue": 28.5,
+      "isIndoor": false,
+      "username": "TestUser19",
+      "streams": {
+        "1": {
+          "id": 1,
+          "sensorName": "Government-PM2.5",
+          "unitSymbol": "µg/m³",
+          "measurementShortType": "PM2.5"
+        }
+      }
+    },
+    {
+      "id": 1920475,
+      "uuid": "test-uuid-dormant-20",
+      "title": "GRIP2025C4C",
+      "startTimeLocal": "2025-05-10T10:03:47.000Z",
+      "endTimeLocal": "2025-05-10T11:03:47.000Z",
+      "latitude": 40.0,
+      "longitude": -85.8,
+      "lastMeasurementValue": 29.5,
+      "lastHourlyAverageValue": 29.5,
+      "isIndoor": false,
+      "username": "TestUser20",
+      "streams": {
+        "1": {
+          "id": 1,
+          "sensorName": "Government-PM2.5",
+          "unitSymbol": "µg/m³",
+          "measurementShortType": "PM2.5"
+        }
+      }
+    },
+    {
+      "id": 1920474,
+      "uuid": "test-uuid-dormant-21",
+      "title": "GRIP 2025",
+      "startTimeLocal": "2025-05-10T10:01:31.000Z",
+      "endTimeLocal": "2025-05-10T11:01:31.000Z",
+      "latitude": 39.9,
+      "longitude": -85.7,
+      "lastMeasurementValue": 30.5,
+      "lastHourlyAverageValue": 30.5,
+      "isIndoor": false,
+      "username": "TestUser21",
+      "streams": {
+        "1": {
+          "id": 1,
+          "sensorName": "Government-PM2.5",
+          "unitSymbol": "µg/m³",
+          "measurementShortType": "PM2.5"
+        }
+      }
+    },
+    {
+      "id": 1920402,
+      "uuid": "test-uuid-dormant-22",
+      "title": "Co-location Test AC CAPCOG",
+      "startTimeLocal": "2025-05-09T13:08:32.000Z",
+      "endTimeLocal": "2025-05-09T14:08:32.000Z",
+      "latitude": 39.8,
+      "longitude": -85.6,
+      "lastMeasurementValue": 31.5,
+      "lastHourlyAverageValue": 31.5,
+      "isIndoor": false,
+      "username": "TestUser22",
+      "streams": {
+        "1": {
+          "id": 1,
+          "sensorName": "Government-PM2.5",
+          "unitSymbol": "µg/m³",
+          "measurementShortType": "PM2.5"
+        }
+      }
+    },
+    {
+      "id": 1920058,
+      "uuid": "test-uuid-dormant-23",
+      "title": "Fixed",
+      "startTimeLocal": "2025-05-06T09:39:11.000Z",
+      "endTimeLocal": "2025-05-06T10:39:11.000Z",
+      "latitude": 39.7,
+      "longitude": -85.5,
+      "lastMeasurementValue": 32.5,
+      "lastHourlyAverageValue": 32.5,
+      "isIndoor": false,
+      "username": "TestUser23",
+      "streams": {
+        "1": {
+          "id": 1,
+          "sensorName": "Government-PM2.5",
+          "unitSymbol": "µg/m³",
+          "measurementShortType": "PM2.5"
+        }
+      }
+    },
+    {
+      "id": 1919422,
+      "uuid": "test-uuid-dormant-24",
+      "title": "Cat425",
+      "startTimeLocal": "2025-04-25T14:20:50.000Z",
+      "endTimeLocal": "2025-04-25T15:20:50.000Z",
+      "latitude": 39.6,
+      "longitude": -85.4,
+      "lastMeasurementValue": 33.5,
+      "lastHourlyAverageValue": 33.5,
+      "isIndoor": false,
+      "username": "TestUser24",
+      "streams": {
+        "1": {
+          "id": 1,
+          "sensorName": "Government-PM2.5",
+          "unitSymbol": "µg/m³",
+          "measurementShortType": "PM2.5"
+        }
+      }
+    }
+  ]
+}

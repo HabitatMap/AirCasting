@@ -1,15 +1,15 @@
 import "@testing-library/jest-dom";
 import { act, screen } from "@testing-library/react";
 import React from "react";
-import { setLastSelectedTimeRange } from "../../../../store/fixedStreamSlice";
-import { MOCK_MAP_PARAMS } from "../../../../test-utils/mocks/mapMocks";
-import { renderWithProviders } from "../../../../test-utils/utils/renderWithProviders";
-import { StatusEnum } from "../../../../types/api";
-import { SessionTypes } from "../../../../types/filters";
-import { FixedTimeRange, MobileTimeRange } from "../../../../types/timeRange";
-import { useMapParams } from "../../../../utils/mapParamsHandler";
-import useMobileDetection from "../../../../utils/useScreenSizeDetection";
-import { Graph } from "../Graph";
+import { Graph } from "../../components/organisms/Graph/Graph";
+import { setLastSelectedTimeRange } from "../../store/fixedStreamSlice";
+import { StatusEnum } from "../../types/api";
+import { SessionTypes } from "../../types/filters";
+import { FixedTimeRange, MobileTimeRange } from "../../types/timeRange";
+import { useMapParams } from "../../utils/mapParamsHandler";
+import useMobileDetection from "../../utils/useScreenSizeDetection";
+import { renderWithProviders } from "../helpers/renderWithProviders";
+import { createMockMapParams } from "../mock-data/mapMocks";
 
 // Mock Highcharts
 jest.mock("highcharts/highstock", () => ({
@@ -59,17 +59,60 @@ jest.mock("highcharts/modules/no-data-to-display", () => ({
 }));
 
 // Mock mapParamsHandler
-jest.mock("../../../../utils/mapParamsHandler", () => ({
-  useMapParams: jest.fn().mockReturnValue({
-    ...MOCK_MAP_PARAMS,
-    unitSymbol: "µg/m³",
-    measurementType: "PM2.5",
-    isIndoor: false,
-  }),
-}));
+jest.mock("../../utils/mapParamsHandler", () => {
+  const mockFn = () => jest.fn();
+  return {
+    useMapParams: jest.fn().mockReturnValue({
+      currentUserSettings: "MapView",
+      previousUserSettings: "MapView",
+      sessionType: "fixed",
+      isActive: true,
+      isIndoor: false,
+      currentCenter: { lat: 0, lng: 0 },
+      currentZoom: 10,
+      boundEast: 0,
+      boundNorth: 0,
+      boundSouth: 0,
+      boundWest: 0,
+      searchParams: new URLSearchParams(),
+      goToUserSettings: mockFn(),
+      revertUserSettingsAndResetIds: mockFn(),
+      unitSymbol: "µg/m³",
+      thresholdMin: "0",
+      thresholdLow: "25",
+      thresholdMiddle: "50",
+      thresholdHigh: "75",
+      thresholdMax: "100",
+      initialThresholds: {
+        min: 0,
+        low: 25,
+        middle: 50,
+        high: 75,
+        max: 100,
+      },
+      fetchedSessions: 0,
+      updateLimit: mockFn(),
+      updateOffset: mockFn(),
+      mapTypeId: "roadmap",
+      measurementType: "PM2.5",
+      offset: 0,
+      limit: 50,
+      previousCenter: { lat: 0, lng: 0 },
+      previousZoom: 10,
+      sensorName: "PM2.5",
+      sessionId: null,
+      streamId: null,
+      tags: "",
+      timeFrom: "",
+      timeTo: "",
+      updateFetchedSessions: mockFn(),
+      usernames: "",
+    }),
+  };
+});
 
 // Mock mobile detection
-jest.mock("../../../../utils/useScreenSizeDetection", () =>
+jest.mock("../../utils/useScreenSizeDetection", () =>
   jest.fn().mockReturnValue(false)
 );
 
@@ -84,27 +127,24 @@ jest.mock("react-i18next", () => ({
 }));
 
 // Mock hooks
-jest.mock("../../../../utils/mapParamsHandler", () => ({
-  useMapParams: jest.fn().mockReturnValue({
-    ...MOCK_MAP_PARAMS,
-    unitSymbol: "µg/m³",
-    measurementType: "PM2.5",
-    isIndoor: false,
-  }),
-}));
+jest.mock(
+  "../../components/organisms/Graph/chartHooks/useMeasurementsFetcher",
+  () => ({
+    useMeasurementsFetcher: jest.fn().mockReturnValue({
+      fetchMeasurementsIfNeeded: jest.fn(),
+    }),
+  })
+);
 
-jest.mock("../chartHooks/useMeasurementsFetcher", () => ({
-  useMeasurementsFetcher: jest.fn().mockReturnValue({
-    fetchMeasurementsIfNeeded: jest.fn(),
-  }),
-}));
-
-jest.mock("../chartHooks/useChartUpdater", () => ({
-  useChartUpdater: jest.fn().mockReturnValue({
-    updateChartData: jest.fn(),
-    lastTriggerRef: { current: null },
-  }),
-}));
+jest.mock(
+  "../../components/organisms/Graph/chartHooks/useChartUpdater",
+  () => ({
+    useChartUpdater: jest.fn().mockReturnValue({
+      updateChartData: jest.fn(),
+      lastTriggerRef: { current: null },
+    }),
+  })
+);
 
 const initialState = {
   fixedStream: {
@@ -346,7 +386,7 @@ describe("Graph Component", () => {
   beforeEach(() => {
     jest.clearAllMocks();
     (useMapParams as jest.Mock).mockReturnValue({
-      ...MOCK_MAP_PARAMS,
+      ...createMockMapParams(),
       unitSymbol: "µg/m³",
       measurementType: "PM2.5",
       isIndoor: false,
@@ -448,7 +488,7 @@ describe("Graph Component", () => {
 
     it("should handle indoor sessions", () => {
       (useMapParams as jest.Mock).mockReturnValue({
-        ...MOCK_MAP_PARAMS,
+        ...createMockMapParams(),
         isIndoor: true,
       });
 

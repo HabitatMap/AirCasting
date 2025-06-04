@@ -1,14 +1,8 @@
-export const MOCK_SESSION = {
-  id: 1,
-  title: "Test Session",
-  sensorName: "PM2.5",
-  averageValue: 10,
-  startTime: "2023-01-01",
-  endTime: "2023-01-02",
-  streamId: 1,
-};
+import { jest } from "@jest/globals";
 
-export const MOCK_MAP_PARAMS = {
+const mockFn = () => jest.fn();
+
+export const createMockMapParams = () => ({
   currentUserSettings: "MapView",
   previousUserSettings: "MapView",
   sessionType: "fixed",
@@ -21,8 +15,8 @@ export const MOCK_MAP_PARAMS = {
   boundSouth: 0,
   boundWest: 0,
   searchParams: new URLSearchParams(),
-  goToUserSettings: jest.fn(),
-  revertUserSettingsAndResetIds: jest.fn(),
+  goToUserSettings: mockFn(),
+  revertUserSettingsAndResetIds: mockFn(),
   unitSymbol: "µg/m³",
   thresholdMin: "0",
   thresholdLow: "25",
@@ -37,8 +31,8 @@ export const MOCK_MAP_PARAMS = {
     max: 100,
   },
   fetchedSessions: 0,
-  updateLimit: jest.fn(),
-  updateOffset: jest.fn(),
+  updateLimit: mockFn(),
+  updateOffset: mockFn(),
   mapTypeId: "roadmap",
   measurementType: "Particulate Matter",
   offset: 0,
@@ -51,6 +45,16 @@ export const MOCK_MAP_PARAMS = {
   tags: "",
   timeFrom: "",
   timeTo: "",
-  updateFetchedSessions: jest.fn(),
+  updateFetchedSessions: mockFn(),
   usernames: "",
+});
+
+export const MOCK_SESSION = {
+  id: 1,
+  title: "Test Session",
+  sensorName: "PM2.5",
+  averageValue: 10,
+  startTime: "2023-01-01",
+  endTime: "2023-01-02",
+  streamId: 1,
 };

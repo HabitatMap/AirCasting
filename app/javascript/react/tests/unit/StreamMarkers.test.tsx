@@ -3,8 +3,8 @@ import { configureStore } from "@reduxjs/toolkit";
 import { render } from "@testing-library/react";
 import React from "react";
 import { Provider } from "react-redux";
-import type { MobileSession } from "../../../../types/sessionType";
-import { StreamMarkers } from "./StreamMarkers";
+import { StreamMarkers } from "../../components/organisms/Map/Markers/StreamMarkers";
+import type { MobileSession } from "../../types/sessionType";
 
 // Types for mock objects
 type MockBounds = {
@@ -117,41 +117,47 @@ jest.mock("@vis.gl/react-google-maps", () => ({
 }));
 
 // Mock CustomMarker
-jest.mock("./CustomOverlays/CustomMarker", () => ({
-  CustomMarker: jest
-    .fn()
-    .mockImplementation(
-      (position, color, title, width, height, className, notes) => {
-        const marker = {
-          setMap: jest.fn(),
-          setPosition: jest.fn(),
-          setColor: jest.fn(),
-          setTitle: jest.fn(),
-          setNotes: jest.fn((notesArg, initialSlideArg) => {}),
-          getPosition: jest.fn(() => position),
-          getMap: jest.fn(() => mockMap),
-          cleanup: jest.fn(),
-        };
-        // Set initial values
-        marker.setTitle(title);
-        marker.setColor(color);
-        marker.setNotes(notes, 0);
-        mockMarkerInstances.push(marker);
-        return marker;
-      }
-    ),
-}));
+jest.mock(
+  "../../components/organisms/Map/Markers/CustomOverlays/CustomMarker",
+  () => ({
+    CustomMarker: jest
+      .fn()
+      .mockImplementation(
+        (position, color, title, width, height, className, notes) => {
+          const marker = {
+            setMap: jest.fn(),
+            setPosition: jest.fn(),
+            setColor: jest.fn(),
+            setTitle: jest.fn(),
+            setNotes: jest.fn((notesArg, initialSlideArg) => {}),
+            getPosition: jest.fn(() => position),
+            getMap: jest.fn(() => mockMap),
+            cleanup: jest.fn(),
+          };
+          // Set initial values
+          marker.setTitle(title);
+          marker.setColor(color);
+          marker.setNotes(notes, 0);
+          mockMarkerInstances.push(marker);
+          return marker;
+        }
+      ),
+  })
+);
 
 // Mock HoverMarker
-jest.mock("./HoverMarker/HoverMarker", () => {
-  const HoverMarker = jest.fn(() => null);
-  return {
-    __esModule: true,
-    default: HoverMarker,
-  };
-});
+jest.mock(
+  "../../components/organisms/Map/Markers/HoverMarker/HoverMarker",
+  () => {
+    const HoverMarker = jest.fn(() => null);
+    return {
+      __esModule: true,
+      default: HoverMarker,
+    };
+  }
+);
 
-jest.mock("../../../../store/hooks", () => ({
+jest.mock("../../store/hooks", () => ({
   useAppDispatch: () => jest.fn(),
   useAppSelector: (selector: any) => {
     if (selector.name === "selectThresholds") {
@@ -189,7 +195,7 @@ jest.mock("../../../../store/hooks", () => ({
   },
 }));
 
-jest.mock("../../../../store/mapSlice", () => ({
+jest.mock("../../store/mapSlice", () => ({
   selectHoverPosition: jest.fn(() => null),
   setHoverPosition: jest.fn(() => ({
     type: "map/setHoverPosition",
@@ -197,7 +203,7 @@ jest.mock("../../../../store/mapSlice", () => ({
   })),
 }));
 
-jest.mock("../../../../store/markersLoadingSlice", () => ({
+jest.mock("../../store/markersLoadingSlice", () => ({
   setMarkersLoading: jest.fn(() => ({
     type: "markersLoading/setMarkersLoading",
     payload: false,
@@ -208,7 +214,7 @@ jest.mock("../../../../store/markersLoadingSlice", () => ({
   })),
 }));
 
-jest.mock("../../../../store/thresholdSlice", () => ({
+jest.mock("../../store/thresholdSlice", () => ({
   selectThresholds: jest.fn(() => ({
     low: 0,
     middle: 50,
