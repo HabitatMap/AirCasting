@@ -22,7 +22,7 @@ module ApplicationHelper
     uri = URI.parse(request.original_url)
 
     existing_params = Rack::Utils.parse_nested_query(uri.query)
-    canonical_params = existing_params.slice(*allowed_params)
+    canonical_params = existing_params.slice(*allowed_params).reject { |_, v| v.blank? }
 
     if canonical_params.present?
       "#{request.base_url}#{uri.path}?#{canonical_params.to_query}"
