@@ -19,12 +19,15 @@ module ApplicationHelper
 
   def canonical_url
     allowed_params = %w[sessionId streamId currentUserSettings]
-    canonical_params = params.slice(*allowed_params).to_unsafe_h
+    uri = URI.parse(request.original_url)
+
+    existing_params = Rack::Utils.parse_nested_query(uri.query)
+    canonical_params = existing_params.slice(*allowed_params)
 
     if canonical_params.present?
-      "#{request.base_url}#{request.path}?#{canonical_params.to_query}"
+      "#{request.base_url}#{uri.path}?#{canonical_params.to_query}"
     else
-      "#{request.base_url}#{request.path}"
+      "#{request.base_url}#{uri.path}"
     end
   end
 end
