@@ -3,9 +3,10 @@
   %head
     %meta{name: 'viewport', content: 'width=device-width, initial-scale=1'}/
     %meta{
-      name: 'description',
-      content: 'AirCasting station graph showing health and environmental data (air quality, temperature, humidity, sound levels and more) changing in time.'
-    }/
+name: 'description',
+content: 'AirCasting station graph showing health and environmental data (air quality, temperature, humidity, sound levels and more) changing in time.'
+}/
+    %link{rel: 'canonical', href: canonical_url}/
     %title AirCasting
     = javascript_include_tag *webpack_asset_urls('react-app', 'js'), defer: true
     = stylesheet_link_tag *webpack_asset_urls('react-app', 'css'), defer: true
