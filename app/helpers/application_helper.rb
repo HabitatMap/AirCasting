@@ -16,4 +16,15 @@ module ApplicationHelper
   def webpack_asset_urls(asset_name, asset_type)
     webpack_manifest['entrypoints'][asset_name]['assets'][asset_type]
   end
+
+  def canonical_url
+    allowed_params = %w[sessionId streamId currentUserSettings]
+    canonical_params = params.slice(*allowed_params).to_unsafe_h
+
+    if canonical_params.present?
+      "#{request.base_url}#{request.path}?#{canonical_params.to_query}"
+    else
+      "#{request.base_url}#{request.path}"
+    end
+  end
 end
