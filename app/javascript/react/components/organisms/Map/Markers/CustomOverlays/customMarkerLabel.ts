@@ -105,7 +105,6 @@ export class LabelOverlay extends google.maps.OverlayView {
     labelContainer.style.justifyContent = "center";
     labelContainer.style.cursor = "pointer";
     labelContainer.style.zIndex = this.zIndex.toString();
-    console.log("this.value", this.value);
 
     const circle = document.createElement("div");
     circle.style.width = "12px";
