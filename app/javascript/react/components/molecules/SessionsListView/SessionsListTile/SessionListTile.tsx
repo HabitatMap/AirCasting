@@ -16,7 +16,7 @@ interface SessionListTile {
   id: number;
   sessionName: string;
   sensorName: string;
-  averageValue: number | string;
+  averageValue: number | null | string;
   startTime: string;
   endTime: string;
   streamId: number;
@@ -24,6 +24,15 @@ interface SessionListTile {
   onMouseEnter?: (id: number) => void;
   onMouseLeave?: () => void;
 }
+
+const AverageValueDisplay: React.FC<{
+  averageValue: number | null | string;
+}> = ({ averageValue }) => {
+  if (typeof averageValue === "number") {
+    return <S.Subtitle>avg. {averageValue}</S.Subtitle>;
+  }
+  return <S.Subtitle>avg. Calculating...</S.Subtitle>;
+};
 
 const SessionsListTile: React.FC<SessionListTile> = ({
   id,
@@ -86,10 +95,11 @@ const SessionsListTile: React.FC<SessionListTile> = ({
     >
       <S.HorizontalSpacingContainer>
         <S.HorizontalGroup>
-          <S.ColorDot $color={dotColor} />
-          {typeof averageValue === "number" && (
-            <S.Subtitle>avg. {averageValue}</S.Subtitle>
-          )}
+          <S.ColorDot
+            $color={dotColor}
+            $isAvg={typeof averageValue === "number"}
+          />
+          <AverageValueDisplay averageValue={averageValue} />
         </S.HorizontalGroup>
         <S.ArrowImageContainer>
           <img src={rightVector} alt={t("map.altDirect")} />

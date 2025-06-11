@@ -11,7 +11,7 @@ export type Point = LatLngLiteral & {
 
 export type FixedSession = {
   id: number;
-  averageValue: number;
+  averageValue: number | null;
   lastMeasurementValue: number;
   point: Point;
   time?: number;
@@ -31,7 +31,7 @@ export type SessionList = {
   id: number;
   title: string;
   sensorName: string;
-  averageValue: number;
+  averageValue: number | null;
   startTime: string;
   endTime: string;
   streamId: number;

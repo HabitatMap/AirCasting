@@ -41,7 +41,7 @@ import { CustomMarkerOverlay } from "./CustomOverlays/customMarkerOverlay";
 import { CustomAlgorithm } from "./gridClusterAlgorithm";
 
 type CustomMarker = google.maps.Marker & {
-  value: number;
+  value: number | null;
   sessionId: number;
   userData: { streamId: string };
   clustered: boolean;
@@ -365,7 +365,7 @@ export function FixedMarkers({
           const labelOverlay = new LabelOverlay(
             position!,
             newColor,
-            marker.value,
+            marker.value === null ? "Calculating..." : marker.value,
             unitSymbol,
             isSelected,
             () => {
@@ -384,7 +384,7 @@ export function FixedMarkers({
           existingLabelOverlay.update(
             isSelected,
             newColor,
-            marker.value,
+            marker.value === null ? "Calculating..." : marker.value,
             unitSymbol
           );
         }
@@ -482,10 +482,12 @@ export function FixedMarkers({
               const newMarker = createMarker(session);
               markerRefs.current.set(session.point.streamId, newMarker);
               newMarker.setMap(map);
+              const value = session.averageValue;
+              const color = getColorForValue(thresholds, value);
 
               const newOverlay = new CustomMarkerOverlay(
                 new google.maps.LatLng(latitude, longitude),
-                getColorForValue(thresholds, session.averageValue),
+                color,
                 true,
                 false
               );
@@ -494,8 +496,8 @@ export function FixedMarkers({
 
               const newLabelOverlay = new LabelOverlay(
                 new google.maps.LatLng(latitude, longitude),
-                getColorForValue(thresholds, session.averageValue),
-                session.averageValue,
+                color,
+                value === null ? "Calculating..." : value,
                 unitSymbol,
                 true,
                 () => {

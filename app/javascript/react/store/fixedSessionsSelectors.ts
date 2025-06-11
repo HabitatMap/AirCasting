@@ -47,7 +47,7 @@ const transformSessionData = (sessions: FixedSessionGeneral[]) =>
         lastMeasurementValue,
         startTime: startTimeLocal,
         endTime: endTimeLocal,
-        averageValue: lastHourlyAverageValue || lastMeasurementValue,
+        averageValue: lastHourlyAverageValue ?? lastMeasurementValue ?? null,
         point: {
           lat: latitude,
           lng: longitude,

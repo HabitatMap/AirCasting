@@ -25,7 +25,7 @@ export interface SessionListEntity {
   id: number;
   sessionName: string;
   sensorName: string;
-  averageValue: number;
+  averageValue: number | string;
   startTime: string;
   endTime: string;
   streamId: number;
