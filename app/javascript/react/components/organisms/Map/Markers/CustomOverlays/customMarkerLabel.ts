@@ -114,7 +114,7 @@ export class LabelOverlay extends google.maps.OverlayView {
     circle.style.marginRight = "6px";
     circle.style.flexShrink = "0";
     circle.style.border =
-      this.value === "Calculating..." ? `1px solid ${gray200}` : "none";
+      typeof this.value !== "number" ? `1px solid ${gray200}` : "none";
 
     const textElement = document.createElement("span");
     textElement.style.fontSize = "12px";

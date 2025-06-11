@@ -7,6 +7,7 @@ import React, {
   useRef,
   useState,
 } from "react";
+import { useTranslation } from "react-i18next";
 
 import {
   setAverage,
@@ -72,9 +73,11 @@ export function FixedMarkers({
   pulsatingSessionId,
   onClusterClick,
 }: FixedMarkersProps) {
+  const { t } = useTranslation();
   const dispatch = useAppDispatch();
   const { unitSymbol, currentUserSettings } = useMapParams();
   const map = useMap();
+  const calculatingText = t("map.calculating");
 
   // Redux selectors
   const hoverStreamId = useAppSelector(selectHoverStreamId);
@@ -365,7 +368,7 @@ export function FixedMarkers({
           const labelOverlay = new LabelOverlay(
             position!,
             newColor,
-            marker.value === null ? "Calculating..." : marker.value,
+            marker.value === null ? calculatingText : marker.value,
             unitSymbol,
             isSelected,
             () => {
@@ -384,7 +387,7 @@ export function FixedMarkers({
           existingLabelOverlay.update(
             isSelected,
             newColor,
-            marker.value === null ? "Calculating..." : marker.value,
+            marker.value === null ? calculatingText : marker.value,
             unitSymbol
           );
         }
@@ -497,7 +500,7 @@ export function FixedMarkers({
               const newLabelOverlay = new LabelOverlay(
                 new google.maps.LatLng(latitude, longitude),
                 color,
-                value === null ? "Calculating..." : value,
+                value === null ? calculatingText : value,
                 unitSymbol,
                 true,
                 () => {

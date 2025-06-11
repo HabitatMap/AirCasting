@@ -820,7 +820,9 @@ const Map = () => {
     sessionName: session.title,
     sensorName: session.sensorName,
     averageValue:
-      session.averageValue === null ? "Calculating..." : session.averageValue,
+      session.averageValue === null
+        ? t("map.calculating")
+        : session.averageValue,
     startTime: session.startTime,
     endTime: session.endTime,
     streamId: session.streamId,

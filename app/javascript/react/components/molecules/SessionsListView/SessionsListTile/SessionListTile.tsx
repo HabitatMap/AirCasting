@@ -31,7 +31,8 @@ const AverageValueDisplay: React.FC<{
   if (typeof averageValue === "number") {
     return <S.Subtitle>avg. {averageValue}</S.Subtitle>;
   }
-  return <S.Subtitle>avg. Calculating...</S.Subtitle>;
+  const { t } = useTranslation();
+  return <S.Subtitle>avg. {t("map.calculating")}</S.Subtitle>;
 };
 
 const SessionsListTile: React.FC<SessionListTile> = ({

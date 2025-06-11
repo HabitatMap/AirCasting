@@ -155,7 +155,8 @@
       "altPrevious": "Previous note",
       "altPhoto": "Note photo"
     },
-    "locationError": "Unable to determine your location"
+    "locationError": "Unable to determine your location",
+    "calculating": "Calculating..."
   },
   "sessionDetailsModal": {
     "calendar": "Calendar",
