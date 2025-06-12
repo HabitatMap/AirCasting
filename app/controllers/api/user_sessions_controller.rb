@@ -7,10 +7,13 @@ class Api::UserSessionsController < Api::BaseController
   respond_to :json
 
   def sync_with_versioning
-    contract =
-      Api::UserSessions2Contract.new.call({ data: JSON.parse(params[:data]) })
     result =
-      Api::ToUserSessionsHash2.new(contract: contract, user: current_user).call
+      UserSessionsSyncing::Interactor.new.call(
+        params: {
+          data: JSON.parse(params[:data]),
+        },
+        user_id: current_user.id,
+      )
 
     if result.success?
       render json: result.value, status: :ok
