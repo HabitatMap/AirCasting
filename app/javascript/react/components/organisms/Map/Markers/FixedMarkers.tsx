@@ -7,6 +7,7 @@ import React, {
   useRef,
   useState,
 } from "react";
+import { useTranslation } from "react-i18next";
 
 import {
   setAverage,
@@ -41,7 +42,7 @@ import { CustomMarkerOverlay } from "./CustomOverlays/customMarkerOverlay";
 import { CustomAlgorithm } from "./gridClusterAlgorithm";
 
 type CustomMarker = google.maps.Marker & {
-  value: number;
+  value: number | null;
   sessionId: number;
   userData: { streamId: string };
   clustered: boolean;
@@ -72,9 +73,11 @@ export function FixedMarkers({
   pulsatingSessionId,
   onClusterClick,
 }: FixedMarkersProps) {
+  const { t } = useTranslation();
   const dispatch = useAppDispatch();
   const { unitSymbol, currentUserSettings } = useMapParams();
   const map = useMap();
+  const calculatingText = t("map.calculating");
 
   // Redux selectors
   const hoverStreamId = useAppSelector(selectHoverStreamId);
@@ -365,7 +368,7 @@ export function FixedMarkers({
           const labelOverlay = new LabelOverlay(
             position!,
             newColor,
-            marker.value,
+            marker.value === null ? calculatingText : marker.value,
             unitSymbol,
             isSelected,
             () => {
@@ -384,7 +387,7 @@ export function FixedMarkers({
           existingLabelOverlay.update(
             isSelected,
             newColor,
-            marker.value,
+            marker.value === null ? calculatingText : marker.value,
             unitSymbol
           );
         }
@@ -482,10 +485,12 @@ export function FixedMarkers({
               const newMarker = createMarker(session);
               markerRefs.current.set(session.point.streamId, newMarker);
               newMarker.setMap(map);
+              const value = session.averageValue;
+              const color = getColorForValue(thresholds, value);
 
               const newOverlay = new CustomMarkerOverlay(
                 new google.maps.LatLng(latitude, longitude),
-                getColorForValue(thresholds, session.averageValue),
+                color,
                 true,
                 false
               );
@@ -494,8 +499,8 @@ export function FixedMarkers({
 
               const newLabelOverlay = new LabelOverlay(
                 new google.maps.LatLng(latitude, longitude),
-                getColorForValue(thresholds, session.averageValue),
-                session.averageValue,
+                color,
+                value === null ? calculatingText : value,
                 unitSymbol,
                 true,
                 () => {

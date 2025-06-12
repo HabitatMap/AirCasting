@@ -1,11 +1,12 @@
 import styled from "styled-components";
 
-import { gray100, white } from "../../../../assets/styles/colors";
+import { gray100, gray200, white } from "../../../../assets/styles/colors";
 import { media } from "../../../../utils/media";
 import { H4, H5 } from "../../../atoms/Typography";
 
 interface DotProps {
   $color: string;
+  $isAvg?: boolean;
 }
 
 const SessionListTile = styled.div`
@@ -46,6 +47,7 @@ const ColorDot = styled.span<DotProps>`
   background-color: ${(props) => props.$color};
   border-radius: 50%;
   margin-right: 0.8rem;
+  border: ${(props) => (props.$isAvg ? "none" : `1px solid ${gray200}`)};
 `;
 
 const Title = styled(H4)`

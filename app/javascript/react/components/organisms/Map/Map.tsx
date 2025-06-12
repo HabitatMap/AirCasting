@@ -815,6 +815,19 @@ const Map = () => {
     return null;
   };
 
+  const mapSessions = (session: SessionList) => ({
+    id: session.id,
+    sessionName: session.title,
+    sensorName: session.sensorName,
+    averageValue:
+      session.averageValue === null
+        ? t("map.calculating")
+        : session.averageValue,
+    startTime: session.startTime,
+    endTime: session.endTime,
+    streamId: session.streamId,
+  });
+
   return (
     <>
       {(selectorsLoading || markersLoading) && (
@@ -972,15 +985,7 @@ const Map = () => {
         )}
         {currentUserSettings === UserSettings.SessionListView && isMobile && (
           <MobileSessionList
-            sessions={listSessions.map((session: SessionList) => ({
-              id: session.id,
-              sessionName: session.title,
-              sensorName: session.sensorName,
-              averageValue: session.averageValue,
-              startTime: session.startTime,
-              endTime: session.endTime,
-              streamId: session.streamId,
-            }))}
+            sessions={listSessions.map(mapSessions)}
             onCellClick={(id, streamId) => {
               handleMarkerClick(streamId, id);
             }}
@@ -1010,15 +1015,7 @@ const Map = () => {
         !isMobile && (
           <S.DesktopContainer data-testid="desktop-session-list">
             <SessionsListView
-              sessions={listSessions.map((session) => ({
-                id: session.id,
-                sessionName: session.title,
-                sensorName: session.sensorName,
-                averageValue: session.averageValue,
-                startTime: session.startTime,
-                endTime: session.endTime,
-                streamId: session.streamId,
-              }))}
+              sessions={listSessions.map(mapSessions)}
               onCellClick={(id, streamId) => {
                 setPulsatingSessionId(null);
                 handleMarkerClick(streamId, id);
