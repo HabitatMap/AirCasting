@@ -58,11 +58,9 @@ const sharedWebpackConfig = (mode) => {
     devtool: "source-map",
     entry: getEntryObject(),
     optimization: {
-      runtimeChunk: false,
+      runtimeChunk: 'single',
       splitChunks: {
-        chunks(chunk) {
-          return chunk.name !== "application2"; // if you want to exclude code splitting for certain packs
-        },
+        chunks: 'all'
       },
     },
     resolve: {
