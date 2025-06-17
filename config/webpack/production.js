@@ -21,7 +21,8 @@ module.exports = (webpackConfig) => {
         target: 'es2015',
         css: true  // Apply minification to CSS assets
       })
-    ]
+    ],
+    splitChunks: false
   }
 
   Object.assign(webpackConfig.optimization, prodOptimization);
