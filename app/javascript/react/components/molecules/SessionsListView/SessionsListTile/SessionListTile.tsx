@@ -23,6 +23,7 @@ interface SessionListTile {
   onClick?: (id: number, streamId: number) => void;
   onMouseEnter?: (id: number) => void;
   onMouseLeave?: () => void;
+  isIndoor?: boolean;
 }
 
 const AverageValueDisplay: React.FC<{
@@ -46,6 +47,7 @@ const SessionsListTile: React.FC<SessionListTile> = ({
   onClick,
   onMouseEnter,
   onMouseLeave,
+  isIndoor,
 }) => {
   const thresholds = useSelector(selectThresholds);
 
@@ -88,6 +90,8 @@ const SessionsListTile: React.FC<SessionListTile> = ({
     ? gray300
     : getColorForValue(thresholds, averageValue);
 
+  const shouldShowValue = !(isIndoor && averageValue === null);
+
   return (
     <S.SessionListTile
       onClick={handleClick}
@@ -96,11 +100,15 @@ const SessionsListTile: React.FC<SessionListTile> = ({
     >
       <S.HorizontalSpacingContainer>
         <S.HorizontalGroup>
-          <S.ColorDot
-            $color={dotColor}
-            $isAvg={typeof averageValue === "number"}
-          />
-          <AverageValueDisplay averageValue={averageValue} />
+          {shouldShowValue && (
+            <S.ColorDot
+              $color={dotColor}
+              $isAvg={typeof averageValue === "number"}
+            />
+          )}
+          {shouldShowValue && (
+            <AverageValueDisplay averageValue={averageValue} />
+          )}
         </S.HorizontalGroup>
         <S.ArrowImageContainer>
           <img src={rightVector} alt={t("map.altDirect")} />
