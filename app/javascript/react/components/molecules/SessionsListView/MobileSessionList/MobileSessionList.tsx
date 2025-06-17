@@ -13,6 +13,7 @@ interface MobileSessionListProps {
   onClose: () => void;
   onScrollEnd: () => void;
   fetchableSessionsCount: number;
+  isIndoor?: boolean;
 }
 
 const MobileSessionList: React.FC<MobileSessionListProps> = ({
@@ -21,6 +22,7 @@ const MobileSessionList: React.FC<MobileSessionListProps> = ({
   onClose,
   onScrollEnd,
   fetchableSessionsCount,
+  isIndoor,
 }) => {
   const { t } = useTranslation();
   const sessionListRef = useRef<HTMLDivElement>(null);
@@ -60,6 +62,7 @@ const MobileSessionList: React.FC<MobileSessionListProps> = ({
                 startTime={session.startTime}
                 endTime={session.endTime}
                 streamId={session.streamId}
+                isIndoor={isIndoor}
                 onClick={(id, streamId) => {
                   handleClick(id, streamId);
                 }}
