@@ -25,7 +25,7 @@ export interface SessionListEntity {
   id: number;
   sessionName: string;
   sensorName: string;
-  averageValue: number | string;
+  averageValue: number | string | null;
   startTime: string;
   endTime: string;
   streamId: number;
@@ -39,6 +39,7 @@ interface SessionsListViewProps {
   onCellMouseLeave?: () => void;
   onScrollEnd: () => void;
   fetchableSessionsCount: number;
+  isIndoor?: boolean;
 }
 
 const SESSIONS_LIMIT = 100;
@@ -50,6 +51,7 @@ const SessionsListView: React.FC<SessionsListViewProps> = ({
   onCellMouseLeave,
   onScrollEnd,
   fetchableSessionsCount,
+  isIndoor,
 }) => {
   const { t } = useTranslation();
   const results = sessions.length;
@@ -189,6 +191,7 @@ const SessionsListView: React.FC<SessionsListViewProps> = ({
                 startTime={session.startTime}
                 endTime={session.endTime}
                 streamId={session.streamId}
+                isIndoor={isIndoor}
                 onClick={(id, streamId) => handleClick(id, streamId)}
                 onMouseEnter={(id) => handleMouseEnter(id)}
                 onMouseLeave={handleMouseLeave}
