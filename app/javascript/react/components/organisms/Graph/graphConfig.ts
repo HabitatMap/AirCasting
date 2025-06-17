@@ -10,7 +10,7 @@ import {
 } from "highcharts";
 
 import { AppDispatch } from "@/react/store";
-import Highcharts from "highcharts/highstock";
+import Highcharts from "highcharts/highcharts";
 import { TFunction } from "i18next";
 import {
   blue,
