@@ -8,7 +8,7 @@ import React, {
   useState,
 } from "react";
 import { useTranslation } from "react-i18next";
-import { FixedSizeList as List } from "react-window";
+import { FixedSizeList as List, ListOnScrollProps } from "react-window";
 import InfiniteLoader from "react-window-infinite-loader";
 import toggleIconThick from "../../../assets/icons/toggleIconBlue.svg";
 import { useAppDispatch, useAppSelector } from "../../../store/hooks";
@@ -117,6 +117,28 @@ const SessionsListView: React.FC<SessionsListViewProps> = ({
   const dispatch = useAppDispatch();
   const sessionsListExpanded = useAppSelector(selectSessionsListExpanded);
   const infiniteLoaderRef = useRef<InfiniteLoader>(null);
+
+  const initialScrollOffset = useMemo(() => {
+    if (sessionsListExpanded) {
+      const savedScrollPosition = localStorage.getItem(
+        "sessionsListScrollPosition"
+      );
+      return savedScrollPosition ? Number(savedScrollPosition) : 0;
+    }
+    return 0;
+  }, [sessionsListExpanded]);
+
+  const saveScrollPosition = useCallback(
+    debounce((scrollOffset: number) => {
+      if (sessionsListExpanded) {
+        localStorage.setItem(
+          "sessionsListScrollPosition",
+          String(scrollOffset)
+        );
+      }
+    }, 200),
+    [sessionsListExpanded]
+  );
 
   useEffect(() => {
     if (infiniteLoaderRef.current && sessions.length) {
@@ -278,13 +300,18 @@ const SessionsListView: React.FC<SessionsListViewProps> = ({
           >
             {({ onItemsRendered, ref }) => (
               <List
+                className="List"
                 height={listDimensions.height}
-                width={listDimensions.width}
                 itemCount={itemCount}
                 itemSize={130}
-                onItemsRendered={onItemsRendered}
-                ref={ref}
+                width={listDimensions.width}
                 itemData={itemData}
+                onScroll={(scrollArgs: ListOnScrollProps) =>
+                  saveScrollPosition(scrollArgs.scrollOffset)
+                }
+                ref={ref}
+                initialScrollOffset={initialScrollOffset}
+                onItemsRendered={onItemsRendered}
               >
                 {Row}
               </List>
