@@ -137,7 +137,7 @@ export const DesktopParameterFilter = () => {
                 <S.SeeMoreSpan>
                   {t(`filters.${moreOpen ? "seeLess" : "seeMore"}`)}
                 </S.SeeMoreSpan>
-                <img src={moreOpen ? minus : plus} />
+                <img src={moreOpen ? minus : plus} alt="" />
               </S.SeeMoreButton>
             )}
           </S.BasicParameterWrapper>
@@ -191,7 +191,7 @@ export const MobileDeviceParameterFilter = ({
           <S.ChevronBackButton
             onClick={() => dispatch(setBasicParametersModalOpen(false))}
           >
-            <img src={chevronLeft} />
+            <img src={chevronLeft} alt={t("filters.back")} />
           </S.ChevronBackButton>
           <S.HeaderTitle>{t("filters.selectParameter")}</S.HeaderTitle>
         </S.Header>
@@ -205,7 +205,9 @@ export const MobileDeviceParameterFilter = ({
               <S.ButtonSpan $isActive={item === measurementType}>
                 {item}
               </S.ButtonSpan>
-              {item === measurementType && <img src={checkmark} />}
+              {item === measurementType && (
+                <img src={checkmark} alt={t("filters.altCheckmark")} />
+              )}
             </S.BasicParameterButton>
           ))}
         </S.BasicParameterButtonsWrapper>
