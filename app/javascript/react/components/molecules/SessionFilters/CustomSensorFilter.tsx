@@ -125,7 +125,7 @@ const CustomSensorFilter: React.FC<CustomSensorFilterProps> = ({
         <S.ModalContent>
           <S.Header>
             <S.ChevronBackButton onClick={goBack}>
-              <img src={chevronLeft} />
+              <img src={chevronLeft} alt={t("filters.back")} />
             </S.ChevronBackButton>
             <S.HeaderTitle>{t("filters.selectCustomSensor")}</S.HeaderTitle>
           </S.Header>
@@ -145,7 +145,9 @@ const CustomSensorFilter: React.FC<CustomSensorFilterProps> = ({
                 <S.CustomParameter $isActive={item === sensorName}>
                   {item}
                 </S.CustomParameter>
-                {item === sensorName && <img src={checkmark} />}
+                {item === sensorName && (
+                  <img src={checkmark} alt={t("filters.altCheckmark")} />
+                )}
               </S.CustomParameterItem>
             ))}
           </S.CustomParameterList>

@@ -26,7 +26,10 @@ const StationActionButtons = ({ sessionId }: Props) => {
               onClick={() => {}}
               aria-labelledby={t("calendarHeader.altExportSession")}
             >
-              <img src={downloadImage} />
+              <img
+                src={downloadImage}
+                alt={t("calendarHeader.altExportSession")}
+              />
             </ActionButton>
           }
           sessionsIds={[sessionId]}
@@ -57,7 +60,8 @@ const StationActionButtons = ({ sessionId }: Props) => {
         <ExportDataComponent
           button={
             <Button aria-labelledby={t("calendarHeader.altExportSession")}>
-              {t("calendarHeader.exportSession")} <img src={downloadImage} />
+              {t("calendarHeader.exportSession")}{" "}
+              <img src={downloadImage} alt="" />
             </Button>
           }
           sessionsIds={[sessionId]}

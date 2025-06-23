@@ -8,8 +8,9 @@ import React, {
   useState,
 } from "react";
 import { useTranslation } from "react-i18next";
+import { FixedSizeList as List, ListOnScrollProps } from "react-window";
+import InfiniteLoader from "react-window-infinite-loader";
 import toggleIconThick from "../../../assets/icons/toggleIconBlue.svg";
-import { useScrollEndListener } from "../../../hooks/useScrollEndListener";
 import { useAppDispatch, useAppSelector } from "../../../store/hooks";
 import {
   selectSessionsListExpanded,
@@ -20,6 +21,50 @@ import { AlertPopup } from "../Popups/AlertComponent";
 import ExportButtonComponent from "./ExportButtonComponent";
 import { SessionsListTile } from "./SessionsListTile/SessionListTile";
 import * as S from "./SessionsListView.style";
+
+interface RowData {
+  sessions: SessionListEntity[];
+  handleClick: (id: number, streamId: number) => void;
+  handleMouseEnter: (id: number) => void;
+  handleMouseLeave: () => void;
+}
+
+const Row = React.memo(
+  ({
+    index,
+    style,
+    data,
+  }: {
+    index: number;
+    style: React.CSSProperties;
+    data: RowData;
+  }) => {
+    const { sessions, handleClick, handleMouseEnter, handleMouseLeave } = data;
+    const session = sessions[index];
+    if (!session) {
+      return null;
+    }
+
+    return (
+      <div style={style}>
+        <div style={{ padding: "0.5rem 0" }}>
+          <SessionsListTile
+            id={session.id}
+            sessionName={session.sessionName}
+            sensorName={session.sensorName}
+            averageValue={session.averageValue}
+            startTime={session.startTime}
+            endTime={session.endTime}
+            streamId={session.streamId}
+            onClick={handleClick}
+            onMouseEnter={handleMouseEnter}
+            onMouseLeave={handleMouseLeave}
+          />
+        </div>
+      </div>
+    );
+  }
+);
 
 export interface SessionListEntity {
   id: number;
@@ -41,7 +86,7 @@ interface SessionsListViewProps {
   fetchableSessionsCount: number;
 }
 
-const SESSIONS_LIMIT = 100;
+const SESSIONS_LIMIT = 10000;
 
 const SessionsListView: React.FC<SessionsListViewProps> = ({
   sessions,
@@ -63,13 +108,58 @@ const SessionsListView: React.FC<SessionsListViewProps> = ({
   const [showExportPopup, setShowExportPopup] = useState(false);
   const [showAlert, setShowAlert] = useState(false);
   const [alertMessage, setAlertMessage] = useState<string>("");
+  const listContainerRef = useRef<HTMLDivElement>(null);
+  const [listDimensions, setListDimensions] = useState({ width: 0, height: 0 });
 
   const NO_SESSIONS = sessionsIds.length === 0;
   const EXCEEDS_LIMIT = sessionsIds.length > SESSIONS_LIMIT;
   const popupTopOffset = NO_SESSIONS ? -13 : -50;
-  const memoizedSessions = useMemo(() => sessions, [sessions]);
   const dispatch = useAppDispatch();
   const sessionsListExpanded = useAppSelector(selectSessionsListExpanded);
+  const infiniteLoaderRef = useRef<InfiniteLoader>(null);
+
+  const initialScrollOffset = useMemo(() => {
+    if (sessionsListExpanded) {
+      const savedScrollPosition = localStorage.getItem(
+        "sessionsListScrollPosition"
+      );
+      return savedScrollPosition ? Number(savedScrollPosition) : 0;
+    }
+    return 0;
+  }, [sessionsListExpanded]);
+
+  const saveScrollPosition = useCallback(
+    debounce((scrollOffset: number) => {
+      if (sessionsListExpanded) {
+        localStorage.setItem(
+          "sessionsListScrollPosition",
+          String(scrollOffset)
+        );
+      }
+    }, 200),
+    [sessionsListExpanded]
+  );
+
+  useEffect(() => {
+    if (infiniteLoaderRef.current && sessions.length) {
+      infiniteLoaderRef.current.resetloadMoreItemsCache();
+    }
+    localStorage.removeItem("sessionsListScrollPosition");
+  }, [sessions]);
+
+  useLayoutEffect(() => {
+    function updateSize() {
+      if (listContainerRef.current) {
+        setListDimensions({
+          width: listContainerRef.current.offsetWidth,
+          height: listContainerRef.current.offsetHeight,
+        });
+      }
+    }
+    window.addEventListener("resize", updateSize);
+    updateSize();
+    return () => window.removeEventListener("resize", updateSize);
+  }, []);
 
   const updateButtonPosition = useCallback(() => {
     const rect = exportButtonRef.current?.getBoundingClientRect();
@@ -101,7 +191,49 @@ const SessionsListView: React.FC<SessionsListViewProps> = ({
     };
   }, [updateButtonPosition, debouncedUpdateButtonPosition]);
 
-  useScrollEndListener(sessionListRef, onScrollEnd);
+  const itemCount =
+    fetchableSessionsCount > sessions.length
+      ? sessions.length + 1
+      : sessions.length;
+
+  const loadMoreItems = onScrollEnd;
+
+  const isItemLoaded = (index: number) =>
+    !fetchableSessionsCount || index < sessions.length;
+
+  const handleClick = useCallback(
+    (id: number, streamId: number) => {
+      if (onCellClick) {
+        onCellClick(id, streamId);
+      }
+    },
+    [onCellClick]
+  );
+
+  const handleMouseEnter = useCallback(
+    (id: number) => {
+      if (onCellMouseEnter) {
+        onCellMouseEnter(id);
+      }
+    },
+    [onCellMouseEnter]
+  );
+
+  const handleMouseLeave = useCallback(() => {
+    if (onCellMouseLeave) {
+      onCellMouseLeave();
+    }
+  }, [onCellMouseLeave]);
+
+  const itemData = useMemo(
+    () => ({
+      sessions,
+      handleClick,
+      handleMouseEnter,
+      handleMouseLeave,
+    }),
+    [sessions, handleClick, handleMouseEnter, handleMouseLeave]
+  );
 
   useEffect(() => {
     // Clear saved scroll position when sessions list is collapsed
@@ -112,24 +244,6 @@ const SessionsListView: React.FC<SessionsListViewProps> = ({
 
   const calculatePopupLeftPosition = () => {
     return `${buttonPosition.left - 185}px`;
-  };
-
-  const handleClick = (id: number, streamId: number) => {
-    if (onCellClick) {
-      onCellClick(id, streamId);
-    }
-  };
-
-  const handleMouseEnter = (id: number) => {
-    if (onCellMouseEnter) {
-      onCellMouseEnter(id);
-    }
-  };
-
-  const handleMouseLeave = () => {
-    if (onCellMouseLeave) {
-      onCellMouseLeave();
-    }
   };
 
   const handleExportClick = () => {
@@ -178,23 +292,32 @@ const SessionsListView: React.FC<SessionsListViewProps> = ({
         />
       </S.SessionInfoTile>
       {sessionsListExpanded && (
-        <S.SessionListContainer ref={sessionListRef}>
-          {memoizedSessions.map((session) => (
-            <div key={session.id}>
-              <SessionsListTile
-                id={session.id}
-                sessionName={session.sessionName}
-                sensorName={session.sensorName}
-                averageValue={session.averageValue}
-                startTime={session.startTime}
-                endTime={session.endTime}
-                streamId={session.streamId}
-                onClick={(id, streamId) => handleClick(id, streamId)}
-                onMouseEnter={(id) => handleMouseEnter(id)}
-                onMouseLeave={handleMouseLeave}
-              />
-            </div>
-          ))}
+        <S.SessionListContainer ref={listContainerRef}>
+          <InfiniteLoader
+            ref={infiniteLoaderRef}
+            isItemLoaded={isItemLoaded}
+            itemCount={itemCount}
+            loadMoreItems={loadMoreItems}
+          >
+            {({ onItemsRendered, ref }) => (
+              <List
+                className="List"
+                height={listDimensions.height}
+                itemCount={itemCount}
+                itemSize={130}
+                width={listDimensions.width}
+                itemData={itemData}
+                onScroll={(scrollArgs: ListOnScrollProps) =>
+                  saveScrollPosition(scrollArgs.scrollOffset)
+                }
+                ref={ref}
+                initialScrollOffset={initialScrollOffset}
+                onItemsRendered={onItemsRendered}
+              >
+                {Row}
+              </List>
+            )}
+          </InfiniteLoader>
         </S.SessionListContainer>
       )}
       {showAlert && (
