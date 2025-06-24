@@ -5,13 +5,18 @@
       xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9
             http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd">
   <url>
-    <loc>http://aircasting.habitatmap.org/mobile_map</loc>
-    <changefreq>always</changefreq>
+    <loc>https://aircasting.org/</loc>
+    <changefreq>daily</changefreq>
     <priority>1.00</priority>
   </url>
   <url>
-    <loc>http://aircasting.habitatmap.org/fixed_map</loc>
+    <loc>https://aircasting.org/new_map</loc>
     <changefreq>always</changefreq>
     <priority>0.90</priority>
+  </url>
+  <url>
+    <loc>https://aircasting.org/map</loc>
+    <changefreq>always</changefreq>
+    <priority>0.85</priority>
   </url>
 </urlset>
