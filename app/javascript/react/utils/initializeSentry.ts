@@ -4,7 +4,7 @@ export const initializeSentry = () => {
   let sentryEnvironment: string;
 
   switch (window.location.hostname) {
-    case "aircasting.habitatmap.org":
+    case "aircasting.org":
       sentryEnvironment = "Production";
       break;
     case "172.104.20.165":
