@@ -11,5 +11,14 @@ module AirCasting
 
       result
     end
+
+    # used for testing purposes only
+    def self.deflate(string)
+      io = StringIO.new
+      gz = Zlib::GzipWriter.new(io)
+      gz.write(string)
+      gz.close
+      io.string
+    end
   end
 end

@@ -172,8 +172,7 @@ describe 'POST api/v3/fixed_streaming/measurements' do
         params = { data: data, compression: true }.to_json
 
         post '/api/realtime/measurements', headers: headers, params: params
-        expect(response).to be_successful
-        binding.pry
+        expect(response).to be_bad_request
         expect(Measurement.count).to eq(0)
       end
     end
