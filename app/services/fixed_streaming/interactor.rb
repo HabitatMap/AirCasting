@@ -84,6 +84,10 @@ module FixedStreaming
           last_measurement: last_measurement,
         )
 
+        Rails.logger.info(
+          "Last measurement details: time=#{last_measurement.time}, value=#{last_measurement.value}, stream_id=#{stream.id}",
+        )
+
         streams_repository.update_average_value!(
           stream: stream,
           value: last_measurement.value,
