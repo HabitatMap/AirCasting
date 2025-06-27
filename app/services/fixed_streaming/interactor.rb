@@ -36,7 +36,7 @@ module FixedStreaming
           )
         end
 
-        update_session_end_timestamps(session, measurements)
+        update_end_timestamps_and_average_value(session, stream, measurements)
         update_measurements_count(stream, number_of_inserts)
       end
 
@@ -75,13 +75,18 @@ module FixedStreaming
       )
     end
 
-    def update_session_end_timestamps(session, measurements)
+    def update_end_timestamps_and_average_value(session, stream, measurements)
       last_measurement = measurements.max_by(&:time)
 
       if last_measurement.time > session.end_time_local
         fixed_sessions_repository.update_end_timestamps!(
           session: session,
           last_measurement: last_measurement,
+        )
+
+        streams_repository.update_average_value!(
+          stream: stream,
+          value: last_measurement.value,
         )
       end
     end

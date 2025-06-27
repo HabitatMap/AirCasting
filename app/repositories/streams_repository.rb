@@ -68,4 +68,10 @@ class StreamsRepository
   def update_measurements_count!(stream_id:, measurements_count:)
     Stream.update_counters(stream_id, measurements_count: measurements_count)
   end
+
+  def update_average_value!(stream:, value:)
+    stream.average_value = value
+
+    stream.save!
+  end
 end
