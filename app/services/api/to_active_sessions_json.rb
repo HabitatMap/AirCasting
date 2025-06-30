@@ -70,6 +70,12 @@ class Api::ToActiveSessionsJson
           'is_active' => session.is_active,
           'last_hourly_average_value' =>
             related_stream.last_hourly_average_value,
+          'average_value' =>
+            if anonymous
+              last_measurement_value(related_stream.id)
+            else
+              related_stream.last_hourly_average_value
+            end,
           'streams' => {
             related_stream.sensor_name => {
               'measurement_short_type' => related_stream.measurement_short_type,
