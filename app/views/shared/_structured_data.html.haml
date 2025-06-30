@@ -1,0 +1,184 @@
+%script{type: 'application/ld+json'}
+  :plain
+    {
+      "@context": "https://schema.org",
+      "@graph": [
+        {
+          "@type": "Organization",
+          "name": "AirCasting",
+          "url": "https://aircasting.org/",
+          "logo": "https://aircasting.org/assets/aircasting-logo-1c4b14352a1c0d4943f773669677464082269a944883984d4121544a86b35d64.svg",
+          "taxID": "20-8834317",
+          "address": {
+            "@type": "PostalAddress",
+            "streetAddress": "34A St Marks Avenue",
+            "addressLocality": "Brooklyn",
+            "addressRegion": "NY",
+            "postalCode": "11217",
+            "addressCountry": "US"
+          },
+          "telephone": "+1-347-410-9499",
+          "sameAs": [
+            "https://www.instagram.com/habitatmap",
+            "https://bsky.app/profile/habitatmap.bsky.social",
+            "https://www.youtube.com/@habitatmap",
+            "https://www.facebook.com/habitatmap",
+            "https://www.linkedin.com/company/habitatmap",
+            "https://twitter.com/aircasting",
+            "https://github.com/habitatmap"
+          ],
+          "contactPoint": {
+            "@type": "ContactPoint",
+            "contactType": "customer support",
+            "email": "info@habitatmap.org",
+            "url": "https://aircasting.org/",
+            "telephone": "+1-347-410-9499"
+          }
+        },
+        {
+          "@type": "WebSite",
+          "url": "https://aircasting.org/",
+          "potentialAction": {
+            "@type": "SearchAction",
+            "target": {
+              "@type": "EntryPoint",
+              "urlTemplate": "https://aircasting.org/map?q={search_term_string}"
+            },
+            "query-input": "required name=search_term_string"
+          }
+        },
+        {
+          "@type": "MobileApplication",
+          "name": "AirCasting for Android",
+          "operatingSystem": "Android",
+          "applicationCategory": "Weather",
+          "offers": {
+            "@type": "Offer",
+            "price": "0",
+            "priceCurrency": "USD"
+          },
+          "aggregateRating": {
+            "@type": "AggregateRating",
+            "ratingValue": "4.1",
+            "ratingCount": "258"
+          },
+          "url": "https://play.google.com/store/apps/details?id=org.habitatmap.aircasting"
+        },
+        {
+          "@type": "MobileApplication",
+          "name": "AirCasting for iOS",
+          "operatingSystem": "iOS",
+          "applicationCategory": "Weather",
+          "offers": {
+            "@type": "Offer",
+            "price": "0",
+            "priceCurrency": "USD"
+          },
+          "aggregateRating": {
+            "@type": "AggregateRating",
+            "ratingValue": "3.9",
+            "ratingCount": "22"
+          },
+          "url": "https://apps.apple.com/us/app/aircasting-by-habitatmap/id1029283344"
+        },
+        {
+          "@type": "SoftwareApplication",
+          "name": "AirCasting Web Application",
+          "operatingSystem": "All",
+          "applicationCategory": "WebApplication",
+          "offers": {
+            "@type": "Offer",
+            "price": "0",
+            "priceCurrency": "USD"
+          },
+          "url": "https://aircasting.org/"
+        },
+        {
+          "@type": "Product",
+          "name": "AirBeam3",
+          "image": "https://getairbeam.com/assets/airbeam3_2-88229b4e3398c8c514787a26c4839de8484e554160a266a8779658f844a497c3.jpg",
+          "description": "AirBeam3 is a wearable air quality monitor that measures PM1, PM2.5, PM10, temperature, and humidity. It connects to the AirCasting app to map, graph, and share your data.",
+          "sku": "AB3-001",
+          "brand": {
+            "@type": "Brand",
+            "name": "HabitatMap"
+          },
+          "offers": {
+            "@type": "Offer",
+            "url": "https://getairbeam.com/",
+            "priceCurrency": "USD",
+            "price": "199.00",
+            "priceValidUntil": "2025-12-31",
+            "itemCondition": "https://schema.org/NewCondition",
+            "availability": "https://schema.org/InStock",
+            "hasMerchantReturnPolicy": {
+              "@type": "MerchantReturnPolicy",
+              "applicableCountry": "US",
+              "returnPolicyCategory": "https://schema.org/MerchantReturnFiniteReturnWindow",
+              "merchantReturnDays": 30,
+              "returnMethod": "https://schema.org/ReturnByMail",
+              "returnFees": "https://schema.org/FreeReturn"
+            },
+            "shippingDetails": {
+              "@type": "OfferShippingDetails",
+              "shippingRate": {
+                "@type": "MonetaryAmount",
+                "value": "10.00",
+                "currency": "USD"
+              },
+              "shippingDestination": {
+                "@type": "DefinedRegion",
+                "addressCountry": "US"
+              },
+              "deliveryTime": {
+                "@type": "ShippingDeliveryTime",
+                "handlingTime": {
+                  "@type": "QuantitativeValue",
+                  "minValue": 1,
+                  "maxValue": 1,
+                  "unitCode": "DAY"
+                },
+                "transitTime": {
+                  "@type": "QuantitativeValue",
+                  "minValue": 3,
+                  "maxValue": 7,
+                  "unitCode": "DAY"
+                }
+              }
+            }
+          },
+          "aggregateRating": {
+            "@type": "AggregateRating",
+            "ratingValue": "4.8",
+            "reviewCount": "89"
+          }
+        },
+        {
+          "@type": "Dataset",
+          "name": "AirCasting Air Quality Data",
+          "description": "A global dataset of crowdsourced, hyperlocal air quality measurements for fine particulate matter (PM2.5), carbon dioxide (CO2), temperature, and humidity, collected by the AirCasting community using the AirBeam and AirCasting app.",
+          "url": "https://aircasting.org/",
+          "creator": {
+            "@type": "Organization",
+            "name": "AirCasting"
+          },
+          "license": "https://creativecommons.org/licenses/by-sa/4.0/",
+          "keywords": [
+            "air quality",
+            "citizen science",
+            "PM2.5",
+            "environmental data",
+            "air pollution",
+            "open data"
+          ],
+          "spatialCoverage": {
+            "@type": "Place",
+            "geo": {
+              "@type": "GeoShape",
+              "box": "-90 -180 90 180"
+            }
+          },
+          "temporalCoverage": "2011-01-01/.."
+        }
+      ]
+    }

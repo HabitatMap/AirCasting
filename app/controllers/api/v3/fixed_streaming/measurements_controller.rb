@@ -8,7 +8,8 @@ module Api
         def create
           result =
             ::FixedStreaming::Interactor.new.call(
-              params: params,
+              data: params[:data],
+              compression: params[:compression],
               user_id: current_user.id,
             )
 

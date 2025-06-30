@@ -1,10 +1,10 @@
-import { gray400, white } from "../../../../../assets/styles/colors";
+import { gray200, gray400, white } from "../../../../../assets/styles/colors";
 
 export class LabelOverlay extends google.maps.OverlayView {
   private div: HTMLElement | null = null;
   private position: google.maps.LatLng;
   private color: string;
-  private value: number;
+  private value: number | string;
   private unitSymbol: string;
   private isSelected: boolean;
   private onClick: () => void;
@@ -13,7 +13,7 @@ export class LabelOverlay extends google.maps.OverlayView {
   constructor(
     position: google.maps.LatLng,
     color: string,
-    value: number,
+    value: number | string,
     unitSymbol: string,
     isSelected: boolean,
     onClick: () => void,
@@ -68,7 +68,7 @@ export class LabelOverlay extends google.maps.OverlayView {
   public update(
     isSelected: boolean,
     color: string,
-    value: number,
+    value: number | string,
     unitSymbol: string
   ): void {
     this.isSelected = isSelected;
@@ -113,6 +113,8 @@ export class LabelOverlay extends google.maps.OverlayView {
     circle.style.backgroundColor = this.color;
     circle.style.marginRight = "6px";
     circle.style.flexShrink = "0";
+    circle.style.border =
+      typeof this.value !== "number" ? `1px solid ${gray200}` : "none";
 
     const textElement = document.createElement("span");
     textElement.style.fontSize = "12px";
@@ -120,7 +122,10 @@ export class LabelOverlay extends google.maps.OverlayView {
     textElement.style.fontFamily = "Roboto, Arial, sans-serif";
     textElement.style.letterSpacing = "0.14px";
     textElement.style.color = gray400;
-    textElement.innerText = `${Math.round(this.value)} ${this.unitSymbol}`;
+    textElement.innerText =
+      typeof this.value === "number"
+        ? `${Math.round(this.value)} ${this.unitSymbol}`
+        : this.value;
     textElement.style.alignSelf = "center";
 
     labelContainer.appendChild(circle);

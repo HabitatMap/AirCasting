@@ -41,7 +41,9 @@
       "donate": "Donate",
       "aircastingPage": "AirCasting page",
       "openMenu": "Open menu",
-      "habitatMapPage": "HabitatMap page"
+      "habitatMapPage": "HabitatMap page",
+      "privacy": "Privacy Policy",
+      "ein": "EIN: 20-8834317"
     },
     "filter": "Filters",
     "altFilter": "Filters icon",
@@ -155,7 +157,8 @@
       "altPrevious": "Previous note",
       "altPhoto": "Note photo"
     },
-    "locationError": "Unable to determine your location"
+    "locationError": "Unable to determine your location",
+    "calculating": "Calculating..."
   },
   "sessionDetailsModal": {
     "calendar": "Calendar",

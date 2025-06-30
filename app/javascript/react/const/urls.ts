@@ -14,6 +14,7 @@ const blog = `${habitatMap}/blog`;
 const donate = `${habitatMap}/donate`;
 const press = `${habitatMap}/about/press`;
 const search = `${habitatMap}/search`;
+const privacy = `${habitatMap}/aircasting-app-privacy-policy`;
 const reactMap = `/`;
 
 // Airbeam
@@ -47,4 +48,5 @@ export const urls = {
   history,
   reactMap,
   airbeamMiniUsersGuide,
+  privacy,
 };

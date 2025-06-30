@@ -133,7 +133,7 @@ const CustomParameterFilter: React.FC<CustomParameterFilterProps> = ({
         <S.ModalContent>
           <S.Header>
             <S.ChevronBackButton onClick={goBack}>
-              <img src={chevronLeft} />
+              <img src={chevronLeft} alt={t("filters.back")} />
             </S.ChevronBackButton>
             <S.HeaderTitle>{t("filters.selectCustomParameter")}</S.HeaderTitle>
           </S.Header>
@@ -153,7 +153,9 @@ const CustomParameterFilter: React.FC<CustomParameterFilterProps> = ({
                 <S.CustomParameter $isActive={item === measurementType}>
                   {item}
                 </S.CustomParameter>
-                {item === measurementType && <img src={checkmark} />}
+                {item === measurementType && (
+                  <img src={checkmark} alt={t("filters.altCheckmark")} />
+                )}
               </S.CustomParameterItem>
             ))}
           </S.CustomParameterList>

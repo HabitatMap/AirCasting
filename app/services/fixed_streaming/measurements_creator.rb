@@ -17,7 +17,7 @@ module FixedStreaming
         end
       import_result = measurements_repository.import(measurements: measurements)
 
-      [import_result, last_measurement(measurements)]
+      [import_result.num_inserts, measurements]
     end
 
     private
@@ -43,10 +43,6 @@ module FixedStreaming
       time_with_time_zone = time.in_time_zone.change(zone: time_zone)
 
       { value: value, time: time, time_with_time_zone: time_with_time_zone }
-    end
-
-    def last_measurement(measurements)
-      measurements.max_by(&:time)
     end
   end
 end

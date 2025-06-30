@@ -5,7 +5,7 @@
 
 ## About
 
-This is the AirCasting project - the project aims to build a platform for gathering, visualization and sharing of environmental data. To learn more about the platform visit [aircasting.habitatmap.org](http://aircasting.habitatmap.org).
+This is the AirCasting project - the project aims to build a platform for gathering, visualization and sharing of environmental data. To learn more about the platform visit [aircasting.org](https://aircasting.org).
 
 ## Deploy
 

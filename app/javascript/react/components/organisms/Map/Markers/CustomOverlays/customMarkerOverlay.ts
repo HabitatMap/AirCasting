@@ -87,7 +87,6 @@ export class CustomMarkerOverlay extends google.maps.OverlayView {
     const size = this.isSelected ? 44 : 36;
     const blurValue = this.isSelected ? 0 : 3;
     const opacityValue = this.isSelected ? 0.4 : 0.8;
-
     this.div.style.width = `${size}px`;
     this.div.style.height = `${size}px`;
     this.div.style.borderRadius = "50%";

@@ -1,6 +1,6 @@
 import "./locales/i18n";
 
-import React from "react";
+import React, { lazy, Suspense } from "react";
 import { Provider } from "react-redux";
 import {
   createBrowserRouter,
@@ -11,11 +11,26 @@ import {
 
 import GlobalStyles from "./assets/styles/global-styles";
 import { Navbar } from "./components/molecules/Navbar/Navbar";
-import { CalendarPage } from "./pages/CalendarPage/CalendarPage";
-import { MapPage } from "./pages/MapPage";
-import { NotFoundPage } from "./pages/NotFoundPage";
-import { RedirectPage } from "./pages/RedirectPage";
 import store from "./store/index";
+
+const MapPage = lazy(() =>
+  import("./pages/MapPage").then((module) => ({ default: module.MapPage }))
+);
+const CalendarPage = lazy(() =>
+  import("./pages/CalendarPage/CalendarPage").then((module) => ({
+    default: module.CalendarPage,
+  }))
+);
+const NotFoundPage = lazy(() =>
+  import("./pages/NotFoundPage").then((module) => ({
+    default: module.NotFoundPage,
+  }))
+);
+const RedirectPage = lazy(() =>
+  import("./pages/RedirectPage").then((module) => ({
+    default: module.RedirectPage,
+  }))
+);
 
 const NEW_MAP = "/new_map";
 
@@ -62,7 +77,9 @@ const App = () => {
   return (
     <Provider store={store}>
       <GlobalStyles />
-      <RouterProvider router={router}></RouterProvider>
+      <Suspense fallback={<div>Loading...</div>}>
+        <RouterProvider router={router}></RouterProvider>
+      </Suspense>
     </Provider>
   );
 };

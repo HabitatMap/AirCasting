@@ -1,7 +1,8 @@
 import HighchartsReact from "highcharts-react-official";
-import Highcharts from "highcharts/highstock";
+import Highcharts from "highcharts/highcharts";
 import HighchartsAccessibility from "highcharts/modules/accessibility";
 import NoDataToDisplay from "highcharts/modules/no-data-to-display";
+import stock from "highcharts/modules/stock";
 import React, {
   memo,
   useCallback,
@@ -68,6 +69,8 @@ import {
   seriesOptions,
 } from "./graphConfig";
 
+// Initialize the stock module
+stock(Highcharts);
 // Initialize No-Data and Accessibility modules.
 NoDataToDisplay(Highcharts);
 HighchartsAccessibility(Highcharts);

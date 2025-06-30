@@ -171,7 +171,7 @@ const ExportDataComponent = ({
                 aria-label={t("exportDataModal.exportButton")}
               >
                 {t("exportDataModal.exportButton")}
-                <img src={downloadWhite} style={{ width: "1.5rem" }} />
+                <img src={downloadWhite} style={{ width: "1.5rem" }} alt="" />
               </BlueButton>
             </FormWrapper>
 

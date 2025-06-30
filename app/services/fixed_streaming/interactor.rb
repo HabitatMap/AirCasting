@@ -5,28 +5,39 @@ module FixedStreaming
       streams_repository: StreamsRepository.new,
       stream_creator: StreamCreator.new,
       measurements_creator: MeasurementsCreator.new,
+      stream_daily_averages_recalculator: StreamDailyAveragesRecalculator.new,
       fixed_sessions_repository: FixedSessionsRepository.new
     )
       @params_parser = params_parser
       @streams_repository = streams_repository
       @stream_creator = stream_creator
       @measurements_creator = measurements_creator
+      @stream_daily_averages_recalculator = stream_daily_averages_recalculator
       @fixed_sessions_repository = fixed_sessions_repository
     end
 
-    def call(params:, user_id:)
-      parsing_result = parse_params(params, user_id)
+    def call(data:, compression:, user_id:)
+      parsing_result = parse_params(data, compression, user_id)
 
       return parsing_result unless parsing_result.success?
-      session = parsing_result.value[:session]
-      data = parsing_result.value[:data]
+      session, data, data_flow =
+        parsing_result.value.values_at(:session, :data, :data_flow)
 
       ActiveRecord::Base.transaction do
         stream = find_stream(session, data) || create_stream(session, data)
-        measurement_import_result, last_measurement =
+        number_of_inserts, measurements =
           create_measurements(data, session, stream)
-        update_session_end_timestamps(session, last_measurement)
-        update_measurements_count(stream, measurement_import_result)
+
+        if data_flow == :sync
+          stream_daily_averages_recalculator.call(
+            measurements: measurements,
+            time_zone: session.time_zone,
+            stream_id: stream.id,
+          )
+        end
+
+        update_session_end_timestamps(session, measurements)
+        update_measurements_count(stream, number_of_inserts)
       end
 
       Success.new('measurements created')
@@ -38,10 +49,11 @@ module FixedStreaming
                 :streams_repository,
                 :stream_creator,
                 :measurements_creator,
+                :stream_daily_averages_recalculator,
                 :fixed_sessions_repository
 
-    def parse_params(params, user_id)
-      params_parser.call(params: params, user_id: user_id)
+    def parse_params(data, compression, user_id)
+      params_parser.call(data: data, compression: compression, user_id: user_id)
     end
 
     def find_stream(session, data)
@@ -63,7 +75,9 @@ module FixedStreaming
       )
     end
 
-    def update_session_end_timestamps(session, last_measurement)
+    def update_session_end_timestamps(session, measurements)
+      last_measurement = measurements.max_by(&:time)
+
       if last_measurement.time > session.end_time_local
         fixed_sessions_repository.update_end_timestamps!(
           session: session,
@@ -72,10 +86,10 @@ module FixedStreaming
       end
     end
 
-    def update_measurements_count(stream, measurement_import_result)
+    def update_measurements_count(stream, number_of_inserts)
       streams_repository.update_measurements_count!(
         stream_id: stream.id,
-        measurements_count: measurement_import_result.num_inserts,
+        measurements_count: number_of_inserts,
       )
     end
   end

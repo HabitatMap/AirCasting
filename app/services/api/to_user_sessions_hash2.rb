@@ -27,10 +27,13 @@ class Api::ToUserSessionsHash2
   end
 
   def delete_sessions(sessions)
-    sessions = Session.where(uuid: sessions.pluck(:uuid))
-    streams = Stream.where(session: sessions)
-    streams.update_all(last_hourly_average_id: nil)
-    sessions.destroy_all
+    uuids_to_delete = sessions.pluck(:uuid)
+    sessions = Session.where(uuid: uuids_to_delete)
+
+    UserSessionsSyncing::Deleter.new.call(sessions: sessions)
+    uuids_to_delete.each do |uuid|
+      DeletedSession.where(uuid: uuid, user_id: user.id).first_or_create!
+    end
   end
 
   def deleted

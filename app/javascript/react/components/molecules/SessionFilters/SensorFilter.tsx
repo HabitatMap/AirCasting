@@ -162,7 +162,7 @@ export const DesktopSensorFilter = () => {
                 <S.SeeMoreSpan>
                   {t(`filters.${moreOpen ? "seeLess" : "seeMore"}`)}
                 </S.SeeMoreSpan>
-                <img src={moreOpen ? minus : plus} />
+                <img src={moreOpen ? minus : plus} alt="" />
               </S.SeeMoreButton>
             )}
           </S.BasicParameterWrapper>
@@ -229,7 +229,7 @@ export const MobileDeviceSensorFilter = ({
           <S.ChevronBackButton
             onClick={() => dispatch(setBasicSensorsModalOpen(false))}
           >
-            <img src={chevronLeft} />
+            <img src={chevronLeft} alt={t("filters.back")} />
           </S.ChevronBackButton>
           <S.HeaderTitle>{t("filters.selectSensor")}</S.HeaderTitle>
         </S.Header>
@@ -243,7 +243,9 @@ export const MobileDeviceSensorFilter = ({
               <S.ButtonSpan $isActive={item === sensorName}>
                 {item}
               </S.ButtonSpan>
-              {item === sensorName && <img src={checkmark} />}
+              {item === sensorName && (
+                <img src={checkmark} alt={t("filters.altCheckmark")} />
+              )}
             </S.BasicParameterButton>
           ))}
         </S.BasicParameterButtonsWrapper>
