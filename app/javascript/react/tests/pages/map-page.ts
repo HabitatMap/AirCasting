@@ -202,6 +202,17 @@ export class MapPage {
   }
 
   async waitForLoadingOverlay() {
-    await this.page.waitForSelector(".loading-overlay", { state: "hidden" });
+    // The LoaderOverlay is a styled component without a CSS class
+    // It has position: fixed, z-index: 5, and background-color: rgba(255, 255, 255, 0.5)
+    await this.page.waitForFunction(
+      () => {
+        // Check if there's any element with the loading overlay styles
+        const overlays = document.querySelectorAll(
+          'div[style*="position: fixed"][style*="z-index: 5"]'
+        );
+        return overlays.length === 0;
+      },
+      { timeout: 30000 }
+    );
   }
 }

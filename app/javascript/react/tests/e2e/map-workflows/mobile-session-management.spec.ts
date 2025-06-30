@@ -17,7 +17,18 @@ test("Test the mobile session managment workflow", async ({ page }) => {
       timeout: 10000,
     });
 
-    await page.getByText("avg. 1NYC AirBeamMini-PM2.505").click();
+    // Wait for loader overlay to disappear
+    await page.waitForFunction(
+      () => {
+        const overlays = document.querySelectorAll(
+          'div[style*="position: fixed"][style*="z-index: 5"]'
+        );
+        return overlays.length === 0;
+      },
+      { timeout: 30000 }
+    );
+
+    await page.getByText("avg. 1NYC AirBeamMini-PM2.505").first().click();
   });
 
   await test.step("Interact with session dialog", async () => {

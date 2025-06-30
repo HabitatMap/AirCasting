@@ -142,16 +142,29 @@ export const test = base.extend<MobilePageFixtures>({
     });
 
     // Mock mobile sessions endpoint
+    let sessionsReturned = false;
     await page.route("**/api/mobile/sessions.json*", async (route: Route) => {
       console.log("Mocking /api/mobile/sessions.json");
-      await route.fulfill({
-        status: 200,
-        contentType: "application/json",
-        body: JSON.stringify({
-          sessions: [mobileSessionData.session],
-          fetchableSessionsCount: 1588,
-        }),
-      });
+      if (!sessionsReturned) {
+        sessionsReturned = true;
+        await route.fulfill({
+          status: 200,
+          contentType: "application/json",
+          body: JSON.stringify({
+            sessions: [mobileSessionData.session],
+            fetchableSessionsCount: 1,
+          }),
+        });
+      } else {
+        await route.fulfill({
+          status: 200,
+          contentType: "application/json",
+          body: JSON.stringify({
+            sessions: [],
+            fetchableSessionsCount: 1,
+          }),
+        });
+      }
     });
 
     // Mock mobile streams endpoint
