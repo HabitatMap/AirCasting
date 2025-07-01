@@ -213,17 +213,30 @@ export const test = base.extend<MapPageFixtures>({
       });
     });
 
-    // Mock mobile sessions endpoint
+    // Mock mobile sessions endpoint with session counter
+    let sessionsReturned = false;
     await page.route("**/api/mobile/sessions.json*", async (route) => {
       console.log("[MOCK] Using mock data for /api/mobile/sessions.json");
-      await route.fulfill({
-        status: 200,
-        contentType: "application/json",
-        body: JSON.stringify({
-          sessions: [mobileSessionData.session],
-          fetchableSessionsCount: 1588,
-        }),
-      });
+      if (!sessionsReturned) {
+        sessionsReturned = true;
+        await route.fulfill({
+          status: 200,
+          contentType: "application/json",
+          body: JSON.stringify({
+            sessions: [mobileSessionData.session],
+            fetchableSessionsCount: 1,
+          }),
+        });
+      } else {
+        await route.fulfill({
+          status: 200,
+          contentType: "application/json",
+          body: JSON.stringify({
+            sessions: [],
+            fetchableSessionsCount: 1,
+          }),
+        });
+      }
     });
 
     // Mock /api/averages2.json endpoint
@@ -334,7 +347,28 @@ export const test = base.extend<MapPageFixtures>({
       }
     );
 
+    // Mock /api/autocomplete/usernames endpoint
+    await page.route("**/api/autocomplete/usernames*", async (route: Route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: JSON.stringify([
+          "2ndplace",
+          "Amy",
+          "John",
+          "scoobydoo",
+          "testuser",
+        ]),
+      });
+    });
+
     const mapPage = new MapPage(page);
+
+    // Add a method to reset the sessions counter for each test
+    mapPage.resetSessionsCounter = () => {
+      sessionsReturned = false;
+    };
+
     await use(mapPage);
 
     await mockUtils.clearMocks();

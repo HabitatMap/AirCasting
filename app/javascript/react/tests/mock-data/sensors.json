@@ -8,6 +8,13 @@
       "session_count": 1
     },
     {
+      "id": "airbeammini-pm25",
+      "name": "AirBeamMini-PM2.5",
+      "measurement_type": "Particulate Matter",
+      "unit_symbol": "µg/m³",
+      "session_count": 1
+    },
+    {
       "id": "gov-pm25",
       "name": "Government-PM2.5",
       "measurement_type": "Particulate Matter",

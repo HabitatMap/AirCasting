@@ -215,4 +215,24 @@ export class MapPage {
       { timeout: 30000 }
     );
   }
+
+  async waitForUIReady() {
+    // Wait for loading overlay to disappear
+    await this.waitForLoadingOverlay();
+
+    // Wait for network to be idle
+    await this.waitForLoadState("networkidle");
+
+    // Wait for any loading indicators to disappear
+    await this.page.waitForSelector(".highcharts-loading", {
+      state: "hidden",
+      timeout: 10000,
+    });
+
+    // Additional wait to ensure UI is fully ready
+    await this.waitForTimeout(1000);
+  }
+
+  // Method to reset sessions counter (will be set by fixture)
+  resetSessionsCounter?: () => void;
 }

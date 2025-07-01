@@ -28,6 +28,17 @@
       ]
     },
     {
+      "id": "sound",
+      "name": "Sound Level",
+      "sensors": [
+        {
+          "id": "gov-sound",
+          "name": "Government-Sound",
+          "unit_symbol": "dB"
+        }
+      ]
+    },
+    {
       "id": "no2",
       "name": "Nitrogen Dioxide",
       "sensors": [
