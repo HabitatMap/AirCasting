@@ -6,6 +6,11 @@ import { FixedTimeRange } from "../../types/timeRange";
 import { MockUtils } from "../helpers/mock-utils";
 import { createMockStore } from "../helpers/mockStore";
 import calendarData from "../mock-data/calendar-data.json";
+import parametersData from "../mock-data/parameters.json";
+import profilesData from "../mock-data/profiles.json";
+import sensorsData from "../mock-data/sensors.json";
+import tagsData from "../mock-data/tags.json";
+import thresholdsData from "../mock-data/thresholds.json";
 
 // Define a type for our store
 type MockReduxStore = {
@@ -36,6 +41,117 @@ export const test = base.extend<CalendarFixtures>({
     // Set up mocks before the test
     const mockUtils = new MockUtils(page);
     await mockUtils.setupMocks();
+
+    // Add catch-all logger at the very top
+    await page.route("**/*", async (route, request) => {
+      // If this is not fulfilled by a mock, log a warning
+      if (!route.request().url().includes("localhost")) {
+        console.warn("[MOCK WARNING] Not mocked, real request:", request.url());
+      } else {
+        console.log("Intercepted:", request.url());
+      }
+      route.continue();
+    });
+
+    // Mock sensors endpoint
+    await page.route("**/api/sensors**", async (route) => {
+      console.log("[MOCK] Using mock data for /api/sensors");
+      await route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: JSON.stringify(sensorsData.sensors),
+      });
+    });
+
+    // Mock parameters endpoint
+    await page.route("**/api/parameters**", async (route) => {
+      console.log("[MOCK] Using mock data for /api/parameters");
+      await route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: JSON.stringify(parametersData),
+      });
+    });
+
+    // Mock thresholds endpoint
+    await page.route("**/api/thresholds**", async (route) => {
+      console.log("[MOCK] Using mock data for /api/thresholds");
+      await route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: JSON.stringify(thresholdsData),
+      });
+    });
+
+    // Add an additional route for /api/thresholds/*
+    await page.route("**/api/thresholds/*", async (route) => {
+      console.log("[MOCK] Using mock data for /api/thresholds/*");
+      await route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: JSON.stringify(thresholdsData),
+      });
+    });
+
+    // Mock profiles endpoint
+    await page.route("**/api/profiles**", async (route) => {
+      console.log("[MOCK] Using mock data for /api/profiles");
+      await route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: JSON.stringify(profilesData),
+      });
+    });
+
+    // Mock tags endpoint
+    await page.route("**/api/tags**", async (route) => {
+      console.log("[MOCK] Using mock data for /api/tags");
+      await route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: JSON.stringify(tagsData),
+      });
+    });
+
+    // Mock autocomplete usernames endpoint
+    await page.route("**/api/autocomplete/usernames*", async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: JSON.stringify([
+          "2ndplace",
+          "Amy",
+          "John",
+          "scoobydoo",
+          "testuser",
+        ]),
+      });
+    });
+
+    // Mock mobile autocomplete tags endpoint
+    await page.route("**/api/mobile/autocomplete/tags*", async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: JSON.stringify([
+          "A:",
+          "Airdata",
+          "amas",
+          "at",
+          "Avg:",
+          "blue",
+          "Canadian",
+          "cc70",
+          "chicken",
+          "dee8",
+          "diesel",
+          "forest",
+          "gr",
+          "Greenfield",
+          "GT",
+        ]),
+      });
+    });
 
     // Set up initial Redux state
     const store = createMockStore({
@@ -165,6 +281,7 @@ export const test = base.extend<CalendarFixtures>({
 
     // Mock calendar data endpoint
     await page.route("**/calendar_data.json", async (route) => {
+      console.log("[MOCK] Using mock data for /calendar_data.json");
       await route.fulfill({
         status: 200,
         contentType: "application/json",
@@ -172,8 +289,26 @@ export const test = base.extend<CalendarFixtures>({
       });
     });
 
-    // Mock thresholds endpoint
+    // Mock thresholds endpoint for specific sensor
     await page.route("**/thresholds/AirBeam-PM2.5", async (route) => {
+      console.log("[MOCK] Using mock data for /thresholds/AirBeam-PM2.5");
+      await route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: JSON.stringify({
+          unit_symbol: "µg/m³",
+          threshold_very_low: calendarData.thresholds.min,
+          threshold_low: calendarData.thresholds.low,
+          threshold_medium: calendarData.thresholds.middle,
+          threshold_high: calendarData.thresholds.high,
+          threshold_very_high: calendarData.thresholds.max,
+        }),
+      });
+    });
+
+    // Mock thresholds endpoint for Government-PM2.5
+    await page.route("**/thresholds/Government-PM2.5", async (route) => {
+      console.log("[MOCK] Using mock data for /thresholds/Government-PM2.5");
       await route.fulfill({
         status: 200,
         contentType: "application/json",
@@ -190,6 +325,7 @@ export const test = base.extend<CalendarFixtures>({
 
     // Mock session data endpoint
     await page.route("**/sessions/export.json", async (route) => {
+      console.log("[MOCK] Using mock data for /sessions/export.json");
       await route.fulfill({
         status: 200,
         contentType: "application/json",
@@ -210,7 +346,7 @@ export const test = base.extend<CalendarFixtures>({
     // Mock stream daily averages endpoint with proper response format
     await page.route("**/stream_daily_averages**", async (route) => {
       const url = route.request().url();
-      console.log("Intercepted stream_daily_averages request:", url);
+      console.log("[MOCK] Intercepted stream_daily_averages request:", url);
 
       // Create a large dataset with daily entries from Dec 2023 to May 2024
       const dailyAverages: Array<{ date: string; value: number }> = [];
@@ -241,7 +377,7 @@ export const test = base.extend<CalendarFixtures>({
       };
 
       console.log(
-        "Sending stream_daily_averages response with",
+        "[MOCK] Sending stream_daily_averages response with",
         dailyAverages.length,
         "data points"
       );
@@ -250,6 +386,7 @@ export const test = base.extend<CalendarFixtures>({
 
     // Mock measurements endpoint
     await page.route("**/measurements", async (route) => {
+      console.log("[MOCK] Using mock data for /measurements");
       await route.fulfill({
         status: 200,
         contentType: "application/json",
@@ -283,6 +420,79 @@ export const test = base.extend<CalendarFixtures>({
 
     // Mock fixed stream data endpoint
     await page.route("**/fixed/streams/*", async (route) => {
+      console.log("[MOCK] Using mock data for /fixed/streams/*");
+      await route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: JSON.stringify({
+          stream: {
+            title: "Test Calendar Session",
+            profile: "test-profile",
+            lastUpdate: "2024-03-03T00:00:00Z",
+            sensorName: "Government-PM2.5",
+            unitSymbol: "µg/m³",
+            updateFrequency: "1h",
+            active: true,
+            sessionId: 1875408,
+            startTime: "2024-03-01T00:00:00Z",
+            endTime: "2024-03-31T23:59:59Z",
+            min: calendarData.thresholds.min,
+            low: calendarData.thresholds.low,
+            middle: calendarData.thresholds.middle,
+            high: calendarData.thresholds.high,
+            max: calendarData.thresholds.max,
+            latitude: 40.69750662508967,
+            longitude: -73.979506,
+          },
+          measurements: [
+            {
+              time: new Date("2024-03-01T00:00:00Z").getTime(),
+              value: 95,
+            },
+            {
+              time: new Date("2024-03-02T00:00:00Z").getTime(),
+              value: 95,
+            },
+            {
+              time: new Date("2024-03-03T00:00:00Z").getTime(),
+              value: 95,
+            },
+          ],
+          streamDailyAverages: [
+            {
+              date: "2024-03-01",
+              value: 95,
+            },
+            {
+              date: "2024-03-02",
+              value: 95,
+            },
+            {
+              date: "2024-03-03",
+              value: 95,
+            },
+          ],
+          lastMonthMeasurements: [
+            {
+              time: new Date("2024-02-01T00:00:00Z").getTime(),
+              value: 95,
+            },
+            {
+              time: new Date("2024-02-02T00:00:00Z").getTime(),
+              value: 95,
+            },
+            {
+              time: new Date("2024-02-03T00:00:00Z").getTime(),
+              value: 95,
+            },
+          ],
+        }),
+      });
+    });
+
+    // Mock fixed_streams endpoint (alternative path)
+    await page.route("**/fixed_streams/*", async (route) => {
+      console.log("[MOCK] Using mock data for /fixed_streams/*");
       await route.fulfill({
         status: 200,
         contentType: "application/json",
@@ -399,6 +609,8 @@ export const test = base.extend<CalendarFixtures>({
     });
 
     await use(page);
+
+    await mockUtils.clearMocks();
   },
 });
 

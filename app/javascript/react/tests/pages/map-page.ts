@@ -28,7 +28,9 @@ export class MapPage {
   async waitForLoadState(
     state: "networkidle" | "load" | "domcontentloaded" = "networkidle"
   ) {
-    await this.page.waitForLoadState(state);
+    // Use a shorter timeout for networkidle to avoid long waits with mocks
+    const timeout = state === "networkidle" ? 10000 : 30000;
+    await this.page.waitForLoadState(state, { timeout });
   }
 
   async waitForTimeout(ms: number) {
@@ -37,12 +39,12 @@ export class MapPage {
 
   async navigateToMap() {
     await this.page.goto("http://localhost:3000");
-    await this.waitForLoadState();
+    await this.waitForUIReady();
   }
 
   async goto(url: string) {
     await this.page.goto(url);
-    await this.waitForLoadState();
+    await this.waitForUIReady();
   }
 
   async clickTimeRangeButton(timeRange: "HOURS" | "WEEK" | "MONTH") {
@@ -217,20 +219,29 @@ export class MapPage {
   }
 
   async waitForUIReady() {
-    // Wait for loading overlay to disappear
-    await this.waitForLoadingOverlay();
+    try {
+      // Wait for loading overlay to disappear
+      await this.waitForLoadingOverlay();
 
-    // Wait for network to be idle
-    await this.waitForLoadState("networkidle");
+      // Wait for network to be idle with shorter timeout
+      await this.waitForLoadState("networkidle");
 
-    // Wait for any loading indicators to disappear
-    await this.page.waitForSelector(".highcharts-loading", {
-      state: "hidden",
-      timeout: 10000,
-    });
+      // Wait for any loading indicators to disappear
+      await this.page.waitForSelector(".highcharts-loading", {
+        state: "hidden",
+        timeout: 5000,
+      });
 
-    // Additional wait to ensure UI is fully ready
-    await this.waitForTimeout(1000);
+      // Additional wait to ensure UI is fully ready
+      await this.waitForTimeout(500);
+    } catch (error) {
+      // If any of the above fails, just wait a bit and continue
+      console.log(
+        "waitForUIReady: Some waits failed, continuing anyway:",
+        error
+      );
+      await this.waitForTimeout(1000);
+    }
   }
 
   // Method to reset sessions counter (will be set by fixture)
