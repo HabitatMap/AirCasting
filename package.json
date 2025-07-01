@@ -67,6 +67,7 @@
   "devDependencies": {
     "@babel/register": "^7.16.0",
     "@istanbuljs/nyc-config-babel": "^3.0.0",
+    "@playwright/test": "^1.53.1",
     "@prettier/plugin-ruby": "^2.0.0",
     "@testing-library/jest-dom": "^6.4.2",
     "@testing-library/react": "^14.0.0",
@@ -75,6 +76,7 @@
     "@types/jest": "^29.5.12",
     "@types/lodash": "^4.17.1",
     "@types/moment-timezone": "^0.5.30",
+    "@types/node": "^22.15.2",
     "@types/react": "^18.2.23",
     "@types/react-dom": "^18.2.8",
     "@types/redux-mock-store": "^1.5.0",

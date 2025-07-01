@@ -23,12 +23,14 @@ const HoverMarker: React.FC<HoverMarkerProps> = ({ position }) => {
         "Hover Marker",
         16,
         20,
-        "floatPane",
-        undefined,
-        undefined
+        "floatPane"
       );
       markerRef.current.setMap(map);
       markerRef.current.setZIndex(HOVER_MARKER_Z_INDEX);
+      const markerDiv = (markerRef.current as any).div;
+      if (markerDiv) {
+        markerDiv.setAttribute("data-testid", "hover-marker");
+      }
     } else {
       markerRef.current.setPosition(position);
       markerRef.current.setZIndex(HOVER_MARKER_Z_INDEX);

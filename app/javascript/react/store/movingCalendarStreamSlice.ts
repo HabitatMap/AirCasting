@@ -77,10 +77,12 @@ export const movingStreamSlice = createSlice({
         fetchNewMovingStream.fulfilled,
         (state, action: PayloadAction<StreamDailyAverage[]>) => {
           state.status = StatusEnum.Fulfilled;
-          state.data = action.payload;
-          state.data.sort(
-            (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
-          );
+          state.data = Array.isArray(action.payload) ? action.payload : [];
+          if (state.data.length > 0) {
+            state.data.sort(
+              (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
+            );
+          }
           state.error = null;
         }
       )

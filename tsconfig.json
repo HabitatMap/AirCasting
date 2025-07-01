@@ -6,7 +6,7 @@
     "jsx": "react",
     "esModuleInterop": true,
     "resolveJsonModule": true,
-    "types": ["moment-timezone"],
+    "types": ["moment-timezone", "node", "@playwright/test"],
     "moduleResolution": "node",
     "baseUrl": ".",
     "paths": {
@@ -17,6 +17,7 @@
   "include": [
     "app/javascript/react",
     "app/javascript/@types/assets.d.ts",
-    "app/javascript/@types/moment.d.ts"
+    "app/javascript/@types/moment.d.ts",
+    "tests/**/*.ts"
   ]
 }

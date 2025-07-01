@@ -94,6 +94,14 @@ const useCalendarHook = ({
   };
 
   const getFormattedDateRange = () => {
+    if (!movingCalendarData.data || movingCalendarData.data.length === 0) {
+      return {
+        firstDate: "",
+        lastDate: "",
+        lastDateNoFormat: "",
+      };
+    }
+
     const lastElementIdx = movingCalendarData.data.length - 1;
     const maxEndDate = movingCalendarData.data[lastElementIdx].date;
     const processedMaxEndDate = moment(maxEndDate, DateFormat.default).format(
@@ -115,7 +123,11 @@ const useCalendarHook = ({
   };
 
   useEffect(() => {
-    if (movingCalendarData.data.length > 0) {
+    if (!movingCalendarData.data || movingCalendarData.data.length === 0) {
+      return;
+    }
+
+    try {
       const sortedData = [...movingCalendarData.data].sort(
         (a, b) => moment(a.date).valueOf() - moment(b.date).valueOf()
       );
@@ -152,6 +164,8 @@ const useCalendarHook = ({
         firstVisibleDataPointDate: newStartDate,
         lastVisibleDataPointDate: newEndDate,
       }));
+    } catch (error) {
+      console.error("Error processing calendar data:", error);
     }
   }, [movingCalendarData, maxCalendarDate]);
 

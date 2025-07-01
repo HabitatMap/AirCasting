@@ -3,7 +3,7 @@ import React from "react";
 import { Provider } from "react-redux";
 import { createMemoryRouter, RouterProvider } from "react-router-dom";
 import store from "./store/index";
-import { initGoogleMapsMocks } from "./test-utils/mocks/mockGoogleMapsInit";
+import { initGoogleMapsMocks } from "./tests/mock-data/mockGoogleMapsInit";
 
 // Initialize google maps mock before any tests
 initGoogleMapsMocks();
