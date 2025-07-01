@@ -26,9 +26,9 @@
       "userStories": "User Stories",
       "howItWorks": "How It Works",
       "faq": "FAQ",
-      "usersGuide": "AirBeam3 User’s Guide",
+      "usersGuide": "AirBeam3 User's Guide",
       "airbeamBuyNow": "Buy it Now",
-      "airbeamMiniUsersGuide": "AirBeam Mini User’s Guide",
+      "airbeamMiniUsersGuide": "AirBeam Mini User's Guide",
       "aircasting": "AirCasting",
       "maps": "AirCasting Maps",
       "androidApp": "Android App",
@@ -256,5 +256,12 @@
     "header": "Redirecting to the new AirCasting map",
     "message": "We have launched a brand-new version of our map with improved features and a better user experience! You will be automatically redirected to the new site in a few seconds. If the redirection does not happen, please click button to go to the new version. Thank you for your understanding and enjoy exploring our updated map!",
     "button": "Go to the new map"
+  },
+  "cookieBanner": {
+    "title": "About cookies on this site",
+    "description": "We use cookies to collect and analyse information on site performance and usage, to provide social media features and to enhance and customise content and advertisements.",
+    "allowAll": "Allow all cookies",
+    "denyAll": "Deny all",
+    "settings": "Cookie settings"
   }
 }

@@ -4,6 +4,7 @@ import { APIProvider } from "@vis.gl/react-google-maps";
 
 import { MapButtons } from "../../components/molecules/MapButtons/MapButtons";
 import { Map } from "../../components/organisms/Map/Map";
+import { CookieBanner } from "../../components/organisms/Modals/CookieBanner/CookieBanner";
 import { FocusTabController } from "../../utils/focusTabController";
 import useMobileDetection from "../../utils/useScreenSizeDetection";
 
@@ -25,6 +26,7 @@ const MapPage: React.FC<MapPageProps> = ({ children }) => {
       {!isMobile && <MapButtons />}
       <FocusTabController />
       <Map />
+      <CookieBanner />
     </APIProvider>
   );
 };
