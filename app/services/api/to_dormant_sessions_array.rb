@@ -31,7 +31,12 @@ class Api::ToDormantSessionsArray
                   .reduce({}) do |acc, stream|
                     acc.merge(
                       stream.sensor_name => {
-                        average_value: stream.average_value,
+                        average_value:
+                          if session.is_indoor
+                            last_measurement_value(stream.id)
+                          else
+                            stream.last_hourly_average_value
+                          end,
                         id: stream.id,
                         max_latitude: stream.max_latitude,
                         max_longitude: stream.max_longitude,
@@ -88,5 +93,13 @@ class Api::ToDormantSessionsArray
 
   def offset
     data[:offset]
+  end
+
+  def last_measurement_value(stream_id)
+    Measurement
+      .where(stream_id: stream_id)
+      .reorder(time: :desc)
+      .pluck(:value)
+      .first
   end
 end
