@@ -59,8 +59,6 @@ const MobileSessionFilters = ({
   const dormantFixedSessionsState = useAppSelector(
     selectDormantFixedSessionsState
   );
-
-  console.log(dormantFixedSessionsState, "dormant fixed sessions state");
   const activeFixedSessionsState = useAppSelector(
     selectActiveFixedSessionsState
   );

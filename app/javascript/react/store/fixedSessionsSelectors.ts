@@ -40,7 +40,6 @@ const transformSessionData = (sessions: FixedSessionGeneral[]) =>
       averageValue,
     }) => {
       const firstStream = streams[Object.keys(streams)[0]] || {};
-      console.log(averageValue, "average value");
       return {
         id,
         title,
