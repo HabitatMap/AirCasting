@@ -25,18 +25,13 @@ class Api::ToDormantSessionsArray
               longitude: session.longitude,
               type: session.type,
               username: session.is_indoor ? 'anonymous' : session.user.username,
+              average_value: average_value(session),
               streams:
                 session
                   .streams
                   .reduce({}) do |acc, stream|
                     acc.merge(
                       stream.sensor_name => {
-                        average_value:
-                          if session.is_indoor
-                            last_measurement_value(stream.id)
-                          else
-                            stream.last_hourly_average_value
-                          end,
                         id: stream.id,
                         max_latitude: stream.max_latitude,
                         max_longitude: stream.max_longitude,
@@ -95,11 +90,27 @@ class Api::ToDormantSessionsArray
     data[:offset]
   end
 
+  def average_value(session)
+    stream = session.streams.first
+
+    if session.is_indoor
+      last_measurement_value(stream.id)
+    elsif air_now_sensor?(data[:sensor_name])
+      stream.average_value
+    else
+      stream.last_hourly_average_value
+    end
+  end
+
   def last_measurement_value(stream_id)
     Measurement
       .where(stream_id: stream_id)
       .reorder(time: :desc)
       .pluck(:value)
       .first
+  end
+
+  def air_now_sensor?(sensor_name)
+    %w[government-pm2.5 government-no2 government-o3].include?(sensor_name)
   end
 end
