@@ -28,7 +28,7 @@ interface SessionListTile {
 const AverageValueDisplay: React.FC<{
   averageValue: number | null | string;
 }> = ({ averageValue }) => {
-  if (typeof averageValue === "number") {
+  if (typeof averageValue === "number" && averageValue !== null) {
     return <S.Subtitle>avg. {averageValue}</S.Subtitle>;
   }
   const { t } = useTranslation();

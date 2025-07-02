@@ -37,9 +37,10 @@ const transformSessionData = (sessions: FixedSessionGeneral[]) =>
       latitude,
       longitude,
       streams,
-      lastHourlyAverageValue,
+      averageValue,
     }) => {
       const firstStream = streams[Object.keys(streams)[0]] || {};
+      console.log(averageValue, "average value");
       return {
         id,
         title,
@@ -47,7 +48,7 @@ const transformSessionData = (sessions: FixedSessionGeneral[]) =>
         lastMeasurementValue,
         startTime: startTimeLocal,
         endTime: endTimeLocal,
-        averageValue: lastHourlyAverageValue ?? lastMeasurementValue ?? null,
+        averageValue: averageValue,
         point: {
           lat: latitude,
           lng: longitude,

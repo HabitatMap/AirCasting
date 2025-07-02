@@ -20,6 +20,7 @@ export interface FixedSessionGeneral {
   title: string;
   username: string;
   lastHourlyAverageValue: number;
+  averageValue: number;
   streams: {
     [key: string]: {
       measurementShortType: string;
