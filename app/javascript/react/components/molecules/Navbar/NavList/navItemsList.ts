@@ -80,11 +80,11 @@ export const navItems = [
     label: "navbar.sections.privacy",
     subNav: [
       {
-        href: "#",
+        href: "#ein",
         label: "navbar.sections.ein",
       },
       {
-        href: "#",
+        href: "#cookie-settings",
         label: "navbar.sections.cookieSettings",
         onClick: "openCookieSettings",
       },

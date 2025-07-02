@@ -75,10 +75,8 @@ const CookieSettingsModal: React.FC<CookieSettingsModalProps> = ({
       open={isOpen}
       modal
       nested
-      overlayStyle={{ margin: 0, zIndex: 1000 }}
-      contentStyle={{ margin: 0 }}
       onClose={onClose}
-      closeOnDocumentClick={false}
+      closeOnDocumentClick={true}
     >
       <S.ModalContent>
         <S.Header>
@@ -161,15 +159,15 @@ const CookieSettingsModal: React.FC<CookieSettingsModalProps> = ({
         </S.PreferencesContainer>
 
         <S.ActionsContainer>
+          <S.AcceptAllButton onClick={handleAcceptAll}>
+            {t("cookieSettings.acceptAll")}
+          </S.AcceptAllButton>
           <S.RejectAllButton onClick={handleRejectAll}>
             {t("cookieSettings.rejectAll")}
           </S.RejectAllButton>
           <S.SaveButton onClick={handleSave}>
             {t("cookieSettings.save")}
           </S.SaveButton>
-          <S.AcceptAllButton onClick={handleAcceptAll}>
-            {t("cookieSettings.acceptAll")}
-          </S.AcceptAllButton>
         </S.ActionsContainer>
       </S.ModalContent>
     </S.CookieSettingsModal>

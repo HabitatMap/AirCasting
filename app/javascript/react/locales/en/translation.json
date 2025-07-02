@@ -260,7 +260,7 @@
   },
   "cookieBanner": {
     "title": "About cookies on this site",
-    "description": "We use cookies to collect and analyse information on site performance and usage, to provide social media features and to enhance and customise content and advertisements.",
+    "description": "We use cookies and local storage to remember your map view, session list position, and preferences. We also use Google Analytics to understand how visitors use our platform and Google Ads for conversion tracking. This helps provide a better user experience and improve our services.",
     "allowAll": "Allow all cookies",
     "denyAll": "Deny all",
     "settings": "Cookie settings"
@@ -269,19 +269,19 @@
     "title": "Cookie Settings",
     "necessary": {
       "title": "Necessary Cookies",
-      "description": "These cookies are essential for the website to function properly. They cannot be disabled."
+      "description": "These cookies are essential for the website to function properly. They enable core features like session management and authentication."
     },
     "analytics": {
       "title": "Analytics Cookies",
-      "description": "These cookies help us understand how visitors interact with our website by collecting and reporting information anonymously."
+      "description": "These cookies help us improve the platform by tracking errors and performance issues. We also use Google Analytics to understand how visitors interact with our website, which pages they visit, and how they navigate through the platform. This helps us identify and fix problems and improve the user experience."
     },
     "marketing": {
       "title": "Marketing Cookies",
-      "description": "These cookies are used to track visitors across websites to display relevant and engaging advertisements."
+      "description": "We use Google Ads cookies for conversion tracking to measure the effectiveness of our external advertising campaigns. This helps us understand how visitors from our ads interact with our platform."
     },
     "preferences": {
       "title": "Preference Cookies",
-      "description": "These cookies allow the website to remember choices you make and provide enhanced, more personal features."
+      "description": "These cookies and local storage remember your map bounds, zoom level, center position, session list scroll position, and other interface preferences to provide a personalized experience."
     },
     "acceptAll": "Accept All",
     "rejectAll": "Reject All",

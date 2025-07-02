@@ -5,7 +5,7 @@ import {
   acBlue,
   blue,
   gray100,
-  gray400,
+  gray300,
   gray600,
   white,
 } from "../../../../assets/styles/colors";
@@ -17,6 +17,15 @@ const CookieSettingsModal = styled(Popup)`
 
   &-overlay {
     z-index: 1000;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
   }
 
   &-content {
@@ -30,12 +39,18 @@ const CookieSettingsModal = styled(Popup)`
     width: 90vw;
     max-height: 80vh;
     overflow-y: auto;
-    margin: 2rem auto;
+    margin: 0;
+    transform: none;
+    top: auto;
+    left: auto;
+    right: auto;
+    bottom: auto;
 
     @media ${media.mobile} {
       margin: 1rem;
       padding: 1.5rem;
       width: calc(100vw - 2rem);
+      max-height: 90vh;
     }
   }
 `;
@@ -56,12 +71,12 @@ const Header = styled.div`
 
 const Title = styled.h2`
   color: ${acBlue};
-  font-size: 1.5rem;
+  font-size: 1.8rem;
   font-weight: 700;
   margin: 0;
 
   @media ${media.mobile} {
-    font-size: 1.3rem;
+    font-size: 1.5rem;
   }
 `;
 
@@ -76,19 +91,15 @@ const CloseButton = styled.button`
   justify-content: center;
   transition: background-color 0.2s;
 
-  &:hover {
-    background-color: ${gray100};
-  }
-
   img {
-    width: 1.5rem;
-    height: 1.5rem;
+    width: 2rem;
+    height: 2rem;
   }
 `;
 
 const Description = styled.p`
   color: ${gray600};
-  font-size: 1rem;
+  font-size: 1.1rem;
   line-height: 1.5;
   margin: 0;
 `;
@@ -125,21 +136,21 @@ const PreferenceInfo = styled.div`
 
 const PreferenceTitle = styled.h3`
   color: ${acBlue};
-  font-size: 1.1rem;
+  font-size: 1.3rem;
   font-weight: 600;
   margin: 0;
 `;
 
 const PreferenceDescription = styled.p`
   color: ${gray600};
-  font-size: 0.9rem;
+  font-size: 1rem;
   line-height: 1.4;
   margin: 0;
 `;
 
 const ActionsContainer = styled.div`
   display: flex;
-  justify-content: space-between;
+  justify-content: space-around;
   align-items: center;
   gap: 1rem;
   padding-top: 1rem;
@@ -152,8 +163,8 @@ const ActionsContainer = styled.div`
 `;
 
 const RejectAllButton = styled(Button)`
-  background-color: ${gray400};
-  color: ${white};
+  background-color: ${gray100};
+  color: ${gray300};
   font-weight: 600;
   border: none;
   padding: 0.75rem 1.5rem;
