@@ -37,8 +37,6 @@ const CookieSettingsModal = styled(Popup)`
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
     max-width: 600px;
     width: 90vw;
-    max-height: 80vh;
-    overflow-y: auto;
     margin: 0;
     transform: none;
     top: auto;
@@ -50,7 +48,6 @@ const CookieSettingsModal = styled(Popup)`
       margin: 1rem;
       padding: 1.5rem;
       width: calc(100vw - 2rem);
-      max-height: 90vh;
     }
   }
 `;
@@ -71,7 +68,7 @@ const Header = styled.div`
 
 const Title = styled.h2`
   color: ${acBlue};
-  font-size: 1.8rem;
+  font-size: 2rem;
   font-weight: 700;
   margin: 0;
 
@@ -81,25 +78,18 @@ const Title = styled.h2`
 `;
 
 const CloseButton = styled.button`
-  background: none;
   border: none;
+  background-color: transparent;
   cursor: pointer;
-  padding: 0.5rem;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: background-color 0.2s;
 
-  img {
-    width: 2rem;
-    height: 2rem;
+  body:not(.user-is-tabbing) &:focus-visible {
+    outline: none;
   }
 `;
 
 const Description = styled.p`
-  color: ${gray600};
-  font-size: 1.1rem;
+  color: ${gray300};
+  font-size: 1.4rem;
   line-height: 1.5;
   margin: 0;
 `;
@@ -136,29 +126,30 @@ const PreferenceInfo = styled.div`
 
 const PreferenceTitle = styled.h3`
   color: ${acBlue};
-  font-size: 1.3rem;
+  font-size: 1.4rem;
   font-weight: 600;
   margin: 0;
 `;
 
 const PreferenceDescription = styled.p`
-  color: ${gray600};
-  font-size: 1rem;
+  color: ${gray300};
+  font-size: 1.2rem;
   line-height: 1.4;
   margin: 0;
 `;
 
 const ActionsContainer = styled.div`
   display: flex;
-  justify-content: space-around;
+  justify-content: space-between;
   align-items: center;
   gap: 1rem;
   padding-top: 1rem;
   border-top: 1px solid ${gray100};
 
   @media ${media.mobile} {
-    flex-direction: column;
-    gap: 0.75rem;
+    flex-direction: row;
+    gap: 0.5rem;
+    justify-content: center;
   }
 `;
 
@@ -167,7 +158,7 @@ const RejectAllButton = styled(Button)`
   color: ${gray300};
   font-weight: 600;
   border: none;
-  padding: 0.75rem 1.5rem;
+  padding: 0.75rem 2.5rem;
   border-radius: 6px;
   font-size: 0.9rem;
   text-transform: uppercase;
@@ -179,8 +170,8 @@ const RejectAllButton = styled(Button)`
   }
 
   @media ${media.mobile} {
-    width: 100%;
-    padding: 1rem;
+    padding: 0.6rem 1.5rem;
+    font-size: 0.8rem;
   }
 `;
 
@@ -189,7 +180,7 @@ const SaveButton = styled(Button)`
   color: ${white};
   font-weight: 600;
   border: none;
-  padding: 0.75rem 1.5rem;
+  padding: 0.75rem 2.5rem;
   border-radius: 6px;
   font-size: 0.9rem;
   text-transform: uppercase;
@@ -201,8 +192,8 @@ const SaveButton = styled(Button)`
   }
 
   @media ${media.mobile} {
-    width: 100%;
-    padding: 1rem;
+    padding: 0.6rem 1.5rem;
+    font-size: 0.8rem;
   }
 `;
 
@@ -211,7 +202,7 @@ const AcceptAllButton = styled(Button)`
   color: ${acBlue};
   font-weight: 600;
   border: 2px solid ${acBlue};
-  padding: 0.75rem 1.5rem;
+  padding: 0.75rem 2.5rem;
   border-radius: 6px;
   font-size: 0.9rem;
   text-transform: uppercase;
@@ -224,8 +215,8 @@ const AcceptAllButton = styled(Button)`
   }
 
   @media ${media.mobile} {
-    width: 100%;
-    padding: 1rem;
+    padding: 0.6rem 1.5rem;
+    font-size: 0.8rem;
   }
 `;
 

@@ -10,14 +10,14 @@ interface CookieBannerProps {
 const CookieBanner: React.FC<CookieBannerProps> = ({
   onOpenCookieSettings,
 }) => {
-  const [visible, setVisible] = useState(true);
+  const [visible, setVisible] = useState(false);
   const { t } = useTranslation();
 
-  // Check if banner was previously dismissed
+  // Check if cookie preferences have been set
   useEffect(() => {
-    const bannerDismissed = localStorage.getItem("cookieBannerDismissed");
-    if (bannerDismissed === "true") {
-      setVisible(false);
+    const cookiePreferences = localStorage.getItem("cookiePreferences");
+    if (!cookiePreferences) {
+      setVisible(true);
     }
   }, []);
 
@@ -25,11 +25,21 @@ const CookieBanner: React.FC<CookieBannerProps> = ({
 
   const handleDismiss = () => {
     setVisible(false);
-    localStorage.setItem("cookieBannerDismissed", "true");
+    // Set default preferences (only necessary cookies) when user dismisses without making a choice
+    const defaultPreferences = {
+      necessary: true,
+      analytics: false,
+      marketing: false,
+      preferences: false,
+    };
+    localStorage.setItem(
+      "cookiePreferences",
+      JSON.stringify(defaultPreferences)
+    );
   };
 
   const handleSettingsClick = () => {
-    handleDismiss();
+    setVisible(false);
     if (onOpenCookieSettings) {
       onOpenCookieSettings();
     }
