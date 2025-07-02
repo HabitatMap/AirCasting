@@ -34,7 +34,7 @@ const selectIndoorSessionsPoints = (isDormant: boolean) =>
             sensorName: firstStream.sensorName,
             startTime: startTimeLocal,
             endTime: endTimeLocal,
-            averageValue: averageValue || null,
+            averageValue: averageValue,
             lastMeasurementValue,
           };
         }
