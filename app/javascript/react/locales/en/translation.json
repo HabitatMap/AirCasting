@@ -259,8 +259,8 @@
     "button": "Go to the new map"
   },
   "cookieBanner": {
-    "title": "About cookies on this site",
-    "description": "We use cookies and local storage to remember your map view, session list position, and preferences. We also use Google Analytics to understand how visitors use our platform and Google Ads for conversion tracking. This helps provide a better user experience and improve our services.",
+    "title": "We use cookies to improve your experience",
+    "description": "Cookies help us remember your preferences (like map settings) and understand how you use our platform so we can make it better. We don't show ads on our site, but we do track how effective our external ads are.",
     "allowAll": "Allow all cookies",
     "denyAll": "Deny all",
     "settings": "Cookie settings"
@@ -268,20 +268,20 @@
   "cookieSettings": {
     "title": "Cookie Settings",
     "necessary": {
-      "title": "Necessary Cookies",
-      "description": "These cookies are essential for the website to function properly. They enable core features like session management and authentication."
+      "title": "Essential Cookies",
+      "description": "These cookies are required for the website to work properly. They handle basic functionality like session management and ensuring the site operates correctly."
     },
     "analytics": {
       "title": "Analytics Cookies",
-      "description": "These cookies help us improve the platform by tracking errors and performance issues. We also use Google Analytics to understand how visitors interact with our website, which pages they visit, and how they navigate through the platform. This helps us identify and fix problems and improve the user experience."
+      "description": "These cookies help us understand how you use our platform - which features you use most, what might be confusing, and how we can improve the site. We also use Google Analytics to see overall usage patterns."
     },
     "marketing": {
       "title": "Marketing Cookies",
-      "description": "We use Google Ads cookies for conversion tracking to measure the effectiveness of our external advertising campaigns. This helps us understand how visitors from our ads interact with our platform."
+      "description": "We use Google Ads to track how effective our external advertising campaigns are. This helps us understand if our ads are bringing the right people to our platform."
     },
     "preferences": {
       "title": "Preference Cookies",
-      "description": "These cookies and local storage remember your map bounds, zoom level, center position, session list scroll position, and other interface preferences to provide a personalized experience."
+      "description": "These cookies remember your personal settings like map position, zoom level, and where you left off in the session list. This makes your experience more convenient by remembering your preferences."
     },
     "acceptAll": "Accept All",
     "rejectAll": "Reject All",
