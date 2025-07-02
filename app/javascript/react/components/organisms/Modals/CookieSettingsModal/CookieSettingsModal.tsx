@@ -1,20 +1,17 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 
 import circleCloseIcon from "../../../../assets/icons/circleCloseIcon.svg";
+import {
+  CookieManager,
+  type CookiePreferences,
+} from "../../../../utils/cookieManager";
 import { Toggle } from "../../../atoms/Toggle/Toggle";
 import * as S from "./CookieSettingsModal.style";
 
 interface CookieSettingsModalProps {
   isOpen: boolean;
   onClose: () => void;
-}
-
-interface CookiePreferences {
-  necessary: boolean;
-  analytics: boolean;
-  marketing: boolean;
-  preferences: boolean;
 }
 
 const CookieSettingsModal: React.FC<CookieSettingsModalProps> = ({
@@ -24,49 +21,104 @@ const CookieSettingsModal: React.FC<CookieSettingsModalProps> = ({
   const { t } = useTranslation();
 
   const [preferences, setPreferences] = useState<CookiePreferences>({
-    necessary: true, // Always enabled
+    necessary: true,
     analytics: false,
     marketing: false,
     preferences: false,
   });
 
+  // Load existing preferences when modal opens
+  useEffect(() => {
+    if (isOpen) {
+      const savedPreferences = CookieManager.loadPreferences();
+      setPreferences(savedPreferences);
+    }
+  }, [isOpen]);
+
+  // Function to enable/disable Google Analytics
+  const toggleGoogleAnalytics = (enabled: boolean) => {
+    if (enabled) {
+      // Enable Google Analytics
+      window.gtag?.("consent", "update", {
+        analytics_storage: "granted",
+      });
+    } else {
+      // Disable Google Analytics
+      window.gtag?.("consent", "update", {
+        analytics_storage: "denied",
+      });
+    }
+  };
+
+  // Function to enable/disable Google Ads
+  const toggleGoogleAds = (enabled: boolean) => {
+    if (enabled) {
+      // Enable Google Ads
+      window.gtag?.("consent", "update", {
+        ad_storage: "granted",
+      });
+    } else {
+      // Disable Google Ads
+      window.gtag?.("consent", "update", {
+        ad_storage: "denied",
+      });
+    }
+  };
+
+  // Function to enable/disable preference cookies
+  const togglePreferenceCookies = (enabled: boolean) => {
+    if (enabled) {
+      // Enable preference cookies (localStorage)
+      // This is already enabled by default, just ensure it's allowed
+    } else {
+      // Disable preference cookies by clearing localStorage
+      localStorage.removeItem("mapBoundsEast");
+      localStorage.removeItem("mapBoundsNorth");
+      localStorage.removeItem("mapBoundsSouth");
+      localStorage.removeItem("mapBoundsWest");
+      localStorage.removeItem("sessionsListScrollPosition");
+      // Note: We don't remove cookiePreferences as that would break the system
+    }
+  };
+
   const handlePreferenceChange = (
     key: keyof CookiePreferences,
     value: boolean
   ) => {
-    setPreferences((prev) => ({
-      ...prev,
+    const newPreferences = {
+      ...preferences,
       [key]: value,
-    }));
+    };
+    setPreferences(newPreferences);
+
+    // Apply the changes immediately
+    CookieManager.updatePreference(key, value);
   };
 
   const handleSave = () => {
-    // Here you would typically save the preferences to localStorage or send to backend
-    localStorage.setItem("cookiePreferences", JSON.stringify(preferences));
+    CookieManager.savePreferences(preferences);
     onClose();
   };
 
   const handleAcceptAll = () => {
-    const allEnabled = {
+    CookieManager.enableAll();
+    setPreferences({
       necessary: true,
       analytics: true,
       marketing: true,
       preferences: true,
-    };
-    setPreferences(allEnabled);
-    localStorage.setItem("cookiePreferences", JSON.stringify(allEnabled));
+    });
     onClose();
   };
 
   const handleRejectAll = () => {
-    const onlyNecessary = {
+    CookieManager.disableNonNecessary();
+    setPreferences({
       necessary: true,
       analytics: false,
       marketing: false,
       preferences: false,
-    };
-    setPreferences(onlyNecessary);
-    localStorage.setItem("cookiePreferences", JSON.stringify(onlyNecessary));
+    });
     onClose();
   };
 

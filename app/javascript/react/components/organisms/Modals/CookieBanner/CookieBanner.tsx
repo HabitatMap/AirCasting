@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { CookieManager } from "../../../../utils/cookieManager";
 import { BlueButton } from "../Modals.style";
 import * as S from "./CookieBanner.style";
 
@@ -15,27 +16,56 @@ const CookieBanner: React.FC<CookieBannerProps> = ({
 
   // Check if cookie preferences have been set
   useEffect(() => {
-    const cookiePreferences = localStorage.getItem("cookiePreferences");
-    if (!cookiePreferences) {
+    if (!CookieManager.hasPreferences()) {
       setVisible(true);
     }
   }, []);
 
+  // Function to enable all cookies
+  const enableAllCookies = () => {
+    // Enable Google Analytics
+    window.gtag?.("consent", "update", {
+      analytics_storage: "granted",
+    });
+
+    // Enable Google Ads
+    window.gtag?.("consent", "update", {
+      ad_storage: "granted",
+    });
+
+    // Preferences are already enabled by default
+  };
+
+  // Function to disable non-necessary cookies
+  const disableNonNecessaryCookies = () => {
+    // Disable Google Analytics
+    window.gtag?.("consent", "update", {
+      analytics_storage: "denied",
+    });
+
+    // Disable Google Ads
+    window.gtag?.("consent", "update", {
+      ad_storage: "denied",
+    });
+
+    // Clear preference cookies
+    localStorage.removeItem("mapBoundsEast");
+    localStorage.removeItem("mapBoundsNorth");
+    localStorage.removeItem("mapBoundsSouth");
+    localStorage.removeItem("mapBoundsWest");
+    localStorage.removeItem("sessionsListScrollPosition");
+  };
+
   if (!visible) return null;
 
-  const handleDismiss = () => {
+  const handleAllowAll = () => {
     setVisible(false);
-    // Set default preferences (only necessary cookies) when user dismisses without making a choice
-    const defaultPreferences = {
-      necessary: true,
-      analytics: false,
-      marketing: false,
-      preferences: false,
-    };
-    localStorage.setItem(
-      "cookiePreferences",
-      JSON.stringify(defaultPreferences)
-    );
+    CookieManager.enableAll();
+  };
+
+  const handleDenyAll = () => {
+    setVisible(false);
+    CookieManager.disableNonNecessary();
   };
 
   const handleSettingsClick = () => {
@@ -50,10 +80,10 @@ const CookieBanner: React.FC<CookieBannerProps> = ({
       <S.BannerTitle>{t("cookieBanner.title")}</S.BannerTitle>
       <S.BannerDescription>{t("cookieBanner.description")}</S.BannerDescription>
       <S.BannerActions>
-        <BlueButton onClick={handleDismiss}>
+        <BlueButton onClick={handleAllowAll}>
           {t("cookieBanner.allowAll")}
         </BlueButton>
-        <S.DenyButton onClick={handleDismiss}>
+        <S.DenyButton onClick={handleDenyAll}>
           {t("cookieBanner.denyAll")}
         </S.DenyButton>
         <S.SettingsButton onClick={handleSettingsClick}>
