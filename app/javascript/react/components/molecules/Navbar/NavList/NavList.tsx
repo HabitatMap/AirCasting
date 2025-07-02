@@ -11,12 +11,14 @@ interface NavListProps {
   t: (key: string) => string;
   navMenuVisible: boolean;
   toggleMenuVisibility: () => void;
+  onOpenCookieSettings?: () => void;
 }
 
 const NavList: React.FC<NavListProps> = ({
   t,
   navMenuVisible,
   toggleMenuVisibility,
+  onOpenCookieSettings,
 }) => (
   <S.NavList $isVisible={navMenuVisible}>
     <S.NavHeader>
@@ -44,6 +46,10 @@ const NavList: React.FC<NavListProps> = ({
         subNav={item.subNav?.map((subItem) => ({
           ...subItem,
           label: t(subItem.label),
+          onClick:
+            subItem.onClick === "openCookieSettings"
+              ? onOpenCookieSettings
+              : undefined,
         }))}
       >
         {t(item.label)}

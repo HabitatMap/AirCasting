@@ -83,6 +83,11 @@ export const navItems = [
         href: "#",
         label: "navbar.sections.ein",
       },
+      {
+        href: "#",
+        label: "navbar.sections.cookieSettings",
+        onClick: "openCookieSettings",
+      },
     ],
   },
 ];

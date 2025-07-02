@@ -1,19 +1,24 @@
 import styled from "styled-components";
-import { acBlue, gray400, white } from "../../../../assets/styles/colors";
+import {
+  acBlue,
+  gray100,
+  gray300,
+  white,
+} from "../../../../assets/styles/colors";
 import { BlueButton } from "../Modals.style";
 
 const BannerWrapper = styled.div`
   position: fixed;
-  bottom: 32px;
+  bottom: 3.2rem;
   left: 50%;
   transform: translateX(-50%);
   background: ${white};
-  border-radius: 12px;
-  box-shadow: 0 2px 16px rgba(0, 0, 0, 0.12);
+  border-radius: 1.2rem;
+  box-shadow: 0 0.2rem 1.6rem rgba(0, 0, 0, 0.12);
   padding: 2rem 2.5rem;
   z-index: 1000;
-  min-width: 340px;
-  max-width: 40vw;
+  min-width: 34rem;
+  max-width: 30vw;
   display: flex;
   flex-direction: column;
   align-items: flex-start;
@@ -21,13 +26,14 @@ const BannerWrapper = styled.div`
 
 const BannerTitle = styled.h2`
   color: ${acBlue};
-  font-size: 1.3rem;
-  font-weight: 700;
-  margin-bottom: 1rem;
+  font-size: 1.6rem;
+  margin-bottom: 1.6rem;
+  text-transform: uppercase;
+  align-self: center;
 `;
 
 const BannerDescription = styled.p`
-  color: #222;
+  color: ${gray300};
   font-size: 1.2rem;
   line-height: 1.5;
   word-wrap: break-word;
@@ -44,8 +50,8 @@ const BannerActions = styled.div`
 `;
 
 const DenyButton = styled(BlueButton)`
-  background: ${gray400};
-  color: ${white};
+  background: ${gray100};
+  color: ${gray300};
 `;
 
 const SettingsButton = styled(BlueButton)`
