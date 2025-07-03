@@ -1,17 +1,54 @@
 
-<!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-P2QSTCN3VQ"></script>
-
+<!-- Google Tag Manager - Only loads when consent is given -->
 <script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
+  // Function to load Google Tag Manager scripts
+  function loadGoogleTagManager() {
+    // Load the gtag script
+    const script = document.createElement('script');
+    script.async = true;
+    script.src = 'https://www.googletagmanager.com/gtag/js?id=G-P2QSTCN3VQ';
+    document.head.appendChild(script);
 
-  // Google Analytics 4
-  gtag('config', 'G-P2QSTCN3VQ', {
-    'send_page_view': true
+    // Initialize gtag after script loads
+    script.onload = function() {
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      // Google Analytics 4
+      gtag('config', 'G-P2QSTCN3VQ', {
+        'send_page_view': true
+      });
+
+      // Google Ads
+      gtag('config', 'AW-16795560374');
+    };
+  }
+
+  // Check if consent has already been given
+  function checkAndLoadGTM() {
+    // Check if analytics and marketing cookies are allowed
+    const savedPreferences = localStorage.getItem('cookiePreferences');
+    if (savedPreferences) {
+      try {
+        const preferences = JSON.parse(savedPreferences);
+        const analyticsAllowed = preferences.analytics === true;
+        const marketingAllowed = preferences.marketing === true;
+
+        if (analyticsAllowed && marketingAllowed) {
+          loadGoogleTagManager();
+        }
+      } catch (error) {
+        console.error('Error parsing cookie preferences:', error);
+      }
+    }
+  }
+
+  // Listen for consent changes
+  window.addEventListener('cookieConsentChanged', function() {
+    checkAndLoadGTM();
   });
 
-  // Google Ads
-  gtag('config', 'AW-16795560374');
+  // Check on page load
+  checkAndLoadGTM();
 </script>

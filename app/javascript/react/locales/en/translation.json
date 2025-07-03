@@ -26,9 +26,9 @@
       "userStories": "User Stories",
       "howItWorks": "How It Works",
       "faq": "FAQ",
-      "usersGuide": "AirBeam3 User’s Guide",
+      "usersGuide": "AirBeam3 User's Guide",
       "airbeamBuyNow": "Buy it Now",
-      "airbeamMiniUsersGuide": "AirBeam Mini User’s Guide",
+      "airbeamMiniUsersGuide": "AirBeam Mini User's Guide",
       "aircasting": "AirCasting",
       "maps": "AirCasting Maps",
       "androidApp": "Android App",
@@ -43,7 +43,8 @@
       "openMenu": "Open menu",
       "habitatMapPage": "HabitatMap page",
       "privacy": "Privacy Policy",
-      "ein": "EIN: 20-8834317"
+      "ein": "EIN: 20-8834317",
+      "cookieSettings": "Cookie Settings"
     },
     "filter": "Filters",
     "altFilter": "Filters icon",
@@ -256,5 +257,34 @@
     "header": "Redirecting to the new AirCasting map",
     "message": "We have launched a brand-new version of our map with improved features and a better user experience! You will be automatically redirected to the new site in a few seconds. If the redirection does not happen, please click button to go to the new version. Thank you for your understanding and enjoy exploring our updated map!",
     "button": "Go to the new map"
+  },
+  "cookieBanner": {
+    "title": "We use cookies to improve your experience",
+    "description": "We use cookies and local storage to remember your map view, session list position, and preferences. We also use Google Analytics to understand how you use our platform and Google Ads to track the effectiveness of our external advertising campaigns.",
+    "allowAll": "Allow all cookies",
+    "denyAll": "Deny all",
+    "settings": "Cookie settings"
+  },
+  "cookieSettings": {
+    "title": "Cookie Settings",
+    "necessary": {
+      "title": "Essential Cookies",
+      "description": "These cookies are required for the website to work properly. They handle basic functionality like session management and ensuring the site operates correctly."
+    },
+    "analytics": {
+      "title": "Analytics Cookies",
+      "description": "We use Google Analytics to understand how you use our platform - which features you use most, what might be confusing, and how we can improve the site. This helps us make AirCasting better for everyone."
+    },
+    "marketing": {
+      "title": "Marketing Cookies",
+      "description": "We use Google Ads to track how effective our external advertising campaigns are. This helps us understand if our ads are bringing the right people to our platform. We don't show ads on AirCasting itself."
+    },
+    "preferences": {
+      "title": "Preference Cookies",
+      "description": "These cookies and local storage remember your personal settings like map position, zoom level, session list scroll position, and time range preferences. This makes your experience more convenient by remembering how you like to view the data."
+    },
+    "acceptAll": "Accept All",
+    "rejectAll": "Reject All",
+    "save": "Save Preferences"
   }
 }

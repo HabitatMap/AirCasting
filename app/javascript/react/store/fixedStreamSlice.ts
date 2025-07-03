@@ -9,6 +9,7 @@ import { API_ENDPOINTS } from "../api/apiEndpoints";
 import { type ApiError, StatusEnum } from "../types/api";
 import type { FixedStream } from "../types/fixedStream";
 import { FixedTimeRange } from "../types/timeRange";
+import { CookieManager } from "../utils/cookieManager";
 import { getErrorMessage } from "../utils/getErrorMessage";
 import { logError } from "../utils/logController";
 import type { RootState } from "./index";
@@ -34,19 +35,19 @@ export interface FixedStreamState {
   fetchedTimeRanges: { [streamId: number]: { start: number; end: number }[] };
 }
 
-const initialState: FixedStreamState = {
+export const initialState: FixedStreamState = {
   data: {
     stream: {
-      title: "",
-      profile: "",
-      lastUpdate: "",
-      sensorName: "",
-      unitSymbol: "",
+      lastUpdate: null,
       updateFrequency: "",
-      active: true,
-      sessionId: 0,
       startTime: "",
-      endTime: "",
+      endTime: null,
+      profile: "",
+      sensorName: "",
+      sessionId: 0,
+      title: "",
+      unitSymbol: "",
+      active: true,
       min: 0,
       low: 0,
       middle: 0,
@@ -66,7 +67,22 @@ const initialState: FixedStreamState = {
   status: StatusEnum.Idle,
   error: null,
   isLoading: false,
-  lastSelectedTimeRange: FixedTimeRange.Day,
+  lastSelectedTimeRange: (() => {
+    // Load from localStorage only if preference cookies are allowed
+    if (
+      typeof window !== "undefined" &&
+      CookieManager.arePreferenceCookiesAllowed()
+    ) {
+      const saved = localStorage.getItem("lastSelectedTimeRange");
+      if (
+        saved &&
+        Object.values(FixedTimeRange).includes(saved as FixedTimeRange)
+      ) {
+        return saved as FixedTimeRange;
+      }
+    }
+    return FixedTimeRange.Day;
+  })(),
   measurements: {},
   fetchedTimeRanges: {},
 };
@@ -184,17 +200,25 @@ const fixedStreamSlice = createSlice({
     },
 
     resetFixedStreamState(state) {
+      state.lastSelectedTimeRange = FixedTimeRange.Day;
+      if (CookieManager.arePreferenceCookiesAllowed()) {
+        localStorage.setItem("lastSelectedTimeRange", FixedTimeRange.Day);
+      }
       return initialState;
     },
 
     setLastSelectedTimeRange(state, action: PayloadAction<FixedTimeRange>) {
       state.lastSelectedTimeRange = action.payload;
-      localStorage.setItem("lastSelectedTimeRange", action.payload);
+      if (CookieManager.arePreferenceCookiesAllowed()) {
+        localStorage.setItem("lastSelectedTimeRange", action.payload);
+      }
     },
 
     resetLastSelectedTimeRange(state) {
       state.lastSelectedTimeRange = FixedTimeRange.Day;
-      localStorage.setItem("lastSelectedTimeRange", FixedTimeRange.Day);
+      if (CookieManager.arePreferenceCookiesAllowed()) {
+        localStorage.setItem("lastSelectedTimeRange", FixedTimeRange.Day);
+      }
     },
 
     resetStreamMeasurements(state, action: PayloadAction<number>) {
