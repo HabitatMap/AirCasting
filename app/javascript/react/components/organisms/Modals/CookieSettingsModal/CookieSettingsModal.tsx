@@ -35,52 +35,6 @@ const CookieSettingsModal: React.FC<CookieSettingsModalProps> = ({
     }
   }, [isOpen]);
 
-  // Function to enable/disable Google Analytics
-  const toggleGoogleAnalytics = (enabled: boolean) => {
-    if (enabled) {
-      // Enable Google Analytics
-      window.gtag?.("consent", "update", {
-        analytics_storage: "granted",
-      });
-    } else {
-      // Disable Google Analytics
-      window.gtag?.("consent", "update", {
-        analytics_storage: "denied",
-      });
-    }
-  };
-
-  // Function to enable/disable Google Ads
-  const toggleGoogleAds = (enabled: boolean) => {
-    if (enabled) {
-      // Enable Google Ads
-      window.gtag?.("consent", "update", {
-        ad_storage: "granted",
-      });
-    } else {
-      // Disable Google Ads
-      window.gtag?.("consent", "update", {
-        ad_storage: "denied",
-      });
-    }
-  };
-
-  // Function to enable/disable preference cookies
-  const togglePreferenceCookies = (enabled: boolean) => {
-    if (enabled) {
-      // Enable preference cookies (localStorage)
-      // This is already enabled by default, just ensure it's allowed
-    } else {
-      // Disable preference cookies by clearing localStorage
-      localStorage.removeItem("mapBoundsEast");
-      localStorage.removeItem("mapBoundsNorth");
-      localStorage.removeItem("mapBoundsSouth");
-      localStorage.removeItem("mapBoundsWest");
-      localStorage.removeItem("sessionsListScrollPosition");
-      // Note: We don't remove cookiePreferences as that would break the system
-    }
-  };
-
   const handlePreferenceChange = (
     key: keyof CookiePreferences,
     value: boolean

@@ -260,7 +260,7 @@
   },
   "cookieBanner": {
     "title": "We use cookies to improve your experience",
-    "description": "Cookies help us remember your preferences (like map settings) and understand how you use our platform so we can make it better. We don't show ads on our site, but we do track how effective our external ads are.",
+    "description": "We use cookies and local storage to remember your map view, session list position, and preferences. We also use Google Analytics to understand how you use our platform and Google Ads to track the effectiveness of our external advertising campaigns.",
     "allowAll": "Allow all cookies",
     "denyAll": "Deny all",
     "settings": "Cookie settings"
@@ -273,15 +273,15 @@
     },
     "analytics": {
       "title": "Analytics Cookies",
-      "description": "These cookies help us understand how you use our platform - which features you use most, what might be confusing, and how we can improve the site. We also use Google Analytics to see overall usage patterns."
+      "description": "We use Google Analytics to understand how you use our platform - which features you use most, what might be confusing, and how we can improve the site. This helps us make AirCasting better for everyone."
     },
     "marketing": {
       "title": "Marketing Cookies",
-      "description": "We use Google Ads to track how effective our external advertising campaigns are. This helps us understand if our ads are bringing the right people to our platform."
+      "description": "We use Google Ads to track how effective our external advertising campaigns are. This helps us understand if our ads are bringing the right people to our platform. We don't show ads on AirCasting itself."
     },
     "preferences": {
       "title": "Preference Cookies",
-      "description": "These cookies remember your personal settings like map position, zoom level, and where you left off in the session list. This makes your experience more convenient by remembering your preferences."
+      "description": "These cookies and local storage remember your personal settings like map position, zoom level, session list scroll position, and time range preferences. This makes your experience more convenient by remembering how you like to view the data."
     },
     "acceptAll": "Accept All",
     "rejectAll": "Reject All",

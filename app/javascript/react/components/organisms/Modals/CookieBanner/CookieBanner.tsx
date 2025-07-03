@@ -14,47 +14,11 @@ const CookieBanner: React.FC<CookieBannerProps> = ({
   const [visible, setVisible] = useState(false);
   const { t } = useTranslation();
 
-  // Check if cookie preferences have been set
   useEffect(() => {
     if (!CookieManager.hasPreferences()) {
       setVisible(true);
     }
   }, []);
-
-  // Function to enable all cookies
-  const enableAllCookies = () => {
-    // Enable Google Analytics
-    window.gtag?.("consent", "update", {
-      analytics_storage: "granted",
-    });
-
-    // Enable Google Ads
-    window.gtag?.("consent", "update", {
-      ad_storage: "granted",
-    });
-
-    // Preferences are already enabled by default
-  };
-
-  // Function to disable non-necessary cookies
-  const disableNonNecessaryCookies = () => {
-    // Disable Google Analytics
-    window.gtag?.("consent", "update", {
-      analytics_storage: "denied",
-    });
-
-    // Disable Google Ads
-    window.gtag?.("consent", "update", {
-      ad_storage: "denied",
-    });
-
-    // Clear preference cookies
-    localStorage.removeItem("mapBoundsEast");
-    localStorage.removeItem("mapBoundsNorth");
-    localStorage.removeItem("mapBoundsSouth");
-    localStorage.removeItem("mapBoundsWest");
-    localStorage.removeItem("sessionsListScrollPosition");
-  };
 
   if (!visible) return null;
 

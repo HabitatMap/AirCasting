@@ -9,6 +9,8 @@ declare global {
   }
 }
 
+import * as Cookies from "./cookies";
+
 export interface CookiePreferences {
   necessary: boolean;
   analytics: boolean;
@@ -26,7 +28,7 @@ export class CookieManager {
       try {
         const parsed = JSON.parse(saved);
         return {
-          necessary: true, // Always enabled
+          necessary: true,
           analytics: parsed.analytics || false,
           marketing: parsed.marketing || false,
           preferences: parsed.preferences || false,
@@ -78,12 +80,14 @@ export class CookieManager {
     if (preferences.preferences) {
       // Preferences are enabled by default, no action needed
     } else {
-      // Clear preference-related localStorage items
-      localStorage.removeItem("mapBoundsEast");
-      localStorage.removeItem("mapBoundsNorth");
-      localStorage.removeItem("mapBoundsSouth");
-      localStorage.removeItem("mapBoundsWest");
+      // Clear preference-related cookies and localStorage items
+      Cookies.remove("mapBoundsEast");
+      Cookies.remove("mapBoundsNorth");
+      Cookies.remove("mapBoundsSouth");
+      Cookies.remove("mapBoundsWest");
       localStorage.removeItem("sessionsListScrollPosition");
+      localStorage.removeItem("lastSelectedMobileTimeRange");
+      localStorage.removeItem("lastSelectedTimeRange");
     }
   }
 
@@ -125,5 +129,11 @@ export class CookieManager {
 
     this.savePreferences(preferences);
     this.applyPreferences(preferences);
+  }
+
+  // Check if preference cookies are allowed
+  static arePreferenceCookiesAllowed(): boolean {
+    const preferences = this.loadPreferences();
+    return preferences.preferences;
   }
 }

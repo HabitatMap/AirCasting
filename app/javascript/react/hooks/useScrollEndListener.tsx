@@ -1,5 +1,6 @@
 import { debounce } from "lodash";
 import { useEffect } from "react";
+import { CookieManager } from "../utils/cookieManager";
 
 const useScrollEndListener = (
   elementRef: React.RefObject<HTMLElement>,
@@ -10,7 +11,12 @@ const useScrollEndListener = (
 
     if (listInnerElement) {
       const saveScrollPosition = debounce((position: number) => {
-        localStorage.setItem("sessionsListScrollPosition", position.toString());
+        if (CookieManager.arePreferenceCookiesAllowed()) {
+          localStorage.setItem(
+            "sessionsListScrollPosition",
+            position.toString()
+          );
+        }
       }, 150);
 
       const checkScrollEnd = debounce(() => {
@@ -28,11 +34,15 @@ const useScrollEndListener = (
         checkScrollEnd();
       };
 
-      const savedPosition = localStorage.getItem("sessionsListScrollPosition");
-      if (savedPosition) {
-        requestAnimationFrame(() => {
-          listInnerElement.scrollTop = parseInt(savedPosition);
-        });
+      if (CookieManager.arePreferenceCookiesAllowed()) {
+        const savedPosition = localStorage.getItem(
+          "sessionsListScrollPosition"
+        );
+        if (savedPosition) {
+          requestAnimationFrame(() => {
+            listInnerElement.scrollTop = parseInt(savedPosition);
+          });
+        }
       }
 
       listInnerElement.addEventListener("scroll", onScroll, { passive: true });
