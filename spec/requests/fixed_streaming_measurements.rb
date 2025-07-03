@@ -145,6 +145,8 @@ describe 'POST api/v3/fixed_streaming/measurements' do
         expect(Measurement.count).to eq(2)
       end
 
+      # due to a firmware bug in AirBeams we need to filter out measurements coming in with future time
+      # please refer to: https://trello.com/c/HjEIuSYU/1616-fixed-ab-future-timestamps-problem
       it 'rejects measurements with future timestamps' do
         allow(Time).to receive(:current).and_return(
           Time.parse('2025-02-10 10:00:00'),
