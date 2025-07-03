@@ -80,13 +80,13 @@ export const navItems = [
     isNavTitle: true,
     subNav: [
       {
-        href: "",
-        label: "navbar.sections.ein",
-      },
-      {
         href: "#cookie-settings",
         label: "navbar.sections.cookieSettings",
         onClick: "openCookieSettings",
+      },
+      {
+        href: "",
+        label: "navbar.sections.ein",
       },
     ],
   },
