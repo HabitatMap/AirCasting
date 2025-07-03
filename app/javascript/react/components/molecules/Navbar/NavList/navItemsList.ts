@@ -77,6 +77,7 @@ export const navItems = [
   {
     href: urls.privacy,
     label: "navbar.sections.privacy",
+    isNavTitle: true,
     subNav: [
       {
         href: "",
