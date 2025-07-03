@@ -34,13 +34,19 @@ const NavItem: React.FC<NavItemProps> = ({
   return (
     <S.ListItem $isActive={isActive}>
       {isNavTitle ? (
-        <S.SubNavTitleLink href={href} onClick={handleClick}>
-          {children}
-        </S.SubNavTitleLink>
-      ) : (
+        href ? (
+          <S.SubNavTitleLink href={href} onClick={handleClick}>
+            {children}
+          </S.SubNavTitleLink>
+        ) : (
+          <S.SubNavTitle>{children}</S.SubNavTitle>
+        )
+      ) : href ? (
         <S.NavItemLink href={href} onClick={handleClick}>
           {children}
         </S.NavItemLink>
+      ) : (
+        <S.NavItemText>{children}</S.NavItemText>
       )}
       {subNav && (
         <S.SubNav>
