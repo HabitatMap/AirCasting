@@ -75,7 +75,7 @@ describe Api::Fixed::Active::SessionsController do
               active_stream.sensor_name => {
                 'measurement_short_type' =>
                   active_stream.measurement_short_type,
-                'average_value' => 10.0,
+                'average_value' => nil,
                 'id' => active_stream.id,
                 'max_latitude' => active_stream.max_latitude,
                 'max_longitude' => active_stream.max_longitude,
@@ -174,7 +174,7 @@ describe Api::Fixed::Active::SessionsController do
             'uuid' => active_session.uuid,
             'end_time_local' => '2000-10-01T02:03:04.000Z',
             'start_time_local' => '2000-10-01T02:03:04.000Z',
-            'last_measurement_value' => nil,
+            'last_measurement_value' => active_stream.average_value,
             'is_indoor' => active_session.is_indoor,
             'latitude' => active_session.latitude.to_f,
             'longitude' => active_session.longitude.to_f,
@@ -183,7 +183,6 @@ describe Api::Fixed::Active::SessionsController do
             'username' => active_session.user.username,
             'last_hourly_average_value' =>
               active_stream.last_hourly_average_value,
-            'average_value' => active_stream.last_hourly_average_value,
             'streams' => {
               active_stream.sensor_name => {
                 'measurement_short_type' =>
@@ -274,8 +273,8 @@ describe Api::Fixed::Active::SessionsController do
             'title' => active_session.title,
             'is_active' => active_session.is_active,
             'username' => active_session.user.username,
-            'last_hourly_average_value' => active_stream.average_value,
-            'average_value' => active_stream.average_value.to_i,
+            'last_hourly_average_value' =>
+              active_stream.last_hourly_average_value,
             'streams' => {
               active_stream.sensor_name => {
                 'measurement_short_type' =>
@@ -351,7 +350,7 @@ describe Api::Fixed::Active::SessionsController do
             'uuid' => session.uuid,
             'end_time_local' => '2000-10-01T02:03:04.000Z',
             'start_time_local' => '2000-10-01T02:03:04.000Z',
-            'last_measurement_value' => nil,
+            'last_measurement_value' => queried_stream.average_value,
             'is_indoor' => session.is_indoor,
             'latitude' => session.latitude.to_f,
             'longitude' => session.longitude.to_f,
@@ -360,7 +359,6 @@ describe Api::Fixed::Active::SessionsController do
             'is_active' => session.is_active,
             'last_hourly_average_value' =>
               queried_stream.last_hourly_average_value,
-            'average_value' => queried_stream.last_hourly_average_value,
             'streams' => {
               queried_stream.sensor_name => {
                 'measurement_short_type' =>
@@ -423,30 +421,22 @@ describe Api::Fixed::Active::SessionsController do
         sensor_name: sensor_name,
       )
 
-    stream =
-      Stream.create!(
-        session: session,
-        sensor_name: sensor_name,
-        measurement_short_type: 'F',
-        measurement_type: 'Temperature',
-        sensor_package_name: 'Airbeam2-0018961071B4',
-        unit_name: 'fahrenheit',
-        unit_symbol: 'F',
-        threshold_set: threshold_set,
-        min_latitude: latitude,
-        max_latitude: latitude,
-        min_longitude: longitude,
-        max_longitude: longitude,
-        start_latitude: latitude,
-        start_longitude: longitude,
-        average_value: 10,
-      )
-
-    stream_hourly_average =
-      create(:stream_hourly_average, stream: stream, value: 12)
-    stream.update!(last_hourly_average: stream_hourly_average)
-
-    stream
+    Stream.create!(
+      session: session,
+      sensor_name: sensor_name,
+      measurement_short_type: 'F',
+      measurement_type: 'Temperature',
+      sensor_package_name: 'Airbeam2-0018961071B4',
+      unit_name: 'fahrenheit',
+      unit_symbol: 'F',
+      threshold_set: threshold_set,
+      min_latitude: latitude,
+      max_latitude: latitude,
+      min_longitude: longitude,
+      max_longitude: longitude,
+      start_latitude: latitude,
+      start_longitude: longitude,
+    )
   end
 
   def create_measurement!(stream:)

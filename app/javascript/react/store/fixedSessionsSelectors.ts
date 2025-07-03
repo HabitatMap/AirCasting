@@ -37,7 +37,7 @@ const transformSessionData = (sessions: FixedSessionGeneral[]) =>
       latitude,
       longitude,
       streams,
-      averageValue,
+      lastHourlyAverageValue,
     }) => {
       const firstStream = streams[Object.keys(streams)[0]] || {};
       return {
@@ -47,7 +47,7 @@ const transformSessionData = (sessions: FixedSessionGeneral[]) =>
         lastMeasurementValue,
         startTime: startTimeLocal,
         endTime: endTimeLocal,
-        averageValue: averageValue,
+        averageValue: lastHourlyAverageValue ?? lastMeasurementValue ?? null,
         point: {
           lat: latitude,
           lng: longitude,

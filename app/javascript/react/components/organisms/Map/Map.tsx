@@ -182,32 +182,27 @@ const Map = () => {
 
   const fixedSessionTypeSelected: boolean = sessionType === SessionTypes.FIXED;
 
-  // Memoized selectors for different session types
-  const indoorSessionsList = useAppSelector(
-    selectIndoorSessionsList(isDormant)
-  );
-  const fixedSessionsList = useAppSelector((state: RootState) =>
-    selectFixedSessionsList(state, fixedSessionsType)
-  );
-  const mobileSessionsList = useAppSelector(selectMobileSessionsList);
-
-  const listSessions = useMemo(() => {
-    if (fixedSessionTypeSelected) {
-      if (isIndoorParameterInUrl) {
-        return indoorSessionsList;
+  const selectListSessions = useMemo(
+    () => (state: RootState) => {
+      if (fixedSessionTypeSelected) {
+        if (isIndoorParameterInUrl) {
+          return selectIndoorSessionsList(isDormant)(state);
+        } else {
+          return selectFixedSessionsList(state, fixedSessionsType);
+        }
       } else {
-        return fixedSessionsList;
+        return selectMobileSessionsList(state);
       }
-    } else {
-      return mobileSessionsList;
-    }
-  }, [
-    fixedSessionTypeSelected,
-    isIndoorParameterInUrl,
-    indoorSessionsList,
-    fixedSessionsList,
-    mobileSessionsList,
-  ]);
+    },
+    [
+      fixedSessionTypeSelected,
+      isIndoorParameterInUrl,
+      isDormant,
+      fixedSessionsType,
+    ]
+  );
+
+  const listSessions = useAppSelector(selectListSessions);
 
   const fixedStreamData = useAppSelector(selectFixedData);
 

@@ -60,8 +60,7 @@ class Api::ToActiveSessionsJson
             session.end_time_local.strftime('%Y-%m-%dT%H:%M:%S.%LZ'),
           'start_time_local' =>
             session.start_time_local.strftime('%Y-%m-%dT%H:%M:%S.%LZ'),
-          'last_measurement_value' =>
-            anonymous ? last_measurement_value(related_stream.id) : nil,
+          'last_measurement_value' => related_stream&.average_value&.round,
           'is_indoor' => session.is_indoor,
           'latitude' => session.latitude,
           'longitude' => session.longitude,
@@ -70,12 +69,6 @@ class Api::ToActiveSessionsJson
           'is_active' => session.is_active,
           'last_hourly_average_value' =>
             related_stream.last_hourly_average_value,
-          'average_value' =>
-            if anonymous
-              last_measurement_value(related_stream.id)
-            else
-              related_stream.last_hourly_average_value
-            end,
           'streams' => {
             related_stream.sensor_name => {
               'measurement_short_type' => related_stream.measurement_short_type,
@@ -115,13 +108,5 @@ class Api::ToActiveSessionsJson
 
   def sessions
     @sessions ||= FixedSession.active.filter_(data)
-  end
-
-  def last_measurement_value(stream_id)
-    Measurement
-      .where(stream_id: stream_id)
-      .reorder(time: :desc)
-      .pluck(:value)
-      .first
   end
 end

@@ -41,7 +41,7 @@ module StreamHourlyAverages
           end_date_time,
         )
         .where(sessions: { type: 'FixedSession' })
-        .where.not(sessions: { user_id: airnow_user.id, is_indoor: true })
+        .where.not(sessions: { user_id: airnow_user.id })
         .group(:stream_id)
         .average(:value)
         .map { |stream_id, value| { stream_id: stream_id, value: value.round } }
