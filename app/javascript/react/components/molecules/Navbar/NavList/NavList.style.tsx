@@ -101,13 +101,34 @@ const NavItemLink = styled(SubNavTitleLink)`
   }
 `;
 
+const SubNavTitle = styled.span`
+  color: ${white};
+  font-size: 2.2rem;
+  display: inline-block;
+  padding: 0.5rem 0;
+
+  @media ${media.smallDesktop} {
+    font-size: 1.8rem;
+  }
+`;
+
+const NavItemText = styled.span`
+  color: ${white};
+  font-size: 1.9rem;
+  display: inline-block;
+  padding: 0.5rem 0;
+
+  @media ${media.smallDesktop} {
+    font-size: 1.5rem;
+  }
+`;
+
 const Link = styled(NavItemLink)`
   text-transform: uppercase;
   font-size: 1.3rem;
 `;
 
 const BottomNavContainer = styled(Container)`
-  border-top: 1px solid ${white};
   padding-top: 3.2rem;
 `;
 
@@ -155,7 +176,9 @@ export {
   ListItem,
   NavHeader,
   NavItemLink,
+  NavItemText,
   NavList,
   SubNav,
+  SubNavTitle,
   SubNavTitleLink,
 };
