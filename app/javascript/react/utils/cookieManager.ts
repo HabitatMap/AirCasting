@@ -89,6 +89,16 @@ export class CookieManager {
       localStorage.removeItem("lastSelectedMobileTimeRange");
       localStorage.removeItem("lastSelectedTimeRange");
     }
+
+    // Dispatch event to notify other components of consent change
+    this.dispatchConsentChangeEvent();
+  }
+
+  // Dispatch event to notify of consent changes
+  private static dispatchConsentChangeEvent(): void {
+    if (typeof window !== "undefined") {
+      window.dispatchEvent(new CustomEvent("cookieConsentChanged"));
+    }
   }
 
   // Enable all cookies
