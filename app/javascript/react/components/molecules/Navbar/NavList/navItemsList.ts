@@ -75,12 +75,11 @@ export const navItems = [
     ],
   },
   {
-    isNavTitle: true,
     href: urls.privacy,
     label: "navbar.sections.privacy",
     subNav: [
       {
-        href: "#",
+        href: "",
         label: "navbar.sections.ein",
       },
     ],
