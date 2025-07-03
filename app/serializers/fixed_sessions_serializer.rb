@@ -16,6 +16,7 @@ class FixedSessionsSerializer
         'username' => 'username',
         'is_active' => true,
         'last_hourly_average_value' => session['average_value']&.round,
+        'average_value' => session['average_value']&.round,
         'streams' => {
           session['sensor_name'] => {
             'measurement_short_type' => session['measurement_short_type'],

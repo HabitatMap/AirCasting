@@ -19,6 +19,7 @@ interface IndoorSession {
   isIndoor: boolean;
   isActive: boolean;
   title: string;
+  averageValue: number | null;
   streams: {
     [key: string]: {
       streamDailyAverage: number;
