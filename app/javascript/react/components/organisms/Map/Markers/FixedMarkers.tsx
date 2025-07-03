@@ -20,7 +20,6 @@ import {
   selectIsLoading,
 } from "../../../../store/fixedStreamSelectors";
 import { useAppDispatch, useAppSelector } from "../../../../store/hooks";
-import type { RootState } from "../../../../store/index";
 import { selectHoverStreamId } from "../../../../store/mapSlice";
 import { setMarkersLoading } from "../../../../store/markersLoadingSlice";
 import { selectThresholds } from "../../../../store/thresholdSlice";
@@ -83,17 +82,13 @@ export function FixedMarkers({
   // Redux selectors
   const hoverStreamId = useAppSelector(selectHoverStreamId);
   const thresholds = useAppSelector(selectThresholds);
-  const clusterVisible = useAppSelector(
-    (state: RootState) => state.cluster.visible
-  );
+  const clusterVisible = useAppSelector((state) => state.cluster.visible);
   const fixedStreamData = useAppSelector(selectFixedStreamData);
   const fixedStreamStatus = useAppSelector(selectFixedStreamStatus);
   const clusterAverage = useAppSelector(
-    (state: RootState) => state.cluster.clusterAverage
+    (state) => state.cluster.clusterAverage
   );
-  const clusterSize = useAppSelector(
-    (state: RootState) => state.cluster.clusterSize
-  );
+  const clusterSize = useAppSelector((state) => state.cluster.clusterSize);
 
   // Refs
   const clustererRef = useRef<MarkerClusterer | null>(null);

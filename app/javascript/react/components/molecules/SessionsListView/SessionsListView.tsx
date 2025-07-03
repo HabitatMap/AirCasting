@@ -100,6 +100,7 @@ const SessionsListView: React.FC<SessionsListViewProps> = ({
   const results = sessions.length;
   const sessionsIds = sessions.map((session) => session.id);
   const exportButtonRef = useRef<HTMLDivElement>(null);
+  const sessionListRef = useRef<HTMLDivElement>(null);
   const [buttonPosition, setButtonPosition] = useState({
     top: 0,
     left: 0,
