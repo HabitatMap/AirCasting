@@ -28,21 +28,17 @@ const selectIndoorSessionsPoints = (isDormant: boolean) =>
         }) => {
           const firstStream = streams[Object.keys(streams)[0]];
 
-          // For dormant indoor sessions, get average_value from streams
-          // For active indoor sessions, use lastHourlyAverageValue or lastMeasurementValue
           let averageValue: number | null = null;
 
           if (
             firstStream &&
             ("average_value" in firstStream || "averageValue" in firstStream)
           ) {
-            // Dormant sessions have average_value in streams (check both snake_case and camelCase)
             averageValue =
               (firstStream as any).average_value ??
               (firstStream as any).averageValue ??
               null;
           } else {
-            // Active sessions use lastHourlyAverageValue or lastMeasurementValue
             averageValue =
               lastHourlyAverageValue ?? lastMeasurementValue ?? null;
           }
@@ -82,21 +78,17 @@ const selectIndoorSessionsList = (isDormant: boolean) =>
         }) => {
           const firstStream = streams[Object.keys(streams)[0]];
 
-          // For dormant indoor sessions, get average_value from streams
-          // For active indoor sessions, use lastHourlyAverageValue or lastMeasurementValue
           let averageValue: number | null = null;
 
           if (
             firstStream &&
             ("average_value" in firstStream || "averageValue" in firstStream)
           ) {
-            // Dormant sessions have average_value in streams (check both snake_case and camelCase)
             averageValue =
               (firstStream as any).average_value ??
               (firstStream as any).averageValue ??
               null;
           } else {
-            // Active sessions use lastHourlyAverageValue or lastMeasurementValue
             averageValue =
               lastHourlyAverageValue ?? lastMeasurementValue ?? null;
           }
