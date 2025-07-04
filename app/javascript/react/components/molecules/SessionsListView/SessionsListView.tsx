@@ -28,6 +28,7 @@ interface RowData {
   handleMouseEnter: (id: number) => void;
   handleMouseLeave: () => void;
   isIndoor?: boolean;
+  isDormant?: boolean;
 }
 
 const Row = React.memo(
@@ -46,6 +47,7 @@ const Row = React.memo(
       handleMouseEnter,
       handleMouseLeave,
       isIndoor,
+      isDormant,
     } = data;
     const session = sessions[index];
     if (!session) {
@@ -67,6 +69,7 @@ const Row = React.memo(
             onMouseEnter={handleMouseEnter}
             onMouseLeave={handleMouseLeave}
             isIndoor={isIndoor}
+            isDormant={isDormant}
           />
         </div>
       </div>
@@ -83,6 +86,7 @@ export interface SessionListEntity {
   endTime: string;
   streamId: number;
   lastMeasurementValue?: number;
+  isDormant?: boolean;
 }
 
 interface SessionsListViewProps {
@@ -93,6 +97,7 @@ interface SessionsListViewProps {
   onScrollEnd: () => void;
   fetchableSessionsCount: number;
   isIndoor?: boolean;
+  isDormant?: boolean;
 }
 
 const SESSIONS_LIMIT = 10000;
@@ -105,6 +110,7 @@ const SessionsListView: React.FC<SessionsListViewProps> = ({
   onScrollEnd,
   fetchableSessionsCount,
   isIndoor,
+  isDormant,
 }) => {
   const { t } = useTranslation();
   const results = sessions.length;
@@ -242,8 +248,16 @@ const SessionsListView: React.FC<SessionsListViewProps> = ({
       handleMouseEnter,
       handleMouseLeave,
       isIndoor,
+      isDormant,
     }),
-    [sessions, handleClick, handleMouseEnter, handleMouseLeave, isIndoor]
+    [
+      sessions,
+      handleClick,
+      handleMouseEnter,
+      handleMouseLeave,
+      isIndoor,
+      isDormant,
+    ]
   );
 
   useEffect(() => {
