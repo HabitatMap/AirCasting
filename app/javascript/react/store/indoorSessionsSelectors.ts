@@ -28,13 +28,28 @@ const selectIndoorSessionsPoints = (isDormant: boolean) =>
         }) => {
           const firstStream = streams[Object.keys(streams)[0]];
 
+          let averageValue: number | null = null;
+
+          if (
+            firstStream &&
+            ("average_value" in firstStream || "averageValue" in firstStream)
+          ) {
+            averageValue =
+              (firstStream as any).average_value ??
+              (firstStream as any).averageValue ??
+              null;
+          } else {
+            averageValue =
+              lastHourlyAverageValue ?? lastMeasurementValue ?? null;
+          }
+
           return {
             id,
             title,
             sensorName: firstStream.sensorName,
             startTime: startTimeLocal,
             endTime: endTimeLocal,
-            averageValue: lastHourlyAverageValue || lastMeasurementValue,
+            averageValue,
             lastMeasurementValue,
           };
         }
@@ -63,11 +78,26 @@ const selectIndoorSessionsList = (isDormant: boolean) =>
         }) => {
           const firstStream = streams[Object.keys(streams)[0]];
 
+          let averageValue: number | null = null;
+
+          if (
+            firstStream &&
+            ("average_value" in firstStream || "averageValue" in firstStream)
+          ) {
+            averageValue =
+              (firstStream as any).average_value ??
+              (firstStream as any).averageValue ??
+              null;
+          } else {
+            averageValue =
+              lastHourlyAverageValue ?? lastMeasurementValue ?? null;
+          }
+
           return {
             id,
             title,
             sensorName: firstStream.sensorName,
-            averageValue: lastHourlyAverageValue || lastMeasurementValue,
+            averageValue,
             startTime: startTimeLocal,
             endTime: endTimeLocal,
             streamId: firstStream.id,

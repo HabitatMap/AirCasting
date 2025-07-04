@@ -26,6 +26,7 @@ export interface FixedSessionGeneral {
       sensorName: string;
       unitSymbol: string;
       id: number;
+      average_value?: number;
     };
   };
 }

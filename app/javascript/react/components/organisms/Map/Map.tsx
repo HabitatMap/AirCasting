@@ -819,10 +819,7 @@ const Map = () => {
     id: session.id,
     sessionName: session.title,
     sensorName: session.sensorName,
-    averageValue:
-      session.averageValue === null
-        ? t("map.calculating")
-        : session.averageValue,
+    averageValue: session.averageValue,
     startTime: session.startTime,
     endTime: session.endTime,
     streamId: session.streamId,
@@ -996,6 +993,8 @@ const Map = () => {
             }
             onScrollEnd={handleScrollEnd}
             fetchableSessionsCount={fetchableSessionsCount}
+            isIndoor={isIndoorParameterInUrl}
+            isDormant={isDormant}
           />
         )}
         {currentUserSettings === UserSettings.FiltersView && (
@@ -1028,6 +1027,8 @@ const Map = () => {
               }}
               onScrollEnd={handleScrollEnd}
               fetchableSessionsCount={fetchableSessionsCount}
+              isIndoor={isIndoorParameterInUrl}
+              isDormant={isDormant}
             />
           </S.DesktopContainer>
         )}
