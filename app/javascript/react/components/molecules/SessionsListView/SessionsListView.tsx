@@ -28,6 +28,7 @@ interface RowData {
   handleClick: (id: number, streamId: number) => void;
   handleMouseEnter: (id: number) => void;
   handleMouseLeave: () => void;
+  isIndoor?: boolean;
 }
 
 const Row = React.memo(
@@ -40,7 +41,13 @@ const Row = React.memo(
     style: React.CSSProperties;
     data: RowData;
   }) => {
-    const { sessions, handleClick, handleMouseEnter, handleMouseLeave } = data;
+    const {
+      sessions,
+      handleClick,
+      handleMouseEnter,
+      handleMouseLeave,
+      isIndoor,
+    } = data;
     const session = sessions[index];
     if (!session) {
       return null;
@@ -60,6 +67,7 @@ const Row = React.memo(
             onClick={handleClick}
             onMouseEnter={handleMouseEnter}
             onMouseLeave={handleMouseLeave}
+            isIndoor={isIndoor}
           />
         </div>
       </div>
@@ -236,8 +244,9 @@ const SessionsListView: React.FC<SessionsListViewProps> = ({
       handleClick,
       handleMouseEnter,
       handleMouseLeave,
+      isIndoor,
     }),
-    [sessions, handleClick, handleMouseEnter, handleMouseLeave]
+    [sessions, handleClick, handleMouseEnter, handleMouseLeave, isIndoor]
   );
 
   useEffect(() => {
