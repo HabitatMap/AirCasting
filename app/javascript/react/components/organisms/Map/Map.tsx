@@ -1005,6 +1005,7 @@ const Map = () => {
             onScrollEnd={handleScrollEnd}
             fetchableSessionsCount={fetchableSessionsCount}
             isIndoor={isIndoorParameterInUrl}
+            isDormant={isDormant}
           />
         )}
         {currentUserSettings === UserSettings.FiltersView && (
@@ -1038,6 +1039,7 @@ const Map = () => {
               onScrollEnd={handleScrollEnd}
               fetchableSessionsCount={fetchableSessionsCount}
               isIndoor={isIndoorParameterInUrl}
+              isDormant={isDormant}
             />
           </S.DesktopContainer>
         )}

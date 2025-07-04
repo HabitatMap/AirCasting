@@ -24,6 +24,7 @@ interface SessionListTile {
   onMouseEnter?: (id: number) => void;
   onMouseLeave?: () => void;
   isIndoor?: boolean;
+  isDormant?: boolean;
 }
 
 const AverageValueDisplay: React.FC<{
@@ -48,6 +49,7 @@ const SessionsListTile: React.FC<SessionListTile> = ({
   onMouseEnter,
   onMouseLeave,
   isIndoor,
+  isDormant,
 }) => {
   const thresholds = useSelector(selectThresholds);
 
@@ -84,13 +86,13 @@ const SessionsListTile: React.FC<SessionListTile> = ({
     }
   };
 
-  const isDormant = useAppSelector(selectIsDormantSessionsType);
+  const isDormantSession = useAppSelector(selectIsDormantSessionsType);
 
-  const dotColor = isDormant
+  const dotColor = isDormantSession
     ? gray300
     : getColorForValue(thresholds, averageValue);
 
-  const shouldShowValue = !(isIndoor && averageValue === null);
+  const shouldShowValue = !(isIndoor || (isDormant && averageValue === null));
 
   return (
     <S.SessionListTile
