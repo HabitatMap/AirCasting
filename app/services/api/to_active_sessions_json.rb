@@ -68,7 +68,7 @@ class Api::ToActiveSessionsJson
           'username' => anonymous ? 'anonymous' : session.user.username,
           'is_active' => session.is_active,
           'last_hourly_average_value' =>
-            related_stream.last_hourly_average_value,
+            anonymous ? nil : related_stream.last_hourly_average_value,
           'streams' => {
             related_stream.sensor_name => {
               'measurement_short_type' => related_stream.measurement_short_type,
