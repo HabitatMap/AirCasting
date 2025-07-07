@@ -16,16 +16,18 @@ class Api::ToDormantSessionsArray
           .filter_(data)
           .map do |session|
             {
-              id: session.id,
-              title: session.title,
-              start_time_local: session.start_time_local,
-              end_time_local: session.end_time_local,
-              is_indoor: session.is_indoor,
-              latitude: session.latitude,
-              longitude: session.longitude,
-              type: session.type,
-              username: session.is_indoor ? 'anonymous' : session.user.username,
-              streams:
+              :id => session.id,
+              :title => session.title,
+              :start_time_local => session.start_time_local,
+              :end_time_local => session.end_time_local,
+              :is_indoor => session.is_indoor,
+              :latitude => session.latitude,
+              :longitude => session.longitude,
+              :type => session.type,
+              :username =>
+                session.is_indoor ? 'anonymous' : session.user.username,
+              'last_hourly_average_value' => last_hourly_average_value(session),
+              :streams =>
                 session
                   .streams
                   .reduce({}) do |acc, stream|
@@ -88,5 +90,21 @@ class Api::ToDormantSessionsArray
 
   def offset
     data[:offset]
+  end
+
+  def last_hourly_average_value(session)
+    stream = session.streams.first
+
+    if session.is_indoor
+      nil
+    elsif air_now_sensor?(data[:sensor_name])
+      stream.average_value
+    else
+      stream.last_hourly_average_value
+    end
+  end
+
+  def air_now_sensor?(sensor_name)
+    %w[government-pm2.5 government-no2 government-o3].include?(sensor_name)
   end
 end
