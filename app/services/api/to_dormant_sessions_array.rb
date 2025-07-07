@@ -33,7 +33,7 @@ class Api::ToDormantSessionsArray
                   .reduce({}) do |acc, stream|
                     acc.merge(
                       stream.sensor_name => {
-                        average_value: stream.average_value,
+                        average_value: last_hourly_average_value(session),
                         id: stream.id,
                         max_latitude: stream.max_latitude,
                         max_longitude: stream.max_longitude,
@@ -98,7 +98,7 @@ class Api::ToDormantSessionsArray
     if session.is_indoor
       nil
     elsif air_now_sensor?(data[:sensor_name])
-      stream.average_value
+      stream.average_value&.round
     else
       stream.last_hourly_average_value
     end
