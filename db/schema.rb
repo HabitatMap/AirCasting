@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2025_05_21_121211) do
+ActiveRecord::Schema[7.0].define(version: 2025_07_08_140045) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
   enable_extension "postgis"
@@ -50,6 +50,18 @@ ActiveRecord::Schema[7.0].define(version: 2025_05_21_121211) do
     t.integer "user_id"
     t.index ["user_id"], name: "index_deleted_sessions_on_user_id"
     t.index ["uuid", "user_id"], name: "index_deleted_sessions_on_uuid_and_user_id"
+  end
+
+  create_table "fixed_measurements", force: :cascade do |t|
+    t.bigint "stream_id", null: false
+    t.float "value", null: false
+    t.datetime "time", precision: nil, null: false
+    t.timestamptz "time_with_time_zone", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["stream_id", "time"], name: "index_fixed_measurements_on_stream_id_and_time", unique: true
+    t.index ["stream_id", "time_with_time_zone"], name: "index_fixed_measurements_on_stream_id_and_time_with_time_zone", unique: true
+    t.index ["stream_id"], name: "index_fixed_measurements_on_stream_id"
   end
 
   create_table "measurements", id: :serial, force: :cascade do |t|
@@ -235,6 +247,7 @@ ActiveRecord::Schema[7.0].define(version: 2025_05_21_121211) do
 
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
+  add_foreign_key "fixed_measurements", "streams"
   add_foreign_key "stream_daily_averages", "streams"
   add_foreign_key "stream_hourly_averages", "streams"
   add_foreign_key "streams", "stream_hourly_averages", column: "last_hourly_average_id"
