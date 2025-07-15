@@ -12,6 +12,10 @@ describe Api::Fixed::Dormant::SessionsController do
           session_time: session_time,
         )
 
+      last_hourly_average =
+        create(:stream_hourly_average, stream: dormant_stream, value: 12)
+      dormant_stream.update(last_hourly_average: last_hourly_average)
+
       get :index,
           params: {
             q: {
@@ -46,6 +50,7 @@ describe Api::Fixed::Dormant::SessionsController do
             'title' => dormant_session.title,
             'type' => 'FixedSession',
             'username' => user.username,
+            'last_hourly_average_value' => 12,
             'streams' => {
               dormant_stream.sensor_name => {
                 'average_value' => nil,
@@ -66,9 +71,12 @@ describe Api::Fixed::Dormant::SessionsController do
                 'start_longitude' => dormant_stream.start_longitude,
                 'threshold_high' => dormant_stream.threshold_set.threshold_high,
                 'threshold_low' => dormant_stream.threshold_set.threshold_low,
-                'threshold_medium' => dormant_stream.threshold_set.threshold_medium,
-                'threshold_very_high' => dormant_stream.threshold_set.threshold_very_high,
-                'threshold_very_low' => dormant_stream.threshold_set.threshold_very_low,
+                'threshold_medium' =>
+                  dormant_stream.threshold_set.threshold_medium,
+                'threshold_very_high' =>
+                  dormant_stream.threshold_set.threshold_very_high,
+                'threshold_very_low' =>
+                  dormant_stream.threshold_set.threshold_very_low,
                 'unit_name' => dormant_stream.unit_name,
                 'unit_symbol' => dormant_stream.unit_symbol,
               },
@@ -153,15 +161,16 @@ describe Api::Fixed::Dormant::SessionsController do
   end
 
   def create_stream!(session:, latitude:, longitude:)
-    threshold_set = ThresholdSet.create!(
-      threshold_very_low: 20,
-      threshold_low: 60,
-      threshold_medium: 70,
-      threshold_high: 80,
-      threshold_very_high: 100,
-      unit_symbol: 'F',
-      sensor_name: 'AirBeam2-F',
-    )
+    threshold_set =
+      ThresholdSet.create!(
+        threshold_very_low: 20,
+        threshold_low: 60,
+        threshold_medium: 70,
+        threshold_high: 80,
+        threshold_very_high: 100,
+        unit_symbol: 'F',
+        sensor_name: 'AirBeam2-F',
+      )
 
     Stream.create!(
       session: session,
@@ -189,7 +198,7 @@ describe Api::Fixed::Dormant::SessionsController do
       value: 123,
       milliseconds: 123,
       stream: stream,
-      location: "SRID=4326;POINT(123 123)",
+      location: 'SRID=4326;POINT(123 123)',
     )
   end
 end
