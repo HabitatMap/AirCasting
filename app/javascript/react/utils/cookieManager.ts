@@ -1,4 +1,3 @@
-// TypeScript declarations for Google Analytics
 declare global {
   interface Window {
     gtag?: (
@@ -21,7 +20,6 @@ export interface CookiePreferences {
 export class CookieManager {
   private static STORAGE_KEY = "cookiePreferences";
 
-  // Load preferences from localStorage
   static loadPreferences(): CookiePreferences {
     const saved = localStorage.getItem(this.STORAGE_KEY);
     if (saved) {
@@ -38,7 +36,6 @@ export class CookieManager {
       }
     }
 
-    // Default preferences
     return {
       necessary: true,
       analytics: false,
@@ -47,14 +44,11 @@ export class CookieManager {
     };
   }
 
-  // Save preferences to localStorage
   static savePreferences(preferences: CookiePreferences): void {
     localStorage.setItem(this.STORAGE_KEY, JSON.stringify(preferences));
   }
 
-  // Apply preferences to actual cookies/tracking
   static applyPreferences(preferences: CookiePreferences): void {
-    // Apply analytics preferences
     if (preferences.analytics) {
       window.gtag?.("consent", "update", {
         analytics_storage: "granted",
@@ -63,11 +57,9 @@ export class CookieManager {
       window.gtag?.("consent", "update", {
         analytics_storage: "denied",
       });
-      // Clear Google Analytics cookies when denied
       this.clearAnalyticsCookies();
     }
 
-    // Apply marketing preferences
     if (preferences.marketing) {
       window.gtag?.("consent", "update", {
         ad_storage: "granted",
@@ -76,15 +68,11 @@ export class CookieManager {
       window.gtag?.("consent", "update", {
         ad_storage: "denied",
       });
-      // Clear Google Ads cookies when denied
       this.clearMarketingCookies();
     }
 
-    // Apply preference cookies
     if (preferences.preferences) {
-      // Preferences are enabled by default, no action needed
     } else {
-      // Clear preference-related cookies and localStorage items
       Cookies.remove("mapBoundsEast");
       Cookies.remove("mapBoundsNorth");
       Cookies.remove("mapBoundsSouth");
@@ -94,35 +82,29 @@ export class CookieManager {
       localStorage.removeItem("lastSelectedTimeRange");
     }
 
-    // Dispatch event to notify other components of consent change
     this.dispatchConsentChangeEvent();
   }
 
-  // Clear Google Analytics cookies
   private static clearAnalyticsCookies(): void {
-    // Clear Google Analytics cookies from all possible domains
     const domains = ["", ".aircasting.org", ".google.com", ".google.pl"];
     const analyticsCookies = [
       "_ga",
       "_gid",
       "_gat",
-      "_ga_P2QSTCN3VQ", // Your specific GA4 property
-      "_ga_0DS6PXGHQF", // Another GA property I saw in your cookies
+      "_ga_P2QSTCN3VQ",
+      "_ga_0DS6PXGHQF",
     ];
 
     domains.forEach((domain) => {
       analyticsCookies.forEach((cookieName) => {
-        // Use Cookies.remove for current domain
         if (domain === "") {
           Cookies.remove(cookieName);
         } else {
-          // For other domains, set cookie with past expiry date
           document.cookie = `${cookieName}=; expires=Thu, 01 Jan 1970 00:00:00 GMT; domain=${domain}; path=/`;
         }
       });
     });
 
-    // Clear from localStorage as well
     Object.keys(localStorage).forEach((key) => {
       if (key.startsWith("_ga") || key.startsWith("ga_")) {
         localStorage.removeItem(key);
@@ -130,9 +112,7 @@ export class CookieManager {
     });
   }
 
-  // Clear Google Ads cookies
   private static clearMarketingCookies(): void {
-    // Clear Google Ads cookies from all possible domains
     const domains = ["", ".aircasting.org", ".google.com", ".google.pl"];
     const marketingCookies = [
       "_gcl_au",
@@ -147,17 +127,14 @@ export class CookieManager {
 
     domains.forEach((domain) => {
       marketingCookies.forEach((cookieName) => {
-        // Use Cookies.remove for current domain
         if (domain === "") {
           Cookies.remove(cookieName);
         } else {
-          // For other domains, set cookie with past expiry date
           document.cookie = `${cookieName}=; expires=Thu, 01 Jan 1970 00:00:00 GMT; domain=${domain}; path=/`;
         }
       });
     });
 
-    // Clear from localStorage as well
     Object.keys(localStorage).forEach((key) => {
       if (key.startsWith("_gcl") || key.startsWith("ads_")) {
         localStorage.removeItem(key);
@@ -165,14 +142,12 @@ export class CookieManager {
     });
   }
 
-  // Dispatch event to notify of consent changes
   private static dispatchConsentChangeEvent(): void {
     if (typeof window !== "undefined") {
       window.dispatchEvent(new CustomEvent("cookieConsentChanged"));
     }
   }
 
-  // Enable all cookies
   static enableAll(): void {
     const allEnabled: CookiePreferences = {
       necessary: true,
@@ -185,7 +160,6 @@ export class CookieManager {
     this.applyPreferences(allEnabled);
   }
 
-  // Disable non-necessary cookies
   static disableNonNecessary(): void {
     const onlyNecessary: CookiePreferences = {
       necessary: true,
@@ -198,12 +172,10 @@ export class CookieManager {
     this.applyPreferences(onlyNecessary);
   }
 
-  // Check if preferences have been set
   static hasPreferences(): boolean {
     return localStorage.getItem(this.STORAGE_KEY) !== null;
   }
 
-  // Update a specific preference
   static updatePreference(key: keyof CookiePreferences, value: boolean): void {
     const preferences = this.loadPreferences();
     preferences[key] = value;
@@ -212,7 +184,6 @@ export class CookieManager {
     this.applyPreferences(preferences);
   }
 
-  // Check if preference cookies are allowed
   static arePreferenceCookiesAllowed(): boolean {
     const preferences = this.loadPreferences();
     return preferences.preferences;

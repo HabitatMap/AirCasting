@@ -25,7 +25,7 @@ const Navbar: React.FC<NavbarProps> = ({ isMapPage }) => {
 
   const handleOpenCookieSettings = () => {
     setCookieSettingsModalOpen(true);
-    setNavMenuVisible(false); // Close the nav menu when opening cookie settings
+    setNavMenuVisible(false);
   };
 
   const handleCloseCookieSettings = () => {
