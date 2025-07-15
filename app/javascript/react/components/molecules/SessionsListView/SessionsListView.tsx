@@ -161,9 +161,6 @@ const SessionsListView: React.FC<SessionsListViewProps> = ({
     if (infiniteLoaderRef.current && sessions.length) {
       infiniteLoaderRef.current.resetloadMoreItemsCache();
     }
-    if (CookieManager.arePreferenceCookiesAllowed()) {
-      localStorage.removeItem("sessionsListScrollPosition");
-    }
   }, [sessions]);
 
   useLayoutEffect(() => {
