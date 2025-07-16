@@ -10,6 +10,7 @@ RSpec.describe UserSessionsSyncing::DeletingHandler do
       other_session = create(:fixed_session, user: user, uuid: 'def456')
       stream = create(:stream, session: session)
       create_list(:measurement, 3, stream: stream)
+      create_list(:fixed_measurement, 3, stream: stream)
       stream_hourly_average = create(:stream_hourly_average, stream: stream)
       stream.update(last_hourly_average: stream_hourly_average)
       create(:stream_daily_average, stream: stream)
@@ -31,6 +32,7 @@ RSpec.describe UserSessionsSyncing::DeletingHandler do
       expect(FixedSession.exists?(id: other_session.id)).to be true
       expect(Stream.count).to eq(0)
       expect(Measurement.count).to eq(0)
+      expect(FixedMeasurement.count).to eq(0)
       expect(StreamHourlyAverage.count).to eq(0)
       expect(StreamDailyAverage.count).to eq(0)
       expect(ThresholdAlert.count).to eq(0)
