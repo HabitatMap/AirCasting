@@ -17,17 +17,32 @@ module Api
       end
 
       def sync_measurements
-        session = FixedSession.find_by_uuid(params[:uuid]) or raise NotFound
-        last_measurement_sync =
-          CGI.unescape(params[:last_measurement_sync]).to_datetime
-        stream_measurements = true
+        begin
+          Timeout.timeout(5) do # Set a timeout of 5 seconds
+            session = FixedSession.find_by_uuid(params[:uuid]) or raise NotFound
+            last_measurement_sync =
+              CGI.unescape(params[:last_measurement_sync]).to_datetime
+            stream_measurements = true
 
-        response =
-          session
-            .as_synchronizable(stream_measurements, last_measurement_sync)
-            .merge('tag_list' => session.tag_list.join(' '))
+            response =
+              session
+                .as_synchronizable(stream_measurements, last_measurement_sync)
+                .merge('tag_list' => session.tag_list.join(' '))
 
-        render json: response, status: :ok
+            render json: response, status: :ok
+          end
+        rescue Timeout::Error
+          Rails.logger.error(
+            "sync_measurements timed out for UUID: #{params[:uuid]}",
+          )
+          render json: { error: 'Request timed out' }, status: :request_timeout
+        rescue => e
+          Rails.logger.error("sync_measurements failed: #{e.message}")
+          render json: {
+                   error: 'Internal server error',
+                 },
+                 status: :internal_server_error
+        end
       end
 
       def create
