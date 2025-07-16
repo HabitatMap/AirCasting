@@ -1,4 +1,5 @@
-import { CookieManager } from "./cookieManager";
+import "@testing-library/jest-dom";
+import { CookieManager } from "../../utils/cookieManager";
 
 // Mock localStorage
 const localStorageMock = {
@@ -12,7 +13,7 @@ Object.defineProperty(window, "localStorage", {
 });
 
 // Mock Cookies utility
-jest.mock("./cookies", () => ({
+jest.mock("../../utils/cookies", () => ({
   remove: jest.fn(),
 }));
 
@@ -64,7 +65,7 @@ describe("CookieManager", () => {
     });
 
     it("should return true when preferences are saved", () => {
-      localStorageMock.getItem.mockReturnValue("{}");
+      localStorageMock.getItem.mockReturnValue("{}\n");
 
       expect(CookieManager.hasPreferences()).toBe(true);
     });
@@ -134,7 +135,7 @@ describe("CookieManager", () => {
     });
 
     it("should clear preference cookies when preferences are disabled", () => {
-      const { remove } = require("./cookies");
+      const { remove } = require("../../utils/cookies");
 
       const preferences = {
         necessary: true,
