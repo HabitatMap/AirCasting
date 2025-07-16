@@ -16,6 +16,7 @@ import {
   selectSessionsListExpanded,
   setSessionsListExpanded,
 } from "../../../store/mapSlice";
+import { CookieManager } from "../../../utils/cookieManager";
 import { useAutoDismissAlert } from "../../../utils/useAutoDismissAlert";
 import { AlertPopup } from "../Popups/AlertComponent";
 import ExportButtonComponent from "./ExportButtonComponent";
@@ -135,7 +136,7 @@ const SessionsListView: React.FC<SessionsListViewProps> = ({
   const infiniteLoaderRef = useRef<InfiniteLoader>(null);
 
   const initialScrollOffset = useMemo(() => {
-    if (sessionsListExpanded) {
+    if (sessionsListExpanded && CookieManager.arePreferenceCookiesAllowed()) {
       const savedScrollPosition = localStorage.getItem(
         "sessionsListScrollPosition"
       );
@@ -146,7 +147,7 @@ const SessionsListView: React.FC<SessionsListViewProps> = ({
 
   const saveScrollPosition = useCallback(
     debounce((scrollOffset: number) => {
-      if (sessionsListExpanded) {
+      if (sessionsListExpanded && CookieManager.arePreferenceCookiesAllowed()) {
         localStorage.setItem(
           "sessionsListScrollPosition",
           String(scrollOffset)
@@ -160,7 +161,6 @@ const SessionsListView: React.FC<SessionsListViewProps> = ({
     if (infiniteLoaderRef.current && sessions.length) {
       infiniteLoaderRef.current.resetloadMoreItemsCache();
     }
-    localStorage.removeItem("sessionsListScrollPosition");
   }, [sessions]);
 
   useLayoutEffect(() => {
@@ -262,7 +262,7 @@ const SessionsListView: React.FC<SessionsListViewProps> = ({
 
   useEffect(() => {
     // Clear saved scroll position when sessions list is collapsed
-    if (!sessionsListExpanded) {
+    if (!sessionsListExpanded && CookieManager.arePreferenceCookiesAllowed()) {
       localStorage.removeItem("sessionsListScrollPosition");
     }
   }, [sessionsListExpanded]);

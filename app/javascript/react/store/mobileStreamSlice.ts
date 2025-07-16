@@ -6,6 +6,7 @@ import { API_ENDPOINTS } from "../api/apiEndpoints";
 import { ApiError, StatusEnum } from "../types/api";
 import { MobileStream } from "../types/mobileStream";
 import { MobileTimeRange } from "../types/timeRange";
+import { CookieManager } from "../utils/cookieManager";
 import { getErrorMessage } from "../utils/getErrorMessage";
 import { logError } from "../utils/logController";
 
@@ -46,7 +47,22 @@ export const initialState: MobileStreamState = {
   status: StatusEnum.Idle,
   error: null,
   isLoading: false,
-  lastSelectedTimeRange: MobileTimeRange.All,
+  lastSelectedTimeRange: (() => {
+    // Load from localStorage only if preference cookies are allowed
+    if (
+      typeof window !== "undefined" &&
+      CookieManager.arePreferenceCookiesAllowed()
+    ) {
+      const saved = localStorage.getItem("lastSelectedMobileTimeRange");
+      if (
+        saved &&
+        Object.values(MobileTimeRange).includes(saved as MobileTimeRange)
+      ) {
+        return saved as MobileTimeRange;
+      }
+    }
+    return MobileTimeRange.All;
+  })(),
 };
 
 export const fetchMobileStreamById = createAsyncThunk<
@@ -116,12 +132,19 @@ export const mobileStreamSlice = createSlice({
       action: PayloadAction<MobileTimeRange>
     ) {
       state.lastSelectedTimeRange = action.payload;
-      localStorage.setItem("lastSelectedMobileTimeRange", action.payload);
+      if (CookieManager.arePreferenceCookiesAllowed()) {
+        localStorage.setItem("lastSelectedMobileTimeRange", action.payload);
+      }
     },
 
     resetLastSelectedMobileTimeRange(state) {
       state.lastSelectedTimeRange = MobileTimeRange.All;
-      localStorage.setItem("lastSelectedMobileTimeRange", MobileTimeRange.All);
+      if (CookieManager.arePreferenceCookiesAllowed()) {
+        localStorage.setItem(
+          "lastSelectedMobileTimeRange",
+          MobileTimeRange.All
+        );
+      }
     },
 
     resetMobileMeasurementExtremes: (state) => {

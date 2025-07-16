@@ -73,6 +73,7 @@ import {
 import { SessionTypes } from "../../../types/filters";
 import type { SessionList } from "../../../types/sessionType";
 import { UserSettings } from "../../../types/userStates";
+import { CookieManager } from "../../../utils/cookieManager";
 import * as Cookies from "../../../utils/cookies";
 import { UrlParamsTypes, useMapParams } from "../../../utils/mapParamsHandler";
 import { useHandleScrollEnd } from "../../../utils/scrollEnd";
@@ -369,11 +370,13 @@ const Map = () => {
         limit: fetchedSessions,
       };
 
-      // Save bounds in cookies when fetching sessions
-      Cookies.set("mapBoundsEast", boundEast.toString());
-      Cookies.set("mapBoundsNorth", boundNorth.toString());
-      Cookies.set("mapBoundsSouth", boundSouth.toString());
-      Cookies.set("mapBoundsWest", boundWest.toString());
+      // Save bounds in cookies when fetching sessions (only if preferences are allowed)
+      if (CookieManager.arePreferenceCookiesAllowed()) {
+        Cookies.set("mapBoundsEast", boundEast.toString());
+        Cookies.set("mapBoundsNorth", boundNorth.toString());
+        Cookies.set("mapBoundsSouth", boundSouth.toString());
+        Cookies.set("mapBoundsWest", boundWest.toString());
+      }
 
       dispatch(fetchMobileSessions({ filters: JSON.stringify(updatedFilters) }))
         .unwrap()
@@ -384,11 +387,13 @@ const Map = () => {
       isFirstRender.current = false;
     } else {
       if (fetchingData || isFirstLoad) {
-        // Save bounds in cookies when fetching sessions
-        Cookies.set("mapBoundsEast", boundEast.toString());
-        Cookies.set("mapBoundsNorth", boundNorth.toString());
-        Cookies.set("mapBoundsSouth", boundSouth.toString());
-        Cookies.set("mapBoundsWest", boundWest.toString());
+        // Save bounds in cookies when fetching sessions (only if preferences are allowed)
+        if (CookieManager.arePreferenceCookiesAllowed()) {
+          Cookies.set("mapBoundsEast", boundEast.toString());
+          Cookies.set("mapBoundsNorth", boundNorth.toString());
+          Cookies.set("mapBoundsSouth", boundSouth.toString());
+          Cookies.set("mapBoundsWest", boundWest.toString());
+        }
 
         if (fixedSessionTypeSelected) {
           if (isIndoorParameterInUrl) {
@@ -617,12 +622,14 @@ const Map = () => {
           newSearchParams.set(UrlParamsTypes.boundWest, west.toString());
           newSearchParams.set(UrlParamsTypes.currentCenter, currentCenter);
           newSearchParams.set(UrlParamsTypes.currentZoom, currentZoom);
-          Cookies.set(UrlParamsTypes.boundEast, east.toString());
-          Cookies.set(UrlParamsTypes.boundNorth, north.toString());
-          Cookies.set(UrlParamsTypes.boundSouth, south.toString());
-          Cookies.set(UrlParamsTypes.boundWest, west.toString());
-          Cookies.set(UrlParamsTypes.currentCenter, currentCenter);
-          Cookies.set(UrlParamsTypes.currentZoom, currentZoom);
+          if (CookieManager.arePreferenceCookiesAllowed()) {
+            Cookies.set(UrlParamsTypes.boundEast, east.toString());
+            Cookies.set(UrlParamsTypes.boundNorth, north.toString());
+            Cookies.set(UrlParamsTypes.boundSouth, south.toString());
+            Cookies.set(UrlParamsTypes.boundWest, west.toString());
+            Cookies.set(UrlParamsTypes.currentCenter, currentCenter);
+            Cookies.set(UrlParamsTypes.currentZoom, currentZoom);
+          }
           navigate(`?${newSearchParams.toString()}`);
         }
       }
@@ -744,10 +751,12 @@ const Map = () => {
             UrlParamsTypes.previousCenter,
             JSON.stringify(newCenter || currentCenter)
           );
-          Cookies.set(
-            UrlParamsTypes.previousCenter,
-            JSON.stringify(newCenter || currentCenter)
-          );
+          if (CookieManager.arePreferenceCookiesAllowed()) {
+            Cookies.set(
+              UrlParamsTypes.previousCenter,
+              JSON.stringify(newCenter || currentCenter)
+            );
+          }
         }
         const newZoom = mapInstance?.getZoom();
         if (newZoom !== previousZoom) {
@@ -755,10 +764,12 @@ const Map = () => {
             UrlParamsTypes.previousZoom,
             newZoom?.toString() || currentZoom.toString()
           );
-          Cookies.set(
-            UrlParamsTypes.previousZoom,
-            newZoom?.toString() || currentZoom.toString()
-          );
+          if (CookieManager.arePreferenceCookiesAllowed()) {
+            Cookies.set(
+              UrlParamsTypes.previousZoom,
+              newZoom?.toString() || currentZoom.toString()
+            );
+          }
         }
         navigate(`?${newSearchParams.toString()}`);
       }

@@ -26,6 +26,7 @@ interface DesktopHeaderProps {
   navMenuVisible: boolean;
   toggleMenuVisibility: () => void;
   t: (key: string) => string;
+  onOpenCookieSettings?: () => void;
 }
 
 const DesktopHeader: React.FC<DesktopHeaderProps> = ({
@@ -34,6 +35,7 @@ const DesktopHeader: React.FC<DesktopHeaderProps> = ({
   navMenuVisible,
   toggleMenuVisibility,
   t,
+  onOpenCookieSettings,
 }) => {
   const isSmallScreen = useScreenSizeDetection(screenSizes.hugeDesktop);
   const isTinyScreen = useScreenSizeDetection(screenSizes.mediumDesktop);
@@ -128,6 +130,7 @@ const DesktopHeader: React.FC<DesktopHeaderProps> = ({
         t={t}
         navMenuVisible={navMenuVisible}
         toggleMenuVisibility={toggleMenuVisibility}
+        onOpenCookieSettings={onOpenCookieSettings}
       />
     </S.DesktopContainer>
   );

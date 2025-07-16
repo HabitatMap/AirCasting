@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next";
 
 import { UserSettings } from "../../../types/userStates";
 import { useMapParams } from "../../../utils/mapParamsHandler";
+import { CookieSettingsModal } from "../../organisms/Modals/CookieSettingsModal/CookieSettingsModal";
 import DesktopHeader from "./DesktopHeader";
 import { MobileCalendarHeader, MobileHeader } from "./MobileHeader";
 import * as S from "./Navbar.style";
@@ -13,12 +14,23 @@ interface NavbarProps {
 
 const Navbar: React.FC<NavbarProps> = ({ isMapPage }) => {
   const [navMenuVisible, setNavMenuVisible] = useState<boolean>(false);
+  const [cookieSettingsModalOpen, setCookieSettingsModalOpen] =
+    useState<boolean>(false);
   const { t } = useTranslation();
   const { currentUserSettings } = useMapParams();
 
   const isTimelapseView = currentUserSettings === UserSettings.TimelapseView;
 
   const toggleMenuVisibility = () => setNavMenuVisible(!navMenuVisible);
+
+  const handleOpenCookieSettings = () => {
+    setCookieSettingsModalOpen(true);
+    setNavMenuVisible(false);
+  };
+
+  const handleCloseCookieSettings = () => {
+    setCookieSettingsModalOpen(false);
+  };
 
   return (
     <S.Header>
@@ -28,6 +40,7 @@ const Navbar: React.FC<NavbarProps> = ({ isMapPage }) => {
           toggleMenuVisibility={toggleMenuVisibility}
           navMenuVisible={navMenuVisible}
           t={t}
+          onOpenCookieSettings={handleOpenCookieSettings}
         />
       ) : (
         <MobileCalendarHeader t={t} />
@@ -38,6 +51,11 @@ const Navbar: React.FC<NavbarProps> = ({ isMapPage }) => {
         navMenuVisible={navMenuVisible}
         toggleMenuVisibility={toggleMenuVisibility}
         t={t}
+        onOpenCookieSettings={handleOpenCookieSettings}
+      />
+      <CookieSettingsModal
+        isOpen={cookieSettingsModalOpen}
+        onClose={handleCloseCookieSettings}
       />
     </S.Header>
   );

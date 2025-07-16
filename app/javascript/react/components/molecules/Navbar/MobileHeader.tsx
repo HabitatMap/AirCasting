@@ -24,11 +24,13 @@ export const MobileHeader = ({
   toggleMenuVisibility,
   navMenuVisible,
   t,
+  onOpenCookieSettings,
 }: {
   isTimelapseView: boolean;
   toggleMenuVisibility: () => void;
   navMenuVisible: boolean;
   t: (key: string) => string;
+  onOpenCookieSettings?: () => void;
 }) => {
   const {
     currentUserSettings,
@@ -95,6 +97,7 @@ export const MobileHeader = ({
               t={t as (key: string) => string}
               navMenuVisible={navMenuVisible}
               toggleMenuVisibility={toggleMenuVisibility}
+              onOpenCookieSettings={onOpenCookieSettings}
             />
           )}
         </>
