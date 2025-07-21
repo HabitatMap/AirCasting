@@ -42,6 +42,7 @@ module UserSessionsSyncing
       StreamDailyAverage.where(stream_id: stream_ids).delete_all
       ThresholdAlert.where(stream_id: stream_ids).delete_all
       Measurement.where(stream_id: stream_ids).delete_all
+      FixedMeasurement.where(stream_id: stream_ids).delete_all
 
       streams.delete_all
     end
