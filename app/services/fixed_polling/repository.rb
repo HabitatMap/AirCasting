@@ -8,7 +8,7 @@ module FixedPolling
       session.tag_list
     end
 
-    def measurements_grouped_by_stream_id(stream_ids:, since:)
+    def measurements_grouped_by_stream_ids(stream_ids:, since:)
       Measurement
         .unscoped
         .where(stream_id: stream_ids)

@@ -15,7 +15,7 @@ module FixedPolling
 
       return validation_result if validation_result.is_a?(Failure)
 
-      session = session(validation_result[:uuid])
+      session = fetch_session(validation_result[:uuid])
       unless session
         return Failure.new('session not found for UUID: session_uuid')
       end
@@ -23,7 +23,7 @@ module FixedPolling
       measurements =
         fetch_measurements(session, validation_result[:last_measurement_sync])
 
-      Success.new(serialized_data(session, measurements))
+      Success.new(serialize_session_with_measurements(session, measurements))
     end
 
     private
@@ -37,7 +37,7 @@ module FixedPolling
       result.to_h
     end
 
-    def session(session_uuid)
+    def fetch_session(session_uuid)
       repository.session(uuid: session_uuid)
     end
 
@@ -46,13 +46,13 @@ module FixedPolling
 
       since = [last_measurement_sync, session.end_time_local - 24.hours].max
 
-      repository.measurements_grouped_by_stream_id(
+      repository.measurements_grouped_by_stream_ids(
         stream_ids: session.stream_ids,
         since: since,
       )
     end
 
-    def serialized_data(session, measurements)
+    def serialize_session_with_measurements(session, measurements)
       serializer.call(
         session: session,
         tag_list: repository.tag_list(session: session),

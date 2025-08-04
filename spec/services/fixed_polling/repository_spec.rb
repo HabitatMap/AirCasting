@@ -16,7 +16,7 @@ RSpec.describe FixedPolling::Repository do
     end
   end
 
-  describe '#measurements_grouped_by_stream_id' do
+  describe '#measurements_grouped_by_stream_ids' do
     context 'measurements for given streams and time range exist' do
       it 'returns measurements grouped by stream_id' do
         stream_1 = create(:stream)
@@ -32,7 +32,7 @@ RSpec.describe FixedPolling::Repository do
         _other_measurement = create(:measurement, time: 1.hour.ago)
 
         result =
-          subject.measurements_grouped_by_stream_id(
+          subject.measurements_grouped_by_stream_ids(
             stream_ids: [stream_1.id, stream_2.id],
             since: 3.hours.ago,
           )
@@ -48,7 +48,7 @@ RSpec.describe FixedPolling::Repository do
       it 'returns an empty hash' do
         stream = create(:stream)
         result =
-          subject.measurements_grouped_by_stream_id(
+          subject.measurements_grouped_by_stream_ids(
             stream_ids: [stream],
             since: 10.minutes.ago,
           )

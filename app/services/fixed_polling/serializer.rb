@@ -18,11 +18,11 @@ module FixedPolling
     def serialized_streams(streams, measurements)
       streams.each_with_object({}) do |stream, hash|
         hash[stream.sensor_name.to_sym] =
-          serialize_stream(stream, measurements[stream.id])
+          serialized_stream(stream, measurements[stream.id])
       end
     end
 
-    def serialize_stream(stream, stream_measurements)
+    def serialized_stream(stream, stream_measurements)
       {
         sensor_name: stream.sensor_name,
         sensor_package_name: stream.sensor_package_name,
@@ -35,11 +35,11 @@ module FixedPolling
         threshold_medium: stream.threshold_set.threshold_medium,
         threshold_high: stream.threshold_set.threshold_high,
         threshold_very_high: stream.threshold_set.threshold_very_high,
-        measurements: serialize_measurements(stream_measurements),
+        measurements: serialized_measurements(stream_measurements),
       }
     end
 
-    def serialize_measurements(measurements)
+    def serialized_measurements(measurements)
       Array(measurements).map do |measurement|
         {
           value: measurement.value,
