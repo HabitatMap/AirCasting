@@ -1,6 +1,7 @@
 import "@testing-library/jest-dom";
 import { screen } from "@testing-library/react";
 import React from "react";
+import { useNavigate } from "react-router-dom";
 import { StatusEnum } from "../../types/api";
 import { SessionTypes } from "../../types/filters";
 import { UserSettings } from "../../types/userStates";
@@ -88,6 +89,11 @@ jest.mock("../../utils/mapParamsHandler", () => {
 });
 
 jest.mock("../../utils/useScreenSizeDetection", () => jest.fn());
+
+jest.mock("react-router-dom", () => ({
+  ...jest.requireActual("react-router-dom"),
+  useNavigate: jest.fn(() => jest.fn()),
+}));
 
 jest.mock("react-i18next", () => ({
   useTranslation: () => ({
@@ -471,6 +477,28 @@ describe("Map Component", () => {
       });
       renderWithProviders(<MapWrapper disableEffects={true} />);
       expect(screen.getByText("map.listSessions")).toBeInTheDocument();
+    });
+
+    it("should redirect fixed sessions to calendar page on mobile when in ModalView", () => {
+      const mockNavigate = jest.fn();
+      (useNavigate as jest.Mock).mockReturnValue(mockNavigate);
+
+      (useMapParams as jest.Mock).mockReturnValue({
+        ...createMockMapParams(),
+        currentUserSettings: UserSettings.ModalView,
+        sessionType: SessionTypes.FIXED,
+        streamId: 123,
+        searchParams: new URLSearchParams(
+          "sessionId=456&streamId=123&currentUserSettings=MODAL_VIEW&sessionType=fixed"
+        ),
+      });
+
+      renderWithProviders(<MapWrapper disableEffects={false} />);
+
+      expect(mockNavigate).toHaveBeenCalledWith(
+        "/fixed_stream?sessionId=456&streamId=123&currentUserSettings=CALENDAR_VIEW&sessionType=fixed&previousUserSettings=MODAL_VIEW",
+        { replace: true }
+      );
     });
   });
 

@@ -222,6 +222,38 @@ const Map = () => {
     }
   }, [isActive, fixedSessionsType, dispatch]);
 
+  // Handle mobile link redirect for fixed sessions
+  useEffect(() => {
+    if (
+      isMobile &&
+      currentUserSettings === UserSettings.ModalView &&
+      fixedSessionTypeSelected &&
+      streamId
+    ) {
+      // Redirect to calendar page for fixed sessions on mobile
+      const newSearchParams = new URLSearchParams(searchParams.toString());
+      newSearchParams.set(
+        UrlParamsTypes.previousUserSettings,
+        currentUserSettings
+      );
+      newSearchParams.set(
+        UrlParamsTypes.currentUserSettings,
+        UserSettings.CalendarView
+      );
+
+      navigate(`/fixed_stream?${newSearchParams.toString()}`, {
+        replace: true,
+      });
+    }
+  }, [
+    isMobile,
+    currentUserSettings,
+    fixedSessionTypeSelected,
+    streamId,
+    searchParams,
+    navigate,
+  ]);
+
   const fetchableIndoorSessionsCount = listSessions.length;
 
   const fetchableSessionsCount = useMemo(() => {
