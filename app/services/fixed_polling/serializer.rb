@@ -2,6 +2,7 @@ module FixedPolling
   class Serializer
     def call(session:, tag_list:, measurements:)
       {
+        id: session.id,
         type: session.type,
         uuid: session.uuid,
         title: session.title,
@@ -24,6 +25,7 @@ module FixedPolling
 
     def serialized_stream(stream, stream_measurements)
       {
+        id: stream.id,
         sensor_name: stream.sensor_name,
         sensor_package_name: stream.sensor_package_name,
         unit_name: stream.unit_name,

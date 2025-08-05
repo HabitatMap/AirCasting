@@ -36,6 +36,7 @@ describe 'GET /api/v3/fixed_polling/sessions' do
       last_measurement_sync = last_measurement_time - 1.hour
 
       expected_response = {
+        id: session.id,
         type: session.type,
         uuid: session.uuid,
         title: session.title,
@@ -45,6 +46,7 @@ describe 'GET /api/v3/fixed_polling/sessions' do
         version: session.version,
         streams: {
           stream_1.sensor_name.to_sym => {
+            id: stream_1.id,
             sensor_name: stream_1.sensor_name,
             sensor_package_name: stream_1.sensor_package_name,
             unit_name: stream_1.unit_name,
@@ -66,6 +68,7 @@ describe 'GET /api/v3/fixed_polling/sessions' do
             ],
           },
           stream_2.sensor_name.to_sym => {
+            id: stream_2.id,
             sensor_name: stream_2.sensor_name,
             sensor_package_name: stream_2.sensor_package_name,
             unit_name: stream_2.unit_name,
@@ -132,6 +135,7 @@ describe 'GET /api/v3/fixed_polling/sessions' do
       last_measurement_sync = last_measurement_time - 50.hours
 
       expected_response = {
+        id: session.id,
         type: session.type,
         uuid: session.uuid,
         title: session.title,
@@ -141,6 +145,7 @@ describe 'GET /api/v3/fixed_polling/sessions' do
         version: session.version,
         streams: {
           stream_1.sensor_name.to_sym => {
+            id: stream_1.id,
             sensor_name: stream_1.sensor_name,
             sensor_package_name: stream_1.sensor_package_name,
             unit_name: stream_1.unit_name,
@@ -162,6 +167,7 @@ describe 'GET /api/v3/fixed_polling/sessions' do
             ],
           },
           stream_2.sensor_name.to_sym => {
+            id: stream_2.id,
             sensor_name: stream_2.sensor_name,
             sensor_package_name: stream_2.sensor_package_name,
             unit_name: stream_2.unit_name,
@@ -243,6 +249,7 @@ describe 'GET /api/v3/fixed_polling/sessions' do
       stream_2 = create(:stream, session: session, sensor_name: 'PM2.5')
 
       expected_response = {
+        id: session.id,
         type: session.type,
         uuid: session.uuid,
         title: session.title,
@@ -252,6 +259,7 @@ describe 'GET /api/v3/fixed_polling/sessions' do
         version: session.version,
         streams: {
           stream_1.sensor_name.to_sym => {
+            id: stream_1.id,
             sensor_name: stream_1.sensor_name,
             sensor_package_name: stream_1.sensor_package_name,
             unit_name: stream_1.unit_name,
@@ -266,6 +274,7 @@ describe 'GET /api/v3/fixed_polling/sessions' do
             measurements: [],
           },
           stream_2.sensor_name.to_sym => {
+            id: stream_2.id,
             sensor_name: stream_2.sensor_name,
             sensor_package_name: stream_2.sensor_package_name,
             unit_name: stream_2.unit_name,
