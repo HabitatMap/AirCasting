@@ -44,6 +44,7 @@ module FixedPolling
     def serialized_measurements(measurements)
       Array(measurements).map do |measurement|
         {
+          id: measurement.id,
           value: measurement.value,
           latitude: measurement.latitude.to_f,
           longitude: measurement.longitude.to_f,
