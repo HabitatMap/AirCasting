@@ -49,6 +49,7 @@ module FixedPolling
           value: measurement.value,
           latitude: measurement.latitude.to_f,
           longitude: measurement.longitude.to_f,
+          milliseconds: measurement.milliseconds,
           time: measurement.time.utc.iso8601(3),
         }
       end
