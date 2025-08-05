@@ -45,6 +45,7 @@ module FixedPolling
       Array(measurements).map do |measurement|
         {
           id: measurement.id,
+          stream_id: measurement.stream_id,
           value: measurement.value,
           latitude: measurement.latitude.to_f,
           longitude: measurement.longitude.to_f,
