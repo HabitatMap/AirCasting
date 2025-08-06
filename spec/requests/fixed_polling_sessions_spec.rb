@@ -36,6 +36,7 @@ describe 'GET /api/v3/fixed_polling/sessions' do
       last_measurement_sync = last_measurement_time - 1.hour
 
       expected_response = {
+        id: session.id,
         type: session.type,
         uuid: session.uuid,
         title: session.title,
@@ -45,6 +46,7 @@ describe 'GET /api/v3/fixed_polling/sessions' do
         version: session.version,
         streams: {
           stream_1.sensor_name.to_sym => {
+            id: stream_1.id,
             sensor_name: stream_1.sensor_name,
             sensor_package_name: stream_1.sensor_package_name,
             unit_name: stream_1.unit_name,
@@ -58,14 +60,18 @@ describe 'GET /api/v3/fixed_polling/sessions' do
             threshold_very_high: stream_1.threshold_set.threshold_very_high,
             measurements: [
               {
+                id: new_measurement_1.id,
+                stream_id: new_measurement_1.stream_id,
                 value: new_measurement_1.value,
                 latitude: new_measurement_1.latitude.to_f,
                 longitude: new_measurement_1.longitude.to_f,
                 time: new_measurement_1.time.utc.iso8601(3),
+                milliseconds: new_measurement_1.milliseconds,
               },
             ],
           },
           stream_2.sensor_name.to_sym => {
+            id: stream_2.id,
             sensor_name: stream_2.sensor_name,
             sensor_package_name: stream_2.sensor_package_name,
             unit_name: stream_2.unit_name,
@@ -79,10 +85,13 @@ describe 'GET /api/v3/fixed_polling/sessions' do
             threshold_very_high: stream_2.threshold_set.threshold_very_high,
             measurements: [
               {
+                id: new_measurement_2.id,
+                stream_id: new_measurement_2.stream_id,
                 value: new_measurement_2.value,
                 latitude: new_measurement_2.latitude.to_f,
                 longitude: new_measurement_2.longitude.to_f,
                 time: new_measurement_2.time.utc.iso8601(3),
+                milliseconds: new_measurement_2.milliseconds,
               },
             ],
           },
@@ -132,6 +141,7 @@ describe 'GET /api/v3/fixed_polling/sessions' do
       last_measurement_sync = last_measurement_time - 50.hours
 
       expected_response = {
+        id: session.id,
         type: session.type,
         uuid: session.uuid,
         title: session.title,
@@ -141,6 +151,7 @@ describe 'GET /api/v3/fixed_polling/sessions' do
         version: session.version,
         streams: {
           stream_1.sensor_name.to_sym => {
+            id: stream_1.id,
             sensor_name: stream_1.sensor_name,
             sensor_package_name: stream_1.sensor_package_name,
             unit_name: stream_1.unit_name,
@@ -154,14 +165,18 @@ describe 'GET /api/v3/fixed_polling/sessions' do
             threshold_very_high: stream_1.threshold_set.threshold_very_high,
             measurements: [
               {
+                id: last_24h_measurement_1.id,
+                stream_id: last_24h_measurement_1.stream_id,
                 value: last_24h_measurement_1.value,
                 latitude: last_24h_measurement_1.latitude.to_f,
                 longitude: last_24h_measurement_1.longitude.to_f,
                 time: last_24h_measurement_1.time.utc.iso8601(3),
+                milliseconds: last_24h_measurement_1.milliseconds,
               },
             ],
           },
           stream_2.sensor_name.to_sym => {
+            id: stream_2.id,
             sensor_name: stream_2.sensor_name,
             sensor_package_name: stream_2.sensor_package_name,
             unit_name: stream_2.unit_name,
@@ -175,10 +190,13 @@ describe 'GET /api/v3/fixed_polling/sessions' do
             threshold_very_high: stream_2.threshold_set.threshold_very_high,
             measurements: [
               {
+                id: last_24h_measurement_2.id,
+                stream_id: last_24h_measurement_2.stream_id,
                 value: last_24h_measurement_2.value,
                 latitude: last_24h_measurement_2.latitude.to_f,
                 longitude: last_24h_measurement_2.longitude.to_f,
                 time: last_24h_measurement_2.time.utc.iso8601(3),
+                milliseconds: last_24h_measurement_2.milliseconds,
               },
             ],
           },
@@ -243,6 +261,7 @@ describe 'GET /api/v3/fixed_polling/sessions' do
       stream_2 = create(:stream, session: session, sensor_name: 'PM2.5')
 
       expected_response = {
+        id: session.id,
         type: session.type,
         uuid: session.uuid,
         title: session.title,
@@ -252,6 +271,7 @@ describe 'GET /api/v3/fixed_polling/sessions' do
         version: session.version,
         streams: {
           stream_1.sensor_name.to_sym => {
+            id: stream_1.id,
             sensor_name: stream_1.sensor_name,
             sensor_package_name: stream_1.sensor_package_name,
             unit_name: stream_1.unit_name,
@@ -266,6 +286,7 @@ describe 'GET /api/v3/fixed_polling/sessions' do
             measurements: [],
           },
           stream_2.sensor_name.to_sym => {
+            id: stream_2.id,
             sensor_name: stream_2.sensor_name,
             sensor_package_name: stream_2.sensor_package_name,
             unit_name: stream_2.unit_name,
