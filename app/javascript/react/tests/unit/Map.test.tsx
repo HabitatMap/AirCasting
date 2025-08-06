@@ -496,7 +496,7 @@ describe("Map Component", () => {
       renderWithProviders(<MapWrapper disableEffects={false} />);
 
       expect(mockNavigate).toHaveBeenCalledWith(
-        "/fixed_stream?sessionId=456&streamId=123&currentUserSettings=CALENDAR_VIEW&sessionType=fixed&previousUserSettings=MODAL_VIEW",
+        "/fixed_stream?sessionId=456&streamId=123&currentUserSettings=CALENDAR_VIEW&sessionType=fixed&previousUserSettings=MAP_VIEW",
         { replace: true }
       );
     });

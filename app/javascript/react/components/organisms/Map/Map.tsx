@@ -233,7 +233,7 @@ const Map = () => {
       const newSearchParams = new URLSearchParams(searchParams.toString());
       newSearchParams.set(
         UrlParamsTypes.previousUserSettings,
-        currentUserSettings
+        UserSettings.MapView
       );
       newSearchParams.set(
         UrlParamsTypes.currentUserSettings,
