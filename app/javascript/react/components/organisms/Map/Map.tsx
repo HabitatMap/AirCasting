@@ -230,7 +230,6 @@ const Map = () => {
       fixedSessionTypeSelected &&
       streamId
     ) {
-      // Redirect to calendar page for fixed sessions on mobile
       const newSearchParams = new URLSearchParams(searchParams.toString());
       newSearchParams.set(
         UrlParamsTypes.previousUserSettings,
