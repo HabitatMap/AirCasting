@@ -23,7 +23,7 @@
     queue: slow
 
   airnow_import:
-    cron: "58 * * * *"
+    cron: "26 * * * *"
     class: AirNowImportWorker
     queue: slow
 
