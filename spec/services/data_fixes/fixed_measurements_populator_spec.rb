@@ -16,7 +16,7 @@ RSpec.describe DataFixes::FixedMeasurementsPopulator, type: :service do
         stream: stream1,
         value: 10,
         time: '2025-07-01 12:00:00',
-        time_with_time_zone: '2025-07-01 12:00:00 +0200',
+        time_with_time_zone: '2025-07-01 12:00:00',
       )
       create(
         :measurement,
@@ -43,22 +43,36 @@ RSpec.describe DataFixes::FixedMeasurementsPopulator, type: :service do
         :measurement,
         stream: stream2,
         value: 50,
-        time: '2025-07-01 16:00:00',
+        time: '2025-07-01 15:00:00',
         time_with_time_zone: '2025-07-01 16:00:00 -0400',
       )
 
       subject.call
 
-      expect(FixedMeasurement.count).to eq(5)
+      expect(FixedMeasurement.count).to eq(4)
 
       fixed_measurements_stream1 = FixedMeasurement.where(stream_id: stream1.id)
       expect(fixed_measurements_stream1.count).to eq(2)
       expect(fixed_measurements_stream1.pluck(:value)).to match_array([10, 20])
+      expect(
+        fixed_measurements_stream1.pluck(:time_with_time_zone),
+      ).to match_array(
+        [
+          Time.zone.parse('2025-07-01 10:00:00'),
+          Time.zone.parse('2025-07-01 11:00:00'),
+        ],
+      )
 
       fixed_measurements_stream2 = FixedMeasurement.where(stream_id: stream2.id)
-      expect(fixed_measurements_stream2.count).to eq(3)
-      expect(fixed_measurements_stream2.pluck(:value)).to match_array(
-        [30, 40, 50],
+      expect(fixed_measurements_stream2.count).to eq(2)
+      expect(fixed_measurements_stream2.pluck(:value)).to match_array([30, 40])
+      expect(
+        fixed_measurements_stream1.pluck(:time_with_time_zone),
+      ).to match_array(
+        [
+          Time.zone.parse('2025-07-01 10:00:00'),
+          Time.zone.parse('2025-07-01 11:00:00'),
+        ],
       )
     end
   end
