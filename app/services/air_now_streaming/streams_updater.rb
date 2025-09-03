@@ -42,17 +42,23 @@ module AirNowStreaming
     end
 
     def check_session_end_timestamps(session, measurements)
-      last_measurement = measurements.max_by { |m| m[:time] }
+      #temproary flag, to be removed when AirNow integration is fully switched
+      #right now data from AirNow is fetched twice at different times and sessions end timestamps would be wrongly updated
+      air_now_integration_fully_switched = false
 
-      return unless last_measurement[:time] > session.end_time_local
+      if air_now_integration_fully_switched
+        last_measurement = measurements.max_by { |m| m[:time] }
 
-      {
-        id: session.id,
-        end_time_local: last_measurement[:time],
-        last_measurement_at: last_measurement[:time_with_time_zone],
-        updated_at: Time.current,
-        type: 'FixedSession',
-      }
+        return unless last_measurement[:time] > session.end_time_local
+
+        {
+          id: session.id,
+          end_time_local: last_measurement[:time],
+          last_measurement_at: last_measurement[:time_with_time_zone],
+          updated_at: Time.current,
+          type: 'FixedSession',
+        }
+      end
     end
 
     def update_sessions(session_rows_to_update)

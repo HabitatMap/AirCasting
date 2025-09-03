@@ -60,22 +60,23 @@ RSpec.describe AirNowStreaming::StreamsUpdater do
         subject.call(measurements_to_create: measurements_to_create)
       }.to change(FixedMeasurement, :count).by(3)
 
-      session_1.reload
-      session_2.reload
+      # TODO: Uncomment when AirNow integration is fully switched to fixed measurements
+      # session_1.reload
+      # session_2.reload
 
-      expect(session_1.end_time_local).to eq(
-        Time.zone.parse('2025-07-24T07:00:00'),
-      )
-      expect(session_1.last_measurement_at).to eq(
-        Time.zone.parse('2025-07-24T10:00:00'),
-      )
+      # expect(session_1.end_time_local).to eq(
+      #   Time.zone.parse('2025-07-24T07:00:00'),
+      # )
+      # expect(session_1.last_measurement_at).to eq(
+      #   Time.zone.parse('2025-07-24T10:00:00'),
+      # )
 
-      expect(session_2.end_time_local).to eq(
-        Time.zone.parse('2025-07-24T08:00:00'),
-      )
-      expect(session_2.last_measurement_at).to eq(
-        Time.zone.parse('2025-07-24T11:00:00'),
-      )
+      # expect(session_2.end_time_local).to eq(
+      #   Time.zone.parse('2025-07-24T08:00:00'),
+      # )
+      # expect(session_2.last_measurement_at).to eq(
+      #   Time.zone.parse('2025-07-24T11:00:00'),
+      # )
     end
 
     context 'when measurement time is before session end time' do
