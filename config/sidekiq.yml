@@ -22,6 +22,11 @@
     class: AirNowImportMeasurementsWorker
     queue: slow
 
+  airnow_import:
+    cron: "26 * * * *"
+    class: AirNowImportWorker
+    queue: slow
+
   update_stream_hourly_averages:
     cron: "1 * * * *"
     class: UpdateStreamHourlyAveragesWorker
