@@ -9,7 +9,7 @@ module FixedPolling
     end
 
     def measurements_grouped_by_stream_ids(stream_ids:, since:)
-      Measurement
+      FixedMeasurement
         .unscoped
         .where(stream_id: stream_ids)
         .where('time > ?', since)
