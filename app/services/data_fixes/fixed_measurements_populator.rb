@@ -54,7 +54,7 @@ module DataFixes
         measurements
     WHERE
         stream_id = #{stream_id}
-    ON CONFLICT (stream_id, time) DO NOTHING;
+    ON CONFLICT (stream_id, time_with_time_zone) DO NOTHING;
   SQL
 
       ActiveRecord::Base.connection.execute(sql)
