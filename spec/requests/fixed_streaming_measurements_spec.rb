@@ -57,7 +57,10 @@ describe 'POST api/v3/fixed_streaming/measurements' do
         post '/api/realtime/measurements', headers: headers, params: params
       }.to change(ThresholdSet, :count).by(1).and change(Stream, :count).by(
                         1,
-                      ).and change(Measurement, :count).by(1)
+                      ).and change(Measurement, :count).by(1).and change(
+                                                        FixedMeasurement,
+                                                        :count,
+                                                      ).by(1)
 
       expect(response).to be_successful
 
@@ -91,6 +94,11 @@ describe 'POST api/v3/fixed_streaming/measurements' do
       expect(m.time_with_time_zone).to eq(Time.parse('2025-02-10 07:55:32'))
       expect(m.latitude).to eq(50.06)
       expect(m.longitude).to eq(19.94)
+
+      fm = FixedMeasurement.last
+      expect(fm.stream).to eq(s)
+      expect(fm.time).to eq(Time.parse('2025-02-10 08:55:32'))
+      expect(fm.time_with_time_zone).to eq(Time.parse('2025-02-10 07:55:32'))
     end
 
     context 'when threshold set already exists' do
@@ -108,7 +116,10 @@ describe 'POST api/v3/fixed_streaming/measurements' do
           post '/api/realtime/measurements', headers: headers, params: params
         }.to change(ThresholdSet, :count).by(0).and change(Stream, :count).by(
                           1,
-                        ).and change(Measurement, :count).by(1)
+                        ).and change(Measurement, :count).by(1).and change(
+                                                          FixedMeasurement,
+                                                          :count,
+                                                        ).by(1)
 
         expect(response).to be_successful
         expect(Stream.last.threshold_set).to eq(threshold_set)
@@ -129,6 +140,7 @@ describe 'POST api/v3/fixed_streaming/measurements' do
 
         expect(response).to be_successful
         expect(Measurement.last.stream).to eq(stream)
+        expect(FixedMeasurement.last.stream).to eq(stream)
       end
 
       it 'handles multiple measurements' do
@@ -143,6 +155,7 @@ describe 'POST api/v3/fixed_streaming/measurements' do
 
         expect(response).to be_successful
         expect(Measurement.count).to eq(2)
+        expect(FixedMeasurement.count).to eq(2)
       end
 
       # due to a firmware bug in AirBeams we need to filter out measurements coming in with future time
@@ -160,6 +173,7 @@ describe 'POST api/v3/fixed_streaming/measurements' do
         post '/api/realtime/measurements', headers: headers, params: params
         expect(response).to be_successful
         expect(Measurement.count).to eq(1)
+        expect(FixedMeasurement.count).to eq(1)
       end
 
       it 'rejects measurements with future timestamps all' do
@@ -176,6 +190,7 @@ describe 'POST api/v3/fixed_streaming/measurements' do
         post '/api/realtime/measurements', headers: headers, params: params
         expect(response).to be_bad_request
         expect(Measurement.count).to eq(0)
+        expect(FixedMeasurement.count).to eq(0)
       end
     end
   end
