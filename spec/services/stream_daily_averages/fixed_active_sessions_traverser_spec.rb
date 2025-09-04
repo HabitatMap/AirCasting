@@ -25,42 +25,42 @@ describe StreamDailyAverages::FixedActiveSessionsTraverser do
 
       m_1_1 =
         create(
-          :measurement,
+          :fixed_measurement,
           stream: stream_1,
           value: 1,
           time_with_time_zone: Time.parse('2025-01-14 11:00 -05:00'),
         )
       m_1_2 =
         create(
-          :measurement,
+          :fixed_measurement,
           stream: stream_1,
           value: 5,
           time_with_time_zone: Time.parse('2025-01-14 10:00 -05:00'),
         )
       _m_1_other_day =
         create(
-          :measurement,
+          :fixed_measurement,
           stream: stream_1,
           time_with_time_zone: Time.parse('2025-01-13 23:00 -05:00'),
         )
 
       m_2_1 =
         create(
-          :measurement,
+          :fixed_measurement,
           stream: stream_2,
           value: 2,
           time_with_time_zone: Time.parse('2025-01-14 11:00 +01:00'),
         )
       m_2_2 =
         create(
-          :measurement,
+          :fixed_measurement,
           stream: stream_2,
           value: 6,
           time_with_time_zone: Time.parse('2025-01-14 10:00 +01:00'),
         )
       _m_2_other_day =
         create(
-          :measurement,
+          :fixed_measurement,
           stream: stream_2,
           time_with_time_zone: Time.parse('2025-01-13 08:00 +01:00'),
         )

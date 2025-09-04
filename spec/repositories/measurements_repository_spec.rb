@@ -40,57 +40,6 @@ describe MeasurementsRepository do
     end
   end
 
-  describe '#daily_average_value' do
-    it 'returns avarage value of measurements for given stream and day' do
-      time_with_time_zone = Time.parse('2025-01-15 10:00 -05:00')
-      stream = create(:stream, :fixed)
-
-      measurement_1 =
-        create(
-          :measurement,
-          stream: stream,
-          time_with_time_zone: Time.parse('2025-01-15 09:00 -05:00'),
-          value: 10,
-        )
-      measurement_2 =
-        create(
-          :measurement,
-          stream: stream,
-          time_with_time_zone: Time.parse('2025-01-16 00:00 -05:00'),
-          value: 3,
-        )
-
-      measurement_3 =
-        create(
-          :measurement,
-          stream: stream,
-          time_with_time_zone: Time.parse('2025-01-16 00:00 -05:00'),
-          value: 4,
-        )
-
-      create(
-        :measurement,
-        stream: stream,
-        time_with_time_zone: Time.parse('2025-01-15 00:00 -05:00'),
-        value: 50,
-      )
-      create(
-        :measurement,
-        time_with_time_zone: Time.parse('2025-01-15 09:00 -05:00'),
-      )
-      expected_value =
-        (measurement_1.value + measurement_2.value + measurement_3.value) / 3
-
-      result =
-        subject.daily_average_value(
-          stream_id: stream.id,
-          time_with_time_zone: time_with_time_zone,
-        )
-
-      expect(result).to eq(expected_value)
-    end
-  end
-
   describe '#streams_averages_hourly_last_7_days' do
     let(:stubbed_time_current) { Time.parse('2024-11-22 12:30:00 +00:00') }
 

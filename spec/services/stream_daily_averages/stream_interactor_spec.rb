@@ -9,13 +9,13 @@ describe StreamDailyAverages::StreamInteractor do
         station_current_time = Time.parse('2025-01-15 10:00 -05:00')
         stream = create(:stream, :fixed)
         create(
-          :measurement,
+          :fixed_measurement,
           stream: stream,
           value: 10,
           time_with_time_zone: Time.parse('2025-01-15 06:00 -05:00'),
         )
         create(
-          :measurement,
+          :fixed_measurement,
           stream: stream,
           value: 11,
           time_with_time_zone: Time.parse('2025-01-15 08:00 -05:00'),
@@ -50,13 +50,13 @@ describe StreamDailyAverages::StreamInteractor do
             date: Date.parse('2025-01-15'),
           )
         create(
-          :measurement,
+          :fixed_measurement,
           stream: stream,
           value: 10,
           time_with_time_zone: Time.parse('2025-01-15 06:00 -05:00'),
         )
         create(
-          :measurement,
+          :fixed_measurement,
           stream: stream,
           value: 9,
           time_with_time_zone: Time.parse('2025-01-15 08:00 -05:00'),
@@ -87,7 +87,7 @@ describe StreamDailyAverages::StreamInteractor do
           )
         m_1 =
           create(
-            :measurement,
+            :fixed_measurement,
             stream: stream,
             value: 1,
             time_with_time_zone: Time.parse('2025-01-14 10:00 -05:00'),
@@ -123,14 +123,14 @@ describe StreamDailyAverages::StreamInteractor do
           )
 
         create(
-          :measurement,
+          :fixed_measurement,
           stream: stream,
           value: 7,
           time_with_time_zone: Time.parse('2025-01-14 10:00 -05:00'),
         )
 
         create(
-          :measurement,
+          :fixed_measurement,
           stream: stream,
           value: 8,
           time_with_time_zone: Time.parse('2025-01-13 10:00 -05:00'),
