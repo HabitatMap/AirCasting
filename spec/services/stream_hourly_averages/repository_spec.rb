@@ -13,14 +13,14 @@ RSpec.describe StreamHourlyAverages::Repository do
       stream_1 = create(:stream, :fixed)
       stream_1_measurement_1 =
         create(
-          :measurement,
+          :fixed_measurement,
           stream: stream_1,
           time_with_time_zone: Time.parse('2024-12-10 11:30:00 +00:00'),
           value: 2,
         )
       stream_1_measurement_2 =
         create(
-          :measurement,
+          :fixed_measurement,
           stream: stream_1,
           time_with_time_zone: Time.parse('2024-12-10 12:00:00 +00:00'),
           value: 4,
@@ -28,7 +28,7 @@ RSpec.describe StreamHourlyAverages::Repository do
       stream_2 = create(:stream, :fixed)
       stream_2_measurement_1 =
         create(
-          :measurement,
+          :fixed_measurement,
           stream: stream_2,
           time_with_time_zone: Time.parse('2024-12-10 11:30:00 +00:00'),
           value: 6,
@@ -36,7 +36,7 @@ RSpec.describe StreamHourlyAverages::Repository do
 
       _stream_2_measurement_old =
         create(
-          :measurement,
+          :fixed_measurement,
           stream: stream_2,
           time_with_time_zone: Time.parse('2024-12-09 12:00:00 +00:00'),
           value: 6,
