@@ -23,25 +23,25 @@ RSpec.describe FixedStreaming::StreamDailyAveragesRecalculator do
 
       measurements = [
         create(
-          :measurement,
+          :fixed_measurement,
           stream: stream,
           time_with_time_zone: Time.parse('2025-06-17 01:00:00 -04:00'),
           value: 10,
         ),
         create(
-          :measurement,
+          :fixed_measurement,
           stream: stream,
           time_with_time_zone: Time.parse('2025-06-17 10:30:00 -04:00'),
           value: 20,
         ),
         create(
-          :measurement,
+          :fixed_measurement,
           stream: stream,
           time_with_time_zone: Time.parse('2025-06-18 02:00:00 -04:00'),
           value: 30,
         ),
         create(
-          :measurement,
+          :fixed_measurement,
           stream: stream,
           time_with_time_zone: Time.parse('2025-06-18 12:45:00 -04:00'),
           value: 40,
@@ -62,7 +62,7 @@ RSpec.describe FixedStreaming::StreamDailyAveragesRecalculator do
       stream = create(:stream)
       measurements = [
         create(
-          :measurement,
+          :fixed_measurement,
           stream: stream,
           time_with_time_zone: Time.parse('2025-06-17 01:00:00 -04:00'),
           value: 10,
@@ -87,7 +87,7 @@ RSpec.describe FixedStreaming::StreamDailyAveragesRecalculator do
       stream = create(:stream)
       measurements = [
         create(
-          :measurement,
+          :fixed_measurement,
           stream: stream,
           time_with_time_zone: Time.parse('2025-06-17 00:00:00 -04:00'),
           value: 10,
