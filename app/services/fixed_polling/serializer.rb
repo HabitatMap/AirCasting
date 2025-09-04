@@ -47,10 +47,12 @@ module FixedPolling
           id: measurement.id,
           stream_id: measurement.stream_id,
           value: measurement.value,
-          latitude: measurement.latitude.to_f,
-          longitude: measurement.longitude.to_f,
           time: measurement.time.utc.iso8601(3),
-          milliseconds: measurement.milliseconds,
+          # LEGACY: in same cases iOs app requires these paramaters,
+          # from new data model perspective they are obsolete
+          latitude: 200,
+          longitude: 200,
+          milliseconds: 0,
         }
       end
     end

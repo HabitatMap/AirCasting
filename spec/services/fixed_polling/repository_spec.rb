@@ -22,14 +22,14 @@ RSpec.describe FixedPolling::Repository do
         stream_1 = create(:stream)
         stream_2 = create(:stream)
         measurement_1_1 =
-          create(:measurement, stream: stream_1, time: 2.hours.ago)
+          create(:fixed_measurement, stream: stream_1, time: 2.hours.ago)
         measurement_1_2 =
-          create(:measurement, stream: stream_1, time: 1.hour.ago)
+          create(:fixed_measurement, stream: stream_1, time: 1.hour.ago)
         measurement_2_1 =
-          create(:measurement, stream: stream_2, time: 4.hours.ago)
+          create(:fixed_measurement, stream: stream_2, time: 4.hours.ago)
         measurement_2_2 =
-          create(:measurement, stream: stream_2, time: 1.hour.ago)
-        _other_measurement = create(:measurement, time: 1.hour.ago)
+          create(:fixed_measurement, stream: stream_2, time: 1.hour.ago)
+        _other_measurement = create(:fixed_measurement, time: 1.hour.ago)
 
         result =
           subject.measurements_grouped_by_stream_ids(
