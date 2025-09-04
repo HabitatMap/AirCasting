@@ -32,15 +32,13 @@ module StreamHourlyAverages
       # That's a temporary solution until we have stream_configuration in place to store information about sensor type
       airnow_user = User.find_by!(username: 'US EPA AirNow')
 
-      Measurement
-        .unscoped
+      FixedMeasurement
         .joins(stream: :session)
         .where(
           'time_with_time_zone > ? AND time_with_time_zone <= ?',
           start_date_time,
           end_date_time,
         )
-        .where(sessions: { type: 'FixedSession' })
         .where.not(sessions: { user_id: airnow_user.id })
         .group(:stream_id)
         .average(:value)

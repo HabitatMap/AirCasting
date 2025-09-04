@@ -13,13 +13,13 @@ RSpec.describe StreamHourlyAverages::Updater do
 
       stream = create(:stream, :fixed, last_hourly_average: nil)
       create(
-        :measurement,
+        :fixed_measurement,
         stream: stream,
         time_with_time_zone: Time.parse('2024-12-10 11:10:00 +00:00'),
         value: 2,
       )
       create(
-        :measurement,
+        :fixed_measurement,
         stream: stream,
         time_with_time_zone: Time.parse('2024-12-10 11:20:00 +00:00'),
         value: 6,

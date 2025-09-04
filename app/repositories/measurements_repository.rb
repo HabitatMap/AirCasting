@@ -14,20 +14,6 @@ class MeasurementsRepository
     )
   end
 
-  def daily_average_value(stream_id:, time_with_time_zone:)
-    start_date_time = time_with_time_zone.beginning_of_day
-    end_date_time = start_date_time + 1.day
-
-    Measurement
-      .where(
-        'stream_id = ? AND time_with_time_zone > ? AND time_with_time_zone <= ?',
-        stream_id,
-        start_date_time,
-        end_date_time,
-      )
-      .average(:value)
-  end
-
   def streams_averages_hourly_last_7_days(stream_ids:, with_hour_shift:)
     end_date = Time.current.end_of_hour - 1.hour
     start_date = end_date.beginning_of_hour - 7.days

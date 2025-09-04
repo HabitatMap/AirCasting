@@ -1,10 +1,10 @@
 module StreamDailyAverages
   class Updater
     def initialize(
-      measurements_repository: MeasurementsRepository.new,
+      repository: Repository.new,
       stream_daily_averages_repository: StreamDailyAveragesRepository.new
     )
-      @measurements_repository = measurements_repository
+      @repository = repository
       @stream_daily_averages_repository = stream_daily_averages_repository
     end
 
@@ -22,10 +22,10 @@ module StreamDailyAverages
 
     private
 
-    attr_reader :measurements_repository, :stream_daily_averages_repository
+    attr_reader :repository, :stream_daily_averages_repository
 
     def average_value(stream_id, time_with_time_zone)
-      measurements_repository.daily_average_value(
+      repository.daily_average_value(
         stream_id: stream_id,
         time_with_time_zone: time_with_time_zone,
       )
