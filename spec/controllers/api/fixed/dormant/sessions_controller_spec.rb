@@ -53,7 +53,7 @@ describe Api::Fixed::Dormant::SessionsController do
             'last_hourly_average_value' => 12,
             'streams' => {
               dormant_stream.sensor_name => {
-                'average_value' => nil,
+                'average_value' => 12,
                 'id' => dormant_stream.id,
                 'max_latitude' => dormant_stream.max_latitude,
                 'max_longitude' => dormant_stream.max_longitude,
