@@ -73,7 +73,7 @@ ActiveRecord::Schema[7.0].define(version: 2025_09_03_143001) do
     t.integer "milliseconds", default: 0
     t.float "measured_value"
     t.geometry "location", limit: {:srid=>4326, :type=>"geometry"}, null: false
-    t.timestamptz "time_with_time_zone"
+    t.datetime "time_with_time_zone", precision: nil
     t.index ["stream_id", "time"], name: "index_measurements_on_stream_id_and_time"
   end
 

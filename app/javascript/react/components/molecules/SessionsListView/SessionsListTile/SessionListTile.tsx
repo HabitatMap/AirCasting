@@ -96,11 +96,12 @@ const SessionsListTile: React.FC<SessionListTile> = ({
 
   return (
     <S.SessionListTile
+      $isIndoor={isIndoor}
       onClick={handleClick}
       onMouseOver={handleMouseHover}
       onMouseLeave={handleMouseLeave}
     >
-      <S.HorizontalSpacingContainer>
+      <S.HorizontalSpacingContainer $isIndoor={isIndoor}>
         <S.HorizontalGroup>
           {shouldShowValue && (
             <S.ColorDot
@@ -116,9 +117,9 @@ const SessionsListTile: React.FC<SessionListTile> = ({
           <img src={rightVector} alt={t("map.altDirect")} />
         </S.ArrowImageContainer>
       </S.HorizontalSpacingContainer>
-      <S.Title>{sessionName}</S.Title>
-      <S.Subtitle>{sensorName}</S.Subtitle>
-      <S.Subtitle>
+      <S.Title $isIndoor={isIndoor}>{sessionName}</S.Title>
+      <S.Subtitle $isIndoor={isIndoor}>{sensorName}</S.Subtitle>
+      <S.Subtitle $isIndoor={isIndoor}>
         <strong>{formattedStartDate}</strong> {formattedStartTime} -{" "}
         <strong>{formattedEndDate}</strong> {formattedEndTime}
       </S.Subtitle>
