@@ -223,7 +223,7 @@ const SessionsListView: React.FC<SessionsListViewProps> = ({
   const isItemLoaded = (index: number) =>
     !fetchableSessionsCount || index < sessions.length;
 
-  const itemSize = isIndoor ? 90 : 130;
+  const itemSize = isIndoor ? 100 : 130;
 
   const listHeight = dimensionsReady ? listDimensions.height : 400;
   const listWidth = dimensionsReady ? listDimensions.width : 230;

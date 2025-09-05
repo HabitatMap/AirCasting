@@ -19,7 +19,7 @@ const SessionListTile = styled.div<SessionListTileProps>`
   border-radius: 1rem;
   border: 1px solid ${gray100};
   box-shadow: 0 0.4rem 0.8rem rgba(0, 0, 0, 0.1);
-  padding: ${({ $isIndoor }) => ($isIndoor ? "0.3rem 0.8rem" : "0.5rem 1rem")};
+  padding: ${({ $isIndoor }) => ($isIndoor ? "0.6rem 1rem" : "0.5rem 1rem")};
   margin-right: 0.9375rem;
   margin-left: 0.9375rem;
   box-sizing: border-box;
@@ -39,8 +39,8 @@ const HorizontalSpacingContainer = styled.div<HorizontalSpacingContainerProps>`
   display: flex;
   align-items: left;
   justify-content: space-between;
-  margin-top: ${({ $isIndoor }) => ($isIndoor ? "0.3rem" : "0.5rem")};
-  margin-bottom: ${({ $isIndoor }) => ($isIndoor ? "0.5rem" : "0.8rem")};
+  margin-top: ${({ $isIndoor }) => ($isIndoor ? "0.4rem" : "0.5rem")};
+  margin-bottom: ${({ $isIndoor }) => ($isIndoor ? "0.6rem" : "0.8rem")};
 `;
 
 const HorizontalGroup = styled.div`
@@ -65,7 +65,7 @@ interface TitleProps {
 const Title = styled(H4)<TitleProps>`
   text-align: left;
   font-weight: 500;
-  margin-bottom: ${({ $isIndoor }) => ($isIndoor ? "0.5rem" : "0.8rem")};
+  margin-bottom: ${({ $isIndoor }) => ($isIndoor ? "0.6rem" : "0.8rem")};
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -77,7 +77,7 @@ interface SubtitleProps {
 
 const Subtitle = styled(H5)<SubtitleProps>`
   text-align: left;
-  margin-bottom: ${({ $isIndoor }) => ($isIndoor ? "0.5rem" : "0.8rem")};
+  margin-bottom: ${({ $isIndoor }) => ($isIndoor ? "0.6rem" : "0.8rem")};
 `;
 
 const ArrowImageContainer = styled.div`
