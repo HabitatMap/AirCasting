@@ -3,17 +3,6 @@ class MeasurementsRepository
     Measurement.import(measurements)
   end
 
-  def last_2_days(stream_id:)
-    last_measurement_time =
-      Measurement.where(stream_id: stream_id).reorder(time: :desc).first.time
-
-    Measurement.where(
-      'stream_id = ? AND time >= ?',
-      stream_id,
-      last_measurement_time - 2.days,
-    )
-  end
-
   def streams_averages_hourly_last_7_days(stream_ids:, with_hour_shift:)
     end_date = Time.current.end_of_hour - 1.hour
     start_date = end_date.beginning_of_hour - 7.days

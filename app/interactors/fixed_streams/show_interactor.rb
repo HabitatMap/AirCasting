@@ -2,12 +2,12 @@ module FixedStreams
   class ShowInteractor
     def initialize(
       streams_repository: StreamsRepository.new,
-      measurements_repository: MeasurementsRepository.new,
+      fixed_measurements_repository: FixedMeasurementsRepository.new,
       stream_daily_averages_repository: StreamDailyAveragesRepository.new,
       fixed_stream_serializer: FixedStreamSerializer.new
     )
       @streams_repository = streams_repository
-      @measurements_repository = measurements_repository
+      @fixed_measurements_repository = fixed_measurements_repository
       @stream_daily_averages_repository = stream_daily_averages_repository
       @fixed_stream_serializer = fixed_stream_serializer
     end
@@ -28,19 +28,20 @@ module FixedStreams
     private
 
     attr_reader :streams_repository,
-                :measurements_repository,
+                :fixed_measurements_repository,
                 :stream_daily_averages_repository,
                 :fixed_stream_serializer
 
     def fetch_data(stream_id)
       stream = streams_repository.find(stream_id)
-      measurements = measurements_repository.last_2_days(stream_id: stream_id)
+      fixed_measurements =
+        fixed_measurements_repository.last_2_days(stream_id: stream_id)
       stream_daily_averages =
         stream_daily_averages_repository.from_full_last_3_calendar_months(
           stream_id: stream_id,
         )
 
-      [stream, measurements, stream_daily_averages]
+      [stream, fixed_measurements, stream_daily_averages]
     end
   end
 end

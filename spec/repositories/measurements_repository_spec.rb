@@ -3,43 +3,6 @@ require 'rails_helper'
 describe MeasurementsRepository do
   subject { described_class.new }
 
-  describe '#last_2_days' do
-    it 'returns last two days of measurements for given stream' do
-      stream = create(:stream, :fixed)
-      measurement_1 =
-        create(
-          :measurement,
-          stream: stream,
-          time: Time.parse('2025-01-15 09:00'),
-        )
-      measurement_2 =
-        create(
-          :measurement,
-          stream: stream,
-          time: Time.parse('2025-01-14 10:00'),
-        )
-      measurement_3 =
-        create(
-          :measurement,
-          stream: stream,
-          time: Time.parse('2025-01-13 09:00'),
-        )
-      create(
-        :measurement,
-        stream: stream,
-        time: Time.parse('2025-01-13 08:00'),
-        value: 50,
-      )
-      create(:measurement, time: Time.parse('2025-01-15 08:00'))
-
-      result = subject.last_2_days(stream_id: stream.id)
-
-      expect(result).to match_array(
-        [measurement_1, measurement_2, measurement_3],
-      )
-    end
-  end
-
   describe '#streams_averages_hourly_last_7_days' do
     let(:stubbed_time_current) { Time.parse('2024-11-22 12:30:00 +00:00') }
 
