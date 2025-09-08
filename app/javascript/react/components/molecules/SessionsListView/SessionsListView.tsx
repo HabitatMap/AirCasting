@@ -57,7 +57,7 @@ const Row = React.memo(
 
     return (
       <div style={style}>
-        <div style={{ padding: "0.5rem 0" }}>
+        <div style={{ padding: isIndoor ? "0.1rem 0" : "0.5rem 0" }}>
           <SessionsListTile
             id={session.id}
             sessionName={session.sessionName}
@@ -127,6 +127,7 @@ const SessionsListView: React.FC<SessionsListViewProps> = ({
   const [alertMessage, setAlertMessage] = useState<string>("");
   const listContainerRef = useRef<HTMLDivElement>(null);
   const [listDimensions, setListDimensions] = useState({ width: 0, height: 0 });
+  const [dimensionsReady, setDimensionsReady] = useState(false);
 
   const NO_SESSIONS = sessionsIds.length === 0;
   const EXCEEDS_LIMIT = sessionsIds.length > SESSIONS_LIMIT;
@@ -166,10 +167,15 @@ const SessionsListView: React.FC<SessionsListViewProps> = ({
   useLayoutEffect(() => {
     function updateSize() {
       if (listContainerRef.current) {
-        setListDimensions({
+        const newDimensions = {
           width: listContainerRef.current.offsetWidth,
           height: listContainerRef.current.offsetHeight,
-        });
+        };
+        setListDimensions(newDimensions);
+        // Only set dimensions ready if we have valid dimensions
+        if (newDimensions.width > 0 && newDimensions.height > 0) {
+          setDimensionsReady(true);
+        }
       }
     }
     window.addEventListener("resize", updateSize);
@@ -216,6 +222,11 @@ const SessionsListView: React.FC<SessionsListViewProps> = ({
 
   const isItemLoaded = (index: number) =>
     !fetchableSessionsCount || index < sessions.length;
+
+  const itemSize = isIndoor ? 100 : 130;
+
+  const listHeight = dimensionsReady ? listDimensions.height : 400;
+  const listWidth = dimensionsReady ? listDimensions.width : 230;
 
   const handleClick = useCallback(
     (id: number, streamId: number) => {
@@ -266,6 +277,19 @@ const SessionsListView: React.FC<SessionsListViewProps> = ({
       localStorage.removeItem("sessionsListScrollPosition");
     }
   }, [sessionsListExpanded]);
+
+  // Force re-render when dimensions become ready
+  useEffect(() => {
+    if (dimensionsReady && sessions.length > 0) {
+      // Small delay to ensure the container is fully rendered
+      const timer = setTimeout(() => {
+        if (infiniteLoaderRef.current) {
+          infiniteLoaderRef.current.resetloadMoreItemsCache();
+        }
+      }, 100);
+      return () => clearTimeout(timer);
+    }
+  }, [dimensionsReady, sessions.length]);
 
   const calculatePopupLeftPosition = () => {
     return `${buttonPosition.left - 185}px`;
@@ -318,31 +342,34 @@ const SessionsListView: React.FC<SessionsListViewProps> = ({
       </S.SessionInfoTile>
       {sessionsListExpanded && (
         <S.SessionListContainer ref={listContainerRef}>
-          <InfiniteLoader
-            ref={infiniteLoaderRef}
-            isItemLoaded={isItemLoaded}
-            itemCount={itemCount}
-            loadMoreItems={loadMoreItems}
-          >
-            {({ onItemsRendered, ref }) => (
-              <List
-                className="List"
-                height={listDimensions.height}
-                itemCount={itemCount}
-                itemSize={130}
-                width={listDimensions.width}
-                itemData={itemData}
-                onScroll={(scrollArgs: ListOnScrollProps) =>
-                  saveScrollPosition(scrollArgs.scrollOffset)
-                }
-                ref={ref}
-                initialScrollOffset={initialScrollOffset}
-                onItemsRendered={onItemsRendered}
-              >
-                {Row}
-              </List>
-            )}
-          </InfiniteLoader>
+          {sessions.length > 0 && (
+            <InfiniteLoader
+              ref={infiniteLoaderRef}
+              isItemLoaded={isItemLoaded}
+              itemCount={itemCount}
+              loadMoreItems={loadMoreItems}
+            >
+              {({ onItemsRendered, ref }) => (
+                <List
+                  key={`${listHeight}-${listWidth}-${itemSize}`}
+                  className="List"
+                  height={listHeight}
+                  itemCount={itemCount}
+                  itemSize={itemSize}
+                  width={listWidth}
+                  itemData={itemData}
+                  onScroll={(scrollArgs: ListOnScrollProps) =>
+                    saveScrollPosition(scrollArgs.scrollOffset)
+                  }
+                  ref={ref}
+                  initialScrollOffset={initialScrollOffset}
+                  onItemsRendered={onItemsRendered}
+                >
+                  {Row}
+                </List>
+              )}
+            </InfiniteLoader>
+          )}
         </S.SessionListContainer>
       )}
       {showAlert && (

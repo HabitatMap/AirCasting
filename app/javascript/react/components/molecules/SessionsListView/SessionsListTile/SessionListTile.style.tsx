@@ -9,13 +9,17 @@ interface DotProps {
   $isAvg?: boolean;
 }
 
-const SessionListTile = styled.div`
+interface SessionListTileProps {
+  $isIndoor?: boolean;
+}
+
+const SessionListTile = styled.div<SessionListTileProps>`
   cursor: pointer;
   background-color: ${white};
   border-radius: 1rem;
   border: 1px solid ${gray100};
   box-shadow: 0 0.4rem 0.8rem rgba(0, 0, 0, 0.1);
-  padding: 0.5rem 1rem 0.5rem 1rem;
+  padding: ${({ $isIndoor }) => ($isIndoor ? "0.6rem 1rem" : "0.5rem 1rem")};
   margin-right: 0.9375rem;
   margin-left: 0.9375rem;
   box-sizing: border-box;
@@ -27,12 +31,16 @@ const SessionListTile = styled.div`
   }
 `;
 
-const HorizontalSpacingContainer = styled.div`
+interface HorizontalSpacingContainerProps {
+  $isIndoor?: boolean;
+}
+
+const HorizontalSpacingContainer = styled.div<HorizontalSpacingContainerProps>`
   display: flex;
   align-items: left;
   justify-content: space-between;
-  margin-top: 0.5rem;
-  margin-bottom: 0.8rem;
+  margin-top: ${({ $isIndoor }) => ($isIndoor ? "0.4rem" : "0.5rem")};
+  margin-bottom: ${({ $isIndoor }) => ($isIndoor ? "0.6rem" : "0.8rem")};
 `;
 
 const HorizontalGroup = styled.div`
@@ -50,18 +58,26 @@ const ColorDot = styled.span<DotProps>`
   border: ${(props) => (props.$isAvg ? "none" : `1px solid ${gray200}`)};
 `;
 
-const Title = styled(H4)`
+interface TitleProps {
+  $isIndoor?: boolean;
+}
+
+const Title = styled(H4)<TitleProps>`
   text-align: left;
   font-weight: 500;
-  margin-bottom: 0.8rem;
+  margin-bottom: ${({ $isIndoor }) => ($isIndoor ? "0.6rem" : "0.8rem")};
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 `;
 
-const Subtitle = styled(H5)`
+interface SubtitleProps {
+  $isIndoor?: boolean;
+}
+
+const Subtitle = styled(H5)<SubtitleProps>`
   text-align: left;
-  margin-bottom: 0.8rem;
+  margin-bottom: ${({ $isIndoor }) => ($isIndoor ? "0.6rem" : "0.8rem")};
 `;
 
 const ArrowImageContainer = styled.div`
