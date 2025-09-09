@@ -2,99 +2,110 @@ require 'rails_helper'
 
 describe 'GET api/v3/timelapse', type: :request do
   context 'with correct params' do
-    it 'returns active sessions json with clustering' do
-      session_time = DateTime.new(2_000, 10, 1, 2, 3, 4)
+    it 'returns clustered information about sessions with measurements from last 7 days' do
+      reference_time = DateTime.current
+      reference_latitude = 50.0
+      reference_longitude = 19.0
 
-      # Active session
       active_session =
-        create_fixed_session!(
-          contribute: true,
-          time: session_time,
-          last_measurement_at: DateTime.current,
+        create(
+          :fixed_session,
+          last_measurement_at: reference_time,
+          start_time_local: reference_time - 1.day,
+          end_time_local: reference_time,
+          latitude: reference_latitude,
+          longitude: reference_longitude,
         )
-
       active_stream =
-        create_stream!(
+        create(
+          :stream,
           session: active_session,
-          latitude: active_session.latitude,
-          longitude: active_session.longitude,
+          min_latitude: reference_latitude,
+          max_latitude: reference_latitude,
+          min_longitude: reference_longitude,
+          max_longitude: reference_longitude,
         )
 
-      create_measurement!(
+      create(
+        :fixed_measurement,
         stream: active_stream,
-        time: Time.current.end_of_hour - 2.hours - 1.minute,
-        time_with_time_zone: Time.current.end_of_hour - 2.hours - 1.minute,
-        latitude: active_session.latitude,
-        longitude: active_session.longitude,
+        time: reference_time - 2.hours,
+        time_with_time_zone: reference_time - 2.hours,
+        value: 2,
       )
 
-      # Dormant session (should be clustered together)
-      dormant_session =
-        create_fixed_session!(
-          user: active_session.user,
-          contribute: true,
-          time: session_time,
-          last_measurement_at:
-            DateTime.current - (FixedSession::ACTIVE_FOR + 1.second),
-          latitude: active_session.latitude,
-          longitude: active_session.longitude,
-        )
-
-      dormant_stream =
-        create_stream!(
-          session: dormant_session,
-          latitude: active_session.latitude,
-          longitude: active_session.longitude,
-        )
-
-      create_measurement!(stream: dormant_stream)
+      create(
+        :fixed_measurement,
+        stream: active_stream,
+        time: reference_time - 3.hours,
+        time_with_time_zone: reference_time - 3.hours,
+        value: 4,
+      )
 
       # Session close to the original active session (should be clustered together)
       close_session =
-        create_fixed_session!(
-          contribute: true,
-          time: session_time,
-          last_measurement_at: DateTime.current,
-          latitude: active_session.latitude + 0.0001,
-          longitude: active_session.longitude + 0.0001,
+        create(
+          :fixed_session,
+          last_measurement_at: reference_time,
+          latitude: reference_latitude + 0.0001,
+          longitude: reference_longitude + 0.0001,
+          start_time_local: reference_time - 1.day,
+          end_time_local: reference_time,
         )
 
       close_stream =
-        create_stream!(
+        create(
+          :stream,
           session: close_session,
-          latitude: close_session.latitude,
-          longitude: close_session.longitude,
+          min_latitude: close_session.latitude,
+          max_latitude: close_session.latitude,
+          min_longitude: close_session.longitude,
+          max_longitude: close_session.longitude,
         )
 
-      create_measurement!(
+      create(
+        :fixed_measurement,
         stream: close_stream,
-        time: Time.current.end_of_hour - 2.hours - 1.minute,
-        time_with_time_zone: Time.current.end_of_hour - 2.hours - 1.minute,
+        time: reference_time - 2.hours - 1.minute,
+        time_with_time_zone: reference_time - 2.hours - 1.minute,
+        value: 4,
+      )
+
+      create(
+        :fixed_measurement,
+        stream: close_stream,
+        time: reference_time - 3.hours,
+        time_with_time_zone: reference_time - 3.hours,
+        value: 6,
       )
 
       # Session far away (should be isolated)
       far_session =
-        create_fixed_session!(
-          contribute: true,
-          time: session_time,
-          last_measurement_at: DateTime.current,
-          latitude: active_session.latitude + 10.0,
-          longitude: active_session.longitude + 10.0,
+        create(
+          :fixed_session,
+          last_measurement_at: reference_time,
+          latitude: active_session.latitude + 10,
+          longitude: active_session.longitude + 10,
+          start_time_local: reference_time - 1.day,
+          end_time_local: reference_time,
         )
 
       far_stream =
-        create_stream!(
+        create(
+          :stream,
           session: far_session,
-          latitude: far_session.latitude,
-          longitude: far_session.longitude,
+          min_latitude: far_session.latitude,
+          max_latitude: far_session.latitude,
+          min_longitude: far_session.longitude,
+          max_longitude: far_session.longitude,
         )
 
-      create_measurement!(
+      create(
+        :fixed_measurement,
         stream: far_stream,
-        time: Time.current.end_of_hour - 2.hours - 1.minute,
-        time_with_time_zone: Time.current.end_of_hour - 2.hours - 1.minute,
-        latitude: far_session.latitude,
-        longitude: far_session.longitude,
+        time: reference_time - 2.hours,
+        time_with_time_zone: reference_time - 2.hours,
+        value: 10,
       )
 
       get '/api/v3/timelapse',
@@ -105,12 +116,10 @@ describe 'GET api/v3/timelapse', type: :request do
               tags: '',
               usernames: '',
               session_ids: [],
-              west: active_session.longitude - 1,
-              east: active_session.longitude + 1,
-              south: active_session.latitude - 1,
-              north: active_session.latitude + 1,
-              limit: 2,
-              offset: 0,
+              west: reference_longitude - 10,
+              east: reference_longitude + 10,
+              south: reference_latitude - 10,
+              north: reference_latitude + 10,
               sensor_name: active_stream.sensor_name,
               measurement_type: active_stream.measurement_type,
               unit_symbol: active_stream.unit_symbol,
@@ -118,25 +127,35 @@ describe 'GET api/v3/timelapse', type: :request do
           }
 
       expected = {
-        (Time.current.beginning_of_hour - 1.hour).utc.strftime(
-          '%Y-%m-%d %H:%M:%S UTC',
+        (reference_time.beginning_of_hour - 1.hour).utc.strftime(
+          '%Y-%m-%d %H:%M:%S +0000',
         ) => [
           {
-            'latitude' => 1.0000333333333333,
-            'longitude' => 1.0000333333333333,
-            'sessions' => 3,
-            'value' => 123.0,
+            'latitude' => 50.00005,
+            'longitude' => 19.00005,
+            'sessions' => 2,
+            'value' => 3.0,
           },
           {
-            'latitude' => 11.0,
-            'longitude' => 11.0,
+            'value' => 10.0,
+            'latitude' => 60.0,
+            'longitude' => 29.0,
             'sessions' => 1,
-            'value' => 123.0,
+          },
+        ],
+        (reference_time.beginning_of_hour - 2.hour).utc.strftime(
+          '%Y-%m-%d %H:%M:%S +0000',
+        ) => [
+          {
+            'latitude' => 50.00005,
+            'longitude' => 19.00005,
+            'sessions' => 2,
+            'value' => 5.0,
           },
         ],
       }
 
-      expect(JSON.parse(response.body)).to match_array(expected)
+      expect(JSON.parse(response.body)).to eq(expected)
     end
   end
 end
