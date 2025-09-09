@@ -3,11 +3,13 @@ require 'rails_helper'
 describe Api::Fixed::Active::SessionsController do
   describe '#index' do
     it 'returns active sessions json' do
-      session_time = DateTime.new(2_000, 10, 1, 2, 3, 4)
+      session_start_time = DateTime.new(2_000, 10, 1, 2, 3, 4)
+      session_end_time = DateTime.new(2_000, 10, 2, 2, 3, 4)
       active_session =
         create_fixed_session!(
           contribute: true,
-          time: session_time,
+          session_start_time: session_start_time,
+          session_end_time: session_end_time,
           last_measurement_at: DateTime.current,
         )
       active_stream =
@@ -21,7 +23,8 @@ describe Api::Fixed::Active::SessionsController do
         create_fixed_session!(
           user: active_session.user,
           contribute: true,
-          time: session_time,
+          session_start_time: session_start_time,
+          session_end_time: session_end_time,
           last_measurement_at:
             DateTime.current - (FixedSession::ACTIVE_FOR + 1.second),
           latitude: active_session.latitude,
@@ -39,8 +42,9 @@ describe Api::Fixed::Active::SessionsController do
           params: {
             q: {
               time_from:
-                session_time.to_datetime.strftime('%Q').to_i / 1_000 - 1,
-              time_to: session_time.to_datetime.strftime('%Q').to_i / 1_000 + 1,
+                session_start_time.to_datetime.strftime('%Q').to_i / 1_000 - 1,
+              time_to:
+                session_end_time.to_datetime.strftime('%Q').to_i / 1_000 + 1,
               tags: '',
               usernames: '',
               session_ids: [],
@@ -62,7 +66,7 @@ describe Api::Fixed::Active::SessionsController do
           {
             'id' => active_session.id,
             'uuid' => active_session.uuid,
-            'end_time_local' => '2000-10-01T02:03:04.000Z',
+            'end_time_local' => '2000-10-02T02:03:04.000Z',
             'start_time_local' => '2000-10-01T02:03:04.000Z',
             'last_hour_average' => active_session.measurements.last.value,
             'is_indoor' => active_session.is_indoor,
@@ -111,11 +115,13 @@ describe Api::Fixed::Active::SessionsController do
 
   describe '#index2' do
     it 'returns active sessions json' do
-      session_time = DateTime.new(2_000, 10, 1, 2, 3, 4)
+      session_start_time = DateTime.new(2_000, 10, 1, 2, 3, 4)
+      session_end_time = DateTime.new(2_000, 10, 2, 2, 3, 4)
       active_session =
         create_fixed_session!(
           contribute: true,
-          time: session_time,
+          session_start_time: session_start_time,
+          session_end_time: session_end_time,
           last_measurement_at: DateTime.current,
         )
       active_stream =
@@ -129,7 +135,8 @@ describe Api::Fixed::Active::SessionsController do
         create_fixed_session!(
           user: active_session.user,
           contribute: true,
-          time: session_time,
+          session_start_time: session_start_time,
+          session_end_time: session_end_time,
           last_measurement_at:
             DateTime.current - (FixedSession::ACTIVE_FOR + 1.second),
           latitude: active_session.latitude,
@@ -149,8 +156,9 @@ describe Api::Fixed::Active::SessionsController do
           params: {
             q: {
               time_from:
-                session_time.to_datetime.strftime('%Q').to_i / 1_000 - 1,
-              time_to: session_time.to_datetime.strftime('%Q').to_i / 1_000 + 1,
+                session_start_time.to_datetime.strftime('%Q').to_i / 1_000 - 1,
+              time_to:
+                session_end_time.to_datetime.strftime('%Q').to_i / 1_000 + 1,
               tags: '',
               usernames: '',
               session_ids: [],
@@ -172,7 +180,7 @@ describe Api::Fixed::Active::SessionsController do
           {
             'id' => active_session.id,
             'uuid' => active_session.uuid,
-            'end_time_local' => '2000-10-01T02:03:04.000Z',
+            'end_time_local' => '2000-10-02T02:03:04.000Z',
             'start_time_local' => '2000-10-01T02:03:04.000Z',
             'last_measurement_value' => active_stream.average_value,
             'is_indoor' => active_session.is_indoor,
@@ -201,11 +209,13 @@ describe Api::Fixed::Active::SessionsController do
     end
 
     it 'returns government data' do
-      session_time = DateTime.new(2_000, 10, 1, 2, 3, 4)
+      session_start_time = DateTime.new(2_000, 10, 1, 2, 3, 4)
+      session_end_time = DateTime.new(2_000, 10, 2, 2, 3, 4)
       active_session =
         create_fixed_session!(
           contribute: true,
-          time: session_time,
+          session_start_time: session_start_time,
+          session_end_time: session_end_time,
           last_measurement_at: DateTime.current,
         )
       active_stream =
@@ -220,7 +230,8 @@ describe Api::Fixed::Active::SessionsController do
         create_fixed_session!(
           user: active_session.user,
           contribute: true,
-          time: session_time,
+          session_start_time: session_start_time,
+          session_end_time: session_end_time,
           last_measurement_at:
             DateTime.current - (FixedSession::ACTIVE_FOR + 1.second),
           latitude: active_session.latitude,
@@ -241,8 +252,9 @@ describe Api::Fixed::Active::SessionsController do
           params: {
             q: {
               time_from:
-                session_time.to_datetime.strftime('%Q').to_i / 1_000 - 1,
-              time_to: session_time.to_datetime.strftime('%Q').to_i / 1_000 + 1,
+                session_start_time.to_datetime.strftime('%Q').to_i / 1_000 - 1,
+              time_to:
+                session_end_time.to_datetime.strftime('%Q').to_i / 1_000 + 1,
               tags: '',
               usernames: '',
               session_ids: [],
@@ -264,7 +276,7 @@ describe Api::Fixed::Active::SessionsController do
           {
             'id' => active_session.id,
             'uuid' => active_session.uuid,
-            'end_time_local' => '2000-10-01T02:03:04.000Z',
+            'end_time_local' => '2000-10-02T02:03:04.000Z',
             'start_time_local' => '2000-10-01T02:03:04.000Z',
             'last_measurement_value' => active_stream.average_value,
             'is_indoor' => active_session.is_indoor,
@@ -293,11 +305,14 @@ describe Api::Fixed::Active::SessionsController do
     end
 
     it 'with multiple streams it picks the correct stream' do
-      session_time = DateTime.new(2_000, 10, 1, 2, 3, 4)
+      session_start_time = DateTime.new(2_000, 10, 1, 2, 3, 4)
+      session_end_time = DateTime.new(2_000, 10, 2, 2, 3, 4)
+
       session =
         create_fixed_session!(
           contribute: true,
-          time: session_time,
+          session_start_time: session_start_time,
+          session_end_time: session_end_time,
           last_measurement_at: DateTime.current,
         )
       stream_1 =
@@ -325,8 +340,9 @@ describe Api::Fixed::Active::SessionsController do
           params: {
             q: {
               time_from:
-                session_time.to_datetime.strftime('%Q').to_i / 1_000 - 1,
-              time_to: session_time.to_datetime.strftime('%Q').to_i / 1_000 + 1,
+                session_start_time.to_datetime.strftime('%Q').to_i / 1_000 - 1,
+              time_to:
+                session_end_time.to_datetime.strftime('%Q').to_i / 1_000 + 1,
               tags: '',
               usernames: '',
               session_ids: [],
@@ -348,7 +364,7 @@ describe Api::Fixed::Active::SessionsController do
           {
             'id' => session.id,
             'uuid' => session.uuid,
-            'end_time_local' => '2000-10-01T02:03:04.000Z',
+            'end_time_local' => '2000-10-02T02:03:04.000Z',
             'start_time_local' => '2000-10-01T02:03:04.000Z',
             'last_measurement_value' => queried_stream.average_value,
             'is_indoor' => session.is_indoor,
@@ -389,7 +405,8 @@ describe Api::Fixed::Active::SessionsController do
 
   def create_fixed_session!(
     user: create_user!,
-    time:,
+    session_start_time:,
+    session_end_time:,
     contribute:,
     latitude: 123,
     longitude: 123,
@@ -399,8 +416,8 @@ describe Api::Fixed::Active::SessionsController do
       title: 'title',
       user: user,
       uuid: SecureRandom.uuid,
-      start_time_local: time,
-      end_time_local: time,
+      start_time_local: session_start_time,
+      end_time_local: session_end_time,
       is_indoor: false,
       latitude: latitude,
       longitude: longitude,

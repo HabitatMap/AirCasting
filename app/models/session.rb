@@ -61,6 +61,7 @@ class Session < ApplicationRecord
     sessions =
       order('sessions.start_time_local DESC')
         .where(contribute: true)
+        .where('sessions.end_time_local > sessions.start_time_local')
         .joins(:user)
 
     tags = data[:tags].to_s.split(/[\s,]/)
@@ -105,7 +106,7 @@ class Session < ApplicationRecord
         filter_by_time_range(sessions, data[:time_from], data[:time_to])
     end
 
-    sessions.joins(:streams).where('streams.measurements_count > 0')
+    sessions
   end
 
   def self.filter_sessions_ids_and_streams(data = {})

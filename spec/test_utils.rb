@@ -3,7 +3,8 @@ def create_session_with_streams_and_measurements!(attributes = {})
     create_session!(
       id: attributes.fetch(:id, random_int),
       contribute: attributes.fetch(:contribute, true),
-      start_time_local: attributes.fetch(:start_time_local, DateTime.current),
+      start_time_local:
+        attributes.fetch(:start_time_local, DateTime.current - 1.hour),
       end_time_local: attributes.fetch(:end_time_local, DateTime.current),
       user: attributes.fetch(:user) { create_user! },
     )
@@ -59,7 +60,13 @@ def create_stream!(attributes = {})
     session: attributes.fetch(:session) { create_session! },
     measurement_short_type: 'F',
     unit_symbol: attributes.fetch(:unit_symbol, 'F'),
-    threshold_set: attributes.fetch(:threshold_set) { create_threshold_set!(sensor_name: attributes.fetch(:sensor_name, 'AirBeam2-F'), unit_symbol: attributes.fetch(:unit_symbol, 'F')) },
+    threshold_set:
+      attributes.fetch(:threshold_set) do
+        create_threshold_set!(
+          sensor_name: attributes.fetch(:sensor_name, 'AirBeam2-F'),
+          unit_symbol: attributes.fetch(:unit_symbol, 'F'),
+        )
+      end,
     min_latitude: attributes.fetch(:min_latitude, 1),
     max_latitude: attributes.fetch(:max_latitude, 1),
     min_longitude: attributes.fetch(:min_longitude, 1),
