@@ -15,6 +15,13 @@ class FixedMeasurementsRepository
       )
   end
 
+  def filter(stream_id:, start_time:, end_time:)
+    FixedMeasurement
+      .where(stream_id: stream_id)
+      .where('time >= ?', start_time)
+      .where('time <= ?', end_time)
+  end
+
   def streams_averages_hourly_last_7_days(stream_ids:, with_hour_shift:)
     end_date = Time.current.end_of_hour - 1.hour
     start_date = end_date.beginning_of_hour - 7.days
