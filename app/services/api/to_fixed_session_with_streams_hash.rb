@@ -41,7 +41,13 @@ module Api
               last_measurement_value: stream.average_value,
               max_latitude: stream.max_latitude,
               max_longitude: stream.max_longitude,
-              measurements: measurements(stream, measurements_limit),
+              measurements:
+                measurements(
+                  stream,
+                  measurements_limit,
+                  session.latitude,
+                  session.longitude,
+                ),
               min_latitude: stream.min_latitude,
               min_longitude: stream.max_longitude,
               sensor_unit: stream.unit_symbol,
@@ -62,17 +68,17 @@ module Api
       time.to_datetime.strftime('%Q').to_i
     end
 
-    def measurements(stream, measurements_limit)
+    def measurements(stream, measurements_limit, latitude, longitude)
       stream
-        .measurements
-        .reorder(time: :desc)
+        .fixed_measurements
+        .order(time: :desc)
         .limit(measurements_limit)
         .map do |m|
           {
             value: m.value,
             time: format_time(m.time),
-            longitude: m.longitude,
-            latitude: m.latitude,
+            latitude: latitude,
+            longitude: longitude,
           }
         end
         .reverse
