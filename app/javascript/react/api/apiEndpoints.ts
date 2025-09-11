@@ -181,5 +181,5 @@ export const API_ENDPOINTS: ApiEndpoints = {
   fetchIndoorDormantSessions: (filters) =>
     `/fixed/dormant/sessions.json?q=${filters}`,
   fetchMeasurements: (streamId, startTime, endTime) =>
-    `/measurements?stream_ids=${streamId}&start_time=${startTime}&end_time=${endTime}`,
+    `/fixed_measurements?stream_id=${streamId}&start_time=${startTime}&end_time=${endTime}`,
 };

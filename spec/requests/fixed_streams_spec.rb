@@ -2,17 +2,24 @@ require 'rails_helper'
 
 describe 'GET api/v3/fixed_streams/:id' do
   it 'returns fixed stream data' do
-    session = create_fixed_session!
-    stream = create_stream!({ session: session })
-    measurement_1 = create_measurement!({ stream: stream })
-    measurement_2 = create_measurement!({ stream: stream })
+    session = create(:fixed_session, last_measurement_at: Time.current)
+    stream = create(:stream, session: session)
+    measurement_1 = create(:fixed_measurement, stream: stream)
+    measurement_2 = create(:fixed_measurement, stream: stream)
+
     stream_daily_average_1 =
-      create_stream_daily_average!(
-        { stream: stream, date: Date.current, value: 10 },
+      create(
+        :stream_daily_average,
+        stream: stream,
+        date: Date.current,
+        value: 10,
       )
     stream_daily_average_2 =
-      create_stream_daily_average!(
-        { stream: stream, date: Date.current.prev_day, value: 9 },
+      create(
+        :stream_daily_average,
+        stream: stream,
+        date: Date.current.prev_day,
+        value: 9,
       )
 
     expected_response = {

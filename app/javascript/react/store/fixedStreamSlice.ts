@@ -4,7 +4,7 @@ import {
   type PayloadAction,
 } from "@reduxjs/toolkit";
 import type { AxiosResponse } from "axios";
-import { apiClient, oldApiClient } from "../api/apiClient";
+import { apiClient } from "../api/apiClient";
 import { API_ENDPOINTS } from "../api/apiEndpoints";
 import { type ApiError, StatusEnum } from "../types/api";
 import type { FixedStream } from "../types/fixedStream";
@@ -125,7 +125,7 @@ export const fetchMeasurements = createAsyncThunk(
   ) => {
     try {
       const response: AxiosResponse<FixedMeasurement[], Error> =
-        await oldApiClient.get(
+        await apiClient.get(
           API_ENDPOINTS.fetchMeasurements(
             params.streamId,
             params.startTime,
