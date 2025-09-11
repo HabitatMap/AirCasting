@@ -18,18 +18,26 @@ describe 'GET /api/v3/fixed_polling/sessions' do
       stream_1 = create(:stream, session: session, sensor_name: 'PM1')
       stream_2 = create(:stream, session: session, sensor_name: 'PM2.5')
       new_measurement_1 =
-        create(:measurement, stream: stream_1, time: last_measurement_time)
+        create(
+          :fixed_measurement,
+          stream: stream_1,
+          time: last_measurement_time,
+        )
       new_measurement_2 =
-        create(:measurement, stream: stream_2, time: last_measurement_time)
+        create(
+          :fixed_measurement,
+          stream: stream_2,
+          time: last_measurement_time,
+        )
       old_measurement_1 =
         create(
-          :measurement,
+          :fixed_measurement,
           stream: stream_1,
           time: last_measurement_time - 2.hours,
         )
       old_measurement_2 =
         create(
-          :measurement,
+          :fixed_measurement,
           stream: stream_2,
           time: last_measurement_time - 2.hours,
         )
@@ -63,10 +71,10 @@ describe 'GET /api/v3/fixed_polling/sessions' do
                 id: new_measurement_1.id,
                 stream_id: new_measurement_1.stream_id,
                 value: new_measurement_1.value,
-                latitude: new_measurement_1.latitude.to_f,
-                longitude: new_measurement_1.longitude.to_f,
                 time: new_measurement_1.time.utc.iso8601(3),
-                milliseconds: new_measurement_1.milliseconds,
+                latitude: session.latitude,
+                longitude: session.longitude,
+                milliseconds: 0,
               },
             ],
           },
@@ -88,10 +96,10 @@ describe 'GET /api/v3/fixed_polling/sessions' do
                 id: new_measurement_2.id,
                 stream_id: new_measurement_2.stream_id,
                 value: new_measurement_2.value,
-                latitude: new_measurement_2.latitude.to_f,
-                longitude: new_measurement_2.longitude.to_f,
                 time: new_measurement_2.time.utc.iso8601(3),
-                milliseconds: new_measurement_2.milliseconds,
+                latitude: session.latitude,
+                longitude: session.longitude,
+                milliseconds: 0,
               },
             ],
           },
@@ -123,18 +131,26 @@ describe 'GET /api/v3/fixed_polling/sessions' do
       stream_1 = create(:stream, session: session, sensor_name: 'PM1')
       stream_2 = create(:stream, session: session, sensor_name: 'PM2.5')
       last_24h_measurement_1 =
-        create(:measurement, stream: stream_1, time: last_measurement_time)
+        create(
+          :fixed_measurement,
+          stream: stream_1,
+          time: last_measurement_time,
+        )
       last_24h_measurement_2 =
-        create(:measurement, stream: stream_2, time: last_measurement_time)
+        create(
+          :fixed_measurement,
+          stream: stream_2,
+          time: last_measurement_time,
+        )
       older_measurement_1 =
         create(
-          :measurement,
+          :fixed_measurement,
           stream: stream_1,
           time: last_measurement_time - 30.hours,
         )
       older_measurement_2 =
         create(
-          :measurement,
+          :fixed_measurement,
           stream: stream_2,
           time: last_measurement_time - 30.hours,
         )
@@ -168,10 +184,10 @@ describe 'GET /api/v3/fixed_polling/sessions' do
                 id: last_24h_measurement_1.id,
                 stream_id: last_24h_measurement_1.stream_id,
                 value: last_24h_measurement_1.value,
-                latitude: last_24h_measurement_1.latitude.to_f,
-                longitude: last_24h_measurement_1.longitude.to_f,
                 time: last_24h_measurement_1.time.utc.iso8601(3),
-                milliseconds: last_24h_measurement_1.milliseconds,
+                latitude: session.latitude,
+                longitude: session.longitude,
+                milliseconds: 0,
               },
             ],
           },
@@ -193,10 +209,10 @@ describe 'GET /api/v3/fixed_polling/sessions' do
                 id: last_24h_measurement_2.id,
                 stream_id: last_24h_measurement_2.stream_id,
                 value: last_24h_measurement_2.value,
-                latitude: last_24h_measurement_2.latitude.to_f,
-                longitude: last_24h_measurement_2.longitude.to_f,
                 time: last_24h_measurement_2.time.utc.iso8601(3),
-                milliseconds: last_24h_measurement_2.milliseconds,
+                latitude: session.latitude,
+                longitude: session.longitude,
+                milliseconds: 0,
               },
             ],
           },
