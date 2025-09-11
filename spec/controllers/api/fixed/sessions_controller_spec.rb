@@ -18,8 +18,18 @@ describe Api::Fixed::SessionsController do
       stream = create_stream!(session: session, sensor_name: 'sensor-name')
       other_stream =
         create_stream!(session: session, sensor_name: 'yet another-sensor-name')
-      create_measurement!(stream: stream, time: start_time_local)
-      create_measurement!(stream: other_stream, time: start_time_local)
+      create(
+        :fixed_measurement,
+        stream: stream,
+        value: 123.0,
+        time: start_time_local,
+      )
+      create(
+        :fixed_measurement,
+        stream: other_stream,
+        value: 123.0,
+        time: start_time_local,
+      )
 
       get :show_all_streams, params: { id: session.id }
 
@@ -42,10 +52,10 @@ describe Api::Fixed::SessionsController do
             'max_longitude' => 1.0,
             'measurements' => [
               {
-                'latitude' => 1.0,
-                'longitude' => 1.0,
                 'time' => start_time_local.to_i * 1_000,
                 'value' => 123.0,
+                'latitude' => 123,
+                'longitude' => 123,
               },
             ],
             'min_latitude' => 1.0,
@@ -68,10 +78,10 @@ describe Api::Fixed::SessionsController do
             'max_longitude' => 1.0,
             'measurements' => [
               {
-                'latitude' => 1.0,
-                'longitude' => 1.0,
                 'time' => start_time_local.to_i * 1_000,
                 'value' => 123.0,
+                'latitude' => 123,
+                'longitude' => 123,
               },
             ],
             'min_latitude' => 1.0,
