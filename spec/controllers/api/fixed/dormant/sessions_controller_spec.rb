@@ -4,12 +4,18 @@ describe Api::Fixed::Dormant::SessionsController do
   describe '#index' do
     it 'returns dormant sessions json' do
       user = create_user!
-      session_time = DateTime.new(2_000, 10, 1, 2, 3, 4)
-      create_active_session_and_stream!(user: user, session_time: session_time)
+      session_start_time = DateTime.new(2_000, 10, 1, 2, 3, 4)
+      session_end_time = DateTime.new(2_000, 10, 2, 2, 3, 4)
+      create_active_session_and_stream!(
+        user: user,
+        session_start_time: session_start_time,
+        session_end_time: session_end_time,
+      )
       dormant_session, dormant_stream =
         create_dormant_session_and_stream!(
           user: user,
-          session_time: session_time,
+          session_start_time: session_start_time,
+          session_end_time: session_end_time,
         )
 
       last_hourly_average =
@@ -20,8 +26,9 @@ describe Api::Fixed::Dormant::SessionsController do
           params: {
             q: {
               time_from:
-                session_time.to_datetime.strftime('%Q').to_i / 1_000 - 1,
-              time_to: session_time.to_datetime.strftime('%Q').to_i / 1_000 + 1,
+                session_start_time.to_datetime.strftime('%Q').to_i / 1_000 - 1,
+              time_to:
+                session_end_time.to_datetime.strftime('%Q').to_i / 1_000 + 1,
               tags: '',
               usernames: '',
               session_ids: [],
@@ -42,7 +49,7 @@ describe Api::Fixed::Dormant::SessionsController do
         'sessions' => [
           {
             'id' => dormant_session.id,
-            'end_time_local' => '2000-10-01T02:03:04.000Z',
+            'end_time_local' => '2000-10-02T02:03:04.000Z',
             'start_time_local' => '2000-10-01T02:03:04.000Z',
             'is_indoor' => dormant_session.is_indoor,
             'latitude' => dormant_session.latitude,
@@ -91,14 +98,19 @@ describe Api::Fixed::Dormant::SessionsController do
 
   private
 
-  def create_active_session_and_stream!(user:, session_time:)
+  def create_active_session_and_stream!(
+    user:,
+    session_start_time:,
+    session_end_time:
+  )
     latitude = 123
     longitude = 234
     session =
       create_fixed_session!(
         user: user,
         contribute: true,
-        time: session_time,
+        session_start_time: session_start_time,
+        session_end_time: session_end_time,
         latitude: latitude,
         longitude: longitude,
         last_measurement_at: DateTime.current,
@@ -110,14 +122,19 @@ describe Api::Fixed::Dormant::SessionsController do
     [session, stream]
   end
 
-  def create_dormant_session_and_stream!(user:, session_time:)
+  def create_dormant_session_and_stream!(
+    user:,
+    session_start_time:,
+    session_end_time:
+  )
     latitude = 123
     longitude = 234
     session =
       create_fixed_session!(
         user: user,
         contribute: true,
-        time: session_time,
+        session_start_time: session_start_time,
+        session_end_time: session_end_time,
         latitude: latitude,
         longitude: longitude,
         last_measurement_at:
@@ -140,7 +157,8 @@ describe Api::Fixed::Dormant::SessionsController do
 
   def create_fixed_session!(
     user:,
-    time:,
+    session_start_time:,
+    session_end_time:,
     contribute:,
     latitude:,
     longitude:,
@@ -150,8 +168,8 @@ describe Api::Fixed::Dormant::SessionsController do
       title: 'title',
       user: user,
       uuid: SecureRandom.uuid,
-      start_time_local: time,
-      end_time_local: time,
+      start_time_local: session_start_time,
+      end_time_local: session_end_time,
       is_indoor: false,
       latitude: latitude,
       longitude: longitude,

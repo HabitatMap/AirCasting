@@ -10,21 +10,26 @@ describe Api::Mobile::AutocompleteController do
         min_latitude: 15,
         max_latitude: 16,
         min_longitude: 15,
-        max_longitude: 16
+        max_longitude: 16,
       )
       create_tagged_session!(
         tag: 'tag-different-sensor-name',
-        sensor_name: 'different'
+        sensor_name: 'different',
       )
       create_tagged_session!(
         tag: 'tag-different-unit-symbol',
-        unit_symbol: 'different'
+        unit_symbol: 'different',
       )
-      create_tagged_session!(tag: 'tag-no-measurements', measurements: false)
+      create_tagged_session!(
+        tag: 'tag-faulty-end-time',
+        start_time_local: Time.new(2_010),
+        end_time_local: Time.new(2_010),
+      )
+
       create_tagged_session!(
         tag: 'tag-not-in-time-range',
         start_time_local: Time.new(2_010),
-        end_time_local: Time.new(2_011)
+        end_time_local: Time.new(2_011),
       )
       create_tagged_session!(tag: 'not-matching-input')
 
@@ -41,8 +46,8 @@ describe Api::Mobile::AutocompleteController do
               east: 10,
               time_from: Time.new(2_018).to_i,
               time_to: Time.new(2_019).to_i,
-              usernames: ''
-            }
+              usernames: '',
+            },
           }
 
       expected = %w[tag-correct]
@@ -69,8 +74,8 @@ describe Api::Mobile::AutocompleteController do
               east: 10,
               time_from: Time.new(2_018).to_i,
               time_to: Time.new(2_019).to_i,
-              usernames: 'user1'
-            }
+              usernames: 'user1',
+            },
           }
 
       expected = %w[tag-correct]
@@ -87,8 +92,8 @@ describe Api::Mobile::AutocompleteController do
           contribute: attr.fetch(:contribute, true),
           start_time_local: attr.fetch(:start_time_local, Time.new(2_018, 2)),
           end_time_local: attr.fetch(:end_time_local, Time.new(2_018, 3)),
-          user: attr.fetch(:user, create_user!)
-        }
+          user: attr.fetch(:user, create_user!),
+        },
       )
 
     stream =
@@ -99,9 +104,7 @@ describe Api::Mobile::AutocompleteController do
         min_longitude: attr.fetch(:min_longitude, 5),
         max_longitude: attr.fetch(:max_longitude, 5),
         sensor_name: attr.fetch(:sensor_name, 'AirBeam2-F'),
-        unit_symbol: attr.fetch(:unit_symbol, 'F')
+        unit_symbol: attr.fetch(:unit_symbol, 'F'),
       )
-
-    create_measurement!(stream: stream) if (attr.fetch(:measurements, true))
   end
 end

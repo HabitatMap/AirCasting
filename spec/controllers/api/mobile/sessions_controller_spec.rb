@@ -4,12 +4,13 @@ describe Api::Mobile::SessionsController do
   describe '#index' do
     it 'returns sessions json' do
       user = create_user!
-      session_time = DateTime.new(2_000, 10, 1, 2, 3, 4)
+      session_start_time = DateTime.new(2_000, 10, 1, 2, 3, 4)
+      session_end_time = DateTime.new(2_000, 10, 2, 2, 3, 4)
       session =
         create_mobile_session!(
           user: user,
-          start_time_local: session_time,
-          end_time_local: session_time,
+          start_time_local: session_start_time,
+          end_time_local: session_end_time,
         )
       stream =
         create_stream!(
@@ -23,8 +24,9 @@ describe Api::Mobile::SessionsController do
           params: {
             q: {
               time_from:
-                session_time.to_datetime.strftime('%Q').to_i / 1_000 - 1,
-              time_to: session_time.to_datetime.strftime('%Q').to_i / 1_000 + 1,
+                session_start_time.to_datetime.strftime('%Q').to_i / 1_000 - 1,
+              time_to:
+                session_end_time.to_datetime.strftime('%Q').to_i / 1_000 + 1,
               tags: '',
               usernames: '',
               session_ids: [],
@@ -43,7 +45,7 @@ describe Api::Mobile::SessionsController do
       expected = {
         'fetchableSessionsCount' => 1,
         'sessions' => [
-          'end_time_local' => '2000-10-01T02:03:04.000Z',
+          'end_time_local' => '2000-10-02T02:03:04.000Z',
           'start_time_local' => '2000-10-01T02:03:04.000Z',
           'id' => session.id,
           'title' => session.title,
