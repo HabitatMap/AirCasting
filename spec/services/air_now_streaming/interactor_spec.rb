@@ -46,17 +46,16 @@ RSpec.describe AirNowStreaming::Interactor do
                         :count,
                       ).by(1).and change(FixedMeasurement, :count).by(3)
 
-      # TODO: Uncomment when AirNow integration is fully switched to fixed measurements
-      # session.reload
-      # expect(session.start_time_local).to eq(
-      #   Time.zone.parse('2025-07-24T05:00:00'),
-      # )
-      # expect(session.end_time_local).to eq(
-      #   Time.zone.parse('2025-07-24T07:00:00'),
-      # )
-      # expect(session.last_measurement_at).to eq(
-      #   Time.zone.parse('2025-07-24T10:00:00'),
-      # )
+      session.reload
+      expect(session.start_time_local).to eq(
+        Time.zone.parse('2025-07-24T05:00:00'),
+      )
+      expect(session.end_time_local).to eq(
+        Time.zone.parse('2025-07-24T07:00:00'),
+      )
+      expect(session.last_measurement_at).to eq(
+        Time.zone.parse('2025-07-24T10:00:00'),
+      )
 
       created_session = Session.find_by(latitude: 44.647, longitude: -63.574)
       expect(created_session.title).to eq('JOHNSTON BUILDING')

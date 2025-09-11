@@ -17,13 +17,8 @@
     class: "ThresholdAlertsWorker"
     queue: critical
 
-  airnow_import_measurements:
-    cron: "56 * * * *"
-    class: AirNowImportMeasurementsWorker
-    queue: slow
-
   airnow_import:
-    cron: "26 * * * *"
+    cron: "26,56 * * * *"
     class: AirNowImportWorker
     queue: slow
 
