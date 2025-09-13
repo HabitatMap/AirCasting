@@ -22,7 +22,7 @@
     "@types/react-window": "^1.8.8",
     "@types/react-window-infinite-loader": "^1.0.9",
     "@vis.gl/react-google-maps": "^1.2.0",
-    "axios": "^1.8.2",
+    "axios": "^1.12.0",
     "babel-loader": "^8.2.3",
     "clipboard": "^2.0.4",
     "coffee-loader": "^4.0.0",
