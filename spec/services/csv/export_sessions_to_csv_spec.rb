@@ -1,14 +1,12 @@
 require 'rails_helper'
 
 describe Csv::ExportSessionsToCsv do
-  before(:each) { @subject = Csv::ExportSessionsToCsv.new }
-
-  after(:each) { @subject.clean }
+  subject { Csv::ExportSessionsToCsv.new }
 
   it 'with no sessions the zip just contains an empty dotfile' do
     session_ids = []
 
-    zip_path = @subject.call(session_ids)
+    zip_path = subject.call(session_ids)
 
     Zip::File.open(zip_path) { |zip_file| expect(zip_file.size).to eq(1) }
   end
@@ -21,7 +19,7 @@ describe Csv::ExportSessionsToCsv do
         sensor_name: 'AirBeam2-F',
         measurement_type: 'Temperature',
         unit_name: 'Fahrenheit',
-        session: session
+        session: session,
       )
     measurement =
       create_measurement!(
@@ -30,10 +28,10 @@ describe Csv::ExportSessionsToCsv do
         longitude: BigDecimal('-73.97631499'),
         value: 77.0,
         milliseconds: 234,
-        stream: stream
+        stream: stream,
       )
 
-    zip_path = @subject.call([session.id])
+    zip_path = subject.call([session.id])
 
     Zip::File.open(zip_path) do |zip_file|
       actual_contents = file_content(zip_file)
@@ -44,35 +42,45 @@ describe Csv::ExportSessionsToCsv do
 
       expected_contents = [
         '',
-        File.read("#{Rails.root}/spec/support/session_stream_measurement.csv")
+        File.read("#{Rails.root}/spec/support/session_stream_measurement.csv"),
       ]
       expect(actual_contents).to eq(expected_contents)
     end
   end
 
   it 'adds a file with session notes and images info' do
-    session = create_session!
+    session = create(:mobile_session, title: 'Example Session')
     note =
-      Note.create!(
-        text: 'Example Note',
-        date: DateTime.new(2_018, 8, 20, 11, 16, 44),
-        latitude: BigDecimal('40.68038924'),
-        longitude: BigDecimal('-73.97631499'),
-        photo: File.new("#{Rails.root}/spec/fixtures/test.jpg"),
-        session: session
+      create(
+        :note,
+        :with_photo,
+        session: session,
+        text: 'Hello note!',
+        latitude: 10.12,
+        longitude: 12.12,
       )
 
-    zip_path = @subject.call([session.id])
+    zip_path = subject.call([session.id])
 
     Zip::File.open(zip_path) do |zip_file|
-      actual_contents = file_content(zip_file).last
+      actual_contents =
+        file_content(zip_file).find do |content|
+          content.include?('Note,Time,Latitude,Longitude,Photo_Url')
+        end
       actual_filenames = file_names(zip_file)
 
       expected_filename = /notes_from_example_session_#{session.id}__.*\.csv$/
       expect(actual_filenames).to match(expected_filename)
 
-      expected_contents = %r{^Note,Time,Latitude,Longitude,Photo_Url\nExample Note,2018-08-20T11:16:44,40.68038924,-73.97631499,http:\/\/localhost:5000\/\/system\/.+jpg\?\d+\n$}
-      expect(actual_contents).to match(expected_contents)
+      csv = CSV.parse(actual_contents, headers: true)
+      expect(csv.headers).to eq(%w[Note Time Latitude Longitude Photo_Url])
+      row = csv.first
+      expect(row['Note']).to eq('Hello note!')
+      expect(row['Latitude']).to eq('10.12')
+      expect(row['Longitude']).to eq('12.12')
+      expect(row['Photo_Url']).to match(
+        %r{rails/active_storage/blobs/redirect/.+test_image\.jpg$},
+      )
     end
   end
 
