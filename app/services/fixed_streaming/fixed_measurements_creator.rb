@@ -18,7 +18,7 @@ module FixedStreaming
           on_duplicate_key_ignore: true,
         )
 
-      [import_result, measurements]
+      measurements
     end
 
     private
