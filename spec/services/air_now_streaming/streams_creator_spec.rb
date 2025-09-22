@@ -80,7 +80,9 @@ RSpec.describe AirNowStreaming::StreamsCreator do
       stream_2 = session_2.streams.find_by(sensor_name: 'Government-NO2')
 
       expect(stream_1.sensor_name).to eq('Government-PM2.5')
+      expect(stream_1.average_value).to eq(5.3)
       expect(stream_2.sensor_name).to eq('Government-NO2')
+      expect(stream_2.average_value).to eq(5.2)
     end
   end
 end

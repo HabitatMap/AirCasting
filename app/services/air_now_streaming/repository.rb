@@ -17,8 +17,15 @@ module AirNowStreaming
       )
     end
 
-    def update_sessions_end_timestamps(session_rows:)
-      Session.upsert_all(session_rows, unique_by: :id) if session_rows.any?
+    def update_sessions_end_timestamps(sessions:)
+      Session.import(
+        sessions,
+        on_duplicate_key_update: %i[end_time_local last_measurement_at],
+      )
+    end
+
+    def update_streams_average_value(streams:)
+      Stream.import(streams, on_duplicate_key_update: %i[average_value])
     end
 
     def import_sessions(sessions:)
