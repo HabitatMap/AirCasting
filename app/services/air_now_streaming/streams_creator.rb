@@ -17,7 +17,7 @@ module AirNowStreaming
         session =
           build_session(session_data, first_measurement, last_measurement)
         sessions << session
-        stream = build_stream(session_data, session)
+        stream = build_stream(session_data, session, last_measurement)
         streams << stream
         fixed_measurements << build_fixed_measurements(measurements, stream)
       end
@@ -49,7 +49,7 @@ module AirNowStreaming
       )
     end
 
-    def build_stream(session_data, session)
+    def build_stream(session_data, session, last_measurement)
       d = streams_default_values[session_data[:sensor_name]]
 
       Stream.new(
@@ -67,6 +67,7 @@ module AirNowStreaming
         max_longitude: session_data[:longitude],
         start_latitude: session_data[:latitude],
         start_longitude: session_data[:longitude],
+        average_value: last_measurement[:value],
       )
     end
 

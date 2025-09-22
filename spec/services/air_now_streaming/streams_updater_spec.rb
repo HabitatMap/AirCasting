@@ -4,7 +4,7 @@ RSpec.describe AirNowStreaming::StreamsUpdater do
   subject { described_class.new }
 
   describe '#call' do
-    it 'updates session timestamps and creates fixed measurements' do
+    it 'updates session timestamps, streams average value and creates fixed measurements' do
       session_1 =
         create(
           :fixed_session,
@@ -76,10 +76,13 @@ RSpec.describe AirNowStreaming::StreamsUpdater do
       expect(session_2.last_measurement_at).to eq(
         Time.zone.parse('2025-07-24T11:00:00'),
       )
+
+      expect(stream_1.reload.average_value).to eq(5.3)
+      expect(stream_2.reload.average_value).to eq(5.2)
     end
 
     context 'when measurement time is before session end time' do
-      it 'does not update session timestamps' do
+      it 'does not update session timestamp and stream average value' do
         session =
           create(
             :fixed_session,
@@ -91,7 +94,12 @@ RSpec.describe AirNowStreaming::StreamsUpdater do
           )
 
         stream =
-          create(:stream, session: session, sensor_name: 'Government-PM2.5')
+          create(
+            :stream,
+            session: session,
+            sensor_name: 'Government-PM2.5',
+            average_value: 10,
+          )
 
         measurements_to_create = {
           stream => [
@@ -117,6 +125,8 @@ RSpec.describe AirNowStreaming::StreamsUpdater do
         expect(session.last_measurement_at).to eq(
           Time.zone.parse('2025-07-24T09:00:00'),
         )
+
+        expect(stream.reload.average_value).to eq(10)
       end
     end
   end

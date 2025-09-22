@@ -57,6 +57,9 @@ RSpec.describe AirNowStreaming::Interactor do
         Time.zone.parse('2025-07-24T10:00:00'),
       )
 
+      stream.reload
+      expect(stream.average_value).to eq(5.3)
+
       created_session = Session.find_by(latitude: 44.647, longitude: -63.574)
       expect(created_session.title).to eq('JOHNSTON BUILDING')
       expect(created_session.start_time_local).to eq(
@@ -68,6 +71,8 @@ RSpec.describe AirNowStreaming::Interactor do
       expect(created_session.last_measurement_at).to eq(
         Time.zone.parse('2025-07-24T11:00:00'),
       )
+      created_stream = created_session.streams.first
+      expect(created_stream.average_value).to eq(5.2)
 
       created_measurements_values = FixedMeasurement.pluck(:value)
       expected_values = [5.3, 4.2, 5.2]
