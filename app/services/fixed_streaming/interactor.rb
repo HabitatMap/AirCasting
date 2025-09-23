@@ -4,7 +4,6 @@ module FixedStreaming
       params_parser: ParamsParser.new,
       streams_repository: StreamsRepository.new,
       stream_creator: StreamCreator.new,
-      measurements_creator: MeasurementsCreator.new,
       fixed_measurements_creator: FixedMeasurementsCreator.new,
       stream_daily_averages_recalculator: StreamDailyAveragesRecalculator.new,
       fixed_sessions_repository: FixedSessionsRepository.new
@@ -12,7 +11,6 @@ module FixedStreaming
       @params_parser = params_parser
       @streams_repository = streams_repository
       @stream_creator = stream_creator
-      @measurements_creator = measurements_creator
       @fixed_measurements_creator = fixed_measurements_creator
       @stream_daily_averages_recalculator = stream_daily_averages_recalculator
       @fixed_sessions_repository = fixed_sessions_repository
@@ -27,21 +25,17 @@ module FixedStreaming
 
       ActiveRecord::Base.transaction do
         stream = find_stream(session, data) || create_stream(session, data)
-        number_of_inserts, measurements =
-          create_measurements(data, session, stream)
-        fixed_measurement_import_result, fixed_measurements =
-          create_fixed_measurements(data, session, stream)
+        fixed_measurements = create_fixed_measurements(data, session, stream)
 
         if data_flow == :sync
           stream_daily_averages_recalculator.call(
-            measurements: measurements,
+            measurements: fixed_measurements,
             time_zone: session.time_zone,
             stream_id: stream.id,
           )
         end
 
-        update_session_end_timestamps(session, measurements)
-        update_measurements_count(stream, number_of_inserts)
+        update_session_end_timestamps(session, fixed_measurements)
       end
 
       Success.new('measurements created')
@@ -72,14 +66,6 @@ module FixedStreaming
       stream_creator.call(session: session, data: data)
     end
 
-    def create_measurements(data, session, stream)
-      measurements_creator.call(
-        data: data[:measurements],
-        session: session,
-        stream: stream,
-      )
-    end
-
     def create_fixed_measurements(data, session, stream)
       fixed_measurements_creator.call(
         data: data[:measurements],
@@ -97,13 +83,6 @@ module FixedStreaming
           last_measurement: last_measurement,
         )
       end
-    end
-
-    def update_measurements_count(stream, number_of_inserts)
-      streams_repository.update_measurements_count!(
-        stream_id: stream.id,
-        measurements_count: number_of_inserts,
-      )
     end
   end
 end
