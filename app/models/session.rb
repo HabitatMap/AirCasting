@@ -359,7 +359,7 @@ class Session < ApplicationRecord
       currentUserSettings: 'MODAL_VIEW',
       sessionType: session_type,
       measurementType: CGI.escape(measurement_type),
-      sensorName: stream.sensor_name,
+      sensorName: Sensor.canonical_sensor_name(stream.sensor_name),
       previousUserSettings: 'MAP_VIEW',
     }
 
