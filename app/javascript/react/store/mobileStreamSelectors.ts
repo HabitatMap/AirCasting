@@ -45,18 +45,20 @@ const selectMobileStreamShortInfo = createSelector(
     const sessionStreamData =
       mobileSession?.streams[Object.keys(mobileSession.streams)[0]];
 
-    const formattedStartTime = mobileSession?.startTimeLocal
-      ? moment.utc(mobileSession.startTimeLocal).format("MM/DD/YYYY HH:mm")
+    const startTime = mobileStreamData.startTime;
+    const endTime = mobileStreamData.endTime;
+
+    const formattedStartTime = startTime
+      ? moment.utc(startTime).format("MM/DD/YYYY HH:mm")
       : mobileStreamInitialState.data.startTime;
 
-    const formattedEndTime = mobileSession?.endTimeLocal
-      ? moment.utc(mobileSession.endTimeLocal).format("MM/DD/YYYY HH:mm")
+    const formattedEndTime = endTime
+      ? moment.utc(endTime).format("MM/DD/YYYY HH:mm")
       : mobileStreamInitialState.data.endTime;
 
     return {
       averageValue:
-        sessionStreamData?.averageValue ||
-        mobileStreamInitialState.data.averageValue,
+        sessionStreamData?.averageValue || mobileStreamData.averageValue,
       endTime: formattedEndTime,
       maxMeasurementValue,
       minMeasurementValue,
