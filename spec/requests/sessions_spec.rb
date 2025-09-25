@@ -7,7 +7,7 @@ describe 'GET api/v3/sessions' do
         create(
           :mobile_session,
           start_time_local: '2025-01-15T09:00',
-          tag_list: ['test_tag'],
+          tag_list: %w[river morning],
         )
       stream =
         create(
@@ -44,7 +44,7 @@ describe 'GET api/v3/sessions' do
             sensor_package_name: 'AirBeam3:123Abc',
             start_datetime: '2025-01-15T00:00',
             end_datetime: '2025-01-16T00:00',
-            tags: 'test_tag',
+            tags: %w[river morning],
           }
 
       expect(response.status).to eq(200)

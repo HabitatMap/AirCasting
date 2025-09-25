@@ -4,7 +4,7 @@ module Sessions
       optional(:sensor_package_name).filled(:string)
       optional(:start_datetime).filled(:date_time)
       optional(:end_datetime).filled(:date_time)
-      optional(:tags).filled(:string)
+      optional(:tags).array(:string)
     end
 
     rule(:end_datetime, :start_datetime) do

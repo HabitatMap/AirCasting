@@ -9,7 +9,7 @@ describe SessionsRepository do
         create(
           :mobile_session,
           start_time_local: '2025-01-15T09:00',
-          tag_list: 'tag1,tag2',
+          tag_list: %w[tag1 tag2],
         )
       session_2 =
         create(
@@ -33,7 +33,7 @@ describe SessionsRepository do
       params = {
         start_datetime: '2025-01-15T00:00',
         end_datetime: '2025-01-16T00:00',
-        tags: 'tag1,tag2',
+        tags: %w[tag1 tag2],
         sensor_package_name: 'AirBeam3:123',
       }
       result = subject.filter(params: params)
@@ -43,7 +43,7 @@ describe SessionsRepository do
     end
 
     it 'returns sessions filtered only by tags' do
-      session_1 = create(:mobile_session, tag_list: 'tag1,tag2')
+      session_1 = create(:mobile_session, tag_list: %w[tag1 tag2])
       session_2 = create(:mobile_session, tag_list: 'tag1')
       stream_1 = create(:stream, session: session_1)
       stream_2 = create(:stream, session: session_2)
@@ -51,7 +51,7 @@ describe SessionsRepository do
       _another_session = create(:mobile_session, tag_list: 'other_tag')
       _another_stream = create(:stream, session: _another_session)
 
-      result = subject.filter(params: { tags: 'tag1,tag2' })
+      result = subject.filter(params: { tags: %w[tag1 tag2] })
 
       expect(result).to match_array([session_1, session_2])
     end
