@@ -49,19 +49,39 @@ class SessionsRepository
     ActiveRecord::Base.connection.execute(sql)
   end
 
-  def filter_by_sensor_package_name_and_datetime(
-    sensor_package_name:,
-    start_datetime:,
-    end_datetime:
-  )
-    Session
-      .includes(:streams)
-      .joins(:streams)
-      .where('streams.sensor_package_name = ?', sensor_package_name)
-      .where(
-        'sessions.start_time_local >= ? AND sessions.start_time_local <= ?',
-        start_datetime,
-        end_datetime,
-      )
+  def filter(params:)
+    current_time = DateTime.current
+
+    start_datetime =
+      params[:start_datetime] || current_time.beginning_of_day - 30.days
+    end_datetime = params[:end_datetime] || current_time.end_of_day
+
+    query =
+      Session
+        .includes(:streams)
+        .joins(:streams)
+        .where(
+          'sessions.start_time_local >= ? AND sessions.start_time_local <= ?',
+          start_datetime,
+          end_datetime,
+        )
+
+    query = with_tags(query, params[:tags]) if params[:tags].present?
+    query =
+      with_sensor_package_name(query, params[:sensor_package_name]) if params[
+      :sensor_package_name
+    ].present?
+
+    query
+  end
+
+  private
+
+  def with_tags(query, tags)
+    query.tagged_with(tags, any: true)
+  end
+
+  def with_sensor_package_name(query, sensor_package_name)
+    query.where('streams.sensor_package_name = ?', sensor_package_name)
   end
 end

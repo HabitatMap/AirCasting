@@ -5,7 +5,7 @@ FactoryBot.define do
     user
     sequence(:uuid) { |n| "mobile-uuid-#{n}" }
     title { 'Another session' }
-    tag_list { 'boring quiet' }
+    tag_list { 'boring, quiet' }
     contribute { true }
 
     # notes_attributes { [FactoryBot.attributes_for(:note, session: nil)] }

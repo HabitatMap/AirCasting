@@ -15,6 +15,7 @@ Every response is returned in JSON format.
   - [Mobile](#mobile)
   - [Fixed Active](#fixed-active)
   - [Fixed Dormant](#fixed-dormant)
+  - [Filtered list of sessions](#filtered-list-of-sessions)
 - [Mobile Session with Stream and Measurements](#mobile-session-with-stream-and-measurements)
 - [Measurements](#measurements)
 - [All session streams](#all-session-streams)
@@ -356,6 +357,81 @@ See [parameters description](#parameters-description)
     "fetchableSessionsCount": 1
   }
   ```
+
+## Filtered list of sessions
+**Endpoint**
+
+GET `/api/v3/sessions`
+
+Fetches **sessions** (with their **streams**) within a time window.
+
+**Parameters**
+
+| Name                  | Type              | Required | Format / Expectations                                                    | Notes                                                                               |
+| --------------------- | ----------------- | -------: | ------------------------------------------------------------------------ | ----------------------------------------------------------------------------------- |
+| `tags[]`              | string     |       no | **Repeated, bracketed keys** in the query: `tags[]=river&tags[]=morning` | Match sessions that have **any** of the provided tags (logical OR within `tags[]`). |
+| `sensor_package_name` | string            |       no | | Example: `AirBeam:123Abc` (URL-encode `:` as `%3A` in URLs).                       |
+| `start_datetime`      | string (datetime) |       no | ISO-8601 recommended, e.g. `2025-01-15T00:00:00Z`                        | **Reference:** session **local start time**.                                        |
+| `end_datetime`        | string (datetime) |       no | ISO-8601 recommended, e.g. `2025-01-16T00:00:00Z`                        | **Reference:** session **local start time**.                                        |
+
+**Defaults & filtering**
+
+1. **Time window default:** If no date params are provided, the window is **last 30 days** (based on session local start time).
+2. If both `start_datetime` and `end_datetime` are provided, that window is used.
+3. `tags[]` uses **OR** logic (a session matches if it has any of the given tags).
+4. When both `tags[]` and `sensor_package_name` are provided, filters are combined with **AND**.
+
+**Example response**
+
+```json
+{
+  "sessions": [
+    {
+      "id": 3508,
+      "title": "testing tags",
+      "start_datetime": "2025-09-25T12:10:29",
+      "end_datetime": "2025-09-25T12:10:46",
+      "type": "MobileSession",
+      "streams": [
+        {
+          "id": 4133,
+          "sensor_name": "Phone Microphone",
+          "measurement_type": "Sound Level"
+        }
+      ]
+    },
+    {
+      "id": 3507,
+      "title": "tags test",
+      "start_datetime": "2025-09-25T12:06:46",
+      "end_datetime": "2025-09-25T12:06:58",
+      "type": "MobileSession",
+      "streams": [
+        {
+          "id": 4132,
+          "sensor_name": "Phone Microphone",
+          "measurement_type": "Sound Level"
+        }
+      ]
+    }
+  ]
+}
+```
+
+**Examples**
+
+* **No filters (uses default last 30 days):**
+  `https://aircasting.org/api/v3/sessions`
+
+* **Filter by tags (OR):**
+  `https://aircasting.org/api/v3/sessions?tags[]=river&tags[]=morning`
+
+* **Filter by sensor package name:**
+  `https://aircasting.org/api/v3/sessions?sensor_package_name=AirBeam%3A123Abc`
+
+* **Tags + sensor package + explicit date window:**
+  `https://aircasting.org/api/v3/sessions?tags[]=river&tags[]=morning&sensor_package_name=AirBeam%3A123Abc&start_datetime=2025-01-15T00:00:00Z&end_datetime=2025-01-16T00:00:00Z`
+
 
 # Mobile Session with Stream and Measurements
 
