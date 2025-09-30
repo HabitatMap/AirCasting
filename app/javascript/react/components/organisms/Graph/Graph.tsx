@@ -250,13 +250,16 @@ const Graph: React.FC<GraphProps> = memo(
       updateRangeDisplay(rangeDisplayRef, finalRangeStart, finalRangeEnd, true);
 
       if (chartComponentRef.current?.chart) {
-        chartComponentRef.current.chart.xAxis[0].setExtremes(
-          finalRangeStart,
-          finalRangeEnd,
-          true,
-          false,
-          { trigger: "calendarDay" }
-        );
+        const chart = chartComponentRef.current.chart;
+        if (chart.xAxis && chart.xAxis[0]) {
+          chart.xAxis[0].setExtremes(
+            finalRangeStart,
+            finalRangeEnd,
+            true,
+            false,
+            { trigger: "calendarDay" }
+          );
+        }
       }
       if (fixedSessionTypeSelected) {
         fetchMeasurementsIfNeeded(
@@ -318,6 +321,7 @@ const Graph: React.FC<GraphProps> = memo(
             }
             dispatch(setLastSelectedMobileTimeRange(timeRange));
           }
+          if (!chart.xAxis || !chart.xAxis[0]) return;
           const currentExtremes = chart.xAxis[0].getExtremes();
           const viewEnd = Math.min(currentExtremes.max || endTime, endTime);
           let rangeStart = viewEnd;
@@ -331,9 +335,11 @@ const Graph: React.FC<GraphProps> = memo(
               const chart = chartComponentRef.current.chart;
               updateRangeDisplay(rangeDisplayRef, rangeStart, rangeEnd, false);
 
-              chart.xAxis[0].setExtremes(rangeStart, rangeEnd, true, false, {
-                trigger: "allButtonClicked",
-              });
+              if (chart.xAxis && chart.xAxis[0]) {
+                chart.xAxis[0].setExtremes(rangeStart, rangeEnd, true, false, {
+                  trigger: "allButtonClicked",
+                });
+              }
               return;
             }
           } else {
@@ -367,9 +373,11 @@ const Graph: React.FC<GraphProps> = memo(
               "rangeSelectorButton"
             );
           }
-          chart.xAxis[0].setExtremes(rangeStart, rangeEnd, true, false, {
-            trigger: "rangeSelectorButton",
-          });
+          if (chart.xAxis && chart.xAxis[0]) {
+            chart.xAxis[0].setExtremes(rangeStart, rangeEnd, true, false, {
+              trigger: "rangeSelectorButton",
+            });
+          }
         }
       },
       [
@@ -408,12 +416,14 @@ const Graph: React.FC<GraphProps> = memo(
       async function (this: Highcharts.Chart) {
         handleLoad.call(this, isCalendarPage, isMobile);
         const chart = this;
-        if (fixedSessionTypeSelected) {
-          const twoDaysAgo = endTime - 2 * MILLISECONDS_IN_A_DAY;
-          chart.xAxis[0].setExtremes(twoDaysAgo, endTime, true, false);
-        } else {
-          // Mobile sessions should show the full time range by default
-          chart.xAxis[0].setExtremes(startTime, endTime, true, false);
+        if (chart.xAxis && chart.xAxis[0]) {
+          if (fixedSessionTypeSelected) {
+            const twoDaysAgo = endTime - 2 * MILLISECONDS_IN_A_DAY;
+            chart.xAxis[0].setExtremes(twoDaysAgo, endTime, true, false);
+          } else {
+            // Mobile sessions should show the full time range by default
+            chart.xAxis[0].setExtremes(startTime, endTime, true, false);
+          }
         }
         isFirstLoadRef.current = false;
       },
@@ -423,12 +433,23 @@ const Graph: React.FC<GraphProps> = memo(
     useEffect(() => {
       if (chartComponentRef.current?.chart) {
         const chart = chartComponentRef.current.chart;
+
+        // Check if chart and xAxis are properly initialized before accessing
+        if (!chart || !chart.xAxis || !chart.xAxis[0]) {
+          return;
+        }
+
         let lastExtremes = chart.xAxis[0].getExtremes();
         let debounceTimer: NodeJS.Timeout | null = null;
 
         const updateExtremesHandler = (eventType: string) => {
           if (debounceTimer) clearTimeout(debounceTimer);
           debounceTimer = setTimeout(() => {
+            // Check if chart and xAxis are properly initialized
+            if (!chart || !chart.xAxis || !chart.xAxis[0]) {
+              return;
+            }
+
             const currentExtremes = chart.xAxis[0].getExtremes();
             if (
               currentExtremes.min !== lastExtremes.min ||
@@ -480,9 +501,11 @@ const Graph: React.FC<GraphProps> = memo(
         );
 
         // Also listen to xAxis events
-        Highcharts.addEvent(chart.xAxis[0], "afterSetExtremes", () =>
-          updateExtremesHandler("afterSetExtremes")
-        );
+        if (chart.xAxis && chart.xAxis[0]) {
+          Highcharts.addEvent(chart.xAxis[0], "afterSetExtremes", () =>
+            updateExtremesHandler("afterSetExtremes")
+          );
+        }
 
         return () => {
           Highcharts.removeEvent(chart, "redraw", () =>
@@ -494,9 +517,11 @@ const Graph: React.FC<GraphProps> = memo(
           Highcharts.removeEvent(chart, "navigator", () =>
             updateExtremesHandler("navigator")
           );
-          Highcharts.removeEvent(chart.xAxis[0], "afterSetExtremes", () =>
-            updateExtremesHandler("afterSetExtremes")
-          );
+          if (chart.xAxis && chart.xAxis[0]) {
+            Highcharts.removeEvent(chart.xAxis[0], "afterSetExtremes", () =>
+              updateExtremesHandler("afterSetExtremes")
+            );
+          }
           if (debounceTimer) clearTimeout(debounceTimer);
         };
       }
