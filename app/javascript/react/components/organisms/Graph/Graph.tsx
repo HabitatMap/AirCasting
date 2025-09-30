@@ -19,7 +19,10 @@ import {
   selectLastSelectedFixedTimeRange,
   selectStreamMeasurements,
 } from "../../../store/fixedStreamSelectors";
-import { setLastSelectedTimeRange } from "../../../store/fixedStreamSlice";
+import {
+  setLastSelectedTimeRange,
+  updateFixedMeasurementExtremes,
+} from "../../../store/fixedStreamSlice";
 import { useAppDispatch, useAppSelector } from "../../../store/hooks";
 import {
   selectMobileStreamPoints,
@@ -28,6 +31,7 @@ import {
 import {
   selectLastSelectedMobileTimeRange,
   setLastSelectedMobileTimeRange,
+  updateMobileMeasurementExtremes,
 } from "../../../store/mobileStreamSlice";
 import { selectThresholds } from "../../../store/thresholdSlice";
 import { SessionType, SessionTypes } from "../../../types/filters";
@@ -408,13 +412,8 @@ const Graph: React.FC<GraphProps> = memo(
           const twoDaysAgo = endTime - 2 * MILLISECONDS_IN_A_DAY;
           chart.xAxis[0].setExtremes(twoDaysAgo, endTime, true, false);
         } else {
-          const sessionDuration = endTime - startTime;
-          const defaultViewDuration = MILLISECONDS_IN_AN_HOUR;
-          const viewStart =
-            sessionDuration < defaultViewDuration
-              ? startTime
-              : Math.max(startTime, endTime - defaultViewDuration);
-          chart.xAxis[0].setExtremes(viewStart, endTime, true, false);
+          // Mobile sessions should show the full time range by default
+          chart.xAxis[0].setExtremes(startTime, endTime, true, false);
         }
         isFirstLoadRef.current = false;
       },
@@ -422,11 +421,12 @@ const Graph: React.FC<GraphProps> = memo(
     );
 
     useEffect(() => {
-      if (isMobile && chartComponentRef.current?.chart) {
+      if (chartComponentRef.current?.chart) {
         const chart = chartComponentRef.current.chart;
         let lastExtremes = chart.xAxis[0].getExtremes();
         let debounceTimer: NodeJS.Timeout | null = null;
-        const redrawHandler = () => {
+
+        const updateExtremesHandler = (eventType: string) => {
           if (debounceTimer) clearTimeout(debounceTimer);
           debounceTimer = setTimeout(() => {
             const currentExtremes = chart.xAxis[0].getExtremes();
@@ -441,27 +441,72 @@ const Graph: React.FC<GraphProps> = memo(
                 currentExtremes.max,
                 false
               );
-              fetchMeasurementsIfNeeded(
-                currentExtremes.min,
-                currentExtremes.max,
-                false,
-                false,
-                "redraw"
-              );
+
+              // Update extremes immediately for any chart interaction
+              if (streamId) {
+                if (fixedSessionTypeSelected) {
+                  dispatch(
+                    updateFixedMeasurementExtremes({
+                      streamId,
+                      min: currentExtremes.min,
+                      max: currentExtremes.max,
+                    })
+                  );
+                } else {
+                  dispatch(
+                    updateMobileMeasurementExtremes({
+                      min: currentExtremes.min,
+                      max: currentExtremes.max,
+                    })
+                  );
+                }
+              }
+
+              // Mobile sessions should not fetch data on every extremes change
+              // Data is fetched once on initial load
             }
-          }, 150);
+          }, 100);
         };
-        Highcharts.addEvent(chart, "redraw", redrawHandler);
+
+        // Add multiple event listeners to catch all possible interactions
+        Highcharts.addEvent(chart, "redraw", () =>
+          updateExtremesHandler("redraw")
+        );
+        Highcharts.addEvent(chart, "scrollbar", () =>
+          updateExtremesHandler("scrollbar")
+        );
+        Highcharts.addEvent(chart, "navigator", () =>
+          updateExtremesHandler("navigator")
+        );
+
+        // Also listen to xAxis events
+        Highcharts.addEvent(chart.xAxis[0], "afterSetExtremes", () =>
+          updateExtremesHandler("afterSetExtremes")
+        );
+
         return () => {
-          Highcharts.removeEvent(chart, "redraw", redrawHandler);
+          Highcharts.removeEvent(chart, "redraw", () =>
+            updateExtremesHandler("redraw")
+          );
+          Highcharts.removeEvent(chart, "scrollbar", () =>
+            updateExtremesHandler("scrollbar")
+          );
+          Highcharts.removeEvent(chart, "navigator", () =>
+            updateExtremesHandler("navigator")
+          );
+          Highcharts.removeEvent(chart.xAxis[0], "afterSetExtremes", () =>
+            updateExtremesHandler("afterSetExtremes")
+          );
           if (debounceTimer) clearTimeout(debounceTimer);
         };
       }
     }, [
-      isMobile,
       chartComponentRef,
       fetchMeasurementsIfNeeded,
       rangeDisplayRef,
+      streamId,
+      fixedSessionTypeSelected,
+      dispatch,
     ]);
 
     const options = useMemo<Highcharts.Options>(() => {
