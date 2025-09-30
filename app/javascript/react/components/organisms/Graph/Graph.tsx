@@ -244,6 +244,7 @@ const Graph: React.FC<GraphProps> = memo(
       finalRangeStart = Math.max(finalRangeStart, startTime);
       finalRangeEnd = Math.min(finalRangeEnd, endTime);
       updateRangeDisplay(rangeDisplayRef, finalRangeStart, finalRangeEnd, true);
+
       if (chartComponentRef.current?.chart) {
         chartComponentRef.current.chart.xAxis[0].setExtremes(
           finalRangeStart,
@@ -325,6 +326,7 @@ const Graph: React.FC<GraphProps> = memo(
             if (chartComponentRef.current?.chart) {
               const chart = chartComponentRef.current.chart;
               updateRangeDisplay(rangeDisplayRef, rangeStart, rangeEnd, false);
+
               chart.xAxis[0].setExtremes(rangeStart, rangeEnd, true, false, {
                 trigger: "allButtonClicked",
               });
@@ -351,6 +353,7 @@ const Graph: React.FC<GraphProps> = memo(
           }
           rangeStart = !isMobile ? Math.max(rangeStart, startTime) : rangeStart;
           updateRangeDisplay(rangeDisplayRef, rangeStart, rangeEnd, false);
+
           if (fixedSessionTypeSelected) {
             fetchMeasurementsIfNeeded(
               rangeStart,
@@ -360,7 +363,9 @@ const Graph: React.FC<GraphProps> = memo(
               "rangeSelectorButton"
             );
           }
-          chart.xAxis[0].setExtremes(rangeStart, rangeEnd, true, false);
+          chart.xAxis[0].setExtremes(rangeStart, rangeEnd, true, false, {
+            trigger: "rangeSelectorButton",
+          });
         }
       },
       [
