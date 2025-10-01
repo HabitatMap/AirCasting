@@ -482,14 +482,10 @@ const Graph: React.FC<GraphProps> = memo(
                   );
                 }
               }
-
-              // Mobile sessions should not fetch data on every extremes change
-              // Data is fetched once on initial load
             }
           }, 100);
         };
 
-        // Add multiple event listeners to catch all possible interactions
         Highcharts.addEvent(chart, "redraw", () =>
           updateExtremesHandler("redraw")
         );
@@ -500,7 +496,6 @@ const Graph: React.FC<GraphProps> = memo(
           updateExtremesHandler("navigator")
         );
 
-        // Also listen to xAxis events
         if (chart.xAxis && chart.xAxis[0]) {
           Highcharts.addEvent(chart.xAxis[0], "afterSetExtremes", () =>
             updateExtremesHandler("afterSetExtremes")
