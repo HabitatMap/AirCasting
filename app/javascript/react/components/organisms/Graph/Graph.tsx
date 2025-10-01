@@ -19,7 +19,10 @@ import {
   selectLastSelectedFixedTimeRange,
   selectStreamMeasurements,
 } from "../../../store/fixedStreamSelectors";
-import { setLastSelectedTimeRange } from "../../../store/fixedStreamSlice";
+import {
+  setLastSelectedTimeRange,
+  updateFixedMeasurementExtremes,
+} from "../../../store/fixedStreamSlice";
 import { useAppDispatch, useAppSelector } from "../../../store/hooks";
 import {
   selectMobileStreamPoints,
@@ -28,6 +31,7 @@ import {
 import {
   selectLastSelectedMobileTimeRange,
   setLastSelectedMobileTimeRange,
+  updateMobileMeasurementExtremes,
 } from "../../../store/mobileStreamSlice";
 import { selectThresholds } from "../../../store/thresholdSlice";
 import { SessionType, SessionTypes } from "../../../types/filters";
@@ -203,6 +207,11 @@ const Graph: React.FC<GraphProps> = memo(
       if (overrideRangeSelector) return -1;
       // So we combine it with our override flag.
       if (lastTriggerRef.current === "mousewheel") return -1;
+
+      if (!fixedSessionTypeSelected) {
+        return 2;
+      }
+
       return getSelectedRangeIndex(
         lastSelectedTimeRange,
         fixedSessionTypeSelected
@@ -244,14 +253,18 @@ const Graph: React.FC<GraphProps> = memo(
       finalRangeStart = Math.max(finalRangeStart, startTime);
       finalRangeEnd = Math.min(finalRangeEnd, endTime);
       updateRangeDisplay(rangeDisplayRef, finalRangeStart, finalRangeEnd, true);
+
       if (chartComponentRef.current?.chart) {
-        chartComponentRef.current.chart.xAxis[0].setExtremes(
-          finalRangeStart,
-          finalRangeEnd,
-          true,
-          false,
-          { trigger: "calendarDay" }
-        );
+        const chart = chartComponentRef.current.chart;
+        if (chart.xAxis && chart.xAxis[0]) {
+          chart.xAxis[0].setExtremes(
+            finalRangeStart,
+            finalRangeEnd,
+            true,
+            false,
+            { trigger: "calendarDay" }
+          );
+        }
       }
       if (fixedSessionTypeSelected) {
         fetchMeasurementsIfNeeded(
@@ -313,6 +326,7 @@ const Graph: React.FC<GraphProps> = memo(
             }
             dispatch(setLastSelectedMobileTimeRange(timeRange));
           }
+          if (!chart.xAxis || !chart.xAxis[0]) return;
           const currentExtremes = chart.xAxis[0].getExtremes();
           const viewEnd = Math.min(currentExtremes.max || endTime, endTime);
           let rangeStart = viewEnd;
@@ -325,9 +339,12 @@ const Graph: React.FC<GraphProps> = memo(
             if (chartComponentRef.current?.chart) {
               const chart = chartComponentRef.current.chart;
               updateRangeDisplay(rangeDisplayRef, rangeStart, rangeEnd, false);
-              chart.xAxis[0].setExtremes(rangeStart, rangeEnd, true, false, {
-                trigger: "allButtonClicked",
-              });
+
+              if (chart.xAxis && chart.xAxis[0]) {
+                chart.xAxis[0].setExtremes(rangeStart, rangeEnd, true, false, {
+                  trigger: "allButtonClicked",
+                });
+              }
               return;
             }
           } else {
@@ -351,6 +368,7 @@ const Graph: React.FC<GraphProps> = memo(
           }
           rangeStart = !isMobile ? Math.max(rangeStart, startTime) : rangeStart;
           updateRangeDisplay(rangeDisplayRef, rangeStart, rangeEnd, false);
+
           if (fixedSessionTypeSelected) {
             fetchMeasurementsIfNeeded(
               rangeStart,
@@ -360,7 +378,11 @@ const Graph: React.FC<GraphProps> = memo(
               "rangeSelectorButton"
             );
           }
-          chart.xAxis[0].setExtremes(rangeStart, rangeEnd, true, false);
+          if (chart.xAxis && chart.xAxis[0]) {
+            chart.xAxis[0].setExtremes(rangeStart, rangeEnd, true, false, {
+              trigger: "rangeSelectorButton",
+            });
+          }
         }
       },
       [
@@ -399,17 +421,14 @@ const Graph: React.FC<GraphProps> = memo(
       async function (this: Highcharts.Chart) {
         handleLoad.call(this, isCalendarPage, isMobile);
         const chart = this;
-        if (fixedSessionTypeSelected) {
-          const twoDaysAgo = endTime - 2 * MILLISECONDS_IN_A_DAY;
-          chart.xAxis[0].setExtremes(twoDaysAgo, endTime, true, false);
-        } else {
-          const sessionDuration = endTime - startTime;
-          const defaultViewDuration = MILLISECONDS_IN_AN_HOUR;
-          const viewStart =
-            sessionDuration < defaultViewDuration
-              ? startTime
-              : Math.max(startTime, endTime - defaultViewDuration);
-          chart.xAxis[0].setExtremes(viewStart, endTime, true, false);
+        if (chart.xAxis && chart.xAxis[0]) {
+          if (fixedSessionTypeSelected) {
+            const twoDaysAgo = endTime - 2 * MILLISECONDS_IN_A_DAY;
+            chart.xAxis[0].setExtremes(twoDaysAgo, endTime, true, false);
+          } else {
+            // Mobile sessions should show the full time range by default
+            chart.xAxis[0].setExtremes(startTime, endTime, true, false);
+          }
         }
         isFirstLoadRef.current = false;
       },
@@ -417,46 +436,114 @@ const Graph: React.FC<GraphProps> = memo(
     );
 
     useEffect(() => {
-      if (isMobile && chartComponentRef.current?.chart) {
+      if (chartComponentRef.current?.chart) {
         const chart = chartComponentRef.current.chart;
+
+        if (!chart || !chart.xAxis || !chart.xAxis[0]) {
+          return;
+        }
+
         let lastExtremes = chart.xAxis[0].getExtremes();
         let debounceTimer: NodeJS.Timeout | null = null;
-        const redrawHandler = () => {
+        let isUpdating = false;
+
+        const updateExtremesHandler = (eventType: string) => {
           if (debounceTimer) clearTimeout(debounceTimer);
-          debounceTimer = setTimeout(() => {
-            const currentExtremes = chart.xAxis[0].getExtremes();
-            if (
-              currentExtremes.min !== lastExtremes.min ||
-              currentExtremes.max !== lastExtremes.max
-            ) {
-              lastExtremes = currentExtremes;
-              updateRangeDisplay(
-                rangeDisplayRef,
-                currentExtremes.min,
-                currentExtremes.max,
-                false
-              );
-              fetchMeasurementsIfNeeded(
-                currentExtremes.min,
-                currentExtremes.max,
-                false,
-                false,
-                "redraw"
-              );
-            }
-          }, 150);
+          debounceTimer = setTimeout(
+            () => {
+              if (isUpdating) return;
+              isUpdating = true;
+
+              try {
+                if (!chart || !chart.xAxis || !chart.xAxis[0]) {
+                  return;
+                }
+
+                const currentExtremes = chart.xAxis[0].getExtremes();
+                if (
+                  currentExtremes.min !== lastExtremes.min ||
+                  currentExtremes.max !== lastExtremes.max
+                ) {
+                  lastExtremes = currentExtremes;
+                  updateRangeDisplay(
+                    rangeDisplayRef,
+                    currentExtremes.min,
+                    currentExtremes.max,
+                    false
+                  );
+
+                  if (streamId) {
+                    if (fixedSessionTypeSelected) {
+                      dispatch(
+                        updateFixedMeasurementExtremes({
+                          streamId,
+                          min: currentExtremes.min,
+                          max: currentExtremes.max,
+                        })
+                      );
+                    } else {
+                      dispatch(
+                        updateMobileMeasurementExtremes({
+                          min: currentExtremes.min,
+                          max: currentExtremes.max,
+                        })
+                      );
+                    }
+                  }
+                }
+              } finally {
+                isUpdating = false;
+              }
+            },
+            isMobile ? 200 : 100
+          );
         };
+
+        const redrawHandler = () => updateExtremesHandler("redraw");
+        const scrollbarHandler = () => updateExtremesHandler("scrollbar");
+        const navigatorHandler = () => updateExtremesHandler("navigator");
+        const afterSetExtremesHandler = () =>
+          updateExtremesHandler("afterSetExtremes");
+
         Highcharts.addEvent(chart, "redraw", redrawHandler);
+        Highcharts.addEvent(chart, "scrollbar", scrollbarHandler);
+        Highcharts.addEvent(chart, "navigator", navigatorHandler);
+
+        if (chart.xAxis && chart.xAxis[0]) {
+          Highcharts.addEvent(
+            chart.xAxis[0],
+            "afterSetExtremes",
+            afterSetExtremesHandler
+          );
+        }
+
         return () => {
+          // Clear timer first
+          if (debounceTimer) {
+            clearTimeout(debounceTimer);
+            debounceTimer = null;
+          }
+
           Highcharts.removeEvent(chart, "redraw", redrawHandler);
-          if (debounceTimer) clearTimeout(debounceTimer);
+          Highcharts.removeEvent(chart, "scrollbar", scrollbarHandler);
+          Highcharts.removeEvent(chart, "navigator", navigatorHandler);
+
+          if (chart.xAxis && chart.xAxis[0]) {
+            Highcharts.removeEvent(
+              chart.xAxis[0],
+              "afterSetExtremes",
+              afterSetExtremesHandler
+            );
+          }
         };
       }
     }, [
-      isMobile,
       chartComponentRef,
       fetchMeasurementsIfNeeded,
       rangeDisplayRef,
+      streamId,
+      fixedSessionTypeSelected,
+      dispatch,
     ]);
 
     const options = useMemo<Highcharts.Options>(() => {

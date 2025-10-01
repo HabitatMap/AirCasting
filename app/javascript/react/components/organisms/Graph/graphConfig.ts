@@ -246,7 +246,9 @@ const getXAxisOptions = (
     if (
       effectiveTrigger === "pan" ||
       effectiveTrigger === "zoom" ||
-      effectiveTrigger === "rangeSelectorButton"
+      effectiveTrigger === "rangeSelectorButton" ||
+      effectiveTrigger === "allButtonClicked" ||
+      effectiveTrigger === "redraw"
     ) {
       if (
         e.min !== undefined &&
@@ -299,7 +301,9 @@ const getXAxisOptions = (
         effectiveTrigger === "zoom" ||
         effectiveTrigger === "calendarDay" ||
         effectiveTrigger === "syncExtremes" ||
-        effectiveTrigger === "navigator")
+        effectiveTrigger === "navigator" ||
+        effectiveTrigger === "allButtonClicked" ||
+        effectiveTrigger === "redraw")
     ) {
       const visibleRange = e.max - e.min;
       const padding = visibleRange * 0.25;
