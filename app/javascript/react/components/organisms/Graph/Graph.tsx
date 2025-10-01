@@ -207,6 +207,11 @@ const Graph: React.FC<GraphProps> = memo(
       if (overrideRangeSelector) return -1;
       // So we combine it with our override flag.
       if (lastTriggerRef.current === "mousewheel") return -1;
+
+      if (!fixedSessionTypeSelected) {
+        return 2;
+      }
+
       return getSelectedRangeIndex(
         lastSelectedTimeRange,
         fixedSessionTypeSelected
@@ -434,90 +439,102 @@ const Graph: React.FC<GraphProps> = memo(
       if (chartComponentRef.current?.chart) {
         const chart = chartComponentRef.current.chart;
 
-        // Check if chart and xAxis are properly initialized before accessing
         if (!chart || !chart.xAxis || !chart.xAxis[0]) {
           return;
         }
 
         let lastExtremes = chart.xAxis[0].getExtremes();
         let debounceTimer: NodeJS.Timeout | null = null;
+        let isUpdating = false;
 
         const updateExtremesHandler = (eventType: string) => {
           if (debounceTimer) clearTimeout(debounceTimer);
-          debounceTimer = setTimeout(() => {
-            // Check if chart and xAxis are properly initialized
-            if (!chart || !chart.xAxis || !chart.xAxis[0]) {
-              return;
-            }
+          debounceTimer = setTimeout(
+            () => {
+              if (isUpdating) return;
+              isUpdating = true;
 
-            const currentExtremes = chart.xAxis[0].getExtremes();
-            if (
-              currentExtremes.min !== lastExtremes.min ||
-              currentExtremes.max !== lastExtremes.max
-            ) {
-              lastExtremes = currentExtremes;
-              updateRangeDisplay(
-                rangeDisplayRef,
-                currentExtremes.min,
-                currentExtremes.max,
-                false
-              );
-
-              // Update extremes immediately for any chart interaction
-              if (streamId) {
-                if (fixedSessionTypeSelected) {
-                  dispatch(
-                    updateFixedMeasurementExtremes({
-                      streamId,
-                      min: currentExtremes.min,
-                      max: currentExtremes.max,
-                    })
-                  );
-                } else {
-                  dispatch(
-                    updateMobileMeasurementExtremes({
-                      min: currentExtremes.min,
-                      max: currentExtremes.max,
-                    })
-                  );
+              try {
+                if (!chart || !chart.xAxis || !chart.xAxis[0]) {
+                  return;
                 }
+
+                const currentExtremes = chart.xAxis[0].getExtremes();
+                if (
+                  currentExtremes.min !== lastExtremes.min ||
+                  currentExtremes.max !== lastExtremes.max
+                ) {
+                  lastExtremes = currentExtremes;
+                  updateRangeDisplay(
+                    rangeDisplayRef,
+                    currentExtremes.min,
+                    currentExtremes.max,
+                    false
+                  );
+
+                  if (streamId) {
+                    if (fixedSessionTypeSelected) {
+                      dispatch(
+                        updateFixedMeasurementExtremes({
+                          streamId,
+                          min: currentExtremes.min,
+                          max: currentExtremes.max,
+                        })
+                      );
+                    } else {
+                      dispatch(
+                        updateMobileMeasurementExtremes({
+                          min: currentExtremes.min,
+                          max: currentExtremes.max,
+                        })
+                      );
+                    }
+                  }
+                }
+              } finally {
+                isUpdating = false;
               }
-            }
-          }, 100);
+            },
+            isMobile ? 200 : 100
+          );
         };
 
-        Highcharts.addEvent(chart, "redraw", () =>
-          updateExtremesHandler("redraw")
-        );
-        Highcharts.addEvent(chart, "scrollbar", () =>
-          updateExtremesHandler("scrollbar")
-        );
-        Highcharts.addEvent(chart, "navigator", () =>
-          updateExtremesHandler("navigator")
-        );
+        const redrawHandler = () => updateExtremesHandler("redraw");
+        const scrollbarHandler = () => updateExtremesHandler("scrollbar");
+        const navigatorHandler = () => updateExtremesHandler("navigator");
+        const afterSetExtremesHandler = () =>
+          updateExtremesHandler("afterSetExtremes");
+
+        Highcharts.addEvent(chart, "redraw", redrawHandler);
+        Highcharts.addEvent(chart, "scrollbar", scrollbarHandler);
+        Highcharts.addEvent(chart, "navigator", navigatorHandler);
 
         if (chart.xAxis && chart.xAxis[0]) {
-          Highcharts.addEvent(chart.xAxis[0], "afterSetExtremes", () =>
-            updateExtremesHandler("afterSetExtremes")
+          Highcharts.addEvent(
+            chart.xAxis[0],
+            "afterSetExtremes",
+            afterSetExtremesHandler
           );
         }
 
         return () => {
-          Highcharts.removeEvent(chart, "redraw", () =>
-            updateExtremesHandler("redraw")
-          );
-          Highcharts.removeEvent(chart, "scrollbar", () =>
-            updateExtremesHandler("scrollbar")
-          );
-          Highcharts.removeEvent(chart, "navigator", () =>
-            updateExtremesHandler("navigator")
-          );
+          // Clear timer first
+          if (debounceTimer) {
+            clearTimeout(debounceTimer);
+            debounceTimer = null;
+          }
+
+          Highcharts.removeEvent(chart, "redraw", redrawHandler);
+          Highcharts.removeEvent(chart, "scrollbar", scrollbarHandler);
+          Highcharts.removeEvent(chart, "navigator", navigatorHandler);
+
           if (chart.xAxis && chart.xAxis[0]) {
-            Highcharts.removeEvent(chart.xAxis[0], "afterSetExtremes", () =>
-              updateExtremesHandler("afterSetExtremes")
+            Highcharts.removeEvent(
+              chart.xAxis[0],
+              "afterSetExtremes",
+              afterSetExtremesHandler
             );
           }
-          if (debounceTimer) clearTimeout(debounceTimer);
         };
       }
     }, [
