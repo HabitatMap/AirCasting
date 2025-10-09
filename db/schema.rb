@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2025_09_03_143001) do
+ActiveRecord::Schema[7.0].define(version: 2025_10_01_125128) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
   enable_extension "postgis"
@@ -63,6 +63,33 @@ ActiveRecord::Schema[7.0].define(version: 2025_09_03_143001) do
     t.index ["stream_id"], name: "index_fixed_measurements_on_stream_id"
   end
 
+  create_table "fixed_stream_measurements", force: :cascade do |t|
+    t.bigint "fixed_stream_id", null: false
+    t.timestamptz "measured_at", null: false
+    t.float "value", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["fixed_stream_id", "measured_at"], name: "idx_fixed_measurements_stream_measured_at_uniq", unique: true
+    t.index ["fixed_stream_id"], name: "index_fixed_stream_measurements_on_fixed_stream_id"
+  end
+
+  create_table "fixed_streams", force: :cascade do |t|
+    t.bigint "source_id", null: false
+    t.bigint "stream_configuration_id", null: false
+    t.string "external_ref", null: false
+    t.geometry "location", limit: {:srid=>4326, :type=>"geometry"}
+    t.string "time_zone", null: false
+    t.timestamptz "first_measured_at", null: false
+    t.timestamptz "last_measured_at", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["location"], name: "index_fixed_streams_on_location", using: :gist
+    t.index ["source_id", "stream_configuration_id", "external_ref"], name: "idx_fixed_streams_src_ref_cfg_uniq", unique: true
+    t.index ["source_id"], name: "index_fixed_streams_on_source_id"
+    t.index ["stream_configuration_id"], name: "index_fixed_streams_on_stream_configuration_id"
+    t.check_constraint "first_measured_at <= last_measured_at", name: "chk_stream_measured_bounds"
+  end
+
   create_table "measurements", id: :serial, force: :cascade do |t|
     t.float "value"
     t.decimal "latitude", precision: 12, scale: 9
@@ -113,6 +140,26 @@ ActiveRecord::Schema[7.0].define(version: 2025_09_03_143001) do
     t.index ["url_token"], name: "index_sessions_on_url_token"
     t.index ["user_id"], name: "index_sessions_on_user_id"
     t.index ["uuid"], name: "index_sessions_on_uuid"
+  end
+
+  create_table "sources", force: :cascade do |t|
+    t.string "name", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["name"], name: "index_sources_on_name", unique: true
+  end
+
+  create_table "stream_configurations", force: :cascade do |t|
+    t.string "measurement_type", null: false
+    t.string "unit_symbol", null: false
+    t.integer "threshold_very_low", null: false
+    t.integer "threshold_low", null: false
+    t.integer "threshold_medium", null: false
+    t.integer "threshold_high", null: false
+    t.integer "threshold_very_high", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["measurement_type", "unit_symbol"], name: "index_stream_configurations_on_measurement_type_and_unit_symbol", unique: true
   end
 
   create_table "stream_daily_averages", force: :cascade do |t|
@@ -247,6 +294,9 @@ ActiveRecord::Schema[7.0].define(version: 2025_09_03_143001) do
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
   add_foreign_key "fixed_measurements", "streams"
+  add_foreign_key "fixed_stream_measurements", "fixed_streams", on_delete: :cascade
+  add_foreign_key "fixed_streams", "sources"
+  add_foreign_key "fixed_streams", "stream_configurations"
   add_foreign_key "stream_daily_averages", "streams"
   add_foreign_key "stream_hourly_averages", "streams"
   add_foreign_key "streams", "stream_hourly_averages", column: "last_hourly_average_id"
