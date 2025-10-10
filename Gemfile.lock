@@ -1992,7 +1992,7 @@ GEM
     public_suffix (6.0.2)
     raabro (1.4.0)
     racc (1.8.1)
-    rack (2.2.14)
+    rack (2.2.20)
     rack-cors (2.0.2)
       rack (>= 2.0.0)
     rack-test (2.2.0)
