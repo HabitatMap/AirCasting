@@ -68,6 +68,29 @@ class User < ApplicationRecord
     read_attribute(:admin) || email.eql?('admin@aircasting.org')
   end
 
+  def self.ransackable_attributes(auth_object = nil)
+    [
+      "email",
+      "username",
+      "created_at",
+      "updated_at",
+      "last_sign_in_at",
+      "send_emails",
+      "admin"
+    ]
+  end
+
+  def self.ransackable_associations(auth_object = nil)
+    [
+      "sessions",
+      "mobile_sessions",
+      "fixed_sessions",
+      "streams",
+      "measurements",
+      "threshold_alerts"
+    ]
+  end
+
   private
 
   def chomp_username_attribute!
