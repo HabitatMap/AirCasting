@@ -69,8 +69,6 @@ class User < ApplicationRecord
   end
 
   def self.ransackable_attributes(auth_object = nil)
-    # Only allow safe attributes to be searched/filtered
-    # Exclude sensitive fields like encrypted_password, reset_password_token
     [
       "email",
       "username",
@@ -83,8 +81,6 @@ class User < ApplicationRecord
   end
 
   def self.ransackable_associations(auth_object = nil)
-    # Only allow safe associations to be searched/filtered
-    # Exclude sensitive associations that shouldn't be searchable
     [
       "sessions",
       "mobile_sessions",
