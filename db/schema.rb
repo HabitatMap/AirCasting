@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2025_10_27_153334) do
+ActiveRecord::Schema[7.0].define(version: 2025_11_05_111532) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
   enable_extension "postgis"
@@ -63,6 +63,19 @@ ActiveRecord::Schema[7.0].define(version: 2025_10_27_153334) do
     t.index ["country", "pollutant", "window_starts_at", "window_ends_at"], name: "idx_eea_ingest_batches_window_unique", unique: true
     t.index ["status"], name: "index_eea_ingest_batches_on_status"
     t.check_constraint "window_starts_at < window_ends_at", name: "chk_eea_ingest_batches_window_bounds"
+  end
+
+  create_table "eea_raw_measurements", id: false, force: :cascade do |t|
+    t.bigint "eea_ingest_batch_id"
+    t.string "samplingpoint"
+    t.integer "pollutant"
+    t.timestamptz "start_time"
+    t.timestamptz "end_time"
+    t.float "value"
+    t.string "unit"
+    t.integer "validity"
+    t.integer "verification"
+    t.timestamptz "ingested_at", default: -> { "now()" }, null: false
   end
 
   create_table "fixed_measurements", force: :cascade do |t|

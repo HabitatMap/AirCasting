@@ -2,8 +2,12 @@ module Eea
   class Unzipper
     ROOT_DIR = Rails.root.join('storage', 'eea').to_s
 
-    def initialize(repository: Repository.new)
+    def initialize(
+      repository: Repository.new,
+      copy_worker: Eea::CopyRawMeasurementsWorker
+    )
       @repository = repository
+      @copy_worker = copy_worker
     end
 
     def call(batch_id:)
@@ -13,11 +17,12 @@ module Eea
       dest_root = File.join(dir, 'E2a')
 
       extract_parquet_files(zip_path, dest_root)
+      copy_worker.perform_async(batch.id)
     end
 
     private
 
-    attr_reader :repository
+    attr_reader :repository, :copy_worker
 
     def extract_parquet_files(zip_path, dest_root)
       saved = []
