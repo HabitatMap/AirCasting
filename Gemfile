@@ -16,6 +16,7 @@ gem 'devise'
 gem 'dotenv-rails'
 gem 'dry-struct'
 gem 'dry-validation'
+gem 'duckdb'
 gem 'ed25519', require: false
 gem 'faraday'
 gem 'geocoder', '~> 1.2'
