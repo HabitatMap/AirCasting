@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2025_10_13_112446) do
+ActiveRecord::Schema[7.0].define(version: 2025_10_27_153334) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
   enable_extension "postgis"
@@ -50,6 +50,19 @@ ActiveRecord::Schema[7.0].define(version: 2025_10_13_112446) do
     t.integer "user_id"
     t.index ["user_id"], name: "index_deleted_sessions_on_user_id"
     t.index ["uuid", "user_id"], name: "index_deleted_sessions_on_uuid_and_user_id"
+  end
+
+  create_table "eea_ingest_batches", force: :cascade do |t|
+    t.string "country", null: false
+    t.string "pollutant", null: false
+    t.timestamptz "window_starts_at", null: false
+    t.timestamptz "window_ends_at", null: false
+    t.string "status", default: "queued", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["country", "pollutant", "window_starts_at", "window_ends_at"], name: "idx_eea_ingest_batches_window_unique", unique: true
+    t.index ["status"], name: "index_eea_ingest_batches_on_status"
+    t.check_constraint "window_starts_at < window_ends_at", name: "chk_eea_ingest_batches_window_bounds"
   end
 
   create_table "fixed_measurements", force: :cascade do |t|

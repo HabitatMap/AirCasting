@@ -19,3 +19,4 @@ defaults:
   sidekiq_air_now_import_measurements_enabled: false
   sidekiq_threshold_exceeded_alerts_enabled: false
   sidekiq_averages_calculation_enabled: false
+  sidekiq_eea_import_enabled: false
