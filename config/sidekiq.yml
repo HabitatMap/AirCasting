@@ -23,6 +23,11 @@
     class: AirNowImportWorker
     queue: slow
 
+  eea_import:
+    cron: "5,35 * * * *"
+    class: "Eea::TriggerImportWorker"
+    queue: eea
+
   update_stream_hourly_averages:
     cron: "1 * * * *"
     class: UpdateStreamHourlyAveragesWorker
