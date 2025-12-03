@@ -22,6 +22,7 @@ module Eea
         ?,
         union_by_name = true
       )
+      WHERE validity IN (1, 2, 3, 4)
     SQL
 
       rs = con.query(sql, batch_path)
