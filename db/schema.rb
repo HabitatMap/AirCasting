@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2025_11_05_111532) do
+ActiveRecord::Schema[7.0].define(version: 2025_12_01_131143) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
   enable_extension "postgis"
@@ -76,6 +76,19 @@ ActiveRecord::Schema[7.0].define(version: 2025_11_05_111532) do
     t.integer "validity"
     t.integer "verification"
     t.timestamptz "ingested_at", default: -> { "now()" }, null: false
+  end
+
+  create_table "eea_transformed_measurements", force: :cascade do |t|
+    t.bigint "eea_ingest_batch_id", null: false
+    t.string "external_ref", null: false
+    t.string "measurement_type", null: false
+    t.timestamptz "measured_at", null: false
+    t.float "value", null: false
+    t.string "unit_symbol", null: false
+    t.timestamptz "ingested_at", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["external_ref", "measurement_type", "measured_at"], name: "idx_eea_transformed_measurements_unique", unique: true
   end
 
   create_table "fixed_measurements", force: :cascade do |t|

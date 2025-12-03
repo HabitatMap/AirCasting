@@ -2,6 +2,12 @@ module Eea
   class RawMeasurementsCopier
     ROOT_DIR = Rails.root.join('storage', 'eea', 'incoming').to_s
 
+    def initialize(
+      transform_measurements_worker: Eea::TransformMeasurementsWorker
+    )
+      @transform_measurements_worker = transform_measurements_worker
+    end
+
     def call(batch_id:)
       batch_path = File.join(ROOT_DIR, batch_id.to_s, 'E2a', '*.parquet')
 
@@ -36,9 +42,13 @@ module Eea
         end
       end
       rs.close if rs.respond_to?(:close)
+
+      transform_measurements_worker.perform_async(batch_id)
     end
 
     private
+
+    attr_reader :transform_measurements_worker
 
     def columns
       %w[
