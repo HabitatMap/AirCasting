@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2025_12_01_131143) do
+ActiveRecord::Schema[7.0].define(version: 2025_12_04_154734) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
   enable_extension "postgis"
@@ -208,6 +208,7 @@ ActiveRecord::Schema[7.0].define(version: 2025_12_01_131143) do
     t.integer "threshold_very_high", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.boolean "canonical", null: false
     t.index ["measurement_type", "unit_symbol"], name: "index_stream_configurations_on_measurement_type_and_unit_symbol", unique: true
   end
 
