@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2025_12_04_154734) do
+ActiveRecord::Schema[7.0].define(version: 2025_12_04_162604) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
   enable_extension "postgis"
@@ -118,8 +118,8 @@ ActiveRecord::Schema[7.0].define(version: 2025_12_04_154734) do
     t.string "external_ref", null: false
     t.geometry "location", limit: {:srid=>4326, :type=>"geometry"}
     t.string "time_zone", null: false
-    t.timestamptz "first_measured_at", null: false
-    t.timestamptz "last_measured_at", null: false
+    t.timestamptz "first_measured_at"
+    t.timestamptz "last_measured_at"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["location"], name: "index_fixed_streams_on_location", using: :gist
