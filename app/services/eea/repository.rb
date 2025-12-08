@@ -21,5 +21,9 @@ module Eea
     def update_ingest_batch_status!(batch:, status:)
       batch.update!(status: status)
     end
+
+    def insert_fixed_streams(fixed_streams_params:)
+      FixedStream.insert_all(fixed_streams_params)
+    end
   end
 end
