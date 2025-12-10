@@ -3,12 +3,7 @@ class FixedStream < ApplicationRecord
   belongs_to :stream_configuration
   has_many :fixed_stream_measurements, dependent: :delete_all
 
-  validates :external_ref,
-            :location,
-            :time_zone,
-            :first_measured_at,
-            :last_measured_at,
-            presence: true
+  validates :external_ref, :location, :time_zone, presence: true
   validates :external_ref,
             uniqueness: {
               scope: %i[source_id stream_configuration_id],
