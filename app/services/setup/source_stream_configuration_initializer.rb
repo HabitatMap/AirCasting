@@ -41,6 +41,7 @@ module Setup
           threshold_medium: 35,
           threshold_high: 55,
           threshold_very_high: 150,
+          canonical: true,
         },
         {
           measurement_type: 'NO2',
@@ -50,6 +51,7 @@ module Setup
           threshold_medium: 100,
           threshold_high: 360,
           threshold_very_high: 649,
+          canonical: true,
         },
         {
           measurement_type: 'Ozone',
@@ -59,6 +61,7 @@ module Setup
           threshold_medium: 75,
           threshold_high: 95,
           threshold_very_high: 115,
+          canonical: true,
         },
       ]
     end
@@ -73,6 +76,7 @@ module Setup
           threshold_medium: 188,
           threshold_high: 677,
           threshold_very_high: 1220,
+          canonical: false,
         },
         {
           measurement_type: 'Ozone',
@@ -82,6 +86,7 @@ module Setup
           threshold_medium: 147,
           threshold_high: 186,
           threshold_very_high: 225,
+          canonical: false,
         },
       ]
     end
