@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2025_12_04_162604) do
+ActiveRecord::Schema[7.0].define(version: 2025_12_16_114551) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
   enable_extension "postgis"
@@ -98,6 +98,9 @@ ActiveRecord::Schema[7.0].define(version: 2025_12_04_162604) do
     t.timestamptz "time_with_time_zone", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.bigint "fixed_stream_id"
+    t.timestamptz "measured_at"
+    t.index ["fixed_stream_id", "measured_at"], name: "index_fixed_measurements_on_fixed_stream_id_and_measured_at", unique: true
     t.index ["stream_id", "time_with_time_zone"], name: "index_fixed_measurements_on_stream_id_and_time_with_time_zone", unique: true
     t.index ["stream_id"], name: "index_fixed_measurements_on_stream_id"
   end
@@ -122,6 +125,8 @@ ActiveRecord::Schema[7.0].define(version: 2025_12_04_162604) do
     t.timestamptz "last_measured_at"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "title", null: false
+    t.string "url_token", null: false
     t.index ["location"], name: "index_fixed_streams_on_location", using: :gist
     t.index ["source_id", "stream_configuration_id", "external_ref"], name: "idx_fixed_streams_src_ref_cfg_uniq", unique: true
     t.index ["source_id"], name: "index_fixed_streams_on_source_id"
