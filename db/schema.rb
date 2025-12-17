@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2025_12_16_114551) do
+ActiveRecord::Schema[7.0].define(version: 2025_12_17_103556) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
   enable_extension "postgis"
@@ -100,6 +100,7 @@ ActiveRecord::Schema[7.0].define(version: 2025_12_16_114551) do
     t.datetime "updated_at", null: false
     t.bigint "fixed_stream_id"
     t.timestamptz "measured_at"
+    t.index ["fixed_stream_id"], name: "index_fixed_measurements_on_fixed_stream_id"
     t.index ["stream_id", "time_with_time_zone"], name: "index_fixed_measurements_on_stream_id_and_time_with_time_zone", unique: true
     t.index ["stream_id"], name: "index_fixed_measurements_on_stream_id"
   end
@@ -347,6 +348,7 @@ ActiveRecord::Schema[7.0].define(version: 2025_12_16_114551) do
 
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
+  add_foreign_key "fixed_measurements", "fixed_streams"
   add_foreign_key "fixed_measurements", "streams"
   add_foreign_key "fixed_stream_measurements", "fixed_streams", on_delete: :cascade
   add_foreign_key "fixed_streams", "sources"
