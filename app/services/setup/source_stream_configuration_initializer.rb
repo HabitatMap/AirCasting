@@ -3,9 +3,11 @@ module Setup
     def call
       ActiveRecord::Base.transaction do
         eea_source = Source.find_or_create_by!(name: 'EEA')
+        epa_source = Source.find_or_create_by!(name: 'EPA')
 
         canonical_configurations.each do |attributes|
-          create_stream_configuration(attributes)
+          stream_configuration = create_stream_configuration(attributes)
+          assigin_configuration_to_source(epa_source, stream_configuration)
         end
 
         eea_specific_configurations.each do |attributes|
@@ -24,9 +26,9 @@ module Setup
       ) { |record| record.assign_attributes(attributes) }
     end
 
-    def assigin_configuration_to_source(eea_source, stream_configuration)
+    def assigin_configuration_to_source(source, stream_configuration)
       SourceStreamConfiguration.find_or_create_by!(
-        source: eea_source,
+        source: source,
         stream_configuration: stream_configuration,
       )
     end
