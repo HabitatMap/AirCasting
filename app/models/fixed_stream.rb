@@ -1,7 +1,7 @@
 class FixedStream < ApplicationRecord
   belongs_to :source
   belongs_to :stream_configuration
-  has_many :fixed_stream_measurements, dependent: :delete_all
+  has_many :fixed_measurements, dependent: :nullify
 
   validates :external_ref, :location, :time_zone, presence: true
   validates :external_ref,
