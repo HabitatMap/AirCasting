@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2025_12_16_114551) do
+ActiveRecord::Schema[7.0].define(version: 2025_12_16_143617) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
   enable_extension "postgis"
@@ -126,6 +126,7 @@ ActiveRecord::Schema[7.0].define(version: 2025_12_16_114551) do
     t.datetime "updated_at", null: false
     t.string "title", null: false
     t.string "url_token", null: false
+    t.bigint "stream_id"
     t.index ["location"], name: "index_fixed_streams_on_location", using: :gist
     t.index ["source_id", "stream_configuration_id", "external_ref"], name: "idx_fixed_streams_src_ref_cfg_uniq", unique: true
     t.index ["source_id"], name: "index_fixed_streams_on_source_id"
