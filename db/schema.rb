@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2026_01_05_122527) do
+ActiveRecord::Schema[7.0].define(version: 2026_01_05_163036) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
   enable_extension "postgis"
@@ -100,6 +100,7 @@ ActiveRecord::Schema[7.0].define(version: 2026_01_05_122527) do
     t.datetime "updated_at", null: false
     t.bigint "fixed_stream_id"
     t.timestamptz "measured_at"
+    t.index ["fixed_stream_id", "measured_at"], name: "idx_uniq_fixed_stream_measured_at_partial", unique: true, where: "((fixed_stream_id IS NOT NULL) AND (measured_at IS NOT NULL))"
     t.index ["stream_id", "time_with_time_zone"], name: "index_fixed_measurements_on_stream_id_and_time_with_time_zone", unique: true
     t.index ["stream_id"], name: "index_fixed_measurements_on_stream_id"
   end
