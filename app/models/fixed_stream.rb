@@ -1,7 +1,7 @@
 class FixedStream < ApplicationRecord
   belongs_to :source
   belongs_to :stream_configuration
-  has_many :fixed_measurements, dependent: :nullify
+  has_many :fixed_measurements
   belongs_to :stream, optional: true # TEMP
 
   validates :external_ref,
