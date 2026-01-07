@@ -18,7 +18,8 @@ module Api
           # splitting the logic for governemnt data, to improve performance
           sensor_name = contract.to_h[:sensor_name]
           if sensor_name == 'government-pm2.5' ||
-               sensor_name == 'government-no2' || sensor_name == 'government-o3'
+               sensor_name == 'government-no2' ||
+               sensor_name == 'government-ozone'
             result =
               ::FixedSessions::IndexInteractor.new(contract: contract).call
           else
