@@ -19,10 +19,6 @@ export const navItems = [
         label: "navbar.sections.faq",
       },
       {
-        href: urls.usersGuide,
-        label: "navbar.sections.usersGuide",
-      },
-      {
         href: urls.airbeamMiniUsersGuide,
         label: "navbar.sections.airbeamMiniUsersGuide",
       },
