@@ -3,19 +3,21 @@ class FixedSessionsSerializer
     sessions_array = []
 
     sessions.map do |session|
+      current_value = session['average_value'] || session['last_hourly_average']
+
       sessions_array << {
         'id' => session['session_id'],
         'uuid' => session['uuid'],
         'end_time_local' => formatted_time(session['end_time_local']),
         'start_time_local' => formatted_time(session['start_time_local']),
-        'last_measurement_value' => session['average_value']&.round,
+        'last_measurement_value' => current_value&.round,
         'is_indoor' => session['is_indoor'],
         'latitude' => session['latitude'],
         'longitude' => session['longitude'],
         'title' => session['title'],
         'username' => 'username',
         'is_active' => true,
-        'last_hourly_average_value' => session['average_value']&.round,
+        'last_hourly_average_value' => current_value&.round,
         'streams' => {
           session['sensor_name'] => {
             'measurement_short_type' => session['measurement_short_type'],

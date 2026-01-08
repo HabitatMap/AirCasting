@@ -39,11 +39,19 @@ class SessionsRepository
         FROM stream_daily_averages
         WHERE stream_id IN (SELECT id FROM relevant_streams)
         ORDER BY stream_id, date DESC
+      ),
+      latest_hourly_averages AS (
+        SELECT DISTINCT ON (fs.stream_id) fs.stream_id, ha.value
+        FROM fixed_streams fs
+        JOIN hourly_averages ha ON ha.fixed_stream_id = fs.id
+        WHERE fs.stream_id IN (SELECT id FROM relevant_streams)
+        ORDER BY fs.stream_id, ha.measured_at DESC
       )
-      SELECT s.*, st.*, lda.value AS last_daily_average
+      SELECT s.*, st.*, lda.value AS last_daily_average, lha.value AS last_hourly_average
       FROM recent_sessions s
       JOIN relevant_streams st ON s.id = st.session_id
-      LEFT JOIN latest_daily_averages lda ON st.id = lda.stream_id;
+      LEFT JOIN latest_daily_averages lda ON st.id = lda.stream_id
+      LEFT JOIN latest_hourly_averages lha ON st.id = lha.stream_id;
     SQL
 
     ActiveRecord::Base.connection.execute(sql)
