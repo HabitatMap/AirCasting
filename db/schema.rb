@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2026_01_05_163036) do
+ActiveRecord::Schema[7.0].define(version: 2026_01_08_144458) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
   enable_extension "postgis"
@@ -133,6 +133,16 @@ ActiveRecord::Schema[7.0].define(version: 2026_01_05_163036) do
     t.index ["source_id"], name: "index_fixed_streams_on_source_id"
     t.index ["stream_configuration_id"], name: "index_fixed_streams_on_stream_configuration_id"
     t.check_constraint "first_measured_at <= last_measured_at", name: "chk_stream_measured_bounds"
+  end
+
+  create_table "hourly_averages", force: :cascade do |t|
+    t.bigint "fixed_stream_id", null: false
+    t.integer "value", null: false
+    t.datetime "measured_at", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["fixed_stream_id", "measured_at", "value"], name: "index_hourly_averages_on_fixed_stream_and_measured_at", unique: true
+    t.index ["measured_at"], name: "index_hourly_averages_on_measured_at"
   end
 
   create_table "measurements", id: :serial, force: :cascade do |t|
@@ -354,6 +364,7 @@ ActiveRecord::Schema[7.0].define(version: 2026_01_05_163036) do
   add_foreign_key "fixed_stream_measurements", "fixed_streams", on_delete: :cascade
   add_foreign_key "fixed_streams", "sources"
   add_foreign_key "fixed_streams", "stream_configurations"
+  add_foreign_key "hourly_averages", "fixed_streams"
   add_foreign_key "source_stream_configurations", "sources"
   add_foreign_key "source_stream_configurations", "stream_configurations"
   add_foreign_key "stream_daily_averages", "streams"
