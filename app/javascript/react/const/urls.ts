@@ -21,7 +21,6 @@ const reactMap = `/`;
 const userStories = `${airbeam}/user-stories`;
 const airbeamHowItWorks = `${airbeam}/how-it-works`;
 const faq = `${airbeam}/FAQ`;
-const usersGuide = `${airbeam}/users-guide`;
 const airbeamBuyNow = `${airbeam}/buy-it-now`;
 const airbeamMiniUsersGuide = `${airbeam}/users-guide-airbeammini`;
 
@@ -43,7 +42,6 @@ export const urls = {
   userStories,
   airbeamHowItWorks,
   faq,
-  usersGuide,
   airbeamBuyNow,
   history,
   reactMap,
