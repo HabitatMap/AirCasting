@@ -1,5 +1,9 @@
 module Eea
   class MeasurementsTransformer
+    def initialize(load_measurements_worker: Eea::LoadMeasurementsWorker)
+      @load_measurements_worker = load_measurements_worker
+    end
+
     def call(batch_id:)
       sql = ActiveRecord::Base.send(:sanitize_sql_array, [<<~SQL, batch_id])
       INSERT INTO eea_transformed_measurements (
@@ -50,6 +54,12 @@ module Eea
     SQL
 
       ActiveRecord::Base.connection.execute(sql)
+
+      load_measurements_worker.perform_async(batch_id)
     end
+
+    private
+
+    attr_reader :load_measurements_worker
   end
 end
