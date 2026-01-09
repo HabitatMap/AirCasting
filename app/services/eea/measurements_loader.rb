@@ -46,7 +46,7 @@ module Eea
            AND sc.canonical = true
           WHERE etm.eea_ingest_batch_id = ?
             AND fs.stream_id IS NOT NULL
-          ON CONFLICT (fixed_stream_id, measured_at)
+          ON CONFLICT (stream_id, time_with_time_zone)
           DO UPDATE SET
             value = EXCLUDED.value,
             updated_at = EXCLUDED.updated_at
