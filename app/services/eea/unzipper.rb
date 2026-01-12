@@ -14,6 +14,8 @@ module Eea
       dest_root = Eea::FileStorage.parquet_directory(batch_id)
 
       extract_parquet_files(zip_path, dest_root)
+
+      repository.update_ingest_batch_status!(batch: batch, status: :unzipped)
       copy_worker.perform_async(batch.id)
     end
 
