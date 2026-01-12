@@ -2,6 +2,7 @@ class FixedStream < ApplicationRecord
   belongs_to :source
   belongs_to :stream_configuration
   has_many :fixed_measurements
+  has_many :hourly_averages, dependent: :delete_all
   belongs_to :stream, optional: true # TEMP
 
   validates :external_ref,
