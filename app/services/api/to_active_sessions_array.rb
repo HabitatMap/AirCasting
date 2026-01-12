@@ -72,9 +72,9 @@ class Api::ToActiveSessionsArray
   def last_hour_average(session)
     stream = session.streams.length >= 1 ? session.streams.first : nil
     return unless stream
-    last_measurement_time = stream.measurements.last.time
+    last_measurement_time = stream.fixed_measurements.last.time
     stream
-      .measurements
+      .fixed_measurements
       .where(time: last_measurement_time - 1.hour..last_measurement_time)
       .average(:value)
   end
