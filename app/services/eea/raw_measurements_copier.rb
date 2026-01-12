@@ -1,7 +1,5 @@
 module Eea
   class RawMeasurementsCopier
-    ROOT_DIR = Rails.root.join('storage', 'eea', 'incoming').to_s
-
     def initialize(
       transform_measurements_worker: Eea::TransformMeasurementsWorker
     )
@@ -9,7 +7,7 @@ module Eea
     end
 
     def call(batch_id:)
-      batch_path = File.join(ROOT_DIR, batch_id.to_s, 'E2a', '*.parquet')
+      batch_path = Eea::FileStorage.parquet_glob(batch_id)
 
       db = DuckDB::Database.open
       con = db.connect
