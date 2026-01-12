@@ -41,6 +41,7 @@ module Eea
                 uuid: SecureRandom.uuid,
                 url_token: sp.url_token,
                 contribute: true,
+                is_indoor: false,
                 created_at: current_time,
                 updated_at: current_time,
               }
