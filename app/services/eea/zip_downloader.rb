@@ -1,7 +1,5 @@
 module Eea
   class ZipDownloader
-    ROOT_DIR = Rails.root.join('storage', 'eea').to_s
-
     def initialize(
       repository: Repository.new,
       api_client: ApiClient.new,
@@ -21,9 +19,9 @@ module Eea
           batch: batch,
           status: :downloading,
         )
-        dir = create_directory(batch.id)
-        tmp_path = File.join(dir, 'raw.zip.partial')
-        zip_path = File.join(dir, 'raw.zip')
+        Eea::FileStorage.ensure_batch_directory(batch.id)
+        tmp_path = Eea::FileStorage.partial_zip_path(batch.id)
+        zip_path = Eea::FileStorage.zip_path(batch.id)
 
         bytes =
           api_client.fetch_zip_bytes(
@@ -52,12 +50,5 @@ module Eea
     private
 
     attr_reader :repository, :api_client, :unzip_worker
-
-    def create_directory(batch_id)
-      dir = File.join(ROOT_DIR, 'incoming', batch_id.to_s)
-      FileUtils.mkdir_p(dir)
-
-      dir
-    end
   end
 end
