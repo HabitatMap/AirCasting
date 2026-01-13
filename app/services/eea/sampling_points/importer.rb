@@ -11,11 +11,15 @@ module Eea
 
         CSV.foreach(file_path, headers: true) do |row|
           external_ref = row['Sampling Point Id']
-          measurement_type = row['Air Pollutant']
+          measurement_type = measurement_type(row['Air Pollutant'])
           latitude = to_float(row['Latitude'])
           longitude = to_float(row['Longitude'])
           title =
-            row['Municipality'].present? ? row['Municipality'] : external_ref
+            if row['Air Quality Station Name'].present?
+              row['Air Quality Station Name']
+            else
+              external_ref
+            end
           url_token = get_url_token
 
           if external_ref.nil? || measurement_type.nil? || latitude.nil? ||
@@ -51,14 +55,14 @@ module Eea
 
       attr_reader :time_zone_finder, :token_generator
 
-      def to_float(value)
-        return nil if value.nil? || value.to_s.strip.empty?
+      def measurement_type(pollutant)
+        pollutant == 'O3' ? 'Ozone' : pollutant
+      end
 
-        begin
-          Float(value)
-        rescue StandardError
-          nil
-        end
+      def to_float(value)
+        Float(value)
+      rescue ArgumentError, TypeError
+        nil
       end
 
       def time_zone_for(latitude, longitude)
