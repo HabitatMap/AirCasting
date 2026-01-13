@@ -31,8 +31,8 @@ module Eea
         END AS measurement_type,
         r.end_time AT TIME ZONE 'UTC+1' AS measured_at,
         CASE r.pollutant
-          WHEN 7 THEN r.value * 1.96
-          WHEN 8 THEN r.value * 1.88
+          WHEN 7 THEN r.value / 1.96
+          WHEN 8 THEN r.value / 1.88
           ELSE r.value
         END AS value,
         r.unit AS unit_symbol,
