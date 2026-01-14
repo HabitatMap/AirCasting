@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2026_01_08_144458) do
+ActiveRecord::Schema[7.0].define(version: 2026_01_14_160635) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
   enable_extension "postgis"
@@ -69,8 +69,8 @@ ActiveRecord::Schema[7.0].define(version: 2026_01_08_144458) do
     t.bigint "eea_ingest_batch_id"
     t.string "samplingpoint"
     t.integer "pollutant"
-    t.timestamptz "start_time"
-    t.timestamptz "end_time"
+    t.datetime "start_time", precision: nil
+    t.datetime "end_time", precision: nil
     t.float "value"
     t.string "unit"
     t.integer "validity"
