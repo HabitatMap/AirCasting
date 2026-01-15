@@ -47,5 +47,18 @@ module Eea
     def insert_fixed_streams!(fixed_streams_params:)
       FixedStream.insert_all!(fixed_streams_params)
     end
+
+    def delete_raw_measurements!(batch_id:)
+      sql =
+        ActiveRecord::Base.send(
+          :sanitize_sql_array,
+          [
+            'DELETE FROM eea_raw_measurements WHERE eea_ingest_batch_id = ?',
+            batch_id,
+          ],
+        )
+
+      ActiveRecord::Base.connection.execute(sql)
+    end
   end
 end
