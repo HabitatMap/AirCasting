@@ -23,7 +23,7 @@ module Eea
     end
 
     def eea_user
-      User.find_by!(username: 'eea_importer')
+      User.find_by!(username: 'EEA')
     end
 
     def air_now_threshold_sets
@@ -45,7 +45,10 @@ module Eea
     end
 
     def insert_fixed_streams!(fixed_streams_params:)
-      FixedStream.insert_all!(fixed_streams_params)
+      FixedStream.upsert_all(
+        fixed_streams_params,
+        unique_by: %i[source_id stream_configuration_id external_ref],
+      )
     end
   end
 end
