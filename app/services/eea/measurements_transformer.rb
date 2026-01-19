@@ -29,7 +29,7 @@ module Eea
           WHEN 6001 THEN 'PM2.5'
           WHEN 8    THEN 'NO2'
         END AS measurement_type,
-        r.end_time AT TIME ZONE 'UTC+1' AS measured_at,
+        r.end_time AT TIME ZONE 'Etc/GMT-1' AS measured_at,
         CASE r.pollutant
           WHEN 7 THEN r.value / 1.96
           WHEN 8 THEN r.value / 1.88
