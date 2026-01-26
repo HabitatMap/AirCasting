@@ -25,7 +25,7 @@ describe StreamDailyAverages::StreamInteractor do
           subject.call(
             stream_id: stream.id,
             station_current_time: station_current_time,
-            is_air_now_stream: false,
+            is_gov_stream: false,
           )
         }.to change(StreamDailyAverage, :count).by(1)
 
@@ -66,7 +66,7 @@ describe StreamDailyAverages::StreamInteractor do
           subject.call(
             stream_id: stream.id,
             station_current_time: station_current_time,
-            is_air_now_stream: false,
+            is_gov_stream: false,
           )
         }.not_to change(StreamDailyAverage, :count)
 
@@ -96,7 +96,7 @@ describe StreamDailyAverages::StreamInteractor do
         subject.call(
           stream_id: stream.id,
           station_current_time: station_current_time,
-          is_air_now_stream: false,
+          is_gov_stream: false,
         )
 
         expect(stream_daily_average.reload.value).to eq(1)
@@ -139,7 +139,7 @@ describe StreamDailyAverages::StreamInteractor do
         subject.call(
           stream_id: stream.id,
           station_current_time: station_current_time,
-          is_air_now_stream: true,
+          is_gov_stream: true,
         )
 
         expect(stream_daily_average_01_14.reload.value).to eq(7)

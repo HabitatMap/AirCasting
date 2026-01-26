@@ -18,7 +18,7 @@ module StreamDailyAverages
             stream_interactor.call(
               stream_id: stream.id,
               station_current_time: station_current_time,
-              is_air_now_stream: is_air_now_stream(session),
+              is_gov_stream: is_gov_stream(session),
             )
           rescue => e
             Rails.logger.warn(
@@ -33,8 +33,8 @@ module StreamDailyAverages
 
     attr_reader :fixed_sessions_repository, :stream_interactor
 
-    def is_air_now_stream(session)
-      session.username == 'US EPA AirNow'
+    def is_gov_stream(session)
+      session.username == 'US EPA AirNow' || session.username == 'EEA'
     end
   end
 end
