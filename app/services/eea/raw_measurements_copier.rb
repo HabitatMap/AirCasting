@@ -1,12 +1,15 @@
 module Eea
   class RawMeasurementsCopier
     def initialize(
+      repository: Repository.new,
       transform_measurements_worker: Eea::TransformMeasurementsWorker
     )
+      @repository = repository
       @transform_measurements_worker = transform_measurements_worker
     end
 
     def call(batch_id:)
+      batch = repository.find_ingest_batch(batch_id: batch_id)
       batch_path = Eea::FileStorage.parquet_glob(batch_id)
 
       db = DuckDB::Database.open
@@ -41,12 +44,13 @@ module Eea
       end
       rs.close if rs.respond_to?(:close)
 
+      repository.update_ingest_batch_status!(batch: batch, status: :copied)
       transform_measurements_worker.perform_async(batch_id)
     end
 
     private
 
-    attr_reader :transform_measurements_worker
+    attr_reader :repository, :transform_measurements_worker
 
     def columns
       %w[

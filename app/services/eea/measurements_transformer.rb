@@ -1,10 +1,16 @@
 module Eea
   class MeasurementsTransformer
-    def initialize(load_measurements_worker: Eea::LoadMeasurementsWorker)
+    def initialize(
+      repository: Repository.new,
+      load_measurements_worker: Eea::LoadMeasurementsWorker
+    )
+      @repository = repository
       @load_measurements_worker = load_measurements_worker
     end
 
     def call(batch_id:)
+      batch = repository.find_ingest_batch(batch_id: batch_id)
+
       sql = ActiveRecord::Base.send(:sanitize_sql_array, [<<~SQL, batch_id])
       INSERT INTO eea_transformed_measurements (
         eea_ingest_batch_id,
@@ -55,11 +61,12 @@ module Eea
 
       ActiveRecord::Base.connection.execute(sql)
 
+      repository.update_ingest_batch_status!(batch: batch, status: :transformed)
       load_measurements_worker.perform_async(batch_id)
     end
 
     private
 
-    attr_reader :load_measurements_worker
+    attr_reader :repository, :load_measurements_worker
   end
 end
