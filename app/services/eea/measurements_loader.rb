@@ -1,19 +1,25 @@
 module Eea
   class MeasurementsLoader
     def initialize(
+      repository: Repository.new,
       update_hourly_averages_worker: Eea::UpdateHourlyAveragesWorker
     )
+      @repository = repository
       @update_hourly_averages_worker = update_hourly_averages_worker
     end
 
     def call(batch_id:)
+      batch = repository.find_ingest_batch(batch_id: batch_id)
+
       upsert_fixed_measurements_and_touch_aggregates(batch_id)
+
+      repository.update_ingest_batch_status!(batch: batch, status: :saved)
       update_hourly_averages_worker.perform_async(batch_id)
     end
 
     private
 
-    attr_reader :update_hourly_averages_worker
+    attr_reader :repository, :update_hourly_averages_worker
 
     def upsert_fixed_measurements_and_touch_aggregates(batch_id)
       sql = ActiveRecord::Base.send(:sanitize_sql_array, [<<~SQL, batch_id])

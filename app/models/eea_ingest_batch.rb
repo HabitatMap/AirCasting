@@ -1,13 +1,13 @@
 class EeaIngestBatch < ApplicationRecord
   enum status: {
          queued: 'queued',
-         downloading: 'downloading',
          downloaded: 'downloaded',
-         unzip_queued: 'unzip_queued',
-         unzipping: 'unzipping',
          unzipped: 'unzipped',
-         staging: 'staging',
-         staged: 'staged',
+         copied: 'copied',
+         transformed: 'transformed',
+         saved: 'saved',
+         averaged: 'averaged',
+         completed: 'completed',
          failed: 'failed',
        }
 
@@ -23,8 +23,6 @@ class EeaIngestBatch < ApplicationRecord
   validates :window_ends_at, comparison: { greater_than: :window_starts_at }
 
   def processing?
-    %w[downloading downloaded unzip_queued unzipping unzipped staging].include?(
-      status,
-    )
+    %w[downloaded unzipped copied transformed saved averaged].include?(status)
   end
 end

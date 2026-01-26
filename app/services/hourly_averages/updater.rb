@@ -13,7 +13,12 @@ module HourlyAverages
 
       hourly_averages_repository.recalculate_for_time_range(
         starts_at: batch.window_starts_at,
-        ends_at: batch.window_ends_at
+        ends_at: batch.window_ends_at,
+      )
+
+      eea_repository.update_ingest_batch_status!(
+        batch: batch,
+        status: :averaged,
       )
     end
 
