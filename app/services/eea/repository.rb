@@ -63,5 +63,31 @@ module Eea
 
       ActiveRecord::Base.connection.execute(sql)
     end
+
+    def purge_transformed_measurements!(cutoff:)
+      sql =
+        ActiveRecord::Base.send(
+          :sanitize_sql_array,
+          [
+            'DELETE FROM eea_transformed_measurements WHERE ingested_at < ?',
+            cutoff,
+          ],
+        )
+
+      ActiveRecord::Base.connection.execute(sql)
+    end
+
+    def purge_raw_measurements!(cutoff:)
+      sql =
+        ActiveRecord::Base.send(
+          :sanitize_sql_array,
+          [
+            'DELETE FROM eea_raw_measurements WHERE ingested_at < ?',
+            cutoff,
+          ],
+        )
+
+      ActiveRecord::Base.connection.execute(sql)
+    end
   end
 end

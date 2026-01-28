@@ -32,3 +32,8 @@
     cron: "5 * * * *"
     class: UpdateStreamDailyAveragesWorker
     queue: slow
+
+  eea_purge_measurements:
+    cron: "0 9 * * *"
+    class: Eea::PurgeMeasurementsWorker
+    queue: eea
