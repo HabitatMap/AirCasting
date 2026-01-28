@@ -50,5 +50,44 @@ module Eea
         unique_by: %i[source_id stream_configuration_id external_ref],
       )
     end
+
+    def delete_raw_measurements!(batch_id:)
+      sql =
+        ActiveRecord::Base.send(
+          :sanitize_sql_array,
+          [
+            'DELETE FROM eea_raw_measurements WHERE eea_ingest_batch_id = ?',
+            batch_id,
+          ],
+        )
+
+      ActiveRecord::Base.connection.execute(sql)
+    end
+
+    def purge_transformed_measurements!(cutoff:)
+      sql =
+        ActiveRecord::Base.send(
+          :sanitize_sql_array,
+          [
+            'DELETE FROM eea_transformed_measurements WHERE ingested_at < ?',
+            cutoff,
+          ],
+        )
+
+      ActiveRecord::Base.connection.execute(sql)
+    end
+
+    def purge_raw_measurements!(cutoff:)
+      sql =
+        ActiveRecord::Base.send(
+          :sanitize_sql_array,
+          [
+            'DELETE FROM eea_raw_measurements WHERE ingested_at < ?',
+            cutoff,
+          ],
+        )
+
+      ActiveRecord::Base.connection.execute(sql)
+    end
   end
 end
