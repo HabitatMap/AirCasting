@@ -36,4 +36,8 @@
   eea_import:
     cron: "16,40 * * * *"
     class: "Eea::TriggerImportWorker"
+
+  eea_purge_measurements:
+    cron: "0 14 * * *"
+    class: Eea::PurgeMeasurementsWorker
     queue: eea
