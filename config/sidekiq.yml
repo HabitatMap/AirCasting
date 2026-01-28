@@ -34,6 +34,6 @@
     queue: slow
 
   eea_purge_measurements:
-    cron: "0 9 * * *"
+    cron: "0 15 * * *"
     class: Eea::PurgeMeasurementsWorker
     queue: eea
