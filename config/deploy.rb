@@ -33,6 +33,7 @@ set :linked_dirs,
       'tmp/pids',
       'tmp/cache',
       'tmp/sockets',
+      'tmp/eea',
       'public/system',
     )
 set :linked_files,

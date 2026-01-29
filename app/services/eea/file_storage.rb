@@ -31,5 +31,11 @@ module Eea
 
       dir
     end
+
+    def cleanup_batch(batch_id)
+      dir = batch_directory(batch_id)
+
+      FileUtils.rm_rf(dir) if File.exist?(dir)
+    end
   end
 end

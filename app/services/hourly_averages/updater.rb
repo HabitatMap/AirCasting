@@ -2,10 +2,12 @@ module HourlyAverages
   class Updater
     def initialize(
       eea_repository: Eea::Repository.new,
-      hourly_averages_repository: Repository.new
+      hourly_averages_repository: Repository.new,
+      cleanup_batch_worker: Eea::CleanupBatchWorker
     )
       @eea_repository = eea_repository
       @hourly_averages_repository = hourly_averages_repository
+      @cleanup_batch_worker = cleanup_batch_worker
     end
 
     def call(batch_id:)
@@ -20,10 +22,13 @@ module HourlyAverages
         batch: batch,
         status: :averaged,
       )
+
+      eea_repository.update_ingest_batch_status!(batch: batch, status: :averaged)
+      cleanup_batch_worker.perform_async(batch_id)
     end
 
     private
 
-    attr_reader :eea_repository, :hourly_averages_repository
+    attr_reader :eea_repository, :hourly_averages_repository, :cleanup_batch_worker
   end
 end
