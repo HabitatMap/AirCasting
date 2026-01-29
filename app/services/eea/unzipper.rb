@@ -13,6 +13,12 @@ module Eea
       zip_path = Eea::FileStorage.zip_path(batch_id)
       dest_root = Eea::FileStorage.parquet_directory(batch_id)
 
+      if invalid_zip?(zip_path)
+        repository.update_ingest_batch_status!(batch: batch, status: :failed)
+
+        return
+      end
+
       extract_parquet_files(zip_path, dest_root)
 
       repository.update_ingest_batch_status!(batch: batch, status: :unzipped)
@@ -22,6 +28,12 @@ module Eea
     private
 
     attr_reader :repository, :copy_worker
+
+    def invalid_zip?(zip_path)
+      Zip::File.open(zip_path) { |zip| zip.glob('E2a/*.parquet').none? }
+    rescue Zip::Error, Errno::ENOENT
+      true
+    end
 
     def extract_parquet_files(zip_path, dest_root)
       saved = []
