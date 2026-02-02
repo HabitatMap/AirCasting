@@ -51,19 +51,6 @@ module Eea
       )
     end
 
-    def delete_raw_measurements!(batch_id:)
-      sql =
-        ActiveRecord::Base.send(
-          :sanitize_sql_array,
-          [
-            'DELETE FROM eea_raw_measurements WHERE eea_ingest_batch_id = ?',
-            batch_id,
-          ],
-        )
-
-      ActiveRecord::Base.connection.execute(sql)
-    end
-
     def purge_transformed_measurements!(cutoff:)
       sql =
         ActiveRecord::Base.send(
