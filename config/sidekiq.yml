@@ -33,7 +33,12 @@
     class: UpdateStreamDailyAveragesWorker
     queue: slow
 
-  eea_purge_measurements:
-    cron: "0 15 * * *"
-    class: Eea::PurgeMeasurementsWorker
+  eea_import:
+    cron: "16,40 * * * *"
+    class: "Eea::TriggerImportWorker"
     queue: eea
+
+  eea_purge_measurements:
+    cron: "0 9 * * *"
+    class: Eea::PurgeMeasurementsWorker
+    queue: slow
