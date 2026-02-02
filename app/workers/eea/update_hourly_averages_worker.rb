@@ -6,10 +6,10 @@ module Eea
 
     sidekiq_options queue: :eea, retry: 1
 
-    def perform(batch_id)
+    def perform
       return unless A9n.sidekiq_eea_import_enabled
 
-      HourlyAverages::Updater.new.call(batch_id: batch_id)
+      HourlyAverages::ScheduledUpdater.new.call
     end
   end
 end
