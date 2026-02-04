@@ -1,12 +1,8 @@
 module HourlyAverages
   class Repository
-    def recalculate_for_time_range(starts_at:, ends_at:)
-      start_hour = starts_at.beginning_of_hour
-      end_hour = [ends_at.beginning_of_hour, Time.current.beginning_of_hour].min
-
-      return if start_hour >= end_hour
-
-      sql = ActiveRecord::Base.send(:sanitize_sql_array, [<<~SQL, start_hour, end_hour])
+    def calculate_for_hour(measured_at:)
+      hour_start = measured_at - 1.hour
+      sql = ActiveRecord::Base.send(:sanitize_sql_array, [<<~SQL, measured_at, hour_start, measured_at])
         INSERT INTO hourly_averages (
           fixed_stream_id,
           value,
@@ -17,13 +13,16 @@ module HourlyAverages
         SELECT
           fm.fixed_stream_id,
           ROUND(AVG(fm.value)) AS value,
-          DATE_TRUNC('hour', fm.measured_at) + INTERVAL '1 hour' AS measured_at,
+          ? AS measured_at,
           NOW() AS created_at,
           NOW() AS updated_at
         FROM fixed_measurements fm
-        WHERE fm.measured_at >= ?
-          AND fm.measured_at < ?
-        GROUP BY fm.fixed_stream_id, DATE_TRUNC('hour', fm.measured_at)
+        INNER JOIN fixed_streams fs ON fs.id = fm.fixed_stream_id
+        INNER JOIN sources s ON s.id = fs.source_id
+        WHERE s.name = 'EEA'
+          AND fm.measured_at > ?
+          AND fm.measured_at <= ?
+        GROUP BY fm.fixed_stream_id
         ON CONFLICT (fixed_stream_id, measured_at)
         DO UPDATE SET
           value = EXCLUDED.value,

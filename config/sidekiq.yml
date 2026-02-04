@@ -38,6 +38,11 @@
     class: "Eea::TriggerImportWorker"
     queue: eea
 
+  eea_update_hourly_averages:
+    cron: "26,50 * * * *"
+    class: Eea::UpdateHourlyAveragesWorker
+    queue: eea
+
   eea_purge_measurements:
     cron: "0 9 * * *"
     class: Eea::PurgeMeasurementsWorker
