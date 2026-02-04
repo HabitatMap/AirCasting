@@ -1,17 +1,21 @@
 module Eea
   module SamplingPoints
     class Importer
+      SUPPORTED_POLLUTANTS = %w[PM2.5 NO2 O3].freeze
+
       def initialize
         @time_zone_finder = TimeZoneFinderWrapper.instance
-        @token_generator = TokenGenerator.new
       end
 
       def call(file_path:)
         sampling_points = []
 
         CSV.foreach(file_path, headers: true) do |row|
+          pollutant = row['Air Pollutant']
+          next unless SUPPORTED_POLLUTANTS.include?(pollutant)
+
           external_ref = row['Sampling Point Id']
-          measurement_type = measurement_type(row['Air Pollutant'])
+          measurement_type = measurement_type(pollutant)
           latitude = to_float(row['Latitude'])
           longitude = to_float(row['Longitude'])
           title =
@@ -20,7 +24,6 @@ module Eea
             else
               external_ref
             end
-          url_token = get_url_token
 
           if external_ref.nil? || measurement_type.nil? || latitude.nil? ||
                longitude.nil?
@@ -34,7 +37,6 @@ module Eea
               latitude: latitude,
               longitude: longitude,
               title: title,
-              url_token: url_token,
             )
         end
 
@@ -53,7 +55,7 @@ module Eea
 
       private
 
-      attr_reader :time_zone_finder, :token_generator
+      attr_reader :time_zone_finder
 
       def measurement_type(pollutant)
         pollutant == 'O3' ? 'Ozone' : pollutant
@@ -83,15 +85,6 @@ module Eea
           StreamConfiguration
             .where(canonical: true)
             .index_by(&:measurement_type)
-      end
-
-      def get_url_token
-        token =
-          token_generator.generate_unique(6) do |token|
-            FixedStream.where(url_token: token).count.zero?
-          end
-
-        token
       end
     end
   end
