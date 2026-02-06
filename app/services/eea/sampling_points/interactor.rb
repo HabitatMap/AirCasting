@@ -1,27 +1,70 @@
 module Eea
   module SamplingPoints
     class Interactor
+      DEFAULT_DIRECTORY = 'app/services/eea/sampling_points/data'.freeze
+
       def initialize(
         importer: Importer.new,
         repository: Eea::Repository.new,
-        defaults_fetcher: StreamsDefaultValuesFetcher.new
+        defaults_fetcher: StreamsDefaultValuesFetcher.new,
+        token_generator: TokenGenerator.new
       )
         @importer = importer
         @repository = repository
         @defaults_fetcher = defaults_fetcher
+        @token_generator = token_generator
       end
 
-      def call(directory = 'app/services/eea/sampling_points/data')
+      def call(directory: DEFAULT_DIRECTORY)
         csv_paths = Dir.glob(File.join(directory, '*.csv'))
+
         csv_paths.each do |csv_path|
           sampling_points = importer.call(file_path: csv_path)
-          create_fixed_streams(sampling_points)
+          new_sampling_points = filter_new_sampling_points(sampling_points)
+
+          next if new_sampling_points.empty?
+
+          assign_url_tokens(new_sampling_points)
+          create_fixed_streams(new_sampling_points)
         end
       end
 
       private
 
-      attr_reader :importer, :repository, :defaults_fetcher
+      attr_reader :importer, :repository, :defaults_fetcher, :token_generator
+
+      def filter_new_sampling_points(sampling_points)
+        existing_keys = existing_fixed_stream_keys
+
+        sampling_points.reject do |sp|
+          existing_keys.include?(
+            [sp.source_id, sp.stream_configuration_id, sp.external_ref],
+          )
+        end
+      end
+
+      def existing_fixed_stream_keys
+        FixedStream
+          .where(source_id: source_id)
+          .pluck(:source_id, :stream_configuration_id, :external_ref)
+          .to_set
+      end
+
+      def source_id
+        @source_id ||= Source.find_by!(name: 'EEA').id
+      end
+
+      def assign_url_tokens(sampling_points)
+        sampling_points.each do |sp|
+          sp.url_token = generate_url_token
+        end
+      end
+
+      def generate_url_token
+        token_generator.generate_unique(6) do |token|
+          FixedStream.where(url_token: token).count.zero?
+        end
+      end
 
       def create_fixed_streams(sampling_points)
         user = repository.eea_user
