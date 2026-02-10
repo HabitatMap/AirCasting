@@ -3,26 +3,13 @@
 <script>
   // Function to load Google Tag Manager scripts
   function loadGoogleTagManager() {
-    // Load the gtag script
+    window.dataLayer = window.dataLayer || [];
+    window.dataLayer.push({'gtm.start': new Date().getTime(), event: 'gtm.js'});
+
     const script = document.createElement('script');
     script.async = true;
-    script.src = 'https://www.googletagmanager.com/gtag/js?id=G-P2QSTCN3VQ';
+    script.src = 'https://www.googletagmanager.com/gtm.js?id=GTM-T948MNX';
     document.head.appendChild(script);
-
-    // Initialize gtag after script loads
-    script.onload = function() {
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
-
-      // Google Analytics 4
-      gtag('config', 'G-P2QSTCN3VQ', {
-        'send_page_view': true
-      });
-
-      // Google Ads
-      gtag('config', 'AW-16795560374');
-    };
   }
 
   // Check if consent has already been given
