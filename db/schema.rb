@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2026_02_02_120414) do
+ActiveRecord::Schema[7.0].define(version: 2026_02_11_123402) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
   enable_extension "postgis"
@@ -143,7 +143,7 @@ ActiveRecord::Schema[7.0].define(version: 2026_02_02_120414) do
     t.datetime "measured_at", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.index ["fixed_stream_id", "measured_at", "value"], name: "index_hourly_averages_on_fixed_stream_and_measured_at", unique: true
+    t.index ["fixed_stream_id", "measured_at"], name: "index_hourly_averages_on_fixed_stream_id_and_measured_at", unique: true
     t.index ["measured_at"], name: "index_hourly_averages_on_measured_at"
   end
 
