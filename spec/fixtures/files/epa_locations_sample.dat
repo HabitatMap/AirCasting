@@ -1,0 +1,7 @@
+060010007|PM2.5|0007|Livermore|Active|CA0007|BAAQMD|R9|37.687526|-121.784217|0|-8|US|41860|San Francisco-Oakland-Fremont|06|California|001|Alameda
+060010007|OZONE|0007|Livermore|Active|CA0007|BAAQMD|R9|37.687526|-121.784217|0|-8|US|41860|San Francisco-Oakland-Fremont|06|California|001|Alameda
+060010007|NO2|0007|Livermore|Active|CA0007|BAAQMD|R9|37.687526|-121.784217|0|-8|US|41860|San Francisco-Oakland-Fremont|06|California|001|Alameda
+060010009|PM2.5|0009|Oakland|Active|CA0009|BAAQMD|R9|37.123456|-122.456789|0|-8|US|41860|San Francisco-Oakland-Fremont|06|California|001|Alameda
+060010009|CO|0009|Oakland|Active|CA0009|BAAQMD|R9|37.123456|-122.456789|0|-8|US|41860|San Francisco-Oakland-Fremont|06|California|001|Alameda
+|PM2.5|0010|Missing AQSID|Active|CA0010|BAAQMD|R9|37.0|-122.0|0|-8|US|41860|SF|06|California|001|Alameda
+060010011|PM2.5|0011||Active|CA0011|BAAQMD|R9|37.5|-122.5|0|-8|US|41860|SF|06|California|001|Alameda
