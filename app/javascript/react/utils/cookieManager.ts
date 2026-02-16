@@ -85,15 +85,26 @@ export class CookieManager {
     this.dispatchConsentChangeEvent();
   }
 
+  /**
+   * Returns cookie names to clear for Google Analytics.
+   * Includes base GA cookies and any _ga* cookies present (e.g. _ga_MEASUREMENTID from GA4),
+   * so the list stays in sync with tags in GTM without code changes.
+   */
+  private static getAnalyticsCookieNames(): string[] {
+    const base = ["_ga", "_gid", "_gat"];
+    if (typeof document === "undefined" || !document.cookie) {
+      return base;
+    }
+    const fromPage = document.cookie
+      .split("; ")
+      .map((s) => s.split("=")[0].trim())
+      .filter((name) => name.startsWith("_ga"));
+    return Array.from(new Set([...base, ...fromPage]));
+  }
+
   private static clearAnalyticsCookies(): void {
     const domains = ["", ".aircasting.org", ".google.com", ".google.pl"];
-    const analyticsCookies = [
-      "_ga",
-      "_gid",
-      "_gat",
-      "_ga_P2QSTCN3VQ",
-      "_ga_0DS6PXGHQF",
-    ];
+    const analyticsCookies = this.getAnalyticsCookieNames();
 
     domains.forEach((domain) => {
       analyticsCookies.forEach((cookieName) => {
