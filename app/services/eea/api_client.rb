@@ -3,8 +3,8 @@ module Eea
     BASE_URL = 'https://eeadmz1-downloads-api-appservice.azurewebsites.net'
     HEADERS = { 'Accept' => '*/*', 'Content-Type' => 'application/json' }
 
-    def initialize
-      @api_client = ::ApiClient.new(base_url: BASE_URL, headers: HEADERS)
+    def initialize(client: ::ApiClient.new(base_url: BASE_URL, headers: HEADERS))
+      @client = client
     end
 
     def fetch_zip_bytes(
@@ -13,7 +13,7 @@ module Eea
       window_starts_at:,
       window_ends_at:
     )
-      api_client.post(
+      client.post(
         '/ParquetFile',
         body:
           {
@@ -27,7 +27,7 @@ module Eea
 
     private
 
-    attr_reader :api_client
+    attr_reader :client
 
     def default_params
       { cities: [], dataset: 1, aggregationType: 'hour' }
