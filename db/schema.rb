@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2026_02_12_100002) do
+ActiveRecord::Schema[7.0].define(version: 2026_02_17_143956) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
   enable_extension "postgis"
@@ -94,13 +94,11 @@ ActiveRecord::Schema[7.0].define(version: 2026_02_12_100002) do
   end
 
   create_table "epa_ingest_batches", force: :cascade do |t|
-    t.timestamptz "window_starts_at", null: false
-    t.timestamptz "window_ends_at", null: false
+    t.timestamptz "measured_at", null: false
     t.string "status", default: "queued", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["status"], name: "index_epa_ingest_batches_on_status"
-    t.check_constraint "window_starts_at < window_ends_at", name: "chk_epa_ingest_batches_window_bounds"
   end
 
   create_table "epa_raw_measurements", id: false, force: :cascade do |t|
@@ -112,7 +110,7 @@ ActiveRecord::Schema[7.0].define(version: 2026_02_12_100002) do
     t.string "gmt_offset"
     t.string "parameter_name"
     t.string "reporting_units"
-    t.float "value"
+    t.string "value"
     t.string "data_source"
     t.timestamptz "ingested_at", default: -> { "now()" }, null: false
     t.index ["epa_ingest_batch_id"], name: "idx_epa_raw_measurements_batch_id"

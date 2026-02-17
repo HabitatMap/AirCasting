@@ -1,0 +1,2 @@
+class EpaRawMeasurement < ApplicationRecord
+end

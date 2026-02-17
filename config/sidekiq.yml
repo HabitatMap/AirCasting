@@ -6,6 +6,7 @@
   - [default, 4]
   - [slow, 1]
   - [eea, 4]
+  - [epa, 2]
 
 :schedule:
   session_stopped_alerts:
