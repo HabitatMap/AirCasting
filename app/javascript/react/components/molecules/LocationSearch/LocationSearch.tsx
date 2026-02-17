@@ -6,7 +6,7 @@ import usePlacesAutocomplete, {
   getLatLng,
 } from "use-places-autocomplete";
 
-import { useMap } from "@vis.gl/react-google-maps";
+import { useApiIsLoaded, useMap } from "@vis.gl/react-google-maps";
 
 import locationSearchIcon from "../../../assets/icons/locationSearchIcon.svg";
 import { useAppDispatch } from "../../../store/hooks";
@@ -32,12 +32,20 @@ const LocationSearch: React.FC<LocationSearchProps> = ({ isTimelapseView }) => {
   const [inputValue, setInputValue] = useState("");
   const { t } = useTranslation();
   const map = useMap();
+  const apiIsLoaded = useApiIsLoaded();
   const { setUrlParams } = useMapParams();
   const {
     setValue,
     suggestions: { status, data },
     clearSuggestions,
-  } = usePlacesAutocomplete();
+    init,
+  } = usePlacesAutocomplete({ initOnMount: false });
+
+  useEffect(() => {
+    if (apiIsLoaded) {
+      init();
+    }
+  }, [apiIsLoaded, init]);
 
   const {
     isOpen,
