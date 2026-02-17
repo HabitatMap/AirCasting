@@ -23,7 +23,7 @@ import { selectThresholds } from "../../../../store/thresholdSlice";
 import { Note } from "../../../../types/note";
 import { MobileSession } from "../../../../types/sessionType";
 import { getColorForValue } from "../../../../utils/thresholdColors";
-import { CustomMarker } from "./CustomOverlays/CustomMarker";
+import { getCustomMarkerClass, type CustomMarker } from "./CustomOverlays/CustomMarker";
 import HoverMarker from "./HoverMarker/HoverMarker";
 
 type Props = {
@@ -40,7 +40,7 @@ const StreamMarkers = ({ sessions, unitSymbol }: Props) => {
   const hoverPosition = useAppSelector(selectHoverPosition);
   const mobileStreamData = useAppSelector(selectMobileStreamData);
   const [CustomOverlay, setCustomOverlay] = useState<
-    typeof CustomMarker | null
+    ReturnType<typeof getCustomMarkerClass> | null
   >(null);
   const isInitialLoading = useRef(true);
 
@@ -98,7 +98,7 @@ const StreamMarkers = ({ sessions, unitSymbol }: Props) => {
   const createOrUpdateMarker = (
     session: MobileSession,
     map: google.maps.Map,
-    CustomOverlay: typeof CustomMarker,
+    CustomOverlay: ReturnType<typeof getCustomMarkerClass>,
     thresholds: any,
     unitSymbol: string,
     markersRef: React.MutableRefObject<Map<string, CustomMarker>>
@@ -136,7 +136,7 @@ const StreamMarkers = ({ sessions, unitSymbol }: Props) => {
 
   useEffect(() => {
     if (window.google && window.google.maps && !CustomOverlay) {
-      setCustomOverlay(() => CustomMarker);
+      setCustomOverlay(() => getCustomMarkerClass());
     }
   }, [CustomOverlay]);
 

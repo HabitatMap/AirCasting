@@ -4,9 +4,9 @@ import { useSelector } from "react-redux";
 import { selectThresholds } from "../../../../store/thresholdSlice";
 import { useMapParams } from "../../../../utils/mapParamsHandler";
 import { getColorForValue } from "../../../../utils/thresholdColors";
-import { ClusterOverlay } from "./ClusterMarker/clusterOverlay";
-import { LabelOverlay } from "./CustomOverlays/customMarkerLabel";
-import { CustomMarkerOverlay } from "./CustomOverlays/customMarkerOverlay";
+import { getClusterOverlayClass, type ClusterOverlay } from "./ClusterMarker/clusterOverlay";
+import { getLabelOverlayClass, type LabelOverlay } from "./CustomOverlays/customMarkerLabel";
+import { getCustomMarkerOverlayClass, type CustomMarkerOverlay } from "./CustomOverlays/customMarkerOverlay";
 import { CustomCluster } from "./FixedMarkers";
 
 type SessionData = {
@@ -40,7 +40,7 @@ const createClusterOverlay = (
   color: string,
   map: google.maps.Map
 ) =>
-  new ClusterOverlay(
+  new (getClusterOverlayClass())(
     {
       id: key,
       position: createPosition(session.latitude, session.longitude),
@@ -58,7 +58,7 @@ const createMarkerOverlay = (
   map: google.maps.Map
 ) => {
   const position = createPosition(session.latitude, session.longitude);
-  const markerOverlay = new CustomMarkerOverlay(position, color, false, false);
+  const markerOverlay = new (getCustomMarkerOverlayClass())(position, color, false, false);
   markerOverlay.setMap(map);
   return markerOverlay;
 };
@@ -71,7 +71,7 @@ const createLabelOverlay = (
 ) => {
   const position = createPosition(session.latitude, session.longitude);
   const zIndex = calculateZIndex(session.sessions);
-  const labelOverlay = new LabelOverlay(
+  const labelOverlay = new (getLabelOverlayClass())(
     position,
     color,
     session.value,
@@ -102,12 +102,12 @@ export const TimelapseMarkers = ({ sessions }: Props) => {
   ) => {
     if (
       isCluster &&
-      !(timelapseMarker.markerOverlay instanceof ClusterOverlay)
+      !(timelapseMarker.markerOverlay instanceof (getClusterOverlayClass()))
     ) {
       convertToCluster(timelapseMarker, session, color, key);
     } else if (
       !isCluster &&
-      timelapseMarker.markerOverlay instanceof ClusterOverlay
+      timelapseMarker.markerOverlay instanceof (getClusterOverlayClass())
     ) {
       convertToMarker(timelapseMarker, session, color);
     } else {
@@ -153,7 +153,7 @@ export const TimelapseMarkers = ({ sessions }: Props) => {
     color: string,
     key: string
   ) => {
-    if (timelapseMarker.markerOverlay instanceof ClusterOverlay) {
+    if (timelapseMarker.markerOverlay instanceof (getClusterOverlayClass())) {
       // Create a new cluster overlay instead of updating the existing one
       timelapseMarker.markerOverlay.setMap(null);
       timelapseMarker.markerOverlay = createClusterOverlay(

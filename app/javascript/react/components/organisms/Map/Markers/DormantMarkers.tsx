@@ -19,7 +19,7 @@ import { setMarkersLoading } from "../../../../store/markersLoadingSlice";
 import { StatusEnum } from "../../../../types/api";
 import type { LatLngLiteral } from "../../../../types/googleMaps";
 import { FixedSession } from "../../../../types/sessionType";
-import { CustomMarker } from "./CustomOverlays/CustomMarker";
+import { getCustomMarkerClass, type CustomMarker } from "./CustomOverlays/CustomMarker";
 import HoverMarker from "./HoverMarker/HoverMarker";
 
 type DormantMarkersProps = {
@@ -70,7 +70,7 @@ const DormantMarkers: React.FC<DormantMarkersProps> = ({
       const size = 12;
       const shouldPulse = session.id === pulsatingSessionId;
 
-      const marker = new CustomMarker(
+      const marker = new (getCustomMarkerClass())(
         position,
         color,
         title,

@@ -1,141 +1,157 @@
 import { gray200, gray400, white } from "../../../../../assets/styles/colors";
 
-export class LabelOverlay extends google.maps.OverlayView {
-  private div: HTMLElement | null = null;
-  private position: google.maps.LatLng;
-  private color: string;
-  private value: number | string;
-  private unitSymbol: string;
-  private isSelected: boolean;
-  private onClick: () => void;
-  private zIndex: number;
+function createLabelOverlayClass() {
+  return class LabelOverlay extends google.maps.OverlayView {
+    private div: HTMLElement | null = null;
+    private position: google.maps.LatLng;
+    private color: string;
+    private value: number | string;
+    private unitSymbol: string;
+    private isSelected: boolean;
+    private onClick: () => void;
+    private zIndex: number;
 
-  constructor(
-    position: google.maps.LatLng,
-    color: string,
-    value: number | string,
-    unitSymbol: string,
-    isSelected: boolean,
-    onClick: () => void,
-    zIndex: number = 1000
-  ) {
-    super();
-    this.position = position;
-    this.color = color;
-    this.value = value;
-    this.unitSymbol = unitSymbol;
-    this.isSelected = isSelected;
-    this.onClick = onClick;
-    this.zIndex = zIndex;
-  }
-
-  onAdd() {
-    this.div = document.createElement("div");
-    this.div.style.position = "absolute";
-    this.div.style.transform = "translate(-13%, 0)";
-    this.div.style.cursor = "pointer";
-    this.div.style.zIndex = "3";
-
-    this.applyStyles();
-
-    this.div.addEventListener("click", this.onClick);
-
-    const panes = this.getPanes();
-    panes && panes.overlayMouseTarget.appendChild(this.div);
-  }
-
-  draw() {
-    if (!this.div) return;
-    const overlayProjection = this.getProjection();
-    const pos = overlayProjection.fromLatLngToDivPixel(this.position);
-    if (pos) {
-      this.div.style.left = `${pos.x}px`;
-      this.div.style.top = `${pos.y}px`;
+    constructor(
+      position: google.maps.LatLng,
+      color: string,
+      value: number | string,
+      unitSymbol: string,
+      isSelected: boolean,
+      onClick: () => void,
+      zIndex: number = 1000
+    ) {
+      super();
+      this.position = position;
+      this.color = color;
+      this.value = value;
+      this.unitSymbol = unitSymbol;
+      this.isSelected = isSelected;
+      this.onClick = onClick;
+      this.zIndex = zIndex;
     }
-  }
 
-  onRemove() {
-    if (this.div) {
-      this.div.removeEventListener("click", this.onClick);
+    onAdd() {
+      this.div = document.createElement("div");
+      this.div.style.position = "absolute";
+      this.div.style.transform = "translate(-13%, 0)";
+      this.div.style.cursor = "pointer";
+      this.div.style.zIndex = "3";
 
-      if (this.div.parentNode) {
-        this.div.parentNode.removeChild(this.div);
+      this.applyStyles();
+
+      this.div.addEventListener("click", this.onClick);
+
+      const panes = this.getPanes();
+      panes && panes.overlayMouseTarget.appendChild(this.div);
+    }
+
+    draw() {
+      if (!this.div) return;
+      const overlayProjection = this.getProjection();
+      const pos = overlayProjection.fromLatLngToDivPixel(this.position);
+      if (pos) {
+        this.div.style.left = `${pos.x}px`;
+        this.div.style.top = `${pos.y}px`;
       }
-      this.div = null;
     }
-  }
 
-  public update(
-    isSelected: boolean,
-    color: string,
-    value: number | string,
-    unitSymbol: string
-  ): void {
-    this.isSelected = isSelected;
-    this.color = color;
-    this.value = value;
-    this.unitSymbol = unitSymbol;
-    this.applyStyles();
-  }
+    onRemove() {
+      if (this.div) {
+        this.div.removeEventListener("click", this.onClick);
 
-  public setZIndex(zIndex: number): void {
-    this.zIndex = zIndex;
-    this.applyStyles();
-  }
+        if (this.div.parentNode) {
+          this.div.parentNode.removeChild(this.div);
+        }
+        this.div = null;
+      }
+    }
 
-  private applyStyles() {
-    if (!this.div) return;
+    public update(
+      isSelected: boolean,
+      color: string,
+      value: number | string,
+      unitSymbol: string
+    ): void {
+      this.isSelected = isSelected;
+      this.color = color;
+      this.value = value;
+      this.unitSymbol = unitSymbol;
+      this.applyStyles();
+    }
 
-    this.div.innerHTML = "";
+    public setZIndex(zIndex: number): void {
+      this.zIndex = zIndex;
+      this.applyStyles();
+    }
 
-    const labelContainer = document.createElement("div");
-    labelContainer.style.display = "flex";
-    labelContainer.style.backgroundColor = white;
-    labelContainer.style.borderRadius = "10px";
-    labelContainer.style.padding = "0 6px 0 4px";
-    labelContainer.style.height = "20px";
-    labelContainer.style.boxShadow = "0 2px 4px rgba(0, 0, 0, 0.1)";
-    labelContainer.style.border = this.isSelected
-      ? `1px solid ${this.color}`
-      : "none";
-    labelContainer.style.position = "relative";
-    labelContainer.style.transform = "translateY(-10px)";
-    labelContainer.style.whiteSpace = "nowrap";
-    labelContainer.style.alignItems = "center";
-    labelContainer.style.justifyContent = "center";
-    labelContainer.style.cursor = "pointer";
-    labelContainer.style.zIndex = this.zIndex.toString();
+    private applyStyles() {
+      if (!this.div) return;
 
-    const circle = document.createElement("div");
-    circle.style.width = "12px";
-    circle.style.height = "12px";
-    circle.style.borderRadius = "50%";
-    circle.style.backgroundColor = this.color;
-    circle.style.marginRight = "6px";
-    circle.style.flexShrink = "0";
-    circle.style.border =
-      typeof this.value !== "number" ? `1px solid ${gray200}` : "none";
+      this.div.innerHTML = "";
 
-    const textElement = document.createElement("span");
-    textElement.style.fontSize = "12px";
-    textElement.style.fontWeight = "400";
-    textElement.style.fontFamily = "Roboto, Arial, sans-serif";
-    textElement.style.letterSpacing = "0.14px";
-    textElement.style.color = gray400;
-    textElement.innerText =
-      typeof this.value === "number"
-        ? `${Math.round(this.value)} ${this.unitSymbol}`
-        : this.value;
-    textElement.style.alignSelf = "center";
+      const labelContainer = document.createElement("div");
+      labelContainer.style.display = "flex";
+      labelContainer.style.backgroundColor = white;
+      labelContainer.style.borderRadius = "10px";
+      labelContainer.style.padding = "0 6px 0 4px";
+      labelContainer.style.height = "20px";
+      labelContainer.style.boxShadow = "0 2px 4px rgba(0, 0, 0, 0.1)";
+      labelContainer.style.border = this.isSelected
+        ? `1px solid ${this.color}`
+        : "none";
+      labelContainer.style.position = "relative";
+      labelContainer.style.transform = "translateY(-10px)";
+      labelContainer.style.whiteSpace = "nowrap";
+      labelContainer.style.alignItems = "center";
+      labelContainer.style.justifyContent = "center";
+      labelContainer.style.cursor = "pointer";
+      labelContainer.style.zIndex = this.zIndex.toString();
 
-    labelContainer.appendChild(circle);
-    labelContainer.appendChild(textElement);
-    this.div.appendChild(labelContainer);
+      const circle = document.createElement("div");
+      circle.style.width = "12px";
+      circle.style.height = "12px";
+      circle.style.borderRadius = "50%";
+      circle.style.backgroundColor = this.color;
+      circle.style.marginRight = "6px";
+      circle.style.flexShrink = "0";
+      circle.style.border =
+        typeof this.value !== "number" ? `1px solid ${gray200}` : "none";
 
-    labelContainer.style.boxShadow = "0 2px 6px rgba(0, 0, 0, 0.15)";
-  }
+      const textElement = document.createElement("span");
+      textElement.style.fontSize = "12px";
+      textElement.style.fontWeight = "400";
+      textElement.style.fontFamily = "Roboto, Arial, sans-serif";
+      textElement.style.letterSpacing = "0.14px";
+      textElement.style.color = gray400;
+      textElement.innerText =
+        typeof this.value === "number"
+          ? `${Math.round(this.value)} ${this.unitSymbol}`
+          : this.value;
+      textElement.style.alignSelf = "center";
 
-  public getDiv(): HTMLElement | null {
-    return this.div;
-  }
+      labelContainer.appendChild(circle);
+      labelContainer.appendChild(textElement);
+      this.div.appendChild(labelContainer);
+
+      labelContainer.style.boxShadow = "0 2px 6px rgba(0, 0, 0, 0.15)";
+    }
+
+    public getDiv(): HTMLElement | null {
+      return this.div;
+    }
+  };
 }
+
+let _LabelOverlayClass: ReturnType<typeof createLabelOverlayClass> | null =
+  null;
+
+export function getLabelOverlayClass() {
+  if (!_LabelOverlayClass) {
+    _LabelOverlayClass = createLabelOverlayClass();
+  }
+  return _LabelOverlayClass;
+}
+
+export type LabelOverlay = InstanceType<
+  ReturnType<typeof createLabelOverlayClass>
+>;

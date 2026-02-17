@@ -119,8 +119,8 @@ jest.mock("@vis.gl/react-google-maps", () => ({
 // Mock CustomMarker
 jest.mock(
   "../../components/organisms/Map/Markers/CustomOverlays/CustomMarker",
-  () => ({
-    CustomMarker: jest
+  () => {
+    const CustomMarker = jest
       .fn()
       .mockImplementation(
         (position, color, title, width, height, className, notes) => {
@@ -141,8 +141,11 @@ jest.mock(
           mockMarkerInstances.push(marker);
           return marker;
         }
-      ),
-  })
+      );
+    return {
+      getCustomMarkerClass: () => CustomMarker,
+    };
+  }
 );
 
 // Mock HoverMarker

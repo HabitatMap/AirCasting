@@ -22,7 +22,7 @@ import useMapEventListeners from "../../../../utils/mapEventListeners";
 import { useMapParams } from "../../../../utils/mapParamsHandler";
 import { getColorForValue } from "../../../../utils/thresholdColors";
 
-import { CustomMarker } from "./CustomOverlays/CustomMarker";
+import { getCustomMarkerClass, type CustomMarker } from "./CustomOverlays/CustomMarker";
 
 import MapOverlay from "./CustomOverlays/MapOverlay";
 import {
@@ -269,7 +269,7 @@ const CrowdMapMarkers = ({ pulsatingSessionId, sessions }: Props) => {
         displayedSession.lastMeasurementValue
       );
 
-      const marker = new CustomMarker(position, color, "", 12);
+      const marker = new (getCustomMarkerClass())(position, color, "", 12);
 
       marker.setMap(map);
       displayedSessionMarkerRef.current = marker;
