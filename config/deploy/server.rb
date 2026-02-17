@@ -22,7 +22,7 @@
 # server list. The second argument is a, or duck-types, Hash and is
 # used to set extended properties on the server.
 
-server ENV.fetch('SERVER', 'aircasting.habitatmap.org'),
+server ENV.fetch('SERVER', 'aircasting.org'),
        user: 'aircasting',
        roles: %w[web app]
 # Default deploy_to directory is /var/www/my_app_name
@@ -44,7 +44,7 @@ set :default_env,
     {
       path:
         '/usr/local/rbenv/plugins/ruby-build/bin:/usr/local/rbenv/shims:/usr/local/rbenv/bin:$PATH',
-      rbenv_root: '/usr/local/rbenv'
+      rbenv_root: '/usr/local/rbenv',
     }
 set :rbenv_roles, :all
 set :rbenv_ruby_dir, "/usr/local/rbenv/versions/#{ruby_version}"
