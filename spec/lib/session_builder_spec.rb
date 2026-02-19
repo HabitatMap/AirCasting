@@ -34,14 +34,14 @@ describe SessionBuilder do
               time: '2024-05-23T13:58:34.000Z',
               latitude: 50.0583582102866,
               milliseconds: 0,
-              value: 20.86663818359375
+              value: 20.86663818359375,
             },
             {
               milliseconds: 0,
               value: 38.978153228759766,
               latitude: 50.0583582102866,
               longitude: 19.925760220380383,
-              time: '2024-05-23T13:58:33.000Z'
+              time: '2024-05-23T13:58:33.000Z',
             },
           ],
           sensor_package_name: 'Builtin',
@@ -59,10 +59,39 @@ describe SessionBuilder do
   end
 
   it 'builds a session with streams and measurements' do
-    expect {
-      subject.build!
-    }.to change { Session.count }.by(1)
-      .and change { Stream.count }.by(1)
-      .and change { Measurement.count }.by(2)
+    expect { subject.build! }.to change { Session.count }.by(1).and change {
+                                     Stream.count
+                                   }.by(1).and change { Measurement.count }.by(
+                                                                   2,
+                                                                 )
+  end
+
+  describe '.normalize_tags' do
+    it 'replaces spaces and commas with commas as tag delimiters' do
+      expect(SessionBuilder.normalize_tags('jola misio, foo')).to eq(
+        'jola,misio,foo',
+      )
+    end
+  end
+
+  describe '.prepare_notes' do
+    it 'returns notes unchanged when photos are blank' do
+      notes = [{ note: 'first' }, { note: 'second' }]
+      result = SessionBuilder.prepare_notes(notes, [nil, ''])
+
+      expect(result).to eq([{ note: 'first' }, { note: 'second' }])
+    end
+
+    it 'attaches photo as ActiveStorage blob when photo is present' do
+      # Minimal valid 1x1 red PNG image in base64
+      png_base64 =
+        'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8DwHwAFBQIAX8jx0gAAAABJRU5ErkJggg=='
+      notes = [{ note: 'with photo' }]
+
+      result = SessionBuilder.prepare_notes(notes, [png_base64])
+
+      expect(result.first[:note]).to eq('with photo')
+      expect(result.first[:s3_photo]).to be_a(ActiveStorage::Blob)
+    end
   end
 end
