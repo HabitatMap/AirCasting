@@ -21,7 +21,7 @@ module Eea
         pollutant,
         "start"   AS start_time,
         "end"     AS end_time,
-        value,
+        CAST(value AS DOUBLE) AS value,
         unit,
         validity,
         verification
