@@ -12,9 +12,14 @@ module Epa
 
     SUPPORTED_PARAMETERS = %w[PM2.5 O3 NO2 OZONE].freeze
 
-    def initialize(api_client: ApiClient.new, repository: Repository.new)
+    def initialize(
+      api_client: ApiClient.new,
+      repository: Repository.new,
+      transform_worker: Epa::TransformWorker
+    )
       @api_client = api_client
       @repository = repository
+      @transform_worker = transform_worker
     end
 
     def call(batch_id:)
@@ -26,17 +31,18 @@ module Epa
         repository.insert_raw_measurements!(records: records)
         repository.update_ingest_batch_status!(batch: batch, status: :extracted)
       end
+
+      transform_worker.perform_async(batch_id)
     end
 
     private
 
-    attr_reader :api_client, :repository
+    attr_reader :api_client, :repository, :transform_worker
 
     def parse_lines(data, batch_id)
-      sanitized = sanitized_data(data)
-      return [] if sanitized.blank?
+      return [] if data.blank?
 
-      sanitized.split("\n").map { |line| parse_line(line, batch_id) }.compact
+      data.split("\n").map { |line| parse_line(line, batch_id) }.compact
     end
 
     def parse_line(line, batch_id)
@@ -48,7 +54,7 @@ module Epa
         valid_date: fields[FIELD_DATE],
         valid_time: fields[FIELD_TIME],
         aqsid: fields[FIELD_AQSID],
-        sitename: fields[FIELD_SITENAME],
+        sitename: Epa.sanitize_data(fields[FIELD_SITENAME]),
         gmt_offset: fields[FIELD_GMT_OFFSET],
         parameter_name: fields[FIELD_PARAMETER_NAME],
         reporting_units: fields[FIELD_REPORTING_UNITS],
@@ -60,12 +66,6 @@ module Epa
 
     def supported_parameter?(parameter_name)
       SUPPORTED_PARAMETERS.include?(parameter_name)
-    end
-
-    def sanitized_data(data)
-      data
-        .force_encoding('ASCII-8BIT')
-        .encode('UTF-8', invalid: :replace, undef: :replace, replace: "\uFFFD")
     end
   end
 end

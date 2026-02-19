@@ -1,0 +1,2 @@
+class EpaTransformedMeasurement < ApplicationRecord
+end
