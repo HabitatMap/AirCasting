@@ -7,7 +7,17 @@ module Epa
     end
 
     def fetch_locations
-      client.get('/files.airnowtech.org/airnow/today/monitoring_site_locations.dat')
+      client.get(
+        '/files.airnowtech.org/airnow/today/monitoring_site_locations.dat',
+      )
+    end
+
+    def fetch_hourly_data(measured_at:)
+      formatted_date = measured_at.strftime('%Y%m%d%H')
+
+      client.get(
+        "/files.airnowtech.org/airnow/today/HourlyData_#{formatted_date}.dat",
+      )
     end
 
     private
