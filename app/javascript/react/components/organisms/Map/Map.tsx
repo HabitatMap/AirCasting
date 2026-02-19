@@ -26,6 +26,7 @@ import { selectFixedData } from "../../../store/fixedStreamSelectors";
 import {
   fetchFixedStreamById,
   resetFixedStreamState,
+  setLastSelectedTimeRange,
 } from "../../../store/fixedStreamSlice";
 import { useAppDispatch, useAppSelector } from "../../../store/hooks";
 import { selectIndoorSessionsList } from "../../../store/indoorSessionsSelectors";
@@ -71,6 +72,7 @@ import {
   setCurrentTimestamp,
 } from "../../../store/timelapseSlice";
 import { SessionTypes } from "../../../types/filters";
+import { FixedTimeRange } from "../../../types/timeRange";
 import type { SessionList } from "../../../types/sessionType";
 import { UserSettings } from "../../../types/userStates";
 import { CookieManager } from "../../../utils/cookieManager";
@@ -684,9 +686,12 @@ const Map = () => {
     }
 
     if (selectedStreamId) {
-      fixedSessionTypeSelected
-        ? dispatch(fetchFixedStreamById(selectedStreamId))
-        : dispatch(fetchMobileStreamById(selectedStreamId));
+      if (fixedSessionTypeSelected) {
+        dispatch(setLastSelectedTimeRange(FixedTimeRange.Day));
+        dispatch(fetchFixedStreamById(selectedStreamId));
+      } else {
+        dispatch(fetchMobileStreamById(selectedStreamId));
+      }
     }
 
     if (isMobile) {
