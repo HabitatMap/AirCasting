@@ -36,9 +36,9 @@ import { UserSettings } from "../../../../types/userStates";
 import HoverMarker from "./HoverMarker/HoverMarker";
 
 import { calculateClusterAverage } from "./ClusterMarker/clusterCalculations";
-import { ClusterOverlay } from "./ClusterMarker/clusterOverlay";
-import { LabelOverlay } from "./CustomOverlays/customMarkerLabel";
-import { CustomMarkerOverlay } from "./CustomOverlays/customMarkerOverlay";
+import { getClusterOverlayClass, type ClusterOverlay } from "./ClusterMarker/clusterOverlay";
+import { getLabelOverlayClass, type LabelOverlay } from "./CustomOverlays/customMarkerLabel";
+import { getCustomMarkerOverlayClass, type CustomMarkerOverlay } from "./CustomOverlays/customMarkerOverlay";
 import { CustomAlgorithm } from "./gridClusterAlgorithm";
 
 type CustomMarker = google.maps.Marker & {
@@ -201,7 +201,7 @@ export function FixedMarkers({
           pulsatingSessionId !== null &&
           markers.some((marker) => marker.sessionId === pulsatingSessionId);
 
-        const overlay = new ClusterOverlay(
+        const overlay = new (getClusterOverlayClass())(
           cluster,
           color,
           hasPulsatingSession,
@@ -349,7 +349,7 @@ export function FixedMarkers({
       } else {
         // Ensure overlays are present and updated
         if (!existingOverlay) {
-          const overlay = new CustomMarkerOverlay(
+          const overlay = new (getCustomMarkerOverlayClass())(
             position!,
             newColor,
             isSelected,
@@ -365,7 +365,7 @@ export function FixedMarkers({
         }
 
         if (!existingLabelOverlay) {
-          const labelOverlay = new LabelOverlay(
+          const labelOverlay = new (getLabelOverlayClass())(
             position!,
             newColor,
             marker.value === null ? calculatingText : marker.value,
@@ -488,7 +488,7 @@ export function FixedMarkers({
               const value = session.averageValue;
               const color = getColorForValue(thresholds, value);
 
-              const newOverlay = new CustomMarkerOverlay(
+              const newOverlay = new (getCustomMarkerOverlayClass())(
                 new google.maps.LatLng(latitude, longitude),
                 color,
                 true,
@@ -497,7 +497,7 @@ export function FixedMarkers({
               newOverlay.setMap(map);
               markerOverlays.current.set(session.point.streamId, newOverlay);
 
-              const newLabelOverlay = new LabelOverlay(
+              const newLabelOverlay = new (getLabelOverlayClass())(
                 new google.maps.LatLng(latitude, longitude),
                 color,
                 value === null ? calculatingText : value,
@@ -649,7 +649,7 @@ export function FixedMarkers({
               pulsatingSessionId !== null &&
               markers.some((marker) => marker.sessionId === pulsatingSessionId);
 
-            const overlay = new ClusterOverlay(
+            const overlay = new (getClusterOverlayClass())(
               cluster,
               color,
               hasPulsatingSession,

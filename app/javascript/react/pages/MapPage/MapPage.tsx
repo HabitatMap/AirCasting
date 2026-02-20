@@ -31,6 +31,7 @@ const MapPage: React.FC<MapPageProps> = ({ children }) => {
   return (
     <APIProvider
       apiKey={googleMapsApiKey}
+      libraries={["places"]}
       onLoad={() => console.log("Maps API has loaded.")}
     >
       {children}

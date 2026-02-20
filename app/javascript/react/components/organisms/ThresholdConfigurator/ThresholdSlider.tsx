@@ -1,4 +1,4 @@
-import _ from "lodash";
+import { debounce, isEqual } from "lodash";
 import React, {
   useCallback,
   useEffect,
@@ -64,7 +64,7 @@ const ThresholdSlider: React.FC<ThresholdSliderProps> = ({
 
   const debouncedSetUserThresholdValues = useMemo(
     () =>
-      _.debounce(
+      debounce(
         (values: Thresholds) => dispatch(setUserThresholdValues(values)),
         300
       ),
@@ -72,13 +72,13 @@ const ThresholdSlider: React.FC<ThresholdSliderProps> = ({
   );
 
   useEffect(() => {
-    if (!_.isEqual(thresholdsState, thresholdValues)) {
+    if (!isEqual(thresholdsState, thresholdValues)) {
       setThresholdValues(thresholdsState);
     }
   }, [thresholdsState]);
 
   useEffect(() => {
-    if (!_.isEqual(thresholdsState, thresholdValues)) {
+    if (!isEqual(thresholdsState, thresholdValues)) {
       debouncedSetUserThresholdValues(thresholdValues);
     }
   }, [thresholdValues, debouncedSetUserThresholdValues]);

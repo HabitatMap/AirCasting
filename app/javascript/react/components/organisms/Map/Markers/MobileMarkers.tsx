@@ -15,9 +15,9 @@ import type { LatLngLiteral } from "../../../../types/googleMaps";
 import { MobileSession, Point } from "../../../../types/sessionType";
 import { useMapParams } from "../../../../utils/mapParamsHandler";
 import { getColorForValue } from "../../../../utils/thresholdColors";
-import { CustomMarker } from "./CustomOverlays/CustomMarker";
-import { LabelOverlay } from "./CustomOverlays/customMarkerLabel";
-import { CustomMarkerOverlay } from "./CustomOverlays/customMarkerOverlay";
+import { getCustomMarkerClass, type CustomMarker } from "./CustomOverlays/CustomMarker";
+import { getLabelOverlayClass, type LabelOverlay } from "./CustomOverlays/customMarkerLabel";
+import { getCustomMarkerOverlayClass, type CustomMarkerOverlay } from "./CustomOverlays/customMarkerOverlay";
 
 type Props = {
   sessions: MobileSession[];
@@ -137,7 +137,7 @@ const MobileMarkers = ({
       const shouldPulse = session.id === pulsatingSessionId;
       const size = 12;
 
-      const marker = new CustomMarker(
+      const marker = new (getCustomMarkerClass())(
         session.point,
         color,
         "",
@@ -209,7 +209,7 @@ const MobileMarkers = ({
       } else {
         let overlay = markerOverlays.current.get(streamId);
         if (!overlay) {
-          overlay = new CustomMarkerOverlay(
+          overlay = new (getCustomMarkerOverlayClass())(
             marker.getPosition()!,
             color,
             isSelected,
@@ -226,7 +226,7 @@ const MobileMarkers = ({
 
         let labelOverlay = labelOverlays.current.get(streamId);
         if (!labelOverlay) {
-          labelOverlay = new LabelOverlay(
+          labelOverlay = new (getLabelOverlayClass())(
             marker.getPosition()!,
             color,
             session.lastMeasurementValue,

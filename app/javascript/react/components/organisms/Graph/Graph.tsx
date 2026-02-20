@@ -423,8 +423,8 @@ const Graph: React.FC<GraphProps> = memo(
         const chart = this;
         if (chart.xAxis && chart.xAxis[0]) {
           if (fixedSessionTypeSelected) {
-            const twoDaysAgo = endTime - 2 * MILLISECONDS_IN_A_DAY;
-            chart.xAxis[0].setExtremes(twoDaysAgo, endTime, true, false);
+            const oneDayAgo = endTime - MILLISECONDS_IN_A_DAY;
+            chart.xAxis[0].setExtremes(oneDayAgo, endTime, true, false);
           } else {
             // Mobile sessions should show the full time range by default
             chart.xAxis[0].setExtremes(startTime, endTime, true, false);

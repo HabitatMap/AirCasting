@@ -166,7 +166,7 @@ jest.mock("../../utils/mapParamsHandler", () => ({
 }));
 
 jest.mock(
-  "../../components/organisms/Map/Markers/CustomOverlays/CustomMarkerOverlay",
+  "../../components/organisms/Map/Markers/CustomOverlays/customMarkerOverlay",
   () => {
     const CustomMarkerOverlay = jest
       .fn()
@@ -184,7 +184,7 @@ jest.mock(
 
     return {
       __esModule: true,
-      default: CustomMarkerOverlay,
+      getCustomMarkerOverlayClass: () => CustomMarkerOverlay,
       CustomMarkerOverlay,
     };
   }
@@ -225,7 +225,7 @@ jest.mock(
       );
     return {
       __esModule: true,
-      default: LabelOverlay,
+      getLabelOverlayClass: () => LabelOverlay,
       LabelOverlay,
     };
   }

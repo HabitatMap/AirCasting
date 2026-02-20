@@ -2,7 +2,7 @@ import { useMap } from "@vis.gl/react-google-maps";
 import React, { useEffect, useRef } from "react";
 import { blue } from "../../../../../assets/styles/colors";
 import { LatLngLiteral } from "../../../../../types/googleMaps";
-import { CustomMarker } from "../CustomOverlays/CustomMarker";
+import { getCustomMarkerClass, type CustomMarker } from "../CustomOverlays/CustomMarker";
 
 interface HoverMarkerProps {
   position: LatLngLiteral | null;
@@ -17,7 +17,7 @@ const HoverMarker: React.FC<HoverMarkerProps> = ({ position }) => {
     if (!map || !position) return;
 
     if (!markerRef.current) {
-      markerRef.current = new CustomMarker(
+      markerRef.current = new (getCustomMarkerClass())(
         position,
         `${blue}`,
         "Hover Marker",

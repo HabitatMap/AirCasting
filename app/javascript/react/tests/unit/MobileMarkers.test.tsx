@@ -88,47 +88,48 @@ let mockMarkerClickHandlers: Function[] = [];
 jest.mock(
   "../../components/organisms/Map/Markers/CustomOverlays/CustomMarker",
   () => {
-    return {
-      CustomMarker: jest
-        .fn()
-        .mockImplementation(
-          (
-            position,
-            color,
-            label,
-            width,
-            height,
-            className,
-            _,
-            __,
-            clickHandler
-          ) => {
-            // Store the click handler for later use
-            mockMarkerClickHandlers.push(clickHandler);
+    const CustomMarker = jest
+      .fn()
+      .mockImplementation(
+        (
+          position,
+          color,
+          label,
+          width,
+          height,
+          className,
+          _,
+          __,
+          clickHandler
+        ) => {
+          // Store the click handler for later use
+          mockMarkerClickHandlers.push(clickHandler);
 
-            const marker: MockMarker = {
-              setMap: jest.fn(),
-              setPosition: jest.fn(),
-              setColor: jest.fn(),
-              setSize: jest.fn(),
-              setPulsating: jest.fn().mockImplementation((value: boolean) => {
-                marker.pulsating = value;
-              }),
-              setClickableAreaSize: jest.fn(),
-              setZIndex: jest.fn(),
-              getPosition: jest.fn(() => position),
-              onClick: () => {
-                if (typeof clickHandler === "function") {
-                  clickHandler();
-                }
-              },
-              pulsating: false,
-              position,
-            };
-            mockMarkerInstances.push(marker);
-            return marker;
-          }
-        ),
+          const marker: MockMarker = {
+            setMap: jest.fn(),
+            setPosition: jest.fn(),
+            setColor: jest.fn(),
+            setSize: jest.fn(),
+            setPulsating: jest.fn().mockImplementation((value: boolean) => {
+              marker.pulsating = value;
+            }),
+            setClickableAreaSize: jest.fn(),
+            setZIndex: jest.fn(),
+            getPosition: jest.fn(() => position),
+            onClick: () => {
+              if (typeof clickHandler === "function") {
+                clickHandler();
+              }
+            },
+            pulsating: false,
+            position,
+          };
+          mockMarkerInstances.push(marker);
+          return marker;
+        }
+      );
+    return {
+      getCustomMarkerClass: () => CustomMarker,
     };
   }
 );
@@ -137,14 +138,15 @@ jest.mock(
 jest.mock(
   "../../components/organisms/Map/Markers/CustomOverlays/customMarkerOverlay",
   () => {
+    const CustomMarkerOverlay = jest.fn().mockImplementation(() => ({
+      setMap: jest.fn(),
+      setIsSelected: jest.fn(),
+      setShouldPulse: jest.fn(),
+      setColor: jest.fn(),
+      update: jest.fn(),
+    }));
     return {
-      CustomMarkerOverlay: jest.fn().mockImplementation(() => ({
-        setMap: jest.fn(),
-        setIsSelected: jest.fn(),
-        setShouldPulse: jest.fn(),
-        setColor: jest.fn(),
-        update: jest.fn(),
-      })),
+      getCustomMarkerOverlayClass: () => CustomMarkerOverlay,
     };
   }
 );
@@ -153,12 +155,13 @@ jest.mock(
 jest.mock(
   "../../components/organisms/Map/Markers/CustomOverlays/customMarkerLabel",
   () => {
+    const LabelOverlay = jest.fn().mockImplementation(() => ({
+      setMap: jest.fn(),
+      update: jest.fn(),
+      setZIndex: jest.fn(),
+    }));
     return {
-      LabelOverlay: jest.fn().mockImplementation(() => ({
-        setMap: jest.fn(),
-        update: jest.fn(),
-        setZIndex: jest.fn(),
-      })),
+      getLabelOverlayClass: () => LabelOverlay,
     };
   }
 );
@@ -305,7 +308,7 @@ describe("MobileMarkers", () => {
     // Check if CustomMarker was called for each session
     expect(
       require("../../components/organisms/Map/Markers/CustomOverlays/CustomMarker")
-        .CustomMarker
+        .getCustomMarkerClass()
     ).toHaveBeenCalledTimes(mockSessions.length);
     expect(mockMarkerInstances.length).toBe(mockSessions.length);
   });
@@ -511,7 +514,7 @@ describe("MobileMarkers", () => {
     });
 
     const LabelOverlay =
-      require("../../components/organisms/Map/Markers/CustomOverlays/customMarkerLabel").LabelOverlay;
+      require("../../components/organisms/Map/Markers/CustomOverlays/customMarkerLabel").getLabelOverlayClass();
     const labelCalls = LabelOverlay.mock.calls;
 
     mockSessions.forEach((session, index) => {
@@ -553,7 +556,7 @@ describe("MobileMarkers", () => {
     });
 
     const LabelOverlay =
-      require("../../components/organisms/Map/Markers/CustomOverlays/customMarkerLabel").LabelOverlay;
+      require("../../components/organisms/Map/Markers/CustomOverlays/customMarkerLabel").getLabelOverlayClass();
     const labelCalls = LabelOverlay.mock.calls;
 
     // Check that each marker has the correct value
