@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2026_02_17_143956) do
+ActiveRecord::Schema[7.0].define(version: 2026_02_20_090000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
   enable_extension "postgis"
@@ -144,16 +144,6 @@ ActiveRecord::Schema[7.0].define(version: 2026_02_17_143956) do
     t.index ["fixed_stream_id", "measured_at"], name: "idx_uniq_fixed_stream_measured_at_partial", unique: true, where: "((fixed_stream_id IS NOT NULL) AND (measured_at IS NOT NULL))"
     t.index ["stream_id", "time_with_time_zone"], name: "index_fixed_measurements_on_stream_id_and_time_with_time_zone", unique: true
     t.index ["stream_id"], name: "index_fixed_measurements_on_stream_id"
-  end
-
-  create_table "fixed_stream_measurements", force: :cascade do |t|
-    t.bigint "fixed_stream_id", null: false
-    t.timestamptz "measured_at", null: false
-    t.float "value", null: false
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.index ["fixed_stream_id", "measured_at"], name: "idx_fixed_measurements_stream_measured_at_uniq", unique: true
-    t.index ["fixed_stream_id"], name: "index_fixed_stream_measurements_on_fixed_stream_id"
   end
 
   create_table "fixed_streams", force: :cascade do |t|
@@ -402,7 +392,6 @@ ActiveRecord::Schema[7.0].define(version: 2026_02_17_143956) do
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
   add_foreign_key "fixed_measurements", "fixed_streams"
   add_foreign_key "fixed_measurements", "streams"
-  add_foreign_key "fixed_stream_measurements", "fixed_streams", on_delete: :cascade
   add_foreign_key "fixed_streams", "sources"
   add_foreign_key "fixed_streams", "stream_configurations"
   add_foreign_key "hourly_averages", "fixed_streams"
