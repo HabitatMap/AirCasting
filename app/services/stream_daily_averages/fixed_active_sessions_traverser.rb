@@ -19,6 +19,7 @@ module StreamDailyAverages
               stream_id: stream.id,
               station_current_time: station_current_time,
               is_gov_stream: is_gov_stream(session),
+              is_indoor_stream: session.is_indoor,
             )
           rescue => e
             Rails.logger.warn(
