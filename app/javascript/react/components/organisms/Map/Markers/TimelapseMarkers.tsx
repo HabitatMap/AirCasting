@@ -90,6 +90,7 @@ export const TimelapseMarkers = ({ sessions }: Props) => {
   const { unitSymbol } = useMapParams();
   const map = useMap();
   const markersRef = useRef<Map<string, TimelapseMarker>>(new Map());
+  const ClusterOverlayClass = getClusterOverlayClass();
 
   const memoizedSessions = useMemo(() => sessions, [sessions]);
 
@@ -102,12 +103,12 @@ export const TimelapseMarkers = ({ sessions }: Props) => {
   ) => {
     if (
       isCluster &&
-      !(timelapseMarker.markerOverlay instanceof (getClusterOverlayClass()))
+      !(timelapseMarker.markerOverlay instanceof ClusterOverlayClass)
     ) {
       convertToCluster(timelapseMarker, session, color, key);
     } else if (
       !isCluster &&
-      timelapseMarker.markerOverlay instanceof (getClusterOverlayClass())
+      timelapseMarker.markerOverlay instanceof ClusterOverlayClass
     ) {
       convertToMarker(timelapseMarker, session, color);
     } else {
@@ -153,7 +154,7 @@ export const TimelapseMarkers = ({ sessions }: Props) => {
     color: string,
     key: string
   ) => {
-    if (timelapseMarker.markerOverlay instanceof (getClusterOverlayClass())) {
+    if (timelapseMarker.markerOverlay instanceof ClusterOverlayClass) {
       // Create a new cluster overlay instead of updating the existing one
       timelapseMarker.markerOverlay.setMap(null);
       timelapseMarker.markerOverlay = createClusterOverlay(
