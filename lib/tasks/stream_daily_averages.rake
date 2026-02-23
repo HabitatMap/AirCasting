@@ -10,7 +10,12 @@ end
 
 desc 'Fix daily averages for indoor sessions that may have been calculated incorrectly due to timezone offset'
 task fix_indoor_session_daily_averages: :environment do
+  stream_ids =
+    Stream
+      .joins(:session)
+      .where(sessions: { type: 'FixedSession', is_indoor: true })
+      .pluck(:id)
   puts 'Fixing daily averages for indoor sessions...'
-  StreamDailyAverages::IndoorSessionDailyAveragesRecalculator.new.call
+  StreamDailyAverages::DailyAveragesRecalculator.new.call(stream_ids: stream_ids)
   puts 'Done.'
 end
