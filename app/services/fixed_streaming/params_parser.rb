@@ -52,7 +52,9 @@ module FixedStreaming
 
       data = contract_result.to_h
       measurements =
-        data[:measurements].reject { |m| m[:time] > 48.hours.from_now }
+        data[:measurements].select do |m|
+          valid_measurement_time?(m[:time])
+        end
 
       if measurements.empty?
         return Failure.new('no measurements with valid time found')
@@ -64,6 +66,12 @@ module FixedStreaming
 
     def session(user_id:, session_uuid:)
       fixed_sessions_repository.find_by(user_id: user_id, uuid: session_uuid)
+    end
+
+    def valid_measurement_time?(time)
+      Time.parse(time) <= 48.hours.from_now
+    rescue ArgumentError
+      false
     end
   end
 end

@@ -98,7 +98,7 @@ RSpec.describe FixedStreaming::ParamsParser do
       end
     end
 
-    context 'when some measurements have invalid time' do
+    context 'when some measurements have time too far in the future' do
       it 'returns success with valid measurements only' do
         session = create(:fixed_session, user: user, uuid: 'session-uuid')
         invalid_data =
@@ -141,6 +141,49 @@ RSpec.describe FixedStreaming::ParamsParser do
           '2025-02-10T08:55:32',
         )
         expect(result.value[:data_flow]).to eq(:sync)
+      end
+    end
+
+    context 'when some measurements have malformed time format' do
+      it 'returns success with valid measurements only' do
+        session = create(:fixed_session, user: user, uuid: 'session-uuid')
+        invalid_data =
+          valid_data.merge(
+            measurements: [
+              {
+                longitude: -73.976343,
+                latitude: 40.680356,
+                time: '2000-02-28T07:45:112',
+                timezone_offset: 0,
+                milliseconds: 0,
+                measured_value: 0,
+                value: 0,
+              },
+              {
+                longitude: -73.976343,
+                latitude: 40.680356,
+                time: '2025-02-10T08:55:32',
+                timezone_offset: 0,
+                milliseconds: 0,
+                measured_value: 0,
+                value: 0,
+              },
+            ],
+          )
+
+        result =
+          subject.call(
+            data: invalid_data.to_json,
+            compression: false,
+            user_id: user.id,
+          )
+
+        expect(result).to be_a(Success)
+        expect(result.value[:session]).to eq(session)
+        expect(result.value[:data][:measurements].size).to eq(1)
+        expect(result.value[:data][:measurements].first[:time]).to eq(
+          '2025-02-10T08:55:32',
+        )
       end
     end
 
