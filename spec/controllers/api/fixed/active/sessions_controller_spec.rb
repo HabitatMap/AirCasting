@@ -18,7 +18,7 @@ describe Api::Fixed::Active::SessionsController do
           latitude: active_session.latitude,
           longitude: active_session.longitude,
         )
-      create_measurement!(stream: active_stream)
+      create_fixed_measurement!(stream: active_stream)
       dormant_session =
         create_fixed_session!(
           user: active_session.user,
@@ -30,13 +30,11 @@ describe Api::Fixed::Active::SessionsController do
           latitude: active_session.latitude,
           longitude: active_session.longitude,
         )
-      dormant_stream =
-        create_stream!(
+      create_stream!(
           session: dormant_session,
           latitude: active_session.latitude,
           longitude: active_session.longitude,
         )
-      create_measurement!(stream: dormant_stream)
 
       get :index,
           params: {
@@ -68,7 +66,7 @@ describe Api::Fixed::Active::SessionsController do
             'uuid' => active_session.uuid,
             'end_time_local' => '2000-10-02T02:03:04.000Z',
             'start_time_local' => '2000-10-01T02:03:04.000Z',
-            'last_hour_average' => active_session.measurements.last.value,
+            'last_hour_average' => FixedMeasurement.last.value,
             'is_indoor' => active_session.is_indoor,
             'latitude' => active_session.latitude,
             'longitude' => active_session.longitude,
@@ -84,13 +82,13 @@ describe Api::Fixed::Active::SessionsController do
                 'max_latitude' => active_stream.max_latitude,
                 'max_longitude' => active_stream.max_longitude,
                 'measurement_type' => active_stream.measurement_type,
-                'measurements_count' => 1,
+                'measurements_count' => 0,
                 'min_latitude' => active_stream.min_latitude,
                 'min_longitude' => active_stream.min_longitude,
                 'sensor_name' => active_stream.sensor_name,
                 'sensor_package_name' => active_stream.sensor_package_name,
                 'session_id' => active_session.id,
-                'size' => 1,
+                'size' => 0,
                 'start_latitude' => active_stream.start_latitude,
                 'start_longitude' => active_stream.start_longitude,
                 'threshold_high' => active_stream.threshold_set.threshold_high,
@@ -130,7 +128,6 @@ describe Api::Fixed::Active::SessionsController do
           latitude: active_session.latitude,
           longitude: active_session.longitude,
         )
-      create_measurement!(stream: active_stream)
       dormant_session =
         create_fixed_session!(
           user: active_session.user,
@@ -142,15 +139,12 @@ describe Api::Fixed::Active::SessionsController do
           latitude: active_session.latitude,
           longitude: active_session.longitude,
         )
-      dormant_stream =
-        create_stream!(
+      create_stream!(
           session: dormant_session,
           latitude: active_session.latitude,
           longitude: active_session.longitude,
         )
       daily_stream_average = create_stream_daily_average!(stream: active_stream)
-
-      create_measurement!(stream: dormant_stream)
 
       get :index2,
           params: {
@@ -225,7 +219,6 @@ describe Api::Fixed::Active::SessionsController do
           longitude: active_session.longitude,
           sensor_name: 'Government-PM2.5',
         )
-      create_measurement!(stream: active_stream)
       dormant_session =
         create_fixed_session!(
           user: active_session.user,
@@ -237,16 +230,13 @@ describe Api::Fixed::Active::SessionsController do
           latitude: active_session.latitude,
           longitude: active_session.longitude,
         )
-      dormant_stream =
-        create_stream!(
+      create_stream!(
           session: dormant_session,
           latitude: active_session.latitude,
           longitude: active_session.longitude,
           sensor_name: 'Government-PM2.5',
         )
       daily_stream_average = create_stream_daily_average!(stream: active_stream)
-
-      create_measurement!(stream: dormant_stream)
 
       get :index2,
           params: {
@@ -322,7 +312,6 @@ describe Api::Fixed::Active::SessionsController do
           latitude: session.latitude,
           longitude: session.longitude,
         )
-      create_measurement!(stream: stream_1)
       stream_2 =
         create_stream!(
           sensor_name: 'bbb',
@@ -330,7 +319,6 @@ describe Api::Fixed::Active::SessionsController do
           latitude: session.latitude,
           longitude: session.longitude,
         )
-      create_measurement!(stream: stream_2)
       queried_stream = [stream_1, stream_2].sample
 
       stream_daily_average =
@@ -456,15 +444,12 @@ describe Api::Fixed::Active::SessionsController do
     )
   end
 
-  def create_measurement!(stream:)
-    Measurement.create!(
+  def create_fixed_measurement!(stream:)
+    FixedMeasurement.create!(
       time: DateTime.current,
-      latitude: 123,
-      longitude: 123,
+      time_with_time_zone: DateTime.current,
       value: 123,
-      milliseconds: 123,
       stream: stream,
-      location: 'SRID=4326;POINT(123 123)',
     )
   end
 end
