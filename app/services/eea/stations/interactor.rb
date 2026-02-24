@@ -7,12 +7,12 @@ module Eea
         data_parser: DataParser.new,
         station_filter: GovernmentSources::StationFilter.new,
         station_enricher: GovernmentSources::StationEnricher.new,
-        fixed_streams_creator: GovernmentSources::FixedStreamsCreator.new
+        station_streams_creator: GovernmentSources::StationStreamsCreator.new
       )
         @data_parser = data_parser
         @station_filter = station_filter
         @station_enricher = station_enricher
-        @fixed_streams_creator = fixed_streams_creator
+        @station_streams_creator = station_streams_creator
       end
 
       def call(directory: DEFAULT_DIRECTORY)
@@ -24,7 +24,7 @@ module Eea
           stations =
             station_enricher.call(stations: stations, source_name: :eea)
 
-          fixed_streams_creator.call(stations: stations, source_name: :eea)
+          station_streams_creator.call(stations: stations, source_name: :eea)
         end
       end
 
@@ -33,7 +33,7 @@ module Eea
       attr_reader :data_parser,
                   :station_filter,
                   :station_enricher,
-                  :fixed_streams_creator
+                  :station_streams_creator
     end
   end
 end

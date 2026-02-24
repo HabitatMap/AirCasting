@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe GovernmentSources::FixedStreamsCreator do
+describe GovernmentSources::StationStreamsCreator do
   let(:source) { create(:source, name: 'EPA') }
   let(:user) { create(:user, username: 'US EPA AirNow') }
   let(:stream_configuration) do
@@ -13,7 +13,7 @@ describe GovernmentSources::FixedStreamsCreator do
   subject { described_class.new }
 
   describe '#call' do
-    it 'creates FixedSession, Stream, and FixedStream for stations' do
+    it 'creates FixedSession, Stream, and StationStream for stations' do
       source
       user
       stream_configuration
@@ -28,7 +28,7 @@ describe GovernmentSources::FixedStreamsCreator do
       expect { subject.call(stations: [station], source_name: :epa) }.to change(
         FixedSession,
         :count,
-      ).by(1).and change(Stream, :count).by(1).and change(FixedStream, :count)
+      ).by(1).and change(Stream, :count).by(1).and change(StationStream, :count)
                                         .by(1)
     end
 
@@ -78,7 +78,7 @@ describe GovernmentSources::FixedStreamsCreator do
       expect(stream.threshold_set_id).to eq(threshold_set.id)
     end
 
-    it 'creates FixedStream with correct attributes' do
+    it 'creates StationStream with correct attributes' do
       user
       source
       stream_configuration
@@ -92,19 +92,19 @@ describe GovernmentSources::FixedStreamsCreator do
 
       subject.call(stations: [station], source_name: :epa)
 
-      fixed_stream = FixedStream.last
-      expect(fixed_stream.external_ref).to eq('REF123')
-      expect(fixed_stream.source_id).to eq(source.id)
-      expect(fixed_stream.stream_configuration_id).to eq(
+      station_stream = StationStream.last
+      expect(station_stream.external_ref).to eq('REF123')
+      expect(station_stream.source_id).to eq(source.id)
+      expect(station_stream.stream_configuration_id).to eq(
         stream_configuration.id,
       )
-      expect(fixed_stream.title).to eq('Test Station')
-      expect(fixed_stream.time_zone).to eq('America/New_York')
+      expect(station_stream.title).to eq('Test Station')
+      expect(station_stream.time_zone).to eq('America/New_York')
     end
 
     it 'does nothing when stations array is empty' do
       expect { subject.call(stations: [], source_name: :epa) }.not_to change(
-        FixedStream,
+        StationStream,
         :count,
       )
     end

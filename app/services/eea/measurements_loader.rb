@@ -26,7 +26,7 @@ module Eea
         WITH upserted AS (
           INSERT INTO fixed_measurements (
             stream_id,
-            fixed_stream_id,
+            station_stream_id,
             value,
             time,
             time_with_time_zone,
@@ -35,68 +35,68 @@ module Eea
             updated_at
           )
           SELECT
-            fs.stream_id AS stream_id,
-            fs.id AS fixed_stream_id,
+            ss.stream_id AS stream_id,
+            ss.id AS station_stream_id,
             etm.value AS value,
-            (etm.measured_at AT TIME ZONE COALESCE(fs.time_zone, 'UTC')) AS time,
+            (etm.measured_at AT TIME ZONE COALESCE(ss.time_zone, 'UTC')) AS time,
             etm.measured_at AS time_with_time_zone,
             etm.measured_at AS measured_at,
             NOW() AS created_at,
             NOW() AS updated_at
           FROM eea_transformed_measurements etm
-          JOIN fixed_streams fs
-            ON fs.external_ref = etm.external_ref
+          JOIN station_streams ss
+            ON ss.external_ref = etm.external_ref
           JOIN stream_configurations sc
-            ON sc.id = fs.stream_configuration_id
+            ON sc.id = ss.stream_configuration_id
            AND sc.measurement_type = etm.measurement_type
            AND sc.canonical = true
           WHERE etm.eea_ingest_batch_id = ?
-            AND fs.stream_id IS NOT NULL
+            AND ss.stream_id IS NOT NULL
           ON CONFLICT (stream_id, time_with_time_zone)
           DO UPDATE SET
             value = EXCLUDED.value,
             updated_at = EXCLUDED.updated_at
           RETURNING
-            fixed_stream_id,
+            station_stream_id,
             stream_id,
             measured_at
         ),
-        fixed_streams_agg AS (
+        station_streams_agg AS (
           SELECT
-            fixed_stream_id,
+            station_stream_id,
             MIN(measured_at) AS first_measured_at,
             MAX(measured_at) AS last_measured_at
           FROM upserted
-          GROUP BY fixed_stream_id
+          GROUP BY station_stream_id
         ),
-        updated_fixed_streams AS (
-          UPDATE fixed_streams fs
+        updated_station_streams AS (
+          UPDATE station_streams ss
           SET
             first_measured_at = CASE
-              WHEN fs.first_measured_at IS NULL THEN fsa.first_measured_at
-              ELSE LEAST(fs.first_measured_at, fsa.first_measured_at)
+              WHEN ss.first_measured_at IS NULL THEN ssa.first_measured_at
+              ELSE LEAST(ss.first_measured_at, ssa.first_measured_at)
             END,
             last_measured_at = CASE
-              WHEN fs.last_measured_at IS NULL THEN fsa.last_measured_at
-              ELSE GREATEST(fs.last_measured_at, fsa.last_measured_at)
+              WHEN ss.last_measured_at IS NULL THEN ssa.last_measured_at
+              ELSE GREATEST(ss.last_measured_at, ssa.last_measured_at)
             END,
             updated_at = NOW()
-          FROM fixed_streams_agg fsa
-          WHERE fs.id = fsa.fixed_stream_id
+          FROM station_streams_agg ssa
+          WHERE ss.id = ssa.station_stream_id
           RETURNING
-            fs.stream_id,
-            fs.first_measured_at,
-            fs.last_measured_at
+            ss.stream_id,
+            ss.first_measured_at,
+            ss.last_measured_at
         ),
         sessions_agg AS (
           SELECT
             se.id AS session_id,
-            MAX(ufs.last_measured_at) AS last_measured_at,
-            MIN(ufs.first_measured_at AT TIME ZONE COALESCE(se.time_zone, 'UTC')) AS start_time_local,
-            MAX(ufs.last_measured_at  AT TIME ZONE COALESCE(se.time_zone, 'UTC')) AS end_time_local
-          FROM updated_fixed_streams ufs
+            MAX(uss.last_measured_at) AS last_measured_at,
+            MIN(uss.first_measured_at AT TIME ZONE COALESCE(se.time_zone, 'UTC')) AS start_time_local,
+            MAX(uss.last_measured_at  AT TIME ZONE COALESCE(se.time_zone, 'UTC')) AS end_time_local
+          FROM updated_station_streams uss
           JOIN streams st
-            ON st.id = ufs.stream_id
+            ON st.id = uss.stream_id
           JOIN sessions se
             ON se.id = st.session_id
           GROUP BY se.id, se.time_zone

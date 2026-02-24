@@ -25,13 +25,13 @@ describe GovernmentSources::StationFilter do
           canonical: true,
         )
       create(
-        :fixed_stream,
+        :station_stream,
         source_id: source.id,
         stream_configuration_id: pm25_config.id,
         external_ref: 'REF1',
       )
       create(
-        :fixed_stream,
+        :station_stream,
         source_id: source.id,
         stream_configuration_id: ozone_config.id,
         external_ref: 'REF2',

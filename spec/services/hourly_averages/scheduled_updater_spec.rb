@@ -8,23 +8,23 @@ RSpec.describe HourlyAverages::ScheduledUpdater do
     let(:stream_configuration) { create(:stream_configuration) }
 
     it 'creates hourly averages for measurements within the lookback window' do
-      fixed_stream =
-        create(:fixed_stream, source: eea_source, stream_configuration:)
+      station_stream =
+        create(:station_stream, source: eea_source, stream_configuration:)
       create(
         :fixed_measurement,
-        fixed_stream: fixed_stream,
+        station_stream: station_stream,
         measured_at: Time.parse('2026-02-03 10:30 UTC'),
         value: 10,
       )
       create(
         :fixed_measurement,
-        fixed_stream: fixed_stream,
+        station_stream: station_stream,
         measured_at: Time.parse('2026-02-03 14:30 UTC'),
         value: 20,
       )
       create(
         :fixed_measurement,
-        fixed_stream: fixed_stream,
+        station_stream: station_stream,
         measured_at: Time.parse('2026-02-03 8:30 UTC'),
         value: 200,
       )
@@ -42,18 +42,18 @@ RSpec.describe HourlyAverages::ScheduledUpdater do
     end
 
     it 'recalculates hourly average when new measurements arrive' do
-      fixed_stream =
-        create(:fixed_stream, source: eea_source, stream_configuration:)
+      station_stream =
+        create(:station_stream, source: eea_source, stream_configuration:)
       hourly_average =
         create(
           :hourly_average,
-          fixed_stream: fixed_stream,
+          station_stream: station_stream,
           measured_at: Time.parse('2026-02-03 15:00 UTC'),
           value: 10,
         )
       create(
         :fixed_measurement,
-        fixed_stream: fixed_stream,
+        station_stream: station_stream,
         measured_at: Time.parse('2026-02-03 14:30 UTC'),
         value: 30,
       )

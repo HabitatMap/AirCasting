@@ -44,7 +44,7 @@ module GovernmentSources
 
     def generate_url_token
       token_generator.generate_unique(6) do |token|
-        FixedStream.where(url_token: token).count.zero?
+        StationStream.where(url_token: token).count.zero?
       end
     end
   end

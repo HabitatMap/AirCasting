@@ -46,9 +46,9 @@ module DataFixes
           )
 
       session = stream.session
-      FixedStream.transaction do
-        fixed_stream =
-          FixedStream.create!(
+      StationStream.transaction do
+        station_stream =
+          StationStream.create!(
             source_id: source_id,
             stream_configuration_id: stream_configuration_id,
             external_ref: session.uuid,
@@ -64,7 +64,7 @@ module DataFixes
           .where(stream_id: stream.id)
           .in_batches(of: 50_000) do |rel|
             rel.update_all(
-              fixed_stream_id: fixed_stream.id,
+              station_stream_id: station_stream.id,
               measured_at: Arel.sql('time_with_time_zone'),
               updated_at: Time.current,
             )

@@ -41,11 +41,11 @@ class SessionsRepository
         ORDER BY stream_id, date DESC
       ),
       latest_hourly_averages AS (
-        SELECT DISTINCT ON (fs.stream_id) fs.stream_id, ha.value
-        FROM fixed_streams fs
-        JOIN hourly_averages ha ON ha.fixed_stream_id = fs.id
-        WHERE fs.stream_id IN (SELECT id FROM relevant_streams)
-        ORDER BY fs.stream_id, ha.measured_at DESC
+        SELECT DISTINCT ON (ss.stream_id) ss.stream_id, ha.value
+        FROM station_streams ss
+        JOIN hourly_averages ha ON ha.station_stream_id = ss.id
+        WHERE ss.stream_id IN (SELECT id FROM relevant_streams)
+        ORDER BY ss.stream_id, ha.measured_at DESC
       )
       SELECT s.*, st.*, lda.value AS last_daily_average, lha.value AS last_hourly_average
       FROM recent_sessions s

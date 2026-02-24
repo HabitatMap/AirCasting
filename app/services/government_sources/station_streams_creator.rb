@@ -1,5 +1,5 @@
 module GovernmentSources
-  class FixedStreamsCreator
+  class StationStreamsCreator
     def initialize(repository: Repository.new, stream_defaults: StreamDefaults.new)
       @repository = repository
       @stream_defaults = stream_defaults
@@ -8,14 +8,14 @@ module GovernmentSources
     def call(stations:, source_name:)
       return if stations.empty?
 
-      create_fixed_streams(stations, source_name)
+      create_station_streams(stations, source_name)
     end
 
     private
 
     attr_reader :repository, :stream_defaults
 
-    def create_fixed_streams(stations, source_name)
+    def create_station_streams(stations, source_name)
       defaults = stream_defaults.call
       current_time = Time.current
 
@@ -29,13 +29,13 @@ module GovernmentSources
             current_time,
             source_name,
           )
-        create_fixed_stream_records(stations, stream_ids, current_time)
+        create_station_stream_records(stations, stream_ids, current_time)
       end
     end
 
     # LEGACY: Creates FixedSession records for backwards compatibility with
     # the existing Session-based model. These link to the legacy User model.
-    # TODO: Remove when migrating to FixedStream-only model.
+    # TODO: Remove when migrating to StationStream-only model.
     def create_sessions(stations, current_time, source_name)
       user = repository.user(source_name: source_name)
 
@@ -62,7 +62,7 @@ module GovernmentSources
 
     # LEGACY: Creates Stream records for backwards compatibility.
     # Streams store measurement metadata and link to the legacy Session model.
-    # TODO: Remove when migrating to FixedStream-only model.
+    # TODO: Remove when migrating to StationStream-only model.
     def create_streams(
       stations,
       session_ids,
@@ -97,9 +97,8 @@ module GovernmentSources
       insert_streams!(stream_params)
     end
 
-    # FixedStream is the target model - this is NOT legacy
-    def create_fixed_stream_records(stations, stream_ids, current_time)
-      fixed_streams_params =
+    def create_station_stream_records(stations, stream_ids, current_time)
+      station_streams_params =
         stations.each_with_index.map do |station, idx|
           {
             external_ref: station.external_ref,
@@ -115,7 +114,7 @@ module GovernmentSources
           }
         end
 
-      insert_fixed_streams!(fixed_streams_params)
+      insert_station_streams!(station_streams_params)
     end
 
     # LEGACY: Bulk insert into sessions table
@@ -130,9 +129,9 @@ module GovernmentSources
       result.rows.flatten
     end
 
-    def insert_fixed_streams!(fixed_streams_params)
-      FixedStream.upsert_all(
-        fixed_streams_params,
+    def insert_station_streams!(station_streams_params)
+      StationStream.upsert_all(
+        station_streams_params,
         unique_by: %i[source_id stream_configuration_id external_ref],
       )
     end

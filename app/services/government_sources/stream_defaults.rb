@@ -1,7 +1,7 @@
 module GovernmentSources
   class StreamDefaults
     # LEGACY: defaults used for backwards compatibility.
-    # TODO: Remove when migrating to FixedStream-only model.
+    # TODO: Remove when migrating to StationStream-only model.
     SENSOR_NAMES = %w[Government-PM2.5 Government-NO2 Government-Ozone].freeze
 
     def call

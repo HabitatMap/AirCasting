@@ -15,7 +15,7 @@ module GovernmentSources
     }.freeze
 
     def existing_station_keys(source_name:)
-      FixedStream
+      StationStream
         .joins(:stream_configuration)
         .where(source_id: source_id(source_name:))
         .pluck('stream_configurations.measurement_type', :external_ref)

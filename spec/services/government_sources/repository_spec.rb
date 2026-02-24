@@ -13,7 +13,7 @@ describe GovernmentSources::Repository do
           canonical: true,
         )
       create(
-        :fixed_stream,
+        :station_stream,
         source_id: source.id,
         stream_configuration_id: stream_config.id,
         external_ref: 'REF123',
@@ -33,7 +33,7 @@ describe GovernmentSources::Repository do
           canonical: true,
         )
       create(
-        :fixed_stream,
+        :station_stream,
         source_id: source.id,
         stream_configuration_id: stream_config.id,
         external_ref: 'EEA_REF',
@@ -54,7 +54,7 @@ describe GovernmentSources::Repository do
           canonical: true,
         )
       create(
-        :fixed_stream,
+        :station_stream,
         source_id: epa_source.id,
         stream_configuration_id: stream_config.id,
         external_ref: 'EPA_REF',
