@@ -2,9 +2,10 @@ require 'rails_helper'
 require './lib/session_builder'
 require 'sidekiq/testing'
 
-Sidekiq::Testing.inline!
-
 describe SessionBuilder do
+  around do |example|
+    Sidekiq::Testing.inline! { example.run }
+  end
   let(:user) { create_user! }
 
   subject { SessionBuilder.new(session_data, [], user) }

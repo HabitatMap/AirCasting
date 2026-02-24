@@ -10,11 +10,11 @@ module Epa
       def call(data:)
         stations = []
 
-        sanitized_data(data).each_line do |line|
+        data.each_line do |line|
           fields = line.strip.split('|')
 
           measurement_type =
-            normalized_measurement_type(fields[FIELD_PARAMETER_NAME])
+            Epa.normalized_measurement_type(fields[FIELD_PARAMETER_NAME])
           unless GovernmentSources::Stations.supported_measurement_type?(
                    measurement_type,
                  )
@@ -30,22 +30,20 @@ module Epa
 
       private
 
-      def sanitized_data(data)
-        data.encode('UTF-8', invalid: :replace, undef: :replace, replace: '')
-      end
-
-      def normalized_measurement_type(parameter_name)
-        parameter_name == 'OZONE' ? 'Ozone' : parameter_name
-      end
-
       def build_station(fields, measurement_type)
         GovernmentSources::Station.new(
           external_ref: fields[FIELD_AQSID],
           measurement_type: measurement_type,
-          latitude: GovernmentSources::Stations.to_float(fields[FIELD_LATITUDE]),
-          longitude: GovernmentSources::Stations.to_float(fields[FIELD_LONGITUDE]),
-          title: fields[FIELD_SITE_NAME].presence || fields[FIELD_AQSID],
+          latitude: GovernmentSources.to_float(fields[FIELD_LATITUDE]),
+          longitude: GovernmentSources.to_float(fields[FIELD_LONGITUDE]),
+          title: sanitize_title(fields[FIELD_SITE_NAME]) || fields[FIELD_AQSID],
         )
+      end
+
+      def sanitize_title(title)
+        return nil if title.blank?
+
+        Epa.sanitize_data(title)
       end
     end
   end

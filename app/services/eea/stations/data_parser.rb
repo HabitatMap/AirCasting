@@ -29,8 +29,8 @@ module Eea
         GovernmentSources::Station.new(
           external_ref: row['Sampling Point Id'],
           measurement_type: measurement_type,
-          latitude: GovernmentSources::Stations.to_float(row['Latitude']),
-          longitude: GovernmentSources::Stations.to_float(row['Longitude']),
+          latitude: GovernmentSources.to_float(row['Latitude']),
+          longitude: GovernmentSources.to_float(row['Longitude']),
           title:
             row['Air Quality Station Name'].presence ||
               row['Sampling Point Id'],
