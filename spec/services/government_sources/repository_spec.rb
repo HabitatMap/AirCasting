@@ -127,4 +127,116 @@ describe GovernmentSources::Repository do
       expect(configs['CO']).to be_nil
     end
   end
+
+  describe '#existing_station_stream_keys' do
+    it 'returns set of measurement_type and external_ref pairs for source' do
+      source = create(:source, name: 'EPA')
+      stream_config =
+        create(
+          :stream_configuration,
+          measurement_type: 'PM2.5',
+          canonical: true,
+        )
+      create(
+        :station_stream,
+        source: source,
+        stream_configuration: stream_config,
+        external_ref: 'REF123',
+      )
+
+      keys = subject.existing_station_stream_keys(source_name: :epa)
+
+      expect(keys).to include(%w[PM2.5 REF123])
+    end
+
+    it 'does not include keys from other sources' do
+      epa_source = create(:source, name: 'EPA')
+      eea_source = create(:source, name: 'EEA')
+      stream_config =
+        create(
+          :stream_configuration,
+          measurement_type: 'PM2.5',
+          canonical: true,
+        )
+      create(
+        :station_stream,
+        source: epa_source,
+        stream_configuration: stream_config,
+        external_ref: 'EPA_REF',
+      )
+
+      keys = subject.existing_station_stream_keys(source_name: :eea)
+
+      expect(keys).not_to include(%w[PM2.5 EPA_REF])
+    end
+  end
+
+  describe '#station_stream_url_token_available?' do
+    it 'returns false when token exists' do
+      source = create(:source, name: 'EPA')
+      stream_config = create(:stream_configuration, canonical: true)
+      create(:station_stream, source: source, stream_configuration: stream_config, url_token: 'abc123')
+
+      expect(subject.station_stream_url_token_available?('abc123')).to be false
+    end
+
+    it 'returns true when token does not exist' do
+      expect(subject.station_stream_url_token_available?('nonexistent')).to be true
+    end
+  end
+
+  describe '#upsert_station_streams' do
+    it 'creates new station streams' do
+      source = create(:source, name: 'EPA')
+      stream_config = create(:stream_configuration, canonical: true)
+      factory = RGeo::Geographic.spherical_factory(srid: 4326)
+
+      records = [
+        {
+          source_id: source.id,
+          stream_configuration_id: stream_config.id,
+          external_ref: 'REF123',
+          location: factory.point(-74.006, 40.7128),
+          time_zone: 'America/New_York',
+          title: 'Test Station',
+          url_token: 'abc123',
+          created_at: Time.current,
+          updated_at: Time.current,
+        },
+      ]
+
+      expect { subject.upsert_station_streams(records:) }.to change(StationStream, :count).by(1)
+    end
+
+    it 'updates existing station streams on conflict' do
+      source = create(:source, name: 'EPA')
+      stream_config = create(:stream_configuration, canonical: true)
+      factory = RGeo::Geographic.spherical_factory(srid: 4326)
+
+      create(
+        :station_stream,
+        source: source,
+        stream_configuration: stream_config,
+        external_ref: 'REF123',
+        title: 'Old Title',
+      )
+
+      records = [
+        {
+          source_id: source.id,
+          stream_configuration_id: stream_config.id,
+          external_ref: 'REF123',
+          location: factory.point(-74.006, 40.7128),
+          time_zone: 'America/New_York',
+          title: 'New Title',
+          url_token: 'xyz789',
+          created_at: Time.current,
+          updated_at: Time.current,
+        },
+      ]
+
+      expect { subject.upsert_station_streams(records:) }.not_to change(StationStream, :count)
+      expect(StationStream.last.title).to eq('New Title')
+    end
+  end
 end

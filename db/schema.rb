@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2026_02_20_090000) do
+ActiveRecord::Schema[7.0].define(version: 2026_02_25_110118) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
   enable_extension "postgis"
@@ -245,6 +245,29 @@ ActiveRecord::Schema[7.0].define(version: 2026_02_20_090000) do
     t.index ["name"], name: "index_sources_on_name", unique: true
   end
 
+  create_table "station_streams", force: :cascade do |t|
+    t.bigint "source_id", null: false
+    t.bigint "stream_configuration_id", null: false
+    t.string "external_ref", null: false
+    t.geometry "location", limit: {:srid=>4326, :type=>"geometry"}
+    t.string "time_zone", null: false
+    t.timestamptz "first_measured_at"
+    t.timestamptz "last_measured_at"
+    t.string "title", null: false
+    t.string "url_token", null: false
+    t.uuid "uuid", default: -> { "gen_random_uuid()" }, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["external_ref"], name: "index_station_streams_on_external_ref"
+    t.index ["location"], name: "index_station_streams_on_location", using: :gist
+    t.index ["source_id", "stream_configuration_id", "external_ref"], name: "idx_station_streams_src_cfg_ref_uniq", unique: true
+    t.index ["source_id"], name: "index_station_streams_on_source_id"
+    t.index ["stream_configuration_id"], name: "index_station_streams_on_stream_configuration_id"
+    t.index ["url_token"], name: "index_station_streams_on_url_token", unique: true
+    t.index ["uuid"], name: "index_station_streams_on_uuid", unique: true
+    t.check_constraint "first_measured_at <= last_measured_at", name: "chk_station_stream_measured_bounds"
+  end
+
   create_table "stream_configurations", force: :cascade do |t|
     t.string "measurement_type", null: false
     t.string "unit_symbol", null: false
@@ -397,6 +420,8 @@ ActiveRecord::Schema[7.0].define(version: 2026_02_20_090000) do
   add_foreign_key "hourly_averages", "fixed_streams"
   add_foreign_key "source_stream_configurations", "sources"
   add_foreign_key "source_stream_configurations", "stream_configurations"
+  add_foreign_key "station_streams", "sources"
+  add_foreign_key "station_streams", "stream_configurations"
   add_foreign_key "stream_daily_averages", "streams"
   add_foreign_key "stream_hourly_averages", "streams"
   add_foreign_key "streams", "stream_hourly_averages", column: "last_hourly_average_id"

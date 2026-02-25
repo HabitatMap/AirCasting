@@ -5,8 +5,8 @@ module Eea
 
       def initialize(
         data_parser: DataParser.new,
-        station_filter: GovernmentSources::StationFilter.new,
-        station_enricher: GovernmentSources::StationEnricher.new,
+        station_filter: GovernmentSources::LegacyStationFilter.new,
+        station_enricher: GovernmentSources::LegacyStationEnricher.new,
         fixed_streams_creator: GovernmentSources::FixedStreamsCreator.new
       )
         @data_parser = data_parser

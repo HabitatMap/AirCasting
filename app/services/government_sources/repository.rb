@@ -42,6 +42,25 @@ module GovernmentSources
       StreamConfiguration.where(canonical: true).index_by(&:measurement_type)
     end
 
+    def upsert_station_streams(records:)
+      StationStream.upsert_all(
+        records,
+        unique_by: %i[source_id stream_configuration_id external_ref],
+      )
+    end
+
+    def existing_station_stream_keys(source_name:)
+      StationStream
+        .joins(:stream_configuration)
+        .where(source_id: source_id(source_name:))
+        .pluck('stream_configurations.measurement_type', :external_ref)
+        .to_set
+    end
+
+    def station_stream_url_token_available?(token)
+      !StationStream.where(url_token: token).exists?
+    end
+
     private
 
     def source_config(source_name)
