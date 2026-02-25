@@ -17,7 +17,7 @@ module GovernmentSources
     def existing_station_keys(source_name:)
       FixedStream
         .joins(:stream_configuration)
-        .where(source_id: source_id(source_name:))
+        .where(source_id: source_id(source_name: source_name))
         .pluck('stream_configurations.measurement_type', :external_ref)
         .to_set
     end
@@ -52,13 +52,46 @@ module GovernmentSources
     def existing_station_stream_keys(source_name:)
       StationStream
         .joins(:stream_configuration)
-        .where(source_id: source_id(source_name:))
+        .where(source_id: source_id(source_name: source_name))
         .pluck('stream_configurations.measurement_type', :external_ref)
         .to_set
     end
 
     def station_stream_url_token_available?(token)
       !StationStream.where(url_token: token).exists?
+    end
+
+    def upsert_station_measurements(records:)
+      return if records.empty?
+
+      StationMeasurement.upsert_all(
+        records,
+        unique_by: %i[station_stream_id measured_at],
+        update_only: %i[value],
+      )
+    end
+
+    def bulk_update_stream_timestamps(bounds_by_stream:)
+      return if bounds_by_stream.empty?
+
+      conn = StationStream.connection
+      values_sql =
+        bounds_by_stream
+          .sort_by { |stream_id, _| stream_id }
+          .map do |stream_id, bounds|
+            "(#{conn.quote(stream_id)}, #{conn.quote(bounds[:min])}::timestamptz, #{conn.quote(bounds[:max])}::timestamptz)"
+          end
+          .join(', ')
+
+      conn.execute(<<~SQL.squish)
+        UPDATE station_streams
+        SET
+          first_measured_at = COALESCE(LEAST(first_measured_at, v.min_at), v.min_at),
+          last_measured_at = COALESCE(GREATEST(last_measured_at, v.max_at), v.max_at),
+          updated_at = NOW()
+        FROM (VALUES #{values_sql}) AS v(id, min_at, max_at)
+        WHERE station_streams.id = v.id
+      SQL
     end
 
     private

@@ -1,7 +1,11 @@
 module Epa
   class MeasurementsTransformer
-    def initialize(repository: Repository.new)
+    def initialize(
+      repository: Repository.new,
+      load_measurements_worker: Epa::LoadMeasurementsWorker
+    )
       @repository = repository
+      @load_measurements_worker = load_measurements_worker
     end
 
     def call(batch_id:)
@@ -15,11 +19,13 @@ module Epa
           status: :transformed,
         )
       end
+
+      load_measurements_worker.perform_async(batch_id)
     end
 
     private
 
-    attr_reader :repository
+    attr_reader :repository, :load_measurements_worker
 
     def build_transformed_records(batch_id)
       repository
