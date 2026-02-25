@@ -103,6 +103,49 @@ describe StreamDailyAverages::StreamInteractor do
       end
     end
 
+    context 'when handling indoor stream in the first hour of the day' do
+      it 'recalculates daily values for two previous days' do
+        station_current_time = Time.parse('2025-01-15 00:30 UTC')
+        stream = create(:stream, :fixed)
+        stream_daily_average_01_14 =
+          create(
+            :stream_daily_average,
+            stream: stream,
+            value: 2,
+            date: Date.parse('2025-01-14'),
+          )
+        stream_daily_average_01_13 =
+          create(
+            :stream_daily_average,
+            stream: stream,
+            value: 2,
+            date: Date.parse('2025-01-13'),
+          )
+        create(
+          :fixed_measurement,
+          stream: stream,
+          value: 7,
+          time_with_time_zone: Time.parse('2025-01-14 10:00 UTC'),
+        )
+        create(
+          :fixed_measurement,
+          stream: stream,
+          value: 8,
+          time_with_time_zone: Time.parse('2025-01-13 10:00 UTC'),
+        )
+
+        subject.call(
+          stream_id: stream.id,
+          station_current_time: station_current_time,
+          is_gov_stream: false,
+          is_indoor_stream: true,
+        )
+
+        expect(stream_daily_average_01_14.reload.value).to eq(7)
+        expect(stream_daily_average_01_13.reload.value).to eq(8)
+      end
+    end
+
     context 'when handling AirNow stream in the first hour of the day' do
       it 'recalculates daily values for two previous days' do
         station_current_time = Time.parse('2025-01-15 00:30 -05:00')
