@@ -6,13 +6,13 @@ module Epa
         data_parser: DataParser.new,
         station_filter: GovernmentSources::StationFilter.new,
         station_enricher: GovernmentSources::StationEnricher.new,
-        fixed_streams_creator: GovernmentSources::FixedStreamsCreator.new
+        station_streams_creator: GovernmentSources::StationStreamsCreator.new
       )
         @api_client = api_client
         @data_parser = data_parser
         @station_filter = station_filter
         @station_enricher = station_enricher
-        @fixed_streams_creator = fixed_streams_creator
+        @station_streams_creator = station_streams_creator
       end
 
       def call
@@ -21,7 +21,7 @@ module Epa
         stations = station_filter.call(stations: stations, source_name: :epa)
         stations = station_enricher.call(stations: stations, source_name: :epa)
 
-        fixed_streams_creator.call(stations: stations, source_name: :epa)
+        station_streams_creator.call(stations: stations)
       end
 
       private
@@ -30,7 +30,7 @@ module Epa
                   :data_parser,
                   :station_filter,
                   :station_enricher,
-                  :fixed_streams_creator
+                  :station_streams_creator
     end
   end
 end

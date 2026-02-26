@@ -1,5 +1,5 @@
 module GovernmentSources
-  class StationEnricher
+  class LegacyStationEnricher
     def initialize(
       repository: Repository.new,
       time_zone_finder: TimeZoneFinderWrapper.instance,
@@ -44,7 +44,7 @@ module GovernmentSources
 
     def generate_url_token
       token_generator.generate_unique(6) do |token|
-        repository.station_stream_url_token_available?(token)
+        FixedStream.where(url_token: token).count.zero?
       end
     end
   end

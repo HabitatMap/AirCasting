@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe GovernmentSources::StationFilter do
+describe GovernmentSources::LegacyStationFilter do
   subject { described_class.new }
 
   describe '#call' do
@@ -25,13 +25,13 @@ describe GovernmentSources::StationFilter do
           canonical: true,
         )
       create(
-        :station_stream,
+        :fixed_stream,
         source_id: source.id,
         stream_configuration_id: pm25_config.id,
         external_ref: 'REF1',
       )
       create(
-        :station_stream,
+        :fixed_stream,
         source_id: source.id,
         stream_configuration_id: ozone_config.id,
         external_ref: 'REF2',
