@@ -175,13 +175,179 @@ describe GovernmentSources::Repository do
     it 'returns false when token exists' do
       source = create(:source, name: 'EPA')
       stream_config = create(:stream_configuration, canonical: true)
-      create(:station_stream, source: source, stream_configuration: stream_config, url_token: 'abc123')
+      create(
+        :station_stream,
+        source: source,
+        stream_configuration: stream_config,
+        url_token: 'abc123',
+      )
 
       expect(subject.station_stream_url_token_available?('abc123')).to be false
     end
 
     it 'returns true when token does not exist' do
-      expect(subject.station_stream_url_token_available?('nonexistent')).to be true
+      expect(
+        subject.station_stream_url_token_available?('nonexistent'),
+      ).to be true
+    end
+  end
+
+  describe '#bulk_update_stream_timestamps' do
+    it 'sets first_measured_at and last_measured_at when they are null' do
+      stream = create(:station_stream)
+      t1 = Time.parse('2025-01-01 08:00:00 UTC')
+      t2 = Time.parse('2025-01-01 20:00:00 UTC')
+
+      subject.bulk_update_stream_timestamps(
+        bounds_by_stream: {
+          stream.id => {
+            min: t1,
+            max: t2,
+          },
+        },
+      )
+
+      stream.reload
+      expect(stream.first_measured_at).to eq(t1)
+      expect(stream.last_measured_at).to eq(t2)
+    end
+
+    it 'extends the range when new bounds are wider' do
+      t1 = Time.parse('2025-01-01 08:00:00 UTC')
+      t2 = Time.parse('2025-01-01 12:00:00 UTC')
+      t3 = Time.parse('2025-01-01 16:00:00 UTC')
+      t4 = Time.parse('2025-01-01 20:00:00 UTC')
+      stream =
+        create(:station_stream, first_measured_at: t2, last_measured_at: t3)
+
+      subject.bulk_update_stream_timestamps(
+        bounds_by_stream: {
+          stream.id => {
+            min: t1,
+            max: t4,
+          },
+        },
+      )
+
+      stream.reload
+      expect(stream.first_measured_at).to eq(t1)
+      expect(stream.last_measured_at).to eq(t4)
+    end
+
+    it 'does not shrink the range when new bounds are narrower' do
+      t1 = Time.parse('2025-01-01 08:00:00 UTC')
+      t2 = Time.parse('2025-01-01 12:00:00 UTC')
+      t3 = Time.parse('2025-01-01 16:00:00 UTC')
+      t4 = Time.parse('2025-01-01 20:00:00 UTC')
+      stream =
+        create(:station_stream, first_measured_at: t1, last_measured_at: t4)
+
+      subject.bulk_update_stream_timestamps(
+        bounds_by_stream: {
+          stream.id => {
+            min: t2,
+            max: t3,
+          },
+        },
+      )
+
+      stream.reload
+      expect(stream.first_measured_at).to eq(t1)
+      expect(stream.last_measured_at).to eq(t4)
+    end
+
+    it 'updates multiple streams in one call' do
+      stream_configuration = create(:stream_configuration)
+      stream_1 =
+        create(:station_stream, stream_configuration: stream_configuration)
+      stream_2 =
+        create(:station_stream, stream_configuration: stream_configuration)
+      t1 = Time.parse('2025-01-01 08:00:00 UTC')
+      t2 = Time.parse('2025-01-01 20:00:00 UTC')
+      t3 = Time.parse('2025-02-01 06:00:00 UTC')
+      t4 = Time.parse('2025-02-01 18:00:00 UTC')
+
+      subject.bulk_update_stream_timestamps(
+        bounds_by_stream: {
+          stream_1.id => {
+            min: t1,
+            max: t2,
+          },
+          stream_2.id => {
+            min: t3,
+            max: t4,
+          },
+        },
+      )
+
+      stream_1.reload
+      expect(stream_1.first_measured_at).to eq(t1)
+      expect(stream_1.last_measured_at).to eq(t2)
+
+      stream_2.reload
+      expect(stream_2.first_measured_at).to eq(t3)
+      expect(stream_2.last_measured_at).to eq(t4)
+    end
+
+    it 'does nothing when bounds_by_stream is empty' do
+      stream = create(:station_stream)
+
+      expect {
+        subject.bulk_update_stream_timestamps(bounds_by_stream: {})
+      }.not_to change { stream.reload.updated_at }
+    end
+  end
+
+  describe '#upsert_station_measurements' do
+    it 'creates new station measurements' do
+      station_stream = create(:station_stream)
+
+      records = [
+        {
+          station_stream_id: station_stream.id,
+          measured_at: Time.parse('2025-07-24 10:00:00 UTC'),
+          value: 12.5,
+          created_at: Time.current,
+          updated_at: Time.current,
+        },
+      ]
+
+      expect {
+        subject.upsert_station_measurements(records: records)
+      }.to change(StationMeasurement, :count).by(1)
+    end
+
+    it 'updates value on conflict' do
+      station_stream = create(:station_stream)
+      measured_at = Time.parse('2025-07-24 10:00:00 UTC')
+      create(
+        :station_measurement,
+        station_stream: station_stream,
+        measured_at: measured_at,
+        value: 10.0,
+      )
+
+      records = [
+        {
+          station_stream_id: station_stream.id,
+          measured_at: measured_at,
+          value: 15.0,
+          created_at: Time.current,
+          updated_at: Time.current,
+        },
+      ]
+
+      expect {
+        subject.upsert_station_measurements(records: records)
+      }.not_to change(StationMeasurement, :count)
+      expect(StationMeasurement.last.value).to eq(15.0)
+    end
+
+    it 'does nothing when records is empty' do
+      expect { subject.upsert_station_measurements(records: []) }.not_to change(
+        StationMeasurement,
+        :count,
+      )
     end
   end
 
@@ -205,7 +371,10 @@ describe GovernmentSources::Repository do
         },
       ]
 
-      expect { subject.upsert_station_streams(records:) }.to change(StationStream, :count).by(1)
+      expect { subject.upsert_station_streams(records: records) }.to change(
+        StationStream,
+        :count,
+      ).by(1)
     end
 
     it 'updates existing station streams on conflict' do
@@ -235,7 +404,10 @@ describe GovernmentSources::Repository do
         },
       ]
 
-      expect { subject.upsert_station_streams(records:) }.not_to change(StationStream, :count)
+      expect { subject.upsert_station_streams(records: records) }.not_to change(
+        StationStream,
+        :count,
+      )
       expect(StationStream.last.title).to eq('New Title')
     end
   end

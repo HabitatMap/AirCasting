@@ -57,15 +57,85 @@ describe Epa::Repository do
         },
       ]
 
-      expect {
-        subject.insert_raw_measurements!(records: records)
-      }.to change(EpaRawMeasurement, :count).by(1)
+      expect { subject.insert_raw_measurements!(records: records) }.to change(
+        EpaRawMeasurement,
+        :count,
+      ).by(1)
     end
 
     it 'does not raise when records is empty' do
       expect {
         subject.insert_raw_measurements!(records: [])
       }.not_to raise_error
+    end
+  end
+
+  describe '#loadable_measurements_data' do
+    let(:epa_source) { create(:source, name: 'EPA') }
+    let(:batch) { create(:epa_ingest_batch) }
+    let(:stream_configuration) do
+      create(:stream_configuration, measurement_type: 'PM2.5', canonical: true)
+    end
+
+    it 'returns measurements matched to station streams' do
+      station_stream =
+        create(
+          :station_stream,
+          external_ref: 'ABC123',
+          stream_configuration: stream_configuration,
+          source: epa_source,
+        )
+      create(
+        :epa_transformed_measurement,
+        epa_ingest_batch_id: batch.id,
+        external_ref: 'ABC123',
+      )
+
+      result = subject.loadable_measurements_data(batch_id: batch.id)
+
+      expect(result.size).to eq(1)
+      expect(result.first[:station_stream_id]).to eq(station_stream.id)
+      expect(result.first[:value]).to eq(12.5)
+    end
+
+    it 'only matches station streams for EPA source' do
+      other_source = create(:source, name: 'OTHER')
+      create(
+        :station_stream,
+        external_ref: 'ABC123',
+        stream_configuration: stream_configuration,
+        source: other_source,
+      )
+      epa_stream =
+        create(
+          :station_stream,
+          external_ref: 'ABC123',
+          stream_configuration: stream_configuration,
+          source: epa_source,
+        )
+      create(
+        :epa_transformed_measurement,
+        epa_ingest_batch_id: batch.id,
+        external_ref: 'ABC123',
+      )
+
+      result = subject.loadable_measurements_data(batch_id: batch.id)
+
+      expect(result.size).to eq(1)
+      expect(result.first[:station_stream_id]).to eq(epa_stream.id)
+    end
+
+    it 'returns empty array when no matches' do
+      epa_source
+      create(
+        :epa_transformed_measurement,
+        epa_ingest_batch_id: batch.id,
+        external_ref: 'NONEXISTENT',
+      )
+
+      result = subject.loadable_measurements_data(batch_id: batch.id)
+
+      expect(result).to eq([])
     end
   end
 end
