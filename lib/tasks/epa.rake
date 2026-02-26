@@ -8,4 +8,8 @@ namespace :epa do
   task import_measurements: :environment do
     Epa::IngestOrchestrator.new.call
   end
+
+  task migrate_data_to_station_streams: :environment do
+    DataFixes::EpaDataMigrator.new.call
+  end
 end
