@@ -94,6 +94,41 @@ module GovernmentSources
       SQL
     end
 
+    def recently_updated_station_streams(since:)
+      StationStream.where('updated_at >= ?', since)
+    end
+
+    def upsert_station_stream_daily_averages(stream_ids:, time_zone:, since:)
+      return if stream_ids.empty?
+
+      conn = StationStream.connection
+      quoted_ids   = stream_ids.map { |id| conn.quote(id) }.join(', ')
+      quoted_tz    = conn.quote(time_zone)
+      quoted_since = conn.quote(since.iso8601)
+
+      conn.execute(<<~SQL.squish)
+        WITH daily AS (
+          SELECT
+            sm.station_stream_id,
+            CASE
+              WHEN (sm.measured_at AT TIME ZONE #{quoted_tz})::time >= '00:00:01'
+                THEN DATE_TRUNC('day', sm.measured_at AT TIME ZONE #{quoted_tz})::date
+              ELSE (DATE_TRUNC('day', sm.measured_at AT TIME ZONE #{quoted_tz}) - INTERVAL '1 day')::date
+            END AS date,
+            AVG(sm.value) AS avg_value
+          FROM station_measurements sm
+          WHERE sm.station_stream_id IN (#{quoted_ids})
+            AND sm.measured_at >= #{quoted_since}::timestamptz
+          GROUP BY sm.station_stream_id, date
+        )
+        INSERT INTO station_stream_daily_averages (station_stream_id, value, date, created_at, updated_at)
+        SELECT station_stream_id, ROUND(avg_value)::integer, date, NOW(), NOW()
+        FROM daily
+        ON CONFLICT (station_stream_id, date) DO UPDATE
+          SET value = EXCLUDED.value, updated_at = NOW()
+      SQL
+    end
+
     private
 
     def source_config(source_name)
