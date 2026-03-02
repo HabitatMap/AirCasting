@@ -11,8 +11,8 @@ module Eea
     end
 
     def call
-      window_ends_at = Time.current.utc
-      window_starts_at = window_ends_at - 6.hours
+      window_starts_at = Time.current.utc - 6.hours
+      window_ends_at = window_starts_at + 1.day # for some countries time is ignored and setting end date in the future ensures date boundary is not empty
 
       COUNTRIES
         .product(POLLUTANTS)
