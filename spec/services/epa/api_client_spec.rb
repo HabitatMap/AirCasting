@@ -31,7 +31,7 @@ describe Epa::ApiClient do
       described_class.new(client: client).fetch_hourly_data(measured_at: measured_at)
 
       expect(client).to have_received(:get)
-        .with('/files.airnowtech.org/airnow/today/HourlyData_2025072409.dat')
+        .with('/files.airnowtech.org/airnow/2025/20250724/HourlyData_2025072409.dat')
     end
 
     it 'returns response from client' do
