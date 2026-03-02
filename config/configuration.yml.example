@@ -20,3 +20,4 @@ defaults:
   sidekiq_threshold_exceeded_alerts_enabled: false
   sidekiq_averages_calculation_enabled: false
   sidekiq_eea_import_enabled: false
+  sidekiq_epa_ingest_enabled: true
