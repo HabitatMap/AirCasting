@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2026_02_25_121903) do
+ActiveRecord::Schema[7.0].define(version: 2026_02_27_000001) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
   enable_extension "postgis"
@@ -256,6 +256,16 @@ ActiveRecord::Schema[7.0].define(version: 2026_02_25_121903) do
     t.index ["station_stream_id"], name: "index_station_measurements_on_station_stream_id"
   end
 
+  create_table "station_stream_daily_averages", force: :cascade do |t|
+    t.bigint "station_stream_id", null: false
+    t.date "date", null: false
+    t.integer "value", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["station_stream_id", "date"], name: "index_station_stream_daily_avg_on_stream_id_and_date", unique: true
+    t.index ["station_stream_id"], name: "index_station_stream_daily_averages_on_station_stream_id"
+  end
+
   create_table "station_streams", force: :cascade do |t|
     t.bigint "source_id", null: false
     t.bigint "stream_configuration_id", null: false
@@ -432,6 +442,7 @@ ActiveRecord::Schema[7.0].define(version: 2026_02_25_121903) do
   add_foreign_key "source_stream_configurations", "sources"
   add_foreign_key "source_stream_configurations", "stream_configurations"
   add_foreign_key "station_measurements", "station_streams"
+  add_foreign_key "station_stream_daily_averages", "station_streams"
   add_foreign_key "station_streams", "sources"
   add_foreign_key "station_streams", "stream_configurations"
   add_foreign_key "stream_daily_averages", "streams"

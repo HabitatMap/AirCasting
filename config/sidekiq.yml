@@ -34,6 +34,11 @@
     class: UpdateStreamDailyAveragesWorker
     queue: slow
 
+  update_station_stream_daily_averages:
+    cron: "2,30 * * * *"
+    class: UpdateStationStreamDailyAveragesWorker
+    queue: slow
+
   eea_import:
     cron: "16,40 * * * *"
     class: "Eea::TriggerImportWorker"

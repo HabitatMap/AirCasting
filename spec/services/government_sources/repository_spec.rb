@@ -351,6 +351,140 @@ describe GovernmentSources::Repository do
     end
   end
 
+  describe '#recently_updated_station_streams' do
+    it 'returns streams updated within the given window' do
+      stream = create(:station_stream)
+
+      result = subject.recently_updated_station_streams(since: 1.hour.ago)
+
+      expect(result).to include(stream)
+    end
+  end
+
+  describe '#upsert_station_stream_daily_averages' do
+    it 'creates a daily average from measurements in the window' do
+      stream = create(:station_stream, time_zone: 'UTC')
+      create(
+        :station_measurement,
+        station_stream: stream,
+        measured_at: Time.parse('2026-01-15 08:00:00 UTC'),
+        value: 10,
+      )
+      create(
+        :station_measurement,
+        station_stream: stream,
+        measured_at: Time.parse('2026-01-15 16:00:00 UTC'),
+        value: 20,
+      )
+
+      expect {
+        subject.upsert_station_stream_daily_averages(
+          stream_ids: [stream.id],
+          time_zone: 'UTC',
+          since: Time.parse('2026-01-15 00:00:00 UTC'),
+        )
+      }.to change(StationStreamDailyAverage, :count).by(1)
+
+      average = StationStreamDailyAverage.last
+      expect(average.date).to eq(Date.parse('2026-01-15'))
+      expect(average.value).to eq(15)
+    end
+
+    it 'groups measurements by day using the interval: (00:00:00 D, 00:00:00 D+1]' do
+      stream = create(:station_stream, time_zone: 'UTC')
+      create(
+        :station_measurement,
+        station_stream: stream,
+        measured_at: Time.parse('2026-01-15 00:00:00 UTC'),
+        value: 10,
+      )
+      create(
+        :station_measurement,
+        station_stream: stream,
+        measured_at: Time.parse('2026-01-15 00:00:01 UTC'),
+        value: 20,
+      )
+
+      subject.upsert_station_stream_daily_averages(
+        stream_ids: [stream.id],
+        time_zone: 'UTC',
+        since: Time.parse('2026-01-14 00:00:00 UTC'),
+      )
+
+      expect(
+        StationStreamDailyAverage.find_by(date: Date.parse('2026-01-14')).value,
+      ).to eq(10)
+      expect(
+        StationStreamDailyAverage.find_by(date: Date.parse('2026-01-15')).value,
+      ).to eq(20)
+    end
+
+    it 'defines day boundries based on station stream time zone' do
+      stream = create(:station_stream, time_zone: 'America/New_York')
+      create(
+        :station_measurement,
+        station_stream: stream,
+        measured_at: Time.parse('2026-01-15 05:00:00 -0500'),
+        value: 10,
+      )
+      create(
+        :station_measurement,
+        station_stream: stream,
+        measured_at: Time.parse('2026-01-15 23:00:00 -0500'), # Jan 16 in UTC
+        value: 20,
+      )
+
+      subject.upsert_station_stream_daily_averages(
+        stream_ids: [stream.id],
+        time_zone: 'America/New_York',
+        since: Time.parse('2026-01-15 00:00:00 -0500'),
+      )
+
+      expect(StationStreamDailyAverage.count).to eq(1)
+      expect(StationStreamDailyAverage.last.date).to eq(
+        Date.parse('2026-01-15'),
+      )
+      expect(StationStreamDailyAverage.last.value).to eq(15)
+    end
+
+    it 'updates the existing record on conflict' do
+      stream = create(:station_stream, time_zone: 'UTC')
+      existing =
+        create(
+          :station_stream_daily_average,
+          station_stream: stream,
+          date: Date.parse('2026-01-15'),
+          value: 5,
+        )
+      create(
+        :station_measurement,
+        station_stream: stream,
+        measured_at: Time.parse('2026-01-15 12:00:00 UTC'),
+        value: 30,
+      )
+
+      expect {
+        subject.upsert_station_stream_daily_averages(
+          stream_ids: [stream.id],
+          time_zone: 'UTC',
+          since: Time.parse('2026-01-15 00:00:00 UTC'),
+        )
+      }.not_to change(StationStreamDailyAverage, :count)
+
+      expect(existing.reload.value).to eq(30)
+    end
+
+    it 'does nothing when stream_ids is empty' do
+      expect {
+        subject.upsert_station_stream_daily_averages(
+          stream_ids: [],
+          time_zone: 'UTC',
+          since: 3.days.ago.utc,
+        )
+      }.not_to change(StationStreamDailyAverage, :count)
+    end
+  end
+
   describe '#upsert_station_streams' do
     it 'creates new station streams' do
       source = create(:source, name: 'EPA')
