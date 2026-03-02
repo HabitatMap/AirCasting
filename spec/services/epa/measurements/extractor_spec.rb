@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe Epa::RawMeasurementsExtractor do
+describe Epa::Measurements::Extractor do
   let(:api_client) { instance_double(Epa::ApiClient) }
 
   subject { described_class.new(api_client: api_client) }
@@ -9,7 +9,7 @@ describe Epa::RawMeasurementsExtractor do
     it 'creates EpaRawMeasurement records' do
       batch =
         create(
-          :epa_ingest_batch,
+          :epa_staging_batch,
           measured_at: Time.parse('2025-07-24 09:00:00 UTC'),
         )
       hourly_data =
@@ -18,7 +18,7 @@ describe Epa::RawMeasurementsExtractor do
 
       subject.call(batch_id: batch.id)
 
-      result = EpaRawMeasurement.find_by(epa_ingest_batch_id: batch.id)
+      result = EpaRawMeasurement.find_by(epa_staging_batch_id: batch.id)
 
       expect(result.valid_date).to eq('07/24/25')
       expect(result.valid_time).to eq('09:00')
@@ -34,7 +34,7 @@ describe Epa::RawMeasurementsExtractor do
     it 'updates batch status to extracted' do
       batch =
         create(
-          :epa_ingest_batch,
+          :epa_staging_batch,
           measured_at: Time.parse('2025-07-24 09:00:00 UTC'),
         )
       allow(api_client).to receive(:fetch_hourly_data).and_return('')
@@ -47,7 +47,7 @@ describe Epa::RawMeasurementsExtractor do
     it 'filters out unsupported parameters' do
       batch =
         create(
-          :epa_ingest_batch,
+          :epa_staging_batch,
           measured_at: Time.parse('2025-07-24 09:00:00 UTC'),
         )
       hourly_data =
@@ -67,7 +67,7 @@ describe Epa::RawMeasurementsExtractor do
     it 'ignores malformed lines' do
       batch =
         create(
-          :epa_ingest_batch,
+          :epa_staging_batch,
           measured_at: Time.parse('2025-07-24 09:00:00 UTC'),
         )
       hourly_data =
@@ -88,7 +88,7 @@ describe Epa::RawMeasurementsExtractor do
     it 'strips whitespace from field values' do
       batch =
         create(
-          :epa_ingest_batch,
+          :epa_staging_batch,
           measured_at: Time.parse('2025-07-24 09:00:00 UTC'),
         )
       hourly_data =
@@ -97,7 +97,7 @@ describe Epa::RawMeasurementsExtractor do
 
       subject.call(batch_id: batch.id)
 
-      result = EpaRawMeasurement.find_by(epa_ingest_batch_id: batch.id)
+      result = EpaRawMeasurement.find_by(epa_staging_batch_id: batch.id)
       expect(result.aqsid).to eq('060010007')
       expect(result.valid_time).to eq('09:00')
     end

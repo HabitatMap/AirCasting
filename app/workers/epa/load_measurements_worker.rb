@@ -4,8 +4,8 @@ module Epa
 
     sidekiq_options queue: :epa, retry: 1
 
-    def perform(batch_id)
-      Epa::Measurements::Loader.new.call(batch_id: batch_id)
+    def perform(load_batch_id)
+      Epa::Measurements::Loader.new.call(load_batch_id: load_batch_id)
     end
   end
 end
