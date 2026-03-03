@@ -12,10 +12,10 @@ module Epa
         @station_stream_timestamps_updater = station_stream_timestamps_updater
       end
 
-      def call(batch_id:)
-        batch = repository.find_ingest_batch!(batch_id: batch_id)
+      def call(load_batch_id:)
+        load_batch = repository.find_load_batch!(load_batch_id: load_batch_id)
         measurements_data =
-          repository.loadable_measurements_data(batch_id: batch.id)
+          repository.loadable_measurements_data(load_batch: load_batch)
 
         ActiveRecord::Base.transaction do
           measurements_upserter.call(measurements_data: measurements_data)
@@ -23,8 +23,13 @@ module Epa
             measurements: measurements_data,
           )
 
-          repository.update_ingest_batch_status!(batch: batch, status: :saved)
+          repository.update_load_batch_status!(
+            load_batch: load_batch,
+            status: :completed,
+          )
         end
+
+        repository.try_complete_cycle(cycle_id: load_batch.epa_ingest_cycle_id)
       end
 
       private

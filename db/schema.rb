@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2026_02_27_000001) do
+ActiveRecord::Schema[7.0].define(version: 2026_02_27_000006) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
   enable_extension "postgis"
@@ -101,8 +101,26 @@ ActiveRecord::Schema[7.0].define(version: 2026_02_27_000001) do
     t.index ["status"], name: "index_epa_ingest_batches_on_status"
   end
 
+  create_table "epa_ingest_cycles", force: :cascade do |t|
+    t.timestamptz "window_starts_at", null: false
+    t.timestamptz "window_ends_at", null: false
+    t.string "status", default: "staging", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.check_constraint "window_starts_at < window_ends_at", name: "chk_epa_ingest_cycles_window_bounds"
+  end
+
+  create_table "epa_load_batches", force: :cascade do |t|
+    t.bigint "epa_ingest_cycle_id", null: false
+    t.string "measurement_type", null: false
+    t.string "status", default: "queued", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["epa_ingest_cycle_id", "measurement_type"], name: "idx_epa_load_batches_unique_type_per_cycle", unique: true
+    t.index ["epa_ingest_cycle_id"], name: "index_epa_load_batches_on_epa_ingest_cycle_id"
+  end
+
   create_table "epa_raw_measurements", id: false, force: :cascade do |t|
-    t.bigint "epa_ingest_batch_id"
     t.string "valid_date"
     t.string "valid_time"
     t.string "aqsid"
@@ -113,12 +131,22 @@ ActiveRecord::Schema[7.0].define(version: 2026_02_27_000001) do
     t.string "value"
     t.string "data_source"
     t.timestamptz "ingested_at", default: -> { "now()" }, null: false
-    t.index ["epa_ingest_batch_id"], name: "idx_epa_raw_measurements_batch_id"
+    t.bigint "epa_staging_batch_id"
+    t.index ["epa_staging_batch_id"], name: "idx_epa_raw_measurements_staging_batch_id"
     t.index ["ingested_at"], name: "idx_epa_raw_measurements_ingested_at"
   end
 
+  create_table "epa_staging_batches", force: :cascade do |t|
+    t.bigint "epa_ingest_cycle_id", null: false
+    t.timestamptz "measured_at", null: false
+    t.string "status", default: "queued", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["epa_ingest_cycle_id"], name: "index_epa_staging_batches_on_epa_ingest_cycle_id"
+    t.index ["status"], name: "index_epa_staging_batches_on_status"
+  end
+
   create_table "epa_transformed_measurements", force: :cascade do |t|
-    t.bigint "epa_ingest_batch_id", null: false
     t.string "external_ref", null: false
     t.string "measurement_type", null: false
     t.timestamptz "measured_at", null: false
@@ -127,7 +155,8 @@ ActiveRecord::Schema[7.0].define(version: 2026_02_27_000001) do
     t.timestamptz "ingested_at", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.index ["epa_ingest_batch_id"], name: "idx_epa_transformed_batch_id"
+    t.bigint "epa_staging_batch_id"
+    t.index ["epa_staging_batch_id"], name: "idx_epa_transformed_staging_batch_id"
     t.index ["external_ref", "measurement_type", "measured_at"], name: "idx_epa_transformed_measurements_unique", unique: true
     t.index ["ingested_at"], name: "idx_epa_transformed_ingested_at"
   end
@@ -434,6 +463,8 @@ ActiveRecord::Schema[7.0].define(version: 2026_02_27_000001) do
 
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
+  add_foreign_key "epa_load_batches", "epa_ingest_cycles"
+  add_foreign_key "epa_staging_batches", "epa_ingest_cycles"
   add_foreign_key "fixed_measurements", "fixed_streams"
   add_foreign_key "fixed_measurements", "streams"
   add_foreign_key "fixed_streams", "sources"

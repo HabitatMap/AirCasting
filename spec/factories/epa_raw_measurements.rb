@@ -1,6 +1,6 @@
 FactoryBot.define do
   factory :epa_raw_measurement do
-    epa_ingest_batch_id { nil }
+    epa_staging_batch_id { nil }
     valid_date { '07/24/25' }
     valid_time { '09:00' }
     aqsid { '060010007' }

@@ -1,4 +1,6 @@
 module Epa
+  MEASUREMENT_TYPES = %w[PM2.5 Ozone NO2].freeze
+
   module_function
 
   def normalized_measurement_type(parameter_name)
