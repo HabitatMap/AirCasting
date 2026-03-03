@@ -13,12 +13,11 @@ module Epa
     end
 
     def fetch_hourly_data(measured_at:)
-      utc = measured_at.utc
-      folder = utc.strftime('%Y/%Y%m%d')
-      formatted_date = utc.strftime('%Y%m%d%H')
+      folder_path = measured_at.strftime('%Y/%Y%m%d')
+      file_timestamp = measured_at.strftime('%Y%m%d%H')
 
       client.get(
-        "/files.airnowtech.org/airnow/#{folder}/HourlyData_#{formatted_date}.dat",
+        "/files.airnowtech.org/airnow/#{folder_path}/HourlyData_#{file_timestamp}.dat",
       )
     end
 
