@@ -1,6 +1,7 @@
 require 'sidekiq/web'
 require 'sidekiq-scheduler/web'
 require 'sidekiq_unique_jobs/web'
+require 'coverband'
 
 Rails.application.routes.draw do
   # For details on the DSL available within this file, see http://guides.rubyonrails.org/routing.html
@@ -11,6 +12,7 @@ Rails.application.routes.draw do
 
   constraints AdminConstraint.new do
     mount Sidekiq::Web => '/sidekiq'
+    mount Coverband::Reporters::Web.new, at: '/coverband'
   end
 
   devise_for :users,
