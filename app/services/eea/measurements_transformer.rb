@@ -9,7 +9,7 @@ module Eea
     end
 
     def call(batch_id:)
-      batch = repository.find_ingest_batch(batch_id: batch_id)
+      batch = repository.find_ingest_batch!(batch_id: batch_id)
 
       sql = ActiveRecord::Base.send(:sanitize_sql_array, [<<~SQL, batch_id])
       INSERT INTO eea_transformed_measurements (
