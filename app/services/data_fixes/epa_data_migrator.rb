@@ -1,11 +1,15 @@
 module DataFixes
   class EpaDataMigrator
+    BATCH_SIZE = 20
+
     def initialize(
       api_client: Epa::ApiClient.new,
-      data_parser: Epa::Stations::DataParser.new
+      data_parser: Epa::Stations::DataParser.new,
+      logger: Logger.new('log/epa_migration.log')
     )
       @api_client = api_client
       @data_parser = data_parser
+      @logger = logger
     end
 
     def call
@@ -13,6 +17,7 @@ module DataFixes
       stream_configurations = fetch_stream_configurations
       aqsid_by_location = build_aqsid_lookup
       already_migrated_keys = fetch_already_migrated_keys(source_id)
+      all_streams = streams_to_migrate.to_a
 
       log("Source ID: #{source_id}")
       log(
@@ -21,15 +26,17 @@ module DataFixes
       log("AQSID lookup size: #{aqsid_by_location.size}")
       log("Sample AQSID keys: #{aqsid_by_location.keys.first(3).inspect}")
       log("Already migrated: #{already_migrated_keys.size}")
-      log("Streams to migrate: #{streams_to_migrate.count}")
+      log("Streams to migrate: #{all_streams.count}")
 
       migrated = 0
       skipped = 0
+      measurements_copied = 0
+      daily_averages_copied = 0
       unmatched = []
       fake_refs = []
       errors = []
 
-      streams_to_migrate.find_in_batches(batch_size: 50) do |streams|
+      all_streams.each_slice(BATCH_SIZE) do |streams|
         streams_to_process =
           streams.reject do |stream|
             sc_id = stream_configurations[stream.sensor_name]&.id
@@ -40,8 +47,6 @@ module DataFixes
         next if streams_to_process.empty?
 
         stream_ids = streams_to_process.map(&:id)
-        bounds_by_stream_id = fetch_bounds_batch(stream_ids)
-
         station_stream_attrs = []
         key_to_stream_id = {}
 
@@ -52,7 +57,6 @@ module DataFixes
               source_id,
               stream_configurations,
               aqsid_by_location,
-              bounds_by_stream_id,
             )
 
           if result.nil?
@@ -87,10 +91,19 @@ module DataFixes
         next if station_stream_attrs.empty?
 
         begin
-          stream_mappings = nil
           streams_by_id = streams_to_process.index_by(&:id)
+          stream_mappings = nil
 
           ActiveRecord::Base.transaction do
+            bounds_by_stream_id = fetch_bounds_batch(stream_ids)
+
+            station_stream_attrs.each do |attrs|
+              stream_id = key_to_stream_id[[attrs[:uuid], attrs[:stream_configuration_id]]]
+              bounds = bounds_by_stream_id[stream_id]
+              attrs[:first_measured_at] = bounds&.first
+              attrs[:last_measured_at] = bounds&.last
+            end
+
             inserted =
               StationStream.insert_all(
                 station_stream_attrs,
@@ -103,8 +116,8 @@ module DataFixes
                 [ss_id, old_stream_id] if old_stream_id
               end
 
-            copy_measurements_batch(stream_mappings)
-
+            measurements_copied += copy_measurements_batch(stream_mappings)
+            daily_averages_copied += copy_daily_averages_batch(stream_mappings)
             migrated += stream_mappings.size
           end
 
@@ -117,13 +130,15 @@ module DataFixes
         end
 
         log(
-          "Progress: migrated=#{migrated}, skipped=#{skipped}, unmatched=#{unmatched.count}, fake_refs=#{fake_refs.count}, errors=#{errors.count}",
+          "Progress: migrated=#{migrated}, skipped=#{skipped}, measurements_copied=#{measurements_copied}, daily_averages_copied=#{daily_averages_copied}, unmatched=#{unmatched.count}, fake_refs=#{fake_refs.count}, errors=#{errors.count}",
         )
       end
 
       {
         migrated: migrated,
         skipped: skipped,
+        measurements_copied: measurements_copied,
+        daily_averages_copied: daily_averages_copied,
         unmatched: unmatched,
         fake_refs: fake_refs,
         errors: errors,
@@ -132,7 +147,7 @@ module DataFixes
 
     private
 
-    attr_reader :api_client, :data_parser
+    attr_reader :api_client, :data_parser, :logger
 
     def fetch_source_id
       Source.find_by!(name: 'EPA').id
@@ -164,7 +179,7 @@ module DataFixes
     end
 
     def log(message)
-      Rails.logger.info("[EpaDataMigrator] #{message}")
+      logger.info("[EpaDataMigrator] #{message}")
     end
 
     def build_aqsid_lookup
@@ -210,37 +225,66 @@ module DataFixes
     end
 
     def copy_measurements_batch(stream_mappings, sub_batch_size: 10)
-      return if stream_mappings.empty?
+      return 0 if stream_mappings.empty?
 
+      total = 0
       stream_mappings.each_slice(sub_batch_size) do |sub_batch|
         values =
           sub_batch
             .map { |ss_id, s_id| "(#{ss_id.to_i}, #{s_id.to_i})" }
             .join(', ')
 
-        sql = <<~SQL
-          INSERT INTO station_measurements (station_stream_id, measured_at, value, created_at, updated_at)
-          SELECT
-            m.station_stream_id,
-            fm.time_with_time_zone,
-            fm.value,
-            NOW(),
-            NOW()
-          FROM (VALUES #{values}) AS m(station_stream_id, stream_id)
-          JOIN fixed_measurements fm ON fm.stream_id = m.stream_id
-          ON CONFLICT (station_stream_id, measured_at) DO NOTHING
-        SQL
-
-        ActiveRecord::Base.connection.execute(sql)
+        result =
+          ActiveRecord::Base.connection.execute(<<~SQL)
+            INSERT INTO station_measurements (station_stream_id, measured_at, value, created_at, updated_at)
+            SELECT
+              m.station_stream_id,
+              fm.time_with_time_zone,
+              fm.value,
+              NOW(),
+              NOW()
+            FROM (VALUES #{values}) AS m(station_stream_id, stream_id)
+            JOIN fixed_measurements fm ON fm.stream_id = m.stream_id
+            ON CONFLICT (station_stream_id, measured_at) DO NOTHING
+          SQL
+        total += result.cmd_tuples
       end
+      total
+    end
+
+    def copy_daily_averages_batch(stream_mappings, sub_batch_size: 10)
+      return 0 if stream_mappings.empty?
+
+      total = 0
+      stream_mappings.each_slice(sub_batch_size) do |sub_batch|
+        values =
+          sub_batch
+            .map { |ss_id, s_id| "(#{ss_id.to_i}, #{s_id.to_i})" }
+            .join(', ')
+
+        result =
+          ActiveRecord::Base.connection.execute(<<~SQL)
+            INSERT INTO station_stream_daily_averages (station_stream_id, date, value, created_at, updated_at)
+            SELECT
+              m.station_stream_id,
+              sda.date,
+              sda.value,
+              NOW(),
+              NOW()
+            FROM (VALUES #{values}) AS m(station_stream_id, stream_id)
+            JOIN stream_daily_averages sda ON sda.stream_id = m.stream_id
+            ON CONFLICT (station_stream_id, date) DO NOTHING
+          SQL
+        total += result.cmd_tuples
+      end
+      total
     end
 
     def build_station_stream_attrs(
       stream,
       source_id,
       stream_configurations,
-      aqsid_by_location,
-      bounds_by_stream_id
+      aqsid_by_location
     )
       session = stream.session
       stream_configuration = stream_configurations[stream.sensor_name]
@@ -253,10 +297,6 @@ module DataFixes
       external_ref = aqsid || "UNMATCHED-#{session.uuid}"
       is_fake = aqsid.nil?
 
-      bounds = bounds_by_stream_id[stream.id]
-      first_measured_at = bounds&.first
-      last_measured_at = bounds&.last
-
       attrs = {
         source_id: source_id,
         stream_configuration_id: stream_configuration.id,
@@ -266,8 +306,8 @@ module DataFixes
         title: session.title,
         url_token: session.url_token,
         uuid: session.uuid,
-        first_measured_at: first_measured_at,
-        last_measured_at: last_measured_at,
+        first_measured_at: nil,
+        last_measured_at: nil,
         created_at: Time.current,
         updated_at: Time.current,
       }

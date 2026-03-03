@@ -65,6 +65,14 @@ RSpec.describe DataFixes::EpaDataMigrator do
           time_with_time_zone: Time.zone.parse('2025-01-15 11:00:00 UTC'),
         )
       end
+      let!(:daily_average) do
+        create(
+          :stream_daily_average,
+          stream: stream,
+          date: Date.new(2025, 1, 15),
+          value: 14,
+        )
+      end
 
       let(:api_station) do
         GovernmentSources::Station.new(
@@ -126,11 +134,29 @@ RSpec.describe DataFixes::EpaDataMigrator do
         expect(measurements.pluck(:value)).to match_array([12.5, 15.0])
       end
 
+      it 'copies daily averages to station_stream_daily_averages' do
+        expect { subject.call }.to change(StationStreamDailyAverage, :count).by(1)
+      end
+
+      it 'copies daily average values correctly' do
+        subject.call
+
+        station_stream = StationStream.last
+        averages =
+          StationStreamDailyAverage.where(station_stream_id: station_stream.id)
+
+        expect(averages.count).to eq(1)
+        expect(averages.first.date).to eq(Date.new(2025, 1, 15))
+        expect(averages.first.value).to eq(14)
+      end
+
       it 'returns migration results' do
         result = subject.call
 
         expect(result[:migrated]).to eq(1)
         expect(result[:skipped]).to eq(0)
+        expect(result[:measurements_copied]).to eq(2)
+        expect(result[:daily_averages_copied]).to eq(1)
         expect(result[:unmatched]).to be_empty
         expect(result[:fake_refs]).to be_empty
         expect(result[:errors]).to be_empty
@@ -179,6 +205,12 @@ RSpec.describe DataFixes::EpaDataMigrator do
       let!(:measurement2) do
         create(:fixed_measurement, stream: stream2, value: 20.0)
       end
+      let!(:daily_average1) do
+        create(:stream_daily_average, stream: stream1, date: Date.new(2025, 1, 15), value: 10)
+      end
+      let!(:daily_average2) do
+        create(:stream_daily_average, stream: stream2, date: Date.new(2025, 1, 15), value: 20)
+      end
 
       let(:api_stations) do
         [
@@ -207,6 +239,10 @@ RSpec.describe DataFixes::EpaDataMigrator do
 
       it 'copies all measurements' do
         expect { subject.call }.to change(StationMeasurement, :count).by(2)
+      end
+
+      it 'copies all daily averages' do
+        expect { subject.call }.to change(StationStreamDailyAverage, :count).by(2)
       end
 
       it 'returns correct migration count' do
@@ -488,6 +524,10 @@ RSpec.describe DataFixes::EpaDataMigrator do
       it 'does not create any StationMeasurements' do
         expect { subject.call }.not_to change(StationMeasurement, :count)
       end
+
+      it 'does not create any StationStreamDailyAverages' do
+        expect { subject.call }.not_to change(StationStreamDailyAverage, :count)
+      end
     end
 
     context 'idempotency - running migration twice' do
@@ -517,6 +557,14 @@ RSpec.describe DataFixes::EpaDataMigrator do
           time_with_time_zone: Time.zone.parse('2025-01-15 10:00:00 UTC'),
         )
       end
+      let!(:daily_average) do
+        create(
+          :stream_daily_average,
+          stream: stream,
+          date: Date.new(2025, 1, 15),
+          value: 12,
+        )
+      end
 
       let(:api_station) do
         GovernmentSources::Station.new(
@@ -535,6 +583,7 @@ RSpec.describe DataFixes::EpaDataMigrator do
 
         expect { subject.call }.not_to change(StationStream, :count)
         expect { subject.call }.not_to change(StationMeasurement, :count)
+        expect { subject.call }.not_to change(StationStreamDailyAverage, :count)
       end
 
       it 'reports second run as skipped' do
@@ -552,6 +601,8 @@ RSpec.describe DataFixes::EpaDataMigrator do
 
         expect(result[:migrated]).to eq(0)
         expect(result[:skipped]).to eq(0)
+        expect(result[:measurements_copied]).to eq(0)
+        expect(result[:daily_averages_copied]).to eq(0)
         expect(result[:unmatched]).to be_empty
         expect(result[:errors]).to be_empty
       end
@@ -602,6 +653,7 @@ RSpec.describe DataFixes::EpaDataMigrator do
             threshold_set: pm25_threshold,
           )
         create(:fixed_measurement, stream: stream, value: 10.0 + i)
+        create(:stream_daily_average, stream: stream, date: Date.new(2025, 1, 15) + i, value: 10 + i)
 
         stations <<
           GovernmentSources::Station.new(
@@ -622,6 +674,7 @@ RSpec.describe DataFixes::EpaDataMigrator do
       expect(result[:migrated]).to eq(5)
       expect(StationStream.count).to eq(5)
       expect(StationMeasurement.count).to eq(5)
+      expect(StationStreamDailyAverage.count).to eq(5)
     end
 
     it 'uses batch queries for bounds' do
