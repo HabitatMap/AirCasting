@@ -1,0 +1,2 @@
+class EeaTransformedMeasurement < ApplicationRecord
+end

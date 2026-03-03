@@ -10,6 +10,7 @@ module Eea
       return unless A9n.sidekiq_eea_import_enabled
 
       Eea::MeasurementsLoader.new.call(batch_id: batch_id)
+      Eea::Measurements::Loader.new.call(batch_id: batch_id)
     end
   end
 end

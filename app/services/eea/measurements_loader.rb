@@ -1,25 +1,16 @@
 module Eea
   class MeasurementsLoader
-    def initialize(
-      repository: Repository.new,
-      cleanup_batch_worker: Eea::CleanupBatchWorker
-    )
+    def initialize(repository: Repository.new)
       @repository = repository
-      @cleanup_batch_worker = cleanup_batch_worker
     end
 
     def call(batch_id:)
-      batch = repository.find_ingest_batch(batch_id: batch_id)
-
       upsert_fixed_measurements_and_touch_aggregates(batch_id)
-
-      repository.update_ingest_batch_status!(batch: batch, status: :saved)
-      cleanup_batch_worker.perform_async(batch_id)
     end
 
     private
 
-    attr_reader :repository, :cleanup_batch_worker
+    attr_reader :repository
 
     def upsert_fixed_measurements_and_touch_aggregates(batch_id)
       sql = ActiveRecord::Base.send(:sanitize_sql_array, [<<~SQL, batch_id])
