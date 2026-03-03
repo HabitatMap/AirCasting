@@ -1,13 +1,15 @@
 require 'sidekiq-scheduler'
 
 module Epa
-  class StationsImportWorker
+  class TriggerIngestWorker
     include Sidekiq::Worker
 
     sidekiq_options queue: :epa, retry: 1
 
     def perform
-      Epa::Stations::Interactor.new.call
+      return unless A9n.sidekiq_epa_ingest_enabled
+
+      Epa::OrchestrateIngestWorker.perform_async
     end
   end
 end

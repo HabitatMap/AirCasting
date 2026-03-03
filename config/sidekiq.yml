@@ -53,3 +53,13 @@
     cron: "0 9 * * *"
     class: Eea::PurgeMeasurementsWorker
     queue: slow
+
+  epa_import_stations:
+    cron: "20 * * * *"
+    class: "Epa::ImportStationsWorker"
+    queue: epa
+
+  epa_trigger_ingest:
+    cron: "28,58 * * * *"
+    class: "Epa::TriggerIngestWorker"
+    queue: epa
