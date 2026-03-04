@@ -6,6 +6,7 @@ module FixedStreaming
       stream_creator: StreamCreator.new,
       fixed_measurements_creator: FixedMeasurementsCreator.new,
       stream_daily_averages_recalculator: StreamDailyAveragesRecalculator.new,
+      stream_hourly_averages_recalculator: StreamHourlyAveragesRecalculator.new,
       fixed_sessions_repository: FixedSessionsRepository.new
     )
       @params_parser = params_parser
@@ -13,6 +14,7 @@ module FixedStreaming
       @stream_creator = stream_creator
       @fixed_measurements_creator = fixed_measurements_creator
       @stream_daily_averages_recalculator = stream_daily_averages_recalculator
+      @stream_hourly_averages_recalculator = stream_hourly_averages_recalculator
       @fixed_sessions_repository = fixed_sessions_repository
     end
 
@@ -33,6 +35,10 @@ module FixedStreaming
             time_zone: session.time_zone,
             stream_id: stream.id,
           )
+          stream_hourly_averages_recalculator.call(
+            measurements: fixed_measurements,
+            stream_id: stream.id,
+          )
         end
 
         update_session_end_timestamps(session, fixed_measurements)
@@ -49,6 +55,7 @@ module FixedStreaming
                 :measurements_creator,
                 :fixed_measurements_creator,
                 :stream_daily_averages_recalculator,
+                :stream_hourly_averages_recalculator,
                 :fixed_sessions_repository
 
     def parse_params(data, compression, user_id)

@@ -140,6 +140,33 @@ describe 'POST api/v3/fixed_streaming/measurements' do
 
         expect(response).to be_successful
         expect(FixedMeasurement.count).to eq(2)
+        puts FixedMeasurement.all.inspect
+      end
+
+      it 'calculates daily and hourly averages on sync' do
+        stream = create(:stream, session: session, sensor_name: 'AirBeam3-PM1')
+        compressed = Base64.encode64(AirCasting::GZip.deflate(data))
+        params = { data: compressed, compression: true }.to_json
+
+        expect {
+          post '/api/realtime/measurements', headers: headers, params: params
+        }.to change(StreamDailyAverage, :count).by(1)
+           .and change(StreamHourlyAverage, :count).by(1)
+
+        expect(response).to be_successful
+
+        # time_with_time_zone = 2025-02-10 07:55:32 UTC
+        # Warsaw (UTC+1) local date = 2025-02-10
+        daily_average = StreamDailyAverage.last
+        expect(daily_average.stream).to eq(stream)
+        expect(daily_average.date).to eq(Date.parse('2025-02-10'))
+        expect(daily_average.value).to eq(0)
+
+        # 07:55:32 UTC is not on the hour boundary → bucket end = 08:00:00 UTC
+        hourly_average = StreamHourlyAverage.last
+        expect(hourly_average.stream).to eq(stream)
+        expect(hourly_average.date_time).to eq(Time.parse('2025-02-10 08:00:00 UTC'))
+        expect(hourly_average.value).to eq(0)
       end
 
       # due to a firmware bug in AirBeams we need to filter out measurements coming in with future time
