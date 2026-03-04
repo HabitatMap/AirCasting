@@ -7,10 +7,10 @@ Coverband.configure do |config|
     Redis.new(url: ENV.fetch('COVERBAND_REDIS_URL', 'redis://127.0.0.1:6379/3'))
   )
 
-  # Track "was this line ever called" rather than call counts.
-  # Available in Ruby 2.6+. Significantly lower overhead than default coverage
-  # and sufficient for dead code / unused controller action detection.
-  config.use_oneshot_lines_coverage = true
+  # Use standard line-hit-count coverage (not oneshot).
+  # Oneshot mode stores true/nil per line instead of integer counts; the Coverband
+  # web UI Coverage tab expects integer arrays and renders an empty table otherwise.
+  config.use_oneshot_lines_coverage = false
 
   # Flush coverage data to Redis asynchronously every 5 minutes.
   # Per-request overhead is near zero — the background thread does the Redis I/O.
