@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-RSpec.describe DataFixes::EeaLegacyMigrator do
+RSpec.describe DataFixes::EeaDataMigrator do
   subject { described_class.new }
 
   it 'creates a StationStream with attributes from the fixed stream and copies measurements' do
