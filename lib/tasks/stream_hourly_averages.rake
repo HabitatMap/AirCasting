@@ -33,13 +33,10 @@ namespace :stream_hourly_averages do
     while bucket_end <= end_date_time
       bucket_start = bucket_end - 1.hour
 
-      ActiveRecord::Base.transaction do
-        repository.insert_stream_hourly_averages(
-          start_date_time: bucket_start,
-          end_date_time: bucket_end,
-        )
-        repository.update_streams_last_hourly_average_ids(date_time: bucket_end)
-      end
+      repository.insert_stream_hourly_averages(
+        start_date_time: bucket_start,
+        end_date_time: bucket_end,
+      )
 
       processed += 1
       print "\r  #{processed}/#{total_hours} hours processed"
@@ -48,6 +45,6 @@ namespace :stream_hourly_averages do
       bucket_end += 1.hour
     end
 
-    puts "\nDone."
+    puts "\nDone. last_hourly_average_id pointers will be updated by the next hourly cron run."
   end
 end
