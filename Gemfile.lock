@@ -2264,6 +2264,7 @@ DEPENDENCIES
   sidekiq-failures
   sidekiq-scheduler (~> 4.0)
   sidekiq-unique-jobs (~> 7.1)
+  simplecov
   test-unit (~> 3.0)
   thin
   timezone_finder

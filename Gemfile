@@ -76,6 +76,7 @@ end
 group :test do
   gem 'capybara'
   gem 'rspec-rails'
+  gem 'simplecov', require: false
 end
 
 group :production do

@@ -57,6 +57,68 @@ RSpec.describe StreamHourlyAverages::Repository do
     end
   end
 
+  describe '#upsert_hourly_averages_for_stream' do
+    it 'creates hourly averages grouped by bucket for all measurements in range' do
+      stream = create(:stream, :fixed)
+      create(:fixed_measurement, stream: stream, time_with_time_zone: Time.parse('2025-06-17 13:30:00 UTC'), value: 10)
+      create(:fixed_measurement, stream: stream, time_with_time_zone: Time.parse('2025-06-17 14:30:00 UTC'), value: 30)
+
+      subject.upsert_hourly_averages_for_stream(
+        stream_id: stream.id,
+        start_date_time: Time.parse('2025-06-17 13:00:00 UTC'),
+        end_date_time: Time.parse('2025-06-17 15:00:00 UTC'),
+      )
+
+      averages = StreamHourlyAverage.pluck(:stream_id, :date_time, :value)
+      expect(averages).to match_array([
+        [stream.id, Time.parse('2025-06-17 14:00:00 UTC'), 10],
+        [stream.id, Time.parse('2025-06-17 15:00:00 UTC'), 30],
+      ])
+    end
+
+    it 'treats a measurement at exactly HH:00:00 as the end of the previous bucket' do
+      stream = create(:stream, :fixed)
+      create(:fixed_measurement, stream: stream, time_with_time_zone: Time.parse('2025-06-17 15:00:00 UTC'), value: 40)
+
+      subject.upsert_hourly_averages_for_stream(
+        stream_id: stream.id,
+        start_date_time: Time.parse('2025-06-17 14:00:00 UTC'),
+        end_date_time: Time.parse('2025-06-17 15:00:00 UTC'),
+      )
+
+      expect(StreamHourlyAverage.first).to have_attributes(
+        date_time: Time.parse('2025-06-17 15:00:00 UTC'),
+        value: 40,
+      )
+    end
+
+    it 'overwrites an existing average on conflict' do
+      stream = create(:stream, :fixed)
+      existing = create(:stream_hourly_average, stream: stream, date_time: Time.parse('2025-06-17 15:00:00 UTC'), value: 999)
+      create(:fixed_measurement, stream: stream, time_with_time_zone: Time.parse('2025-06-17 14:30:00 UTC'), value: 50)
+
+      subject.upsert_hourly_averages_for_stream(
+        stream_id: stream.id,
+        start_date_time: Time.parse('2025-06-17 14:00:00 UTC'),
+        end_date_time: Time.parse('2025-06-17 15:00:00 UTC'),
+      )
+
+      expect(existing.reload.value).to eq(50)
+    end
+
+    it 'does nothing when there are no measurements in the range' do
+      stream = create(:stream, :fixed)
+
+      expect {
+        subject.upsert_hourly_averages_for_stream(
+          stream_id: stream.id,
+          start_date_time: Time.parse('2025-06-17 14:00:00 UTC'),
+          end_date_time: Time.parse('2025-06-17 15:00:00 UTC'),
+        )
+      }.not_to change(StreamHourlyAverage, :count)
+    end
+  end
+
   describe '#update_streams_last_hourly_average_ids' do
     it 'updates the last_hourly_average_ids for the streams' do
       date_time = Time.parse('2024-12-10 12:00:00 +00:00')

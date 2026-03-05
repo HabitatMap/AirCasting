@@ -9,6 +9,30 @@ module StreamHourlyAverages
       end
     end
 
+    def upsert_hourly_averages_for_stream(stream_id:, start_date_time:, end_date_time:)
+      conn = StreamHourlyAverage.connection
+      conn.execute(<<~SQL.squish)
+        INSERT INTO stream_hourly_averages (stream_id, date_time, value, created_at, updated_at)
+        SELECT
+          #{conn.quote(stream_id)},
+          CASE
+            WHEN time_with_time_zone = DATE_TRUNC('hour', time_with_time_zone)
+              THEN time_with_time_zone
+            ELSE DATE_TRUNC('hour', time_with_time_zone) + INTERVAL '1 hour'
+          END AS date_time,
+          ROUND(AVG(value))::integer AS value,
+          NOW(),
+          NOW()
+        FROM fixed_measurements
+        WHERE stream_id = #{conn.quote(stream_id)}
+          AND time_with_time_zone > #{conn.quote(start_date_time.iso8601)}::timestamptz
+          AND time_with_time_zone <= #{conn.quote(end_date_time.iso8601)}::timestamptz
+        GROUP BY date_time
+        ON CONFLICT (stream_id, date_time) DO UPDATE
+          SET value = EXCLUDED.value, updated_at = NOW()
+      SQL
+    end
+
     def update_streams_last_hourly_average_ids(date_time:)
       stream_ids_with_last_hourly_average_ids =
         StreamHourlyAverage
@@ -29,8 +53,11 @@ module StreamHourlyAverages
     private
 
     def hourly_average_values_for_fixed_streams(start_date_time, end_date_time)
-      # That's a temporary solution until we have stream_configuration in place to store information about sensor type
-      airnow_user = User.find_by!(username: 'US EPA AirNow')
+      # That's a temporary solution until we have stream_configuration in place to store information about sensor type.
+      # AirNow uses the legacy sessions model but has its own pipeline — excluded to avoid duplication.
+      # EEA uses the new FixedStream model and stores hourly averages in the separate hourly_averages table — excluded here.
+      excluded_user_ids =
+        User.where(username: ['US EPA AirNow', 'EEA']).pluck(:id)
 
       FixedMeasurement
         .joins(stream: :session)
@@ -39,7 +66,7 @@ module StreamHourlyAverages
           start_date_time,
           end_date_time,
         )
-        .where.not(sessions: { user_id: airnow_user.id })
+        .where.not(sessions: { user_id: excluded_user_ids })
         .group(:stream_id)
         .average(:value)
         .map { |stream_id, value| { stream_id: stream_id, value: value.round } }
