@@ -1,21 +1,29 @@
 module DataFixes
-  class EeaLegacyMigrator
+  class EeaDataMigrator
+    def initialize(logger: Logger.new('log/eea_migration.log'))
+      @logger = logger
+    end
+
     def call
       source_id = fetch_source_id
       already_migrated_keys = fetch_already_migrated_keys(source_id)
+      all_fixed_streams = fixed_streams_to_migrate(source_id)
 
       log("Source ID: #{source_id}")
       log("Already migrated: #{already_migrated_keys.size}")
-      log("Fixed streams to migrate: #{fixed_streams_to_migrate(source_id).count}")
+      log("Fixed streams to migrate: #{all_fixed_streams.count}")
 
       migrated = 0
       skipped = 0
+      measurements_copied = 0
       errors = []
 
-      fixed_streams_to_migrate(source_id).find_in_batches(batch_size: 500) do |batch|
+      all_fixed_streams.find_in_batches(batch_size: 500) do |batch|
         to_process =
           batch.reject do |fs|
-            already_migrated_keys.include?([fs.stream_configuration_id, fs.external_ref])
+            already_migrated_keys.include?(
+              [fs.stream_configuration_id, fs.external_ref],
+            )
           end
         skipped += batch.size - to_process.size
 
@@ -32,7 +40,9 @@ module DataFixes
               )
 
             fs_by_key =
-              to_process.index_by { |fs| [fs.stream_configuration_id, fs.external_ref] }
+              to_process.index_by do |fs|
+                [fs.stream_configuration_id, fs.external_ref]
+              end
 
             stream_mappings =
               inserted.rows.filter_map do |ss_id, sc_id, ext_ref|
@@ -40,7 +50,7 @@ module DataFixes
                 [ss_id, fs.id] if fs
               end
 
-            copy_measurements_batch(stream_mappings)
+            measurements_copied += copy_measurements_batch(stream_mappings)
             migrated += stream_mappings.size
 
             stream_mappings.each do |_ss_id, fs_id|
@@ -54,14 +64,21 @@ module DataFixes
         end
 
         log(
-          "Progress: migrated=#{migrated}, skipped=#{skipped}, errors=#{errors.count}",
+          "Progress: migrated=#{migrated}, skipped=#{skipped}, measurements_copied=#{measurements_copied}, errors=#{errors.count}",
         )
       end
 
-      { migrated: migrated, skipped: skipped, errors: errors }
+      {
+        migrated: migrated,
+        skipped: skipped,
+        measurements_copied: measurements_copied,
+        errors: errors,
+      }
     end
 
     private
+
+    attr_reader :logger
 
     def fetch_source_id
       Source.find_by!(name: 'EEA').id
@@ -95,34 +112,35 @@ module DataFixes
     end
 
     def copy_measurements_batch(stream_mappings, sub_batch_size: 10)
-      return if stream_mappings.empty?
+      return 0 if stream_mappings.empty?
 
+      total = 0
       stream_mappings.each_slice(sub_batch_size) do |sub_batch|
         values =
           sub_batch
             .map { |ss_id, fs_id| "(#{ss_id.to_i}, #{fs_id.to_i})" }
             .join(', ')
 
-        sql = <<~SQL
-          INSERT INTO station_measurements (station_stream_id, measured_at, value, created_at, updated_at)
-          SELECT
-            m.station_stream_id,
-            fm.measured_at,
-            fm.value,
-            NOW(),
-            NOW()
-          FROM (VALUES #{values}) AS m(station_stream_id, fixed_stream_id)
-          JOIN fixed_measurements fm ON fm.fixed_stream_id = m.fixed_stream_id
-          WHERE fm.measured_at IS NOT NULL
-          ON CONFLICT (station_stream_id, measured_at) DO NOTHING
-        SQL
-
-        ActiveRecord::Base.connection.execute(sql)
+        result = ActiveRecord::Base.connection.execute(<<~SQL)
+            INSERT INTO station_measurements (station_stream_id, measured_at, value, created_at, updated_at)
+            SELECT
+              m.station_stream_id,
+              fm.measured_at,
+              fm.value,
+              NOW(),
+              NOW()
+            FROM (VALUES #{values}) AS m(station_stream_id, fixed_stream_id)
+            JOIN fixed_measurements fm ON fm.fixed_stream_id = m.fixed_stream_id
+            WHERE fm.measured_at IS NOT NULL
+            ON CONFLICT (station_stream_id, measured_at) DO NOTHING
+          SQL
+        total += result.cmd_tuples
       end
+      total
     end
 
     def log(message)
-      Rails.logger.info("[EeaLegacyMigrator] #{message}")
+      logger.info("[EeaDataMigrator] #{message}")
     end
   end
 end

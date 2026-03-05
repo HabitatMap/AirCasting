@@ -5,4 +5,8 @@ namespace :eea do
       source_name: :eea,
     )
   end
+
+  task migrate_data_to_station_streams: :environment do
+    DataFixes::EeaDataMigrator.new.call
+  end
 end
