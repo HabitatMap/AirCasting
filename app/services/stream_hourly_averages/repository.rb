@@ -53,8 +53,11 @@ module StreamHourlyAverages
     private
 
     def hourly_average_values_for_fixed_streams(start_date_time, end_date_time)
-      # That's a temporary solution until we have stream_configuration in place to store information about sensor type
-      airnow_user = User.find_by!(username: 'US EPA AirNow')
+      # That's a temporary solution until we have stream_configuration in place to store information about sensor type.
+      # AirNow uses the legacy sessions model but has its own pipeline — excluded to avoid duplication.
+      # EEA uses the new FixedStream model and stores hourly averages in the separate hourly_averages table — excluded here.
+      excluded_user_ids =
+        User.where(username: ['US EPA AirNow', 'EEA']).pluck(:id)
 
       FixedMeasurement
         .joins(stream: :session)
@@ -63,7 +66,7 @@ module StreamHourlyAverages
           start_date_time,
           end_date_time,
         )
-        .where.not(sessions: { user_id: airnow_user.id })
+        .where.not(sessions: { user_id: excluded_user_ids })
         .group(:stream_id)
         .average(:value)
         .map { |stream_id, value| { stream_id: stream_id, value: value.round } }
