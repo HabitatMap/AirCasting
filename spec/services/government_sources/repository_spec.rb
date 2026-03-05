@@ -474,6 +474,37 @@ describe GovernmentSources::Repository do
       expect(existing.reload.value).to eq(30)
     end
 
+    it 'rounds the average value to the nearest integer' do
+      stream = create(:station_stream, time_zone: 'UTC')
+      create(
+        :station_measurement,
+        station_stream: stream,
+        measured_at: Time.parse('2026-01-15 08:00:00 UTC'),
+        value: 10,
+      )
+      create(
+        :station_measurement,
+        station_stream: stream,
+        measured_at: Time.parse('2026-01-15 12:00:00 UTC'),
+        value: 11,
+      )
+      create(
+        :station_measurement,
+        station_stream: stream,
+        measured_at: Time.parse('2026-01-15 16:00:00 UTC'),
+        value: 11,
+      )
+
+      subject.upsert_station_stream_daily_averages(
+        stream_ids: [stream.id],
+        time_zone: 'UTC',
+        since: Time.parse('2026-01-15 00:00:00 UTC'),
+      )
+
+      # avg = 10.67, rounds to 11
+      expect(StationStreamDailyAverage.last.value).to eq(11)
+    end
+
     it 'does nothing when stream_ids is empty' do
       expect {
         subject.upsert_station_stream_daily_averages(
@@ -482,6 +513,28 @@ describe GovernmentSources::Repository do
           since: 3.days.ago.utc,
         )
       }.not_to change(StationStreamDailyAverage, :count)
+    end
+
+    it 'normalizes since to beginning of day in the given time zone' do
+      stream = create(:station_stream, time_zone: 'America/New_York')
+      create(
+        :station_measurement,
+        station_stream: stream,
+        measured_at: Time.parse('2026-01-15 02:00:00 -0500'),
+        value: 10,
+      )
+
+      # 2026-01-15 00:00:00 UTC = 2026-01-14 19:00:00 New York
+      # The repository should normalize to Jan 14 local midnight, so the Jan 15
+      # measurement is included and counted under Jan 15
+      subject.upsert_station_stream_daily_averages(
+        stream_ids: [stream.id],
+        time_zone: 'America/New_York',
+        since: Time.parse('2026-01-15 00:00:00 UTC'),
+      )
+
+      expect(StationStreamDailyAverage.count).to eq(1)
+      expect(StationStreamDailyAverage.last.date).to eq(Date.parse('2026-01-15'))
     end
   end
 
