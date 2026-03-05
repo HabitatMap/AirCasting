@@ -9,7 +9,7 @@ module Eea
     end
 
     def call(batch_id:)
-      batch = repository.find_ingest_batch(batch_id: batch_id)
+      batch = repository.find_ingest_batch!(batch_id: batch_id)
       batch_path = Eea::FileStorage.parquet_glob(batch_id)
 
       db = DuckDB::Database.open

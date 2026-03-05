@@ -11,7 +11,7 @@ module Eea
     end
 
     def call(batch_id:)
-      batch = repository.find_ingest_batch(batch_id: batch_id)
+      batch = repository.find_ingest_batch!(batch_id: batch_id)
 
       Eea::FileStorage.ensure_batch_directory(batch.id)
       tmp_path = Eea::FileStorage.partial_zip_path(batch.id)

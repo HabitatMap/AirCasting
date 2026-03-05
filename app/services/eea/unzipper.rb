@@ -9,7 +9,7 @@ module Eea
     end
 
     def call(batch_id:)
-      batch = repository.find_ingest_batch(batch_id: batch_id)
+      batch = repository.find_ingest_batch!(batch_id: batch_id)
       zip_path = Eea::FileStorage.zip_path(batch_id)
       dest_root = Eea::FileStorage.parquet_directory(batch_id)
 
