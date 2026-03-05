@@ -104,7 +104,7 @@ module GovernmentSources
       conn = StationStream.connection
       quoted_ids   = stream_ids.map { |id| conn.quote(id) }.join(', ')
       quoted_tz    = conn.quote(time_zone)
-      quoted_since = conn.quote(since.iso8601)
+      quoted_since = conn.quote(since.in_time_zone(time_zone).beginning_of_day.utc.iso8601)
 
       conn.execute(<<~SQL.squish)
         WITH daily AS (
