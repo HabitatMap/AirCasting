@@ -10,14 +10,12 @@ module Eea
 
     def call(country:, pollutant:, window_starts_at:, window_ends_at:)
       ingest_batch =
-        repository.find_or_create_ingest_batch_by!(
+        repository.create_ingest_batch!(
           country: country,
           pollutant: pollutant,
           window_starts_at: window_starts_at,
           window_ends_at: window_ends_at,
         )
-
-      return if ingest_batch.processing?
 
       download_zip_worker.perform_async(ingest_batch.id)
     end
