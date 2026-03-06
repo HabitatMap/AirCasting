@@ -4,13 +4,13 @@ module Eea
       EeaIngestBatch.find(batch_id)
     end
 
-    def find_or_create_ingest_batch_by!(
+    def create_ingest_batch!(
       country:,
       pollutant:,
       window_starts_at:,
       window_ends_at:
     )
-      EeaIngestBatch.find_or_create_by!(
+      EeaIngestBatch.create!(
         country: country,
         pollutant: pollutant,
         window_starts_at: window_starts_at,

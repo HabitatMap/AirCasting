@@ -1,7 +1,7 @@
 require 'sidekiq-scheduler'
 
 module Eea
-  class TriggerImportWorker
+  class TriggerIngestWorker
     include Sidekiq::Worker
 
     sidekiq_options queue: :eea, retry: 1

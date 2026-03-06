@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2026_02_27_000006) do
+ActiveRecord::Schema[7.0].define(version: 2026_03_06_000002) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
   enable_extension "postgis"
@@ -60,7 +60,6 @@ ActiveRecord::Schema[7.0].define(version: 2026_02_27_000006) do
     t.string "status", default: "queued", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.index ["country", "pollutant", "window_starts_at", "window_ends_at"], name: "idx_eea_ingest_batches_window_unique", unique: true
     t.index ["status"], name: "index_eea_ingest_batches_on_status"
     t.check_constraint "window_starts_at < window_ends_at", name: "chk_eea_ingest_batches_window_bounds"
   end
@@ -76,6 +75,7 @@ ActiveRecord::Schema[7.0].define(version: 2026_02_27_000006) do
     t.integer "validity"
     t.integer "verification"
     t.timestamptz "ingested_at", default: -> { "now()" }, null: false
+    t.index ["eea_ingest_batch_id"], name: "idx_eea_raw_measurements_batch_id"
     t.index ["ingested_at"], name: "idx_eea_raw_measurements_ingested_at"
   end
 
@@ -89,6 +89,7 @@ ActiveRecord::Schema[7.0].define(version: 2026_02_27_000006) do
     t.timestamptz "ingested_at", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.index ["eea_ingest_batch_id"], name: "idx_eea_transformed_measurements_batch_id"
     t.index ["external_ref", "measurement_type", "measured_at"], name: "idx_eea_transformed_measurements_unique", unique: true
     t.index ["ingested_at"], name: "idx_eea_transformed_measurements_ingested_at"
   end
