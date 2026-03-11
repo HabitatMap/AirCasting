@@ -161,6 +161,62 @@ RSpec.describe StationStreamsRepository do
       expect(result.map(&:id)).to eq([stream_with_measurement.id])
     end
 
+    context 'when the bounding box crosses the date line (west > east)' do
+      it 'returns streams on both sides of the 180° meridian' do
+        ozone_config = create(:stream_configuration, measurement_type: 'Ozone', unit_symbol: 'ppb')
+
+        # Station in eastern Russia (~170°E) — east of the date line
+        stream_east = create(
+          :station_stream,
+          stream_configuration: ozone_config,
+          location: 'SRID=4326;POINT(170.0 55.0)',
+          first_measured_at: 2.hours.ago,
+          last_measured_at: 1.hour.ago,
+        )
+        create(
+          :station_measurement,
+          station_stream: stream_east,
+          measured_at: stream_east.last_measured_at,
+          value: 30.0,
+        )
+
+        # Station in western Alaska (~-168°W) — west of the date line
+        stream_west = create(
+          :station_stream,
+          stream_configuration: ozone_config,
+          location: 'SRID=4326;POINT(-168.0 55.0)',
+          first_measured_at: 2.hours.ago,
+          last_measured_at: 1.hour.ago,
+        )
+        create(
+          :station_measurement,
+          station_stream: stream_west,
+          measured_at: stream_west.last_measured_at,
+          value: 40.0,
+        )
+
+        # Station in central Europe — should be excluded
+        _stream_excluded = create(
+          :station_stream,
+          stream_configuration: ozone_config,
+          location: 'SRID=4326;POINT(20.0 52.0)',
+          first_measured_at: 2.hours.ago,
+          last_measured_at: 1.hour.ago,
+        )
+
+        # Viewport straddling 180°: west=163° east=2° (west > east)
+        result = subject.active_in_rectangle(
+          sensor_name: 'government-ozone',
+          west: 163.0,
+          east: 2.0,
+          north: 70.0,
+          south: 40.0,
+        )
+
+        expect(result.map(&:id)).to contain_exactly(stream_east.id, stream_west.id)
+      end
+    end
+
     it 'eager loads stream_configuration' do
       stream = create(
         :station_stream,

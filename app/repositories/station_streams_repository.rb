@@ -20,6 +20,13 @@ class StationStreamsRepository
       .where(stream_configurations: { measurement_type: measurement_type })
       .where('station_streams.last_measured_at > ?', 24.hours.ago)
       .where('ST_Y(station_streams.location::geometry) BETWEEN ? AND ?', south, north)
-      .where('ST_X(station_streams.location::geometry) BETWEEN ? AND ?', west, east)
+      .where(
+        '(? <= ? AND ST_X(station_streams.location::geometry) BETWEEN ? AND ?)
+         OR
+         (? > ? AND (ST_X(station_streams.location::geometry) >= ? OR ST_X(station_streams.location::geometry) <= ?))',
+        west, east, west, east,
+        west, east, west, east,
+      )
+      .order(id: :asc)
   end
 end
