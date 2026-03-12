@@ -203,60 +203,65 @@ describe Api::Fixed::Active::SessionsController do
     end
 
     it 'returns government data' do
-      session_start_time = DateTime.new(2_000, 10, 1, 2, 3, 4)
-      session_end_time = DateTime.new(2_000, 10, 2, 2, 3, 4)
-      active_session =
-        create_fixed_session!(
-          contribute: true,
-          session_start_time: session_start_time,
-          session_end_time: session_end_time,
-          last_measurement_at: DateTime.current,
+      last_measured_at = Time.current
+      first_measured_at = last_measured_at - 1.day
+      config =
+        create(
+          :stream_configuration,
+          measurement_type: 'PM2.5',
+          unit_symbol: 'µg/m³',
         )
-      active_stream =
-        create_stream!(
-          session: active_session,
-          latitude: active_session.latitude,
-          longitude: active_session.longitude,
-          sensor_name: 'Government-PM2.5',
+      active_station_stream =
+        create(
+          :station_stream,
+          stream_configuration: config,
+          location: 'SRID=4326;POINT(20.0 50.0)',
+          last_measured_at: last_measured_at,
+          first_measured_at: first_measured_at,
+        ).reload
+      longitude = active_station_stream.location.x
+      latitude = active_station_stream.location.y
+      measurement =
+        create(
+          :station_measurement,
+          station_stream: active_station_stream,
+          measured_at: last_measured_at,
+          value: 42.7,
         )
-      dormant_session =
-        create_fixed_session!(
-          user: active_session.user,
-          contribute: true,
-          session_start_time: session_start_time,
-          session_end_time: session_end_time,
-          last_measurement_at:
-            DateTime.current - (FixedSession::ACTIVE_FOR + 1.second),
-          latitude: active_session.latitude,
-          longitude: active_session.longitude,
-        )
-      create_stream!(
-          session: dormant_session,
-          latitude: active_session.latitude,
-          longitude: active_session.longitude,
-          sensor_name: 'Government-PM2.5',
-        )
-      daily_stream_average = create_stream_daily_average!(stream: active_stream)
+      # dormant — outside the 24h window, should not appear
+      create(
+        :station_stream,
+        stream_configuration: config,
+        location: 'SRID=4326;POINT(20.0 50.0)',
+        last_measured_at: 25.hours.ago,
+        first_measured_at: 26.hours.ago,
+      )
 
       get :index2,
           params: {
             q: {
               time_from:
-                session_start_time.to_datetime.strftime('%Q').to_i / 1_000 - 1,
+                active_station_stream
+                  .first_measured_at
+                  .strftime('%Q')
+                  .to_i / 1_000 - 1,
               time_to:
-                session_end_time.to_datetime.strftime('%Q').to_i / 1_000 + 1,
+                active_station_stream
+                  .last_measured_at
+                  .strftime('%Q')
+                  .to_i / 1_000 + 1,
               tags: '',
               usernames: '',
               session_ids: [],
-              west: active_session.longitude - 1,
-              east: active_session.longitude + 1,
-              south: active_session.latitude - 1,
-              north: active_session.latitude + 1,
+              west: longitude - 1,
+              east: longitude + 1,
+              south: latitude - 1,
+              north: latitude + 1,
               limit: 2,
               offset: 0,
-              sensor_name: active_stream.sensor_name.downcase,
-              measurement_type: active_stream.measurement_type,
-              unit_symbol: active_stream.unit_symbol,
+              sensor_name: 'government-pm2.5',
+              measurement_type: config.measurement_type,
+              unit_symbol: config.unit_symbol,
             }.to_json,
           }
 
@@ -264,27 +269,29 @@ describe Api::Fixed::Active::SessionsController do
         'fetchableSessionsCount' => 1,
         'sessions' => [
           {
-            'id' => active_session.id,
-            'uuid' => active_session.uuid,
-            'end_time_local' => '2000-10-02T02:03:04.000Z',
-            'start_time_local' => '2000-10-01T02:03:04.000Z',
-            'last_measurement_value' => active_stream.average_value,
-            'is_indoor' => active_session.is_indoor,
-            'latitude' => active_session.latitude.to_f,
-            'longitude' => active_session.longitude.to_f,
-            'title' => active_session.title,
-            'is_active' => active_session.is_active,
-            'username' => active_session.user.username,
-            'last_hourly_average_value' =>
-              active_stream.last_hourly_average_value,
+            'id' => active_station_stream.id,
+            'uuid' => active_station_stream.uuid,
+            'end_time_local' =>
+              active_station_stream.last_measured_at.strftime(
+                '%Y-%m-%dT%H:%M:%S.%LZ',
+              ),
+            'start_time_local' =>
+              active_station_stream.first_measured_at.strftime(
+                '%Y-%m-%dT%H:%M:%S.%LZ',
+              ),
+            'last_measurement_value' => measurement.value.round,
+            'is_indoor' => false,
+            'latitude' => latitude,
+            'longitude' => longitude,
+            'title' => active_station_stream.title,
+            'username' => 'Government',
+            'is_active' => true,
             'streams' => {
-              active_stream.sensor_name => {
-                'measurement_short_type' =>
-                  active_stream.measurement_short_type,
-                'sensor_name' => active_stream.sensor_name,
-                'unit_symbol' => active_stream.unit_symbol,
-                'id' => active_stream.id,
-                'stream_daily_average' => daily_stream_average.value.round,
+              "Government-#{config.measurement_type}" => {
+                'measurement_short_type' => config.measurement_type,
+                'sensor_name' => "Government-#{config.measurement_type}",
+                'unit_symbol' => config.unit_symbol,
+                'id' => active_station_stream.id,
               },
             },
           },
