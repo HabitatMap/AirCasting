@@ -8,4 +8,12 @@ class StationMeasurementsRepository
       )
       .order(:measured_at)
   end
+
+  def filter(station_stream_id:, start_time:, end_time:)
+    StationMeasurement
+      .where(station_stream_id: station_stream_id)
+      .where('measured_at >= ?', start_time)
+      .where('measured_at <= ?', end_time)
+      .order(:measured_at)
+  end
 end
