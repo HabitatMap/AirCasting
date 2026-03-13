@@ -21,7 +21,7 @@ module Api
                sensor_name == 'government-no2' ||
                sensor_name == 'government-ozone'
             result =
-              ::FixedSessions::IndexInteractor.new(contract: contract).call
+              ::StationStreams::IndexInteractor.new(contract: contract).call
           else
             result = Api::ToActiveSessionsJson.new(contract: contract).call
           end

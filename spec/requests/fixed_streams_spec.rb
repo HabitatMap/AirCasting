@@ -1,27 +1,22 @@
 require 'rails_helper'
 
 describe 'GET api/v3/fixed_streams/:id' do
+  let!(:session) { create(:fixed_session, last_measurement_at: Time.current) }
+  let!(:stream) { create(:stream, session: session) }
+  let!(:measurement_1) { create(:fixed_measurement, stream: stream) }
+  let!(:measurement_2) { create(:fixed_measurement, stream: stream) }
+  let!(:stream_daily_average_1) do
+    create(:stream_daily_average, stream: stream, date: Date.current, value: 10)
+  end
+  let!(:stream_daily_average_2) do
+    create(:stream_daily_average, stream: stream, date: Date.current.prev_day, value: 9)
+  end
+
+  before { get "/api/v3/fixed_streams/#{stream.id}" }
+
+  it_behaves_like 'stream show response'
+
   it 'returns fixed stream data' do
-    session = create(:fixed_session, last_measurement_at: Time.current)
-    stream = create(:stream, session: session)
-    measurement_1 = create(:fixed_measurement, stream: stream)
-    measurement_2 = create(:fixed_measurement, stream: stream)
-
-    stream_daily_average_1 =
-      create(
-        :stream_daily_average,
-        stream: stream,
-        date: Date.current,
-        value: 10,
-      )
-    stream_daily_average_2 =
-      create(
-        :stream_daily_average,
-        stream: stream,
-        date: Date.current.prev_day,
-        value: 9,
-      )
-
     expected_response = {
       stream: {
         session_id: session.id,
@@ -57,8 +52,6 @@ describe 'GET api/v3/fixed_streams/:id' do
         },
       ],
     }
-
-    get "/api/v3/fixed_streams/#{stream.id}"
 
     expect(response.status).to eq(200)
     expect(JSON.parse(response.body)).to eq(expected_response.as_json)
