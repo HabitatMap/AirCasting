@@ -6,6 +6,7 @@ interface ApiEndpoints {
   readonly fetchActiveFixedSessions: (filters: string) => string;
   readonly fetchDormantFixedSessions: (filters: string) => string;
   readonly fetchFixedStreamById: (id: number) => string;
+  readonly fetchStationStreamById: (id: number) => string;
   readonly fetchMobileSessions: (filters: string) => string;
   readonly fetchMobileStreamById: (id: number) => string;
   readonly fetchRectangleData: (filters: string) => string;
@@ -41,6 +42,7 @@ export const API_ENDPOINTS: ApiEndpoints = {
   fetchDormantFixedSessions: (filters) =>
     `/fixed/dormant/sessions.json?q=${filters}`,
   fetchFixedStreamById: (id) => `/fixed_streams/${id}`,
+  fetchStationStreamById: (id) => `/station_streams/${id}`,
   fetchMobileSessions: (filters) => `/mobile/sessions.json?q=${filters}`,
   fetchMobileStreamById: (id) => `/mobile/streams/${id}`,
   fetchRectangleData: (filters) => `/region.json?${filters}`,

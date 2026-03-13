@@ -543,7 +543,7 @@ const Map = () => {
       !fixedStreamData.measurements.length
     ) {
       fixedSessionTypeSelected
-        ? dispatch(fetchFixedStreamById(streamId))
+        ? dispatch(fetchFixedStreamById({ id: streamId, sensorName: sensorNamedDecoded }))
         : dispatch(fetchMobileStreamById(streamId));
     }
   }, [
@@ -688,7 +688,7 @@ const Map = () => {
     if (selectedStreamId) {
       if (fixedSessionTypeSelected) {
         dispatch(setLastSelectedTimeRange(FixedTimeRange.Day));
-        dispatch(fetchFixedStreamById(selectedStreamId));
+        dispatch(fetchFixedStreamById({ id: selectedStreamId, sensorName: sensorNamedDecoded }));
       } else {
         dispatch(fetchMobileStreamById(selectedStreamId));
       }
