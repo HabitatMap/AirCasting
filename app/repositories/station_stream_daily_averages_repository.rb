@@ -7,4 +7,11 @@ class StationStreamDailyAveragesRepository
       .where('date >= ?', start_date)
       .order(:date)
   end
+
+  def from_time_range(station_stream_id:, start_date:, end_date:)
+    StationStreamDailyAverage
+      .where(station_stream_id: station_stream_id)
+      .where('date >= ? AND date <= ?', start_date, end_date)
+      .order(:date)
+  end
 end
