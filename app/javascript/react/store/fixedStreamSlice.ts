@@ -130,18 +130,27 @@ export const fetchMeasurements = createAsyncThunk(
       streamId: number;
       startTime: string;
       endTime: string;
+      sensorName?: string;
     },
     { rejectWithValue }
   ) => {
+    const isGovernment = params.sensorName
+      ?.toLowerCase()
+      .startsWith(SensorPrefix.GOVERNMENT.toLowerCase());
+    const endpoint = isGovernment
+      ? API_ENDPOINTS.fetchStationMeasurements(
+          params.streamId,
+          params.startTime,
+          params.endTime
+        )
+      : API_ENDPOINTS.fetchFixedMeasurements(
+          params.streamId,
+          params.startTime,
+          params.endTime
+        );
     try {
       const response: AxiosResponse<FixedMeasurement[], Error> =
-        await apiClient.get(
-          API_ENDPOINTS.fetchMeasurements(
-            params.streamId,
-            params.startTime,
-            params.endTime
-          )
-        );
+        await apiClient.get(endpoint);
       return response.data;
     } catch (error) {
       return rejectWithValue(getErrorMessage(error));

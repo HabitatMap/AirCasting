@@ -22,8 +22,13 @@ interface ApiEndpoints {
   readonly fetchTimelapseData: (filters: string) => string;
   readonly fetchIndoorActiveSessions: (filters: string) => string;
   readonly fetchIndoorDormantSessions: (filters: string) => string;
-  readonly fetchMeasurements: (
+  readonly fetchFixedMeasurements: (
     streamId: number,
+    startTime: string,
+    endTime: string
+  ) => string;
+  readonly fetchStationMeasurements: (
+    stationStreamId: number,
     startTime: string,
     endTime: string
   ) => string;
@@ -182,6 +187,8 @@ export const API_ENDPOINTS: ApiEndpoints = {
     `/fixed/active/sessions2.json?q=${filters}`,
   fetchIndoorDormantSessions: (filters) =>
     `/fixed/dormant/sessions.json?q=${filters}`,
-  fetchMeasurements: (streamId, startTime, endTime) =>
+  fetchFixedMeasurements: (streamId, startTime, endTime) =>
     `/fixed_measurements?stream_id=${streamId}&start_time=${startTime}&end_time=${endTime}`,
+  fetchStationMeasurements: (stationStreamId, startTime, endTime) =>
+    `/station_measurements?station_stream_id=${stationStreamId}&start_time=${startTime}&end_time=${endTime}`,
 };

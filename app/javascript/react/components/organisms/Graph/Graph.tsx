@@ -187,7 +187,8 @@ const Graph: React.FC<GraphProps> = memo(
       endTime,
       chartComponentRef,
       fixedSessionTypeSelected,
-      rangeDisplayRef
+      rangeDisplayRef,
+      sensorName
     );
     const { updateChartData, lastTriggerRef } = useChartUpdater({
       chartComponentRef,

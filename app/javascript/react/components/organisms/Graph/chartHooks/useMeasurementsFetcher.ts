@@ -25,7 +25,8 @@ export const useMeasurementsFetcher = (
   sessionEndTime: number,
   chartComponentRef: React.RefObject<HighchartsReact.RefObject>,
   fixedSessionTypeSelected: boolean,
-  rangeDisplayRef?: React.RefObject<HTMLDivElement>
+  rangeDisplayRef?: React.RefObject<HTMLDivElement>,
+  sensorName?: string
 ) => {
   const isCurrentlyFetchingRef = useRef(false);
   const dispatch = useAppDispatch();
@@ -272,6 +273,7 @@ export const useMeasurementsFetcher = (
             streamId: Number(streamId),
             startTime: Math.floor(boundedStart).toString(),
             endTime: Math.floor(boundedEnd).toString(),
+            sensorName,
           })
         ).unwrap();
 
@@ -350,6 +352,7 @@ export const useMeasurementsFetcher = (
                     streamId: Number(streamId),
                     startTime: Math.floor(range.start).toString(),
                     endTime: Math.floor(range.end).toString(),
+                    sensorName,
                   })
                 ).unwrap();
 
@@ -476,6 +479,7 @@ export const useMeasurementsFetcher = (
               streamId: Number(streamId),
               startTime: Math.floor(fetchStart).toString(),
               endTime: Math.floor(fetchEnd).toString(),
+              sensorName,
             })
           ).unwrap();
 
