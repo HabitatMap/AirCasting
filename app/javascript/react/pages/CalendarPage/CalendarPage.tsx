@@ -95,6 +95,7 @@ const CalendarPage: React.FC<CalendarPageProps> = ({ children }) => {
           id: streamId,
           startDate: fixedStreamData.stream.startTime,
           endDate: streamEndTime,
+          sensorName,
         })
       );
       setInitialDataFetched(true);

@@ -10,8 +10,13 @@ interface ApiEndpoints {
   readonly fetchMobileSessions: (filters: string) => string;
   readonly fetchMobileStreamById: (id: number) => string;
   readonly fetchRectangleData: (filters: string) => string;
-  readonly fetchSelectedDataRangeOfStream: (
+  readonly fetchFixedStreamDailyAverages: (
     id: number,
+    startDate: string,
+    endDate: string
+  ) => string;
+  readonly fetchStationStreamDailyAverages: (
+    stationStreamId: number,
     startDate: string,
     endDate: string
   ) => string;
@@ -51,8 +56,10 @@ export const API_ENDPOINTS: ApiEndpoints = {
   fetchMobileSessions: (filters) => `/mobile/sessions.json?q=${filters}`,
   fetchMobileStreamById: (id) => `/mobile/streams/${id}`,
   fetchRectangleData: (filters) => `/region.json?${filters}`,
-  fetchSelectedDataRangeOfStream: (id, startDate, endDate) =>
-    `/stream_daily_averages?stream_id=${id}&start_date=${startDate}&end_date=${endDate}`,
+  fetchFixedStreamDailyAverages: (id, startDate, endDate) =>
+    `/fixed_stream_daily_averages?stream_id=${id}&start_date=${startDate}&end_date=${endDate}`,
+  fetchStationStreamDailyAverages: (stationStreamId, startDate, endDate) =>
+    `/station_stream_daily_averages?stream_id=${stationStreamId}&start_date=${startDate}&end_date=${endDate}`,
   fetchThresholds: (filters) => `/thresholds/${filters}`,
   fetchUsernames: (params) => {
     const {
