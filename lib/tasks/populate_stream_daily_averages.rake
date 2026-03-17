@@ -1,4 +1,6 @@
 namespace :stream_daily_averages do
+  desc "[DEPRECATED] Populate StreamDailyAverage records from existing stream measurements"
+  # This task assumes FixedSessions use measurements, while they use FixedMeasurements right now
   task populate: :environment do
     puts "Starting to populate daily stream averages"
 
