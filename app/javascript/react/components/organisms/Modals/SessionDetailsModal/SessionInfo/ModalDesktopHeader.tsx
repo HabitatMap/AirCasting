@@ -120,6 +120,8 @@ const ModalDesktopHeader: React.FC<ModalDesktopHeaderProps> = ({
           }
           fixedSessionTypeSelected={fixedSessionTypeSelected}
           sessionsIds={[streamShortInfo.sessionId]}
+          sensorName={streamShortInfo.sensorName}
+          stationStreamId={streamShortInfo.sessionId}
           isIconOnly={true}
           onSubmit={(formData) => {}}
           isSessionList={false}

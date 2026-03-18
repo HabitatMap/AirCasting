@@ -12,9 +12,10 @@ import * as S from "./StationActionButtons.style";
 
 interface Props {
   sessionId: number;
+  sensorName: string;
 }
 
-const StationActionButtons = ({ sessionId }: Props) => {
+const StationActionButtons = ({ sessionId, sensorName }: Props) => {
   const { t } = useTranslation();
 
   return (
@@ -33,6 +34,8 @@ const StationActionButtons = ({ sessionId }: Props) => {
             </ActionButton>
           }
           sessionsIds={[sessionId]}
+          sensorName={sensorName}
+          stationStreamId={sessionId}
           isIconOnly
           onSubmit={(formData) => {}}
           fixedSessionTypeSelected={true}
@@ -65,6 +68,8 @@ const StationActionButtons = ({ sessionId }: Props) => {
             </Button>
           }
           sessionsIds={[sessionId]}
+          sensorName={sensorName}
+          stationStreamId={sessionId}
           isIconOnly={false}
           onSubmit={(formData) => {}}
           fixedSessionTypeSelected={true}

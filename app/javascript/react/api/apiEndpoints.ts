@@ -2,6 +2,7 @@ import { ParamsType, SessionType } from "../types/filters";
 
 interface ApiEndpoints {
   readonly exportSessionData: (sessionsIds: number[], email: string) => string;
+  readonly exportStationStreamData: (stationStreamId: number, email: string) => string;
   readonly fetchCrowdMap: (filters: string) => string;
   readonly fetchActiveFixedSessions: (filters: string) => string;
   readonly fetchDormantFixedSessions: (filters: string) => string;
@@ -46,6 +47,8 @@ export const API_ENDPOINTS: ApiEndpoints = {
       .join("&");
     return `/sessions/export.json?${sessionParams}&email=${email}`;
   },
+  exportStationStreamData: (stationStreamId, email) =>
+    `/station_streams/export?station_stream_id=${stationStreamId}&email=${email}`,
   fetchCrowdMap: (filters) => `/averages2.json?q=${filters}`,
   fetchActiveFixedSessions: (filters) =>
     `/fixed/active/sessions2.json?q=${filters}`,

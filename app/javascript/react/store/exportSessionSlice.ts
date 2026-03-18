@@ -1,7 +1,8 @@
 import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { AxiosResponse } from "axios";
-import { oldApiClient } from "../api/apiClient";
+import { apiClient, oldApiClient } from "../api/apiClient";
 import { API_ENDPOINTS } from "../api/apiEndpoints";
+import { SensorPrefix } from "../types/sensors";
 import { ApiError, StatusEnum } from "../types/api";
 import { getErrorMessage } from "../utils/getErrorMessage";
 import { logError } from "../utils/logController";
@@ -31,17 +32,28 @@ const initialState: ExportSessionState = {
 
 export const exportSession = createAsyncThunk<
   SessionData,
-  { sessionsIds: number[]; email: string },
+  { sessionsIds: number[]; email: string; sensorName?: string; stationStreamId?: number },
   { rejectValue: ApiError }
 >("session/exportSession", async (sessionData, { rejectWithValue }) => {
+  const isGovernment = sessionData.sensorName
+    ?.toLowerCase()
+    .startsWith(SensorPrefix.GOVERNMENT.toLowerCase());
+
   try {
-    const response: AxiosResponse<SessionData> = await oldApiClient.get(
-      API_ENDPOINTS.exportSessionData(
+    if (isGovernment && sessionData.stationStreamId !== undefined) {
+      const endpoint = API_ENDPOINTS.exportStationStreamData(
+        sessionData.stationStreamId,
+        sessionData.email
+      );
+      await apiClient.get(endpoint);
+    } else {
+      const endpoint = API_ENDPOINTS.exportSessionData(
         sessionData.sessionsIds,
         sessionData.email
-      )
-    );
-    return response.data;
+      );
+      await oldApiClient.get(endpoint);
+    }
+    return { sessionsIds: sessionData.sessionsIds, email: sessionData.email };
   } catch (error) {
     const message = getErrorMessage(error);
 
@@ -49,10 +61,12 @@ export const exportSession = createAsyncThunk<
       message,
       additionalInfo: {
         action: "exportSession",
-        endpoint: API_ENDPOINTS.exportSessionData(
-          sessionData.sessionsIds,
-          sessionData.email
-        ),
+        endpoint: isGovernment && sessionData.stationStreamId !== undefined
+          ? API_ENDPOINTS.exportStationStreamData(sessionData.stationStreamId, sessionData.email)
+          : API_ENDPOINTS.exportSessionData(
+              sessionData.sessionsIds,
+              sessionData.email
+            ),
       },
     };
 

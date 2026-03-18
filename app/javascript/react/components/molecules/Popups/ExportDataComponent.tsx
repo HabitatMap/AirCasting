@@ -22,6 +22,8 @@ interface ExportDataComponentProps {
   fixedSessionTypeSelected?: boolean;
   isSessionList: boolean;
   open?: boolean;
+  sensorName?: string;
+  stationStreamId?: number;
 }
 
 export interface ExportModalData {
@@ -52,6 +54,8 @@ const ExportDataComponent = ({
   isIconOnly,
   isSessionList,
   open,
+  sensorName,
+  stationStreamId,
 }: ExportDataComponentProps) => {
   const exportButtonRef = useRef<HTMLDivElement>(null);
   const focusInputRef = useRef<HTMLInputElement | null>(null);
@@ -92,7 +96,7 @@ const ExportDataComponent = ({
       return;
     }
 
-    dispatch(exportSession({ sessionsIds, email: formState.email }));
+    dispatch(exportSession({ sessionsIds, email: formState.email, sensorName, stationStreamId }));
     onSubmit(formState);
     setFormState(initialExportModalData);
     setShowConfirmation(true);
