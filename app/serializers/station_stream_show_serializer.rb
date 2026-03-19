@@ -8,8 +8,10 @@ class StationStreamShowSerializer
   def call(station_stream:, measurements:, stream_daily_averages:)
     {
       stream: station_stream_serializer.call(station_stream),
-      measurements: measurements_serializer.call(measurements),
-      stream_daily_averages: stream_daily_averages_serializer.call(stream_daily_averages),
+      measurements:
+        measurements_serializer.call(measurements, time_zone: station_stream.time_zone),
+      stream_daily_averages:
+        stream_daily_averages_serializer.call(stream_daily_averages),
     }
   end
 

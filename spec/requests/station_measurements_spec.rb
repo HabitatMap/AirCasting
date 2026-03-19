@@ -3,7 +3,13 @@ require 'rails_helper'
 describe 'GET /api/v3/station_measurements' do
   it 'returns only measurements in the given time range and stream' do
     config = create(:stream_configuration)
-    station_stream = create(:station_stream, stream_configuration: config)
+    station_stream = create(:station_stream, stream_configuration: config) # time_zone: 'Europe/Warsaw'
+    tz = station_stream.time_zone
+
+    # Helper: converts a UTC timestamptz to a local-wall-clock-as-UTC epoch ms
+    # (the format the frontend sends and the serializer returns).
+    local_epoch_ms = ->(ts) { Utils.to_local_as_utc(ts, tz).to_i * 1_000 }
+
     measurement_1 =
       create(
         :station_measurement,
@@ -33,14 +39,15 @@ describe 'GET /api/v3/station_measurements' do
     )
 
     expected_response = [
-      { 'value' => 10.0, 'time' => measurement_1.measured_at.to_i * 1_000 },
-      { 'value' => 20.0, 'time' => measurement_2.measured_at.to_i * 1_000 },
+      { 'value' => 10.0, 'time' => local_epoch_ms.call(measurement_1.measured_at) },
+      { 'value' => 20.0, 'time' => local_epoch_ms.call(measurement_2.measured_at) },
     ]
 
+    # Frontend sends local-as-UTC epoch ms (local wall-clock time treated as UTC).
     params = {
       station_stream_id: station_stream.id.to_s,
-      start_time: measurement_1.measured_at.to_f * 1000,
-      end_time: measurement_2.measured_at.to_f * 1000,
+      start_time: local_epoch_ms.call(measurement_1.measured_at),
+      end_time: local_epoch_ms.call(measurement_2.measured_at),
     }
 
     get '/api/v3/station_measurements', params: params

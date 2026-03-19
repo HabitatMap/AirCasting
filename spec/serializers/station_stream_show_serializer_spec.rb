@@ -38,6 +38,8 @@ RSpec.describe StationStreamShowSerializer do
     end
 
     it 'returns the correct serialized structure' do
+      tz = station_stream.time_zone
+
       expected = {
         stream: {
           session_id: station_stream.id,
@@ -49,9 +51,9 @@ RSpec.describe StationStreamShowSerializer do
           sensor_name: 'Government-PM2.5',
           unit_symbol: 'µg/m³',
           update_frequency: '1 hour',
-          last_update: station_stream.last_measured_at,
-          start_time: station_stream.first_measured_at,
-          end_time: station_stream.last_measured_at,
+          last_update: Utils.to_local_as_utc(station_stream.last_measured_at, tz),
+          start_time: Utils.to_local_as_utc(station_stream.first_measured_at, tz),
+          end_time: Utils.to_local_as_utc(station_stream.last_measured_at, tz),
           min: config.threshold_very_low,
           low: config.threshold_low,
           middle: config.threshold_medium,
@@ -59,8 +61,8 @@ RSpec.describe StationStreamShowSerializer do
           max: config.threshold_very_high,
         },
         measurements: [
-          { time: measurement_1.measured_at.to_i * 1_000, value: measurement_1.value },
-          { time: measurement_2.measured_at.to_i * 1_000, value: measurement_2.value },
+          { time: Utils.to_local_as_utc(measurement_1.measured_at, tz).to_i * 1_000, value: measurement_1.value },
+          { time: Utils.to_local_as_utc(measurement_2.measured_at, tz).to_i * 1_000, value: measurement_2.value },
         ],
         stream_daily_averages: [
           { date: daily_average_1.date.strftime('%Y-%m-%d'), value: daily_average_1.value },

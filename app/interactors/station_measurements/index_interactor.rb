@@ -15,7 +15,7 @@ module StationMeasurements
 
       return validation_result if validation_result.is_a?(Failure)
 
-      station_stream_id, start_time, end_time = fetch_params(validation_result)
+      station_stream_id, time_zone, start_time, end_time = fetch_params(validation_result)
 
       measurements =
         repository.filter(
@@ -23,7 +23,7 @@ module StationMeasurements
           start_time: start_time,
           end_time: end_time,
         )
-      serialized_measurements = serializer.call(measurements)
+      serialized_measurements = serializer.call(measurements, time_zone: time_zone)
 
       Success.new(serialized_measurements)
     end
@@ -41,10 +41,18 @@ module StationMeasurements
 
     def fetch_params(validation_result)
       station_stream_id = validation_result[:station_stream_id]
-      start_time = Time.at(validation_result[:start_time] / 1000.0)
-      end_time = Time.at(validation_result[:end_time] / 1000.0)
+      time_zone = StationStream.find_by(id: station_stream_id)&.time_zone || 'UTC'
 
-      [station_stream_id, start_time, end_time]
+      # The frontend sends "local-as-UTC" epoch ms: local wall-clock time components
+      # packed as a UTC epoch (matching the AirBeam convention). We must re-interpret
+      # those components as the station's local time to get the real UTC for filtering
+      # the measured_at (timestamptz) column.
+      start_time =
+        Utils.from_local_as_utc(Time.at(validation_result[:start_time] / 1000.0).utc, time_zone)
+      end_time =
+        Utils.from_local_as_utc(Time.at(validation_result[:end_time] / 1000.0).utc, time_zone)
+
+      [station_stream_id, time_zone, start_time, end_time]
     end
   end
 end
