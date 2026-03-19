@@ -1,6 +1,6 @@
 module GovernmentSources
   class StationStreamDailyAveragesCalculator
-    DEFAULT_LOOKBACK_DAYS = 1
+    DEFAULT_LOOKBACK_DAYS = 2
     DEFAULT_STREAM_UPDATED_WITHIN = 1.hour
 
     def initialize(
