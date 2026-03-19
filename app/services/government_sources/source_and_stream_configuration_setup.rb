@@ -20,12 +20,16 @@ module GovernmentSources
     end
 
     def setup_epa_source
-      source = Source.find_or_create_by!(name: 'EPA')
+      source = Source.find_or_create_by!(name: 'EPA') do |s|
+        s.full_name = 'US EPA AirNow'
+      end
       assign_configurations(source, epa_config_keys)
     end
 
     def setup_eea_source
-      source = Source.find_or_create_by!(name: 'EEA')
+      source = Source.find_or_create_by!(name: 'EEA') do |s|
+        s.full_name = 'EEA'
+      end
       assign_configurations(source, eea_config_keys)
     end
 

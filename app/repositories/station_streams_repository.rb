@@ -6,7 +6,7 @@ class StationStreamsRepository
   }.freeze
 
   def find(id)
-    StationStream.includes(:stream_configuration).find_by(id: id)
+    StationStream.includes(:stream_configuration, :source).find_by(id: id)
   end
 
   def active_in_rectangle(sensor_name:, west:, east:, north:, south:)

@@ -41,7 +41,7 @@ describe 'GET /api/v3/station_streams/:id' do
           title: station_stream.title,
           latitude: station_stream.location.y,
           longitude: station_stream.location.x,
-          profile: 'Government',
+          profile: station_stream.source.full_name,
           sensor_name: 'Government-PM2.5',
           unit_symbol: config.unit_symbol,
           update_frequency: '1 hour',

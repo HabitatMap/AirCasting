@@ -45,7 +45,7 @@ RSpec.describe StationStreamShowSerializer do
           title: station_stream.title,
           latitude: station_stream.location.y,
           longitude: station_stream.location.x,
-          profile: 'Government',
+          profile: station_stream.source.full_name,
           sensor_name: 'Government-PM2.5',
           unit_symbol: 'µg/m³',
           update_frequency: '1 hour',

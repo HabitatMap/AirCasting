@@ -7,7 +7,7 @@ class StationStreamSerializer
       title: station_stream.title,
       latitude: station_stream.location.y,
       longitude: station_stream.location.x,
-      profile: 'Government', # TODO: update profile to use source
+      profile: station_stream.source.full_name,
       sensor_name: "Government-#{config.measurement_type}",
       unit_symbol: config.unit_symbol,
       update_frequency: '1 hour',
