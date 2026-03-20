@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2026_03_06_000002) do
+ActiveRecord::Schema[7.0].define(version: 2026_03_19_115904) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
   enable_extension "postgis"
@@ -272,6 +272,7 @@ ActiveRecord::Schema[7.0].define(version: 2026_03_06_000002) do
     t.string "name", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "full_name"
     t.index ["name"], name: "index_sources_on_name", unique: true
   end
 
