@@ -17,7 +17,7 @@ module StreamDailyAverages
       CREATE TEMP TABLE temp_daily_averages AS
       SELECT
         stream_id,
-        ROUND(AVG(value)) AS value,
+        ROUND(AVG(value)::numeric) AS value,
         CASE
           WHEN time::time >= '00:00:01' THEN DATE_TRUNC('day', time)
           ELSE DATE_TRUNC('day', time) - INTERVAL '1 day'

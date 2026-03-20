@@ -505,6 +505,31 @@ describe GovernmentSources::Repository do
       expect(StationStreamDailyAverage.last.value).to eq(11)
     end
 
+    it 'rounds a 0.5 average up' do
+      stream = create(:station_stream, time_zone: 'UTC')
+      create(
+        :station_measurement,
+        station_stream: stream,
+        measured_at: Time.parse('2026-01-15 08:00:00 UTC'),
+        value: 10,
+      )
+      create(
+        :station_measurement,
+        station_stream: stream,
+        measured_at: Time.parse('2026-01-15 16:00:00 UTC'),
+        value: 11,
+      )
+
+      subject.upsert_station_stream_daily_averages(
+        stream_ids: [stream.id],
+        time_zone: 'UTC',
+        since: Time.parse('2026-01-15 00:00:00 UTC'),
+      )
+
+      # avg = 10.5, must round up, not to 10
+      expect(StationStreamDailyAverage.last.value).to eq(11)
+    end
+
     it 'does nothing when stream_ids is empty' do
       expect {
         subject.upsert_station_stream_daily_averages(

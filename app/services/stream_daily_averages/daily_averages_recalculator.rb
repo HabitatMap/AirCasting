@@ -42,7 +42,7 @@ module StreamDailyAverages
           GROUP BY stream_id, date
         )
         INSERT INTO stream_daily_averages (stream_id, value, date, created_at, updated_at)
-        SELECT stream_id, ROUND(avg_value)::integer, date, NOW(), NOW()
+        SELECT stream_id, ROUND(avg_value::numeric)::integer, date, NOW(), NOW()
         FROM daily
         ON CONFLICT (stream_id, date) DO UPDATE
           SET value = EXCLUDED.value, updated_at = NOW();

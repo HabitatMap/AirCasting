@@ -30,6 +30,28 @@ describe StreamDailyAverages::DailyAveragesRecalculator do
         expect(avg.value).to eq(30)
       end
 
+      it 'rounds a 0.5 average up' do
+        create(
+          :fixed_measurement,
+          stream: stream,
+          value: 4,
+          time: Time.parse('2025-01-15 06:00:00'),
+          time_with_time_zone: Time.parse('2025-01-15 06:00:00 UTC'),
+        )
+        create(
+          :fixed_measurement,
+          stream: stream,
+          value: 5,
+          time: Time.parse('2025-01-15 18:00:00'),
+          time_with_time_zone: Time.parse('2025-01-15 18:00:00 UTC'),
+        )
+
+        subject.call(stream_ids: [stream.id])
+
+        avg = StreamDailyAverage.find_by(stream: stream, date: Date.parse('2025-01-15'))
+        expect(avg.value).to eq(5) # avg = 4.5, must round up, not to 4
+      end
+
       it 'upserts: updates an existing record instead of creating a duplicate' do
         existing = create(
           :stream_daily_average,

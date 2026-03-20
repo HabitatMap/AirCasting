@@ -12,7 +12,7 @@ module HourlyAverages
         )
         SELECT
           fm.fixed_stream_id,
-          ROUND(AVG(fm.value)) AS value,
+          ROUND(AVG(fm.value)::numeric) AS value,
           ? AS measured_at,
           NOW() AS created_at,
           NOW() AS updated_at
