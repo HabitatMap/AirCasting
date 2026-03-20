@@ -122,7 +122,7 @@ module GovernmentSources
           GROUP BY sm.station_stream_id, date
         )
         INSERT INTO station_stream_daily_averages (station_stream_id, value, date, created_at, updated_at)
-        SELECT station_stream_id, ROUND(avg_value)::integer, date, NOW(), NOW()
+        SELECT station_stream_id, ROUND(avg_value::numeric)::integer, date, NOW(), NOW()
         FROM daily
         ON CONFLICT (station_stream_id, date) DO UPDATE
           SET value = EXCLUDED.value, updated_at = NOW()

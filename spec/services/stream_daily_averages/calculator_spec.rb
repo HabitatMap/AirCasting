@@ -93,6 +93,19 @@ describe StreamDailyAverages::Calculator do
       expect(stream_daily_average_2_1.value).to eq(5)
     end
 
+    it 'rounds a 0.5 average up' do
+      session = create(:fixed_session)
+      stream = create(:stream, session: session)
+
+      create(:fixed_measurement, stream: stream, value: 4, time: '2025-01-16 00:00:01')
+      create(:fixed_measurement, stream: stream, value: 5, time: '2025-01-16 00:10:00')
+
+      subject.call
+
+      average = StreamDailyAverage.find_by(stream_id: stream.id, date: Date.parse('2025-01-16'))
+      expect(average.value).to eq(5) # avg = 4.5, must round up, not to 4
+    end
+
     it 'updates values for existing records' do
       session = create(:fixed_session)
       stream = create(:stream, session: session)

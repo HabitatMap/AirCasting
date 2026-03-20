@@ -92,6 +92,20 @@ RSpec.describe StreamHourlyAverages::Repository do
       )
     end
 
+    it 'rounds a 0.5 average up' do
+      stream = create(:stream, :fixed)
+      create(:fixed_measurement, stream: stream, time_with_time_zone: Time.parse('2025-06-17 13:30:00 UTC'), value: 10)
+      create(:fixed_measurement, stream: stream, time_with_time_zone: Time.parse('2025-06-17 13:45:00 UTC'), value: 11)
+
+      subject.upsert_hourly_averages_for_stream(
+        stream_id: stream.id,
+        start_date_time: Time.parse('2025-06-17 13:00:00 UTC'),
+        end_date_time: Time.parse('2025-06-17 14:00:00 UTC'),
+      )
+
+      expect(StreamHourlyAverage.first.value).to eq(11) # avg = 10.5, must round up, not to 10
+    end
+
     it 'overwrites an existing average on conflict' do
       stream = create(:stream, :fixed)
       existing = create(:stream_hourly_average, stream: stream, date_time: Time.parse('2025-06-17 15:00:00 UTC'), value: 999)

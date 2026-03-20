@@ -20,7 +20,7 @@ module StreamHourlyAverages
               THEN time_with_time_zone
             ELSE DATE_TRUNC('hour', time_with_time_zone) + INTERVAL '1 hour'
           END AS date_time,
-          ROUND(AVG(value))::integer AS value,
+          ROUND(AVG(value)::numeric)::integer AS value,
           NOW(),
           NOW()
         FROM fixed_measurements

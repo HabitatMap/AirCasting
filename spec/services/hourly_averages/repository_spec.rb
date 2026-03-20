@@ -114,6 +114,27 @@ RSpec.describe HourlyAverages::Repository do
       expect(HourlyAverage.first.value).to eq(50)
     end
 
+    it 'rounds a 0.5 average up' do
+      fixed_stream = create(:fixed_stream, source: eea_source, stream_configuration:)
+
+      create(
+        :fixed_measurement,
+        fixed_stream: fixed_stream,
+        measured_at: Time.parse('2026-02-03 10:30 UTC'),
+        value: 10,
+      )
+      create(
+        :fixed_measurement,
+        fixed_stream: fixed_stream,
+        measured_at: Time.parse('2026-02-03 11:00 UTC'),
+        value: 11,
+      )
+
+      subject.calculate_for_hour(measured_at: Time.parse('2026-02-03 11:00 UTC'))
+
+      expect(HourlyAverage.first.value).to eq(11) # avg = 10.5, must round up, not to 10
+    end
+
     it 'creates no record when no measurements exist in the time range' do
       create(:fixed_stream, source: eea_source, stream_configuration:)
 
