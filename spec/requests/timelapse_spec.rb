@@ -158,4 +158,106 @@ describe 'GET api/v3/timelapse', type: :request do
       expect(JSON.parse(response.body)).to eq(expected)
     end
   end
+
+  context 'with government sensor data using new data model' do
+    it 'returns clustered timelapse data from station_streams' do
+      source = create(:source, name: 'EEA')
+      config =
+        create(
+          :stream_configuration,
+          measurement_type: 'PM2.5',
+          canonical: true,
+        )
+
+      reference_latitude = 50.0
+      reference_longitude = 19.0
+
+      # Two nearby station_streams (should cluster)
+      stream_a =
+        create(
+          :station_stream,
+          source: source,
+          stream_configuration: config,
+          location:
+            "SRID=4326;POINT(#{reference_longitude} #{reference_latitude})",
+          last_measured_at: 1.hour.ago,
+        )
+      stream_b =
+        create(
+          :station_stream,
+          source: source,
+          stream_configuration: config,
+          location:
+            "SRID=4326;POINT(#{reference_longitude + 0.0001} #{reference_latitude + 0.0001})",
+          last_measured_at: 1.hour.ago,
+        )
+
+      measurement_hour = 2.hours.ago.beginning_of_hour
+      create(
+        :station_measurement,
+        station_stream: stream_a,
+        measured_at: measurement_hour,
+        value: 10.0,
+      )
+      create(
+        :station_measurement,
+        station_stream: stream_b,
+        measured_at: measurement_hour,
+        value: 20.0,
+      )
+
+      # Far station_stream (should be separate)
+      far_stream =
+        create(
+          :station_stream,
+          source: source,
+          stream_configuration: config,
+          location:
+            "SRID=4326;POINT(#{reference_longitude + 10} #{reference_latitude + 5})",
+          last_measured_at: 1.hour.ago,
+        )
+      create(
+        :station_measurement,
+        station_stream: far_stream,
+        measured_at: measurement_hour,
+        value: 30.0,
+      )
+
+      get '/api/v3/timelapse',
+          params: {
+            q: {
+              time_from: (10.days.ago.to_datetime.strftime('%Q').to_i / 1_000),
+              time_to: (Time.now.to_datetime.strftime('%Q').to_i / 1_000),
+              tags: '',
+              usernames: '',
+              west: reference_longitude - 20,
+              east: reference_longitude + 20,
+              south: reference_latitude - 10,
+              north: reference_latitude + 10,
+              sensor_name: 'government-pm2.5',
+              measurement_type: 'Particulate Matter',
+              unit_symbol: 'µg/m³',
+              zoom_level: 10,
+            }.to_json,
+          }
+
+      body = JSON.parse(response.body)
+      expected_timestamp =
+        measurement_hour.utc.strftime('%Y-%m-%d %H:%M:%S +0000')
+
+      expect(response.status).to eq(200)
+      expect(body.keys).to eq([expected_timestamp])
+
+      entries = body[expected_timestamp]
+      expect(entries.length).to eq(2)
+
+      clustered =
+        entries.find { |e| e['sessions'] == 2 }
+      isolated =
+        entries.find { |e| e['sessions'] == 1 }
+
+      expect(clustered['value']).to eq(15.0)
+      expect(isolated['value']).to eq(30.0)
+    end
+  end
 end

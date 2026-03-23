@@ -1,30 +1,45 @@
 module Timelapse
   class ClustersCreator
+    GOVERNMENT_SENSOR_NAMES =
+      %w[government-pm2.5 government-no2 government-ozone].freeze
+
     def initialize
       @streams_repository = StreamsRepository.new
       @cluster_processor = ClusterProcessor.new
       @sessions_repository = SessionsRepository.new
+      @government_clusters_creator = GovernmentClustersCreator.new
     end
 
     def call(contract:)
       return Failure.new(contract.errors.to_h) if contract.failure?
       params = contract.to_h
 
-      zoom_level = params[:zoom_level].to_f
-      sensor_name = params[:sensor_name]
-
-      streams = fetch_streams(params)
-      clusters = cluster_streams(streams, zoom_level)
-
       result =
-        cluster_processor.call(clusters: clusters, sensor_name: sensor_name)
+        if GOVERNMENT_SENSOR_NAMES.include?(params[:sensor_name].downcase)
+          government_clusters_creator.call(params: params)
+        else
+          fixed_sessions_timelapse(params)
+        end
 
       Success.new(result)
     end
 
     private
 
-    attr_reader :streams_repository, :cluster_processor, :sessions_repository
+    attr_reader :streams_repository,
+                :cluster_processor,
+                :sessions_repository,
+                :government_clusters_creator
+
+    def fixed_sessions_timelapse(params)
+      zoom_level = params[:zoom_level].to_f
+      sensor_name = params[:sensor_name]
+
+      streams = fetch_streams(params)
+      clusters = cluster_streams(streams, zoom_level)
+
+      cluster_processor.call(clusters: clusters, sensor_name: sensor_name)
+    end
 
     def fetch_streams(params)
       sessions = filtered_sessions(params)
