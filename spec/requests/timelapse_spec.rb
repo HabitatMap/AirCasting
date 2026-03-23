@@ -1,8 +1,8 @@
 require 'rails_helper'
 
 describe 'GET api/v3/timelapse', type: :request do
-  context 'with correct params' do
-    it 'returns clustered information about sessions with measurements from last 7 days' do
+  context 'with AirBeam sensor data' do
+    it 'returns clustered information from stream_hourly_averages' do
       reference_time = DateTime.current
       reference_latitude = 50.0
       reference_longitude = 19.0
@@ -26,19 +26,17 @@ describe 'GET api/v3/timelapse', type: :request do
           max_longitude: reference_longitude,
         )
 
+      # stream_hourly_averages date_time already includes +1h shift
       create(
-        :fixed_measurement,
+        :stream_hourly_average,
         stream: active_stream,
-        time: reference_time - 2.hours,
-        time_with_time_zone: reference_time - 2.hours,
+        date_time: reference_time.beginning_of_hour - 1.hour,
         value: 2,
       )
-
       create(
-        :fixed_measurement,
+        :stream_hourly_average,
         stream: active_stream,
-        time: reference_time - 3.hours,
-        time_with_time_zone: reference_time - 3.hours,
+        date_time: reference_time.beginning_of_hour - 2.hours,
         value: 4,
       )
 
@@ -64,18 +62,15 @@ describe 'GET api/v3/timelapse', type: :request do
         )
 
       create(
-        :fixed_measurement,
+        :stream_hourly_average,
         stream: close_stream,
-        time: reference_time - 2.hours - 1.minute,
-        time_with_time_zone: reference_time - 2.hours - 1.minute,
+        date_time: reference_time.beginning_of_hour - 1.hour,
         value: 4,
       )
-
       create(
-        :fixed_measurement,
+        :stream_hourly_average,
         stream: close_stream,
-        time: reference_time - 3.hours,
-        time_with_time_zone: reference_time - 3.hours,
+        date_time: reference_time.beginning_of_hour - 2.hours,
         value: 6,
       )
 
@@ -101,10 +96,9 @@ describe 'GET api/v3/timelapse', type: :request do
         )
 
       create(
-        :fixed_measurement,
+        :stream_hourly_average,
         stream: far_stream,
-        time: reference_time - 2.hours,
-        time_with_time_zone: reference_time - 2.hours,
+        date_time: reference_time.beginning_of_hour - 1.hour,
         value: 10,
       )
 
@@ -143,7 +137,7 @@ describe 'GET api/v3/timelapse', type: :request do
             'sessions' => 1,
           },
         ],
-        (reference_time.beginning_of_hour - 2.hour).utc.strftime(
+        (reference_time.beginning_of_hour - 2.hours).utc.strftime(
           '%Y-%m-%d %H:%M:%S +0000',
         ) => [
           {

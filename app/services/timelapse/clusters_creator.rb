@@ -33,12 +33,11 @@ module Timelapse
 
     def fixed_sessions_timelapse(params)
       zoom_level = params[:zoom_level].to_f
-      sensor_name = params[:sensor_name]
 
       streams = fetch_streams(params)
       clusters = cluster_streams(streams, zoom_level)
 
-      cluster_processor.call(clusters: clusters, sensor_name: sensor_name)
+      cluster_processor.call(clusters: clusters)
     end
 
     def fetch_streams(params)
