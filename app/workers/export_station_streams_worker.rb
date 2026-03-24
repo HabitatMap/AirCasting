@@ -2,11 +2,11 @@ class ExportStationStreamsWorker
   include Sidekiq::Worker
   sidekiq_options queue: :default
 
-  def perform(station_stream_id, email)
+  def perform(station_stream_ids, email)
     service = Csv::ExportStationStreamsToCsv.new
 
     begin
-      zip_path = service.call(station_stream_id)
+      zip_path = service.call(station_stream_ids)
       zip_file = File.read(zip_path)
       zip_filename = File.basename(zip_path)
 

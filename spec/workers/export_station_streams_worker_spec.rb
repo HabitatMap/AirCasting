@@ -2,7 +2,7 @@ require 'rails_helper'
 
 describe ExportStationStreamsWorker do
   it 'calls the export service and emails the result' do
-    station_stream_id = 1
+    station_stream_ids = [1, 2]
     email = 'user@example.com'
     zip_path = Rails.root.join('tmp', 'test_export.zip').to_s
     zip_content = 'zip content'
@@ -17,9 +17,9 @@ describe ExportStationStreamsWorker do
     allow(File).to receive(:basename).with(zip_path).and_return('test_export.zip')
     allow(UserMailer).to receive_message_chain(:with, :export_sessions, :deliver_later)
 
-    subject.perform(station_stream_id, email)
+    subject.perform(station_stream_ids, email)
 
-    expect(service).to have_received(:call).with(station_stream_id)
+    expect(service).to have_received(:call).with(station_stream_ids)
     expect(service).to have_received(:clean)
     expect(UserMailer).to have_received(:with).with(
       email: email,
@@ -35,7 +35,7 @@ describe ExportStationStreamsWorker do
     allow(File).to receive(:basename).and_return('x.zip')
     allow(UserMailer).to receive_message_chain(:with, :export_sessions, :deliver_later).and_raise(StandardError)
 
-    expect { subject.perform(1, 'user@example.com') }.to raise_error(StandardError)
+    expect { subject.perform([1], 'user@example.com') }.to raise_error(StandardError)
 
     expect(service).to have_received(:clean)
   end

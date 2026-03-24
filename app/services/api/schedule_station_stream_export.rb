@@ -6,7 +6,7 @@ class Api::ScheduleStationStreamExport
   def call
     return Failure.new(contract.errors.to_h) if contract.failure?
 
-    ExportStationStreamsWorker.perform_async(data[:station_stream_id], data[:email])
+    ExportStationStreamsWorker.perform_async(data[:station_stream_ids], data[:email])
 
     Success.new('Export scheduled successfully.')
   end

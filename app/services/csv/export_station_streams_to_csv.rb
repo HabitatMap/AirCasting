@@ -7,15 +7,16 @@ class Csv::ExportStationStreamsToCsv
     @repository = repository
     @create_measurements_file = create_measurements_file
     @create_zip_file = create_zip_file
-    filename = "station_stream_#{Time.current.to_formatted_s(:number)}"
+    filename = "sessions_#{Time.current.to_formatted_s(:number)}"
     @zip_file = Tempfile.new([filename, '.zip'])
     @files_to_zip = [Tempfile.new('.keep')]
   end
 
-  def call(station_stream_id)
-    measurements = @repository.find_measurements(station_stream_id)
+  def call(station_stream_ids)
+    station_stream_ids.each do |station_stream_id|
+      measurements = @repository.find_measurements(station_stream_id)
+      next unless measurements.any?
 
-    if measurements.any?
       stream_parameters = @repository.find_stream_parameters(station_stream_id)
       sensor_package_name = @repository.find_sensor_package_name(station_stream_id)
 
