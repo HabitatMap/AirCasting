@@ -32,7 +32,7 @@ const initialState: ExportSessionState = {
 
 export const exportSession = createAsyncThunk<
   SessionData,
-  { sessionsIds: number[]; email: string; sensorName?: string; stationStreamId?: number },
+  { sessionsIds: number[]; email: string; sensorName?: string },
   { rejectValue: ApiError }
 >("session/exportSession", async (sessionData, { rejectWithValue }) => {
   const isGovernment = sessionData.sensorName
@@ -40,9 +40,9 @@ export const exportSession = createAsyncThunk<
     .startsWith(SensorPrefix.GOVERNMENT.toLowerCase());
 
   try {
-    if (isGovernment && sessionData.stationStreamId !== undefined) {
+    if (isGovernment && sessionData.sessionsIds.length > 0) {
       const endpoint = API_ENDPOINTS.exportStationStreamData(
-        sessionData.stationStreamId,
+        sessionData.sessionsIds,
         sessionData.email
       );
       await apiClient.get(endpoint);
@@ -61,8 +61,8 @@ export const exportSession = createAsyncThunk<
       message,
       additionalInfo: {
         action: "exportSession",
-        endpoint: isGovernment && sessionData.stationStreamId !== undefined
-          ? API_ENDPOINTS.exportStationStreamData(sessionData.stationStreamId, sessionData.email)
+        endpoint: isGovernment && sessionData.sessionsIds.length > 0
+          ? API_ENDPOINTS.exportStationStreamData(sessionData.sessionsIds, sessionData.email)
           : API_ENDPOINTS.exportSessionData(
               sessionData.sessionsIds,
               sessionData.email

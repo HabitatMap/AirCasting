@@ -35,7 +35,6 @@ const StationActionButtons = ({ sessionId, sensorName }: Props) => {
           }
           sessionsIds={[sessionId]}
           sensorName={sensorName}
-          stationStreamId={sessionId}
           isIconOnly
           onSubmit={(formData) => {}}
           fixedSessionTypeSelected={true}
@@ -69,7 +68,6 @@ const StationActionButtons = ({ sessionId, sensorName }: Props) => {
           }
           sessionsIds={[sessionId]}
           sensorName={sensorName}
-          stationStreamId={sessionId}
           isIconOnly={false}
           onSubmit={(formData) => {}}
           fixedSessionTypeSelected={true}

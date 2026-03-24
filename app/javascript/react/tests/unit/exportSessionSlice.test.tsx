@@ -51,15 +51,14 @@ describe("exportSession", () => {
 
     await store.dispatch(
       exportSession({
-        sessionsIds: [],
+        sessionsIds: [99],
         email: "user@example.com",
         sensorName: "Government-PM2.5",
-        stationStreamId: 99,
       })
     );
 
     expect(apiClient.get).toHaveBeenCalledWith(
-      API_ENDPOINTS.exportStationStreamData(99, "user@example.com")
+      API_ENDPOINTS.exportStationStreamData([99], "user@example.com")
     );
     expect(oldApiClient.get).not.toHaveBeenCalled();
   });
@@ -81,15 +80,32 @@ describe("exportSession", () => {
 
     await store.dispatch(
       exportSession({
-        sessionsIds: [],
+        sessionsIds: [77],
         email: "user@example.com",
         sensorName: "government-no2",
-        stationStreamId: 77,
       })
     );
 
     expect(apiClient.get).toHaveBeenCalledWith(
-      API_ENDPOINTS.exportStationStreamData(77, "user@example.com")
+      API_ENDPOINTS.exportStationStreamData([77], "user@example.com")
     );
+  });
+
+  it("calls the station stream export endpoint for multiple Government streams", async () => {
+    (apiClient.get as jest.Mock).mockResolvedValue({ data: {} });
+    const store = buildStore();
+
+    await store.dispatch(
+      exportSession({
+        sessionsIds: [10, 20, 30],
+        email: "user@example.com",
+        sensorName: "Government-PM2.5",
+      })
+    );
+
+    expect(apiClient.get).toHaveBeenCalledWith(
+      API_ENDPOINTS.exportStationStreamData([10, 20, 30], "user@example.com")
+    );
+    expect(oldApiClient.get).not.toHaveBeenCalled();
   });
 });
