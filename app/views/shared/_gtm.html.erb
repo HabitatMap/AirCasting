@@ -4,7 +4,7 @@
   window.dataLayer = window.dataLayer || [];
   function gtag() { dataLayer.push(arguments); }
 
-  var consentState = {
+  const consentState = {
     ad_storage: 'denied',
     analytics_storage: 'denied',
     ad_user_data: 'denied',
@@ -13,9 +13,9 @@
   };
 
   try {
-    var saved = localStorage.getItem('cookiePreferences');
+    const saved = localStorage.getItem('cookiePreferences');
     if (saved) {
-      var prefs = JSON.parse(saved);
+      const prefs = JSON.parse(saved);
       if (prefs.analytics) {
         consentState.analytics_storage = 'granted';
       }
