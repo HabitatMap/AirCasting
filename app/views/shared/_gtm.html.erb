@@ -1,41 +1,37 @@
 
-<!-- Google Tag Manager - Only loads when consent is given -->
+<!-- Google Tag Manager with Consent Mode V2 -->
 <script>
-  // Function to load Google Tag Manager scripts
-  function loadGoogleTagManager() {
-    window.dataLayer = window.dataLayer || [];
-    window.dataLayer.push({'gtm.start': new Date().getTime(), event: 'gtm.js'});
+  window.dataLayer = window.dataLayer || [];
+  function gtag() { dataLayer.push(arguments); }
 
-    const script = document.createElement('script');
-    script.async = true;
-    script.src = 'https://www.googletagmanager.com/gtm.js?id=GTM-T948MNX';
-    document.head.appendChild(script);
-  }
+  var consentState = {
+    ad_storage: 'denied',
+    analytics_storage: 'denied',
+    ad_user_data: 'denied',
+    ad_personalization: 'denied',
+    wait_for_update: 500
+  };
 
-  // Check if consent has already been given
-  function checkAndLoadGTM() {
-    // Check if analytics and marketing cookies are allowed
-    const savedPreferences = localStorage.getItem('cookiePreferences');
-    if (savedPreferences) {
-      try {
-        const preferences = JSON.parse(savedPreferences);
-        const analyticsAllowed = preferences.analytics === true;
-        const marketingAllowed = preferences.marketing === true;
-
-        if (analyticsAllowed && marketingAllowed) {
-          loadGoogleTagManager();
-        }
-      } catch (error) {
-        console.error('Error parsing cookie preferences:', error);
+  try {
+    var saved = localStorage.getItem('cookiePreferences');
+    if (saved) {
+      var prefs = JSON.parse(saved);
+      if (prefs.analytics) {
+        consentState.analytics_storage = 'granted';
+      }
+      if (prefs.marketing) {
+        consentState.ad_storage = 'granted';
+        consentState.ad_user_data = 'granted';
+        consentState.ad_personalization = 'granted';
       }
     }
-  }
+  } catch (e) {}
 
-  // Listen for consent changes
-  window.addEventListener('cookieConsentChanged', function() {
-    checkAndLoadGTM();
-  });
+  gtag('consent', 'default', consentState);
 
-  // Check on page load
-  checkAndLoadGTM();
+  (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+  new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+  j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+  'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+  })(window,document,'script','dataLayer','GTM-T948MNX');
 </script>
