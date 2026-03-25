@@ -5,8 +5,8 @@ class StationStreamsSerializer
         {
           'id' => stream.id,
           'uuid' => stream.uuid,
-          'end_time_local' => formatted_time(stream.last_measured_at),
-          'start_time_local' => formatted_time(stream.first_measured_at),
+          'end_time_local' => formatted_local_time(stream.last_measured_at, stream.time_zone),
+          'start_time_local' => formatted_local_time(stream.first_measured_at, stream.time_zone),
           'last_measurement_value' => stream.last_measurement_value&.round,
           'is_indoor' => false,
           'latitude' => stream.location.y,
@@ -37,7 +37,9 @@ class StationStreamsSerializer
     }
   end
 
-  def formatted_time(timestamp)
-    timestamp&.strftime('%Y-%m-%dT%H:%M:%S.%LZ')
+  def formatted_local_time(timestamp, time_zone)
+    return nil unless timestamp
+
+    timestamp.in_time_zone(time_zone).strftime('%Y-%m-%dT%H:%M:%S.%L')
   end
 end

@@ -23,7 +23,7 @@ class Csv::StationStreamRepository
       SELECT
         stream_configurations.measurement_type AS measurement_type_key,
         station_streams.title AS session_title,
-        station_measurements.measured_at AS measurement_time,
+        station_measurements.measured_at AT TIME ZONE station_streams.time_zone AS measurement_time,
         0 AS measurement_milliseconds,
         ST_Y(station_streams.location::geometry) AS measurement_latitude,
         ST_X(station_streams.location::geometry) AS measurement_longitude,

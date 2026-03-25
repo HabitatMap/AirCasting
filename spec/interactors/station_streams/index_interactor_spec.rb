@@ -85,6 +85,8 @@ RSpec.describe StationStreams::IndexInteractor do
         west: 5.0,
         north: 55.0,
         south: 45.0,
+        time_from: contract.to_h[:time_from],
+        time_to: contract.to_h[:time_to],
       )
     end
   end

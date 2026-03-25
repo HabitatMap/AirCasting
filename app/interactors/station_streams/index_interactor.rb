@@ -20,6 +20,8 @@ module StationStreams
           west: data[:west],
           north: data[:north],
           south: data[:south],
+          time_from: data[:time_from],
+          time_to: data[:time_to],
         )
 
       Success.new(serializer.call(station_streams))

@@ -46,6 +46,12 @@ RSpec.describe StationStreamsSerializer do
       expect(session['is_indoor']).to eq(false)
       expect(session['latitude']).to eq(50.0)
       expect(session['longitude']).to eq(20.0)
+      expect(session['start_time_local']).to eq(
+        first_measured_at.in_time_zone(station_stream.time_zone).strftime('%Y-%m-%dT%H:%M:%S.%L'),
+      )
+      expect(session['end_time_local']).to eq(
+        last_measured_at.in_time_zone(station_stream.time_zone).strftime('%Y-%m-%dT%H:%M:%S.%L'),
+      )
       expect(session['title']).to eq('Test Station')
       expect(session['username']).to eq('Government')
       expect(session['is_active']).to eq(true)

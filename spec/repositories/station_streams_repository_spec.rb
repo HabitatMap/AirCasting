@@ -217,6 +217,113 @@ RSpec.describe StationStreamsRepository do
       end
     end
 
+    context 'time range filtering' do
+      def create_stream_with_measurement(first_measured_at:, last_measured_at:)
+        stream = create(
+          :station_stream,
+          stream_configuration: stream_configuration,
+          location: 'SRID=4326;POINT(10.0 50.0)',
+          first_measured_at: first_measured_at,
+          last_measured_at: last_measured_at,
+        )
+        create(
+          :station_measurement,
+          station_stream: stream,
+          measured_at: stream.last_measured_at,
+        )
+        stream
+      end
+
+      it 'returns streams that started and ended in the range' do
+        stream = create_stream_with_measurement(
+          first_measured_at: 20.hours.ago,
+          last_measured_at: 10.hours.ago,
+        )
+
+        result = subject.active_in_rectangle(
+          sensor_name: 'government-pm2.5',
+          west: 5.0, east: 15.0, north: 55.0, south: 45.0,
+          time_from: 22.hours.ago, time_to: 8.hours.ago,
+        )
+
+        expect(result.map(&:id)).to eq([stream.id])
+      end
+
+      it 'returns streams that started in the range and ended after' do
+        stream = create_stream_with_measurement(
+          first_measured_at: 20.hours.ago,
+          last_measured_at: 10.hours.ago,
+        )
+
+        result = subject.active_in_rectangle(
+          sensor_name: 'government-pm2.5',
+          west: 5.0, east: 15.0, north: 55.0, south: 45.0,
+          time_from: 22.hours.ago, time_to: 15.hours.ago,
+        )
+
+        expect(result.map(&:id)).to eq([stream.id])
+      end
+
+      it 'returns streams that started before the range and ended in the range' do
+        stream = create_stream_with_measurement(
+          first_measured_at: 20.hours.ago,
+          last_measured_at: 10.hours.ago,
+        )
+
+        result = subject.active_in_rectangle(
+          sensor_name: 'government-pm2.5',
+          west: 5.0, east: 15.0, north: 55.0, south: 45.0,
+          time_from: 12.hours.ago, time_to: 8.hours.ago,
+        )
+
+        expect(result.map(&:id)).to eq([stream.id])
+      end
+
+      it 'returns streams that started before and ended after the range' do
+        stream = create_stream_with_measurement(
+          first_measured_at: 20.hours.ago,
+          last_measured_at: 2.hours.ago,
+        )
+
+        result = subject.active_in_rectangle(
+          sensor_name: 'government-pm2.5',
+          west: 5.0, east: 15.0, north: 55.0, south: 45.0,
+          time_from: 12.hours.ago, time_to: 8.hours.ago,
+        )
+
+        expect(result.map(&:id)).to eq([stream.id])
+      end
+
+      it 'excludes streams that do not overlap with the range' do
+        create_stream_with_measurement(
+          first_measured_at: 20.hours.ago,
+          last_measured_at: 10.hours.ago,
+        )
+
+        result = subject.active_in_rectangle(
+          sensor_name: 'government-pm2.5',
+          west: 5.0, east: 15.0, north: 55.0, south: 45.0,
+          time_from: 8.hours.ago, time_to: 5.hours.ago,
+        )
+
+        expect(result).to be_empty
+      end
+
+      it 'returns all active streams when time params are not provided' do
+        stream = create_stream_with_measurement(
+          first_measured_at: 20.hours.ago,
+          last_measured_at: 10.hours.ago,
+        )
+
+        result = subject.active_in_rectangle(
+          sensor_name: 'government-pm2.5',
+          west: 5.0, east: 15.0, north: 55.0, south: 45.0,
+        )
+
+        expect(result.map(&:id)).to eq([stream.id])
+      end
+    end
+
     it 'eager loads stream_configuration' do
       stream = create(
         :station_stream,

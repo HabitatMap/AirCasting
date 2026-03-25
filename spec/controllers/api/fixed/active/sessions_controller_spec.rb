@@ -203,102 +203,95 @@ describe Api::Fixed::Active::SessionsController do
     end
 
     it 'returns government data' do
-      last_measured_at = Time.current
-      first_measured_at = last_measured_at - 1.day
-      config =
-        create(
-          :stream_configuration,
-          measurement_type: 'PM2.5',
-          unit_symbol: 'µg/m³',
-        )
-      active_station_stream =
+      # travel_to is needed because, unlike AirBeam where start_time_local/end_time_local
+      # and last_measurement_at are separate fields, the Gov model uses last_measured_at
+      # for both display (end_time_local) and the 24h active filter.
+      travel_to DateTime.new(2_000, 10, 2, 2, 3, 4) do
+        last_measured_at =  DateTime.new(2_000, 10, 2, 2, 3, 4)
+        first_measured_at = DateTime.new(2_000, 10, 1, 2, 3, 4)
+        config =
+          create(
+            :stream_configuration,
+            measurement_type: 'PM2.5',
+            unit_symbol: 'µg/m³',
+          )
+        active_station_stream =
+          create(
+            :station_stream,
+            stream_configuration: config,
+            location: 'SRID=4326;POINT(20.0 50.0)',
+            last_measured_at: last_measured_at,
+            first_measured_at: first_measured_at,
+          ).reload
+        longitude = active_station_stream.location.x
+        latitude = active_station_stream.location.y
+        measurement =
+          create(
+            :station_measurement,
+            station_stream: active_station_stream,
+            measured_at: last_measured_at,
+            value: 42.7,
+          )
+        # dormant — outside the 24h window, should not appear
         create(
           :station_stream,
           stream_configuration: config,
           location: 'SRID=4326;POINT(20.0 50.0)',
-          last_measured_at: last_measured_at,
-          first_measured_at: first_measured_at,
-        ).reload
-      longitude = active_station_stream.location.x
-      latitude = active_station_stream.location.y
-      measurement =
-        create(
-          :station_measurement,
-          station_stream: active_station_stream,
-          measured_at: last_measured_at,
-          value: 42.7,
+          last_measured_at: 25.hours.ago,
+          first_measured_at: 26.hours.ago,
         )
-      # dormant — outside the 24h window, should not appear
-      create(
-        :station_stream,
-        stream_configuration: config,
-        location: 'SRID=4326;POINT(20.0 50.0)',
-        last_measured_at: 25.hours.ago,
-        first_measured_at: 26.hours.ago,
-      )
 
-      get :index2,
-          params: {
-            q: {
-              time_from:
-                active_station_stream
-                  .first_measured_at
-                  .strftime('%Q')
-                  .to_i / 1_000 - 1,
-              time_to:
-                active_station_stream
-                  .last_measured_at
-                  .strftime('%Q')
-                  .to_i / 1_000 + 1,
-              tags: '',
-              usernames: '',
-              session_ids: [],
-              west: longitude - 1,
-              east: longitude + 1,
-              south: latitude - 1,
-              north: latitude + 1,
-              limit: 2,
-              offset: 0,
-              sensor_name: 'government-pm2.5',
-              measurement_type: config.measurement_type,
-              unit_symbol: config.unit_symbol,
-            }.to_json,
-          }
+        get :index2,
+            params: {
+              q: {
+                time_from:
+                  first_measured_at.strftime('%Q').to_i / 1_000 - 1,
+                time_to:
+                  last_measured_at.strftime('%Q').to_i / 1_000 + 1,
+                tags: '',
+                usernames: '',
+                session_ids: [],
+                west: longitude - 1,
+                east: longitude + 1,
+                south: latitude - 1,
+                north: latitude + 1,
+                limit: 2,
+                offset: 0,
+                sensor_name: 'government-pm2.5',
+                measurement_type: config.measurement_type,
+                unit_symbol: config.unit_symbol,
+              }.to_json,
+            }
 
-      expected = {
-        'fetchableSessionsCount' => 1,
-        'sessions' => [
-          {
-            'id' => active_station_stream.id,
-            'uuid' => active_station_stream.uuid,
-            'end_time_local' =>
-              active_station_stream.last_measured_at.strftime(
-                '%Y-%m-%dT%H:%M:%S.%LZ',
-              ),
-            'start_time_local' =>
-              active_station_stream.first_measured_at.strftime(
-                '%Y-%m-%dT%H:%M:%S.%LZ',
-              ),
-            'last_measurement_value' => measurement.value.round,
-            'is_indoor' => false,
-            'latitude' => latitude,
-            'longitude' => longitude,
-            'title' => active_station_stream.title,
-            'username' => 'Government',
-            'is_active' => true,
-            'streams' => {
-              "Government-#{config.measurement_type}" => {
-                'measurement_short_type' => config.measurement_type,
-                'sensor_name' => "Government-#{config.measurement_type}",
-                'unit_symbol' => config.unit_symbol,
-                'id' => active_station_stream.id,
+        expected = {
+          'fetchableSessionsCount' => 1,
+          'sessions' => [
+            {
+              'id' => active_station_stream.id,
+              'uuid' => active_station_stream.uuid,
+              'end_time_local' => '2000-10-02T04:03:04.000',
+              'start_time_local' => '2000-10-01T04:03:04.000',
+              'last_measurement_value' => measurement.value.round,
+              'is_indoor' => false,
+              'latitude' => latitude,
+              'longitude' => longitude,
+              'title' => active_station_stream.title,
+              'username' => 'Government',
+              'is_active' => true,
+              'streams' => {
+                "Government-#{config.measurement_type}" => {
+                  'measurement_short_type' => config.measurement_type,
+                  'sensor_name' => "Government-#{config.measurement_type}",
+                  'unit_symbol' => config.unit_symbol,
+                  'id' => active_station_stream.id,
+                },
               },
             },
-          },
-        ],
-      }
+          ],
+        }
 
-      expect(json_response).to eq(expected)
+        expect(json_response).to eq(expected)
+      end
     end
 
     it 'with multiple streams it picks the correct stream' do

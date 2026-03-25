@@ -9,11 +9,11 @@ class StationStreamsRepository
     StationStream.includes(:stream_configuration, :source).find_by(id: id)
   end
 
-  def active_in_rectangle(sensor_name:, west:, east:, north:, south:)
+  def active_in_rectangle(sensor_name:, west:, east:, north:, south:, time_from: nil, time_to: nil)
     measurement_type = SENSOR_NAME_TO_MEASUREMENT_TYPE[sensor_name.downcase]
     return [] unless measurement_type
 
-    StationStream
+    query = StationStream
       .select('station_streams.*, station_measurements.value AS last_measurement_value')
       .joins(:stream_configuration)
       .joins(
@@ -31,6 +31,17 @@ class StationStreamsRepository
         west, east, west, east,
         west, east, west, east,
       )
-      .order(id: :asc)
+
+    if time_from && time_to
+      query = query.where(
+        '(station_streams.first_measured_at BETWEEN :time_from AND :time_to)
+         OR (station_streams.last_measured_at BETWEEN :time_from AND :time_to)
+         OR (:time_from BETWEEN station_streams.first_measured_at AND station_streams.last_measured_at)',
+        time_from: time_from,
+        time_to: time_to,
+      )
+    end
+
+    query.order(id: :asc)
   end
 end
