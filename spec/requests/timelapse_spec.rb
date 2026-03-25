@@ -26,7 +26,14 @@ describe 'GET api/v3/timelapse', type: :request do
           max_longitude: reference_longitude,
         )
 
-      # stream_hourly_averages date_time already includes +1h shift
+      # stream_hourly_averages date_time stores the end of the hour bucket
+      # (e.g., 12:00 for measurements from 11:01-12:00)
+      create(
+        :stream_hourly_average,
+        stream: active_stream,
+        date_time: reference_time.beginning_of_hour,
+        value: 1,
+      )
       create(
         :stream_hourly_average,
         stream: active_stream,
@@ -64,6 +71,12 @@ describe 'GET api/v3/timelapse', type: :request do
       create(
         :stream_hourly_average,
         stream: close_stream,
+        date_time: reference_time.beginning_of_hour,
+        value: 3,
+      )
+      create(
+        :stream_hourly_average,
+        stream: close_stream,
         date_time: reference_time.beginning_of_hour - 1.hour,
         value: 4,
       )
@@ -98,6 +111,12 @@ describe 'GET api/v3/timelapse', type: :request do
       create(
         :stream_hourly_average,
         stream: far_stream,
+        date_time: reference_time.beginning_of_hour,
+        value: 8,
+      )
+      create(
+        :stream_hourly_average,
+        stream: far_stream,
         date_time: reference_time.beginning_of_hour - 1.hour,
         value: 10,
       )
@@ -121,6 +140,22 @@ describe 'GET api/v3/timelapse', type: :request do
           }
 
       expected = {
+        reference_time.beginning_of_hour.utc.strftime(
+          '%Y-%m-%d %H:%M:%S +0000',
+        ) => [
+          {
+            'latitude' => 50.00005,
+            'longitude' => 19.00005,
+            'sessions' => 2,
+            'value' => 2.0,
+          },
+          {
+            'value' => 8.0,
+            'latitude' => 60.0,
+            'longitude' => 29.0,
+            'sessions' => 1,
+          },
+        ],
         (reference_time.beginning_of_hour - 1.hour).utc.strftime(
           '%Y-%m-%d %H:%M:%S +0000',
         ) => [
