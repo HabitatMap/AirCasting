@@ -350,6 +350,113 @@ RSpec.describe StationStreamsRepository do
     end
   end
 
+  describe '#dormant_in_rectangle' do
+    let(:stream_configuration) { create(:stream_configuration, measurement_type: 'PM2.5') }
+
+    it 'returns only streams dormant for more than 24 hours' do
+      dormant_stream = create(
+        :station_stream,
+        stream_configuration: stream_configuration,
+        location: 'SRID=4326;POINT(10.0 50.0)',
+        first_measured_at: 3.days.ago,
+        last_measured_at: 25.hours.ago,
+      )
+      create(
+        :station_measurement,
+        station_stream: dormant_stream,
+        measured_at: dormant_stream.last_measured_at,
+      )
+      active_stream = create(
+        :station_stream,
+        stream_configuration: stream_configuration,
+        location: 'SRID=4326;POINT(10.0 50.0)',
+        first_measured_at: 2.hours.ago,
+        last_measured_at: 1.hour.ago,
+      )
+      create(
+        :station_measurement,
+        station_stream: active_stream,
+        measured_at: active_stream.last_measured_at,
+      )
+
+      result = subject.dormant_in_rectangle(
+        sensor_name: 'government-pm2.5',
+        west: 5.0, east: 15.0, north: 55.0, south: 45.0,
+      )
+
+      expect(result.map(&:id)).to eq([dormant_stream.id])
+    end
+
+    it 'filters by geographic bounds' do
+      dormant_inside = create(
+        :station_stream,
+        stream_configuration: stream_configuration,
+        location: 'SRID=4326;POINT(10.0 50.0)',
+        first_measured_at: 3.days.ago,
+        last_measured_at: 25.hours.ago,
+      )
+      create(
+        :station_measurement,
+        station_stream: dormant_inside,
+        measured_at: dormant_inside.last_measured_at,
+      )
+      dormant_outside = create(
+        :station_stream,
+        stream_configuration: stream_configuration,
+        location: 'SRID=4326;POINT(50.0 80.0)',
+        first_measured_at: 3.days.ago,
+        last_measured_at: 25.hours.ago,
+      )
+      create(
+        :station_measurement,
+        station_stream: dormant_outside,
+        measured_at: dormant_outside.last_measured_at,
+      )
+
+      result = subject.dormant_in_rectangle(
+        sensor_name: 'government-pm2.5',
+        west: 5.0, east: 15.0, north: 55.0, south: 45.0,
+      )
+
+      expect(result.map(&:id)).to eq([dormant_inside.id])
+    end
+
+    it 'filters by time range when provided' do
+      dormant_in_range = create(
+        :station_stream,
+        stream_configuration: stream_configuration,
+        location: 'SRID=4326;POINT(10.0 50.0)',
+        first_measured_at: 3.days.ago,
+        last_measured_at: 25.hours.ago,
+      )
+      create(
+        :station_measurement,
+        station_stream: dormant_in_range,
+        measured_at: dormant_in_range.last_measured_at,
+      )
+      dormant_out_of_range = create(
+        :station_stream,
+        stream_configuration: stream_configuration,
+        location: 'SRID=4326;POINT(10.0 50.0)',
+        first_measured_at: 10.days.ago,
+        last_measured_at: 8.days.ago,
+      )
+      create(
+        :station_measurement,
+        station_stream: dormant_out_of_range,
+        measured_at: dormant_out_of_range.last_measured_at,
+      )
+
+      result = subject.dormant_in_rectangle(
+        sensor_name: 'government-pm2.5',
+        west: 5.0, east: 15.0, north: 55.0, south: 45.0,
+        time_from: 4.days.ago, time_to: 1.day.ago,
+      )
+
+      expect(result.map(&:id)).to eq([dormant_in_range.id])
+    end
+  end
+
   describe '#active_in_last_7_days_in_rectangle' do
     let(:stream_configuration) { create(:stream_configuration, measurement_type: 'PM2.5') }
 

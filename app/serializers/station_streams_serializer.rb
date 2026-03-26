@@ -1,5 +1,5 @@
 class StationStreamsSerializer
-  def call(station_streams)
+  def call(station_streams, active: true)
     sessions =
       station_streams.map do |stream|
         {
@@ -13,7 +13,7 @@ class StationStreamsSerializer
           'longitude' => stream.location.x,
           'title' => stream.title,
           'username' => 'Government',
-          'is_active' => true,
+          'is_active' => active,
           'streams' => build_streams(stream),
         }
       end
