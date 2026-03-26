@@ -1,33 +1,44 @@
 module Timelapse
   class ClustersCreator
-    TILE_SIZE = 256
-    MINIMUM_CLUSTER_SIZE = 2
+    GOVERNMENT_SENSOR_NAMES =
+      %w[government-pm2.5 government-no2 government-ozone].freeze
 
     def initialize
       @streams_repository = StreamsRepository.new
       @cluster_processor = ClusterProcessor.new
       @sessions_repository = SessionsRepository.new
+      @government_clusters_creator = GovernmentClustersCreator.new
     end
 
     def call(contract:)
       return Failure.new(contract.errors.to_h) if contract.failure?
       params = contract.to_h
 
-      zoom_level = params[:zoom_level].to_f
-      sensor_name = params[:sensor_name]
-
-      streams = fetch_streams(params)
-      clusters = cluster_streams(streams, zoom_level)
-
       result =
-        cluster_processor.call(clusters: clusters, sensor_name: sensor_name)
+        if GOVERNMENT_SENSOR_NAMES.include?(params[:sensor_name].downcase)
+          government_clusters_creator.call(params: params)
+        else
+          fixed_sessions_timelapse(params)
+        end
 
       Success.new(result)
     end
 
     private
 
-    attr_reader :streams_repository, :cluster_processor, :sessions_repository
+    attr_reader :streams_repository,
+                :cluster_processor,
+                :sessions_repository,
+                :government_clusters_creator
+
+    def fixed_sessions_timelapse(params)
+      zoom_level = params[:zoom_level].to_f
+
+      streams = fetch_streams(params)
+      clusters = cluster_streams(streams, zoom_level)
+
+      cluster_processor.call(clusters: clusters)
+    end
 
     def fetch_streams(params)
       sessions = filtered_sessions(params)
@@ -44,77 +55,25 @@ module Timelapse
     end
 
     def cluster_streams(streams, zoom_level)
-      grid = {}
-      grid_size = calculate_grid_size(zoom_level)
-
-      streams.each do |stream|
-        point =
-          project_point(
-            stream.session.latitude,
-            stream.session.longitude,
-            zoom_level,
+      locatables =
+        streams.map do |stream|
+          Locatable.new(
+            id: stream.id,
+            latitude: stream.session.latitude,
+            longitude: stream.session.longitude,
           )
-        cell_x = (point[:x] / grid_size).floor
-        cell_y = (point[:y] / grid_size).floor
-        cell_key = "#{cell_x}_#{cell_y}"
+        end
 
-        grid[cell_key] ||= []
-        grid[cell_key] << stream
+      raw_clusters = SpatialClusterer.cluster(locatables, zoom_level)
+
+      raw_clusters.map do |raw_cluster|
+        {
+          latitude: raw_cluster[:latitude],
+          longitude: raw_cluster[:longitude],
+          stream_ids: raw_cluster[:ids],
+          session_count: raw_cluster[:count],
+        }
       end
-
-      clusters =
-        grid
-          .values
-          .map do |cell_streams|
-            if cell_streams.length >= MINIMUM_CLUSTER_SIZE
-              create_cluster(cell_streams)
-            else
-              cell_streams.map { |stream| create_cluster([stream]) }
-            end
-          end
-          .flatten
-
-      clusters.sort_by { |cluster| -cluster[:session_count] }
-    end
-
-    def project_point(lat, lng, zoom)
-      # Calculate scale factor based on zoom level
-      # Each zoom level doubles the scale (2^zoom)
-      scale = 2**zoom
-
-      # Convert longitude to x coordinate
-      x = (lng + 180) / 360 * TILE_SIZE * scale
-
-      # Convert latitude to radians for trigonometric calculations
-      lat_rad = lat * Math::PI / 180
-
-      # Convert latitude to y coordinate using Web Mercator projection formula
-      # This is a conformal projection that preserves angles
-      y =
-        (1 - Math.log(Math.tan(lat_rad) + 1 / Math.cos(lat_rad)) / Math::PI) /
-          2 * TILE_SIZE * scale
-
-      # Return projected x, y coordinates in pixels
-      { x: x, y: y }
-    end
-
-    def calculate_grid_size(zoom_level)
-      base_size = 25
-      return base_size if zoom_level <= 7
-
-      reduction_rate = zoom_level >= 12 ? 3.0 : 1.3
-      zoom_offset = zoom_level >= 12 ? 5 : 8
-      exponent = [0, zoom_level - zoom_offset].max
-      [base_size / (reduction_rate**exponent), 5].max
-    end
-
-    def create_cluster(streams)
-      {
-        latitude: streams.sum { |s| s.session.latitude } / streams.length,
-        longitude: streams.sum { |s| s.session.longitude } / streams.length,
-        stream_ids: streams.map(&:id),
-        session_count: streams.length,
-      }
     end
   end
 end

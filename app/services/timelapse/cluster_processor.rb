@@ -1,17 +1,16 @@
 module Timelapse
   class ClusterProcessor
     def initialize
-      @fixed_measurements_repository = FixedMeasurementsRepository.new
+      @stream_hourly_averages_repository = StreamHourlyAverages::Repository.new
     end
 
-    def call(clusters:, sensor_name:)
+    def call(clusters:)
       result = {}
 
       clusters.each do |cluster|
         averages =
-          fixed_measurements_repository.streams_averages_hourly_last_7_days(
+          stream_hourly_averages_repository.streams_averages_last_7_days(
             stream_ids: cluster[:stream_ids],
-            with_hour_shift: airbeam_data?(sensor_name),
           )
 
         averages.each do |average|
@@ -30,10 +29,6 @@ module Timelapse
 
     private
 
-    attr_reader :fixed_measurements_repository
-
-    def airbeam_data?(sensor_name)
-      %w[government-pm2.5 government-no2 government-ozone].exclude?(sensor_name)
-    end
+    attr_reader :stream_hourly_averages_repository
   end
 end

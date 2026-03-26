@@ -50,6 +50,32 @@ module StreamHourlyAverages
       end
     end
 
+    def streams_averages_last_7_days(stream_ids:)
+      return [] if stream_ids.empty?
+
+      # date_time in stream_hourly_averages stores the END of the hour bucket
+      # (e.g., 12:00 for measurements from 11:01-12:00), so we use
+      # beginning_of_hour with <= to include the latest complete bucket.
+      end_date = Time.current.beginning_of_hour
+      start_date = end_date - 7.days
+
+      conn = ActiveRecord::Base.connection
+      quoted_ids = stream_ids.map { |id| conn.quote(id) }.join(', ')
+
+      conn
+        .execute(<<~SQL.squish)
+          SELECT TO_CHAR(date_time, 'YYYY-MM-DD HH24:MI:SS +0000') AS hour,
+                 ROUND(AVG(value::numeric))::float AS average_value
+          FROM stream_hourly_averages
+          WHERE stream_id IN (#{quoted_ids})
+            AND date_time >= #{conn.quote(start_date)}
+            AND date_time <= #{conn.quote(end_date)}
+          GROUP BY date_time
+          ORDER BY date_time
+        SQL
+        .map { |record| { time: record['hour'], value: record['average_value'] } }
+    end
+
     private
 
     def hourly_average_values_for_fixed_streams(start_date_time, end_date_time)

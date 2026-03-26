@@ -44,4 +44,39 @@ class StationStreamsRepository
 
     query.order(id: :asc)
   end
+
+  def active_in_last_7_days_in_rectangle(sensor_name:, west:, east:, north:, south:)
+    measurement_type = SENSOR_NAME_TO_MEASUREMENT_TYPE[sensor_name.downcase]
+    return StationStream.none unless measurement_type
+
+    query =
+      StationStream
+        .joins(:stream_configuration)
+        .where(
+          stream_configurations: {
+            measurement_type: measurement_type,
+            canonical: true,
+          },
+        )
+        .where('station_streams.last_measured_at > ?', 7.days.ago)
+        .where(
+          'ST_Y(station_streams.location::geometry) BETWEEN ? AND ?',
+          south,
+          north,
+        )
+
+    if west <= east
+      query.where(
+        'ST_X(station_streams.location::geometry) BETWEEN ? AND ?',
+        west,
+        east,
+      )
+    else
+      query.where(
+        'ST_X(station_streams.location::geometry) >= ? OR ST_X(station_streams.location::geometry) <= ?',
+        west,
+        east,
+      )
+    end
+  end
 end

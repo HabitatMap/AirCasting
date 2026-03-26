@@ -349,4 +349,163 @@ RSpec.describe StationStreamsRepository do
       expect(result.first.association(:stream_configuration).loaded?).to be(true)
     end
   end
+
+  describe '#active_in_last_7_days_in_rectangle' do
+    let(:stream_configuration) { create(:stream_configuration, measurement_type: 'PM2.5') }
+
+    it 'returns station_streams within bounds active in last 7 days' do
+      stream_inside = create(
+        :station_stream,
+        stream_configuration: stream_configuration,
+        location: 'SRID=4326;POINT(10.0 50.0)',
+        last_measured_at: 1.hour.ago,
+      )
+
+      result = subject.active_in_last_7_days_in_rectangle(
+        sensor_name: 'government-pm2.5',
+        west: 5.0,
+        east: 15.0,
+        north: 55.0,
+        south: 45.0,
+      )
+
+      expect(result.map(&:id)).to eq([stream_inside.id])
+    end
+
+    it 'excludes station_streams outside the bounding box' do
+      create(
+        :station_stream,
+        stream_configuration: stream_configuration,
+        location: 'SRID=4326;POINT(50.0 80.0)',
+        last_measured_at: 1.hour.ago,
+      )
+
+      result = subject.active_in_last_7_days_in_rectangle(
+        sensor_name: 'government-pm2.5',
+        west: 5.0,
+        east: 15.0,
+        north: 55.0,
+        south: 45.0,
+      )
+
+      expect(result).to be_empty
+    end
+
+    it 'excludes station_streams inactive for more than 7 days' do
+      create(
+        :station_stream,
+        stream_configuration: stream_configuration,
+        location: 'SRID=4326;POINT(10.0 50.0)',
+        first_measured_at: 10.days.ago,
+        last_measured_at: 8.days.ago,
+      )
+
+      result = subject.active_in_last_7_days_in_rectangle(
+        sensor_name: 'government-pm2.5',
+        west: 5.0,
+        east: 15.0,
+        north: 55.0,
+        south: 45.0,
+      )
+
+      expect(result).to be_empty
+    end
+
+    it 'filters by measurement type based on sensor name' do
+      no2_config = create(:stream_configuration, measurement_type: 'NO2', unit_symbol: 'ppb')
+
+      create(
+        :station_stream,
+        stream_configuration: stream_configuration,
+        location: 'SRID=4326;POINT(10.0 50.0)',
+        last_measured_at: 1.hour.ago,
+      )
+      no2_stream = create(
+        :station_stream,
+        stream_configuration: no2_config,
+        location: 'SRID=4326;POINT(10.0 50.0)',
+        last_measured_at: 1.hour.ago,
+      )
+
+      result = subject.active_in_last_7_days_in_rectangle(
+        sensor_name: 'government-no2',
+        west: 5.0,
+        east: 15.0,
+        north: 55.0,
+        south: 45.0,
+      )
+
+      expect(result.map(&:id)).to eq([no2_stream.id])
+    end
+
+    it 'excludes non-canonical stream configurations' do
+      non_canonical = create(
+        :stream_configuration,
+        measurement_type: 'PM2.5',
+        unit_symbol: 'mg/m³',
+        canonical: false,
+      )
+      create(
+        :station_stream,
+        stream_configuration: non_canonical,
+        location: 'SRID=4326;POINT(10.0 50.0)',
+        last_measured_at: 1.hour.ago,
+      )
+
+      result = subject.active_in_last_7_days_in_rectangle(
+        sensor_name: 'government-pm2.5',
+        west: 5.0,
+        east: 15.0,
+        north: 55.0,
+        south: 45.0,
+      )
+
+      expect(result).to be_empty
+    end
+
+    it 'returns empty relation for unrecognized sensor name' do
+      result = subject.active_in_last_7_days_in_rectangle(
+        sensor_name: 'unknown-sensor',
+        west: 5.0,
+        east: 15.0,
+        north: 55.0,
+        south: 45.0,
+      )
+
+      expect(result).to be_empty
+    end
+
+    it 'handles date-line crossing (west > east)' do
+      ozone_config = create(:stream_configuration, measurement_type: 'Ozone', unit_symbol: 'ppb')
+
+      stream_east = create(
+        :station_stream,
+        stream_configuration: ozone_config,
+        location: 'SRID=4326;POINT(170.0 55.0)',
+        last_measured_at: 1.hour.ago,
+      )
+      stream_west = create(
+        :station_stream,
+        stream_configuration: ozone_config,
+        location: 'SRID=4326;POINT(-168.0 55.0)',
+        last_measured_at: 1.hour.ago,
+      )
+      create(
+        :station_stream,
+        stream_configuration: ozone_config,
+        location: 'SRID=4326;POINT(20.0 52.0)',
+        last_measured_at: 1.hour.ago,
+      )
+
+      result = subject.active_in_last_7_days_in_rectangle(
+        sensor_name: 'government-ozone',
+        west: 163.0,
+        east: 2.0,
+        north: 70.0,
+        south: 40.0,
+      )
+
+      expect(result.map(&:id)).to contain_exactly(stream_east.id, stream_west.id)
+    end
+  end
 end
