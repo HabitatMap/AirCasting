@@ -44,10 +44,14 @@ const CookieSettingsModal = styled(Popup)`
     right: auto;
     bottom: auto;
 
+    max-height: 90vh;
+    overflow-y: auto;
+
     @media ${media.mobile} {
       margin: 1rem;
       padding: 1.5rem;
       width: calc(100vw - 2rem);
+      max-height: calc(100vh - 2rem);
     }
   }
 `;
