@@ -19,13 +19,15 @@ const CookieSettingsModal = styled(Popup)`
     z-index: 1000;
     background-color: rgba(0, 0, 0, 0.5);
     display: flex;
-    align-items: center;
+    align-items: flex-start;
     justify-content: center;
     position: fixed;
     top: 0;
     left: 0;
     right: 0;
     bottom: 0;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
   }
 
   &-content {
@@ -37,21 +39,17 @@ const CookieSettingsModal = styled(Popup)`
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
     max-width: 600px;
     width: 90vw;
-    margin: 0;
+    margin: auto;
     transform: none;
     top: auto;
     left: auto;
     right: auto;
     bottom: auto;
 
-    max-height: 90vh;
-    overflow-y: auto;
-
     @media ${media.mobile} {
       margin: 1rem;
       padding: 1.5rem;
       width: calc(100vw - 2rem);
-      max-height: calc(100vh - 2rem);
     }
   }
 `;
