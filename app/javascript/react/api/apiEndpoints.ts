@@ -2,15 +2,22 @@ import { ParamsType, SessionType } from "../types/filters";
 
 interface ApiEndpoints {
   readonly exportSessionData: (sessionsIds: number[], email: string) => string;
+  readonly exportStationStreamData: (stationStreamIds: number[], email: string) => string;
   readonly fetchCrowdMap: (filters: string) => string;
   readonly fetchActiveFixedSessions: (filters: string) => string;
   readonly fetchDormantFixedSessions: (filters: string) => string;
   readonly fetchFixedStreamById: (id: number) => string;
+  readonly fetchStationStreamById: (id: number) => string;
   readonly fetchMobileSessions: (filters: string) => string;
   readonly fetchMobileStreamById: (id: number) => string;
   readonly fetchRectangleData: (filters: string) => string;
-  readonly fetchSelectedDataRangeOfStream: (
+  readonly fetchFixedStreamDailyAverages: (
     id: number,
+    startDate: string,
+    endDate: string
+  ) => string;
+  readonly fetchStationStreamDailyAverages: (
+    stationStreamId: number,
     startDate: string,
     endDate: string
   ) => string;
@@ -21,8 +28,13 @@ interface ApiEndpoints {
   readonly fetchTimelapseData: (filters: string) => string;
   readonly fetchIndoorActiveSessions: (filters: string) => string;
   readonly fetchIndoorDormantSessions: (filters: string) => string;
-  readonly fetchMeasurements: (
+  readonly fetchFixedMeasurements: (
     streamId: number,
+    startTime: string,
+    endTime: string
+  ) => string;
+  readonly fetchStationMeasurements: (
+    stationStreamId: number,
     startTime: string,
     endTime: string
   ) => string;
@@ -35,17 +47,26 @@ export const API_ENDPOINTS: ApiEndpoints = {
       .join("&");
     return `/sessions/export.json?${sessionParams}&email=${email}`;
   },
+  exportStationStreamData: (stationStreamIds: number[], email: string) => {
+    const params = stationStreamIds
+      .map((id) => `station_stream_ids[]=${id}`)
+      .join("&");
+    return `/station_streams/export?${params}&email=${email}`;
+  },
   fetchCrowdMap: (filters) => `/averages2.json?q=${filters}`,
   fetchActiveFixedSessions: (filters) =>
     `/fixed/active/sessions2.json?q=${filters}`,
   fetchDormantFixedSessions: (filters) =>
     `/fixed/dormant/sessions.json?q=${filters}`,
   fetchFixedStreamById: (id) => `/fixed_streams/${id}`,
+  fetchStationStreamById: (id) => `/station_streams/${id}`,
   fetchMobileSessions: (filters) => `/mobile/sessions.json?q=${filters}`,
   fetchMobileStreamById: (id) => `/mobile/streams/${id}`,
   fetchRectangleData: (filters) => `/region.json?${filters}`,
-  fetchSelectedDataRangeOfStream: (id, startDate, endDate) =>
-    `/stream_daily_averages?stream_id=${id}&start_date=${startDate}&end_date=${endDate}`,
+  fetchFixedStreamDailyAverages: (id, startDate, endDate) =>
+    `/fixed_stream_daily_averages?stream_id=${id}&start_date=${startDate}&end_date=${endDate}`,
+  fetchStationStreamDailyAverages: (stationStreamId, startDate, endDate) =>
+    `/station_stream_daily_averages?stream_id=${stationStreamId}&start_date=${startDate}&end_date=${endDate}`,
   fetchThresholds: (filters) => `/thresholds/${filters}`,
   fetchUsernames: (params) => {
     const {
@@ -180,6 +201,8 @@ export const API_ENDPOINTS: ApiEndpoints = {
     `/fixed/active/sessions2.json?q=${filters}`,
   fetchIndoorDormantSessions: (filters) =>
     `/fixed/dormant/sessions.json?q=${filters}`,
-  fetchMeasurements: (streamId, startTime, endTime) =>
+  fetchFixedMeasurements: (streamId, startTime, endTime) =>
     `/fixed_measurements?stream_id=${streamId}&start_time=${startTime}&end_time=${endTime}`,
+  fetchStationMeasurements: (stationStreamId, startTime, endTime) =>
+    `/station_measurements?station_stream_id=${stationStreamId}&start_time=${startTime}&end_time=${endTime}`,
 };

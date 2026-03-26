@@ -8,6 +8,7 @@ interface ExportButtonComponentProps {
   NO_SESSIONS: boolean;
   EXCEEDS_LIMIT: boolean;
   sessionsIds: number[];
+  sensorName?: string;
   showExportPopup: boolean;
   handleExportClick: () => void;
   exportButtonRef: React.RefObject<HTMLDivElement>;
@@ -17,6 +18,7 @@ const ExportButtonComponent: React.FC<ExportButtonComponentProps> = ({
   NO_SESSIONS,
   EXCEEDS_LIMIT,
   sessionsIds,
+  sensorName,
   showExportPopup,
   handleExportClick,
   exportButtonRef,
@@ -43,6 +45,7 @@ const ExportButtonComponent: React.FC<ExportButtonComponentProps> = ({
           </S.ExportSessionsButton>
         }
         sessionsIds={sessionsIds}
+        sensorName={sensorName}
         isIconOnly
         onSubmit={(formData) => {}}
         fixedSessionTypeSelected={true}

@@ -84,6 +84,16 @@ describe Csv::ExportSessionsToCsv do
     end
   end
 
+  context 'CSV format contract' do
+    it_behaves_like 'a CSV with standard AirCasting measurement format' do
+      let(:csv_rows) do
+        CSV.parse(
+          File.read("#{Rails.root}/spec/support/session_stream_measurement.csv"),
+        )
+      end
+    end
+  end
+
   private
 
   def file_content(zip_file)

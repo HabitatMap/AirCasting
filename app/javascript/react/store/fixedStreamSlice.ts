@@ -12,6 +12,7 @@ import { FixedTimeRange } from "../types/timeRange";
 import { CookieManager } from "../utils/cookieManager";
 import { getErrorMessage } from "../utils/getErrorMessage";
 import { logError } from "../utils/logController";
+import { SensorPrefix } from "../types/sensors";
 import type { RootState } from "./index";
 
 export interface FixedMeasurement {
@@ -89,29 +90,38 @@ export const initialState: FixedStreamState = {
 
 export const fetchFixedStreamById = createAsyncThunk<
   FixedStream,
-  number,
+  { id: number; sensorName: string },
   { rejectValue: ApiError }
->("fixedStream/getData", async (id: number, { rejectWithValue }) => {
-  try {
-    const response: AxiosResponse<FixedStream> = await apiClient.get(
-      API_ENDPOINTS.fetchFixedStreamById(id)
-    );
-    return response.data;
-  } catch (error) {
-    const message = getErrorMessage(error);
+>(
+  "fixedStream/getData",
+  async ({ id, sensorName }, { rejectWithValue }) => {
+    const isGovernment = sensorName
+      .toLowerCase()
+      .startsWith(SensorPrefix.GOVERNMENT.toLowerCase());
+    const endpoint = isGovernment
+      ? API_ENDPOINTS.fetchStationStreamById(id)
+      : API_ENDPOINTS.fetchFixedStreamById(id);
+    try {
+      const response: AxiosResponse<FixedStream> = await apiClient.get(
+        endpoint
+      );
+      return response.data;
+    } catch (error) {
+      const message = getErrorMessage(error);
 
-    const apiError: ApiError = {
-      message,
-      additionalInfo: {
-        action: "fetchFixedStreamById",
-        endpoint: API_ENDPOINTS.fetchFixedStreamById(id),
-      },
-    };
-    logError(error, apiError);
+      const apiError: ApiError = {
+        message,
+        additionalInfo: {
+          action: "fetchFixedStreamById",
+          endpoint,
+        },
+      };
+      logError(error, apiError);
 
-    return rejectWithValue(apiError);
+      return rejectWithValue(apiError);
+    }
   }
-});
+);
 
 export const fetchMeasurements = createAsyncThunk(
   "fixedStream/fetchMeasurements",
@@ -120,18 +130,27 @@ export const fetchMeasurements = createAsyncThunk(
       streamId: number;
       startTime: string;
       endTime: string;
+      sensorName?: string;
     },
     { rejectWithValue }
   ) => {
+    const isGovernment = params.sensorName
+      ?.toLowerCase()
+      .startsWith(SensorPrefix.GOVERNMENT.toLowerCase());
+    const endpoint = isGovernment
+      ? API_ENDPOINTS.fetchStationMeasurements(
+          params.streamId,
+          params.startTime,
+          params.endTime
+        )
+      : API_ENDPOINTS.fetchFixedMeasurements(
+          params.streamId,
+          params.startTime,
+          params.endTime
+        );
     try {
       const response: AxiosResponse<FixedMeasurement[], Error> =
-        await apiClient.get(
-          API_ENDPOINTS.fetchMeasurements(
-            params.streamId,
-            params.startTime,
-            params.endTime
-          )
-        );
+        await apiClient.get(endpoint);
       return response.data;
     } catch (error) {
       return rejectWithValue(getErrorMessage(error));

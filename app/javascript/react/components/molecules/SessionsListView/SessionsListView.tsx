@@ -92,6 +92,7 @@ export interface SessionListEntity {
 
 interface SessionsListViewProps {
   sessions: SessionListEntity[];
+  sensorName?: string;
   onCellClick?: (id: number, streamId: number) => void;
   onCellMouseEnter?: (id: number) => void;
   onCellMouseLeave?: () => void;
@@ -105,6 +106,7 @@ const SESSIONS_LIMIT = 10000;
 
 const SessionsListView: React.FC<SessionsListViewProps> = ({
   sessions,
+  sensorName,
   onCellClick,
   onCellMouseEnter,
   onCellMouseLeave,
@@ -335,6 +337,7 @@ const SessionsListView: React.FC<SessionsListViewProps> = ({
           NO_SESSIONS={NO_SESSIONS}
           EXCEEDS_LIMIT={EXCEEDS_LIMIT}
           sessionsIds={sessionsIds}
+          sensorName={sensorName}
           showExportPopup={showExportPopup}
           handleExportClick={handleExportClick}
           exportButtonRef={exportButtonRef}

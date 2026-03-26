@@ -3,6 +3,7 @@ import { AxiosResponse } from "axios";
 import { apiClient } from "../api/apiClient";
 import { API_ENDPOINTS } from "../api/apiEndpoints";
 import { ApiError, StatusEnum } from "../types/api";
+import { SensorPrefix } from "../types/sensors";
 import { StreamDailyAverage } from "../types/StreamDailyAverage";
 import { getErrorMessage } from "../utils/getErrorMessage";
 import { logError } from "../utils/logController";
@@ -25,6 +26,7 @@ interface MovingStreamParams {
   id: number;
   startDate: string;
   endDate: string;
+  sensorName?: string;
 }
 
 export const fetchNewMovingStream = createAsyncThunk<
@@ -33,11 +35,16 @@ export const fetchNewMovingStream = createAsyncThunk<
   { rejectValue: ApiError }
 >(
   "movingCalendarStream/getData",
-  async ({ id, startDate, endDate }, { rejectWithValue }) => {
+  async ({ id, startDate, endDate, sensorName }, { rejectWithValue }) => {
+    const isGovernment = sensorName
+      ?.toLowerCase()
+      .startsWith(SensorPrefix.GOVERNMENT.toLowerCase());
+    const endpoint = isGovernment
+      ? API_ENDPOINTS.fetchStationStreamDailyAverages(id, startDate, endDate)
+      : API_ENDPOINTS.fetchFixedStreamDailyAverages(id, startDate, endDate);
     try {
-      const response: AxiosResponse<StreamDailyAverage[]> = await apiClient.get(
-        API_ENDPOINTS.fetchSelectedDataRangeOfStream(id, startDate, endDate)
-      );
+      const response: AxiosResponse<StreamDailyAverage[]> =
+        await apiClient.get(endpoint);
       return response.data;
     } catch (error) {
       const message = getErrorMessage(error);
@@ -46,11 +53,7 @@ export const fetchNewMovingStream = createAsyncThunk<
         message,
         additionalInfo: {
           action: "fetchNewMovingStream",
-          endpoint: API_ENDPOINTS.fetchSelectedDataRangeOfStream(
-            id,
-            startDate,
-            endDate
-          ),
+          endpoint,
         },
       };
 

@@ -1,10 +1,11 @@
 module Api
   module V3
-    class StreamDailyAveragesController < BaseController
+    class StationMeasurementsController < BaseController
       def index
         result =
-          ::StreamDailyAverages::IndexInteractor.new.call(stream_id: params[:stream_id], start_date: params[:start_date], end_date: params[:end_date])
-
+          ::StationMeasurements::IndexInteractor.new.call(
+            params: params.to_unsafe_hash,
+          )
         if result.success?
           render json: result.value, status: :ok
         else

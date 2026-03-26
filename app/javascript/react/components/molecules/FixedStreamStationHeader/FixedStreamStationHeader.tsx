@@ -45,7 +45,7 @@ const FixedStreamStationHeader = () => {
         startTime={startTime}
         endTime={streamEndTime}
       />
-      <StationActionButtons sessionId={sessionId} />
+      <StationActionButtons sessionId={sessionId} sensorName={sensorName} />
     </S.GridContainer>
   );
 };

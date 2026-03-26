@@ -543,7 +543,7 @@ const Map = () => {
       !fixedStreamData.measurements.length
     ) {
       fixedSessionTypeSelected
-        ? dispatch(fetchFixedStreamById(streamId))
+        ? dispatch(fetchFixedStreamById({ id: streamId, sensorName: sensorNamedDecoded }))
         : dispatch(fetchMobileStreamById(streamId));
     }
   }, [
@@ -688,7 +688,7 @@ const Map = () => {
     if (selectedStreamId) {
       if (fixedSessionTypeSelected) {
         dispatch(setLastSelectedTimeRange(FixedTimeRange.Day));
-        dispatch(fetchFixedStreamById(selectedStreamId));
+        dispatch(fetchFixedStreamById({ id: selectedStreamId, sensorName: sensorNamedDecoded }));
       } else {
         dispatch(fetchMobileStreamById(selectedStreamId));
       }
@@ -1062,6 +1062,7 @@ const Map = () => {
           <S.DesktopContainer data-testid="desktop-session-list">
             <SessionsListView
               sessions={listSessions.map(mapSessions)}
+              sensorName={sensorNamedDecoded}
               onCellClick={(id, streamId) => {
                 setPulsatingSessionId(null);
                 handleMarkerClick(streamId, id);

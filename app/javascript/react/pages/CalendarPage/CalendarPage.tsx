@@ -45,7 +45,7 @@ const CalendarPage: React.FC<CalendarPageProps> = ({ children }) => {
   const isMobile = useMobileDetection();
   const { t } = useTranslation();
   const handleCalendarGoBack = useCalendarBackNavigation();
-  const { unitSymbol, streamId } = useMapParams();
+  const { unitSymbol, streamId, sensorName } = useMapParams();
 
   const fixedStreamData = useAppSelector(selectFixedData);
   const movingCalendarData = useAppSelector(movingData);
@@ -73,7 +73,7 @@ const CalendarPage: React.FC<CalendarPageProps> = ({ children }) => {
 
   useEffect(() => {
     if (streamId && !fixedStreamData.measurements.length) {
-      dispatch(fetchFixedStreamById(streamId));
+      dispatch(fetchFixedStreamById({ id: streamId, sensorName }));
     }
   }, [streamId, dispatch, fixedStreamData.measurements.length]);
 
@@ -95,6 +95,7 @@ const CalendarPage: React.FC<CalendarPageProps> = ({ children }) => {
           id: streamId,
           startDate: fixedStreamData.stream.startTime,
           endDate: streamEndTime,
+          sensorName,
         })
       );
       setInitialDataFetched(true);
