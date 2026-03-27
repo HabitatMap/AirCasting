@@ -4,7 +4,7 @@ class StationStreamSerializer
     tz = station_stream.time_zone
 
     {
-      active: true,
+      active: station_stream.is_active,
       title: station_stream.title,
       latitude: station_stream.location.y,
       longitude: station_stream.location.x,

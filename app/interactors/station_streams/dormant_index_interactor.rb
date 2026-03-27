@@ -24,7 +24,7 @@ module StationStreams
           time_to: data[:time_to],
         )
 
-      Success.new(serializer.call(station_streams, active: false))
+      Success.new(serializer.call(station_streams))
     end
 
     private

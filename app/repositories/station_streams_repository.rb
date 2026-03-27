@@ -22,7 +22,7 @@ class StationStreamsRepository
       )
       .includes(:stream_configuration)
       .where(stream_configurations: { measurement_type: measurement_type })
-      .where('station_streams.last_measured_at > ?', 24.hours.ago)
+      .where('station_streams.last_measured_at > ?', StationStream::ACTIVE_FOR.ago)
       .where('ST_Y(station_streams.location::geometry) BETWEEN ? AND ?', south, north)
       .where(
         '(? <= ? AND ST_X(station_streams.location::geometry) BETWEEN ? AND ?)
@@ -58,7 +58,7 @@ class StationStreamsRepository
       )
       .includes(:stream_configuration)
       .where(stream_configurations: { measurement_type: measurement_type })
-      .where('station_streams.last_measured_at <= ?', 24.hours.ago)
+      .where('station_streams.last_measured_at <= ?', StationStream::ACTIVE_FOR.ago)
       .where('ST_Y(station_streams.location::geometry) BETWEEN ? AND ?', south, north)
       .where(
         '(? <= ? AND ST_X(station_streams.location::geometry) BETWEEN ? AND ?)
