@@ -94,6 +94,101 @@ describe Api::Fixed::Dormant::SessionsController do
 
       expect(json_response).to eq(expected)
     end
+
+    it 'returns dormant government data' do
+      last_measured_at = 25.hours.ago
+      first_measured_at = last_measured_at - 1.day
+      config =
+        create(
+          :stream_configuration,
+          measurement_type: 'PM2.5',
+          unit_symbol: 'µg/m³',
+        )
+      dormant_station_stream =
+        create(
+          :station_stream,
+          stream_configuration: config,
+          location: 'SRID=4326;POINT(20.0 50.0)',
+          last_measured_at: last_measured_at,
+          first_measured_at: first_measured_at,
+        ).reload
+      longitude = dormant_station_stream.location.x
+      latitude = dormant_station_stream.location.y
+      measurement =
+        create(
+          :station_measurement,
+          station_stream: dormant_station_stream,
+          measured_at: last_measured_at,
+          value: 42.7,
+        )
+      # active — inside the 24h window, should not appear
+      create(
+        :station_stream,
+        stream_configuration: config,
+        location: 'SRID=4326;POINT(20.0 50.0)',
+        last_measured_at: 1.hour.ago,
+        first_measured_at: 2.hours.ago,
+      )
+
+      get :index,
+          params: {
+            q: {
+              time_from:
+                first_measured_at.to_datetime.strftime('%Q').to_i / 1_000 - 1,
+              time_to:
+                last_measured_at.to_datetime.strftime('%Q').to_i / 1_000 + 1,
+              tags: '',
+              usernames: '',
+              session_ids: [],
+              west: longitude - 1,
+              east: longitude + 1,
+              south: latitude - 1,
+              north: latitude + 1,
+              limit: 2,
+              offset: 0,
+              sensor_name: 'government-pm2.5',
+              measurement_type: config.measurement_type,
+              unit_symbol: config.unit_symbol,
+            }.to_json,
+          }
+
+      expected = {
+        'fetchableSessionsCount' => 1,
+        'sessions' => [
+          {
+            'id' => dormant_station_stream.id,
+            'uuid' => dormant_station_stream.uuid,
+            'end_time_local' =>
+              dormant_station_stream
+                .last_measured_at
+                .in_time_zone(dormant_station_stream.time_zone)
+                .strftime('%Y-%m-%dT%H:%M:%S.%L'),
+            'start_time_local' =>
+              dormant_station_stream
+                .first_measured_at
+                .in_time_zone(dormant_station_stream.time_zone)
+                .strftime('%Y-%m-%dT%H:%M:%S.%L'),
+            'last_measurement_value' => measurement.value.round,
+            'is_indoor' => false,
+            'latitude' => latitude,
+            'longitude' => longitude,
+            'title' => dormant_station_stream.title,
+            'username' => 'Government',
+            'is_active' => false,
+            'streams' => {
+              "Government-#{config.measurement_type}" => {
+                'measurement_short_type' => config.measurement_type,
+                'sensor_name' => "Government-#{config.measurement_type}",
+                'unit_symbol' => config.unit_symbol,
+                'id' => dormant_station_stream.id,
+              },
+            },
+          },
+        ],
+      }
+
+      expect(json_response).to eq(expected)
+    end
   end
 
   private

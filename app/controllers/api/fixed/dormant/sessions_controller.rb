@@ -11,7 +11,16 @@ module Api
           q[:time_to] = Time.strptime(q[:time_to].to_s, '%s')
 
           contract = Api::FixedSessionsContract.new.call(q)
-          result = Api::ToDormantSessionsArray.new(contract: contract).call
+
+          sensor_name = contract.to_h[:sensor_name]
+          if sensor_name == 'government-pm2.5' ||
+               sensor_name == 'government-no2' ||
+               sensor_name == 'government-ozone'
+            result =
+              ::StationStreams::DormantIndexInteractor.new(contract: contract).call
+          else
+            result = Api::ToDormantSessionsArray.new(contract: contract).call
+          end
 
           if result.success?
             render json: result.value, status: :ok

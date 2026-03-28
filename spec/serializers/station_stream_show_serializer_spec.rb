@@ -78,5 +78,24 @@ RSpec.describe StationStreamShowSerializer do
 
       expect(result).to eq(expected)
     end
+
+    it 'returns active false for dormant station stream' do
+      dormant_stream = create(
+        :station_stream,
+        stream_configuration: config,
+        title: 'Dormant Station',
+        location: 'SRID=4326;POINT(20.0 50.0)',
+        first_measured_at: 3.days.ago,
+        last_measured_at: 25.hours.ago,
+      )
+
+      result = described_class.new.call(
+        station_stream: dormant_stream,
+        measurements: [],
+        stream_daily_averages: [],
+      )
+
+      expect(result[:stream][:active]).to eq(false)
+    end
   end
 end

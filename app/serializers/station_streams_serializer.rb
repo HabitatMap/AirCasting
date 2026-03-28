@@ -13,7 +13,7 @@ class StationStreamsSerializer
           'longitude' => stream.location.x,
           'title' => stream.title,
           'username' => 'Government',
-          'is_active' => true,
+          'is_active' => stream.is_active,
           'streams' => build_streams(stream),
         }
       end
