@@ -8,6 +8,7 @@ class Session < ApplicationRecord
   include AirCasting::FilterRange
 
   belongs_to :user
+  belongs_to :device, optional: true
   has_many :streams, inverse_of: :session, dependent: :destroy
   has_many :measurements, through: :streams, inverse_of: :session
   has_many :notes, inverse_of: :session, dependent: :destroy
