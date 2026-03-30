@@ -1,5 +1,6 @@
 class AddDeviceIdToSessions < ActiveRecord::Migration[7.0]
   def change
-    add_reference :sessions, :device, null: true, foreign_key: true
+    add_column :sessions, :device_id, :bigint
+    add_foreign_key :sessions, :devices
   end
 end
