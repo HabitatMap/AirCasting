@@ -1,0 +1,214 @@
+---
+openapi: 3.0.1
+info:
+  title: AirCasting API V3
+  version: v3
+  description: API endpoints for AirBeamMini2 devices and mobile apps
+components:
+  securitySchemes:
+    token_auth:
+      type: apiKey
+      in: header
+      name: Authorization
+      description: Token token=<user_token>
+security:
+- token_auth: []
+paths:
+  "/api/v3/fixed_sessions":
+    post:
+      summary: Create a new AirBeamMini2 fixed session
+      tags:
+      - AirBeamMini2
+      description: |
+        Creates a new fixed session for an AirBeamMini2 device. The mobile app calls this
+        before configuring the AirBeam. The response includes a `measurement_type_id` per
+        stream that the AirBeam uses to identify stream types in the binary upload payload.
+      parameters:
+      - name: Authorization
+        in: header
+        required: true
+        description: Token token=<user_token>
+        schema:
+          type: string
+      responses:
+        '200':
+          description: session created
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - location
+                - streams
+                properties:
+                  location:
+                    type: string
+                    example: http://aircasting.org/s/ab12c
+                  streams:
+                    type: array
+                    items:
+                      type: object
+                      required:
+                      - measurement_type
+                      - unit
+                      - measurement_type_id
+                      properties:
+                        measurement_type:
+                          type: string
+                          example: Particulate Matter
+                        unit:
+                          type: string
+                          example: µg/m³
+                        measurement_type_id:
+                          type: integer
+                          description: Compact numeric ID used by the AirBeam in the
+                            binary upload format to identify this stream
+                          example: 1
+        '400':
+          description: validation error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  errors:
+                    type: object
+                    additionalProperties:
+                      type: array
+                      items:
+                        type: string
+        '401':
+          description: unauthorized
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+              - uuid
+              - title
+              - latitude
+              - longitude
+              - contribute
+              - airbeam
+              - streams
+              properties:
+                uuid:
+                  type: string
+                  format: uuid
+                  example: 550e8400-e29b-41d4-a716-446655440000
+                title:
+                  type: string
+                  example: Rooftop PM2.5 monitor
+                latitude:
+                  type: number
+                  format: float
+                  example: 40.7128
+                longitude:
+                  type: number
+                  format: float
+                  example: -74.006
+                contribute:
+                  type: boolean
+                  example: true
+                airbeam:
+                  type: object
+                  required:
+                  - mac_address
+                  - model
+                  properties:
+                    mac_address:
+                      type: string
+                      example: AA:BB:CC:DD:EE:FF
+                    model:
+                      type: string
+                      example: AirBeamMini2
+                    name:
+                      type: string
+                      nullable: true
+                      example: Roof sensor
+                streams:
+                  type: array
+                  minItems: 1
+                  items:
+                    type: object
+                    required:
+                    - measurement_type
+                    - unit
+                    properties:
+                      measurement_type:
+                        type: string
+                        example: Particulate Matter
+                      unit:
+                        type: string
+                        example: µg/m³
+                  example:
+                  - measurement_type: Particulate Matter
+                    unit: µg/m³
+                  - measurement_type: Particulate Matter
+                    unit: µg/m³
+        required: true
+  "/api/v3/fixed_sessions/{uuid}/measurements":
+    post:
+      summary: Upload binary measurements for an AirBeamMini2 session
+      tags:
+      - AirBeamMini2
+      description: |
+        Receives a binary measurement payload from the AirBeamMini2. Can be called once per
+        minute for live uploads or once (with many measurements) for sync after connectivity loss.
+
+        ## Binary Format (big-endian)
+
+        ```
+        Offset     Size  Type        Description
+        0          4     char[4]     Magic bytes: "ABBA" (0x41 0x42 0x42 0x41)
+        4          2     uint16 BE   Measurement count N
+        --- repeated N times ---
+        6+i*9      4     uint32 BE   Unix timestamp (seconds since epoch, UTC)
+        10+i*9     1     uint8       measurement_type_id (returned by session creation endpoint)
+        11+i*9     4     float32 BE  Sensor value
+        --- end repeat ---
+        6+N*9      1     uint8       XOR checksum of all preceding bytes
+        ```
+
+        **Resend / sync behaviour:** sending a measurement with an already-stored
+        `(stream_id, time_with_time_zone)` pair updates the stored value (upsert).
+
+        **Averages:** pass `sync=true` to trigger daily and hourly average recalculation
+        after bulk uploads. Not needed for regular live 1-per-minute uploads.
+      parameters:
+      - name: uuid
+        in: path
+        required: true
+        description: Session UUID (same as used in session creation)
+        schema:
+          type: string
+      - name: Authorization
+        in: header
+        required: true
+        description: Token token=<user_token>
+        schema:
+          type: string
+      - name: sync
+        in: query
+        required: false
+        description: Set to true to trigger average recalculation after bulk upload
+        schema:
+          type: boolean
+      responses:
+        '200':
+          description: measurements stored
+        '400':
+          description: invalid binary payload (bad magic, checksum, or unknown measurement_type_id)
+        '401':
+          description: unauthorized
+        '404':
+          description: session not found
+      requestBody:
+        content:
+          application/octet-stream:
+            schema:
+              type: string
+              format: binary
+              description: Binary payload as described in the endpoint description
+        required: true
