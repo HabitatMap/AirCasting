@@ -111,6 +111,9 @@ Rails.application.routes.draw do
       resources :station_stream_daily_averages, only: %i[index]
       resources :sessions, only: %i[index]
       get 'timelapse' => 'fixed_stream_clusters#index'
+      resources :fixed_sessions, only: %i[create], param: :uuid do
+        resources :measurements, only: %i[create], module: :fixed_sessions
+      end
     end
 
     get 'measurements' => 'measurements#index'
