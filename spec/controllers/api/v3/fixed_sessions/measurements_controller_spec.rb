@@ -24,8 +24,8 @@ RSpec.describe Api::V3::FixedSessions::MeasurementsController do
 
   def build_binary(measurements)
     count = measurements.size
-    header = ['ABBA', count].pack('a4v')
-    body = measurements.map { |m| [m[:epoch], m[:measurement_type_id], m[:value]].pack('VCe') }.join
+    header = ['ABBA', count].pack('a4n')
+    body = measurements.map { |m| [m[:epoch], m[:measurement_type_id], m[:value]].pack('NCg') }.join
     payload = header + body
     checksum = payload.bytes.inject(0, :^)
     payload + [checksum].pack('C')

@@ -10,7 +10,7 @@ module AirBeamMini2
       def call(binary)
         raise ParseError, 'payload too short' if binary.bytesize < HEADER_SIZE + 1
 
-        magic, count = binary.unpack('a4v')
+        magic, count = binary.unpack('a4n')
         raise ParseError, 'invalid magic bytes' unless magic == MAGIC
         raise ParseError, 'empty payload: count is zero' if count.zero?
 
@@ -31,7 +31,7 @@ module AirBeamMini2
         measurements = []
         offset = HEADER_SIZE
         count.times do
-          ts, type_id, value = binary.byteslice(offset, MEASUREMENT_SIZE).unpack('VCe')
+          ts, type_id, value = binary.byteslice(offset, MEASUREMENT_SIZE).unpack('NCg')
           measurements << { epoch: ts, measurement_type_id: type_id, value: value }
           offset += MEASUREMENT_SIZE
         end
