@@ -32,6 +32,8 @@ gem 'progress', require: false
 gem 'pry-rails'
 gem 'rack-cors'
 gem 'rails', '~> 7.0.8'
+gem 'rswag-api'
+gem 'rswag-ui'
 gem 'rake'
 gem 'responders'
 gem 'rgeo'
@@ -76,6 +78,7 @@ end
 group :test do
   gem 'capybara'
   gem 'rspec-rails'
+  gem 'rswag-specs'
   gem 'simplecov', require: false
 end
 
