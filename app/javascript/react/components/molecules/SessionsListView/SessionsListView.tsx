@@ -16,6 +16,8 @@ import {
   selectSessionsListExpanded,
   setSessionsListExpanded,
 } from "../../../store/mapSlice";
+import type { SessionType } from "../../../types/filters";
+import { getSessionListExportLimit } from "../../../utils/getSessionListExportLimit";
 import { CookieManager } from "../../../utils/cookieManager";
 import { useAutoDismissAlert } from "../../../utils/useAutoDismissAlert";
 import { AlertPopup } from "../Popups/AlertComponent";
@@ -92,6 +94,7 @@ export interface SessionListEntity {
 
 interface SessionsListViewProps {
   sessions: SessionListEntity[];
+  sessionType: SessionType;
   sensorName?: string;
   onCellClick?: (id: number, streamId: number) => void;
   onCellMouseEnter?: (id: number) => void;
@@ -102,10 +105,9 @@ interface SessionsListViewProps {
   isDormant?: boolean;
 }
 
-const SESSIONS_LIMIT = 10000;
-
 const SessionsListView: React.FC<SessionsListViewProps> = ({
   sessions,
+  sessionType,
   sensorName,
   onCellClick,
   onCellMouseEnter,
@@ -131,8 +133,13 @@ const SessionsListView: React.FC<SessionsListViewProps> = ({
   const [listDimensions, setListDimensions] = useState({ width: 0, height: 0 });
   const [dimensionsReady, setDimensionsReady] = useState(false);
 
+  const sessionsExportLimit = useMemo(
+    () => getSessionListExportLimit(sessionType, sensorName),
+    [sessionType, sensorName]
+  );
+
   const NO_SESSIONS = sessionsIds.length === 0;
-  const EXCEEDS_LIMIT = sessionsIds.length > SESSIONS_LIMIT;
+  const EXCEEDS_LIMIT = sessionsIds.length > sessionsExportLimit;
   const popupTopOffset = NO_SESSIONS ? -13 : -50;
   const dispatch = useAppDispatch();
   const sessionsListExpanded = useAppSelector(selectSessionsListExpanded);
@@ -303,7 +310,9 @@ const SessionsListView: React.FC<SessionsListViewProps> = ({
       setShowAlert(true);
     } else if (EXCEEDS_LIMIT) {
       setAlertMessage(
-        t("exportDataModal.sessionLimitMessage", { limit: SESSIONS_LIMIT })
+        t("exportDataModal.sessionLimitMessage", {
+          limit: sessionsExportLimit,
+        })
       );
       setShowAlert(true);
     } else {
