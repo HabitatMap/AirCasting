@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2026_03_19_115904) do
+ActiveRecord::Schema[7.0].define(version: 2026_03_19_115907) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
   enable_extension "postgis"
@@ -50,6 +50,15 @@ ActiveRecord::Schema[7.0].define(version: 2026_03_19_115904) do
     t.integer "user_id"
     t.index ["user_id"], name: "index_deleted_sessions_on_user_id"
     t.index ["uuid", "user_id"], name: "index_deleted_sessions_on_uuid_and_user_id"
+  end
+
+  create_table "devices", force: :cascade do |t|
+    t.string "mac_address", null: false
+    t.string "model", null: false
+    t.string "name"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["mac_address"], name: "index_devices_on_mac_address", unique: true
   end
 
   create_table "eea_ingest_batches", force: :cascade do |t|
@@ -249,7 +258,9 @@ ActiveRecord::Schema[7.0].define(version: 2026_03_19_115904) do
     t.datetime "last_measurement_at", precision: nil
     t.integer "version", default: 1
     t.string "time_zone", default: "UTC", null: false
+    t.bigint "device_id"
     t.index ["contribute"], name: "index_sessions_on_contribute"
+    t.index ["device_id"], name: "index_sessions_on_device_id"
     t.index ["end_time_local"], name: "index_sessions_on_end_time_local"
     t.index ["last_measurement_at"], name: "index_sessions_on_last_measurement_at"
     t.index ["start_time_local"], name: "index_sessions_on_start_time_local"
@@ -370,6 +381,7 @@ ActiveRecord::Schema[7.0].define(version: 2026_03_19_115904) do
     t.decimal "start_latitude", precision: 12, scale: 9
     t.integer "threshold_set_id", null: false
     t.bigint "last_hourly_average_id"
+    t.integer "measurement_type_id"
     t.index ["last_hourly_average_id"], name: "index_streams_on_last_hourly_average_id"
     t.index ["max_latitude"], name: "index_streams_on_max_latitude"
     t.index ["max_longitude"], name: "index_streams_on_max_longitude"
@@ -378,6 +390,7 @@ ActiveRecord::Schema[7.0].define(version: 2026_03_19_115904) do
     t.index ["sensor_name", "measurement_type"], name: "index_streams_on_sensor_name_and_measurement_type"
     t.index ["sensor_name"], name: "index_streams_on_sensor_name"
     t.index ["sensor_package_name"], name: "index_streams_on_sensor_package_name"
+    t.index ["session_id", "measurement_type_id"], name: "idx_streams_session_measurement_type_id", unique: true, where: "(measurement_type_id IS NOT NULL)"
     t.index ["session_id"], name: "index_streams_on_session_id"
     t.index ["threshold_set_id"], name: "index_streams_on_threshold_set_id"
   end
@@ -472,6 +485,7 @@ ActiveRecord::Schema[7.0].define(version: 2026_03_19_115904) do
   add_foreign_key "fixed_streams", "sources"
   add_foreign_key "fixed_streams", "stream_configurations"
   add_foreign_key "hourly_averages", "fixed_streams"
+  add_foreign_key "sessions", "devices"
   add_foreign_key "source_stream_configurations", "sources"
   add_foreign_key "source_stream_configurations", "stream_configurations"
   add_foreign_key "station_measurements", "station_streams"
