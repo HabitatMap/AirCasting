@@ -5,9 +5,14 @@ module Api
       before_action :authenticate_user!
 
       def create
+        contract = Api::CreateFixedSessionContract.new.call(
+          params.to_unsafe_h.deep_symbolize_keys,
+        )
+        return render json: contract.errors.to_h, status: :bad_request if contract.failure?
+
         result =
           AirBeamMini2::FixedSessions::Creator.new.call(
-            data: params.to_unsafe_h.deep_symbolize_keys,
+            data: contract.to_h,
             user: current_user,
           )
 

@@ -90,9 +90,5 @@ RSpec.describe AirBeamMini2::FixedSessions::Creator do
       expect(result).to be_failure
     end
 
-    it 'returns Failure for invalid params' do
-      result = creator.call(data: {}, user: user)
-      expect(result).to be_failure
-    end
   end
 end
