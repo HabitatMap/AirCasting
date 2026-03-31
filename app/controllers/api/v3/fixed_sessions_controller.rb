@@ -11,7 +11,7 @@ module Api
         return render json: contract.errors.to_h, status: :bad_request if contract.failure?
 
         result =
-          AirBeamMini2::FixedSessions::Creator.new.call(
+          ::FixedSessions::Creator.new.call(
             data: contract.to_h,
             user: current_user,
           )

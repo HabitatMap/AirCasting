@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-RSpec.describe AirBeamMini2::Measurements::BinaryParser do
+RSpec.describe FixedSessions::AirBeamMini2::BinaryParser do
   subject(:parser) { described_class.new }
 
   def build_binary(measurements)

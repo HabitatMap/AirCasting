@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-RSpec.describe AirBeamMini2::FixedSessions::Creator do
+RSpec.describe FixedSessions::Creator do
   subject(:creator) { described_class.new }
 
   let(:user) { create(:user) }

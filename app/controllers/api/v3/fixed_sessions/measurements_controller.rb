@@ -8,7 +8,7 @@ module Api
         def create
           binary = request.body.read
           result =
-            AirBeamMini2::Measurements::Ingester.new.call(
+            ::FixedSessions::AirBeamMini2::Ingester.new.call(
               uuid: params[:fixed_session_uuid],
               binary: binary,
               user_id: current_user.id,
