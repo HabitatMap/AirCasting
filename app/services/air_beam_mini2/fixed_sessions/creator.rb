@@ -3,11 +3,7 @@ module AirBeamMini2
     class Creator
       UnknownStreamTypeError = Class.new(StandardError)
       def call(data:, user:)
-        contract = Contract.new
-        result = contract.call(data)
-        return Failure.new(result.errors.to_h) if result.failure?
-
-        params = result.to_h
+        params = data
 
         ActiveRecord::Base.transaction do
           device = Device.find_or_initialize_by(mac_address: params[:airbeam][:mac_address])
