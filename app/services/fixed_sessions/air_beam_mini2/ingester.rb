@@ -1,5 +1,5 @@
-module AirBeamMini2
-  module Measurements
+module FixedSessions
+  module AirBeamMini2
     class Ingester
       def initialize(
         parser: BinaryParser.new,

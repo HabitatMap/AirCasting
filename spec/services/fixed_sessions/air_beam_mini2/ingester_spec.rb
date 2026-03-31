@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-RSpec.describe AirBeamMini2::Measurements::Ingester do
+RSpec.describe FixedSessions::AirBeamMini2::Ingester do
   subject(:ingester) { described_class.new }
 
   let(:user) { create(:user) }
