@@ -14,7 +14,7 @@ Rails.application.routes.draw do
   end
 
   mount Rswag::Api::Engine => '/api-docs'
-  mount Rswag::Ui::Engine => '/api-docs' unless Rails.env.production?
+  mount Rswag::Ui::Engine => '/api-docs' # unless Rails.env.production? # TODO: add A9n constraint
 
   devise_for :users,
              controllers: {
