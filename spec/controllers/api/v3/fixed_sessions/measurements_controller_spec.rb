@@ -14,7 +14,7 @@ RSpec.describe Api::V3::FixedSessions::MeasurementsController do
       measurement_type: 'Particulate Matter',
       measurement_short_type: 'PM',
       threshold_set: threshold_set,
-      measurement_type_id: 2,
+      sensor_type_id: 2,
       min_latitude: session.latitude,
       max_latitude: session.latitude,
       min_longitude: session.longitude,
@@ -25,7 +25,7 @@ RSpec.describe Api::V3::FixedSessions::MeasurementsController do
   def build_binary(measurements)
     count = measurements.size
     header = ['ABBA', count].pack('a4n')
-    body = measurements.map { |m| [m[:epoch], m[:measurement_type_id], m[:value]].pack('NCg') }.join
+    body = measurements.map { |m| [m[:epoch], m[:sensor_type_id], m[:value]].pack('NCg') }.join
     payload = header + body
     checksum = payload.bytes.inject(0, :^)
     payload + [checksum].pack('C')
@@ -38,7 +38,7 @@ RSpec.describe Api::V3::FixedSessions::MeasurementsController do
 
   describe 'POST #create' do
     let(:binary) do
-      build_binary([{ epoch: 1_711_619_400, measurement_type_id: 2, value: 25.5 }])
+      build_binary([{ epoch: 1_711_619_400, sensor_type_id: 2, value: 25.5 }])
     end
 
     it 'returns 200 for valid binary' do

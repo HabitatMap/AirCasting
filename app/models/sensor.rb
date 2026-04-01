@@ -25,10 +25,10 @@ class Sensor
     'AirBeamMini2-F'     => 'AirBeam-F',
   }
 
-  # Globally stable measurement_type_id values for standard AirBeam sensor types.
+  # Globally stable sensor_type_id values for standard AirBeam sensor types.
   # Hard-coded in AirBeamMini2 firmware — never change existing values, only append new ones.
   # Any AirBeam model using the binary protocol (POST /api/v3/fixed_sessions) can rely on these.
-  CANONICAL_MEASUREMENT_TYPE_IDS = {
+  CANONICAL_SENSOR_TYPE_IDS = {
     'AirBeam-PM1'   => 1,
     'AirBeam-PM2.5' => 2,
     'AirBeam-PM10'  => 3,

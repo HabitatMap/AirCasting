@@ -13,20 +13,16 @@ RSpec.describe FixedSessions::Creator do
       contribute: true,
       airbeam: { mac_address: 'AA:BB:CC:DD:EE:FF', model: 'AirBeamMini2' },
       streams: [
-        { measurement_type: 'Particulate Matter', unit: 'µg/m³', measurement_type_id: 2 },
+        { sensor_name: 'AirBeamMini2-PM1', unit_symbol: 'µg/m³' },
+        { sensor_name: 'AirBeamMini2-PM2.5', unit_symbol: 'µg/m³' },
       ],
     }
   end
 
   before do
     allow(TimeZoneFinderWrapper.instance).to receive(:time_zone_at).and_return('America/New_York')
-    ThresholdSet.find_or_create_by!(
-      sensor_name: 'AirBeam-PM2.5',
-      unit_symbol: 'µg/m³',
-      is_default: true,
-      threshold_very_low: 0, threshold_low: 12, threshold_medium: 35,
-      threshold_high: 55, threshold_very_high: 150,
-    )
+    create(:threshold_set, :air_beam_pm1, :default)
+    create(:threshold_set, :air_beam_pm2_5, :default)
   end
 
   describe '#call' do
@@ -42,6 +38,16 @@ RSpec.describe FixedSessions::Creator do
     it 'stores contribute flag from request' do
       creator.call(data: valid_params.merge(contribute: false), user: user)
       expect(FixedSession.last.contribute).to be false
+    end
+
+    it 'defaults is_indoor to false when omitted' do
+      creator.call(data: valid_params, user: user)
+      expect(FixedSession.last.is_indoor).to be false
+    end
+
+    it 'stores is_indoor true when provided' do
+      creator.call(data: valid_params.merge(is_indoor: true), user: user)
+      expect(FixedSession.last.is_indoor).to be true
     end
 
     it 'creates a Device and links it to the session' do
@@ -69,26 +75,30 @@ RSpec.describe FixedSessions::Creator do
       expect(device.reload.name).to eq('Existing Name')
     end
 
-    it 'creates Streams with measurement_type_id' do
-      creator.call(data: valid_params, user: user)
-      stream = Stream.last
-      expect(stream.measurement_type_id).to eq(2)  # PM2.5 = 2
-      expect(stream.sensor_name).to eq('AirBeam-PM2.5')
+    it 'creates one Stream per requested sensor' do
+      expect { creator.call(data: valid_params, user: user) }.to change(Stream, :count).by(2)
     end
 
-    it 'returns streams with measurement_type_id in response' do
+    it 'canonicalizes sensor names and sets sensor_type_id' do
+      creator.call(data: valid_params, user: user)
+      streams = Stream.last(2)
+      expect(streams.map(&:sensor_name)).to match_array(%w[AirBeam-PM1 AirBeam-PM2.5])
+      expect(streams.map(&:sensor_type_id)).to match_array([1, 2])
+    end
+
+    it 'returns canonical sensor_name and sensor_type_id in response' do
       result = creator.call(data: valid_params, user: user)
       streams = result.value[:streams]
-      expect(streams.first[:measurement_type_id]).to eq(2)
-      expect(streams.first[:measurement_type]).to eq('Particulate Matter')
-      expect(streams.first[:unit]).to eq('µg/m³')
+      expect(streams).to match_array([
+        { sensor_name: 'AirBeam-PM1', sensor_type_id: 1 },
+        { sensor_name: 'AirBeam-PM2.5', sensor_type_id: 2 },
+      ])
     end
 
-    it 'returns Failure for unknown stream type' do
-      params = valid_params.merge(streams: [{ measurement_type: 'Unknown', unit: 'xyz' }])
+    it 'returns Failure for unsupported sensor name' do
+      params = valid_params.merge(streams: [{ sensor_name: 'UnknownSensor-XYZ' }])
       result = creator.call(data: params, user: user)
       expect(result).to be_failure
     end
-
   end
 end

@@ -27,12 +27,12 @@ module FixedSessions
         session = FixedSession.find_by(uuid: uuid, user_id: user_id)
         return Failure.new(base: ['session not found']) unless session
 
-        grouped = measurements.group_by { |m| m[:measurement_type_id] }
+        grouped = measurements.group_by { |m| m[:sensor_type_id] }
 
         ActiveRecord::Base.transaction do
           grouped.each do |type_id, type_measurements|
-            stream = Stream.find_by(session_id: session.id, measurement_type_id: type_id)
-            return Failure.new(base: ["unknown measurement_type_id: #{type_id}"]) unless stream
+            stream = Stream.find_by(session_id: session.id, sensor_type_id: type_id)
+            return Failure.new(base: ["unknown sensor_type_id: #{type_id}"]) unless stream
 
             records = build_records(type_measurements, session, stream)
 
