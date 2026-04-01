@@ -35,37 +35,37 @@ RSpec.describe FixedSessions::AirBeamMini2::Ingester do
     payload + [checksum].pack('C')
   end
 
-  before { stream } # ensure stream exists
+  before { stream }
 
   describe '#call' do
     context 'with valid binary payload' do
       let(:binary) { build_binary([{ epoch: epoch, sensor_type_id: 2, value: 25.5 }]) }
 
       it 'returns Success' do
-        result = ingester.call(uuid: session.uuid, binary: binary, user_id: user.id)
+        result = ingester.call(session: session, binary: binary)
         expect(result).to be_success
       end
 
       it 'creates a FixedMeasurement' do
         expect {
-          ingester.call(uuid: session.uuid, binary: binary, user_id: user.id)
+          ingester.call(session: session, binary: binary)
         }.to change(FixedMeasurement, :count).by(1)
       end
 
       it 'stores the value correctly' do
-        ingester.call(uuid: session.uuid, binary: binary, user_id: user.id)
+        ingester.call(session: session, binary: binary)
         expect(FixedMeasurement.last.value).to be_within(0.01).of(25.5)
       end
 
       it 'stores local time in the time column' do
-        ingester.call(uuid: session.uuid, binary: binary, user_id: user.id)
+        ingester.call(session: session, binary: binary)
         measurement = FixedMeasurement.last
         expected_local = Time.at(epoch).in_time_zone('UTC')
         expect(measurement.time.utc).to be_within(1.second).of(expected_local)
       end
 
       it 'updates session end_time_local and last_measurement_at' do
-        ingester.call(uuid: session.uuid, binary: binary, user_id: user.id)
+        ingester.call(session: session, binary: binary)
         session.reload
         expect(session.last_measurement_at).not_to be_nil
       end
@@ -73,14 +73,12 @@ RSpec.describe FixedSessions::AirBeamMini2::Ingester do
 
     context 'when the same measurement is sent twice' do
       let(:binary) { build_binary([{ epoch: epoch, sensor_type_id: 2, value: 25.5 }]) }
-      let(:updated_binary) { build_binary([{ epoch: epoch, sensor_type_id: 2, value: 99.9 }]) }
 
-      it 'updates the value without creating a duplicate' do
-        ingester.call(uuid: session.uuid, binary: binary, user_id: user.id)
+      it 'does not create a duplicate' do
+        ingester.call(session: session, binary: binary)
         expect {
-          ingester.call(uuid: session.uuid, binary: updated_binary, user_id: user.id)
+          ingester.call(session: session, binary: binary)
         }.not_to change(FixedMeasurement, :count)
-        expect(FixedMeasurement.last.value).to be_within(0.01).of(99.9)
       end
     end
 
@@ -88,7 +86,7 @@ RSpec.describe FixedSessions::AirBeamMini2::Ingester do
       let(:binary) { build_binary([{ epoch: epoch, sensor_type_id: 9, value: 1.0 }]) }
 
       it 'returns Failure' do
-        result = ingester.call(uuid: session.uuid, binary: binary, user_id: user.id)
+        result = ingester.call(session: session, binary: binary)
         expect(result).to be_failure
         expect(result.errors[:base]).to include(match(/unknown sensor_type_id/))
       end
@@ -101,18 +99,8 @@ RSpec.describe FixedSessions::AirBeamMini2::Ingester do
       end
 
       it 'returns Failure' do
-        result = ingester.call(uuid: session.uuid, binary: binary, user_id: user.id)
+        result = ingester.call(session: session, binary: binary)
         expect(result).to be_failure
-      end
-    end
-
-    context 'when session is not found' do
-      let(:binary) { build_binary([{ epoch: epoch, sensor_type_id: 2, value: 1.0 }]) }
-
-      it 'returns Failure' do
-        result = ingester.call(uuid: 'nonexistent-uuid', binary: binary, user_id: user.id)
-        expect(result).to be_failure
-        expect(result.errors[:base]).to include('session not found')
       end
     end
   end

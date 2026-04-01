@@ -7,7 +7,7 @@ module FixedSessions
         device = find_or_create_device(data[:airbeam])
         session = create_session(data, user, device)
         streams = create_streams(data, session)
-        Success.new(session: session, streams: streams)
+        Success.new(session: session, session_token: session.session_token, streams: streams)
       end
     rescue ActiveRecord::RecordInvalid, ActiveRecord::RecordNotFound, UnknownStreamTypeError => e
       Failure.new(base: [e.message])
@@ -29,6 +29,7 @@ module FixedSessions
         lng: data[:longitude],
       )
       url_token = TokenGenerator.new.generate_unique(5) { |t| !Session.exists?(url_token: t) }
+      session_token = SecureRandom.hex(16)
       now = Time.current
 
       FixedSession.create!(
@@ -40,6 +41,7 @@ module FixedSessions
         device: device,
         time_zone: time_zone,
         url_token: url_token,
+        session_token: session_token,
         start_time_local: now,
         end_time_local: now,
         is_indoor: data.fetch(:is_indoor, false),

@@ -86,6 +86,12 @@ RSpec.describe FixedSessions::Creator do
       expect(streams.map(&:sensor_type_id)).to match_array([1, 2])
     end
 
+    it 'returns a session_token in the response' do
+      result = creator.call(data: valid_params, user: user)
+      expect(result.value[:session_token]).to be_present
+      expect(result.value[:session_token]).to eq(FixedSession.last.session_token)
+    end
+
     it 'returns canonical sensor_name and sensor_type_id in response' do
       result = creator.call(data: valid_params, user: user)
       streams = result.value[:streams]
