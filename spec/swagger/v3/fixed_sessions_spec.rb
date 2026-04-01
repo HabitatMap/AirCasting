@@ -1,6 +1,14 @@
 require 'swagger_helper'
 
 RSpec.describe 'AirBeamMini2 Fixed Sessions', type: :request do
+  def build_measurement_binary(type_id:, epoch: Time.current.to_i, value: 12.5)
+    header = ['ABBA', 1].pack('a4n')
+    measurement = [epoch, type_id, value].pack('NCg')
+    payload = header + measurement
+    checksum = payload.bytes.inject(0, :^)
+    payload + [checksum].pack('C')
+  end
+
   path '/api/v3/fixed_sessions' do
     post 'Create a new AirBeamMini2 fixed session' do
       tags 'AirBeamMini2'
@@ -8,7 +16,7 @@ RSpec.describe 'AirBeamMini2 Fixed Sessions', type: :request do
       produces 'application/json'
       description <<~DESC
         Creates a new fixed session for an AirBeamMini2 device. The mobile app calls this
-        before configuring the AirBeam. The response includes a `measurement_type_id` per
+        before configuring the AirBeam. The response includes a `sensor_type_id` per
         stream that the AirBeam uses to identify stream types in the binary upload payload.
       DESC
 
@@ -38,21 +46,29 @@ RSpec.describe 'AirBeamMini2 Fixed Sessions', type: :request do
             minItems: 1,
             items: {
               type: :object,
-              required: %w[measurement_type unit],
+              required: %w[sensor_name unit_symbol],
               properties: {
-                measurement_type: { type: :string, example: 'Particulate Matter' },
-                unit: { type: :string, example: 'µg/m³' },
+                sensor_name: {
+                  type: :string,
+                  description: 'Sensor name as reported by the device (e.g. AirBeamMini2-PM1, AirBeamMini2-PM2.5)',
+                  example: 'AirBeamMini2-PM2.5',
+                },
+                unit_symbol: {
+                  type: :string,
+                  description: 'Unit symbol for this sensor (e.g. µg/m³, %, F)',
+                  example: 'µg/m³',
+                },
               },
             },
             example: [
-              { measurement_type: 'Particulate Matter', unit: 'µg/m³' },
-              { measurement_type: 'Particulate Matter', unit: 'µg/m³' },
+              { sensor_name: 'AirBeamMini2-PM1', unit_symbol: 'µg/m³' },
+              { sensor_name: 'AirBeamMini2-PM2.5', unit_symbol: 'µg/m³' },
             ],
           },
         },
       }
 
-      response '200', 'session created' do
+      response '201', 'session created' do
         schema type: :object,
                required: %w[location streams],
                properties: {
@@ -61,34 +77,69 @@ RSpec.describe 'AirBeamMini2 Fixed Sessions', type: :request do
                    type: :array,
                    items: {
                      type: :object,
-                     required: %w[measurement_type unit measurement_type_id],
+                     required: %w[sensor_name sensor_type_id],
                      properties: {
-                       measurement_type: { type: :string, example: 'Particulate Matter' },
-                       unit: { type: :string, example: 'µg/m³' },
-                       measurement_type_id: {
+                       sensor_name: { type: :string, example: 'AirBeam-PM2.5' },
+                       sensor_type_id: {
                          type: :integer,
                          description: 'Compact numeric ID used by the AirBeam in the binary upload format to identify this stream',
-                         example: 1,
+                         example: 2,
                        },
                      },
                    },
                  },
                }
 
-        it('returns the documented response') { skip 'swagger doc' }
+        before(:all) do
+          @ts_pm1 = FactoryBot.create(:threshold_set, :air_beam_pm1, :default)
+          @ts_pm2_5 = FactoryBot.create(:threshold_set, :air_beam_pm2_5, :default)
+        end
+
+        after(:all) do
+          @ts_pm1&.destroy
+          @ts_pm2_5&.destroy
+        end
+
+        let!(:user) { create(:user) }
+        let(:Authorization) { "Token token=#{user.authentication_token}" }
+        let(:body) do
+          {
+            uuid: SecureRandom.uuid,
+            title: 'Rooftop PM2.5 monitor',
+            latitude: 40.7128,
+            longitude: -74.0060,
+            contribute: true,
+            airbeam: { mac_address: 'AA:BB:CC:DD:EE:FF', model: 'AirBeamMini2' },
+            streams: [
+              { sensor_name: 'AirBeamMini2-PM1', unit_symbol: 'µg/m³' },
+              { sensor_name: 'AirBeamMini2-PM2.5', unit_symbol: 'µg/m³' },
+            ],
+          }
+        end
+
+        before { sign_in user }
+
+        run_test!
       end
 
       response '400', 'validation error' do
         schema type: :object,
-               properties: {
-                 errors: { type: :object, additionalProperties: { type: :array, items: { type: :string } } },
-               }
+               additionalProperties: { type: :array, items: { type: :string } }
 
-        it('returns the documented response') { skip 'swagger doc' }
+        let(:user) { create(:user) }
+        let(:Authorization) { "Token token=#{user.authentication_token}" }
+        let(:body) { { uuid: '' } }
+
+        before { sign_in user }
+
+        run_test!
       end
 
       response '401', 'unauthorized' do
-        it('returns the documented response') { skip 'swagger doc' }
+        let(:Authorization) { 'Token token=invalid' }
+        let(:body) { {} }
+
+        run_test!
       end
     end
   end
@@ -110,7 +161,7 @@ RSpec.describe 'AirBeamMini2 Fixed Sessions', type: :request do
         4          2     uint16 BE   Measurement count N
         --- repeated N times ---
         6+i*9      4     uint32 BE   Unix timestamp (seconds since epoch, UTC)
-        10+i*9     1     uint8       measurement_type_id (returned by session creation endpoint)
+        10+i*9     1     uint8       sensor_type_id (returned by session creation endpoint)
         11+i*9     4     float32 BE  Sensor value
         --- end repeat ---
         6+N*9      1     uint8       XOR checksum of all preceding bytes
@@ -139,19 +190,65 @@ RSpec.describe 'AirBeamMini2 Fixed Sessions', type: :request do
       }
 
       response '200', 'measurements stored' do
-        it('returns the documented response') { skip 'swagger doc' }
+        before(:all) do
+          @user = create(:user)
+          @session = create(:fixed_session, user: @user)
+          @threshold_set = ThresholdSet.find_or_create_by!(
+            sensor_name: 'AirBeam-PM2.5', unit_symbol: 'µg/m³', is_default: true,
+            threshold_very_low: 0, threshold_low: 9, threshold_medium: 35,
+            threshold_high: 55, threshold_very_high: 150,
+          )
+          @stream = Stream.create!(
+            session: @session,
+            sensor_name: 'AirBeam-PM2.5',
+            sensor_package_name: 'AA:BB:CC:DD:EE:FF',
+            unit_name: 'micrograms per cubic meter',
+            measurement_type: 'Particulate Matter',
+            measurement_short_type: 'PM',
+            unit_symbol: 'µg/m³',
+            threshold_set: @threshold_set,
+            sensor_type_id: 2,
+            min_latitude: 40.7128,
+            max_latitude: 40.7128,
+            min_longitude: -74.006,
+            max_longitude: -74.006,
+          )
+        end
+
+        after(:all) do
+          @stream&.delete
+          @threshold_set&.delete
+          @session&.delete
+          @user&.destroy
+        end
+
+        let(:uuid) { @session.uuid }
+        let(:Authorization) { "Token token=#{@user.authentication_token}" }
+        let(:body) { build_measurement_binary(type_id: 2) }
+
+        before { sign_in @user }
+
+        run_test!
       end
 
-      response '400', 'invalid binary payload (bad magic, checksum, or unknown measurement_type_id)' do
-        it('returns the documented response') { skip 'swagger doc' }
+      response '400', 'invalid payload or session/stream not found' do
+        let(:user) { create(:user) }
+        let(:session) { create(:fixed_session, user: user) }
+        let(:uuid) { session.uuid }
+        let(:Authorization) { "Token token=#{user.authentication_token}" }
+        let(:body) { 'not valid binary' }
+
+        before { sign_in user }
+
+        run_test!
       end
 
       response '401', 'unauthorized' do
-        it('returns the documented response') { skip 'swagger doc' }
-      end
+        let(:uuid) { 'any-uuid' }
+        let(:Authorization) { 'Token token=invalid' }
+        let(:body) { "\x00" }
 
-      response '404', 'session not found' do
-        it('returns the documented response') { skip 'swagger doc' }
+        run_test!
       end
     end
   end

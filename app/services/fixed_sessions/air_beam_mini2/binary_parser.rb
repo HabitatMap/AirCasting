@@ -32,7 +32,7 @@ module FixedSessions
         offset = HEADER_SIZE
         count.times do
           ts, type_id, value = binary.byteslice(offset, MEASUREMENT_SIZE).unpack('NCg')
-          measurements << { epoch: ts, measurement_type_id: type_id, value: value }
+          measurements << { epoch: ts, sensor_type_id: type_id, value: value }
           offset += MEASUREMENT_SIZE
         end
         measurements

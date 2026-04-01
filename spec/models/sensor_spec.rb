@@ -11,13 +11,13 @@ RSpec.describe Sensor do
     end
   end
 
-  describe 'CANONICAL_MEASUREMENT_TYPE_IDS' do
-    it 'assigns stable integer IDs to standard sensor types' do
-      expect(described_class::CANONICAL_MEASUREMENT_TYPE_IDS['AirBeam-PM1']).to eq(1)
-      expect(described_class::CANONICAL_MEASUREMENT_TYPE_IDS['AirBeam-PM2.5']).to eq(2)
-      expect(described_class::CANONICAL_MEASUREMENT_TYPE_IDS['AirBeam-PM10']).to eq(3)
-      expect(described_class::CANONICAL_MEASUREMENT_TYPE_IDS['AirBeam-RH']).to eq(4)
-      expect(described_class::CANONICAL_MEASUREMENT_TYPE_IDS['AirBeam-F']).to eq(5)
+  describe 'CANONICAL_SENSOR_TYPE_IDS' do
+    it 'assigns stable integer IDs per canonical sensor name' do
+      expect(described_class::CANONICAL_SENSOR_TYPE_IDS['AirBeam-PM1']).to eq(1)
+      expect(described_class::CANONICAL_SENSOR_TYPE_IDS['AirBeam-PM2.5']).to eq(2)
+      expect(described_class::CANONICAL_SENSOR_TYPE_IDS['AirBeam-PM10']).to eq(3)
+      expect(described_class::CANONICAL_SENSOR_TYPE_IDS['AirBeam-RH']).to eq(4)
+      expect(described_class::CANONICAL_SENSOR_TYPE_IDS['AirBeam-F']).to eq(5)
     end
   end
 

@@ -65,6 +65,7 @@ RSpec.configure do |config|
   config.include Aircasting::ControllerHelpers, type: :controller
 
   config.include Devise::Test::ControllerHelpers, type: :controller
+  config.include Devise::Test::IntegrationHelpers, type: :request
 
   Shoulda::Matchers.configure do |config|
     config.integrate do |with|

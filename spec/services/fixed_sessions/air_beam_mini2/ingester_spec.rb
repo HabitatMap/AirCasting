@@ -16,7 +16,7 @@ RSpec.describe FixedSessions::AirBeamMini2::Ingester do
       measurement_type: 'Particulate Matter',
       measurement_short_type: 'PM',
       threshold_set: threshold_set,
-      measurement_type_id: 2,
+      sensor_type_id: 2,
       min_latitude: session.latitude,
       max_latitude: session.latitude,
       min_longitude: session.longitude,
@@ -29,7 +29,7 @@ RSpec.describe FixedSessions::AirBeamMini2::Ingester do
   def build_binary(measurements)
     count = measurements.size
     header = ['ABBA', count].pack('a4n')
-    body = measurements.map { |m| [m[:epoch], m[:measurement_type_id], m[:value]].pack('NCg') }.join
+    body = measurements.map { |m| [m[:epoch], m[:sensor_type_id], m[:value]].pack('NCg') }.join
     payload = header + body
     checksum = payload.bytes.inject(0, :^)
     payload + [checksum].pack('C')
@@ -39,7 +39,7 @@ RSpec.describe FixedSessions::AirBeamMini2::Ingester do
 
   describe '#call' do
     context 'with valid binary payload' do
-      let(:binary) { build_binary([{ epoch: epoch, measurement_type_id: 2, value: 25.5 }]) }
+      let(:binary) { build_binary([{ epoch: epoch, sensor_type_id: 2, value: 25.5 }]) }
 
       it 'returns Success' do
         result = ingester.call(uuid: session.uuid, binary: binary, user_id: user.id)
@@ -72,8 +72,8 @@ RSpec.describe FixedSessions::AirBeamMini2::Ingester do
     end
 
     context 'when the same measurement is sent twice' do
-      let(:binary) { build_binary([{ epoch: epoch, measurement_type_id: 2, value: 25.5 }]) }
-      let(:updated_binary) { build_binary([{ epoch: epoch, measurement_type_id: 2, value: 99.9 }]) }
+      let(:binary) { build_binary([{ epoch: epoch, sensor_type_id: 2, value: 25.5 }]) }
+      let(:updated_binary) { build_binary([{ epoch: epoch, sensor_type_id: 2, value: 99.9 }]) }
 
       it 'updates the value without creating a duplicate' do
         ingester.call(uuid: session.uuid, binary: binary, user_id: user.id)
@@ -84,19 +84,19 @@ RSpec.describe FixedSessions::AirBeamMini2::Ingester do
       end
     end
 
-    context 'with unknown measurement_type_id' do
-      let(:binary) { build_binary([{ epoch: epoch, measurement_type_id: 9, value: 1.0 }]) }
+    context 'with unknown sensor_type_id' do
+      let(:binary) { build_binary([{ epoch: epoch, sensor_type_id: 9, value: 1.0 }]) }
 
       it 'returns Failure' do
         result = ingester.call(uuid: session.uuid, binary: binary, user_id: user.id)
         expect(result).to be_failure
-        expect(result.errors[:base]).to include(match(/unknown measurement_type_id/))
+        expect(result.errors[:base]).to include(match(/unknown sensor_type_id/))
       end
     end
 
     context 'with invalid binary (bad checksum)' do
       let(:binary) do
-        good = build_binary([{ epoch: epoch, measurement_type_id: 2, value: 1.0 }])
+        good = build_binary([{ epoch: epoch, sensor_type_id: 2, value: 1.0 }])
         good[0..-2] + [(good.bytes.last ^ 0xFF)].pack('C')
       end
 
@@ -107,7 +107,7 @@ RSpec.describe FixedSessions::AirBeamMini2::Ingester do
     end
 
     context 'when session is not found' do
-      let(:binary) { build_binary([{ epoch: epoch, measurement_type_id: 2, value: 1.0 }]) }
+      let(:binary) { build_binary([{ epoch: epoch, sensor_type_id: 2, value: 1.0 }]) }
 
       it 'returns Failure' do
         result = ingester.call(uuid: 'nonexistent-uuid', binary: binary, user_id: user.id)
