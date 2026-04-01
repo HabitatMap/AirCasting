@@ -5,6 +5,7 @@ module Api
         before_action :authenticate_user_from_token!
         before_action :authenticate_session_from_token!
         before_action :require_authentication!
+        after_action :set_server_time_header
 
         def create
           binary = request.body.read
@@ -40,6 +41,10 @@ module Api
           return if current_user.present? || @authenticated_session.present?
 
           render json: { error: 'Unauthorized' }, status: :unauthorized
+        end
+
+        def set_server_time_header
+          response.set_header('X-Server-Time', Time.now.to_i.to_s)
         end
 
         def bearer_token
