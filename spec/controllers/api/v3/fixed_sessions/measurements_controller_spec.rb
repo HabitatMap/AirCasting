@@ -2,7 +2,7 @@ require 'rails_helper'
 
 RSpec.describe Api::V3::FixedSessions::MeasurementsController do
   let(:user) { create(:user) }
-  let(:session) { create(:fixed_session, user: user, time_zone: 'UTC') }
+  let(:session) { create(:fixed_session, user: user, time_zone: 'UTC', session_token: 'test-session-token-abc') }
   let(:threshold_set) { create(:threshold_set) }
   let(:stream) do
     Stream.create!(
@@ -70,6 +70,40 @@ RSpec.describe Api::V3::FixedSessions::MeasurementsController do
       end
       post :create, params: { fixed_session_uuid: session.uuid }
       expect(response).to have_http_status(:bad_request)
+    end
+
+    it 'returns 404 when session does not belong to user' do
+      other_session = create(:fixed_session, user: create(:user))
+      allow(controller).to receive(:request).and_wrap_original do |m|
+        req = m.call
+        allow(req).to receive_message_chain(:body, :read).and_return(binary)
+        req
+      end
+      post :create, params: { fixed_session_uuid: other_session.uuid }
+      expect(response).to have_http_status(:not_found)
+    end
+
+    context 'authenticated via Bearer session token (AirBeam)' do
+      before do
+        sign_out user
+        request.headers['Authorization'] = "Bearer #{session.session_token}"
+      end
+
+      it 'returns 200 for valid binary' do
+        allow(controller).to receive(:request).and_wrap_original do |m|
+          req = m.call
+          allow(req).to receive_message_chain(:body, :read).and_return(binary)
+          req
+        end
+        post :create, params: { fixed_session_uuid: session.uuid }
+        expect(response).to have_http_status(:ok)
+      end
+
+      it 'returns 401 for an invalid session token' do
+        request.headers['Authorization'] = 'Bearer wrong-token'
+        post :create, params: { fixed_session_uuid: session.uuid }
+        expect(response).to have_http_status(:unauthorized)
+      end
     end
   end
 end

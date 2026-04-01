@@ -3,53 +3,51 @@ module FixedSessions
     class Ingester
       def initialize(
         parser: BinaryParser.new,
-        stream_daily_averages_recalculator: FixedStreaming::StreamDailyAveragesRecalculator.new,
-        stream_hourly_averages_recalculator: FixedStreaming::StreamHourlyAveragesRecalculator.new
+        streams_repository: StreamsRepository.new,
+        fixed_measurements_repository: FixedMeasurementsRepository.new,
+        fixed_sessions_repository: FixedSessionsRepository.new
       )
         @parser = parser
-        @stream_daily_averages_recalculator = stream_daily_averages_recalculator
-        @stream_hourly_averages_recalculator = stream_hourly_averages_recalculator
+        @streams_repository = streams_repository
+        @fixed_measurements_repository = fixed_measurements_repository
+        @fixed_sessions_repository = fixed_sessions_repository
       end
 
-      def call(uuid:, binary:, user_id:, sync: false)
+      def call(session:, binary:)
         measurements = parser.call(binary)
       rescue BinaryParser::ParseError => e
         return Failure.new(base: [e.message])
       else
-        ingest(uuid: uuid, user_id: user_id, measurements: measurements, sync: sync)
+        ingest(session: session, measurements: measurements)
       end
 
       private
 
-      attr_reader :parser, :stream_daily_averages_recalculator, :stream_hourly_averages_recalculator
+      attr_reader :parser, :streams_repository, :fixed_measurements_repository, :fixed_sessions_repository
 
-      def ingest(uuid:, user_id:, measurements:, sync:)
-        session = FixedSession.find_by(uuid: uuid, user_id: user_id)
-        return Failure.new(base: ['session not found']) unless session
-
+      def ingest(session:, measurements:)
         grouped = measurements.group_by { |m| m[:sensor_type_id] }
 
         ActiveRecord::Base.transaction do
+          all_records = []
+
           grouped.each do |type_id, type_measurements|
-            stream = Stream.find_by(session_id: session.id, sensor_type_id: type_id)
+            stream = streams_repository.find_by_session_id_and_sensor_type_id(
+              session_id: session.id,
+              sensor_type_id: type_id,
+            )
             return Failure.new(base: ["unknown sensor_type_id: #{type_id}"]) unless stream
 
             records = build_records(type_measurements, session, stream)
-
-            FixedMeasurement.import(
-              records,
-              on_duplicate_key_update: {
-                conflict_target: %i[stream_id time_with_time_zone],
-                columns: %i[value updated_at],
-              },
-            )
-
-            recalculate_averages(stream, records) if sync
+            fixed_measurements_repository.import(measurements: records, on_duplicate_key_ignore: true)
+            all_records.concat(records)
           end
 
-          max_epoch = measurements.map { |m| m[:epoch] }.max
-          max_time = Time.at(max_epoch).utc
-          session.update!(end_time_local: max_time, last_measurement_at: Time.current)
+          last_measurement = all_records.max_by(&:time_with_time_zone)
+          fixed_sessions_repository.update_end_timestamps!(
+            session: session,
+            last_measurement: last_measurement,
+          )
         end
 
         Success.new('measurements ingested')
@@ -69,18 +67,6 @@ module FixedSessions
             time_with_time_zone: local,
           )
         end
-      end
-
-      def recalculate_averages(stream, records)
-        stream_daily_averages_recalculator.call(
-          measurements: records,
-          time_zone: stream.session.time_zone,
-          stream_id: stream.id,
-        )
-        stream_hourly_averages_recalculator.call(
-          measurements: records,
-          stream_id: stream.id,
-        )
       end
     end
   end

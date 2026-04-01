@@ -20,6 +20,7 @@ module Api
           session = result.value[:session]
           render json: {
             location: short_session_url(session, host: A9n.host_),
+            session_token: result.value[:session_token],
             streams: result.value[:streams],
           }, status: :created
         else

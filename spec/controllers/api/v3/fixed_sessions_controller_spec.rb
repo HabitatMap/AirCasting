@@ -28,6 +28,7 @@ RSpec.describe Api::V3::FixedSessionsController do
       body = JSON.parse(response.body)
       expect(body['streams'].first['sensor_type_id']).to eq(2)
       expect(body['location']).to be_present
+      expect(body['session_token']).to be_present
     end
 
     it 'creates a FixedSession' do
