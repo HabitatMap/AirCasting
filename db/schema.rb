@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2026_03_19_115908) do
+ActiveRecord::Schema[7.0].define(version: 2026_03_31_000001) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
   enable_extension "postgis"
@@ -381,7 +381,7 @@ ActiveRecord::Schema[7.0].define(version: 2026_03_19_115908) do
     t.decimal "start_latitude", precision: 12, scale: 9
     t.integer "threshold_set_id", null: false
     t.bigint "last_hourly_average_id"
-    t.integer "measurement_type_id"
+    t.integer "sensor_type_id"
     t.index ["last_hourly_average_id"], name: "index_streams_on_last_hourly_average_id"
     t.index ["max_latitude"], name: "index_streams_on_max_latitude"
     t.index ["max_longitude"], name: "index_streams_on_max_longitude"
@@ -390,7 +390,7 @@ ActiveRecord::Schema[7.0].define(version: 2026_03_19_115908) do
     t.index ["sensor_name", "measurement_type"], name: "index_streams_on_sensor_name_and_measurement_type"
     t.index ["sensor_name"], name: "index_streams_on_sensor_name"
     t.index ["sensor_package_name"], name: "index_streams_on_sensor_package_name"
-    t.index ["session_id", "measurement_type_id"], name: "idx_streams_session_measurement_type_id", unique: true, where: "(measurement_type_id IS NOT NULL)"
+    t.index ["session_id", "sensor_type_id"], name: "idx_streams_session_sensor_type_id", unique: true, where: "(sensor_type_id IS NOT NULL)"
     t.index ["session_id"], name: "index_streams_on_session_id"
     t.index ["threshold_set_id"], name: "index_streams_on_threshold_set_id"
   end
