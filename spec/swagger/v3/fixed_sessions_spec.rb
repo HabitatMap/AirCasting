@@ -175,6 +175,9 @@ RSpec.describe 'AirBeamMini2 Fixed Sessions', type: :request do
 
         **Resend behaviour:** sending a measurement with an already-stored
         `(stream_id, time_with_time_zone)` pair is silently ignored — no duplicate is created.
+
+        **Time synchronisation:** an empty body is valid and returns 200 immediately. The AirBeam
+        uses this to read the current server time from response headers when its clock drifts.
       DESC
 
       parameter name: :uuid, in: :path, type: :string, required: true,
@@ -231,12 +234,29 @@ RSpec.describe 'AirBeamMini2 Fixed Sessions', type: :request do
         run_test!
       end
 
-      response '400', 'invalid payload or session/stream not found' do
+      response '400', 'invalid payload or unknown sensor_type_id' do
+        schema type: :object,
+               properties: { base: { type: :array, items: { type: :string } } }
+
         let(:user) { create(:user) }
         let(:session) { create(:fixed_session, user: user) }
         let(:uuid) { session.uuid }
         let(:Authorization) { "Token token=#{user.authentication_token}" }
         let(:body) { 'not valid binary' }
+
+        before { sign_in user }
+
+        run_test!
+      end
+
+      response '404', 'session not found' do
+        schema type: :object,
+               properties: { error: { type: :string } }
+
+        let(:user) { create(:user) }
+        let(:uuid) { 'non-existent-uuid' }
+        let(:Authorization) { "Token token=#{user.authentication_token}" }
+        let(:body) { build_measurement_binary(type_id: 1) }
 
         before { sign_in user }
 

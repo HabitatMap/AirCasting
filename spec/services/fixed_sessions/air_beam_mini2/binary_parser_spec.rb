@@ -80,5 +80,39 @@ RSpec.describe FixedSessions::AirBeamMini2::BinaryParser do
         expect { parser.call(binary) }.to raise_error(described_class::ParseError, /zero/)
       end
     end
+
+    context 'with epoch zero in a frame' do
+      let(:binary) { build_binary([{ epoch: 0, sensor_type_id: 2, value: 1.0 }]) }
+
+      it 'raises ParseError' do
+        expect { parser.call(binary) }.to raise_error(described_class::ParseError, /invalid epoch.*zero/)
+      end
+    end
+
+    context 'with epoch more than 24 hours in the future' do
+      let(:binary) { build_binary([{ epoch: Time.current.to_i + 90_000, sensor_type_id: 2, value: 1.0 }]) }
+
+      it 'raises ParseError' do
+        expect { parser.call(binary) }.to raise_error(described_class::ParseError, /invalid epoch.*future/)
+      end
+    end
+
+    context 'with a non-finite value (Infinity bytes)' do
+      let(:binary) do
+        # IEEE 754 big-endian positive infinity: 0x7F800000
+        inf_bytes = [0x7F800000].pack('N')
+        count = 1
+        epoch = 1_711_619_400
+        header = ['ABBA', count].pack('a4n')
+        frame = [epoch, 2].pack('NC') + inf_bytes
+        payload = header + frame
+        checksum = payload.bytes.inject(0, :^)
+        payload + [checksum].pack('C')
+      end
+
+      it 'raises ParseError' do
+        expect { parser.call(binary) }.to raise_error(described_class::ParseError, /not a finite number/)
+      end
+    end
   end
 end

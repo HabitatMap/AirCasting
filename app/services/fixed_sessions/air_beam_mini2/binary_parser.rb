@@ -30,8 +30,11 @@ module FixedSessions
       def parse_measurements(binary, count)
         measurements = []
         offset = HEADER_SIZE
-        count.times do
+        count.times do |i|
           ts, type_id, value = binary.byteslice(offset, MEASUREMENT_SIZE).unpack('NCg')
+          raise ParseError, "invalid epoch in frame #{i}: must be greater than zero" if ts.zero?
+          raise ParseError, "invalid epoch in frame #{i}: implausibly far in the future" if ts > Time.current.to_i + 86_400
+          raise ParseError, "invalid value in frame #{i}: not a finite number" unless value.finite?
           measurements << { epoch: ts, sensor_type_id: type_id, value: value }
           offset += MEASUREMENT_SIZE
         end

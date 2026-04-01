@@ -7,10 +7,11 @@ module Api
         before_action :require_authentication!
 
         def create
+          binary = request.body.read
+          return head :ok if binary.empty?
+
           session = @authenticated_session || find_session_for_user
           return render json: { error: 'session not found' }, status: :not_found unless session
-
-          binary = request.body.read
           result = ::FixedSessions::AirBeamMini2::Ingester.new.call(
             session: session,
             binary: binary,

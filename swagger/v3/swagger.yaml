@@ -182,6 +182,9 @@ paths:
 
         **Resend behaviour:** sending a measurement with an already-stored
         `(stream_id, time_with_time_zone)` pair is silently ignored — no duplicate is created.
+
+        **Time synchronisation:** an empty body is valid and returns 200 immediately. The AirBeam
+        uses this to read the current server time from response headers when its clock drifts.
       parameters:
       - name: uuid
         in: path
@@ -200,7 +203,25 @@ paths:
         '200':
           description: measurements stored
         '400':
-          description: invalid payload or session/stream not found
+          description: invalid payload or unknown sensor_type_id
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  base:
+                    type: array
+                    items:
+                      type: string
+        '404':
+          description: session not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
         '401':
           description: unauthorized
       requestBody:
