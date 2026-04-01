@@ -32,6 +32,7 @@ RSpec.describe 'AirBeamMini2 Fixed Sessions', type: :request do
           latitude: { type: :number, format: :float, example: 40.7128 },
           longitude: { type: :number, format: :float, example: -74.0060 },
           contribute: { type: :boolean, example: true },
+          is_indoor: { type: :boolean, nullable: true, example: false, description: 'Whether the sensor is deployed indoors. Defaults to false when omitted.' },
           airbeam: {
             type: :object,
             required: %w[mac_address model],
@@ -180,7 +181,7 @@ RSpec.describe 'AirBeamMini2 Fixed Sessions', type: :request do
                 description: 'Session UUID (same as used in session creation)'
 
       parameter name: :Authorization, in: :header, type: :string, required: true,
-                description: 'Token token=<user_token>'
+                description: 'Mobile app: `Token token=<user_token>`. AirBeam: `Bearer <session_token>` (returned by session creation endpoint).'
 
       parameter name: :body, in: :body, required: true, schema: {
         type: :string,

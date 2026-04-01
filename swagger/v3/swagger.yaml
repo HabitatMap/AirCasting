@@ -21,7 +21,7 @@ paths:
       - AirBeamMini2
       description: |
         Creates a new fixed session for an AirBeamMini2 device. The mobile app calls this
-        before configuring the AirBeam. The response includes a `measurement_type_id` per
+        before configuring the AirBeam. The response includes a `sensor_type_id` per
         stream that the AirBeam uses to identify stream types in the binary upload payload.
       parameters:
       - name: Authorization
@@ -31,7 +31,7 @@ paths:
         schema:
           type: string
       responses:
-        '200':
+        '201':
           description: session created
           content:
             application/json:
@@ -39,44 +39,44 @@ paths:
                 type: object
                 required:
                 - location
+                - session_token
                 - streams
                 properties:
                   location:
                     type: string
                     example: http://aircasting.org/s/ab12c
+                  session_token:
+                    type: string
+                    description: Bearer token for AirBeam measurement uploads. The
+                      mobile app passes this to the AirBeam over BLE after session
+                      creation.
+                    example: a3f2c1d4e5b6a7f8c9d0e1f2a3b4c5d6
                   streams:
                     type: array
                     items:
                       type: object
                       required:
-                      - measurement_type
-                      - unit
-                      - measurement_type_id
+                      - sensor_name
+                      - sensor_type_id
                       properties:
-                        measurement_type:
+                        sensor_name:
                           type: string
-                          example: Particulate Matter
-                        unit:
-                          type: string
-                          example: µg/m³
-                        measurement_type_id:
+                          example: AirBeam-PM2.5
+                        sensor_type_id:
                           type: integer
                           description: Compact numeric ID used by the AirBeam in the
                             binary upload format to identify this stream
-                          example: 1
+                          example: 2
         '400':
           description: validation error
           content:
             application/json:
               schema:
                 type: object
-                properties:
-                  errors:
-                    type: object
-                    additionalProperties:
-                      type: array
-                      items:
-                        type: string
+                additionalProperties:
+                  type: array
+                  items:
+                    type: string
         '401':
           description: unauthorized
       requestBody:
@@ -111,6 +111,12 @@ paths:
                 contribute:
                   type: boolean
                   example: true
+                is_indoor:
+                  type: boolean
+                  nullable: true
+                  example: false
+                  description: Whether the sensor is deployed indoors. Defaults to
+                    false when omitted.
                 airbeam:
                   type: object
                   required:
@@ -133,20 +139,23 @@ paths:
                   items:
                     type: object
                     required:
-                    - measurement_type
-                    - unit
+                    - sensor_name
+                    - unit_symbol
                     properties:
-                      measurement_type:
+                      sensor_name:
                         type: string
-                        example: Particulate Matter
-                      unit:
+                        description: Sensor name as reported by the device (e.g. AirBeamMini2-PM1,
+                          AirBeamMini2-PM2.5)
+                        example: AirBeamMini2-PM2.5
+                      unit_symbol:
                         type: string
+                        description: Unit symbol for this sensor (e.g. µg/m³, %, F)
                         example: µg/m³
                   example:
-                  - measurement_type: Particulate Matter
-                    unit: µg/m³
-                  - measurement_type: Particulate Matter
-                    unit: µg/m³
+                  - sensor_name: AirBeamMini2-PM1
+                    unit_symbol: µg/m³
+                  - sensor_name: AirBeamMini2-PM2.5
+                    unit_symbol: µg/m³
         required: true
   "/api/v3/fixed_sessions/{uuid}/measurements":
     post:
@@ -155,9 +164,9 @@ paths:
       - AirBeamMini2
       description: |
         Receives a binary measurement payload from the AirBeamMini2. Can be called once per
-        minute for live uploads or once (with many measurements) for sync after connectivity loss.
+        minute for live uploads or in bulk after connectivity loss — both are handled identically.
 
-        ## Binary Format (big-endian)
+        ## Binary Format
 
         ```
         Offset     Size  Type        Description
@@ -165,17 +174,14 @@ paths:
         4          2     uint16 BE   Measurement count N
         --- repeated N times ---
         6+i*9      4     uint32 BE   Unix timestamp (seconds since epoch, UTC)
-        10+i*9     1     uint8       measurement_type_id (returned by session creation endpoint)
+        10+i*9     1     uint8       sensor_type_id (returned by session creation endpoint)
         11+i*9     4     float32 BE  Sensor value
         --- end repeat ---
         6+N*9      1     uint8       XOR checksum of all preceding bytes
         ```
 
-        **Resend / sync behaviour:** sending a measurement with an already-stored
-        `(stream_id, time_with_time_zone)` pair updates the stored value (upsert).
-
-        **Averages:** pass `sync=true` to trigger daily and hourly average recalculation
-        after bulk uploads. Not needed for regular live 1-per-minute uploads.
+        **Resend behaviour:** sending a measurement with an already-stored
+        `(stream_id, time_with_time_zone)` pair is silently ignored — no duplicate is created.
       parameters:
       - name: uuid
         in: path
@@ -186,24 +192,17 @@ paths:
       - name: Authorization
         in: header
         required: true
-        description: Token token=<user_token>
+        description: 'Mobile app: `Token token=<user_token>`. AirBeam: `Bearer <session_token>`
+          (returned by session creation endpoint).'
         schema:
           type: string
-      - name: sync
-        in: query
-        required: false
-        description: Set to true to trigger average recalculation after bulk upload
-        schema:
-          type: boolean
       responses:
         '200':
           description: measurements stored
         '400':
-          description: invalid binary payload (bad magic, checksum, or unknown measurement_type_id)
+          description: invalid payload or session/stream not found
         '401':
           description: unauthorized
-        '404':
-          description: session not found
       requestBody:
         content:
           application/octet-stream:
