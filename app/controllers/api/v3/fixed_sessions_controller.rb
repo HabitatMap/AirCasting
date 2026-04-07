@@ -1,7 +1,7 @@
 module Api
   module V3
     class FixedSessionsController < BaseController
-      ErrorCodes = ::FixedSessions::AirBeamMini2::ErrorCodes
+      ErrorCodes = ::FixedSessions::BinaryProtocol::ErrorCodes
       before_action :authenticate_user_from_token!
       before_action :authenticate_user!
 

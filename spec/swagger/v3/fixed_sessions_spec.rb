@@ -1,6 +1,6 @@
 require 'swagger_helper'
 
-RSpec.describe 'AirBeamMini2 Fixed Sessions', type: :request do
+RSpec.describe 'AirBeam Fixed Sessions', type: :request do
   def build_measurement_binary(type_id:, epoch: Time.current.to_i, value: 12.5)
     header = ['ABBA', 1].pack('a4n')
     measurement = [epoch, type_id, value].pack('NCg')
@@ -19,12 +19,12 @@ RSpec.describe 'AirBeamMini2 Fixed Sessions', type: :request do
   }.freeze
 
   path '/api/v3/fixed_sessions' do
-    post 'Create a new AirBeamMini2 fixed session' do
-      tags 'AirBeamMini2'
+    post 'Create a new AirBeam fixed session' do
+      tags 'AirBeam'
       consumes 'application/json'
       produces 'application/json'
       description <<~DESC
-        Creates a new fixed session for an AirBeamMini2 device. The mobile app calls this
+        Creates a new fixed session for an AirBeam device. The mobile app calls this
         before configuring the AirBeam. The response includes a `sensor_type_id` per
         stream that the AirBeam uses to identify stream types in the binary upload payload.
 
@@ -178,12 +178,12 @@ RSpec.describe 'AirBeamMini2 Fixed Sessions', type: :request do
   end
 
   path '/api/v3/fixed_sessions/{uuid}/measurements' do
-    post 'Upload binary measurements for an AirBeamMini2 session' do
-      tags 'AirBeamMini2'
+    post 'Upload binary measurements for an AirBeam session' do
+      tags 'AirBeam'
       consumes 'application/octet-stream'
       produces 'application/json'
       description <<~DESC
-        Receives a binary measurement payload from the AirBeamMini2. Can be called once per
+        Receives a binary measurement payload from the AirBeam. Can be called once per
         minute for live uploads or in bulk after connectivity loss — both are handled identically.
 
         ## Binary Format

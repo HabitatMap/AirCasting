@@ -10,9 +10,9 @@ module FixedSessions
         Success.new(session: session, session_token: session.session_token, streams: streams)
       end
     rescue UnknownStreamTypeError => e
-      Failure.new(error_code: AirBeamMini2::ErrorCodes::UNSUPPORTED_SENSOR_TYPE, message: e.message)
+      Failure.new(error_code: BinaryProtocol::ErrorCodes::UNSUPPORTED_SENSOR_TYPE, message: e.message)
     rescue ActiveRecord::RecordInvalid, ActiveRecord::RecordNotFound => e
-      Failure.new(error_code: AirBeamMini2::ErrorCodes::INTERNAL_ERROR, message: e.message)
+      Failure.new(error_code: BinaryProtocol::ErrorCodes::INTERNAL_ERROR, message: e.message)
     end
 
     private

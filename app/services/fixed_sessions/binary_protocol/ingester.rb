@@ -1,8 +1,8 @@
 module FixedSessions
-  module AirBeamMini2
+  module BinaryProtocol
     class Ingester
       def initialize(
-        parser: BinaryParser.new,
+        parser: Parser.new,
         streams_repository: StreamsRepository.new,
         fixed_measurements_repository: FixedMeasurementsRepository.new,
         fixed_sessions_repository: FixedSessionsRepository.new,
@@ -19,7 +19,7 @@ module FixedSessions
 
       def call(session:, binary:)
         measurements = parser.call(binary)
-      rescue BinaryParser::ParseError => e
+      rescue Parser::ParseError => e
         return Failure.new(error_code: e.error_code, message: e.message)
       else
         ingest(session: session, measurements: measurements)

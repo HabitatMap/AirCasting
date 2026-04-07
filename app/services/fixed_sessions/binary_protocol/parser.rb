@@ -1,6 +1,6 @@
 module FixedSessions
-  module AirBeamMini2
-    class BinaryParser
+  module BinaryProtocol
+    class Parser
       MAGIC = 'ABBA'
       HEADER_SIZE = 6  # 4 bytes magic + 2 bytes uint16 count
       MEASUREMENT_SIZE = 9  # 4 bytes uint32 epoch + 1 byte uint8 type_id + 4 bytes float32 value

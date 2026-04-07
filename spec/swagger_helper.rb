@@ -9,7 +9,7 @@ RSpec.configure do |config|
       info: {
         title: 'AirCasting API V3',
         version: 'v3',
-        description: 'API endpoints for AirBeamMini2 devices and mobile apps',
+        description: 'API endpoints for AirBeam devices and mobile apps',
       },
       components: {
         securitySchemes: {

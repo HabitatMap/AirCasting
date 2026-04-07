@@ -1,5 +1,5 @@
 module FixedSessions
-  module AirBeamMini2
+  module BinaryProtocol
     module ErrorCodes
       UNKNOWN_SENSOR_TYPE_ID  = 'unknown_sensor_type_id'
       UNSUPPORTED_SENSOR_TYPE = 'unsupported_sensor_type'
