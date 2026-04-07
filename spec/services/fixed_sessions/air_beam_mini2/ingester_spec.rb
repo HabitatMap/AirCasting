@@ -1,7 +1,14 @@
 require 'rails_helper'
 
 RSpec.describe FixedSessions::AirBeamMini2::Ingester do
-  subject(:ingester) { described_class.new }
+  let(:daily_recalculator) { instance_double(FixedStreaming::StreamDailyAveragesRecalculator, call: nil) }
+  let(:hourly_recalculator) { instance_double(FixedStreaming::StreamHourlyAveragesRecalculator, call: nil) }
+  subject(:ingester) do
+    described_class.new(
+      daily_averages_recalculator: daily_recalculator,
+      hourly_averages_recalculator: hourly_recalculator,
+    )
+  end
 
   let(:user) { create(:user) }
   let(:session) { create(:fixed_session, user: user, time_zone: 'UTC') }
@@ -68,6 +75,81 @@ RSpec.describe FixedSessions::AirBeamMini2::Ingester do
         ingester.call(session: session, binary: binary)
         session.reload
         expect(session.last_measurement_at).not_to be_nil
+      end
+
+      describe 'averages recalculation heuristic' do
+        # Pin time to 14:30 so we can construct epochs relative to it reliably
+        around { |example| travel_to(Time.zone.parse('2026-04-07 14:30:00')) { example.run } }
+
+        context 'when measurement is from the current hour (live push)' do
+          let(:binary) { build_binary([{ epoch: Time.current.to_i - 30, sensor_type_id: 2, value: 1.0 }]) }
+
+          it 'does not recalculate hourly averages' do
+            expect(hourly_recalculator).not_to receive(:call)
+            ingester.call(session: session, binary: binary)
+          end
+
+          it 'does not recalculate daily averages' do
+            expect(daily_recalculator).not_to receive(:call)
+            ingester.call(session: session, binary: binary)
+          end
+        end
+
+        context 'when measurement is at exactly the current hour boundary (belongs to previous bucket)' do
+          let(:binary) { build_binary([{ epoch: Time.current.beginning_of_hour.to_i, sensor_type_id: 2, value: 1.0 }]) }
+
+          it 'recalculates hourly averages' do
+            expect(hourly_recalculator).to receive(:call).with(hash_including(stream_id: stream.id))
+            ingester.call(session: session, binary: binary)
+          end
+        end
+
+        context 'when measurement is from a previous hour but the same day' do
+          let(:binary) { build_binary([{ epoch: Time.current.beginning_of_hour.to_i - 60, sensor_type_id: 2, value: 1.0 }]) }
+
+          it 'recalculates hourly averages' do
+            expect(hourly_recalculator).to receive(:call).with(hash_including(stream_id: stream.id))
+            ingester.call(session: session, binary: binary)
+          end
+
+          it 'does not recalculate daily averages' do
+            expect(daily_recalculator).not_to receive(:call)
+            ingester.call(session: session, binary: binary)
+          end
+        end
+
+        context 'when measurement is at exactly the day boundary (belongs to previous day)' do
+          let(:binary) { build_binary([{ epoch: Time.current.beginning_of_day.to_i, sensor_type_id: 2, value: 1.0 }]) }
+
+          it 'recalculates daily averages' do
+            expect(daily_recalculator).to receive(:call).with(hash_including(stream_id: stream.id))
+            ingester.call(session: session, binary: binary)
+          end
+        end
+
+        context 'when measurement is from a previous day' do
+          let(:binary) { build_binary([{ epoch: Time.current.beginning_of_day.to_i - 60, sensor_type_id: 2, value: 1.0 }]) }
+
+          it 'recalculates hourly averages' do
+            expect(hourly_recalculator).to receive(:call).with(hash_including(stream_id: stream.id))
+            ingester.call(session: session, binary: binary)
+          end
+
+          it 'recalculates daily averages' do
+            expect(daily_recalculator).to receive(:call).with(hash_including(stream_id: stream.id))
+            ingester.call(session: session, binary: binary)
+          end
+        end
+      end
+
+      context 'when measurements are earlier than session start_time_local' do
+        let(:early_epoch) { session.start_time_local.to_i - 3600 }
+        let(:binary) { build_binary([{ epoch: early_epoch, sensor_type_id: 2, value: 5.0 }]) }
+
+        it 'updates start_time_local to the earlier measurement time' do
+          ingester.call(session: session, binary: binary)
+          expect(session.reload.start_time_local).to be_within(1.second).of(Time.at(early_epoch).utc)
+        end
       end
     end
 
