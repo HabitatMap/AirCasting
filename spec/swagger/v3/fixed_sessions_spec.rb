@@ -222,7 +222,6 @@ RSpec.describe 'AirBeam Fixed Sessions', type: :request do
         | `invalid_checksum` | 400 | XOR checksum of payload does not match the final byte |
         | `invalid_epoch` | 400 | A frame's timestamp is zero or implausibly far in the future |
         | `invalid_value` | 400 | A frame's sensor value is NaN or Infinity |
-        | `unknown_sensor_type_id` | 400 | A frame's `sensor_type_id` is not registered for this session |
       DESC
 
       parameter name: :uuid, in: :path, type: :string, required: true,

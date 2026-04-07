@@ -167,11 +167,15 @@ RSpec.describe FixedSessions::BinaryProtocol::Ingester do
     context 'with unknown sensor_type_id' do
       let(:binary) { build_binary([{ epoch: epoch, sensor_type_id: 9, value: 1.0 }]) }
 
-      it 'returns Failure with error_code unknown_sensor_type_id' do
+      it 'returns Success (unknown streams are silently ignored)' do
         result = ingester.call(session: session, binary: binary)
-        expect(result).to be_failure
-        expect(result.errors[:error_code]).to eq('unknown_sensor_type_id')
-        expect(result.errors[:message]).to match(/sensor_type_id 9/)
+        expect(result).to be_success
+      end
+
+      it 'does not create any measurements' do
+        expect {
+          ingester.call(session: session, binary: binary)
+        }.not_to change(FixedMeasurement, :count)
       end
     end
 
