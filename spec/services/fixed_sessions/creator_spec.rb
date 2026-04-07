@@ -11,10 +11,10 @@ RSpec.describe FixedSessions::Creator do
       latitude: 40.7128,
       longitude: -74.0060,
       contribute: true,
-      airbeam: { mac_address: 'AA:BB:CC:DD:EE:FF', model: 'AirBeamMini2' },
+      airbeam: { mac_address: 'AA:BB:CC:DD:EE:FF', model: 'AirBeamMini' },
       streams: [
-        { sensor_name: 'AirBeamMini2-PM1', unit_symbol: 'µg/m³' },
-        { sensor_name: 'AirBeamMini2-PM2.5', unit_symbol: 'µg/m³' },
+        { sensor_name: 'AirBeamMini-PM1', unit_symbol: 'µg/m³' },
+        { sensor_name: 'AirBeamMini-PM2.5', unit_symbol: 'µg/m³' },
       ],
     }
   end
@@ -70,7 +70,7 @@ RSpec.describe FixedSessions::Creator do
     end
 
     it 'does not overwrite device name when name is absent from request' do
-      device = Device.create!(mac_address: 'AA:BB:CC:DD:EE:FF', model: 'AirBeamMini2', name: 'Existing Name')
+      device = Device.create!(mac_address: 'AA:BB:CC:DD:EE:FF', model: 'AirBeamMini', name: 'Existing Name')
       creator.call(data: valid_params, user: user)
       expect(device.reload.name).to eq('Existing Name')
     end

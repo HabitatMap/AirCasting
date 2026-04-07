@@ -17,8 +17,8 @@ RSpec.describe Api::V3::FixedSessionsController do
         latitude: 40.7128,
         longitude: -74.0060,
         contribute: true,
-        airbeam: { mac_address: 'AA:BB:CC:DD:EE:FF', model: 'AirBeamMini2' },
-        streams: [{ sensor_name: 'AirBeamMini2-PM2.5', unit_symbol: 'µg/m³' }],
+        airbeam: { mac_address: 'AA:BB:CC:DD:EE:FF', model: 'AirBeamMini' },
+        streams: [{ sensor_name: 'AirBeamMini-PM2.5', unit_symbol: 'µg/m³' }],
       }
     end
 

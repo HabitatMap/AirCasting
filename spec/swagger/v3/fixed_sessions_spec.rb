@@ -54,7 +54,7 @@ RSpec.describe 'AirBeam Fixed Sessions', type: :request do
             required: %w[mac_address model],
             properties: {
               mac_address: { type: :string, example: 'AA:BB:CC:DD:EE:FF' },
-              model: { type: :string, example: 'AirBeamMini2' },
+              model: { type: :string, example: 'AirBeamMini' },
               name: { type: :string, nullable: true, example: 'Roof sensor' },
             },
           },
@@ -67,8 +67,8 @@ RSpec.describe 'AirBeam Fixed Sessions', type: :request do
               properties: {
                 sensor_name: {
                   type: :string,
-                  description: 'Sensor name as reported by the device (e.g. AirBeamMini2-PM1, AirBeamMini2-PM2.5)',
-                  example: 'AirBeamMini2-PM2.5',
+                  description: 'Sensor name as reported by the device (e.g. AirBeamMini-PM1, AirBeamMini-PM2.5)',
+                  example: 'AirBeamMini-PM2.5',
                 },
                 unit_symbol: {
                   type: :string,
@@ -78,8 +78,8 @@ RSpec.describe 'AirBeam Fixed Sessions', type: :request do
               },
             },
             example: [
-              { sensor_name: 'AirBeamMini2-PM1', unit_symbol: 'µg/m³' },
-              { sensor_name: 'AirBeamMini2-PM2.5', unit_symbol: 'µg/m³' },
+              { sensor_name: 'AirBeamMini-PM1', unit_symbol: 'µg/m³' },
+              { sensor_name: 'AirBeamMini-PM2.5', unit_symbol: 'µg/m³' },
             ],
           },
         },
@@ -131,10 +131,10 @@ RSpec.describe 'AirBeam Fixed Sessions', type: :request do
             latitude: 40.7128,
             longitude: -74.0060,
             contribute: true,
-            airbeam: { mac_address: 'AA:BB:CC:DD:EE:FF', model: 'AirBeamMini2' },
+            airbeam: { mac_address: 'AA:BB:CC:DD:EE:FF', model: 'AirBeamMini' },
             streams: [
-              { sensor_name: 'AirBeamMini2-PM1', unit_symbol: 'µg/m³' },
-              { sensor_name: 'AirBeamMini2-PM2.5', unit_symbol: 'µg/m³' },
+              { sensor_name: 'AirBeamMini-PM1', unit_symbol: 'µg/m³' },
+              { sensor_name: 'AirBeamMini-PM2.5', unit_symbol: 'µg/m³' },
             ],
           }
         end
