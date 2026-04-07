@@ -2,12 +2,12 @@ require 'rails_helper'
 
 RSpec.describe Sensor do
   describe 'CANONICAL_SENSOR_NAME_MAP' do
-    it 'maps AirBeamMini2 sensor names to canonical names' do
-      expect(described_class::CANONICAL_SENSOR_NAME_MAP['AirBeamMini2-PM2.5']).to eq('AirBeam-PM2.5')
-      expect(described_class::CANONICAL_SENSOR_NAME_MAP['AirBeamMini2-PM1']).to eq('AirBeam-PM1')
-      expect(described_class::CANONICAL_SENSOR_NAME_MAP['AirBeamMini2-PM10']).to eq('AirBeam-PM10')
-      expect(described_class::CANONICAL_SENSOR_NAME_MAP['AirBeamMini2-RH']).to eq('AirBeam-RH')
-      expect(described_class::CANONICAL_SENSOR_NAME_MAP['AirBeamMini2-F']).to eq('AirBeam-F')
+    it 'maps AirBeamMini sensor names to canonical names' do
+      expect(described_class::CANONICAL_SENSOR_NAME_MAP['AirBeamMini-PM2.5']).to eq('AirBeam-PM2.5')
+      expect(described_class::CANONICAL_SENSOR_NAME_MAP['AirBeamMini-PM1']).to eq('AirBeam-PM1')
+      expect(described_class::CANONICAL_SENSOR_NAME_MAP['AirBeamMini-PM10']).to eq('AirBeam-PM10')
+      expect(described_class::CANONICAL_SENSOR_NAME_MAP['AirBeamMini-RH']).to eq('AirBeam-RH')
+      expect(described_class::CANONICAL_SENSOR_NAME_MAP['AirBeamMini-F']).to eq('AirBeam-F')
     end
   end
 
@@ -22,8 +22,8 @@ RSpec.describe Sensor do
   end
 
   describe '.canonical_sensor_name' do
-    it 'resolves AirBeamMini2 sensor names' do
-      expect(described_class.canonical_sensor_name('AirBeamMini2-PM2.5')).to eq('AirBeam-PM2.5')
+    it 'resolves AirBeamMini sensor names' do
+      expect(described_class.canonical_sensor_name('AirBeamMini-PM2.5')).to eq('AirBeam-PM2.5')
     end
 
     it 'returns the name unchanged when not in the map' do

@@ -3,30 +3,28 @@ class Sensor
     'AirBeam-PM10' => 'AirBeam-PM10',
     'AirBeam2-PM10' => 'AirBeam-PM10',
     'AirBeam3-PM10' => 'AirBeam-PM10',
-    'AirBeamMini2-PM10'  => 'AirBeam-PM10',
+    'AirBeamMini-PM10' => 'AirBeam-PM10',
     'AirBeam-PM2.5' => 'AirBeam-PM2.5',
     'AirBeam-PM' => 'AirBeam-PM2.5',
     'AirBeam2-PM2.5' => 'AirBeam-PM2.5',
     'AirBeam3-PM2.5' => 'AirBeam-PM2.5',
     'AirBeamMini-PM2.5' => 'AirBeam-PM2.5',
-    'AirBeamMini2-PM2.5' => 'AirBeam-PM2.5',
     'AirBeam-PM1' => 'AirBeam-PM1',
     'AirBeam2-PM1' => 'AirBeam-PM1',
     'AirBeam3-PM1' => 'AirBeam-PM1',
     'AirBeamMini-PM1' => 'AirBeam-PM1',
-    'AirBeamMini2-PM1'   => 'AirBeam-PM1',
     'AirBeam-RH' => 'AirBeam-RH',
     'AirBeam2-RH' => 'AirBeam-RH',
     'AirBeam3-RH' => 'AirBeam-RH',
-    'AirBeamMini2-RH'    => 'AirBeam-RH',
+    'AirBeamMini-RH' => 'AirBeam-RH',
     'AirBeam-F' => 'AirBeam-F',
     'AirBeam2-F' => 'AirBeam-F',
     'AirBeam3-F' => 'AirBeam-F',
-    'AirBeamMini2-F'     => 'AirBeam-F',
+    'AirBeamMini-F' => 'AirBeam-F',
   }
 
   # Globally stable sensor_type_id values for standard AirBeam sensor types.
-  # Hard-coded in AirBeamMini2 firmware — never change existing values, only append new ones.
+  # Configured in AirBeam on creating new sessions— never change existing values, only append new ones.
   # Any AirBeam model using the binary protocol (POST /api/v3/fixed_sessions) can rely on these.
   CANONICAL_SENSOR_TYPE_IDS = {
     'AirBeam-PM1'   => 1,

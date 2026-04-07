@@ -10,8 +10,8 @@ RSpec.describe Api::CreateFixedSessionContract do
       latitude: 40.7128,
       longitude: -74.0060,
       contribute: true,
-      airbeam: { mac_address: 'AA:BB:CC:DD:EE:FF', model: 'AirBeamMini2' },
-      streams: [{ sensor_name: 'AirBeamMini2-PM2.5', unit_symbol: 'µg/m³' }],
+      airbeam: { mac_address: 'AA:BB:CC:DD:EE:FF', model: 'AirBeamMini' },
+      streams: [{ sensor_name: 'AirBeamMini-PM2.5', unit_symbol: 'µg/m³' }],
     }
   end
 
@@ -52,8 +52,8 @@ RSpec.describe Api::CreateFixedSessionContract do
   it 'accepts multiple valid streams' do
     params = valid_params.merge(
       streams: [
-        { sensor_name: 'AirBeamMini2-PM1', unit_symbol: 'µg/m³' },
-        { sensor_name: 'AirBeamMini2-PM2.5', unit_symbol: 'µg/m³' },
+        { sensor_name: 'AirBeamMini-PM1', unit_symbol: 'µg/m³' },
+        { sensor_name: 'AirBeamMini-PM2.5', unit_symbol: 'µg/m³' },
       ],
     )
     expect(contract.call(params)).to be_success
@@ -68,7 +68,7 @@ RSpec.describe Api::CreateFixedSessionContract do
 
   it 'fails when unit_symbol does not match the sensor' do
     params = valid_params.merge(
-      streams: [{ sensor_name: 'AirBeamMini2-PM2.5', unit_symbol: 'mg/m³' }],
+      streams: [{ sensor_name: 'AirBeamMini-PM2.5', unit_symbol: 'mg/m³' }],
     )
     result = contract.call(params)
     expect(result).to be_failure
