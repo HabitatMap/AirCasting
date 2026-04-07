@@ -9,8 +9,10 @@ module FixedSessions
         streams = create_streams(data, session)
         Success.new(session: session, session_token: session.session_token, streams: streams)
       end
-    rescue ActiveRecord::RecordInvalid, ActiveRecord::RecordNotFound, UnknownStreamTypeError => e
-      Failure.new(base: [e.message])
+    rescue UnknownStreamTypeError => e
+      Failure.new(error_code: AirBeamMini2::ErrorCodes::UNSUPPORTED_SENSOR_TYPE, message: e.message)
+    rescue ActiveRecord::RecordInvalid, ActiveRecord::RecordNotFound => e
+      Failure.new(error_code: AirBeamMini2::ErrorCodes::INTERNAL_ERROR, message: e.message)
     end
 
     private

@@ -9,6 +9,15 @@ RSpec.describe 'AirBeamMini2 Fixed Sessions', type: :request do
     payload + [checksum].pack('C')
   end
 
+  ERROR_SCHEMA = {
+    type: :object,
+    required: %w[error_code message],
+    properties: {
+      error_code: { type: :string },
+      message: { type: :string },
+    },
+  }.freeze
+
   path '/api/v3/fixed_sessions' do
     post 'Create a new AirBeamMini2 fixed session' do
       tags 'AirBeamMini2'
@@ -18,6 +27,13 @@ RSpec.describe 'AirBeamMini2 Fixed Sessions', type: :request do
         Creates a new fixed session for an AirBeamMini2 device. The mobile app calls this
         before configuring the AirBeam. The response includes a `sensor_type_id` per
         stream that the AirBeam uses to identify stream types in the binary upload payload.
+
+        ## Error Codes
+
+        | `error_code` | HTTP | Description |
+        |---|---|---|
+        | `unauthorized` | 401 | Missing or invalid `Authorization` token |
+        | `validation_error` | 400 | Request body failed validation. See `fields` for per-field details |
       DESC
 
       parameter name: :Authorization, in: :header, type: :string, required: true,
@@ -130,7 +146,16 @@ RSpec.describe 'AirBeamMini2 Fixed Sessions', type: :request do
 
       response '400', 'validation error' do
         schema type: :object,
-               additionalProperties: { type: :array, items: { type: :string } }
+               required: %w[error_code message],
+               properties: {
+                 error_code: { type: :string, example: 'validation_error' },
+                 message: { type: :string, example: 'Request body is invalid' },
+                 fields: {
+                   type: :object,
+                   description: 'Per-field validation errors',
+                   additionalProperties: { type: :array, items: { type: :string } },
+                 },
+               }
 
         let(:user) { create(:user) }
         let(:Authorization) { "Token token=#{user.authentication_token}" }
@@ -142,6 +167,8 @@ RSpec.describe 'AirBeamMini2 Fixed Sessions', type: :request do
       end
 
       response '401', 'unauthorized' do
+        schema ERROR_SCHEMA
+
         let(:Authorization) { 'Token token=invalid' }
         let(:body) { {} }
 
@@ -177,7 +204,25 @@ RSpec.describe 'AirBeamMini2 Fixed Sessions', type: :request do
         `(stream_id, time_with_time_zone)` pair is silently ignored — no duplicate is created.
 
         **Time synchronisation:** an empty body is valid and returns 200 immediately. The AirBeam
-        uses this to read the current server time from response headers when its clock drifts.
+        uses this to read the current server time from the `X-Server-Time` response header
+        (Unix epoch, UTC) when its clock drifts.
+
+        ## Error Codes
+
+        All error responses share the shape `{ "error_code": "...", "message": "..." }`.
+
+        | `error_code` | HTTP | Description |
+        |---|---|---|
+        | `unauthorized` | 401 | Missing or invalid `Authorization` token |
+        | `session_not_found` | 404 | No session with the given UUID exists for this user/token |
+        | `payload_too_short` | 400 | Payload has fewer bytes than required for even one frame |
+        | `invalid_magic_bytes` | 400 | First 4 bytes are not `ABBA` |
+        | `empty_measurement_count` | 400 | Frame count field in header is zero |
+        | `payload_size_mismatch` | 400 | Actual payload size does not match the declared frame count |
+        | `invalid_checksum` | 400 | XOR checksum of payload does not match the final byte |
+        | `invalid_epoch` | 400 | A frame's timestamp is zero or implausibly far in the future |
+        | `invalid_value` | 400 | A frame's sensor value is NaN or Infinity |
+        | `unknown_sensor_type_id` | 400 | A frame's `sensor_type_id` is not registered for this session |
       DESC
 
       parameter name: :uuid, in: :path, type: :string, required: true,
@@ -192,7 +237,7 @@ RSpec.describe 'AirBeamMini2 Fixed Sessions', type: :request do
         description: 'Binary payload as described in the endpoint description',
       }
 
-      response '200', 'measurements stored' do
+      response '200', 'measurements stored (or empty body time-sync)' do
         before(:all) do
           @user = create(:user)
           @session = create(:fixed_session, user: @user)
@@ -235,8 +280,7 @@ RSpec.describe 'AirBeamMini2 Fixed Sessions', type: :request do
       end
 
       response '400', 'invalid payload or unknown sensor_type_id' do
-        schema type: :object,
-               properties: { base: { type: :array, items: { type: :string } } }
+        schema ERROR_SCHEMA
 
         let(:user) { create(:user) }
         let(:session) { create(:fixed_session, user: user) }
@@ -250,8 +294,7 @@ RSpec.describe 'AirBeamMini2 Fixed Sessions', type: :request do
       end
 
       response '404', 'session not found' do
-        schema type: :object,
-               properties: { error: { type: :string } }
+        schema ERROR_SCHEMA
 
         let(:user) { create(:user) }
         let(:uuid) { 'non-existent-uuid' }
@@ -264,6 +307,8 @@ RSpec.describe 'AirBeamMini2 Fixed Sessions', type: :request do
       end
 
       response '401', 'unauthorized' do
+        schema ERROR_SCHEMA
+
         let(:uuid) { 'any-uuid' }
         let(:Authorization) { 'Token token=invalid' }
         let(:body) { "\x00" }

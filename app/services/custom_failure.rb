@@ -5,7 +5,7 @@ class CustomFailure < Devise::FailureApp
     if http_auth? || api_request?
       self.status = 401
       self.content_type = 'application/json'
-      self.response_body = { success: false, error: 'Unauthorized' }.to_json
+      self.response_body = { error_code: 'unauthorized', message: 'Unauthorized' }.to_json
     else
       redirect
     end
