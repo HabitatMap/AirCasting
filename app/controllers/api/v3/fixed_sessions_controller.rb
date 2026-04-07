@@ -1,6 +1,7 @@
 module Api
   module V3
     class FixedSessionsController < BaseController
+      ErrorCodes = ::FixedSessions::AirBeamMini2::ErrorCodes
       before_action :authenticate_user_from_token!
       before_action :authenticate_user!
 
@@ -8,7 +9,13 @@ module Api
         contract = Api::CreateFixedSessionContract.new.call(
           params.to_unsafe_h.deep_symbolize_keys,
         )
-        return render json: contract.errors.to_h, status: :bad_request if contract.failure?
+        if contract.failure?
+          return render json: {
+            error_code: ErrorCodes::VALIDATION_ERROR,
+            message: 'Request body is invalid',
+            fields: contract.errors.to_h,
+          }, status: :bad_request
+        end
 
         result =
           ::FixedSessions::Creator.new.call(

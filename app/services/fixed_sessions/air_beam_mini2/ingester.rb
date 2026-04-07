@@ -20,7 +20,7 @@ module FixedSessions
       def call(session:, binary:)
         measurements = parser.call(binary)
       rescue BinaryParser::ParseError => e
-        return Failure.new(base: [e.message])
+        return Failure.new(error_code: e.error_code, message: e.message)
       else
         ingest(session: session, measurements: measurements)
       end
@@ -44,7 +44,7 @@ module FixedSessions
               session_id: session.id,
               sensor_type_id: type_id,
             )
-            return Failure.new(base: ["unknown sensor_type_id: #{type_id}"]) unless stream
+            return Failure.new(error_code: ErrorCodes::UNKNOWN_SENSOR_TYPE_ID, message: "sensor_type_id #{type_id} is not registered for this session") unless stream
 
             records = build_records(type_measurements, session, stream)
             fixed_measurements_repository.import(measurements: records, on_duplicate_key_ignore: true)
@@ -74,7 +74,7 @@ module FixedSessions
 
         Success.new('measurements ingested')
       rescue ActiveRecord::RecordInvalid => e
-        Failure.new(base: [e.message])
+        Failure.new(error_code: ErrorCodes::INTERNAL_ERROR, message: e.message)
       end
 
       def recalculate_averages(stream_records, time_zone, recalculate_hourly:, recalculate_daily:)

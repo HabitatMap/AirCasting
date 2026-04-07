@@ -23,6 +23,13 @@ paths:
         Creates a new fixed session for an AirBeamMini2 device. The mobile app calls this
         before configuring the AirBeam. The response includes a `sensor_type_id` per
         stream that the AirBeam uses to identify stream types in the binary upload payload.
+
+        ## Error Codes
+
+        | `error_code` | HTTP | Description |
+        |---|---|---|
+        | `unauthorized` | 401 | Missing or invalid `Authorization` token |
+        | `validation_error` | 400 | Request body failed validation. See `fields` for per-field details |
       parameters:
       - name: Authorization
         in: header
@@ -73,12 +80,37 @@ paths:
             application/json:
               schema:
                 type: object
-                additionalProperties:
-                  type: array
-                  items:
+                required:
+                - error_code
+                - message
+                properties:
+                  error_code:
                     type: string
+                    example: validation_error
+                  message:
+                    type: string
+                    example: Request body is invalid
+                  fields:
+                    type: object
+                    description: Per-field validation errors
+                    additionalProperties:
+                      type: array
+                      items:
+                        type: string
         '401':
           description: unauthorized
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - error_code
+                - message
+                properties:
+                  error_code:
+                    type: string
+                  message:
+                    type: string
       requestBody:
         content:
           application/json:
@@ -184,7 +216,25 @@ paths:
         `(stream_id, time_with_time_zone)` pair is silently ignored — no duplicate is created.
 
         **Time synchronisation:** an empty body is valid and returns 200 immediately. The AirBeam
-        uses this to read the current server time from response headers when its clock drifts.
+        uses this to read the current server time from the `X-Server-Time` response header
+        (Unix epoch, UTC) when its clock drifts.
+
+        ## Error Codes
+
+        All error responses share the shape `{ "error_code": "...", "message": "..." }`.
+
+        | `error_code` | HTTP | Description |
+        |---|---|---|
+        | `unauthorized` | 401 | Missing or invalid `Authorization` token |
+        | `session_not_found` | 404 | No session with the given UUID exists for this user/token |
+        | `payload_too_short` | 400 | Payload has fewer bytes than required for even one frame |
+        | `invalid_magic_bytes` | 400 | First 4 bytes are not `ABBA` |
+        | `empty_measurement_count` | 400 | Frame count field in header is zero |
+        | `payload_size_mismatch` | 400 | Actual payload size does not match the declared frame count |
+        | `invalid_checksum` | 400 | XOR checksum of payload does not match the final byte |
+        | `invalid_epoch` | 400 | A frame's timestamp is zero or implausibly far in the future |
+        | `invalid_value` | 400 | A frame's sensor value is NaN or Infinity |
+        | `unknown_sensor_type_id` | 400 | A frame's `sensor_type_id` is not registered for this session |
       parameters:
       - name: uuid
         in: path
@@ -201,29 +251,49 @@ paths:
           type: string
       responses:
         '200':
-          description: measurements stored
+          description: measurements stored (or empty body time-sync)
         '400':
           description: invalid payload or unknown sensor_type_id
           content:
             application/json:
               schema:
                 type: object
+                required:
+                - error_code
+                - message
                 properties:
-                  base:
-                    type: array
-                    items:
-                      type: string
+                  error_code:
+                    type: string
+                  message:
+                    type: string
         '404':
           description: session not found
           content:
             application/json:
               schema:
                 type: object
+                required:
+                - error_code
+                - message
                 properties:
-                  error:
+                  error_code:
+                    type: string
+                  message:
                     type: string
         '401':
           description: unauthorized
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - error_code
+                - message
+                properties:
+                  error_code:
+                    type: string
+                  message:
+                    type: string
       requestBody:
         content:
           application/octet-stream:

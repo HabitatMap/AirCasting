@@ -2,6 +2,7 @@ module Api
   module V3
     module FixedSessions
       class MeasurementsController < BaseController
+        ErrorCodes = ::FixedSessions::AirBeamMini2::ErrorCodes
         before_action :authenticate_user_from_token!
         before_action :authenticate_session_from_token!
         before_action :require_authentication!
@@ -12,7 +13,7 @@ module Api
           return head :ok if binary.empty?
 
           session = @authenticated_session || find_session_for_user
-          return render json: { error: 'session not found' }, status: :not_found unless session
+          return render json: { error_code: ErrorCodes::SESSION_NOT_FOUND, message: 'Session not found' }, status: :not_found unless session
           result = ::FixedSessions::AirBeamMini2::Ingester.new.call(
             session: session,
             binary: binary,
@@ -40,7 +41,7 @@ module Api
         def require_authentication!
           return if current_user.present? || @authenticated_session.present?
 
-          render json: { error: 'Unauthorized' }, status: :unauthorized
+          render json: { error_code: ErrorCodes::UNAUTHORIZED, message: 'Unauthorized' }, status: :unauthorized
         end
 
         def set_server_time_header

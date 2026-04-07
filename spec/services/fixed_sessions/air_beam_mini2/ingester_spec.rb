@@ -167,10 +167,11 @@ RSpec.describe FixedSessions::AirBeamMini2::Ingester do
     context 'with unknown sensor_type_id' do
       let(:binary) { build_binary([{ epoch: epoch, sensor_type_id: 9, value: 1.0 }]) }
 
-      it 'returns Failure' do
+      it 'returns Failure with error_code unknown_sensor_type_id' do
         result = ingester.call(session: session, binary: binary)
         expect(result).to be_failure
-        expect(result.errors[:base]).to include(match(/unknown sensor_type_id/))
+        expect(result.errors[:error_code]).to eq('unknown_sensor_type_id')
+        expect(result.errors[:message]).to match(/sensor_type_id 9/)
       end
     end
 
@@ -180,9 +181,10 @@ RSpec.describe FixedSessions::AirBeamMini2::Ingester do
         good[0..-2] + [(good.bytes.last ^ 0xFF)].pack('C')
       end
 
-      it 'returns Failure' do
+      it 'returns Failure with error_code from the parser' do
         result = ingester.call(session: session, binary: binary)
         expect(result).to be_failure
+        expect(result.errors[:error_code]).to eq('invalid_checksum')
       end
     end
   end
