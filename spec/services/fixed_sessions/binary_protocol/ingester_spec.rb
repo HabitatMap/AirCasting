@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-RSpec.describe FixedSessions::AirBeamMini2::Ingester do
+RSpec.describe FixedSessions::BinaryProtocol::Ingester do
   let(:daily_recalculator) { instance_double(FixedStreaming::StreamDailyAveragesRecalculator, call: nil) }
   let(:hourly_recalculator) { instance_double(FixedStreaming::StreamHourlyAveragesRecalculator, call: nil) }
   subject(:ingester) do
