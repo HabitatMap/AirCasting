@@ -44,13 +44,15 @@ module FixedSessions
               session_id: session.id,
               sensor_type_id: type_id,
             )
-            return Failure.new(error_code: ErrorCodes::UNKNOWN_SENSOR_TYPE_ID, message: "sensor_type_id #{type_id} is not registered for this session") unless stream
+            next unless stream
 
             records = build_records(type_measurements, session, stream)
             fixed_measurements_repository.import(measurements: records, on_duplicate_key_ignore: true)
             all_records.concat(records)
             stream_records[type_id] = { stream: stream, records: records }
           end
+
+          return Success.new('measurements ingested') if all_records.empty?
 
           first_measurement = all_records.min_by(&:time_with_time_zone)
           last_measurement = all_records.max_by(&:time_with_time_zone)
