@@ -1,0 +1,4 @@
+#!/usr/bin/env sh
+# Regenerate swagger/v3/swagger.yaml from spec/swagger/**/*_spec.rb
+# See docs/swagger.md for details.
+RAILS_ENV=test bundle exec rake rswag:specs:swaggerize PATTERN="spec/swagger/**/*_spec.rb"
