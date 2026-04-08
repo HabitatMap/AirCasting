@@ -14,9 +14,9 @@ class Api::ValidateSessionExportIds
 
     return Failure.new(session_ids: ['must include at least one session']) if unique_ids.empty?
 
-    sessions = Session.where(id: unique_ids).includes(:streams)
+    sessions = Session.where(id: unique_ids).includes(:streams).to_a
 
-    if sessions.size != unique_ids.size
+    if sessions.length != unique_ids.size
       return Failure.new(session_ids: ['unknown session ids'])
     end
 
