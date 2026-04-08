@@ -1,11 +1,22 @@
-import { expect } from "@playwright/test";
+import { expect, Locator } from "@playwright/test";
 import { test } from "../../fixtures/calendar-fixture";
+
+const CALENDAR_URL =
+  "http://localhost:3000/?streamId=7914&thresholdMin=0&thresholdLow=9&thresholdMiddle=35&thresholdHigh=55&thresholdMax=150&sessionType=fixed&previousUserSettings=MAP_VIEW&currentUserSettings=MODAL_VIEW&sessionId=1875408&measurementType=Particulate+Matter&sensorName=Government-PM2.5&unitSymbol=%C2%B5g%2Fm%C2%B3&usernames=&tags=&isIndoor=false&isActive=true&timeFrom=1735689600&timeTo=1767225599&fetchedSessions=16&boundEast=-73.37466729032256&boundNorth=40.93662879130742&boundSouth=40.45752305499353&boundWest=-74.58434470967742&currentCenter=%7B%22lat%22%3A40.69750662508967%2C%22lng%22%3A-73.979506%7D&currentZoom=11.123352446381977&previousCenter=%7B%22lat%22%3A40.69750662508967%2C%22lng%22%3A-73.979506%7D&previousZoom=11.123352446381977";
+
+const parseDateTime = async (
+  dateLocator: Locator,
+  timeLocator: Locator
+): Promise<Date> => {
+  const dateStr = await dateLocator.textContent();
+  const timeStr = await timeLocator.textContent();
+  if (!dateStr || !timeStr) throw new Error("Date or time string is null");
+  return new Date(`${dateStr} ${timeStr}`);
+};
 
 test("Test the calendar workflow", async ({ calendarPage: page }) => {
   await test.step("Navigate to the page with specific parameters", async () => {
-    await page.goto(
-      "http://localhost:3000/?streamId=2597281&thresholdMin=0&thresholdLow=9&thresholdMiddle=35&thresholdHigh=55&thresholdMax=150&sessionType=fixed&previousUserSettings=MAP_VIEW&currentUserSettings=MODAL_VIEW&sessionId=1875408&measurementType=Particulate+Matter&sensorName=Government-PM2.5&unitSymbol=%C2%B5g%2Fm%C2%B3&usernames=&tags=&isIndoor=false&isActive=true&timeFrom=1735689600&timeTo=1767225599&fetchedSessions=16&boundEast=-73.37466729032256&boundNorth=40.93662879130742&boundSouth=40.45752305499353&boundWest=-74.58434470967742&currentCenter=%7B%22lat%22%3A40.69750662508967%2C%22lng%22%3A-73.979506%7D&currentZoom=11.123352446381977&previousCenter=%7B%22lat%22%3A40.69750662508967%2C%22lng%22%3A-73.979506%7D&previousZoom=11.123352446381977"
-    );
+    await page.goto(CALENDAR_URL);
   });
 
   await test.step("Open calendar view and select dates", async () => {
@@ -42,18 +53,6 @@ test("Test the calendar workflow", async ({ calendarPage: page }) => {
     const getEndTime = () =>
       page.locator(".time-container").last().locator(".time");
 
-    const parseDateTime = async (
-      dateLocator: import("@playwright/test").Locator,
-      timeLocator: import("@playwright/test").Locator
-    ): Promise<Date> => {
-      const dateStr = await dateLocator.textContent();
-      const timeStr = await timeLocator.textContent();
-      if (!dateStr || !timeStr) {
-        throw new Error("Date or time string is null");
-      }
-      return new Date(`${dateStr} ${timeStr}`);
-    };
-
     // --- HOURS ---
     await page.getByRole("button", { name: "HOURS" }).click();
     await page.waitForTimeout(500);
@@ -61,8 +60,7 @@ test("Test the calendar workflow", async ({ calendarPage: page }) => {
     let endDate = await parseDateTime(getEndDate(), getEndTime());
     let diffInHours =
       (endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60);
-    // The application is setting this to 23 hours consistently
-    expect(diffInHours).toBe(23);
+    expect(diffInHours).toBe(24);
 
     // --- WEEK ---
     await page.getByRole("button", { name: "WEEK" }).click();
@@ -90,9 +88,9 @@ test("Test the calendar workflow", async ({ calendarPage: page }) => {
     expect(diffInDaysMonth).toBeGreaterThanOrEqual(28); // Minimum days in a month
     expect(diffInDaysMonth).toBeLessThanOrEqual(31); // Maximum days in a month
 
-    // Check time formats - start time is 00:00:00 and end time is 23:59:00
+    // Check time formats - start time is 00:00:00 and end time is 00:00:00
     expect(await getStartTime().textContent()).toBe("00:00:00");
-    expect(await getEndTime().textContent()).toBe("23:59:00");
+    expect(await getEndTime().textContent()).toBe("00:00:00");
   });
 
   await test.step("Navigate calendar and adjust settings", async () => {
@@ -210,5 +208,79 @@ test("Test the calendar workflow", async ({ calendarPage: page }) => {
 
       expect(cellData.color).toBe("rgb(150, 215, 136)");
     }
+  });
+});
+
+test("Clicking same calendar date after graph zoom resets graph to full day", async ({
+  calendarPage: page,
+}) => {
+  await test.step("Navigate to calendar page", async () => {
+    await page.goto(CALENDAR_URL);
+  });
+
+  await test.step("Open calendar and select a date", async () => {
+    await page.getByRole("link", { name: "Calendar icon" }).click();
+    await page.waitForSelector('[data-testid="calendar-cell"]', {
+      state: "visible",
+      timeout: 60000,
+    });
+
+    const cells = await page.getByTestId("calendar-cell").all();
+    expect(cells.length).toBeGreaterThan(0);
+    await cells[0].click();
+    await page.waitForTimeout(1000);
+  });
+
+  const getStartDate = () =>
+    page.locator(".time-container").first().locator(".date");
+  const getStartTime = () =>
+    page.locator(".time-container").first().locator(".time");
+  const getEndDate = () =>
+    page.locator(".time-container").last().locator(".date");
+  const getEndTime = () =>
+    page.locator(".time-container").last().locator(".time");
+
+  let initialStartDate: Date;
+  let initialEndDate: Date;
+
+  await test.step("Verify graph shows full day after date selection", async () => {
+    initialStartDate = await parseDateTime(getStartDate(), getStartTime());
+    initialEndDate = await parseDateTime(getEndDate(), getEndTime());
+    // A full-day window is 00:00:01 – 00:00:00 next day = 86399 s
+    const diffInSeconds =
+      (initialEndDate.getTime() - initialStartDate.getTime()) / 1000;
+    expect(diffInSeconds).toBe(86399);
+  });
+
+  await test.step("Zoom in on graph with mouse wheel", async () => {
+    const graphContainer = page.locator(".highcharts-container").first();
+    await graphContainer.waitFor({ state: "visible", timeout: 10000 });
+    await graphContainer.hover();
+    // Scroll up to zoom in; negative deltaY = zoom in in Highcharts
+    await page.mouse.wheel(0, -500);
+    // Wait for the 1s debounce in the mousewheel handler + buffer
+    await page.waitForTimeout(1500);
+  });
+
+  await test.step("Verify graph shows less than a full day after zooming in", async () => {
+    const zoomedStartDate = await parseDateTime(getStartDate(), getStartTime());
+    const zoomedEndDate = await parseDateTime(getEndDate(), getEndTime());
+    const diffInSeconds =
+      (zoomedEndDate.getTime() - zoomedStartDate.getTime()) / 1000;
+    expect(diffInSeconds).toBeLessThan(86399);
+  });
+
+  await test.step("Click the same calendar date again", async () => {
+    const cells = await page.getByTestId("calendar-cell").all();
+    await cells[0].click();
+    await page.waitForTimeout(1000);
+  });
+
+  await test.step("Verify graph resets to full day for the selected date", async () => {
+    const finalStartDate = await parseDateTime(getStartDate(), getStartTime());
+    const finalEndDate = await parseDateTime(getEndDate(), getEndTime());
+    // Must match the exact timestamps from the initial selection
+    expect(finalStartDate.getTime()).toBe(initialStartDate!.getTime());
+    expect(finalEndDate.getTime()).toBe(initialEndDate!.getTime());
   });
 });

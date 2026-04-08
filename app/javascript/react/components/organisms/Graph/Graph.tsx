@@ -238,7 +238,11 @@ const Graph: React.FC<GraphProps> = memo(
 
     // When a calendar day is selected, mark the flag and fetch data.
     useEffect(() => {
-      if (!chartComponentRef.current?.chart || !selectedTimestamp) return;
+      if (!chartComponentRef.current?.chart) return;
+      if (!selectedTimestamp) {
+        lastProcessedTimestampRef.current = null;
+        return;
+      }
       if (lastProcessedTimestampRef.current === selectedTimestamp) return;
       lastProcessedTimestampRef.current = selectedTimestamp;
       isCalendarDaySelectedRef.current = true;
