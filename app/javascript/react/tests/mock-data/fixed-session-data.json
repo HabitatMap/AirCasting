@@ -1,12 +1,12 @@
 {
   "session": {
-    "id": 1874470,
-    "title": "Laval - Chomedey",
+    "id": 4864,
+    "title": "WHlthDpt",
     "is_active": true,
     "type": "fixed"
   },
   "stream": {
-    "sessionId": 2595727,
+    "sessionId": 4864,
     "latitude": 45.5472,
     "longitude": -73.7472,
     "min": 0.0,
