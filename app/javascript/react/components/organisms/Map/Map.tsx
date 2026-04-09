@@ -1062,6 +1062,7 @@ const Map = () => {
           <S.DesktopContainer data-testid="desktop-session-list">
             <SessionsListView
               sessions={listSessions.map(mapSessions)}
+              sessionType={sessionType}
               sensorName={sensorNamedDecoded}
               onCellClick={(id, streamId) => {
                 setPulsatingSessionId(null);
