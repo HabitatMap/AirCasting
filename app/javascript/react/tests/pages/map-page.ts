@@ -1,6 +1,8 @@
 import { Locator, Page } from "@playwright/test";
 
 export class MapPage {
+  private cookieBannerHandled = false;
+
   constructor(private readonly page: Page) {}
 
   locator(selector: string): Locator {
@@ -28,9 +30,12 @@ export class MapPage {
   async waitForLoadState(
     state: "networkidle" | "load" | "domcontentloaded" = "networkidle"
   ) {
-    // Use a shorter timeout for networkidle to avoid long waits with mocks
-    const timeout = state === "networkidle" ? 10000 : 30000;
-    await this.page.waitForLoadState(state, { timeout });
+    try {
+      const timeout = state === "networkidle" ? 10000 : 30000;
+      await this.page.waitForLoadState(state, { timeout });
+    } catch {
+      // Best-effort: continue if load state isn't reached within timeout
+    }
   }
 
   async waitForTimeout(ms: number) {
@@ -39,11 +44,13 @@ export class MapPage {
 
   async navigateToMap() {
     await this.page.goto("http://localhost:3000");
+    await this.dismissCookieBanner();
     await this.waitForUIReady();
   }
 
   async goto(url: string) {
     await this.page.goto(url);
+    await this.dismissCookieBanner();
     await this.waitForUIReady();
   }
 
@@ -216,6 +223,20 @@ export class MapPage {
       },
       { timeout: 30000 }
     );
+  }
+
+  async dismissCookieBanner() {
+    if (this.cookieBannerHandled) return;
+    this.cookieBannerHandled = true;
+    const allowCookies = this.page.getByRole("button", {
+      name: "Allow all cookies",
+    });
+    try {
+      await allowCookies.waitFor({ state: "visible", timeout: 3000 });
+      await allowCookies.click();
+    } catch {
+      // Banner didn't appear within timeout — already dismissed or not present
+    }
   }
 
   async waitForUIReady() {

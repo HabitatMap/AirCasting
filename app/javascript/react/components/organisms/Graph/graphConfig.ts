@@ -244,6 +244,17 @@ const getXAxisOptions = (
     }
 
     if (
+      (effectiveTrigger === "navigator" ||
+        effectiveTrigger === "syncExtremes" ||
+        effectiveTrigger === "pan" ||
+        effectiveTrigger === "zoom") &&
+      isCalendarDaySelectedRef?.current
+    ) {
+      isCalendarDaySelectedRef.current = false;
+      if (onDayClick) onDayClick(null);
+    }
+
+    if (
       effectiveTrigger === "pan" ||
       effectiveTrigger === "zoom" ||
       effectiveTrigger === "rangeSelectorButton" ||
