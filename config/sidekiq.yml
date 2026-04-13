@@ -63,8 +63,3 @@
     cron: "28,58 * * * *"
     class: "Epa::TriggerIngestWorker"
     queue: epa
-
-  dual_write_check:
-    cron: "45 * * * *"
-    class: DualWriteCheckWorker
-    queue: slow

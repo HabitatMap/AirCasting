@@ -155,15 +155,16 @@ test.describe("Map Fixed Filters Workflow", () => {
       await mapPage.waitForLoadState("networkidle");
     });
 
-    await test.step("Toggle filters", async () => {
-      await mapPage
-        .locator("#react-app div")
-        .filter({
-          hasText:
-            "FiltersTimelapseCopy linkmobilefixedparameterParticulate MattersensorAirBeam-",
-        })
-        .getByLabel("")
-        .check();
+    await test.step("Toggle dormant stations on", async () => {
+      const dormantCheckbox = mapPage
+        .locator("div")
+        .filter({ hasText: /^dormant stations off$/ })
+        .getByLabel("");
+      await dormantCheckbox.waitFor({ state: "visible", timeout: 10000 });
+      const isChecked = await dormantCheckbox.isChecked();
+      if (!isChecked) {
+        await dormantCheckbox.click();
+      }
       await mapPage.waitForLoadState("networkidle");
     });
 
