@@ -1,8 +1,8 @@
 module FixedSessions
   module BinaryProtocol
     class Parser
-      MAGIC = 'ABBA'
-      HEADER_SIZE = 6  # 4 bytes magic + 2 bytes uint16 count
+      MAGIC = "\xAB\xBA".b
+      HEADER_SIZE = 4  # 2 bytes magic + 2 bytes uint16 count
       MEASUREMENT_SIZE = 9  # 4 bytes uint32 epoch + 1 byte uint8 type_id + 4 bytes float32 value
 
       module ErrorCodes
@@ -27,8 +27,8 @@ module FixedSessions
       def call(binary)
         raise ParseError.new(ErrorCodes::PAYLOAD_TOO_SHORT, 'payload too short') if binary.bytesize < HEADER_SIZE + 1
 
-        magic, count = binary.unpack('a4n')
-        raise ParseError.new(ErrorCodes::INVALID_MAGIC_BYTES, 'magic bytes are not ABBA') unless magic == MAGIC
+        magic, count = binary.unpack('a2n')
+        raise ParseError.new(ErrorCodes::INVALID_MAGIC_BYTES, 'magic bytes are not 0xAB 0xBA') unless magic == MAGIC
         raise ParseError.new(ErrorCodes::EMPTY_MEASUREMENT_COUNT, 'measurement count is zero') if count.zero?
 
         raise ParseError.new(ErrorCodes::PAYLOAD_TOO_SHORT, 'payload too short') if binary.bytesize < HEADER_SIZE + MEASUREMENT_SIZE + 1

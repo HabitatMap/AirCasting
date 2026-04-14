@@ -26,7 +26,7 @@ describe 'POST /api/v3/fixed_sessions/:fixed_session_uuid/measurements' do
 
     def build_binary
       epoch = Time.current.to_i - 60
-      header = ['ABBA', 1].pack('a4n')
+      header = ["\xAB\xBA", 1].pack('a2n')
       frame = [epoch, 1, 10.0].pack('NCg')
       payload = header + frame
       checksum = payload.bytes.inject(0, :^)
