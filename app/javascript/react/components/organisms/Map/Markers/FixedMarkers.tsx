@@ -216,6 +216,12 @@ export function FixedMarkers({
     });
   }, [map, thresholds, pulsatingSessionId, handleClusterClickInternal]);
 
+  // Keep a ref so the one-time listener registered during clusterer init
+  // always calls the current version of handleClusteringEnd, avoiding a
+  // stale closure when thresholds or pulsatingSessionId change later.
+  const handleClusteringEndRef = useRef(handleClusteringEnd);
+  handleClusteringEndRef.current = handleClusteringEnd;
+
   const customRenderer = {
     render: ({ position }: CustomRendererProps) => {
       return new google.maps.Marker({
@@ -416,7 +422,9 @@ export function FixedMarkers({
           algorithm,
         });
 
-        clustererRef.current.addListener("clusteringend", handleClusteringEnd);
+        clustererRef.current.addListener("clusteringend", () =>
+          handleClusteringEndRef.current()
+        );
       }
 
       // Create markers for all sessions if they don't exist
