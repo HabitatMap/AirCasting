@@ -194,6 +194,12 @@ jest.mock("../../store/hooks", () => ({
         streamId: "someStreamId",
       };
     }
+    if (selector.name === "selectOpenMarkerKey") {
+      return null;
+    }
+    if (selector.name === "selectPopoverInitialSlide") {
+      return 0;
+    }
     return {};
   },
 }));
