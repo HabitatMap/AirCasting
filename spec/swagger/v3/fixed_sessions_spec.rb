@@ -2,7 +2,7 @@ require 'swagger_helper'
 
 RSpec.describe 'AirBeam Fixed Sessions', type: :request do
   def build_measurement_binary(type_id:, epoch: Time.current.to_i, value: 12.5)
-    header = ['ABBA', 1].pack('a4n')
+    header = ["\xAB\xBA", 1].pack('a2n')
     measurement = [epoch, type_id, value].pack('NCg')
     payload = header + measurement
     checksum = payload.bytes.inject(0, :^)
@@ -190,14 +190,14 @@ RSpec.describe 'AirBeam Fixed Sessions', type: :request do
 
         ```
         Offset     Size  Type        Description
-        0          4     char[4]     Magic bytes: "ABBA" (0x41 0x42 0x42 0x41)
-        4          2     uint16 BE   Measurement count N
+        0          2     uint8[2]    Magic bytes: 0xAB 0xBA
+        2          2     uint16 BE   Measurement count N
         --- repeated N times ---
-        6+i*9      4     uint32 BE   Unix timestamp (seconds since epoch, UTC)
-        10+i*9     1     uint8       sensor_type_id (returned by session creation endpoint)
-        11+i*9     4     float32 BE  Sensor value
+        4+i*9      4     uint32 BE   Unix timestamp (seconds since epoch, UTC)
+        8+i*9      1     uint8       sensor_type_id (returned by session creation endpoint)
+        9+i*9      4     float32 BE  Sensor value
         --- end repeat ---
-        6+N*9      1     uint8       XOR checksum of all preceding bytes
+        4+N*9      1     uint8       XOR checksum of all preceding bytes
         ```
 
         **Resend behaviour:** sending a measurement with an already-stored
@@ -216,7 +216,7 @@ RSpec.describe 'AirBeam Fixed Sessions', type: :request do
         | `unauthorized` | 401 | Missing or invalid `Authorization` token |
         | `session_not_found` | 404 | No session with the given UUID exists for this user/token |
         | `payload_too_short` | 400 | Payload has fewer bytes than required for even one frame |
-        | `invalid_magic_bytes` | 400 | First 4 bytes are not `ABBA` |
+        | `invalid_magic_bytes` | 400 | First 2 bytes are not `0xAB 0xBA` |
         | `empty_measurement_count` | 400 | Frame count field in header is zero |
         | `payload_size_mismatch` | 400 | Actual payload size does not match the declared frame count |
         | `invalid_checksum` | 400 | XOR checksum of payload does not match the final byte |
