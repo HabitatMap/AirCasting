@@ -708,7 +708,12 @@ const Graph: React.FC<GraphProps> = memo(
     ]);
 
     useEffect(() => {
+      // Guard against re-entrance: applyStyles modifies CSS which would
+      // re-trigger the MutationObserver, creating a feedback loop.
+      let applying = false;
       const applyStyles = () => {
+        if (applying) return;
+        applying = true;
         const graphElement = graphRef.current;
         if (graphElement) {
           graphElement.style.touchAction = "pan-x";
@@ -725,6 +730,7 @@ const Graph: React.FC<GraphProps> = memo(
             highchartsChartContainer.style.overflow = "visible";
           }
         }
+        applying = false;
       };
 
       applyStyles();
@@ -743,25 +749,16 @@ const Graph: React.FC<GraphProps> = memo(
         seriesData &&
         seriesData.length > 0
       ) {
-        setTimeout(() => {
+        // One reflow after the browser has had a chance to settle is enough.
+        // The previous version toggled container height and read offsetHeight
+        // (forced synchronous layout) inside a nested setTimeout, doubling
+        // the reflow cost on every seriesData change.
+        const timer = setTimeout(() => {
           if (chartComponentRef.current?.chart) {
             chartComponentRef.current.chart.reflow();
-            if (isCalendarPage) {
-              const container = graphRef.current;
-              if (container) {
-                const currentHeight = container.style.height;
-                container.style.height = "auto";
-                container.offsetHeight;
-                container.style.height = currentHeight;
-                setTimeout(() => {
-                  if (chartComponentRef.current?.chart) {
-                    chartComponentRef.current.chart.reflow();
-                  }
-                }, 100);
-              }
-            }
           }
         }, 200);
+        return () => clearTimeout(timer);
       }
     }, [isCalendarPage, seriesData]);
 
