@@ -98,6 +98,7 @@ export function FixedMarkers({
   const clusterOverlaysRef = useRef<Map<string, ClusterOverlay>>(new Map());
   const previousZoomRef = useRef<number | null>(null);
   const initialCenterRef = useRef<boolean>(false);
+  const pendingRenderRef = useRef<number | null>(null);
 
   // State variables
   const [hoverPosition, setHoverPosition] = useState<LatLngLiteral | null>(
@@ -234,14 +235,19 @@ export function FixedMarkers({
   const handleClusteringEndRef = useRef(handleClusteringEnd);
   handleClusteringEndRef.current = handleClusteringEnd;
 
-  const customRenderer = {
-    render: ({ position }: CustomRendererProps) => {
-      return new google.maps.Marker({
-        position,
-        visible: false,
-      });
-    },
-  };
+  // Stable renderer — plain object literals are recreated on every render,
+  // which would put the init effect into an infinite re-run cycle.
+  const customRenderer = useMemo(
+    () => ({
+      render: ({ position }: CustomRendererProps) => {
+        return new google.maps.Marker({
+          position,
+          visible: false,
+        });
+      },
+    }),
+    []
+  );
 
   const createMarker = useCallback(
     (session: FixedSession): CustomMarker => {
@@ -415,6 +421,23 @@ export function FixedMarkers({
     });
   }, [map, centerMapOnMarker]);
 
+  // Defer the clusterer render + overlay update to the next animation frame.
+  // Both the init effect and the marker sync effect call this, so the
+  // cancellation logic ensures only one render happens even when both fire
+  // in the same React commit.
+  const scheduleRender = useCallback(() => {
+    if (pendingRenderRef.current !== null) {
+      cancelAnimationFrame(pendingRenderRef.current);
+    }
+    pendingRenderRef.current = requestAnimationFrame(() => {
+      pendingRenderRef.current = null;
+      if (!clustererRef.current) return;
+      clustererRef.current.render();
+      updateMarkerOverlays();
+      updateClusterOverlays();
+    });
+  }, [updateMarkerOverlays, updateClusterOverlays]);
+
   useEffect(() => {
     if (fixedStreamStatus === StatusEnum.Pending) return;
 
@@ -446,11 +469,9 @@ export function FixedMarkers({
         const allMarkers = Array.from(markerRefs.current.values());
         clustererRef.current.clearMarkers();
         clustererRef.current.addMarkers(allMarkers);
-        clustererRef.current.render();
       }
 
-      updateMarkerOverlays();
-      updateClusterOverlays();
+      scheduleRender();
     } else {
       if (fixedStreamData?.stream) {
         const { latitude, longitude } = fixedStreamData.stream;
@@ -543,15 +564,10 @@ export function FixedMarkers({
     fixedStreamStatus,
     fixedStreamData,
     map,
-    customRenderer,
-    handleClusteringEnd,
-    updateMarkerOverlays,
-    updateClusterOverlays,
     memoizedSessions,
     createMarker,
-    thresholds,
-    unitSymbol,
     centerMapOnMarker,
+    scheduleRender,
   ]);
 
   useEffect(() => {
@@ -610,22 +626,13 @@ export function FixedMarkers({
       }
       marker.setMap(null);
     });
-    // Force clusterer update
-    clustererRef.current.render();
-
-    updateMarkerOverlays();
-    updateClusterOverlays();
+    scheduleRender();
   }, [
     sessions,
     map,
     createMarker,
-    thresholds,
-    unitSymbol,
-    pulsatingSessionId,
-    updateMarkerOverlays,
-    updateClusterOverlays,
     memoizedSessions,
-    isLoading,
+    scheduleRender,
   ]);
 
   useEffect(() => {
@@ -695,6 +702,8 @@ export function FixedMarkers({
     pulsatingSessionId,
     selectedStreamId,
     sessions,
+    thresholds,
+    unitSymbol,
     updateMarkerOverlays,
     updateClusterOverlays,
   ]);
