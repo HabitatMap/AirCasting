@@ -615,56 +615,56 @@ export function FixedMarkers({
   ]);
 
   useEffect(() => {
-    if (clustererRef.current) {
-      clustererRef.current.addListener("clusteringend", () => {
-        markerRefs.current.forEach((marker) => {
-          (marker as CustomMarker).clustered = false;
-        });
-
-        const clusters =
-          clustererRef.current &&
-          // @ts-ignore - clusters
-          (clustererRef.current.clusters as CustomCluster[]);
-
-        clusterOverlaysRef.current.forEach((overlay) => {
-          overlay.setMap(null);
-        });
-        clusterOverlaysRef.current.clear();
-
-        if (!clusters) return;
-
-        clusters.forEach((cluster) => {
-          if (cluster.markers && cluster.markers.length > 1) {
-            cluster.markers.forEach((marker) => {
-              (marker as CustomMarker).clustered = true;
-            });
-
-            const markers = cluster.markers as CustomMarker[];
-            const values = markers.map((marker) => marker.value || 0);
-            const average =
-              values.reduce((sum, value) => sum + value, 0) / values.length;
-            const color = getColorForValue(thresholds, average);
-
-            const hasPulsatingSession =
-              pulsatingSessionId !== null &&
-              markers.some((marker) => marker.sessionId === pulsatingSessionId);
-
-            const overlay = new (getClusterOverlayClass())(
-              cluster,
-              color,
-              hasPulsatingSession,
-              map!,
-              handleClusterClickInternal
-            );
-
-            const clusterKey = `${cluster.position
-              .lat()
-              .toFixed(6)}_${cluster.position.lng().toFixed(6)}`;
-            clusterOverlaysRef.current.set(clusterKey, overlay);
-          }
-        });
+    if (!clustererRef.current) return;
+    const listener = clustererRef.current.addListener("clusteringend", () => {
+      markerRefs.current.forEach((marker) => {
+        (marker as CustomMarker).clustered = false;
       });
-    }
+
+      const clusters =
+        clustererRef.current &&
+        // @ts-ignore - clusters
+        (clustererRef.current.clusters as CustomCluster[]);
+
+      clusterOverlaysRef.current.forEach((overlay) => {
+        overlay.setMap(null);
+      });
+      clusterOverlaysRef.current.clear();
+
+      if (!clusters) return;
+
+      clusters.forEach((cluster) => {
+        if (cluster.markers && cluster.markers.length > 1) {
+          cluster.markers.forEach((marker) => {
+            (marker as CustomMarker).clustered = true;
+          });
+
+          const markers = cluster.markers as CustomMarker[];
+          const values = markers.map((marker) => marker.value || 0);
+          const average =
+            values.reduce((sum, value) => sum + value, 0) / values.length;
+          const color = getColorForValue(thresholds, average);
+
+          const hasPulsatingSession =
+            pulsatingSessionId !== null &&
+            markers.some((marker) => marker.sessionId === pulsatingSessionId);
+
+          const overlay = new (getClusterOverlayClass())(
+            cluster,
+            color,
+            hasPulsatingSession,
+            map!,
+            handleClusterClickInternal
+          );
+
+          const clusterKey = `${cluster.position
+            .lat()
+            .toFixed(6)}_${cluster.position.lng().toFixed(6)}`;
+          clusterOverlaysRef.current.set(clusterKey, overlay);
+        }
+      });
+    });
+    return () => google.maps.event.removeListener(listener);
   }, [
     map,
     thresholds,
