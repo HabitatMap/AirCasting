@@ -3,7 +3,7 @@ openapi: 3.0.1
 info:
   title: AirCasting API V3
   version: v3
-  description: API endpoints for AirBeamMini2 devices and mobile apps
+  description: API endpoints for AirBeam devices and mobile apps
 components:
   securitySchemes:
     token_auth:
@@ -16,13 +16,13 @@ security:
 paths:
   "/api/v3/fixed_sessions":
     post:
-      summary: Create a new AirBeamMini2 fixed session
+      summary: Create a new AirBeamMini fixed session
       tags:
-      - AirBeamMini2
+      - AirBeamMini fixed sessions binary flow
       description: |
-        Creates a new fixed session for an AirBeamMini2 device. The mobile app calls this
-        before configuring the AirBeam. The response includes a `sensor_type_id` per
-        stream that the AirBeam uses to identify stream types in the binary upload payload.
+        Creates a new fixed session for an AirBeamMini device. The mobile app calls this
+        before configuring the AirBeamMini. The response includes a `sensor_type_id` per
+        stream that the AirBeamMini uses to identify stream types in the binary upload payload.
 
         ## Error Codes
 
@@ -160,7 +160,7 @@ paths:
                       example: AA:BB:CC:DD:EE:FF
                     model:
                       type: string
-                      example: AirBeamMini2
+                      example: AirBeamMini
                     name:
                       type: string
                       nullable: true
@@ -176,26 +176,26 @@ paths:
                     properties:
                       sensor_name:
                         type: string
-                        description: Sensor name as reported by the device (e.g. AirBeamMini2-PM1,
-                          AirBeamMini2-PM2.5)
-                        example: AirBeamMini2-PM2.5
+                        description: Sensor name as reported by the device (e.g. AirBeamMini-PM1,
+                          AirBeamMini-PM2.5)
+                        example: AirBeamMini-PM2.5
                       unit_symbol:
                         type: string
                         description: Unit symbol for this sensor (e.g. µg/m³, %, F)
                         example: µg/m³
                   example:
-                  - sensor_name: AirBeamMini2-PM1
+                  - sensor_name: AirBeamMini-PM1
                     unit_symbol: µg/m³
-                  - sensor_name: AirBeamMini2-PM2.5
+                  - sensor_name: AirBeamMini-PM2.5
                     unit_symbol: µg/m³
         required: true
   "/api/v3/fixed_sessions/{uuid}/measurements":
     post:
-      summary: Upload binary measurements for an AirBeamMini2 session
+      summary: Upload binary measurements for an AirBeamMini session
       tags:
-      - AirBeamMini2
+      - AirBeamMini fixed sessions binary flow
       description: |
-        Receives a binary measurement payload from the AirBeamMini2. Can be called once per
+        Receives a binary measurement payload from the AirBeamMini. Can be called once per
         minute for live uploads or in bulk after connectivity loss — both are handled identically.
 
         ## Binary Format
@@ -215,7 +215,7 @@ paths:
         **Resend behaviour:** sending a measurement with an already-stored
         `(stream_id, time_with_time_zone)` pair is silently ignored — no duplicate is created.
 
-        **Time synchronisation:** an empty body is valid and returns 200 immediately. The AirBeam
+        **Time synchronisation:** an empty body is valid and returns 200 immediately. The AirBeamMini
         uses this to read the current server time from the `X-Server-Time` response header
         (Unix epoch, UTC) when its clock drifts.
 
@@ -234,7 +234,6 @@ paths:
         | `invalid_checksum` | 400 | XOR checksum of payload does not match the final byte |
         | `invalid_epoch` | 400 | A frame's timestamp is zero or implausibly far in the future |
         | `invalid_value` | 400 | A frame's sensor value is NaN or Infinity |
-        | `unknown_sensor_type_id` | 400 | A frame's `sensor_type_id` is not registered for this session |
       parameters:
       - name: uuid
         in: path
