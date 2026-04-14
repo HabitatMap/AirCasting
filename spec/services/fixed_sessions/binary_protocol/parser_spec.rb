@@ -5,7 +5,7 @@ RSpec.describe FixedSessions::BinaryProtocol::Parser do
 
   def build_binary(measurements)
     count = measurements.size
-    header = ['ABBA', count].pack('a4n')
+    header = ["\xAB\xBA", count].pack('a2n')
     body = measurements.map { |m| [m[:epoch], m[:sensor_type_id], m[:value]].pack('NCg') }.join
     payload = header + body
     checksum = payload.bytes.inject(0, :^)
@@ -51,7 +51,7 @@ RSpec.describe FixedSessions::BinaryProtocol::Parser do
     context 'with invalid magic bytes' do
       let(:binary) do
         bad = build_binary([{ epoch: 1_711_619_400, sensor_type_id: 2, value: 1.0 }])
-        'XXXX' + bad[4..]
+        "\xFF\xFF".b + bad[2..]
       end
 
       it 'raises ParseError with error_code invalid_magic_bytes' do
@@ -78,7 +78,7 @@ RSpec.describe FixedSessions::BinaryProtocol::Parser do
 
     context 'with zero count' do
       let(:binary) do
-        payload = ['ABBA', 0].pack('a4v')
+        payload = ["\xAB\xBA", 0].pack('a2v')
         checksum = payload.bytes.inject(0, :^)
         payload + [checksum].pack('C')
       end
@@ -110,7 +110,7 @@ RSpec.describe FixedSessions::BinaryProtocol::Parser do
         inf_bytes = [0x7F800000].pack('N')
         count = 1
         epoch = 1_711_619_400
-        header = ['ABBA', count].pack('a4n')
+        header = ["\xAB\xBA", count].pack('a2n')
         frame = [epoch, 2].pack('NC') + inf_bytes
         payload = header + frame
         checksum = payload.bytes.inject(0, :^)
@@ -124,7 +124,7 @@ RSpec.describe FixedSessions::BinaryProtocol::Parser do
 
     context 'with payload size mismatch (count says 2, only 1 frame present)' do
       let(:binary) do
-        header = ['ABBA', 2].pack('a4n')
+        header = ["\xAB\xBA", 2].pack('a2n')
         frame = [1_711_619_400, 2, 10.0].pack('NCg')
         payload = header + frame
         checksum = payload.bytes.inject(0, :^)
