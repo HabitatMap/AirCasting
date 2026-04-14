@@ -1,6 +1,6 @@
 require 'swagger_helper'
 
-RSpec.describe 'AirBeam Fixed Sessions', type: :request do
+RSpec.describe 'AirBeamMini Fixed Sessions Binary Flow', type: :request do
   def build_measurement_binary(type_id:, epoch: Time.current.to_i, value: 12.5)
     header = ["\xAB\xBA", 1].pack('a2n')
     measurement = [epoch, type_id, value].pack('NCg')
@@ -19,14 +19,14 @@ RSpec.describe 'AirBeam Fixed Sessions', type: :request do
   }.freeze
 
   path '/api/v3/fixed_sessions' do
-    post 'Create a new AirBeam fixed session' do
-      tags 'AirBeam'
+    post 'Create a new AirBeamMini fixed session' do
+      tags 'AirBeamMini fixed sessions binary flow'
       consumes 'application/json'
       produces 'application/json'
       description <<~DESC
-        Creates a new fixed session for an AirBeam device. The mobile app calls this
-        before configuring the AirBeam. The response includes a `sensor_type_id` per
-        stream that the AirBeam uses to identify stream types in the binary upload payload.
+        Creates a new fixed session for an AirBeamMini device. The mobile app calls this
+        before configuring the AirBeamMini. The response includes a `sensor_type_id` per
+        stream that the AirBeamMini uses to identify stream types in the binary upload payload.
 
         ## Error Codes
 
@@ -178,12 +178,12 @@ RSpec.describe 'AirBeam Fixed Sessions', type: :request do
   end
 
   path '/api/v3/fixed_sessions/{uuid}/measurements' do
-    post 'Upload binary measurements for an AirBeam session' do
-      tags 'AirBeam'
+    post 'Upload binary measurements for an AirBeamMini session' do
+      tags 'AirBeamMini fixed sessions binary flow'
       consumes 'application/octet-stream'
       produces 'application/json'
       description <<~DESC
-        Receives a binary measurement payload from the AirBeam. Can be called once per
+        Receives a binary measurement payload from the AirBeamMini. Can be called once per
         minute for live uploads or in bulk after connectivity loss — both are handled identically.
 
         ## Binary Format
@@ -203,7 +203,7 @@ RSpec.describe 'AirBeam Fixed Sessions', type: :request do
         **Resend behaviour:** sending a measurement with an already-stored
         `(stream_id, time_with_time_zone)` pair is silently ignored — no duplicate is created.
 
-        **Time synchronisation:** an empty body is valid and returns 200 immediately. The AirBeam
+        **Time synchronisation:** an empty body is valid and returns 200 immediately. The AirBeamMini
         uses this to read the current server time from the `X-Server-Time` response header
         (Unix epoch, UTC) when its clock drifts.
 
