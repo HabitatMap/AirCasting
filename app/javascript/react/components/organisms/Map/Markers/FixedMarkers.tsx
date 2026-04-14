@@ -115,6 +115,18 @@ export function FixedMarkers({
 
   const isLoading = useAppSelector(selectIsLoading);
 
+  // Refs that mirror props/selectors whose current value is needed inside
+  // stable callbacks (updateMarkerOverlays, updateClusterOverlays) without
+  // forcing those callbacks to be recreated on every change.
+  const selectedStreamIdRef = useRef(selectedStreamId);
+  selectedStreamIdRef.current = selectedStreamId;
+  const pulsatingSessionIdRef = useRef(pulsatingSessionId);
+  pulsatingSessionIdRef.current = pulsatingSessionId;
+  const thresholdsRef = useRef(thresholds);
+  thresholdsRef.current = thresholds;
+  const unitSymbolRef = useRef(unitSymbol);
+  unitSymbolRef.current = unitSymbol;
+
   // Refs for event handlers
   const onMarkerClickRef = useRef(onMarkerClick);
   useEffect(() => {
@@ -314,12 +326,14 @@ export function FixedMarkers({
       const cluster = overlay.cluster;
       const markers = cluster.markers as CustomMarker[];
       const hasPulsatingSession =
-        pulsatingSessionId !== null &&
-        markers.some((marker) => marker.sessionId === pulsatingSessionId);
+        pulsatingSessionIdRef.current !== null &&
+        markers.some(
+          (marker) => marker.sessionId === pulsatingSessionIdRef.current
+        );
 
       overlay.setShouldPulse(hasPulsatingSession);
     });
-  }, [pulsatingSessionId]);
+  }, []);
 
   const isMarkerInViewport = useCallback(
     (marker: CustomMarker) => {
@@ -335,10 +349,10 @@ export function FixedMarkers({
     markerRefs.current.forEach((marker, streamId) => {
       const isVisible = bounds ? bounds.contains(marker.getPosition()!) : false;
       const isSelected =
-        marker.userData?.streamId === selectedStreamId?.toString();
+        marker.userData?.streamId === selectedStreamIdRef.current?.toString();
       const shouldPulse =
-        marker.sessionId === pulsatingSessionId && !marker.clustered;
-      const newColor = getColorForValue(thresholds, marker.value);
+        marker.sessionId === pulsatingSessionIdRef.current && !marker.clustered;
+      const newColor = getColorForValue(thresholdsRef.current, marker.value);
       const existingOverlay = markerOverlays.current.get(streamId);
       const existingLabelOverlay = labelOverlays.current.get(streamId);
       const position = marker.getPosition();
@@ -375,7 +389,7 @@ export function FixedMarkers({
             position!,
             newColor,
             marker.value === null ? calculatingText : marker.value,
-            unitSymbol,
+            unitSymbolRef.current,
             isSelected,
             () => {
               onMarkerClickRef.current(
@@ -394,20 +408,12 @@ export function FixedMarkers({
             isSelected,
             newColor,
             marker.value === null ? calculatingText : marker.value,
-            unitSymbol
+            unitSymbolRef.current
           );
         }
       }
     });
-  }, [
-    map,
-    selectedStreamId,
-    pulsatingSessionId,
-    thresholds,
-    unitSymbol,
-    centerMapOnMarker,
-    isLoading,
-  ]);
+  }, [map, centerMapOnMarker]);
 
   useEffect(() => {
     if (fixedStreamStatus === StatusEnum.Pending) return;
