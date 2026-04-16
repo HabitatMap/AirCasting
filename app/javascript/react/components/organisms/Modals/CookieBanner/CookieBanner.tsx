@@ -6,12 +6,10 @@ import * as S from "./CookieBanner.style";
 
 interface CookieBannerProps {
   onOpenCookieSettings?: () => void;
-  cookieSettingsModalOpen?: boolean;
 }
 
 const CookieBanner: React.FC<CookieBannerProps> = ({
   onOpenCookieSettings,
-  cookieSettingsModalOpen,
 }) => {
   const [visible, setVisible] = useState(false);
   const { t } = useTranslation();
@@ -21,12 +19,6 @@ const CookieBanner: React.FC<CookieBannerProps> = ({
       setVisible(true);
     }
   }, []);
-
-  useEffect(() => {
-    if (cookieSettingsModalOpen === false && !CookieManager.hasPreferences()) {
-      setVisible(true);
-    }
-  }, [cookieSettingsModalOpen]);
 
   if (!visible) return null;
 

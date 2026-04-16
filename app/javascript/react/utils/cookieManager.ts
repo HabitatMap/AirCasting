@@ -49,25 +49,30 @@ export class CookieManager {
   }
 
   static applyPreferences(preferences: CookiePreferences): void {
-    const analyticsConsent = preferences.analytics ? "granted" : "denied";
-    const marketingConsent = preferences.marketing ? "granted" : "denied";
-
-    window.gtag?.("consent", "update", {
-      analytics_storage: analyticsConsent,
-      ad_storage: marketingConsent,
-      ad_user_data: marketingConsent,
-      ad_personalization: marketingConsent,
-    });
-
-    if (!preferences.analytics) {
+    if (preferences.analytics) {
+      window.gtag?.("consent", "update", {
+        analytics_storage: "granted",
+      });
+    } else {
+      window.gtag?.("consent", "update", {
+        analytics_storage: "denied",
+      });
       this.clearAnalyticsCookies();
     }
 
-    if (!preferences.marketing) {
+    if (preferences.marketing) {
+      window.gtag?.("consent", "update", {
+        ad_storage: "granted",
+      });
+    } else {
+      window.gtag?.("consent", "update", {
+        ad_storage: "denied",
+      });
       this.clearMarketingCookies();
     }
 
-    if (!preferences.preferences) {
+    if (preferences.preferences) {
+    } else {
       Cookies.remove("mapBoundsEast");
       Cookies.remove("mapBoundsNorth");
       Cookies.remove("mapBoundsSouth");

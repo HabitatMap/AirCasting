@@ -88,7 +88,7 @@ const selectSessionsByType = createSelector(
 
 const selectTransformedSessionsByType = createSelector(
   [selectSessionsByType],
-  (sessions) => transformSessionData(sessions ?? [])
+  (sessions) => transformSessionData(sessions)
 );
 
 const selectFixedSessionsPoints = createSelector(
