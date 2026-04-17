@@ -31,7 +31,7 @@ module FixedSessions
         lng: data[:longitude],
       )
       url_token = TokenGenerator.new.generate_unique(5) { |t| !Session.exists?(url_token: t) }
-      session_token = SecureRandom.hex(16)
+
       now = Time.current
 
       FixedSession.create!(
@@ -51,6 +51,13 @@ module FixedSessions
       )
     end
 
+    def session_token
+      loop do
+        t = SecureRandom.hex(16)
+        break t unless t == '0' * 32 || t == 'f' * 32
+      end
+    end
+
     def create_streams(data, session)
       streams_repository = StreamsRepository.new
 
@@ -62,10 +69,10 @@ module FixedSessions
         unit_symbol = stream_params[:unit_symbol]
         threshold_set = find_or_create_threshold_set(canonical, unit_symbol)
 
-        streams_repository.create!(
+        stream = streams_repository.create!(
           params: {
             session: session,
-            sensor_name: canonical,
+            sensor_name: stream_params[:sensor_name],
             sensor_package_name: data[:airbeam][:mac_address],
             unit_name: Sensor::CANONICAL_UNIT_NAMES[canonical],
             unit_symbol: unit_symbol,
@@ -81,8 +88,8 @@ module FixedSessions
         )
 
         {
-          sensor_name: canonical,
-          sensor_type_id: type_id,
+          sensor_name: stream.sensor_name,
+          sensor_type_id: stream.sensor_type_id,
         }
       end
     end
