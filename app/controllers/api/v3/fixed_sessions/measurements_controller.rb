@@ -3,10 +3,10 @@ module Api
     module FixedSessions
       class MeasurementsController < BaseController
         ErrorCodes = ::FixedSessions::BinaryProtocol::ErrorCodes
+        around_action :with_server_time_header
         before_action :authenticate_user_from_token!
         before_action :authenticate_session_from_token!
         before_action :require_authentication!
-        after_action :set_server_time_header
 
         def create
           binary = request.body.read
@@ -44,7 +44,9 @@ module Api
           render json: { error_code: ErrorCodes::UNAUTHORIZED, message: 'Unauthorized' }, status: :unauthorized
         end
 
-        def set_server_time_header
+        def with_server_time_header
+          yield
+        ensure
           response.set_header('X-Server-Time', Time.now.to_i.to_s)
         end
 
