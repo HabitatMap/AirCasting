@@ -3,6 +3,7 @@ import styled from "styled-components";
 
 import {
   acBlue,
+  acBlueDark,
   gray300,
   gray400,
   gray500,
@@ -355,7 +356,7 @@ const TimeRangeButton = styled.button<{ $isActive: boolean }>`
   padding: 0.7rem 1.5rem;
   margin: 0 5px;
   background-color: ${white};
-  color: ${({ $isActive }) => ($isActive ? acBlue : gray300)};
+  color: ${({ $isActive }) => ($isActive ? acBlueDark : gray300)};
   border: none;
   border-radius: 5px;
   box-shadow: 2px 2px 4px 0px rgba(76, 86, 96, 0.1);

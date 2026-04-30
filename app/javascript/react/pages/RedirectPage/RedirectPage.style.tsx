@@ -1,5 +1,5 @@
 import styled, { keyframes } from "styled-components";
-import { blue, gray300, gray400, white } from "../../assets/styles/colors";
+import { acBlueDark, blue, gray300, gray400, white } from "../../assets/styles/colors";
 import { Button } from "../../components/atoms/Button/Button.style";
 import { media } from "../../utils/media";
 
@@ -73,10 +73,10 @@ const Description = styled.p`
 `;
 
 const BlueButton = styled(Button)`
-  background-color: ${blue};
-  color: ${white};
+  background-color: ${white};
+  color: ${acBlueDark};
   font-weight: 600;
-  border: none;
+  border: 2px solid ${blue};
   width: fit-content;
   font-size: 1.4rem;
   padding: 1rem 1.2rem;

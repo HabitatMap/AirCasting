@@ -1,6 +1,6 @@
 import styled from "styled-components";
 
-import { blue, gray200, white } from "../../../assets/styles/colors";
+import { acBlueDark, blue, gray200, white } from "../../../assets/styles/colors";
 
 const SegmentedPickerContainer = styled.div`
   position: relative;
@@ -38,7 +38,7 @@ const SegmentedOption = styled.div<SegmentedOptionProps>`
   background-color: ${({ isSelected }) => (isSelected ? blue : "transparent")};
   border-radius: ${({ isSelected, index, numberOfOptions }) =>
     isSelected && getBorder({ index, numberOfOptions })};
-  color: ${({ isSelected }) => (isSelected ? blue : white)};
+  color: ${({ isSelected }) => (isSelected ? acBlueDark : white)};
   > span {
     color: ${({ isSelected }) => (isSelected ? white : gray200)};
     text-transform: uppercase;
