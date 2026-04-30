@@ -13,6 +13,7 @@ import { AppDispatch } from "@/react/store";
 import Highcharts from "highcharts/highcharts";
 import { TFunction } from "i18next";
 import {
+  acBlueDark,
   blue,
   disabledGraphButton,
   gray100,
@@ -645,10 +646,12 @@ const getRangeSelectorOptions = (
         },
 
         select: {
-          fill: blue,
+          fill: white,
+          stroke: blue,
+          "stroke-width": 2,
           style: {
-            color: white,
-            fontWeight: "bold",
+            color: acBlueDark,
+            fontWeight: "300",
           },
         },
 

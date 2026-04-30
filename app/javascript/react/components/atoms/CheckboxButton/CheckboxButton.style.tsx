@@ -1,5 +1,6 @@
 import styled from "styled-components";
 import {
+  acBlueDark,
   blue,
   gray100,
   gray200,
@@ -12,7 +13,7 @@ const ButtonContainer = styled.div<{
   $isColorStatic?: boolean;
 }>`
   color: ${(props) =>
-    props.$isActive && !props.$isColorStatic ? blue : gray400};
+    props.$isActive && !props.$isColorStatic ? acBlueDark : gray400};
   display: flex;
   align-items: center;
   gap: 1rem;

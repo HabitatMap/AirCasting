@@ -3,6 +3,7 @@ import styled from "styled-components";
 
 import {
   acBlue,
+  acBlueDark,
   blue,
   gray100,
   gray300,
@@ -176,19 +177,20 @@ const RejectAllButton = styled(Button)`
 `;
 
 const SaveButton = styled(Button)`
-  background-color: ${blue};
-  color: ${white};
+  background-color: ${white};
+  color: ${acBlueDark};
   font-weight: 600;
-  border: none;
+  border: 2px solid ${blue};
   padding: 0.75rem 2.5rem;
   border-radius: 6px;
   font-size: 0.9rem;
   text-transform: uppercase;
   cursor: pointer;
-  transition: background-color 0.2s;
+  transition: background-color 0.2s, color 0.2s;
 
   &:hover {
     background-color: ${acBlue};
+    color: ${white};
   }
 
   @media ${media.mobile} {
