@@ -1,0 +1,77 @@
+require 'rails_helper'
+
+RSpec.describe Api::CreateFixedSessionContract do
+  subject(:contract) { described_class.new }
+
+  let(:valid_params) do
+    {
+      uuid: 'test-uuid-abc',
+      title: 'Roof Session',
+      latitude: 40.7128,
+      longitude: -74.0060,
+      contribute: true,
+      airbeam: { mac_address: 'AA:BB:CC:DD:EE:FF', model: 'AirBeamMini' },
+      streams: [{ sensor_name: 'AirBeamMini-PM2.5', unit_symbol: 'µg/m³' }],
+    }
+  end
+
+  it 'succeeds with valid params' do
+    expect(contract.call(valid_params)).to be_success
+  end
+
+  it 'fails when uuid is missing' do
+    result = contract.call(valid_params.except(:uuid))
+    expect(result).to be_failure
+    expect(result.errors[:uuid]).to be_present
+  end
+
+  it 'fails when latitude is missing' do
+    result = contract.call(valid_params.except(:latitude))
+    expect(result).to be_failure
+    expect(result.errors[:latitude]).to be_present
+  end
+
+  it 'fails when airbeam mac_address is missing' do
+    result = contract.call(valid_params.deep_merge(airbeam: { mac_address: nil }))
+    expect(result).to be_failure
+    expect(result.errors[:airbeam][:mac_address]).to be_present
+  end
+
+  it 'fails when streams is empty' do
+    result = contract.call(valid_params.merge(streams: []))
+    expect(result).to be_failure
+    expect(result.errors[:streams]).to be_present
+  end
+
+  it 'accepts optional device name in airbeam' do
+    result = contract.call(valid_params.deep_merge(airbeam: { name: 'Bedroom sensor' }))
+    expect(result).to be_success
+    expect(result.to_h[:airbeam][:name]).to eq('Bedroom sensor')
+  end
+
+  it 'accepts multiple valid streams' do
+    params = valid_params.merge(
+      streams: [
+        { sensor_name: 'AirBeamMini-PM1', unit_symbol: 'µg/m³' },
+        { sensor_name: 'AirBeamMini-PM2.5', unit_symbol: 'µg/m³' },
+      ],
+    )
+    expect(contract.call(params)).to be_success
+  end
+
+  it 'fails for unsupported sensor_name' do
+    params = valid_params.merge(streams: [{ sensor_name: 'UnknownSensor-XYZ', unit_symbol: 'µg/m³' }])
+    result = contract.call(params)
+    expect(result).to be_failure
+    expect(result.errors.to_h.dig(:streams, 0, :sensor_name)).to be_present
+  end
+
+  it 'fails when unit_symbol does not match the sensor' do
+    params = valid_params.merge(
+      streams: [{ sensor_name: 'AirBeamMini-PM2.5', unit_symbol: 'mg/m³' }],
+    )
+    result = contract.call(params)
+    expect(result).to be_failure
+    expect(result.errors.to_h.dig(:streams, 0, :unit_symbol)).to be_present
+  end
+end
