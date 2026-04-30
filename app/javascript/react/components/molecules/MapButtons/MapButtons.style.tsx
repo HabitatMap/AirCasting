@@ -1,6 +1,6 @@
 import styled from "styled-components";
 
-import { blue, gray300, white } from "../../../assets/styles/colors";
+import { acBlueDark, blue, gray300, white } from "../../../assets/styles/colors";
 import { media } from "../../../utils/media";
 import { H4 } from "../../atoms/Typography";
 
@@ -27,10 +27,11 @@ const MapButton = styled.button<{ $isActive?: boolean; $isDisabled?: boolean }>`
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: ${(props) => (props.$isActive ? blue : white)};
+  background-color: ${white};
   border-radius: 10px;
   padding: 0.6rem 1.6rem;
-  border: none;
+  box-sizing: border-box;
+  border: 2px solid ${(props) => (props.$isActive ? blue : "transparent")};
   margin-right: 1rem;
   cursor: pointer;
   ${(props) =>
@@ -41,12 +42,12 @@ const MapButton = styled.button<{ $isActive?: boolean; $isDisabled?: boolean }>`
 `;
 
 const Title = styled(H4)<{ $isActive?: boolean }>`
-  color: ${(props) => (props.$isActive ? white : gray300)};
+  color: ${(props) => (props.$isActive ? acBlueDark : gray300)};
   margin-right: 0.8rem;
 `;
 
 const IconWrapper = styled.div<{ $src: string; $isActive: boolean }>`
-  background-color: ${(props) => (props.$isActive ? white : gray300)};
+  background-color: ${(props) => (props.$isActive ? acBlueDark : gray300)};
   mask: url(${(props) => props.$src});
   mask-size: 100% 100%;
   width: 1.4rem;
