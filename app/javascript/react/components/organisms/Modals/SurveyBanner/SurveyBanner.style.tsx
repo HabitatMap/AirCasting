@@ -15,7 +15,7 @@ const SurveyPopup = styled(Popup)`
   width: 100%;
 
   &-overlay {
-    z-index: 1000;
+    z-index: 1100;
     background-color: rgba(0, 0, 0, 0.5);
     display: flex;
     align-items: center;

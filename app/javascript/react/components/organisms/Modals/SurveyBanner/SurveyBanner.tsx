@@ -73,6 +73,7 @@ const SurveyBanner: React.FC = () => {
       nested
       closeOnDocumentClick={false}
       closeOnEscape={false}
+      overlayStyle={{ zIndex: 1100 }}
     >
       <S.Hero>
         <img src={heroImage} alt="AirBeam Mini" decoding="async" />
