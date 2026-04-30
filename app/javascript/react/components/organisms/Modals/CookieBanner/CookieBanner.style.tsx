@@ -3,6 +3,7 @@ import {
   acBlue,
   gray100,
   gray300,
+  gray400,
   white,
 } from "../../../../assets/styles/colors";
 import { BlueButton } from "../Modals.style";
@@ -53,12 +54,13 @@ const BannerActions = styled.div`
 const DenyButton = styled(BlueButton)`
   background: ${gray100};
   color: ${gray300};
+  border: none;
 `;
 
 const SettingsButton = styled(BlueButton)`
-  background: transparent;
-  color: ${acBlue};
-  border: 1.5px solid ${acBlue};
+  background: ${white};
+  color: ${gray400};
+  border: none;
 `;
 
 export {

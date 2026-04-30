@@ -13,7 +13,7 @@
 .button--primary {
   background-color: white;
   border: 2px solid $brand-primary;
-  color: #0A7DA3;
+  color: $ac-blue-dark;
 }
 
 .button--input {
@@ -69,7 +69,7 @@
     @include flex(0 0 auto);
     background-color: white;
     border: 2px solid $brand-primary;
-    color: #0A7DA3;
+    color: $ac-blue-dark;
     cursor: pointer;
     display: block;
     font-size: $medium-font;
