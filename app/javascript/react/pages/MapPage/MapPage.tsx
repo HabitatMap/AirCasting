@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { lazy, Suspense, useState } from "react";
 
 import { APIProvider } from "@vis.gl/react-google-maps";
 
@@ -8,6 +8,12 @@ import { CookieBanner } from "../../components/organisms/Modals/CookieBanner/Coo
 import { CookieSettingsModal } from "../../components/organisms/Modals/CookieSettingsModal/CookieSettingsModal";
 import { FocusTabController } from "../../utils/focusTabController";
 import useMobileDetection from "../../utils/useScreenSizeDetection";
+
+const SurveyBanner = lazy(() =>
+  import("../../components/organisms/Modals/SurveyBanner/SurveyBanner").then(
+    (m) => ({ default: m.SurveyBanner })
+  )
+);
 
 const googleMapsApiKey = process.env.GOOGLE_MAPS_API_KEY || "";
 
@@ -43,6 +49,9 @@ const MapPage: React.FC<MapPageProps> = ({ children }) => {
         isOpen={cookieSettingsModalOpen}
         onClose={handleCloseCookieSettings}
       />
+      <Suspense fallback={null}>
+        <SurveyBanner />
+      </Suspense>
     </APIProvider>
   );
 };
