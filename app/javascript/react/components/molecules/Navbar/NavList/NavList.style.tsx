@@ -1,6 +1,6 @@
 import styled, { css } from "styled-components";
 
-import { blue, darkBlue, theme, white } from "../../../../assets/styles/colors";
+import { acBlueDark, blue, darkBlue, gray400, white } from "../../../../assets/styles/colors";
 import { media } from "../../../../utils/media";
 import { BuyCTA } from "../Navbar.style";
 
@@ -22,7 +22,7 @@ const Container = styled.div`
 `;
 
 const NavList = styled.ul<{ $isVisible?: boolean }>`
-  background: ${theme};
+  background: ${white};
   list-style-type: none;
   font-weight: 400;
   font-family: Moderat, sans-serif;
@@ -60,7 +60,7 @@ const NavList = styled.ul<{ $isVisible?: boolean }>`
 
 const SubNav = styled.ul`
   padding: 0.8rem 0 1.6rem 0;
-  border-bottom: 1px solid ${white};
+  border-bottom: 1px solid ${blue};
   list-style-type: none;
 `;
 
@@ -68,7 +68,7 @@ const NavHeader = styled.li`
   display: flex;
   justify-content: space-between;
   padding-bottom: 2.45rem;
-  border-bottom: 1px solid ${white};
+  border-bottom: 1px solid ${blue};
 `;
 
 const ListItem = styled.li<{ $isActive?: boolean }>`
@@ -77,7 +77,7 @@ const ListItem = styled.li<{ $isActive?: boolean }>`
 `;
 
 const SubNavTitleLink = styled.a`
-  color: ${white};
+  color: ${gray400};
   font-size: 2.2rem;
   display: inline-block;
   padding: 0.5rem 0;
@@ -102,7 +102,7 @@ const NavItemLink = styled(SubNavTitleLink)`
 `;
 
 const SubNavTitle = styled.span`
-  color: ${white};
+  color: ${gray400};
   font-size: 2.2rem;
   display: inline-block;
   padding: 0.5rem 0;
@@ -113,7 +113,7 @@ const SubNavTitle = styled.span`
 `;
 
 const NavItemText = styled.span`
-  color: ${white};
+  color: ${gray400};
   font-size: 1.9rem;
   display: inline-block;
   padding: 0.5rem 0;
@@ -133,9 +133,9 @@ const BottomNavContainer = styled(Container)`
 `;
 
 const BuyCTAWhite = styled(BuyCTA)`
-  background-color: transparent;
-  border: 1px solid ${white};
-  color: ${white};
+  background-color: ${white};
+  border: 2px solid ${blue};
+  color: ${acBlueDark};
   border-radius: 0px;
   font-weight: 400;
   padding: 1.8rem 2rem;
@@ -144,12 +144,12 @@ const BuyCTAWhite = styled(BuyCTA)`
   &:visited,
   &:link,
   &:active {
-    color: ${white};
+    color: ${acBlueDark};
   }
 
   &:hover {
-    background-color: ${white};
-    color: ${blue};
+    background-color: ${blue};
+    color: ${white};
   }
 `;
 

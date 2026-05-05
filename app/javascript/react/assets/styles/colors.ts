@@ -14,6 +14,7 @@ const gray900 = "#4C56601A";
 const mint = "#81DBCB";
 const blue = "#00B3EF";
 const acBlue = "#00B2EF";
+const acBlueDark = "#0A7DA3";
 const acBlueTransparent = "#CCF0FC";
 const darkBlue = "#5C81A5";
 const darkBlueTransparent = "#5c81a580";
@@ -54,6 +55,7 @@ const waterColor = "#e0f1f9";
 
 export {
   acBlue,
+  acBlueDark,
   acBlueTransparent,
   administrativeRegionTextColor,
   black,

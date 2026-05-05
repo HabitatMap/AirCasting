@@ -3,6 +3,7 @@ import styled from "styled-components";
 
 import {
   acBlue,
+  acBlueDark,
   gray300,
   gray400,
   gray500,
@@ -305,8 +306,9 @@ const RoundMarker = styled.div<{ $position: number; $isDragging: boolean }>`
 
 const Tooltip = styled.div`
   display: flex;
-  background-color: ${acBlue};
-  color: ${white};
+  background-color: ${white};
+  color: ${acBlueDark};
+  border: 2px solid ${acBlue};
   padding: 1rem;
   gap: 1rem;
   border-radius: 0.5rem;
@@ -355,8 +357,9 @@ const TimeRangeButton = styled.button<{ $isActive: boolean }>`
   padding: 0.7rem 1.5rem;
   margin: 0 5px;
   background-color: ${white};
-  color: ${({ $isActive }) => ($isActive ? acBlue : gray300)};
-  border: none;
+  color: ${({ $isActive }) => ($isActive ? acBlueDark : gray300)};
+  box-sizing: border-box;
+  border: 2px solid ${({ $isActive }) => ($isActive ? acBlue : "transparent")};
   border-radius: 5px;
   box-shadow: 2px 2px 4px 0px rgba(76, 86, 96, 0.1);
   font-size: 1.2rem;
@@ -365,11 +368,12 @@ const TimeRangeButton = styled.button<{ $isActive: boolean }>`
   cursor: pointer;
 
   @media ${media.smallDesktop} {
-    background-color: ${({ $isActive }) => ($isActive ? acBlue : white)};
-    color: ${({ $isActive }) => ($isActive ? white : gray300)};
+    background-color: ${white};
+    border: 2px solid ${({ $isActive }) => ($isActive ? acBlue : "transparent")};
+    color: ${({ $isActive }) => ($isActive ? acBlueDark : gray300)};
     &:hover {
-      background-color: ${acBlue};
-      color: ${white};
+      border-color: ${acBlue};
+      color: ${acBlueDark};
     }
   }
 `;

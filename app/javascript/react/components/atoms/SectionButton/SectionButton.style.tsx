@@ -1,5 +1,5 @@
 import styled from "styled-components";
-import { blue, white } from "../../../assets/styles/colors";
+import { acBlueDark, blue, white } from "../../../assets/styles/colors";
 import { H6 } from "../Typography";
 
 const StyledSectionButton = styled.button<{
@@ -7,7 +7,7 @@ const StyledSectionButton = styled.button<{
   $isActive?: boolean;
   $isDisabled?: boolean;
 }>`
-  background-color: ${(props) => (props.$isActive ? blue : white)};
+  background-color: ${white};
   border-radius: 1rem;
   box-shadow: 0 0.4rem 0.8rem rgba(0, 0, 0, 0.1);
   box-sizing: border-box;
@@ -18,7 +18,7 @@ const StyledSectionButton = styled.button<{
   width: 100%;
   padding: 1.6rem;
   height: 4.2rem;
-  border: none;
+  border: 2px solid ${(props) => (props.$isActive ? blue : "transparent")};
 
   ${(props) =>
     props.$isNotTimelapseButton &&
@@ -38,16 +38,13 @@ const StyledSectionButton = styled.button<{
 
 const Title = styled(H6)<{ $isActive?: boolean }>`
   text-transform: capitalize;
-  ${(props) => props.$isActive && `color: ${white};`}
+  ${(props) => props.$isActive && `color: ${acBlueDark};`}
 `;
 
 const Image = styled.img<{ $isActive?: boolean }>`
   width: 1.2rem;
   height: 1.2rem;
   margin-bottom: 0.25rem;
-  ${(props) =>
-    props.$isActive &&
-    `filter: invert(100%) sepia(37%) saturate(2%) hue-rotate(273deg) brightness(109%) contrast(101%);;`}
 `;
 
 export { Image, StyledSectionButton, Title };

@@ -1,6 +1,7 @@
 import styled from "styled-components";
 import chevronDown from "../../../../assets/icons/chevronDown.svg";
 import {
+  acBlueDark,
   blue,
   gray200,
   gray400,
@@ -84,7 +85,7 @@ const Slider = styled.span`
 `;
 
 const Label = styled.span<{ $isActive?: boolean }>`
-  color: ${(props) => (props.$isActive ? blue : gray400)};
+  color: ${(props) => (props.$isActive ? acBlueDark : gray400)};
   margin: 0 1rem;
   display: flex;
   align-items: center;
