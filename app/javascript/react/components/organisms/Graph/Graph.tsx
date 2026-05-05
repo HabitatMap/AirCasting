@@ -208,6 +208,7 @@ const Graph: React.FC<GraphProps> = memo(
       if (overrideRangeSelector) return -1;
       // So we combine it with our override flag.
       if (lastTriggerRef.current === "mousewheel") return -1;
+      if (lastTriggerRef.current === "zoom") return -1;
 
       if (!fixedSessionTypeSelected) {
         return 2;
@@ -291,6 +292,7 @@ const Graph: React.FC<GraphProps> = memo(
 
     const handleRangeSelectorClick = useCallback(
       (selectedButton: number) => {
+        setOverrideRangeSelector(false);
         if (selectedButton === 0) {
           setSelectedRangeIndex(-1);
         } else {
@@ -665,7 +667,11 @@ const Graph: React.FC<GraphProps> = memo(
               ],
           selected: selectedTimestamp
             ? undefined
+            : overrideRangeSelector
+            ? undefined
             : lastTriggerRef.current === "mousewheel"
+            ? undefined
+            : lastTriggerRef.current === "zoom"
             ? undefined
             : selectedRangeIndex >= 0
             ? selectedRangeIndex
@@ -701,6 +707,7 @@ const Graph: React.FC<GraphProps> = memo(
       chartData,
       selectedTimestamp,
       selectedRangeIndex,
+      overrideRangeSelector,
       onDayClick,
       measurementType,
       unitSymbol,

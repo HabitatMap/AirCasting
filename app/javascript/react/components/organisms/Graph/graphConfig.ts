@@ -254,6 +254,15 @@ const getXAxisOptions = (
       if (onDayClick) onDayClick(null);
     }
 
+    if (effectiveTrigger === "zoom") {
+      setOverrideRangeSelector(true);
+      const rangeSelector = chart.rangeSelector;
+      if (rangeSelector?.buttons) {
+        rangeSelector.buttons.forEach((button) => button.setState(0));
+        rangeSelector.selected = undefined;
+      }
+    }
+
     if (
       effectiveTrigger === "pan" ||
       effectiveTrigger === "zoom" ||
