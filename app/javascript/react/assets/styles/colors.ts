@@ -5,6 +5,7 @@ const white = "#FFFFFF";
 const gray100 = "#F4F6F9";
 const gray200 = "#C0C9D1";
 const gray300 = "#7D858C";
+const gray350 = "#5E6267";
 const gray400 = "#3E4449";
 const gray500 = "#C6CDD3";
 const gray600 = "#AFB6BC";
@@ -68,6 +69,7 @@ export {
   gray100,
   gray200,
   gray300,
+  gray350,
   gray400,
   gray500,
   gray600,

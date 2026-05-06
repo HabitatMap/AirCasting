@@ -1,6 +1,6 @@
 import styled, { css } from "styled-components";
 
-import { acBlueDark, blue, darkBlue, gray400, white } from "../../../../assets/styles/colors";
+import { acBlueDark, blue, darkBlue, gray350, gray400, white } from "../../../../assets/styles/colors";
 import { media } from "../../../../utils/media";
 import { BuyCTA } from "../Navbar.style";
 
@@ -71,20 +71,15 @@ const NavHeader = styled.li`
   border-bottom: 1px solid ${blue};
 `;
 
-const ListItem = styled.li<{ $isActive?: boolean }>`
-  border-bottom: none;
-  opacity: ${(p) => (p.$isActive ? "0.5" : "1")};
-`;
-
 const SubNavTitleLink = styled.a`
-  color: ${gray400};
+  color: ${gray350};
   font-size: 2.2rem;
   display: inline-block;
   padding: 0.5rem 0;
   text-decoration: none;
 
   &:hover {
-    opacity: 0.5;
+    color: ${gray400};
   }
 
   @media ${media.smallDesktop} {
@@ -97,12 +92,12 @@ const NavItemLink = styled(SubNavTitleLink)`
   padding: 0.5rem 0;
 
   @media ${media.smallDesktop} {
-    font-size: 1.5rem;
+    font-size: 1.6rem;
   }
 `;
 
 const SubNavTitle = styled.span`
-  color: ${gray400};
+  color: ${gray350};
   font-size: 2.2rem;
   display: inline-block;
   padding: 0.5rem 0;
@@ -113,14 +108,26 @@ const SubNavTitle = styled.span`
 `;
 
 const NavItemText = styled.span`
-  color: ${gray400};
+  color: ${gray350};
   font-size: 1.9rem;
   display: inline-block;
   padding: 0.5rem 0;
 
   @media ${media.smallDesktop} {
-    font-size: 1.5rem;
+    font-size: 1.6rem;
   }
+`;
+
+const ListItem = styled.li<{ $isActive?: boolean }>`
+  border-bottom: none;
+
+  ${(p) =>
+    p.$isActive &&
+    css`
+      ${SubNavTitleLink}, ${NavItemLink}, ${SubNavTitle}, ${NavItemText} {
+        color: ${gray400};
+      }
+    `}
 `;
 
 const Link = styled(NavItemLink)`
