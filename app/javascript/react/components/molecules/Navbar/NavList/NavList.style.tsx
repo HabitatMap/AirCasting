@@ -75,7 +75,7 @@ const SubNavTitleLink = styled.a`
   color: ${gray350};
   font-size: 2.2rem;
   display: inline-block;
-  padding: 0.5rem 0;
+  padding: 2.1rem 0 0.5rem 0;
   text-decoration: none;
 
   &:hover {
@@ -100,7 +100,7 @@ const SubNavTitle = styled.span`
   color: ${gray350};
   font-size: 2.2rem;
   display: inline-block;
-  padding: 0.5rem 0;
+  padding: 2.1rem 0 0.5rem 0;
 
   @media ${media.smallDesktop} {
     font-size: 1.8rem;
