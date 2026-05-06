@@ -1,6 +1,6 @@
 import styled from "styled-components";
 
-import { blue, gray400 } from "../../../assets/styles/colors";
+import { acBlueDark, gray400 } from "../../../assets/styles/colors";
 import { SessionListTile } from "./SessionsListTile/SessionListTile.style";
 
 const SessionListViewStyle = styled.div`
@@ -53,7 +53,7 @@ const SessionListContainer = styled.div`
 
 const ExportSessionsButton = styled.button<{ $hasSessions: boolean }>`
   background-color: transparent;
-  color: ${blue};
+  color: ${acBlueDark};
   border: none;
   font-size: 1.2rem;
   text-transform: uppercase;

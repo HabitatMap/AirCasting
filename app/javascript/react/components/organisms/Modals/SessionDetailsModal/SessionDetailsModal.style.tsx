@@ -3,6 +3,7 @@ import Popup from "reactjs-popup";
 import styled from "styled-components";
 
 import {
+  acBlueDark,
   blue,
   gray100,
   gray200,
@@ -187,8 +188,8 @@ const Button = styled(ActionButton)`
 `;
 
 const BlueButton = styled(Link)`
-  background-color: ${blue};
-  color: ${white};
+  background-color: ${white};
+  color: ${acBlueDark};
   font-weight: 100;
   width: fit-content;
   font-weight: 400;
@@ -202,9 +203,8 @@ const BlueButton = styled(Link)`
   gap: 1rem;
   justify-content: flex-end;
   display: flex;
-  border: 1px solid ${gray200};
   text-decoration: none;
-  border: none;
+  border: 2px solid ${blue};
   margin-right: 0.5rem;
 
   /* fix for outlines appearing on component load */

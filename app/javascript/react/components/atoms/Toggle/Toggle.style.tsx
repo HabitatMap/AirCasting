@@ -1,6 +1,6 @@
 import styled from "styled-components";
 
-import { blue, gray400, gray600, white } from "../../../assets/styles/colors";
+import { acBlueDark, blue, gray400, gray600, white } from "../../../assets/styles/colors";
 import { media } from "../../../utils/media";
 
 const ToggleLabel = styled.label<{ $biggerMobileVersion: boolean }>`
@@ -77,7 +77,7 @@ const Slider = styled.span<{
 `;
 
 const Label = styled.span<{ $isActive?: boolean }>`
-  color: ${(props) => (props.$isActive ? blue : gray400)};
+  color: ${(props) => (props.$isActive ? acBlueDark : gray400)};
   display: inline-block;
   align-items: center;
   gap: 1rem;

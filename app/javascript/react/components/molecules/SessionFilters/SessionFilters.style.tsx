@@ -2,6 +2,7 @@ import styled, { keyframes } from "styled-components";
 
 import {
   acBlue,
+  acBlueDark,
   acBlueTransparent,
   gray100,
   gray200,
@@ -83,11 +84,12 @@ const Tab = styled.button<{ $isActive: boolean }>`
   justify-content: center;
   flex: 1;
   padding: 1rem 3rem;
-  background-color: ${(props) => (props.$isActive ? acBlue : gray100)};
-  border: none;
+  box-sizing: border-box;
+  background-color: ${(props) => (props.$isActive ? white : gray100)};
+  border: 2px solid ${(props) => (props.$isActive ? acBlue : "transparent")};
   text-transform: uppercase;
   font-size: 1.4rem;
-  color: ${(props) => (props.$isActive ? white : gray300)};
+  color: ${(props) => (props.$isActive ? acBlueDark : gray300)};
   cursor: pointer;
 
   &:first-child {
@@ -101,7 +103,7 @@ const Tab = styled.button<{ $isActive: boolean }>`
 
 const IconWrapper = styled.div<{ $isActive: boolean; $src: string }>`
   margin-left: 0.8rem;
-  background-color: ${(props) => (props.$isActive ? white : gray300)};
+  background-color: ${(props) => (props.$isActive ? acBlueDark : gray300)};
   mask: url(${(props) => props.$src});
   mask-size: 100% 100%;
   width: 2rem;
@@ -146,9 +148,9 @@ const ShowSessionsButton = styled(Button)`
   align-items: center;
   justify-content: center;
   width: 100%;
-  border: none;
-  background-color: ${acBlue};
-  color: ${white};
+  border: 2px solid ${acBlue};
+  background-color: ${white};
+  color: ${acBlueDark};
   font-size: 1.4rem;
   text-transform: uppercase;
   margin-top: 1rem;
@@ -287,9 +289,10 @@ const SectionButton = styled(Button)<{ $isActive: boolean }>`
   justify-content: center;
   align-items: center;
   text-transform: uppercase;
-  border: none;
-  background-color: ${(props) => (props.$isActive ? acBlue : gray100)};
-  color: ${(props) => (props.$isActive ? white : gray300)};
+  box-sizing: border-box;
+  border: 2px solid ${(props) => (props.$isActive ? acBlue : "transparent")};
+  background-color: ${(props) => (props.$isActive ? white : gray100)};
+  color: ${(props) => (props.$isActive ? acBlueDark : gray300)};
   min-width: 3.8rem;
   transition: background-color 0.4s ease, color 0.3s ease;
   height: 25px;
@@ -391,7 +394,7 @@ const FiltersOptionButton = styled(Button)<{ $isSelected: boolean }>`
   min-width: 12rem;
   height: 3rem;
   justify-content: flex-start;
-  color: ${(props) => (props.$isSelected ? acBlue : gray300)};
+  color: ${(props) => (props.$isSelected ? acBlueDark : gray300)};
   border: 1px solid ${gray500};
   border-color: ${(props) => props.$isSelected && lightBlue};
   font-size: 1.2rem;
@@ -479,7 +482,7 @@ const BasicParameterButton = styled.button`
 `;
 
 const ButtonSpan = styled(HeaderTitle)<{ $isActive: boolean }>`
-  color: ${(props) => (props.$isActive ? acBlue : gray400)};
+  color: ${(props) => (props.$isActive ? acBlueDark : gray400)};
   margin: 0;
 `;
 
@@ -568,7 +571,7 @@ const CustomParameterItem = styled.li`
 const CustomParameter = styled.button<{ $isActive?: boolean }>`
   border: none;
   background-color: transparent;
-  color: ${(props) => (props.$isActive ? acBlue : gray400)};
+  color: ${(props) => (props.$isActive ? acBlueDark : gray400)};
   font-size: 1.6rem;
   text-align: left;
   white-space: nowrap;

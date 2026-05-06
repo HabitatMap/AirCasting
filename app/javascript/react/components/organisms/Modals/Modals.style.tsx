@@ -1,6 +1,7 @@
 import styled from "styled-components";
 import {
   acBlue,
+  acBlueDark,
   blue,
   gray100,
   gray400,
@@ -37,10 +38,10 @@ const FlexWrapper = styled.div`
 `;
 
 const ActionButton = styled(Button)`
-  background-color: ${blue};
-  color: ${white};
+  background-color: ${white};
+  color: ${acBlueDark};
   font-weight: 100;
-  border: none;
+  border: 2px solid ${blue};
   @media ${media.desktop} {
     height: 30px;
     font-size: 1rem;
@@ -80,10 +81,10 @@ const TextInput = styled.input`
 `;
 
 const BlueButton = styled(Button)`
-  background-color: ${blue};
-  color: ${white};
+  background-color: ${white};
+  color: ${acBlueDark};
   font-weight: 600;
-  border: none;
+  border: 2px solid ${blue};
   width: fit-content;
   font-size: 1.1rem;
   height: 0.8rem;
@@ -136,6 +137,7 @@ const BannerActions = styled.div`
 const DenyButton = styled(BlueButton)`
   background: ${gray400};
   color: ${white};
+  border: none;
 `;
 
 const SettingsButton = styled(BlueButton)`

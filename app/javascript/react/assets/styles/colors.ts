@@ -5,6 +5,7 @@ const white = "#FFFFFF";
 const gray100 = "#F4F6F9";
 const gray200 = "#C0C9D1";
 const gray300 = "#7D858C";
+const gray350 = "#5E6267";
 const gray400 = "#3E4449";
 const gray500 = "#C6CDD3";
 const gray600 = "#AFB6BC";
@@ -14,6 +15,7 @@ const gray900 = "#4C56601A";
 const mint = "#81DBCB";
 const blue = "#00B3EF";
 const acBlue = "#00B2EF";
+const acBlueDark = "#0A7DA3";
 const acBlueTransparent = "#CCF0FC";
 const darkBlue = "#5C81A5";
 const darkBlueTransparent = "#5c81a580";
@@ -54,6 +56,7 @@ const waterColor = "#e0f1f9";
 
 export {
   acBlue,
+  acBlueDark,
   acBlueTransparent,
   administrativeRegionTextColor,
   black,
@@ -66,6 +69,7 @@ export {
   gray100,
   gray200,
   gray300,
+  gray350,
   gray400,
   gray500,
   gray600,

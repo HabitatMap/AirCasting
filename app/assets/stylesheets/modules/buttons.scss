@@ -11,8 +11,9 @@
 }
 
 .button--primary {
-  background-color: $brand-primary;
-  color: white;
+  background-color: white;
+  border: 2px solid $brand-primary;
+  color: $ac-blue-dark;
 }
 
 .button--input {
@@ -66,9 +67,9 @@
   @media screen and (max-width: $tablet-max) {
     @include appearance(none);
     @include flex(0 0 auto);
-    background-color: $brand-primary;
-    border: none;
-    color: white;
+    background-color: white;
+    border: 2px solid $brand-primary;
+    color: $ac-blue-dark;
     cursor: pointer;
     display: block;
     font-size: $medium-font;
