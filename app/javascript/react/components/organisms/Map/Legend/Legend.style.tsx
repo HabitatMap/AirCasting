@@ -1,5 +1,10 @@
 import styled from "styled-components";
-import { acBlue, gray400, white } from "../../../../assets/styles/colors";
+import {
+  acBlueDark,
+  blue,
+  gray400,
+  white,
+} from "../../../../assets/styles/colors";
 import { Button } from "../../../atoms/Button/Button.style";
 import { H3 } from "../../../atoms/Typography";
 
@@ -75,8 +80,8 @@ const SliderContainer = styled.div`
 `;
 
 const ApplyButton = styled(Button)`
-  background-color: ${acBlue};
-  color: ${white};
+  background-color: ${white};
+  color: ${acBlueDark};
   text-transform: uppercase;
   text-size: 1.4rem;
   border-radius: 0.5rem;
@@ -87,7 +92,7 @@ const ApplyButton = styled(Button)`
   justify-content: center;
   width: 100%;
   height: 3.6rem;
-  border: none;
+  border: 2px solid ${blue};
 `;
 
 export {
