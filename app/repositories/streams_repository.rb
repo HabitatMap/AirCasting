@@ -19,6 +19,10 @@ class StreamsRepository
     Stream.where(session_id: session_id).includes(:session)
   end
 
+  def find_by_session_id_and_sensor_type_id(session_id:, sensor_type_id:)
+    Stream.find_by(session_id: session_id, sensor_type_id: sensor_type_id)
+  end
+
   def find_by_session_uuid_and_sensor_name(session_uuid:, sensor_name:)
     Stream
       .joins(:session)

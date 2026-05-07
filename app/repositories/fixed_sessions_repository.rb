@@ -15,4 +15,10 @@ class FixedSessionsRepository
 
     session.save!
   end
+
+  def update_start_time_local_if_earlier!(session:, first_measurement:)
+    return unless first_measurement.time < session.start_time_local
+
+    session.update!(start_time_local: first_measurement.time)
+  end
 end
