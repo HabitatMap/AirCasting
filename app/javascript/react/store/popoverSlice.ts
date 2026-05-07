@@ -1,9 +1,10 @@
 import { createSlice } from "@reduxjs/toolkit";
+import type { RootState } from "./index";
 
 const popoverSlice = createSlice({
   name: "popover",
   initialState: {
-    openMarkerKey: null,
+    openMarkerKey: null as string | null,
     initialSlide: 0,
   },
   reducers: {
@@ -17,6 +18,11 @@ const popoverSlice = createSlice({
     },
   },
 });
+
+export const selectOpenMarkerKey = (state: RootState) =>
+  state.popover.openMarkerKey;
+export const selectPopoverInitialSlide = (state: RootState) =>
+  state.popover.initialSlide;
 
 export const { openPopover, closePopover } = popoverSlice.actions;
 export default popoverSlice.reducer;
