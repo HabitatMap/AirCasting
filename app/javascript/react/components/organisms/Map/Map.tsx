@@ -615,11 +615,8 @@ const Map = () => {
     dispatch(setFetchingData(false));
 
     const cityRaw = decodeURIComponent(city);
-    let cancelled = false;
-    let idleListener: google.maps.MapsEventListener | undefined;
 
     geocodeCity(cityRaw).then(async (result) => {
-      if (cancelled) return;
       let mapWillMove = false;
       if (result) {
         if (result.bounds) {
@@ -637,7 +634,6 @@ const Map = () => {
         });
       } else {
         const geo = await getBrowserLocation(mapInstance, setUrlParams);
-        if (cancelled) return;
         mapWillMove = !!geo;
         trackCityLanding({
           cityRaw,
@@ -673,20 +669,11 @@ const Map = () => {
         dispatch(setFetchingData(true));
       };
       if (mapWillMove) {
-        idleListener = google.maps.event.addListenerOnce(
-          mapInstance,
-          "idle",
-          finalize
-        );
+        google.maps.event.addListenerOnce(mapInstance, "idle", finalize);
       } else {
         finalize();
       }
     });
-
-    return () => {
-      cancelled = true;
-      idleListener?.remove();
-    };
   }, [
     mapInstance,
     city,
