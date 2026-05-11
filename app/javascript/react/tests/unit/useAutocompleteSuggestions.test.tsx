@@ -18,29 +18,54 @@ interface MockPrediction {
   mainText: { text: string; matches: never[] } | null;
   secondaryText: { text: string; matches: never[] } | null;
   types: string[];
+  toPlace: () => MockPlaceInstance;
 }
+
+type MockPlaceInstance = {
+  formattedAddress: string;
+  location: { lat: number; lng: number };
+  viewport?: google.maps.LatLngBounds;
+  types: string[];
+  addressComponents: unknown[];
+  fetchFields: jest.Mock;
+};
 
 const makePrediction = (
   placeId: string,
   text: string,
   matches: { startOffset: number; endOffset: number }[] = []
-): MockPrediction => ({
-  placeId,
-  text: { text, matches },
-  mainText: { text, matches: [] },
-  secondaryText: { text: "", matches: [] },
-  types: ["locality"],
-});
+): MockPrediction => {
+  const sharedPlace: MockPlaceInstance = {
+    formattedAddress: "Berlin, Germany",
+    location: { lat: 52.52, lng: 13.405 },
+    viewport: undefined,
+    types: ["locality"],
+    addressComponents: [],
+    fetchFields: jest.fn().mockResolvedValue(undefined),
+  };
+
+  return {
+    placeId,
+    text: { text, matches },
+    mainText: { text, matches: [] },
+    secondaryText: { text: "", matches: [] },
+    types: ["locality"],
+    toPlace: () => sharedPlace,
+  };
+};
 
 beforeEach(() => {
   fetchMock.mockReset();
   geocoderMock.mockReset();
   tokenInstances.length = 0;
   jest.useFakeTimers();
-  (global as any).google = {
+  const prevMaps = (global as { google?: { maps?: object } }).google?.maps ?? {};
+  (global as { google: { maps: object } }).google = {
     maps: {
+      ...prevMaps,
       Geocoder: jest.fn(() => ({ geocode: geocoderMock })),
       places: {
+        ...(prevMaps as { places?: object }).places,
         AutocompleteSuggestion: { fetchAutocompleteSuggestions: fetchMock },
         AutocompleteSessionToken: MockSessionToken,
       },
@@ -207,8 +232,9 @@ describe("useAutocompleteSuggestions", () => {
   });
 
   it("selectSuggestion returns GeocodeResult for known id", async () => {
+    const prediction = makePrediction("p1", "Berlin");
     fetchMock.mockResolvedValue({
-      suggestions: [{ placePrediction: makePrediction("p1", "Berlin") }],
+      suggestions: [{ placePrediction: prediction }],
     });
     geocoderMock.mockResolvedValue({
       results: [
@@ -234,11 +260,13 @@ describe("useAutocompleteSuggestions", () => {
       geocode = await result.current.selectSuggestion("p1");
     });
 
+    expect(prediction.toPlace().fetchFields).toHaveBeenCalled();
     expect(geocode).toMatchObject({
       lat: 52.52,
       lng: 13.405,
       resolvedName: "Berlin, Germany",
     });
+    expect(geocoderMock).not.toHaveBeenCalled();
   });
 
   it("selectSuggestion returns null for unknown id", async () => {
@@ -260,6 +288,57 @@ describe("useAutocompleteSuggestions", () => {
 
     expect(geocode).toBeNull();
     expect(geocoderMock).not.toHaveBeenCalled();
+  });
+
+  it("selectSuggestion falls back to geocoder when fetchFields rejects", async () => {
+    fetchMock.mockResolvedValue({
+      suggestions: [
+        {
+          placePrediction: {
+            ...makePrediction("p1", "Berlin"),
+            toPlace: () => ({
+              formattedAddress: "",
+              location: { lat: () => 52.52, lng: () => 13.405 },
+              types: ["locality"],
+              addressComponents: [],
+              fetchFields: jest
+                .fn()
+                .mockRejectedValue(new Error("Places details failed")),
+            }),
+          },
+        },
+      ],
+    });
+    geocoderMock.mockResolvedValue({
+      results: [
+        {
+          geometry: {
+            location: { toJSON: () => ({ lat: 53.55, lng: 10 }) },
+          },
+          formatted_address: "Fallback Hamburg",
+          types: ["locality"],
+        },
+      ],
+    });
+
+    const { result } = renderHook(() => useAutocompleteSuggestions());
+
+    act(() => result.current.setInput("Berl"));
+    await flushTimers();
+    await waitFor(() => expect(result.current.status).toBe("ok"));
+
+    let geocode: Awaited<ReturnType<typeof result.current.selectSuggestion>> =
+      null;
+    await act(async () => {
+      geocode = await result.current.selectSuggestion("p1");
+    });
+
+    expect(geocoderMock).toHaveBeenCalled();
+    expect(geocode).toMatchObject({
+      lat: 53.55,
+      lng: 10,
+      resolvedName: "Fallback Hamburg",
+    });
   });
 
   it("passes locationBias to API call", async () => {

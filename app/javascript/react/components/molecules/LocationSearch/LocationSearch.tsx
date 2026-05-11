@@ -1,5 +1,5 @@
 import { useCombobox } from "downshift";
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 
 import { useMap } from "@vis.gl/react-google-maps";
@@ -76,6 +76,17 @@ const serializeBounds = (
   };
 };
 
+const boundsStableKey = (
+  b: google.maps.LatLngBounds | null | undefined
+): string => {
+  if (!b) return "__none__";
+  try {
+    return JSON.stringify(b.toJSON?.() ?? null);
+  } catch {
+    return "__unknown__";
+  }
+};
+
 const LocationSearch: React.FC<LocationSearchProps> = ({ isTimelapseView }) => {
   const dispatch = useAppDispatch();
   const [selectedItem, setSelectedItem] = useState<LocationItem | null>(null);
@@ -83,9 +94,34 @@ const LocationSearch: React.FC<LocationSearchProps> = ({ isTimelapseView }) => {
   const { t } = useTranslation();
   const map = useMap();
   const { setUrlParams } = useMapParams();
+  const lastBiasKeyRef = useRef<string>("__init__");
+
+  const [locationBias, setLocationBias] =
+    useState<google.maps.places.LocationBias | null>(null);
+
+  useEffect(() => {
+    if (!map) {
+      lastBiasKeyRef.current = "__init__";
+      setLocationBias(null);
+      return;
+    }
+    const syncBias = () => {
+      const b = map.getBounds?.() ?? null;
+      const key = boundsStableKey(b);
+      if (key === lastBiasKeyRef.current) return;
+      lastBiasKeyRef.current = key;
+      setLocationBias(b);
+    };
+    syncBias();
+    const listener = map.addListener("idle", syncBias);
+    return () => {
+      listener.remove();
+      lastBiasKeyRef.current = "__init__";
+    };
+  }, [map]);
 
   const { setInput, suggestions, status, selectSuggestion } =
-    useAutocompleteSuggestions();
+    useAutocompleteSuggestions({ locationBias });
   const { recents, addRecent, clearRecents } = useRecentSearches();
 
   const showingRecents = inputValue.trim() === "" && recents.length > 0;

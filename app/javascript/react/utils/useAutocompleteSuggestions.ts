@@ -1,6 +1,10 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 
 import { GeocodeResult, geocodeAddress } from "./geocodeAddress";
+import {
+  geocodeResultFromFetchedPlace,
+  type PlaceLike,
+} from "./placeSelection";
 
 export interface PlaceSuggestion {
   id: string;
@@ -88,6 +92,45 @@ const useAutocompleteSuggestions = (
     async (id: string): Promise<GeocodeResult | null> => {
       const suggestion = suggestionsRef.current.find((s) => s.id === id);
       if (!suggestion) return null;
+
+      const prediction = predictionsByIdRef.current.get(id);
+
+      try {
+        const toPlace = (
+          prediction as unknown as {
+            toPlace?: () => {
+              fetchFields: (request: {
+                fields: string[];
+              }) => Promise<unknown>;
+            };
+          }
+        ).toPlace;
+
+        if (prediction && typeof toPlace === "function") {
+          const placeInstance = toPlace();
+          await placeInstance.fetchFields({
+            fields: [
+              "formattedAddress",
+              "displayName",
+              "location",
+              "viewport",
+              "types",
+              "addressComponents",
+            ],
+          });
+          const mapped = geocodeResultFromFetchedPlace(
+            placeInstance as PlaceLike,
+            suggestion.label
+          );
+          if (mapped) {
+            sessionTokenRef.current = null;
+            predictionsByIdRef.current.clear();
+            return mapped;
+          }
+        }
+      } catch {
+        /* Place Details (fetchFields) failed — fall through to geocoder */
+      }
 
       const result = await geocodeAddress(suggestion.label);
 
