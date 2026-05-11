@@ -29,6 +29,39 @@ type LocationItem = PlaceSuggestion | RecentSearch;
 const isRecent = (item: LocationItem): item is RecentSearch =>
   "lat" in item && "lng" in item;
 
+const renderHighlightedLabel = (
+  text: string,
+  ranges: { start: number; end: number }[] | undefined
+): React.ReactNode => {
+  if (!ranges || ranges.length === 0) return text;
+
+  const sorted = [...ranges]
+    .filter((r) => r.end > r.start && r.start < text.length)
+    .sort((a, b) => a.start - b.start);
+
+  const parts: React.ReactNode[] = [];
+  let cursor = 0;
+  sorted.forEach((range, idx) => {
+    const safeStart = Math.max(range.start, cursor);
+    const safeEnd = Math.min(range.end, text.length);
+    if (safeStart > cursor) {
+      parts.push(text.slice(cursor, safeStart));
+    }
+    if (safeEnd > safeStart) {
+      parts.push(
+        <S.Highlight key={`hl-${idx}`}>
+          {text.slice(safeStart, safeEnd)}
+        </S.Highlight>
+      );
+    }
+    cursor = safeEnd;
+  });
+  if (cursor < text.length) {
+    parts.push(text.slice(cursor));
+  }
+  return parts;
+};
+
 const serializeBounds = (
   bounds?: google.maps.LatLngBounds
 ): SerializableBounds | undefined => {
@@ -96,7 +129,17 @@ const LocationSearch: React.FC<LocationSearchProps> = ({ isTimelapseView }) => {
     inputValue,
   });
 
-  const displaySearchResults = isOpen && items.length > 0;
+  const showSpinner = status === "loading" && inputValue.trim().length > 0;
+  const showClearButton = inputValue.length > 0 && !showSpinner;
+  const showEmptyState =
+    isOpen &&
+    !showingRecents &&
+    status === "no_results" &&
+    inputValue.trim().length > 0;
+  const showErrorState = isOpen && !showingRecents && status === "error";
+
+  const displaySearchResults =
+    isOpen && (items.length > 0 || showEmptyState || showErrorState);
 
   const applyGeocodeResult = (result: GeocodeResult) => {
     const { lat, lng, zoom, bounds } = result;
@@ -185,12 +228,19 @@ const LocationSearch: React.FC<LocationSearchProps> = ({ isTimelapseView }) => {
 
     if (location) {
       setInputValue("");
+      setInput("");
       setTimeout(() => {
         dispatch(setFetchingData(true));
       }, 200);
     } else {
       console.log(t("map.locationError"));
     }
+  };
+
+  const handleClearInput = () => {
+    setInputValue("");
+    setInput("");
+    setSelectedItem(null);
   };
 
   return (
@@ -202,6 +252,17 @@ const LocationSearch: React.FC<LocationSearchProps> = ({ isTimelapseView }) => {
           "aria-label": t("map.searchInputLabel"),
         })}
       />
+      {showSpinner && <S.Spinner aria-hidden="true" />}
+      {showClearButton && (
+        <S.ClearInputButton
+          type="button"
+          aria-label={t("map.clearInputAriaLabel")}
+          onMouseDown={(e) => e.preventDefault()}
+          onClick={handleClearInput}
+        >
+          ×
+        </S.ClearInputButton>
+      )}
       <S.LocationSearchButton
         aria-label={t("map.browserLocationButton")}
         type="button"
@@ -236,22 +297,34 @@ const LocationSearch: React.FC<LocationSearchProps> = ({ isTimelapseView }) => {
             </S.ClearRecentsButton>
           </S.RecentSectionHeader>
         )}
+        {showEmptyState && (
+          <S.EmptyState>{t("map.statusNoResults")}</S.EmptyState>
+        )}
+        {showErrorState && (
+          <S.ErrorState>{t("map.statusError")}</S.ErrorState>
+        )}
         {isOpen &&
-          items.map((item, index) => (
-            <S.Suggestion
-              key={item.id}
-              $isHighlighted={highlightedIndex === index}
-              {...getItemProps({
-                item,
-                index,
-                "aria-label": showingRecents
-                  ? `${item.label}, ${t("map.recentSearchesLabel").toLowerCase()}`
-                  : item.label,
-              })}
-            >
-              {item.label}
-            </S.Suggestion>
-          ))}
+          items.map((item, index) => {
+            const labelNode =
+              !showingRecents && "matchRanges" in item
+                ? renderHighlightedLabel(item.label, item.matchRanges)
+                : item.label;
+            return (
+              <S.Suggestion
+                key={item.id}
+                $isHighlighted={highlightedIndex === index}
+                {...getItemProps({
+                  item,
+                  index,
+                  "aria-label": showingRecents
+                    ? `${item.label}, ${t("map.recentSearchesLabel").toLowerCase()}`
+                    : item.label,
+                })}
+              >
+                {labelNode}
+              </S.Suggestion>
+            );
+          })}
       </S.SuggestionsList>
     </S.SearchContainer>
   );

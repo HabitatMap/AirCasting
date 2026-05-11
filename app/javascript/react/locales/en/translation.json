@@ -130,6 +130,7 @@
     "statusNoResults": "No results found",
     "statusError": "Search service unavailable",
     "statusResultsAvailable": "{{count}} suggestions available",
+    "clearInputAriaLabel": "Clear search input",
     "listSessions": "Sessions",
     "altListSessions": "List all the sessions",
     "altClose": "Close the content",

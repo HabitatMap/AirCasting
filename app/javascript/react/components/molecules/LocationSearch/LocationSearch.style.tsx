@@ -1,4 +1,4 @@
-import styled from "styled-components";
+import styled, { keyframes } from "styled-components";
 
 import searchIconGray from "../../../assets/icons/searchIconGray.svg";
 import {
@@ -237,8 +237,85 @@ const ClearRecentsButton = styled.button`
   }
 `;
 
+const spin = keyframes`
+  to { transform: rotate(360deg); }
+`;
+
+const Spinner = styled.div`
+  position: absolute;
+  top: 50%;
+  right: 5.2rem;
+  transform: translateY(-50%);
+  width: 1.6rem;
+  height: 1.6rem;
+  border: 2px solid ${gray500};
+  border-top-color: ${acBlue};
+  border-radius: 50%;
+  animation: ${spin} 0.7s linear infinite;
+  z-index: 4;
+  pointer-events: none;
+
+  @media (prefers-reduced-motion: reduce) {
+    animation-duration: 2s;
+  }
+`;
+
+const ClearInputButton = styled.button`
+  position: absolute;
+  top: 50%;
+  right: 5.2rem;
+  transform: translateY(-50%);
+  width: 2.2rem;
+  height: 2.2rem;
+  padding: 0;
+  background: ${gray500};
+  color: ${white};
+  border: none;
+  border-radius: 50%;
+  font-size: 1.4rem;
+  line-height: 1;
+  cursor: pointer;
+  z-index: 4;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  &:hover {
+    background: ${gray400};
+  }
+
+  &:focus-visible {
+    outline: 2px solid ${acBlue};
+    outline-offset: 2px;
+  }
+`;
+
+const EmptyState = styled.li`
+  padding: 1.2rem 0.8rem;
+  font-size: 1.4rem;
+  color: ${gray300};
+  font-style: italic;
+  list-style: none;
+`;
+
+const ErrorState = styled.li`
+  padding: 1.2rem 0.8rem;
+  font-size: 1.4rem;
+  color: #b71c1c;
+  list-style: none;
+`;
+
+const Highlight = styled.strong`
+  font-weight: 700;
+  color: ${gray400};
+`;
+
 export {
+  ClearInputButton,
   ClearRecentsButton,
+  EmptyState,
+  ErrorState,
+  Highlight,
   Hr,
   LiveRegion,
   LocationSearchButton,
@@ -247,6 +324,7 @@ export {
   RecentSectionLabel,
   SearchContainer,
   SearchInput,
+  Spinner,
   Suggestion,
   SuggestionsList,
   VisuallyHidden,
