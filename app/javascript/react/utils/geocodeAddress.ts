@@ -1,6 +1,6 @@
 import { determineZoomLevel } from "./determineZoomLevel";
 
-export interface CityGeocodeResult {
+export interface GeocodeResult {
   lat: number;
   lng: number;
   zoom: number;
@@ -8,12 +8,12 @@ export interface CityGeocodeResult {
   resolvedName: string;
 }
 
-export const geocodeCity = async (
-  city: string
-): Promise<CityGeocodeResult | null> => {
+export const geocodeAddress = async (
+  address: string
+): Promise<GeocodeResult | null> => {
   try {
     const geocoder = new google.maps.Geocoder();
-    const response = await geocoder.geocode({ address: city });
+    const response = await geocoder.geocode({ address });
     if (!response.results.length) return null;
     const top = response.results[0];
     const { lat, lng } = top.geometry.location.toJSON();

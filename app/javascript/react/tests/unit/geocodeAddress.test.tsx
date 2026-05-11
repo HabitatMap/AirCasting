@@ -1,4 +1,4 @@
-import { geocodeCity } from "../../utils/geocodeCity";
+import { geocodeAddress } from "../../utils/geocodeAddress";
 
 jest.mock("../../utils/determineZoomLevel", () => ({
   determineZoomLevel: jest.fn(() => ({ zoom: 11, bounds: undefined })),
@@ -15,7 +15,7 @@ beforeEach(() => {
   };
 });
 
-describe("geocodeCity", () => {
+describe("geocodeAddress", () => {
   it("returns lat/lng/zoom/resolvedName on success", async () => {
     mockGeocode.mockResolvedValue({
       results: [
@@ -30,7 +30,7 @@ describe("geocodeCity", () => {
       ],
     });
 
-    const result = await geocodeCity("Berlin");
+    const result = await geocodeAddress("Berlin");
 
     expect(result).toEqual({
       lat: 52.52,
@@ -43,13 +43,13 @@ describe("geocodeCity", () => {
 
   it("returns null when results array empty", async () => {
     mockGeocode.mockResolvedValue({ results: [] });
-    const result = await geocodeCity("asdfgh");
+    const result = await geocodeAddress("asdfgh");
     expect(result).toBeNull();
   });
 
   it("returns null when geocoder throws", async () => {
     mockGeocode.mockRejectedValue(new Error("ZERO_RESULTS"));
-    const result = await geocodeCity("nope");
+    const result = await geocodeAddress("nope");
     expect(result).toBeNull();
   });
 });

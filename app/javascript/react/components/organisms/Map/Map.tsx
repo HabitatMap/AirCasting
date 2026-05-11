@@ -77,7 +77,7 @@ import type { SessionList } from "../../../types/sessionType";
 import { UserSettings } from "../../../types/userStates";
 import { CookieManager } from "../../../utils/cookieManager";
 import * as Cookies from "../../../utils/cookies";
-import { geocodeCity } from "../../../utils/geocodeCity";
+import { geocodeAddress } from "../../../utils/geocodeAddress";
 import { getBrowserLocation } from "../../../utils/geolocation";
 import { UrlParamsTypes, useMapParams } from "../../../utils/mapParamsHandler";
 import { useHandleScrollEnd } from "../../../utils/scrollEnd";
@@ -616,7 +616,7 @@ const Map = () => {
 
     const cityRaw = decodeURIComponent(city);
 
-    geocodeCity(cityRaw).then(async (result) => {
+    geocodeAddress(cityRaw).then(async (result) => {
       let mapWillMove = false;
       if (result) {
         if (result.bounds) {
