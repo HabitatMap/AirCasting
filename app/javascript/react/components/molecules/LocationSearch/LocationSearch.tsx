@@ -7,7 +7,6 @@ import { useMap } from "@vis.gl/react-google-maps";
 import locationSearchIcon from "../../../assets/icons/locationSearchIcon.svg";
 import { useAppDispatch } from "../../../store/hooks";
 import { setFetchingData } from "../../../store/mapSlice";
-import { GeocodeResult } from "../../../utils/geocodeAddress";
 import { getBrowserLocation } from "../../../utils/geolocation";
 import { UrlParamsTypes, useMapParams } from "../../../utils/mapParamsHandler";
 import { trackRecentSearchUsed } from "../../../utils/trackRecentSearch";
@@ -142,6 +141,71 @@ const LocationSearch: React.FC<LocationSearchProps> = ({ isTimelapseView }) => {
     return "";
   })();
 
+  const applyMapNavigation = (target: {
+    lat: number;
+    lng: number;
+    zoom: number;
+    bounds?: google.maps.LatLngBounds | SerializableBounds;
+  }) => {
+    const { lat, lng, zoom, bounds } = target;
+
+    setUrlParams([
+      {
+        key: UrlParamsTypes.currentCenter,
+        value: JSON.stringify({ lat, lng }),
+      },
+      {
+        key: UrlParamsTypes.currentZoom,
+        value: zoom.toString(),
+      },
+    ]);
+
+    if (bounds && map) {
+      map.fitBounds(
+        bounds as google.maps.LatLngBounds | google.maps.LatLngBoundsLiteral
+      );
+    } else {
+      map?.setZoom(zoom);
+      map?.panTo({ lat, lng });
+    }
+
+    setTimeout(() => {
+      dispatch(setFetchingData(true));
+    }, 200);
+  };
+
+  const handleSelect = async (item: LocationItem) => {
+    if (!item) return;
+
+    if (!isRecent(item) && status === "loading") return;
+
+    if (isRecent(item)) {
+      const position = recents.findIndex((r) => r.id === item.id);
+      trackRecentSearchUsed({
+        query: item.label,
+        position: position === -1 ? 0 : position,
+        totalRecents: recents.length,
+      });
+      applyMapNavigation(item);
+      addRecent(item);
+      return;
+    }
+
+    const result = await selectSuggestion(item.id);
+    if (!result) return;
+
+    applyMapNavigation(result);
+
+    addRecent({
+      id: item.id,
+      label: item.label,
+      lat: result.lat,
+      lng: result.lng,
+      zoom: result.zoom,
+      bounds: serializeBounds(result.bounds),
+    });
+  };
+
   const {
     isOpen,
     getMenuProps,
@@ -160,7 +224,9 @@ const LocationSearch: React.FC<LocationSearchProps> = ({ isTimelapseView }) => {
     selectedItem,
     onSelectedItemChange: ({ selectedItem: newSelectedItem }) => {
       setSelectedItem(newSelectedItem);
-      if (newSelectedItem) handleSelect(newSelectedItem);
+      if (!newSelectedItem) return;
+      if (!isRecent(newSelectedItem) && status === "loading") return;
+      void handleSelect(newSelectedItem);
     },
     inputValue,
   });
@@ -177,88 +243,6 @@ const LocationSearch: React.FC<LocationSearchProps> = ({ isTimelapseView }) => {
   const displaySearchResults =
     isOpen && (items.length > 0 || showEmptyState || showErrorState);
 
-  const applyGeocodeResult = (result: GeocodeResult) => {
-    const { lat, lng, zoom, bounds } = result;
-
-    setUrlParams([
-      {
-        key: UrlParamsTypes.currentCenter,
-        value: JSON.stringify({ lat, lng }),
-      },
-      {
-        key: UrlParamsTypes.currentZoom,
-        value: zoom.toString(),
-      },
-    ]);
-
-    if (bounds && map) {
-      map.fitBounds(bounds);
-    } else {
-      map?.setZoom(zoom);
-      map?.panTo({ lat, lng });
-    }
-
-    setTimeout(() => {
-      dispatch(setFetchingData(true));
-    }, 200);
-  };
-
-  const applyRecentSearch = (recent: RecentSearch) => {
-    const { lat, lng, zoom, bounds } = recent;
-
-    setUrlParams([
-      {
-        key: UrlParamsTypes.currentCenter,
-        value: JSON.stringify({ lat, lng }),
-      },
-      {
-        key: UrlParamsTypes.currentZoom,
-        value: zoom.toString(),
-      },
-    ]);
-
-    if (bounds && map) {
-      map.fitBounds(bounds);
-    } else {
-      map?.setZoom(zoom);
-      map?.panTo({ lat, lng });
-    }
-
-    setTimeout(() => {
-      dispatch(setFetchingData(true));
-    }, 200);
-  };
-
-  const handleSelect = async (item: LocationItem) => {
-    if (!item) return;
-
-    if (isRecent(item)) {
-      const position = recents.findIndex((r) => r.id === item.id);
-      trackRecentSearchUsed({
-        query: item.label,
-        position: position === -1 ? 0 : position,
-        totalRecents: recents.length,
-      });
-      applyRecentSearch(item);
-      addRecent(item);
-      return;
-    }
-
-    const result = await selectSuggestion(item.id);
-    if (!result) return;
-
-    applyGeocodeResult(result);
-
-    addRecent({
-      id: item.id,
-      label: item.label,
-      lat: result.lat,
-      lng: result.lng,
-      zoom: result.zoom,
-      bounds: serializeBounds(result.bounds),
-    });
-  };
-
   const handleBrowserLocation = async () => {
     const location = await getBrowserLocation(map, setUrlParams);
 
@@ -269,7 +253,7 @@ const LocationSearch: React.FC<LocationSearchProps> = ({ isTimelapseView }) => {
         dispatch(setFetchingData(true));
       }, 200);
     } else {
-      console.log(t("map.locationError"));
+      console.warn(t("map.locationError"));
     }
   };
 

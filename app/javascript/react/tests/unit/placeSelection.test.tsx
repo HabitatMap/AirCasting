@@ -31,4 +31,17 @@ describe("geocodeResultFromFetchedPlace", () => {
       )
     ).toBeNull();
   });
+
+  it("returns null when latitude or longitude is not finite", () => {
+    expect(
+      geocodeResultFromFetchedPlace(
+        {
+          formattedAddress: "Bad",
+          location: { lat: NaN, lng: 13.405 },
+          types: ["locality"],
+        },
+        "Bad"
+      )
+    ).toBeNull();
+  });
 });

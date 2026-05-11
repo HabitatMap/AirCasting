@@ -32,6 +32,8 @@ export const geocodeResultFromFetchedPlace = (
 
   const { lat, lng } = latLngFromPlaceLocation(place.location);
 
+  if (!Number.isFinite(lat) || !Number.isFinite(lng)) return null;
+
   const types =
     place.types && place.types.length > 0 ? place.types : ["geocode"];
 

@@ -9,8 +9,6 @@ import {
 export interface PlaceSuggestion {
   id: string;
   label: string;
-  primary: string;
-  secondary: string;
   matchRanges: { start: number; end: number }[];
 }
 
@@ -78,6 +76,7 @@ const useAutocompleteSuggestions = (
 
   const reset = useCallback(() => {
     if (debounceTimerRef.current) clearTimeout(debounceTimerRef.current);
+    sessionTokenRef.current = null;
     setInputState("");
     setSuggestions([]);
     setStatus("idle");
@@ -128,8 +127,11 @@ const useAutocompleteSuggestions = (
             return mapped;
           }
         }
-      } catch {
-        /* Place Details (fetchFields) failed — fall through to geocoder */
+      } catch (err) {
+        console.warn(
+          "[useAutocompleteSuggestions] Place.fetchFields failed",
+          err
+        );
       }
 
       const result = await geocodeAddress(suggestion.label);
@@ -198,9 +200,7 @@ const useAutocompleteSuggestions = (
         const mapped: PlaceSuggestion[] = predictions.map((p) => ({
           id: p.placeId,
           label: p.text.text,
-          primary: p.mainText?.text ?? p.text.text,
-          secondary: p.secondaryText?.text ?? "",
-          matchRanges: p.text.matches.map((m) => ({
+          matchRanges: (p.text.matches ?? []).map((m) => ({
             start: m.startOffset,
             end: m.endOffset,
           })),

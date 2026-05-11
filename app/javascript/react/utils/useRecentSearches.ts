@@ -75,8 +75,14 @@ const useRecentSearches = (
   );
 
   useEffect(() => {
+    setRecents(readFromStorage(storageKey));
+  }, [storageKey]);
+
+  useEffect(() => {
     writeToStorage(storageKey, recents);
-  }, [recents, storageKey]);
+    // Intentionally omit storageKey: when the key changes we reload recents first;
+    // this effect runs again after that state update with the new key in closure.
+  }, [recents]);
 
   const addRecent = useCallback(
     (item: RecentSearch) => {
