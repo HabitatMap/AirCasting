@@ -71,7 +71,7 @@
     "@prettier/plugin-ruby": "^2.0.0",
     "@testing-library/jest-dom": "^6.4.2",
     "@testing-library/react": "^14.0.0",
-    "@types/google.maps": "^3.55.7",
+    "@types/google.maps": "^3.64.0",
     "@types/humps": "^2.0.6",
     "@types/jest": "^29.5.12",
     "@types/lodash": "^4.17.1",
