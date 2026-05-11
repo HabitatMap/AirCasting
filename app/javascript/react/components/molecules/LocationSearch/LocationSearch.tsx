@@ -1,51 +1,36 @@
 import { useCombobox } from "downshift";
 import React, { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import usePlacesAutocomplete, {
-  getGeocode,
-  getLatLng,
-} from "use-places-autocomplete";
 
-import { useApiIsLoaded, useMap } from "@vis.gl/react-google-maps";
+import { useMap } from "@vis.gl/react-google-maps";
 
 import locationSearchIcon from "../../../assets/icons/locationSearchIcon.svg";
 import { useAppDispatch } from "../../../store/hooks";
 import { setFetchingData } from "../../../store/mapSlice";
-import { determineZoomLevel } from "../../../utils/determineZoomLevel";
 import { getBrowserLocation } from "../../../utils/geolocation";
 import { UrlParamsTypes, useMapParams } from "../../../utils/mapParamsHandler";
+import useAutocompleteSuggestions, {
+  PlaceSuggestion,
+} from "../../../utils/useAutocompleteSuggestions";
 import * as S from "./LocationSearch.style";
-
-const OK_STATUS = "OK";
 
 interface LocationSearchProps {
   isTimelapseView: boolean;
 }
 
-type AutocompletePrediction = google.maps.places.AutocompletePrediction;
-
 const LocationSearch: React.FC<LocationSearchProps> = ({ isTimelapseView }) => {
   const dispatch = useAppDispatch();
-  const [items, setItems] = useState<AutocompletePrediction[]>([]);
-  const [selectedItem, setSelectedItem] =
-    useState<AutocompletePrediction | null>(null);
+  const [items, setItems] = useState<PlaceSuggestion[]>([]);
+  const [selectedItem, setSelectedItem] = useState<PlaceSuggestion | null>(
+    null
+  );
   const [inputValue, setInputValue] = useState("");
   const { t } = useTranslation();
   const map = useMap();
-  const apiIsLoaded = useApiIsLoaded();
   const { setUrlParams } = useMapParams();
-  const {
-    setValue,
-    suggestions: { status, data },
-    clearSuggestions,
-    init,
-  } = usePlacesAutocomplete({ initOnMount: false });
 
-  useEffect(() => {
-    if (apiIsLoaded) {
-      init();
-    }
-  }, [apiIsLoaded, init]);
+  const { setInput, suggestions, status, selectSuggestion } =
+    useAutocompleteSuggestions();
 
   const {
     isOpen,
@@ -54,32 +39,31 @@ const LocationSearch: React.FC<LocationSearchProps> = ({ isTimelapseView }) => {
     highlightedIndex,
     getItemProps,
   } = useCombobox({
-    onInputValueChange: ({ inputValue }) => {
-      setValue(inputValue);
-      setInputValue(inputValue);
+    onInputValueChange: ({ inputValue: newInputValue }) => {
+      setInput(newInputValue);
+      setInputValue(newInputValue);
     },
-    items: data,
+    items,
     itemToString(item) {
-      return item ? item.description : "";
+      return item ? item.label : "";
     },
     selectedItem,
     onSelectedItemChange: ({ selectedItem: newSelectedItem }) => {
       setSelectedItem(newSelectedItem);
-      handleSelect(newSelectedItem);
+      if (newSelectedItem) handleSelect(newSelectedItem);
     },
     inputValue,
   });
 
   const displaySearchResults = isOpen && items.length > 0;
 
-  const handleSelect = async (item: AutocompletePrediction) => {
+  const handleSelect = async (item: PlaceSuggestion) => {
     if (!item) return;
 
-    setValue(item.description, false);
-    clearSuggestions();
-    const results = await getGeocode({ address: item.description });
-    const { lat, lng } = await getLatLng(results[0]);
-    const { zoom, bounds } = determineZoomLevel(results);
+    const result = await selectSuggestion(item.id);
+    if (!result) return;
+
+    const { lat, lng, zoom, bounds } = result;
 
     setUrlParams([
       {
@@ -119,10 +103,12 @@ const LocationSearch: React.FC<LocationSearchProps> = ({ isTimelapseView }) => {
   };
 
   useEffect(() => {
-    if (status === OK_STATUS && data.length) {
-      setItems(data);
+    if (status === "ok" && suggestions.length) {
+      setItems(suggestions);
+    } else if (status === "no_results" || status === "idle") {
+      setItems([]);
     }
-  }, [data, status]);
+  }, [suggestions, status]);
 
   return (
     <S.SearchContainer $isTimelapseView={isTimelapseView}>
@@ -149,11 +135,11 @@ const LocationSearch: React.FC<LocationSearchProps> = ({ isTimelapseView }) => {
         {isOpen &&
           items.map((item, index) => (
             <S.Suggestion
-              key={item.place_id}
+              key={item.id}
               $isHighlighted={highlightedIndex === index}
               {...getItemProps({ item, index })}
             >
-              {item.description}
+              {item.label}
             </S.Suggestion>
           ))}
       </S.SuggestionsList>
