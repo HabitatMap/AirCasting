@@ -1,7 +1,13 @@
 import styled from "styled-components";
 
 import searchIconGray from "../../../assets/icons/searchIconGray.svg";
-import { gray400, gray500, white } from "../../../assets/styles/colors";
+import {
+  acBlue,
+  gray300,
+  gray400,
+  gray500,
+  white,
+} from "../../../assets/styles/colors";
 import { media } from "../../../utils/media";
 
 interface SuggestionProps {
@@ -147,10 +153,47 @@ const Hr = styled.hr<{ $displaySearchResults?: boolean }>`
   }
 `;
 
+const RecentSectionHeader = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.2rem 0.8rem 0.4rem 0.5rem;
+`;
+
+const RecentSectionLabel = styled.span`
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: ${gray300};
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+`;
+
+const ClearRecentsButton = styled.button`
+  background: none;
+  border: none;
+  padding: 0.2rem 0.4rem;
+  font-size: 1.2rem;
+  color: ${acBlue};
+  cursor: pointer;
+  border-radius: 4px;
+
+  &:hover {
+    text-decoration: underline;
+  }
+
+  &:focus-visible {
+    outline: 2px solid ${acBlue};
+    outline-offset: 2px;
+  }
+`;
+
 export {
+  ClearRecentsButton,
   Hr,
   LocationSearchButton,
   LocationSearchIcon,
+  RecentSectionHeader,
+  RecentSectionLabel,
   SearchContainer,
   SearchInput,
   Suggestion,
