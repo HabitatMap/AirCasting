@@ -1,12 +1,13 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 
-export interface AutocompleteSuggestionItem {
-  placeId: string;
-  description: string;
-  mainText: string;
-  secondaryText: string;
-  matches: google.maps.places.StringRange[];
-  prediction: google.maps.places.PlacePrediction;
+import { GeocodeResult, geocodeAddress } from "./geocodeAddress";
+
+export interface PlaceSuggestion {
+  id: string;
+  label: string;
+  primary: string;
+  secondary: string;
+  matchRanges: { start: number; end: number }[];
 }
 
 export type AutocompleteStatus =
@@ -24,11 +25,10 @@ interface UseAutocompleteSuggestionsOptions {
 interface UseAutocompleteSuggestionsReturn {
   input: string;
   setInput: (value: string) => void;
-  suggestions: AutocompleteSuggestionItem[];
+  suggestions: PlaceSuggestion[];
   status: AutocompleteStatus;
   reset: () => void;
-  consumeSessionToken: () => void;
-  getSessionToken: () => google.maps.places.AutocompleteSessionToken | null;
+  selectSuggestion: (id: string) => Promise<GeocodeResult | null>;
 }
 
 const DEFAULT_DEBOUNCE_MS = 200;
@@ -39,9 +39,7 @@ const useAutocompleteSuggestions = (
   const { debounceMs = DEFAULT_DEBOUNCE_MS, locationBias = null } = options;
 
   const [input, setInputState] = useState("");
-  const [suggestions, setSuggestions] = useState<AutocompleteSuggestionItem[]>(
-    []
-  );
+  const [suggestions, setSuggestions] = useState<PlaceSuggestion[]>([]);
   const [status, setStatus] = useState<AutocompleteStatus>("idle");
 
   const sessionTokenRef =
@@ -49,10 +47,18 @@ const useAutocompleteSuggestions = (
   const debounceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const requestIdRef = useRef(0);
   const locationBiasRef = useRef(locationBias);
+  const predictionsByIdRef = useRef<
+    Map<string, google.maps.places.PlacePrediction>
+  >(new Map());
+  const suggestionsRef = useRef<PlaceSuggestion[]>([]);
 
   useEffect(() => {
     locationBiasRef.current = locationBias;
   }, [locationBias]);
+
+  useEffect(() => {
+    suggestionsRef.current = suggestions;
+  }, [suggestions]);
 
   const ensureSessionToken = useCallback(() => {
     if (
@@ -66,22 +72,32 @@ const useAutocompleteSuggestions = (
     return sessionTokenRef.current;
   }, []);
 
-  const consumeSessionToken = useCallback(() => {
-    sessionTokenRef.current = null;
-  }, []);
-
-  const getSessionToken = useCallback(() => sessionTokenRef.current, []);
-
   const reset = useCallback(() => {
     if (debounceTimerRef.current) clearTimeout(debounceTimerRef.current);
     setInputState("");
     setSuggestions([]);
     setStatus("idle");
+    predictionsByIdRef.current.clear();
   }, []);
 
   const setInput = useCallback((value: string) => {
     setInputState(value);
   }, []);
+
+  const selectSuggestion = useCallback(
+    async (id: string): Promise<GeocodeResult | null> => {
+      const suggestion = suggestionsRef.current.find((s) => s.id === id);
+      if (!suggestion) return null;
+
+      const result = await geocodeAddress(suggestion.label);
+
+      sessionTokenRef.current = null;
+      predictionsByIdRef.current.clear();
+
+      return result;
+    },
+    []
+  );
 
   useEffect(() => {
     if (debounceTimerRef.current) clearTimeout(debounceTimerRef.current);
@@ -90,6 +106,7 @@ const useAutocompleteSuggestions = (
     if (!trimmed) {
       setSuggestions([]);
       setStatus("idle");
+      predictionsByIdRef.current.clear();
       return;
     }
 
@@ -122,19 +139,29 @@ const useAutocompleteSuggestions = (
 
         if (requestId !== requestIdRef.current) return;
 
-        const mapped: AutocompleteSuggestionItem[] = rawSuggestions
+        const predictions = rawSuggestions
           .map((s) => s.placePrediction)
           .filter(
             (p): p is google.maps.places.PlacePrediction => p !== null
-          )
-          .map((p) => ({
-            placeId: p.placeId,
-            description: p.text.text,
-            mainText: p.mainText?.text ?? p.text.text,
-            secondaryText: p.secondaryText?.text ?? "",
-            matches: p.text.matches,
-            prediction: p,
-          }));
+          );
+
+        const nextPredictionsMap = new Map<
+          string,
+          google.maps.places.PlacePrediction
+        >();
+        predictions.forEach((p) => nextPredictionsMap.set(p.placeId, p));
+        predictionsByIdRef.current = nextPredictionsMap;
+
+        const mapped: PlaceSuggestion[] = predictions.map((p) => ({
+          id: p.placeId,
+          label: p.text.text,
+          primary: p.mainText?.text ?? p.text.text,
+          secondary: p.secondaryText?.text ?? "",
+          matchRanges: p.text.matches.map((m) => ({
+            start: m.startOffset,
+            end: m.endOffset,
+          })),
+        }));
 
         setSuggestions(mapped);
         setStatus(mapped.length === 0 ? "no_results" : "ok");
@@ -142,6 +169,7 @@ const useAutocompleteSuggestions = (
         if (requestId !== requestIdRef.current) return;
         setSuggestions([]);
         setStatus("error");
+        predictionsByIdRef.current.clear();
       }
     }, debounceMs);
 
@@ -156,8 +184,7 @@ const useAutocompleteSuggestions = (
     suggestions,
     status,
     reset,
-    consumeSessionToken,
-    getSessionToken,
+    selectSuggestion,
   };
 };
 
