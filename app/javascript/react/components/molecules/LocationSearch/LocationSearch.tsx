@@ -62,6 +62,17 @@ const LocationSearch: React.FC<LocationSearchProps> = ({ isTimelapseView }) => {
     ? suggestions
     : [];
 
+  const liveMessage: string = (() => {
+    if (showingRecents) return "";
+    if (status === "loading") return t("map.statusLoading");
+    if (status === "no_results") return t("map.statusNoResults");
+    if (status === "error") return t("map.statusError");
+    if (status === "ok" && suggestions.length > 0) {
+      return t("map.statusResultsAvailable", { count: suggestions.length });
+    }
+    return "";
+  })();
+
   const {
     isOpen,
     getMenuProps,
@@ -187,7 +198,9 @@ const LocationSearch: React.FC<LocationSearchProps> = ({ isTimelapseView }) => {
       <S.SearchInput
         placeholder={t("map.searchPlaceholder")}
         $displaySearchResults={displaySearchResults}
-        {...getInputProps()}
+        {...getInputProps({
+          "aria-label": t("map.searchInputLabel"),
+        })}
       />
       <S.LocationSearchButton
         aria-label={t("map.browserLocationButton")}
@@ -196,14 +209,18 @@ const LocationSearch: React.FC<LocationSearchProps> = ({ isTimelapseView }) => {
       >
         <S.LocationSearchIcon
           src={locationSearchIcon}
-          alt={t("map.searchIcon")}
+          alt=""
+          aria-hidden="true"
         />
       </S.LocationSearchButton>
+      <S.LiveRegion role="status" aria-live="polite" aria-atomic="true">
+        {liveMessage}
+      </S.LiveRegion>
       <S.SuggestionsList
         $displaySearchResults={displaySearchResults}
         {...getMenuProps()}
       >
-        <S.Hr $displaySearchResults={displaySearchResults} />
+        <S.Hr $displaySearchResults={displaySearchResults} aria-hidden="true" />
         {isOpen && showingRecents && (
           <S.RecentSectionHeader>
             <S.RecentSectionLabel>
@@ -224,7 +241,13 @@ const LocationSearch: React.FC<LocationSearchProps> = ({ isTimelapseView }) => {
             <S.Suggestion
               key={item.id}
               $isHighlighted={highlightedIndex === index}
-              {...getItemProps({ item, index })}
+              {...getItemProps({
+                item,
+                index,
+                "aria-label": showingRecents
+                  ? `${item.label}, ${t("map.recentSearchesLabel").toLowerCase()}`
+                  : item.label,
+              })}
             >
               {item.label}
             </S.Suggestion>

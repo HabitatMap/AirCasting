@@ -16,8 +16,47 @@ interface SuggestionProps {
 
 const Suggestion = styled.li<SuggestionProps>`
   cursor: pointer;
-  padding: 0.5rem;
+  padding: 0.8rem 0.8rem;
+  min-height: 4.4rem;
+  display: flex;
+  align-items: center;
   font-size: 1.6rem;
+  border-radius: 4px;
+  background-color: ${(p) =>
+    p.$isHighlighted ? `rgba(0, 178, 239, 0.08)` : `transparent`};
+
+  &:hover {
+    background-color: rgba(0, 178, 239, 0.08);
+  }
+
+  @media ${media.mediumDesktop} {
+    min-height: 3.6rem;
+    padding: 0.5rem 0.8rem;
+  }
+`;
+
+const VisuallyHidden = styled.span`
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+`;
+
+const LiveRegion = styled.div`
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
 `;
 
 const SuggestionsList = styled.ul<{ $displaySearchResults?: boolean }>`
@@ -72,6 +111,11 @@ const SearchInput = styled.input<{ $displaySearchResults?: boolean }>`
   z-index: 3;
   color: ${gray400};
 
+  &:focus-visible {
+    outline: 2px solid ${acBlue};
+    outline-offset: 2px;
+  }
+
   @media ${media.smallMobile} {
     width: 20rem;
   }
@@ -100,11 +144,17 @@ const SearchInput = styled.input<{ $displaySearchResults?: boolean }>`
 
 const LocationSearchButton = styled.button`
   background-color: ${white};
-  height: 4rem;
+  height: 4.4rem;
+  min-width: 4.4rem;
   border-radius: 50%;
   cursor: pointer;
   border: none;
   z-index: 2;
+
+  &:focus-visible {
+    outline: 2px solid ${acBlue};
+    outline-offset: 2px;
+  }
 
   @media ${media.mediumDesktop} {
     height: 4.2rem;
@@ -190,6 +240,7 @@ const ClearRecentsButton = styled.button`
 export {
   ClearRecentsButton,
   Hr,
+  LiveRegion,
   LocationSearchButton,
   LocationSearchIcon,
   RecentSectionHeader,
@@ -198,4 +249,5 @@ export {
   SearchInput,
   Suggestion,
   SuggestionsList,
+  VisuallyHidden,
 };
