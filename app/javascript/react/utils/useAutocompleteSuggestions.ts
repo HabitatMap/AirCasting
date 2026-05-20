@@ -95,18 +95,19 @@ const useAutocompleteSuggestions = (
       const prediction = predictionsByIdRef.current.get(id);
 
       try {
-        const toPlace = (
-          prediction as unknown as {
-            toPlace?: () => {
-              fetchFields: (request: {
-                fields: string[];
-              }) => Promise<unknown>;
-            };
-          }
-        ).toPlace;
+        const predictionWithToPlace = prediction as unknown as {
+          toPlace?: () => {
+            fetchFields: (request: {
+              fields: string[];
+            }) => Promise<unknown>;
+          };
+        } | undefined;
 
-        if (prediction && typeof toPlace === "function") {
-          const placeInstance = toPlace();
+        if (
+          predictionWithToPlace &&
+          typeof predictionWithToPlace.toPlace === "function"
+        ) {
+          const placeInstance = predictionWithToPlace.toPlace();
           await placeInstance.fetchFields({
             fields: [
               "formattedAddress",
