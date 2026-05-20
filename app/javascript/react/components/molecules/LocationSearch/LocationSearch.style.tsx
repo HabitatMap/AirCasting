@@ -21,6 +21,7 @@ const Suggestion = styled.li<SuggestionProps>`
   display: flex;
   align-items: center;
   font-size: 1.6rem;
+  color: ${gray400};
   border-radius: 4px;
   background-color: ${(p) =>
     p.$isHighlighted ? `rgba(0, 178, 239, 0.08)` : `transparent`};
@@ -33,6 +34,13 @@ const Suggestion = styled.li<SuggestionProps>`
     min-height: 3.6rem;
     padding: 0.5rem 0.8rem;
   }
+`;
+
+const SuggestionLabel = styled.span`
+  flex: 1;
+  min-width: 0;
+  line-height: 1.3;
+  word-break: break-word;
 `;
 
 const LiveRegion = styled.div`
@@ -81,6 +89,12 @@ const SuggestionsList = styled.ul<{ $displaySearchResults?: boolean }>`
   }
 `;
 
+const InputWrapper = styled.div`
+  position: relative;
+  display: flex;
+  align-items: center;
+`;
+
 const SearchInput = styled.input<{ $displaySearchResults?: boolean }>`
   width: 19rem;
   height: 3.2rem;
@@ -98,11 +112,6 @@ const SearchInput = styled.input<{ $displaySearchResults?: boolean }>`
   outline: none;
   z-index: 3;
   color: ${gray400};
-
-  &:focus-visible {
-    outline: 2px solid ${acBlue};
-    outline-offset: 2px;
-  }
 
   @media ${media.smallMobile} {
     width: 20rem;
@@ -226,13 +235,14 @@ const ClearRecentsButton = styled.button`
 `;
 
 const spin = keyframes`
-  to { transform: rotate(360deg); }
+  from { transform: translateY(-50%) rotate(0deg); }
+  to { transform: translateY(-50%) rotate(360deg); }
 `;
 
 const Spinner = styled.div`
   position: absolute;
   top: 50%;
-  right: 5.2rem;
+  right: 1.2rem;
   transform: translateY(-50%);
   width: 1.6rem;
   height: 1.6rem;
@@ -242,6 +252,13 @@ const Spinner = styled.div`
   animation: ${spin} 0.7s linear infinite;
   z-index: 4;
   pointer-events: none;
+  box-sizing: border-box;
+
+  @media ${media.mediumDesktop} {
+    width: 2rem;
+    height: 2rem;
+    right: 1.6rem;
+  }
 
   @media (prefers-reduced-motion: reduce) {
     animation-duration: 2s;
@@ -251,30 +268,39 @@ const Spinner = styled.div`
 const ClearInputButton = styled.button`
   position: absolute;
   top: 50%;
-  right: 5.2rem;
+  right: 1.2rem;
   transform: translateY(-50%);
-  width: 2.2rem;
-  height: 2.2rem;
+  width: 2rem;
+  height: 2rem;
   padding: 0;
-  background: ${gray500};
-  color: ${white};
+  background: transparent;
+  color: #888;
   border: none;
-  border-radius: 50%;
-  font-size: 1.4rem;
+  font-size: 2.4rem;
+  font-weight: 400;
   line-height: 1;
   cursor: pointer;
   z-index: 4;
   display: flex;
   align-items: center;
   justify-content: center;
+  box-sizing: border-box;
+
+  @media ${media.mediumDesktop} {
+    width: 2.4rem;
+    height: 2.4rem;
+    font-size: 2.8rem;
+    right: 1.6rem;
+  }
 
   &:hover {
-    background: ${gray400};
+    color: #555;
   }
 
   &:focus-visible {
     outline: 2px solid ${acBlue};
     outline-offset: 2px;
+    border-radius: 50%;
   }
 `;
 
@@ -305,6 +331,7 @@ export {
   ErrorState,
   Highlight,
   Hr,
+  InputWrapper,
   LiveRegion,
   LocationSearchButton,
   LocationSearchIcon,
@@ -314,5 +341,6 @@ export {
   SearchInput,
   Spinner,
   Suggestion,
+  SuggestionLabel,
   SuggestionsList,
 };
