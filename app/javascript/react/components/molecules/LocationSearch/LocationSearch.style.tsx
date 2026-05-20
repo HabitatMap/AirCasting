@@ -3,6 +3,7 @@ import styled, { keyframes } from "styled-components";
 import searchIconGray from "../../../assets/icons/searchIconGray.svg";
 import {
   acBlue,
+  acBlueDark,
   gray300,
   gray350,
   gray400,
@@ -219,12 +220,13 @@ const RecentSectionLabel = styled.span`
 `;
 
 const ClearRecentsButton = styled.button`
-  background: none;
+  background-color: transparent;
+  color: ${acBlueDark};
   border: none;
-  padding: 0.2rem 0.4rem;
   font-size: 1.2rem;
-  color: ${acBlue};
+  text-transform: uppercase;
   cursor: pointer;
+  padding: 0.2rem 0.4rem;
   border-radius: 4px;
 
   &:hover {
