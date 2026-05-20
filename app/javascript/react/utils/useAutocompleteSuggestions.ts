@@ -95,19 +95,8 @@ const useAutocompleteSuggestions = (
       const prediction = predictionsByIdRef.current.get(id);
 
       try {
-        const predictionWithToPlace = prediction as unknown as {
-          toPlace?: () => {
-            fetchFields: (request: {
-              fields: string[];
-            }) => Promise<unknown>;
-          };
-        } | undefined;
-
-        if (
-          predictionWithToPlace &&
-          typeof predictionWithToPlace.toPlace === "function"
-        ) {
-          const placeInstance = predictionWithToPlace.toPlace();
+        if (prediction) {
+          const placeInstance = prediction.toPlace();
           await placeInstance.fetchFields({
             fields: [
               "formattedAddress",
