@@ -98,6 +98,7 @@ const LocationSearch: React.FC<LocationSearchProps> = ({ isTimelapseView }) => {
 
   const [locationBias, setLocationBias] =
     useState<google.maps.places.LocationBias | null>(null);
+  const justSelectedRef = useRef(false);
 
   useEffect(() => {
     if (!map) {
@@ -230,8 +231,12 @@ const LocationSearch: React.FC<LocationSearchProps> = ({ isTimelapseView }) => {
     getItemProps,
   } = useCombobox<LocationItem>({
     onInputValueChange: ({ inputValue: newInputValue }) => {
-      setInput(newInputValue);
       setInputValue(newInputValue);
+      if (justSelectedRef.current) {
+        justSelectedRef.current = false;
+        return;
+      }
+      setInput(newInputValue);
     },
     items,
     itemToString(item) {
@@ -239,21 +244,29 @@ const LocationSearch: React.FC<LocationSearchProps> = ({ isTimelapseView }) => {
     },
     selectedItem,
     stateReducer: (state, { type, changes }) => {
-      if (
+      const isEnterWithoutHighlight =
         type === useCombobox.stateChangeTypes.InputKeyDownEnter &&
         state.highlightedIndex === -1 &&
-        items.length > 0
+        items.length > 0;
+
+      const nextChanges = isEnterWithoutHighlight
+        ? {
+            ...changes,
+            highlightedIndex: 0,
+            selectedItem: items[0],
+            inputValue: items[0].label,
+            isOpen: false,
+          }
+        : changes;
+
+      if (
+        nextChanges.selectedItem &&
+        nextChanges.selectedItem !== state.selectedItem
       ) {
-        const firstItem = items[0];
-        return {
-          ...changes,
-          highlightedIndex: 0,
-          selectedItem: firstItem,
-          inputValue: firstItem.label,
-          isOpen: false,
-        };
+        justSelectedRef.current = true;
       }
-      return changes;
+
+      return nextChanges;
     },
     onSelectedItemChange: ({ selectedItem: newSelectedItem }) => {
       setSelectedItem(newSelectedItem);
