@@ -4,6 +4,7 @@ import searchIconGray from "../../../assets/icons/searchIconGray.svg";
 import {
   acBlue,
   gray300,
+  gray350,
   gray400,
   gray500,
   white,
@@ -109,6 +110,7 @@ const SearchInput = styled.input<{ $displaySearchResults?: boolean }>`
   background-size: 16px;
   font-size: 1.6rem;
   padding-left: 3.8rem;
+  padding-right: 3.2rem;
   outline: none;
   z-index: 3;
   color: ${gray400};
@@ -131,6 +133,7 @@ const SearchInput = styled.input<{ $displaySearchResults?: boolean }>`
     background: ${white} url(${searchIconGray}) 16px center no-repeat;
     background-size: 20px;
     padding-left: 4.8rem;
+    padding-right: 4rem;
     box-shadow: none;
   }
 
@@ -294,7 +297,7 @@ const ClearInputButton = styled.button`
   }
 
   &:hover {
-    color: #555;
+    color: ${gray350};
   }
 
   &:focus-visible {
