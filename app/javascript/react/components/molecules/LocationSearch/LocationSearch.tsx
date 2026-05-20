@@ -10,6 +10,7 @@ import { setFetchingData } from "../../../store/mapSlice";
 import { getBrowserLocation } from "../../../utils/geolocation";
 import { UrlParamsTypes, useMapParams } from "../../../utils/mapParamsHandler";
 import { trackRecentSearchUsed } from "../../../utils/trackRecentSearch";
+import { trackSearchCityName } from "../../../utils/trackSearchCityName";
 import useAutocompleteSuggestions, {
   PlaceSuggestion,
 } from "../../../utils/useAutocompleteSuggestions";
@@ -181,6 +182,13 @@ const LocationSearch: React.FC<LocationSearchProps> = ({ isTimelapseView }) => {
 
     if (isRecent(item)) {
       const position = recents.findIndex((r) => r.id === item.id);
+      trackSearchCityName({
+        query: item.label,
+        placeId: item.id,
+        lat: item.lat,
+        lng: item.lng,
+        source: "recent",
+      });
       trackRecentSearchUsed({
         query: item.label,
         position: position === -1 ? 0 : position,
@@ -193,6 +201,14 @@ const LocationSearch: React.FC<LocationSearchProps> = ({ isTimelapseView }) => {
 
     const result = await selectSuggestion(item.id);
     if (!result) return;
+
+    trackSearchCityName({
+      query: item.label,
+      placeId: item.id,
+      lat: result.lat,
+      lng: result.lng,
+      source: "autocomplete",
+    });
 
     applyMapNavigation(result);
 
@@ -222,6 +238,23 @@ const LocationSearch: React.FC<LocationSearchProps> = ({ isTimelapseView }) => {
       return item ? item.label : "";
     },
     selectedItem,
+    stateReducer: (state, { type, changes }) => {
+      if (
+        type === useCombobox.stateChangeTypes.InputKeyDownEnter &&
+        state.highlightedIndex === -1 &&
+        items.length > 0
+      ) {
+        const firstItem = items[0];
+        return {
+          ...changes,
+          highlightedIndex: 0,
+          selectedItem: firstItem,
+          inputValue: firstItem.label,
+          isOpen: false,
+        };
+      }
+      return changes;
+    },
     onSelectedItemChange: ({ selectedItem: newSelectedItem }) => {
       setSelectedItem(newSelectedItem);
       if (!newSelectedItem) return;
@@ -265,24 +298,26 @@ const LocationSearch: React.FC<LocationSearchProps> = ({ isTimelapseView }) => {
 
   return (
     <S.SearchContainer $isTimelapseView={isTimelapseView}>
-      <S.SearchInput
-        placeholder={t("map.searchPlaceholder")}
-        $displaySearchResults={displaySearchResults}
-        {...getInputProps({
-          "aria-label": t("map.searchInputLabel"),
-        })}
-      />
-      {showSpinner && <S.Spinner aria-hidden="true" />}
-      {showClearButton && (
-        <S.ClearInputButton
-          type="button"
-          aria-label={t("map.clearInputAriaLabel")}
-          onMouseDown={(e) => e.preventDefault()}
-          onClick={handleClearInput}
-        >
-          ×
-        </S.ClearInputButton>
-      )}
+      <S.InputWrapper>
+        <S.SearchInput
+          placeholder={t("map.searchPlaceholder")}
+          $displaySearchResults={displaySearchResults}
+          {...getInputProps({
+            "aria-label": t("map.searchInputLabel"),
+          })}
+        />
+        {showSpinner && <S.Spinner aria-hidden="true" />}
+        {showClearButton && (
+          <S.ClearInputButton
+            type="button"
+            aria-label={t("map.clearInputAriaLabel")}
+            onMouseDown={(e) => e.preventDefault()}
+            onClick={handleClearInput}
+          >
+            ×
+          </S.ClearInputButton>
+        )}
+      </S.InputWrapper>
       <S.LocationSearchButton
         aria-label={t("map.browserLocationButton")}
         type="button"
@@ -341,7 +376,7 @@ const LocationSearch: React.FC<LocationSearchProps> = ({ isTimelapseView }) => {
                     : item.label,
                 })}
               >
-                {labelNode}
+                <S.SuggestionLabel>{labelNode}</S.SuggestionLabel>
               </S.Suggestion>
             );
           })}
