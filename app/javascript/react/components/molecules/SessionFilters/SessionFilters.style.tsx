@@ -83,7 +83,8 @@ const Tab = styled.button<{ $isActive: boolean }>`
   align-items: center;
   justify-content: center;
   flex: 1;
-  padding: 1rem 3rem;
+  height: 100%;
+  padding: 0 1.6rem;
   box-sizing: border-box;
   background-color: ${(props) => (props.$isActive ? white : gray100)};
   border: 2px solid ${(props) => (props.$isActive ? acBlue : "transparent")};
@@ -91,6 +92,10 @@ const Tab = styled.button<{ $isActive: boolean }>`
   font-size: 1.4rem;
   color: ${(props) => (props.$isActive ? acBlueDark : gray300)};
   cursor: pointer;
+
+  &:focus:not(:focus-visible) {
+    outline: none;
+  }
 
   &:first-child {
     border-radius: 10px 0 0 10px;
