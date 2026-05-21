@@ -77,8 +77,11 @@ import type { SessionList } from "../../../types/sessionType";
 import { UserSettings } from "../../../types/userStates";
 import { CookieManager } from "../../../utils/cookieManager";
 import * as Cookies from "../../../utils/cookies";
+import { geocodeAddress } from "../../../utils/geocodeAddress";
+import { getBrowserLocation } from "../../../utils/geolocation";
 import { UrlParamsTypes, useMapParams } from "../../../utils/mapParamsHandler";
 import { useHandleScrollEnd } from "../../../utils/scrollEnd";
+import { trackCityLanding } from "../../../utils/trackCityLanding";
 import useMobileDetection from "../../../utils/useScreenSizeDetection";
 import { Loader } from "../../atoms/Loader/Loader";
 import { SectionButton } from "../../atoms/SectionButton/SectionButton";
@@ -107,6 +110,10 @@ const Map = () => {
     boundNorth,
     boundSouth,
     boundWest,
+    city,
+    removeCityParam,
+    setSearchParams,
+    setUrlParams,
     currentCenter,
     currentUserSettings,
     currentZoom,
@@ -141,6 +148,7 @@ const Map = () => {
   const navigate = useNavigate();
   const isFirstRender = useRef(true);
   const isFirstRenderForThresholds = useRef(true);
+  const lastHandledCityRef = useRef<string | null>(null);
   const { t } = useTranslation();
   const isIndoorParameterInUrl = isIndoor === TRUE;
 
@@ -394,6 +402,8 @@ const Map = () => {
   useEffect(() => {
     const isFirstLoad = isFirstRender.current;
 
+    if (city !== null && city !== "") return;
+
     if (isFirstLoad && fetchedSessions > 0 && !fixedSessionTypeSelected) {
       const originalLimit = limit;
       updateLimit(fetchedSessions);
@@ -599,6 +609,81 @@ const Map = () => {
     }
   }, [currentUserSettings, fixedPoints]);
 
+  useEffect(() => {
+    if (!mapInstance || !city || lastHandledCityRef.current === city) return;
+    lastHandledCityRef.current = city;
+    dispatch(setFetchingData(false));
+
+    const cityRaw = decodeURIComponent(city);
+
+    geocodeAddress(cityRaw).then(async (result) => {
+      let mapWillMove = false;
+      if (result) {
+        if (result.bounds) {
+          mapInstance.fitBounds(result.bounds);
+        } else {
+          mapInstance.panTo({ lat: result.lat, lng: result.lng });
+          mapInstance.setZoom(result.zoom);
+        }
+        mapWillMove = true;
+        trackCityLanding({
+          cityRaw,
+          cityResolved: result.resolvedName,
+          resolutionStatus: "success",
+          sessionType,
+        });
+      } else {
+        const geo = await getBrowserLocation(mapInstance, setUrlParams);
+        mapWillMove = !!geo;
+        trackCityLanding({
+          cityRaw,
+          cityResolved: null,
+          resolutionStatus: geo ? "fallback_geo" : "fallback_default",
+          sessionType,
+        });
+      }
+      const finalize = () => {
+        if (result?.bounds) {
+          const sw = result.bounds.getSouthWest();
+          const ne = result.bounds.getNorthEast();
+          setSearchParams(
+            (prev) => {
+              const np = new URLSearchParams(prev);
+              np.delete(UrlParamsTypes.city);
+              np.set(UrlParamsTypes.boundEast, ne.lng().toString());
+              np.set(UrlParamsTypes.boundNorth, ne.lat().toString());
+              np.set(UrlParamsTypes.boundSouth, sw.lat().toString());
+              np.set(UrlParamsTypes.boundWest, sw.lng().toString());
+              np.set(
+                UrlParamsTypes.currentCenter,
+                JSON.stringify({ lat: result.lat, lng: result.lng })
+              );
+              np.set(UrlParamsTypes.currentZoom, result.zoom.toString());
+              return np;
+            },
+            { replace: true }
+          );
+        } else {
+          removeCityParam();
+        }
+        dispatch(setFetchingData(true));
+      };
+      if (mapWillMove) {
+        google.maps.event.addListenerOnce(mapInstance, "idle", finalize);
+      } else {
+        finalize();
+      }
+    });
+  }, [
+    mapInstance,
+    city,
+    sessionType,
+    setUrlParams,
+    setSearchParams,
+    removeCityParam,
+    dispatch,
+  ]);
+
   const handleScrollEnd = useHandleScrollEnd(
     offset,
     listSessions,
@@ -649,6 +734,9 @@ const Map = () => {
           const east = bounds.getNorthEast().lng();
           const west = bounds.getSouthWest().lng();
 
+          if (lastHandledCityRef.current !== null) {
+            newSearchParams.delete(UrlParamsTypes.city);
+          }
           newSearchParams.set(UrlParamsTypes.boundEast, east.toString());
           newSearchParams.set(UrlParamsTypes.boundNorth, north.toString());
           newSearchParams.set(UrlParamsTypes.boundSouth, south.toString());

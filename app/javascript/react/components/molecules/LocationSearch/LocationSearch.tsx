@@ -1,85 +1,155 @@
 import { useCombobox } from "downshift";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
-import usePlacesAutocomplete, {
-  getGeocode,
-  getLatLng,
-} from "use-places-autocomplete";
 
-import { useApiIsLoaded, useMap } from "@vis.gl/react-google-maps";
+import { useMap } from "@vis.gl/react-google-maps";
 
 import locationSearchIcon from "../../../assets/icons/locationSearchIcon.svg";
 import { useAppDispatch } from "../../../store/hooks";
 import { setFetchingData } from "../../../store/mapSlice";
-import { determineZoomLevel } from "../../../utils/determineZoomLevel";
 import { getBrowserLocation } from "../../../utils/geolocation";
 import { UrlParamsTypes, useMapParams } from "../../../utils/mapParamsHandler";
+import { trackRecentSearchUsed } from "../../../utils/trackRecentSearch";
+import { trackSearchCityName } from "../../../utils/trackSearchCityName";
+import useAutocompleteSuggestions, {
+  PlaceSuggestion,
+} from "../../../utils/useAutocompleteSuggestions";
+import useRecentSearches, {
+  RecentSearch,
+  SerializableBounds,
+} from "../../../utils/useRecentSearches";
 import * as S from "./LocationSearch.style";
-
-const OK_STATUS = "OK";
 
 interface LocationSearchProps {
   isTimelapseView: boolean;
 }
 
-type AutocompletePrediction = google.maps.places.AutocompletePrediction;
+type LocationItem = PlaceSuggestion | RecentSearch;
+
+const isRecent = (item: LocationItem): item is RecentSearch =>
+  "lat" in item && "lng" in item;
+
+const renderHighlightedLabel = (
+  text: string,
+  ranges: { start: number; end: number }[] | undefined
+): React.ReactNode => {
+  if (!ranges || ranges.length === 0) return text;
+
+  const sorted = [...ranges]
+    .filter((r) => r.end > r.start && r.start < text.length)
+    .sort((a, b) => a.start - b.start);
+
+  const parts: React.ReactNode[] = [];
+  let cursor = 0;
+  sorted.forEach((range, idx) => {
+    const safeStart = Math.max(range.start, cursor);
+    const safeEnd = Math.min(range.end, text.length);
+    if (safeStart > cursor) {
+      parts.push(text.slice(cursor, safeStart));
+    }
+    if (safeEnd > safeStart) {
+      parts.push(
+        <S.Highlight key={`hl-${idx}`}>
+          {text.slice(safeStart, safeEnd)}
+        </S.Highlight>
+      );
+    }
+    cursor = safeEnd;
+  });
+  if (cursor < text.length) {
+    parts.push(text.slice(cursor));
+  }
+  return parts;
+};
+
+const serializeBounds = (
+  bounds?: google.maps.LatLngBounds
+): SerializableBounds | undefined => {
+  if (!bounds) return undefined;
+  const ne = bounds.getNorthEast();
+  const sw = bounds.getSouthWest();
+  return {
+    north: ne.lat(),
+    south: sw.lat(),
+    east: ne.lng(),
+    west: sw.lng(),
+  };
+};
+
+const boundsStableKey = (
+  b: google.maps.LatLngBounds | null | undefined
+): string => {
+  if (!b) return "__none__";
+  try {
+    return JSON.stringify(b.toJSON?.() ?? null);
+  } catch {
+    return "__unknown__";
+  }
+};
 
 const LocationSearch: React.FC<LocationSearchProps> = ({ isTimelapseView }) => {
   const dispatch = useAppDispatch();
-  const [items, setItems] = useState<AutocompletePrediction[]>([]);
-  const [selectedItem, setSelectedItem] =
-    useState<AutocompletePrediction | null>(null);
+  const [selectedItem, setSelectedItem] = useState<LocationItem | null>(null);
   const [inputValue, setInputValue] = useState("");
   const { t } = useTranslation();
   const map = useMap();
-  const apiIsLoaded = useApiIsLoaded();
   const { setUrlParams } = useMapParams();
-  const {
-    setValue,
-    suggestions: { status, data },
-    clearSuggestions,
-    init,
-  } = usePlacesAutocomplete({ initOnMount: false });
+  const lastBiasKeyRef = useRef<string>("__init__");
+
+  const [locationBias, setLocationBias] =
+    useState<google.maps.places.LocationBias | null>(null);
+  const justSelectedRef = useRef(false);
 
   useEffect(() => {
-    if (apiIsLoaded) {
-      init();
+    if (!map) {
+      lastBiasKeyRef.current = "__init__";
+      setLocationBias(null);
+      return;
     }
-  }, [apiIsLoaded, init]);
+    const syncBias = () => {
+      const b = map.getBounds?.() ?? null;
+      const key = boundsStableKey(b);
+      if (key === lastBiasKeyRef.current) return;
+      lastBiasKeyRef.current = key;
+      setLocationBias(b);
+    };
+    syncBias();
+    const listener = map.addListener("idle", syncBias);
+    return () => {
+      listener.remove();
+      lastBiasKeyRef.current = "__init__";
+    };
+  }, [map]);
 
-  const {
-    isOpen,
-    getMenuProps,
-    getInputProps,
-    highlightedIndex,
-    getItemProps,
-  } = useCombobox({
-    onInputValueChange: ({ inputValue }) => {
-      setValue(inputValue);
-      setInputValue(inputValue);
-    },
-    items: data,
-    itemToString(item) {
-      return item ? item.description : "";
-    },
-    selectedItem,
-    onSelectedItemChange: ({ selectedItem: newSelectedItem }) => {
-      setSelectedItem(newSelectedItem);
-      handleSelect(newSelectedItem);
-    },
-    inputValue,
-  });
+  const { setInput, suggestions, status, selectSuggestion } =
+    useAutocompleteSuggestions({ locationBias });
+  const { recents, addRecent, clearRecents } = useRecentSearches();
 
-  const displaySearchResults = isOpen && items.length > 0;
+  const showingRecents = inputValue.trim() === "" && recents.length > 0;
+  const items: LocationItem[] = showingRecents
+    ? recents
+    : status === "ok"
+    ? suggestions
+    : [];
 
-  const handleSelect = async (item: AutocompletePrediction) => {
-    if (!item) return;
+  const liveMessage: string = (() => {
+    if (showingRecents) return "";
+    if (status === "loading") return t("map.statusLoading");
+    if (status === "no_results") return t("map.statusNoResults");
+    if (status === "error") return t("map.statusError");
+    if (status === "ok" && suggestions.length > 0) {
+      return t("map.statusResultsAvailable", { count: suggestions.length });
+    }
+    return "";
+  })();
 
-    setValue(item.description, false);
-    clearSuggestions();
-    const results = await getGeocode({ address: item.description });
-    const { lat, lng } = await getLatLng(results[0]);
-    const { zoom, bounds } = determineZoomLevel(results);
+  const applyMapNavigation = (target: {
+    lat: number;
+    lng: number;
+    zoom: number;
+    bounds?: google.maps.LatLngBounds | SerializableBounds;
+  }) => {
+    const { lat, lng, zoom, bounds } = target;
 
     setUrlParams([
       {
@@ -93,7 +163,9 @@ const LocationSearch: React.FC<LocationSearchProps> = ({ isTimelapseView }) => {
     ]);
 
     if (bounds && map) {
-      map.fitBounds(bounds);
+      map.fitBounds(
+        bounds as google.maps.LatLngBounds | google.maps.LatLngBoundsLiteral
+      );
     } else {
       map?.setZoom(zoom);
       map?.panTo({ lat, lng });
@@ -104,33 +176,161 @@ const LocationSearch: React.FC<LocationSearchProps> = ({ isTimelapseView }) => {
     }, 200);
   };
 
+  const handleSelect = async (item: LocationItem) => {
+    if (!item) return;
+
+    if (!isRecent(item) && status === "loading") return;
+
+    if (isRecent(item)) {
+      const position = recents.findIndex((r) => r.id === item.id);
+      trackSearchCityName({
+        query: item.label,
+        placeId: item.id,
+        lat: item.lat,
+        lng: item.lng,
+        source: "recent",
+      });
+      trackRecentSearchUsed({
+        query: item.label,
+        position: position === -1 ? 0 : position,
+        totalRecents: recents.length,
+      });
+      applyMapNavigation(item);
+      addRecent(item);
+      return;
+    }
+
+    const result = await selectSuggestion(item.id);
+    if (!result) return;
+
+    trackSearchCityName({
+      query: item.label,
+      placeId: item.id,
+      lat: result.lat,
+      lng: result.lng,
+      source: "autocomplete",
+    });
+
+    applyMapNavigation(result);
+
+    addRecent({
+      id: item.id,
+      label: item.label,
+      lat: result.lat,
+      lng: result.lng,
+      zoom: result.zoom,
+      bounds: serializeBounds(result.bounds),
+    });
+  };
+
+  const {
+    isOpen,
+    getMenuProps,
+    getInputProps,
+    highlightedIndex,
+    getItemProps,
+  } = useCombobox<LocationItem>({
+    onInputValueChange: ({ inputValue: newInputValue }) => {
+      setInputValue(newInputValue);
+      if (justSelectedRef.current) {
+        justSelectedRef.current = false;
+        return;
+      }
+      setInput(newInputValue);
+    },
+    items,
+    itemToString(item) {
+      return item ? item.label : "";
+    },
+    selectedItem,
+    stateReducer: (state, { type, changes }) => {
+      const isEnterWithoutHighlight =
+        type === useCombobox.stateChangeTypes.InputKeyDownEnter &&
+        state.highlightedIndex === -1 &&
+        items.length > 0;
+
+      const nextChanges = isEnterWithoutHighlight
+        ? {
+            ...changes,
+            highlightedIndex: 0,
+            selectedItem: items[0],
+            inputValue: items[0].label,
+            isOpen: false,
+          }
+        : changes;
+
+      if (
+        nextChanges.selectedItem &&
+        nextChanges.selectedItem !== state.selectedItem
+      ) {
+        justSelectedRef.current = true;
+      }
+
+      return nextChanges;
+    },
+    onSelectedItemChange: ({ selectedItem: newSelectedItem }) => {
+      setSelectedItem(newSelectedItem);
+      if (!newSelectedItem) return;
+      if (!isRecent(newSelectedItem) && status === "loading") return;
+      void handleSelect(newSelectedItem);
+    },
+    inputValue,
+  });
+
+  const showSpinner = status === "loading" && inputValue.trim().length > 0;
+  const showClearButton = inputValue.length > 0 && !showSpinner;
+  const showEmptyState =
+    isOpen &&
+    !showingRecents &&
+    status === "no_results" &&
+    inputValue.trim().length > 0;
+  const showErrorState = isOpen && !showingRecents && status === "error";
+
+  const displaySearchResults =
+    isOpen && (items.length > 0 || showEmptyState || showErrorState);
+
   const handleBrowserLocation = async () => {
     const location = await getBrowserLocation(map, setUrlParams);
 
     if (location) {
       setInputValue("");
-      setItems([]);
+      setInput("");
       setTimeout(() => {
         dispatch(setFetchingData(true));
       }, 200);
     } else {
-      console.log(t("map.locationError"));
+      console.warn(t("map.locationError"));
     }
   };
 
-  useEffect(() => {
-    if (status === OK_STATUS && data.length) {
-      setItems(data);
-    }
-  }, [data, status]);
+  const handleClearInput = () => {
+    setInputValue("");
+    setInput("");
+    setSelectedItem(null);
+  };
 
   return (
     <S.SearchContainer $isTimelapseView={isTimelapseView}>
-      <S.SearchInput
-        placeholder={t("map.searchPlaceholder")}
-        $displaySearchResults={displaySearchResults}
-        {...getInputProps()}
-      />
+      <S.InputWrapper>
+        <S.SearchInput
+          placeholder={t("map.searchPlaceholder")}
+          $displaySearchResults={displaySearchResults}
+          {...getInputProps({
+            "aria-label": t("map.searchInputLabel"),
+          })}
+        />
+        {showSpinner && <S.Spinner aria-hidden="true" />}
+        {showClearButton && (
+          <S.ClearInputButton
+            type="button"
+            aria-label={t("map.clearInputAriaLabel")}
+            onMouseDown={(e) => e.preventDefault()}
+            onClick={handleClearInput}
+          >
+            ×
+          </S.ClearInputButton>
+        )}
+      </S.InputWrapper>
       <S.LocationSearchButton
         aria-label={t("map.browserLocationButton")}
         type="button"
@@ -138,24 +338,61 @@ const LocationSearch: React.FC<LocationSearchProps> = ({ isTimelapseView }) => {
       >
         <S.LocationSearchIcon
           src={locationSearchIcon}
-          alt={t("map.searchIcon")}
+          alt=""
+          aria-hidden="true"
         />
       </S.LocationSearchButton>
+      <S.LiveRegion role="status" aria-live="polite" aria-atomic="true">
+        {liveMessage}
+      </S.LiveRegion>
       <S.SuggestionsList
         $displaySearchResults={displaySearchResults}
         {...getMenuProps()}
       >
-        <S.Hr $displaySearchResults={displaySearchResults} />
-        {isOpen &&
-          items.map((item, index) => (
-            <S.Suggestion
-              key={item.place_id}
-              $isHighlighted={highlightedIndex === index}
-              {...getItemProps({ item, index })}
+        <S.Hr $displaySearchResults={displaySearchResults} aria-hidden="true" />
+        {isOpen && showingRecents && (
+          <S.RecentSectionHeader>
+            <S.RecentSectionLabel>
+              {t("map.recentSearchesLabel")}
+            </S.RecentSectionLabel>
+            <S.ClearRecentsButton
+              type="button"
+              aria-label={t("map.clearRecentSearchesAriaLabel")}
+              onMouseDown={(e) => e.preventDefault()}
+              onClick={clearRecents}
             >
-              {item.description}
-            </S.Suggestion>
-          ))}
+              {t("map.clearRecentSearches")}
+            </S.ClearRecentsButton>
+          </S.RecentSectionHeader>
+        )}
+        {showEmptyState && (
+          <S.EmptyState>{t("map.statusNoResults")}</S.EmptyState>
+        )}
+        {showErrorState && (
+          <S.ErrorState>{t("map.statusError")}</S.ErrorState>
+        )}
+        {isOpen &&
+          items.map((item, index) => {
+            const labelNode =
+              !showingRecents && "matchRanges" in item
+                ? renderHighlightedLabel(item.label, item.matchRanges)
+                : item.label;
+            return (
+              <S.Suggestion
+                key={item.id}
+                $isHighlighted={highlightedIndex === index}
+                {...getItemProps({
+                  item,
+                  index,
+                  "aria-label": showingRecents
+                    ? `${item.label}, ${t("map.recentSearchesLabel").toLowerCase()}`
+                    : item.label,
+                })}
+              >
+                <S.SuggestionLabel>{labelNode}</S.SuggestionLabel>
+              </S.Suggestion>
+            );
+          })}
       </S.SuggestionsList>
     </S.SearchContainer>
   );

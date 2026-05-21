@@ -39,6 +39,7 @@ export enum UrlParamsTypes {
   boundNorth = "boundNorth",
   boundSouth = "boundSouth",
   boundWest = "boundWest",
+  city = "city",
   currentCenter = "currentCenter",
   currentUserSettings = "currentUserSettings",
   currentZoom = "currentZoom",
@@ -130,6 +131,19 @@ export const useMapParams = () => {
   const currentZoom = parseFloat(
     getParam(UrlParamsTypes.currentZoom, DEFAULT_ZOOM.toString())!
   );
+
+  const city = searchParams.get(UrlParamsTypes.city);
+
+  const removeCityParam = useCallback(() => {
+    setSearchParams(
+      (prev) => {
+        const newParams = new URLSearchParams(prev);
+        newParams.delete(UrlParamsTypes.city);
+        return newParams;
+      },
+      { replace: true }
+    );
+  }, [setSearchParams]);
 
   const isIndoor = getParam(UrlParamsTypes.isIndoor, FALSE);
   const currentYear = new Date().getFullYear();
@@ -382,35 +396,7 @@ export const useMapParams = () => {
   const usernames = getParam(UrlParamsTypes.usernames, "");
 
   useEffect(() => {
-    const queryParams = new URLSearchParams(searchParams.toString());
-    // temporary solution -> later we'll move thresholds to URL
-
-    queryParams.set(
-      UrlParamsTypes.thresholdMin,
-      thresholdValues.min.toString()
-    );
-    thresholdValues.low !== 0 &&
-      queryParams.set(
-        UrlParamsTypes.thresholdLow,
-        thresholdValues.low.toString()
-      );
-    thresholdValues.middle !== 0 &&
-      queryParams.set(
-        UrlParamsTypes.thresholdMiddle,
-        thresholdValues.middle.toString()
-      );
-    thresholdValues.high !== 0 &&
-      queryParams.set(
-        UrlParamsTypes.thresholdHigh,
-        thresholdValues.high.toString()
-      );
-    thresholdValues.max !== 0 &&
-      queryParams.set(
-        UrlParamsTypes.thresholdMax,
-        thresholdValues.max.toString()
-      );
-
-    debouncedUpdateURL(queryParams);
+    debouncedUpdateURL(thresholdValues);
   }, [thresholdValues]);
 
   const goToUserSettings = useCallback(
@@ -568,8 +554,23 @@ export const useMapParams = () => {
   );
 
   const debouncedUpdateURL = useCallback(
-    debounce((params) => {
-      setSearchParams(params);
+    debounce((values: typeof thresholdValues) => {
+      setSearchParams((prev) => {
+        const queryParams = new URLSearchParams(prev);
+        queryParams.set(UrlParamsTypes.thresholdMin, values.min.toString());
+        values.low !== 0 &&
+          queryParams.set(UrlParamsTypes.thresholdLow, values.low.toString());
+        values.middle !== 0 &&
+          queryParams.set(
+            UrlParamsTypes.thresholdMiddle,
+            values.middle.toString()
+          );
+        values.high !== 0 &&
+          queryParams.set(UrlParamsTypes.thresholdHigh, values.high.toString());
+        values.max !== 0 &&
+          queryParams.set(UrlParamsTypes.thresholdMax, values.max.toString());
+        return queryParams;
+      });
     }, 300),
     [setSearchParams]
   );
@@ -686,6 +687,9 @@ export const useMapParams = () => {
     boundNorth,
     boundSouth,
     boundWest,
+    city,
+    removeCityParam,
+    setSearchParams,
     currentCenter,
     currentUserSettings,
     currentZoom,
