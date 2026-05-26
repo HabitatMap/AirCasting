@@ -413,7 +413,17 @@ const Map = () => {
   useEffect(() => {
     const isFirstLoad = isFirstRender.current;
 
-    if (city !== null && city !== "") return;
+    // Skip fetch while an ad-landing `?city=` is still being resolved by
+    // geocodeCityFromUrl (lastHandledCityRef hasn't caught up yet). Once
+    // that effect marks the city as handled, or once city= came from an
+    // in-app search (where the LocationSearch flow already set the ref
+    // via the C1 guard), we proceed and fetch normally.
+    if (
+      city !== null &&
+      city !== "" &&
+      lastHandledCityRef.current !== city
+    )
+      return;
 
     if (isFirstLoad && fetchedSessions > 0 && !fixedSessionTypeSelected) {
       const originalLimit = limit;
