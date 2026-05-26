@@ -28,10 +28,17 @@ RSpec.describe FixedStreaming::StreamCreator do
             :threshold_set,
             sensor_name: 'AirBeamMini-PM2.5',
             unit_symbol: 'µg/m³',
+            threshold_very_low: 0,
+            threshold_low: 9,
+            threshold_medium: 35,
+            threshold_high: 55,
+            threshold_very_high: 150,
           )
 
-        result = subject.call(session: session, data: data)
+        expect { subject.call(session: session, data: data) }
+          .not_to change(ThresholdSet, :count)
 
+        result = Stream.last
         expect(result.session).to eq(session)
         expect(result.threshold_set).to eq(threshold_set)
         expect(ThresholdSet.count).to eq(1)

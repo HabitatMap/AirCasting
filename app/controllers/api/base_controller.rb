@@ -15,7 +15,7 @@ module Api
     def authenticate_user_from_token!
       return if Rails.env.test?
 
-      request.authorization =~ /^Basic (.*)/m
+      return unless request.authorization =~ /^Basic (.*)/m
       user_token, _password = Base64.decode64($1).split(/:/, 2) # mobile app sends token + "X" as password
 
       user = user_token && User.find_by_authentication_token(user_token.to_s)

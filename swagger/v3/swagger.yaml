@@ -1,0 +1,303 @@
+---
+openapi: 3.0.1
+info:
+  title: AirCasting API V3
+  version: v3
+  description: API endpoints for AirBeam devices and mobile apps
+components:
+  securitySchemes:
+    token_auth:
+      type: apiKey
+      in: header
+      name: Authorization
+      description: Token token=<user_token>
+security:
+- token_auth: []
+paths:
+  "/api/v3/fixed_sessions":
+    post:
+      summary: Create a new AirBeamMini fixed session
+      tags:
+      - AirBeamMini fixed sessions binary flow
+      description: |
+        Creates a new fixed session for an AirBeamMini device. The mobile app calls this
+        before configuring the AirBeamMini. The response includes a `sensor_type_id` per
+        stream that the AirBeamMini uses to identify stream types in the binary upload payload.
+
+        ## Error Codes
+
+        | `error_code` | HTTP | Description |
+        |---|---|---|
+        | `unauthorized` | 401 | Missing or invalid `Authorization` token |
+        | `validation_error` | 400 | Request body failed validation. See `fields` for per-field details |
+      parameters:
+      - name: Authorization
+        in: header
+        required: true
+        description: Token token=<user_token>
+        schema:
+          type: string
+      responses:
+        '201':
+          description: session created
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - location
+                - session_token
+                - streams
+                properties:
+                  location:
+                    type: string
+                    example: http://aircasting.org/s/ab12c
+                  session_token:
+                    type: string
+                    description: Bearer token for AirBeam measurement uploads. The
+                      mobile app passes this to the AirBeam over BLE after session
+                      creation.
+                    example: a3f2c1d4e5b6a7f8c9d0e1f2a3b4c5d6
+                  streams:
+                    type: array
+                    items:
+                      type: object
+                      required:
+                      - sensor_name
+                      - sensor_type_id
+                      properties:
+                        sensor_name:
+                          type: string
+                          example: AirBeam-PM2.5
+                        sensor_type_id:
+                          type: integer
+                          description: Compact numeric ID used by the AirBeam in the
+                            binary upload format to identify this stream
+                          example: 2
+        '400':
+          description: validation error
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - error_code
+                - message
+                properties:
+                  error_code:
+                    type: string
+                    example: validation_error
+                  message:
+                    type: string
+                    example: Request body is invalid
+                  fields:
+                    type: object
+                    description: Per-field validation errors
+                    additionalProperties:
+                      type: array
+                      items:
+                        type: string
+        '401':
+          description: unauthorized
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - error_code
+                - message
+                properties:
+                  error_code:
+                    type: string
+                  message:
+                    type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+              - uuid
+              - title
+              - latitude
+              - longitude
+              - contribute
+              - airbeam
+              - streams
+              properties:
+                uuid:
+                  type: string
+                  format: uuid
+                  example: 550e8400-e29b-41d4-a716-446655440000
+                title:
+                  type: string
+                  example: Rooftop PM2.5 monitor
+                latitude:
+                  type: number
+                  format: float
+                  example: 40.7128
+                longitude:
+                  type: number
+                  format: float
+                  example: -74.006
+                contribute:
+                  type: boolean
+                  example: true
+                is_indoor:
+                  type: boolean
+                  nullable: true
+                  example: false
+                  description: Whether the sensor is deployed indoors. Defaults to
+                    false when omitted.
+                airbeam:
+                  type: object
+                  required:
+                  - mac_address
+                  - model
+                  properties:
+                    mac_address:
+                      type: string
+                      example: AA:BB:CC:DD:EE:FF
+                    model:
+                      type: string
+                      example: AirBeamMini
+                    name:
+                      type: string
+                      nullable: true
+                      example: Roof sensor
+                streams:
+                  type: array
+                  minItems: 1
+                  items:
+                    type: object
+                    required:
+                    - sensor_name
+                    - unit_symbol
+                    properties:
+                      sensor_name:
+                        type: string
+                        description: Sensor name as reported by the device (e.g. AirBeamMini-PM1,
+                          AirBeamMini-PM2.5)
+                        example: AirBeamMini-PM2.5
+                      unit_symbol:
+                        type: string
+                        description: Unit symbol for this sensor (e.g. µg/m³, %, F)
+                        example: µg/m³
+                  example:
+                  - sensor_name: AirBeamMini-PM1
+                    unit_symbol: µg/m³
+                  - sensor_name: AirBeamMini-PM2.5
+                    unit_symbol: µg/m³
+        required: true
+  "/api/v3/fixed_sessions/{uuid}/measurements":
+    post:
+      summary: Upload binary measurements for an AirBeamMini session
+      tags:
+      - AirBeamMini fixed sessions binary flow
+      description: |
+        Receives a binary measurement payload from the AirBeamMini. Can be called once per
+        minute for live uploads or in bulk after connectivity loss — both are handled identically.
+
+        ## Binary Format
+
+        ```
+        Offset     Size  Type        Description
+        0          2     uint8[2]    Magic bytes: 0xAB 0xBA
+        2          2     uint16 BE   Measurement count N
+        --- repeated N times ---
+        4+i*9      4     uint32 BE   Unix timestamp (seconds since epoch, UTC)
+        8+i*9      1     uint8       sensor_type_id (returned by session creation endpoint)
+        9+i*9      4     float32 BE  Sensor value
+        --- end repeat ---
+        4+N*9      1     uint8       XOR checksum of all preceding bytes
+        ```
+
+        **Resend behaviour:** sending a measurement with an already-stored
+        `(stream_id, time_with_time_zone)` pair is silently ignored — no duplicate is created.
+
+        **Time synchronisation:** an empty body is valid and returns 200 immediately. The AirBeamMini
+        uses this to read the current server time from the `X-Server-Time` response header
+        (Unix epoch, UTC) when its clock drifts.
+
+        ## Error Codes
+
+        All error responses share the shape `{ "error_code": "...", "message": "..." }`.
+
+        | `error_code` | HTTP | Description |
+        |---|---|---|
+        | `unauthorized` | 401 | Missing or invalid `Authorization` token |
+        | `session_not_found` | 404 | No session with the given UUID exists for this user/token |
+        | `payload_too_short` | 400 | Payload has fewer bytes than required for even one frame |
+        | `invalid_magic_bytes` | 400 | First 2 bytes are not `0xAB 0xBA` |
+        | `empty_measurement_count` | 400 | Frame count field in header is zero |
+        | `payload_size_mismatch` | 400 | Actual payload size does not match the declared frame count |
+        | `invalid_checksum` | 400 | XOR checksum of payload does not match the final byte |
+        | `invalid_epoch` | 400 | A frame's timestamp is zero or implausibly far in the future |
+        | `invalid_value` | 400 | A frame's sensor value is NaN or Infinity |
+      parameters:
+      - name: uuid
+        in: path
+        required: true
+        description: Session UUID (same as used in session creation)
+        schema:
+          type: string
+      - name: Authorization
+        in: header
+        required: true
+        description: 'Mobile app: `Token token=<user_token>`. AirBeam: `Bearer <session_token>`
+          (returned by session creation endpoint).'
+        schema:
+          type: string
+      responses:
+        '200':
+          description: measurements stored (or empty body time-sync)
+        '400':
+          description: invalid payload or unknown sensor_type_id
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - error_code
+                - message
+                properties:
+                  error_code:
+                    type: string
+                  message:
+                    type: string
+        '404':
+          description: session not found
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - error_code
+                - message
+                properties:
+                  error_code:
+                    type: string
+                  message:
+                    type: string
+        '401':
+          description: unauthorized
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - error_code
+                - message
+                properties:
+                  error_code:
+                    type: string
+                  message:
+                    type: string
+      requestBody:
+        content:
+          application/octet-stream:
+            schema:
+              type: string
+              format: binary
+              description: Binary payload as described in the endpoint description
+        required: true

@@ -99,7 +99,19 @@ yarn prettier --write app/path/to/your/file.rb
 
 ## API documentation
 
-Read more [here](doc/api.md).
+Legacy REST API: [doc/api.md](doc/api.md).
+
+AirBeamMini2 and mobile app endpoints are documented with OpenAPI/Swagger:
+- **Swagger UI:** `/api-docs` (when the app is running)
+- **Spec (source of truth):** `spec/swagger/v3/fixed_sessions_spec.rb`
+- **Generated YAML:** `swagger/v3/swagger.yaml`
+
+To regenerate the YAML after editing the spec:
+```bash
+./scripts/swagger_generate
+```
+
+See [docs/swagger.md](docs/swagger.md) for more details.
 
 ## Contribute
 
