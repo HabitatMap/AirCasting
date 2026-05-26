@@ -81,7 +81,14 @@ import { geocodeAddress } from "../../../utils/geocodeAddress";
 import { getBrowserLocation } from "../../../utils/geolocation";
 import { UrlParamsTypes, useMapParams } from "../../../utils/mapParamsHandler";
 import { useHandleScrollEnd } from "../../../utils/scrollEnd";
-import { trackCityLanding } from "../../../utils/trackCityLanding";
+import {
+  armCitySettle,
+  disarmCitySettle,
+  isCitySettlePending,
+  resetCitySettle,
+} from "../../../utils/cityPersistTimeout";
+import { extractPrimaryCity } from "../../../utils/extractPrimaryCity";
+import { trackCityEvent } from "../../../utils/trackCityEvent";
 import useMobileDetection from "../../../utils/useScreenSizeDetection";
 import { Loader } from "../../atoms/Loader/Loader";
 import { SectionButton } from "../../atoms/SectionButton/SectionButton";
@@ -168,6 +175,10 @@ const Map = () => {
   );
 
   const fetchingData = useAppSelector(selectFetchingData);
+
+  // Reset pending city-settle counter on unmount so a leftover armed
+  // timer from a navigation/page-change can't dispatch into nothing.
+  useEffect(() => () => resetCitySettle(), []);
   const fixedSessionsType = useAppSelector(selectFixedSessionsType);
   const fixedPoints = useAppSelector((state) =>
     selectFixedSessionsPoints(state, fixedSessionsType)
@@ -611,10 +622,22 @@ const Map = () => {
 
   useEffect(() => {
     if (!mapInstance || !city || lastHandledCityRef.current === city) return;
+    // If a programmatic city settle is already in flight (e.g. the in-app
+    // LocationSearch just wrote ?city=Berlin to the URL and is panning the
+    // map), skip ad-landing handling: don't re-geocode, don't fire the
+    // ad_landing GA4 event. Just mark this city as handled so the effect
+    // doesn't re-enter when the URL flips later.
+    if (isCitySettlePending()) {
+      lastHandledCityRef.current = city;
+      return;
+    }
     lastHandledCityRef.current = city;
     dispatch(setFetchingData(false));
+    armCitySettle();
 
-    const cityRaw = decodeURIComponent(city);
+    // city is already decoded by URLSearchParams; do not decodeURIComponent
+    // again (would crash on malformed % sequences).
+    const cityRaw = city;
 
     geocodeAddress(cityRaw).then(async (result) => {
       let mapWillMove = false;
@@ -626,18 +649,22 @@ const Map = () => {
           mapInstance.setZoom(result.zoom);
         }
         mapWillMove = true;
-        trackCityLanding({
+        trackCityEvent({
+          city: extractPrimaryCity(result.resolvedName ?? cityRaw),
           cityRaw,
-          cityResolved: result.resolvedName,
+          source: "ad_landing",
           resolutionStatus: "success",
+          lat: result.lat,
+          lng: result.lng,
           sessionType,
         });
       } else {
         const geo = await getBrowserLocation(mapInstance, setUrlParams);
         mapWillMove = !!geo;
-        trackCityLanding({
+        trackCityEvent({
+          city: extractPrimaryCity(cityRaw),
           cityRaw,
-          cityResolved: null,
+          source: "ad_landing_fallback",
           resolutionStatus: geo ? "fallback_geo" : "fallback_default",
           sessionType,
         });
@@ -649,7 +676,6 @@ const Map = () => {
           setSearchParams(
             (prev) => {
               const np = new URLSearchParams(prev);
-              np.delete(UrlParamsTypes.city);
               np.set(UrlParamsTypes.boundEast, ne.lng().toString());
               np.set(UrlParamsTypes.boundNorth, ne.lat().toString());
               np.set(UrlParamsTypes.boundSouth, sw.lat().toString());
@@ -734,7 +760,17 @@ const Map = () => {
           const east = bounds.getNorthEast().lng();
           const west = bounds.getSouthWest().lng();
 
-          if (lastHandledCityRef.current !== null) {
+          // Three states for `city=` at idle time:
+          //  1. Programmatic settle in flight (search/ad-landing just
+          //     fired panTo/fitBounds) -> consume one pending count and
+          //     leave `city=` in URL. The user hasn't moved the map.
+          //  2. No pending settle, `city=` present in URL -> this is
+          //     a user-driven idle (drag/zoom). Strip `city=` because
+          //     coordinates have diverged from the searched city.
+          //  3. No pending settle, no `city=` -> nothing to do.
+          if (isCitySettlePending()) {
+            disarmCitySettle();
+          } else if (newSearchParams.get(UrlParamsTypes.city)) {
             newSearchParams.delete(UrlParamsTypes.city);
           }
           newSearchParams.set(UrlParamsTypes.boundEast, east.toString());
