@@ -176,8 +176,6 @@ const Map = () => {
 
   const fetchingData = useAppSelector(selectFetchingData);
 
-  // Reset pending city-settle counter on unmount so a leftover armed
-  // timer from a navigation/page-change can't dispatch into nothing.
   useEffect(() => () => resetCitySettle(), []);
   const fixedSessionsType = useAppSelector(selectFixedSessionsType);
   const fixedPoints = useAppSelector((state) =>
@@ -413,11 +411,8 @@ const Map = () => {
   useEffect(() => {
     const isFirstLoad = isFirstRender.current;
 
-    // Skip fetch while an ad-landing `?city=` is still being resolved by
-    // geocodeCityFromUrl (lastHandledCityRef hasn't caught up yet). Once
-    // that effect marks the city as handled, or once city= came from an
-    // in-app search (where the LocationSearch flow already set the ref
-    // via the C1 guard), we proceed and fetch normally.
+    // Wait until ?city= has been handled before fetching, so the ad-landing
+    // geocode owns the initial bounds.
     if (
       city !== null &&
       city !== "" &&
@@ -632,11 +627,8 @@ const Map = () => {
 
   useEffect(() => {
     if (!mapInstance || !city || lastHandledCityRef.current === city) return;
-    // If a programmatic city settle is already in flight (e.g. the in-app
-    // LocationSearch just wrote ?city=Berlin to the URL and is panning the
-    // map), skip ad-landing handling: don't re-geocode, don't fire the
-    // ad_landing GA4 event. Just mark this city as handled so the effect
-    // doesn't re-enter when the URL flips later.
+    // In-app search already handled this city; skip the ad-landing path so
+    // we don't re-geocode or double-fire GA4.
     if (isCitySettlePending()) {
       lastHandledCityRef.current = city;
       return;
@@ -645,8 +637,7 @@ const Map = () => {
     dispatch(setFetchingData(false));
     armCitySettle();
 
-    // city is already decoded by URLSearchParams; do not decodeURIComponent
-    // again (would crash on malformed % sequences).
+    // URLSearchParams already decoded `city`; a second decode crashes on stray % sequences.
     const cityRaw = city;
 
     geocodeAddress(cityRaw).then(async (result) => {
@@ -770,14 +761,8 @@ const Map = () => {
           const east = bounds.getNorthEast().lng();
           const west = bounds.getSouthWest().lng();
 
-          // Three states for `city=` at idle time:
-          //  1. Programmatic settle in flight (search/ad-landing just
-          //     fired panTo/fitBounds) -> consume one pending count and
-          //     leave `city=` in URL. The user hasn't moved the map.
-          //  2. No pending settle, `city=` present in URL -> this is
-          //     a user-driven idle (drag/zoom). Strip `city=` because
-          //     coordinates have diverged from the searched city.
-          //  3. No pending settle, no `city=` -> nothing to do.
+          // Programmatic settle consumes one pending count; a user-driven
+          // idle with `city=` still in the URL strips it.
           if (isCitySettlePending()) {
             disarmCitySettle();
           } else if (newSearchParams.get(UrlParamsTypes.city)) {

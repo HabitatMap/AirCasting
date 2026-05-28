@@ -1,16 +1,6 @@
-// Tracks whether one or more programmatic map settles are pending.
-// Used to distinguish "map is animating to a searched city" (don't strip
-// city= from URL on next idle) from "user dragged/zoomed the map"
-// (strip city= because the URL no longer represents a search context).
-//
-// Count-based to handle rapid double-search: if the user clicks two
-// suggestions before the first settles, both arm; each idle disarms
-// one. Strip only fires when count reaches 0 AND a subsequent idle
-// arrives without an active arm.
-//
-// Safety timeout: if `idle` never fires (e.g., panTo to current
-// position is a no-op), the count is force-reset after the timeout
-// so the flag doesn't stick forever.
+// Count-based (not boolean) so rapid back-to-back searches each get their
+// own arm/disarm pair. Safety timeout force-resets the count in case `idle`
+// never fires (e.g. panTo to current position is a no-op).
 
 let pendingCount = 0;
 let timeoutId: ReturnType<typeof setTimeout> | null = null;
