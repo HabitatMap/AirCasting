@@ -761,19 +761,25 @@ const Map = () => {
           const east = bounds.getNorthEast().lng();
           const west = bounds.getSouthWest().lng();
 
+          // Read URL fresh: `searchParams` from the render closure can lag
+          // behind a setSearchParams that fired just before `idle` (e.g.
+          // LocationSearch writing `city=` then calling fitBounds). Using
+          // the stale closure would clobber that write on navigate.
+          const np = new URLSearchParams(window.location.search);
+
           // Programmatic settle consumes one pending count; a user-driven
           // idle with `city=` still in the URL strips it.
           if (isCitySettlePending()) {
             disarmCitySettle();
-          } else if (newSearchParams.get(UrlParamsTypes.city)) {
-            newSearchParams.delete(UrlParamsTypes.city);
+          } else if (np.get(UrlParamsTypes.city)) {
+            np.delete(UrlParamsTypes.city);
           }
-          newSearchParams.set(UrlParamsTypes.boundEast, east.toString());
-          newSearchParams.set(UrlParamsTypes.boundNorth, north.toString());
-          newSearchParams.set(UrlParamsTypes.boundSouth, south.toString());
-          newSearchParams.set(UrlParamsTypes.boundWest, west.toString());
-          newSearchParams.set(UrlParamsTypes.currentCenter, currentCenter);
-          newSearchParams.set(UrlParamsTypes.currentZoom, currentZoom);
+          np.set(UrlParamsTypes.boundEast, east.toString());
+          np.set(UrlParamsTypes.boundNorth, north.toString());
+          np.set(UrlParamsTypes.boundSouth, south.toString());
+          np.set(UrlParamsTypes.boundWest, west.toString());
+          np.set(UrlParamsTypes.currentCenter, currentCenter);
+          np.set(UrlParamsTypes.currentZoom, currentZoom);
           if (CookieManager.arePreferenceCookiesAllowed()) {
             Cookies.set(UrlParamsTypes.boundEast, east.toString());
             Cookies.set(UrlParamsTypes.boundNorth, north.toString());
@@ -782,7 +788,7 @@ const Map = () => {
             Cookies.set(UrlParamsTypes.currentCenter, currentCenter);
             Cookies.set(UrlParamsTypes.currentZoom, currentZoom);
           }
-          navigate(`?${newSearchParams.toString()}`);
+          navigate(`?${np.toString()}`);
         }
       }
     },
