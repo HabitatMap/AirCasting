@@ -7,10 +7,15 @@ import { useMap } from "@vis.gl/react-google-maps";
 import locationSearchIcon from "../../../assets/icons/locationSearchIcon.svg";
 import { useAppDispatch } from "../../../store/hooks";
 import { setFetchingData } from "../../../store/mapSlice";
+import {
+  armCitySettle,
+  resetCitySettle,
+} from "../../../utils/cityPersistTimeout";
+import { extractPrimaryCity } from "../../../utils/extractPrimaryCity";
 import { getBrowserLocation } from "../../../utils/geolocation";
 import { UrlParamsTypes, useMapParams } from "../../../utils/mapParamsHandler";
+import { trackCityEvent } from "../../../utils/trackCityEvent";
 import { trackRecentSearchUsed } from "../../../utils/trackRecentSearch";
-import { trackSearchCityName } from "../../../utils/trackSearchCityName";
 import useAutocompleteSuggestions, {
   PlaceSuggestion,
 } from "../../../utils/useAutocompleteSuggestions";
@@ -93,12 +98,14 @@ const LocationSearch: React.FC<LocationSearchProps> = ({ isTimelapseView }) => {
   const [inputValue, setInputValue] = useState("");
   const { t } = useTranslation();
   const map = useMap();
-  const { setUrlParams } = useMapParams();
+  const { setUrlParams, removeCityParam } = useMapParams();
   const lastBiasKeyRef = useRef<string>("__init__");
 
   const [locationBias, setLocationBias] =
     useState<google.maps.places.LocationBias | null>(null);
   const justSelectedRef = useRef(false);
+
+  useEffect(() => () => resetCitySettle(), []);
 
   useEffect(() => {
     if (!map) {
@@ -143,13 +150,19 @@ const LocationSearch: React.FC<LocationSearchProps> = ({ isTimelapseView }) => {
     return "";
   })();
 
-  const applyMapNavigation = (target: {
-    lat: number;
-    lng: number;
-    zoom: number;
-    bounds?: google.maps.LatLngBounds | SerializableBounds;
-  }) => {
+  const applyMapNavigation = (
+    target: {
+      lat: number;
+      lng: number;
+      zoom: number;
+      bounds?: google.maps.LatLngBounds | SerializableBounds;
+    },
+    cityLabel: string
+  ) => {
     const { lat, lng, zoom, bounds } = target;
+    const cityPrimary = extractPrimaryCity(cityLabel);
+
+    armCitySettle();
 
     setUrlParams([
       {
@@ -159,6 +172,10 @@ const LocationSearch: React.FC<LocationSearchProps> = ({ isTimelapseView }) => {
       {
         key: UrlParamsTypes.currentZoom,
         value: zoom.toString(),
+      },
+      {
+        key: UrlParamsTypes.city,
+        value: cityPrimary,
       },
     ]);
 
@@ -183,19 +200,20 @@ const LocationSearch: React.FC<LocationSearchProps> = ({ isTimelapseView }) => {
 
     if (isRecent(item)) {
       const position = recents.findIndex((r) => r.id === item.id);
-      trackSearchCityName({
-        query: item.label,
-        placeId: item.id,
+      trackCityEvent({
+        city: extractPrimaryCity(item.label),
+        cityRaw: item.label,
+        source: "recent",
         lat: item.lat,
         lng: item.lng,
-        source: "recent",
+        placeId: item.id,
       });
       trackRecentSearchUsed({
         query: item.label,
         position: position === -1 ? 0 : position,
         totalRecents: recents.length,
       });
-      applyMapNavigation(item);
+      applyMapNavigation(item, item.label);
       addRecent(item);
       return;
     }
@@ -203,15 +221,16 @@ const LocationSearch: React.FC<LocationSearchProps> = ({ isTimelapseView }) => {
     const result = await selectSuggestion(item.id);
     if (!result) return;
 
-    trackSearchCityName({
-      query: item.label,
-      placeId: item.id,
+    trackCityEvent({
+      city: extractPrimaryCity(item.label),
+      cityRaw: item.label,
+      source: "autocomplete",
       lat: result.lat,
       lng: result.lng,
-      source: "autocomplete",
+      placeId: item.id,
     });
 
-    applyMapNavigation(result);
+    applyMapNavigation(result, item.label);
 
     addRecent({
       id: item.id,
@@ -293,6 +312,7 @@ const LocationSearch: React.FC<LocationSearchProps> = ({ isTimelapseView }) => {
     const location = await getBrowserLocation(map, setUrlParams);
 
     if (location) {
+      removeCityParam();
       setInputValue("");
       setInput("");
       setTimeout(() => {
@@ -307,6 +327,7 @@ const LocationSearch: React.FC<LocationSearchProps> = ({ isTimelapseView }) => {
     setInputValue("");
     setInput("");
     setSelectedItem(null);
+    removeCityParam();
   };
 
   return (

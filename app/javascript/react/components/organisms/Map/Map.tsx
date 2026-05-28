@@ -81,7 +81,14 @@ import { geocodeAddress } from "../../../utils/geocodeAddress";
 import { getBrowserLocation } from "../../../utils/geolocation";
 import { UrlParamsTypes, useMapParams } from "../../../utils/mapParamsHandler";
 import { useHandleScrollEnd } from "../../../utils/scrollEnd";
-import { trackCityLanding } from "../../../utils/trackCityLanding";
+import {
+  armCitySettle,
+  disarmCitySettle,
+  isCitySettlePending,
+  resetCitySettle,
+} from "../../../utils/cityPersistTimeout";
+import { extractPrimaryCity } from "../../../utils/extractPrimaryCity";
+import { trackCityEvent } from "../../../utils/trackCityEvent";
 import useMobileDetection from "../../../utils/useScreenSizeDetection";
 import { Loader } from "../../atoms/Loader/Loader";
 import { SectionButton } from "../../atoms/SectionButton/SectionButton";
@@ -168,6 +175,8 @@ const Map = () => {
   );
 
   const fetchingData = useAppSelector(selectFetchingData);
+
+  useEffect(() => () => resetCitySettle(), []);
   const fixedSessionsType = useAppSelector(selectFixedSessionsType);
   const fixedPoints = useAppSelector((state) =>
     selectFixedSessionsPoints(state, fixedSessionsType)
@@ -402,7 +411,14 @@ const Map = () => {
   useEffect(() => {
     const isFirstLoad = isFirstRender.current;
 
-    if (city !== null && city !== "") return;
+    // Wait until ?city= has been handled before fetching, so the ad-landing
+    // geocode owns the initial bounds.
+    if (
+      city !== null &&
+      city !== "" &&
+      lastHandledCityRef.current !== city
+    )
+      return;
 
     if (isFirstLoad && fetchedSessions > 0 && !fixedSessionTypeSelected) {
       const originalLimit = limit;
@@ -611,10 +627,18 @@ const Map = () => {
 
   useEffect(() => {
     if (!mapInstance || !city || lastHandledCityRef.current === city) return;
+    // In-app search already handled this city; skip the ad-landing path so
+    // we don't re-geocode or double-fire GA4.
+    if (isCitySettlePending()) {
+      lastHandledCityRef.current = city;
+      return;
+    }
     lastHandledCityRef.current = city;
     dispatch(setFetchingData(false));
+    armCitySettle();
 
-    const cityRaw = decodeURIComponent(city);
+    // URLSearchParams already decoded `city`; a second decode crashes on stray % sequences.
+    const cityRaw = city;
 
     geocodeAddress(cityRaw).then(async (result) => {
       let mapWillMove = false;
@@ -626,18 +650,22 @@ const Map = () => {
           mapInstance.setZoom(result.zoom);
         }
         mapWillMove = true;
-        trackCityLanding({
+        trackCityEvent({
+          city: extractPrimaryCity(result.resolvedName ?? cityRaw),
           cityRaw,
-          cityResolved: result.resolvedName,
+          source: "ad_landing",
           resolutionStatus: "success",
+          lat: result.lat,
+          lng: result.lng,
           sessionType,
         });
       } else {
         const geo = await getBrowserLocation(mapInstance, setUrlParams);
         mapWillMove = !!geo;
-        trackCityLanding({
+        trackCityEvent({
+          city: extractPrimaryCity(cityRaw),
           cityRaw,
-          cityResolved: null,
+          source: "ad_landing_fallback",
           resolutionStatus: geo ? "fallback_geo" : "fallback_default",
           sessionType,
         });
@@ -649,7 +677,6 @@ const Map = () => {
           setSearchParams(
             (prev) => {
               const np = new URLSearchParams(prev);
-              np.delete(UrlParamsTypes.city);
               np.set(UrlParamsTypes.boundEast, ne.lng().toString());
               np.set(UrlParamsTypes.boundNorth, ne.lat().toString());
               np.set(UrlParamsTypes.boundSouth, sw.lat().toString());
@@ -734,7 +761,11 @@ const Map = () => {
           const east = bounds.getNorthEast().lng();
           const west = bounds.getSouthWest().lng();
 
-          if (lastHandledCityRef.current !== null) {
+          // Programmatic settle consumes one pending count; a user-driven
+          // idle with `city=` still in the URL strips it.
+          if (isCitySettlePending()) {
+            disarmCitySettle();
+          } else if (newSearchParams.get(UrlParamsTypes.city)) {
             newSearchParams.delete(UrlParamsTypes.city);
           }
           newSearchParams.set(UrlParamsTypes.boundEast, east.toString());

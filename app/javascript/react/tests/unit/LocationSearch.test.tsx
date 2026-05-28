@@ -205,17 +205,17 @@ describe("LocationSearch", () => {
 
       await waitFor(() => {
         const events = (window as any).dataLayer as Array<Record<string, unknown>>;
-        expect(events.some((e) => e.event === "search_city_name")).toBe(true);
+        expect(events.some((e) => e.event === "city_view")).toBe(true);
       });
     });
   });
 
-  describe("intent tracking (search_city_name)", () => {
+  describe("intent tracking (city_view)", () => {
     beforeEach(() => {
       (window as any).dataLayer = [];
     });
 
-    it("fires search_city_name with source=autocomplete on fresh pick", async () => {
+    it("fires city_view with source=autocomplete on fresh pick", async () => {
       const selectSuggestion = jest.fn().mockResolvedValue({
         lat: 52.2297,
         lng: 21.0122,
@@ -243,10 +243,11 @@ describe("LocationSearch", () => {
 
       await waitFor(() => {
         const events = (window as any).dataLayer as Array<Record<string, unknown>>;
-        const event = events.find((e) => e.event === "search_city_name");
+        const event = events.find((e) => e.event === "city_view");
         expect(event).toMatchObject({
           source: "autocomplete",
-          query: "Warsaw",
+          city: "Warsaw",
+          city_raw: "Warsaw",
           place_id: "place-1",
           lat: 52.2297,
           lng: 21.0122,
@@ -254,7 +255,7 @@ describe("LocationSearch", () => {
       });
     });
 
-    it("fires search_city_name THEN recent_search_used on recent pick", async () => {
+    it("fires city_view THEN recent_search_used on recent pick", async () => {
       mockUseRecent.mockReturnValue({
         recents: [
           {
@@ -277,7 +278,7 @@ describe("LocationSearch", () => {
 
       await waitFor(() => {
         const events = (window as any).dataLayer as Array<Record<string, unknown>>;
-        const cityIdx = events.findIndex((e) => e.event === "search_city_name");
+        const cityIdx = events.findIndex((e) => e.event === "city_view");
         const recentIdx = events.findIndex(
           (e) => e.event === "recent_search_used"
         );
@@ -285,7 +286,8 @@ describe("LocationSearch", () => {
         expect(recentIdx).toBeGreaterThan(cityIdx);
         expect(events[cityIdx]).toMatchObject({
           source: "recent",
-          query: "Warsaw",
+          city: "Warsaw",
+          city_raw: "Warsaw",
           place_id: "place-1",
         });
       });
