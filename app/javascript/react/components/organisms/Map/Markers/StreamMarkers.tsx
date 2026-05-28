@@ -9,11 +9,14 @@ import React, {
 
 import { mobileStreamPath } from "../../../../assets/styles/colors";
 import { useAppDispatch, useAppSelector } from "../../../../store/hooks";
-import store from "../../../../store/index";
 import {
   selectHoverPosition,
   setHoverPosition,
 } from "../../../../store/mapSlice";
+import {
+  selectOpenMarkerKey,
+  selectPopoverInitialSlide,
+} from "../../../../store/popoverSlice";
 import {
   setMarkersLoading,
   setTotalMarkers,
@@ -366,33 +369,18 @@ const StreamMarkers = ({ sessions, unitSymbol }: Props) => {
 
   const noteMarkersRef = React.useRef<Map<string, CustomMarker>>(new Map());
 
-  // Add Redux subscription to update all marker popovers
+  const openMarkerKey = useAppSelector(selectOpenMarkerKey);
+  const popoverInitialSlide = useAppSelector(selectPopoverInitialSlide);
+
+  // Update all marker popovers when the open marker or slide index changes.
+  // Using useSelector instead of store.subscribe avoids running on every
+  // Redux dispatch regardless of which slice changed.
   React.useEffect(() => {
-    let lastOpenMarkerKey: string | null = null;
-    let lastInitialSlide: number | null = null;
-
-    const unsubscribe = store.subscribe(() => {
-      const state = store.getState();
-      const openMarkerKey = state.popover.openMarkerKey;
-      const initialSlide = state.popover.initialSlide;
-
-      if (
-        openMarkerKey !== lastOpenMarkerKey ||
-        initialSlide !== lastInitialSlide
-      ) {
-        lastOpenMarkerKey = openMarkerKey;
-        lastInitialSlide = initialSlide;
-
-        if (map && (map as any).__customMarkers) {
-          (map as any).__customMarkers.forEach((marker: CustomMarker) => {
-            marker.setNotes(marker.getNotes(), initialSlide);
-          });
-        }
-      }
+    if (!map || !(map as any).__customMarkers) return;
+    (map as any).__customMarkers.forEach((marker: CustomMarker) => {
+      marker.setNotes(marker.getNotes(), popoverInitialSlide);
     });
-
-    return () => unsubscribe();
-  }, [map]);
+  }, [openMarkerKey, popoverInitialSlide, map]);
 
   return !isInitialLoading.current && hoverPosition ? (
     <HoverMarker position={hoverPosition} />
