@@ -7,7 +7,8 @@ module FixedSessions
         fixed_measurements_repository: FixedMeasurementsRepository.new,
         fixed_sessions_repository: FixedSessionsRepository.new,
         daily_averages_recalculator: FixedStreaming::StreamDailyAveragesRecalculator.new,
-        hourly_averages_recalculator: FixedStreaming::StreamHourlyAveragesRecalculator.new
+        hourly_averages_recalculator: FixedStreaming::StreamHourlyAveragesRecalculator.new,
+        monitor: Monitor.new
       )
         @parser = parser
         @streams_repository = streams_repository
@@ -15,11 +16,18 @@ module FixedSessions
         @fixed_sessions_repository = fixed_sessions_repository
         @daily_averages_recalculator = daily_averages_recalculator
         @hourly_averages_recalculator = hourly_averages_recalculator
+        @monitor = monitor
       end
 
       def call(session:, binary:)
         measurements = parser.call(binary)
       rescue Parser::ParseError => e
+        monitor.report_parse_error(
+          error_code: e.error_code,
+          message: e.message,
+          session: session,
+          binary_size: binary.bytesize,
+        )
         return Failure.new(error_code: e.error_code, message: e.message)
       else
         ingest(session: session, measurements: measurements)
@@ -29,12 +37,14 @@ module FixedSessions
 
       attr_reader :parser, :streams_repository, :fixed_measurements_repository,
                   :fixed_sessions_repository, :daily_averages_recalculator,
-                  :hourly_averages_recalculator
+                  :hourly_averages_recalculator, :monitor
 
       def ingest(session:, measurements:)
         grouped = measurements.group_by { |m| m[:sensor_type_id] }
         stream_records = {}
         oldest_epoch = measurements.min_by { |m| m[:epoch] }[:epoch]
+        known_type_ids = session.streams.pluck(:sensor_type_id)
+        streams_skipped = 0
 
         ActiveRecord::Base.transaction do
           all_records = []
@@ -44,7 +54,15 @@ module FixedSessions
               session_id: session.id,
               sensor_type_id: type_id,
             )
-            next unless stream
+            unless stream
+              streams_skipped += 1
+              monitor.report_unknown_sensor_type(
+                session: session,
+                sensor_type_id: type_id,
+                known_sensor_type_ids: known_type_ids,
+              )
+              next
+            end
 
             records = build_records(type_measurements, session, stream)
             fixed_measurements_repository.import(measurements: records, on_duplicate_key_ignore: true)
@@ -76,6 +94,7 @@ module FixedSessions
 
         Success.new('measurements ingested')
       rescue ActiveRecord::RecordInvalid => e
+        monitor.report_transaction_error(session: session, message: e.message)
         Failure.new(error_code: ErrorCodes::INTERNAL_ERROR, message: e.message)
       end
 
