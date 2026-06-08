@@ -16,11 +16,12 @@ module FixedSessions
       end
 
       class ParseError < StandardError
-        attr_reader :error_code
+        attr_reader :error_code, :measurement_count
 
-        def initialize(error_code, message)
+        def initialize(error_code, message, measurement_count: nil)
           super(message)
           @error_code = error_code
+          @measurement_count = measurement_count
         end
       end
 
@@ -31,13 +32,13 @@ module FixedSessions
         raise ParseError.new(ErrorCodes::INVALID_MAGIC_BYTES, 'magic bytes are not 0xAB 0xBA') unless magic == MAGIC
         raise ParseError.new(ErrorCodes::EMPTY_MEASUREMENT_COUNT, 'measurement count is zero') if count.zero?
 
-        raise ParseError.new(ErrorCodes::PAYLOAD_TOO_SHORT, 'payload too short') if binary.bytesize < HEADER_SIZE + MEASUREMENT_SIZE + 1
+        raise ParseError.new(ErrorCodes::PAYLOAD_TOO_SHORT, 'payload too short', measurement_count: count) if binary.bytesize < HEADER_SIZE + MEASUREMENT_SIZE + 1
 
         expected_size = HEADER_SIZE + (count * MEASUREMENT_SIZE) + 1
-        raise ParseError.new(ErrorCodes::PAYLOAD_SIZE_MISMATCH, "payload size mismatch: expected #{expected_size} bytes, got #{binary.bytesize}") unless binary.bytesize == expected_size
+        raise ParseError.new(ErrorCodes::PAYLOAD_SIZE_MISMATCH, "payload size mismatch: expected #{expected_size} bytes, got #{binary.bytesize}", measurement_count: count) unless binary.bytesize == expected_size
 
         measurements = parse_measurements(binary, count)
-        validate_checksum!(binary)
+        validate_checksum!(binary, count)
 
         measurements
       end
@@ -49,19 +50,19 @@ module FixedSessions
         offset = HEADER_SIZE
         count.times do |i|
           ts, type_id, value = binary.byteslice(offset, MEASUREMENT_SIZE).unpack('NCg')
-          raise ParseError.new(ErrorCodes::INVALID_EPOCH, "invalid epoch in frame #{i}: must be greater than zero") if ts.zero?
-          raise ParseError.new(ErrorCodes::INVALID_EPOCH, "invalid epoch in frame #{i}: implausibly far in the future") if ts > Time.current.to_i + 86_400
-          raise ParseError.new(ErrorCodes::INVALID_VALUE, "invalid value in frame #{i}: not a finite number") unless value.finite?
+          raise ParseError.new(ErrorCodes::INVALID_EPOCH, "invalid epoch in frame #{i}: must be greater than zero", measurement_count: count) if ts.zero?
+          raise ParseError.new(ErrorCodes::INVALID_EPOCH, "invalid epoch in frame #{i}: implausibly far in the future", measurement_count: count) if ts > Time.current.to_i + 86_400
+          raise ParseError.new(ErrorCodes::INVALID_VALUE, "invalid value in frame #{i}: not a finite number", measurement_count: count) unless value.finite?
           measurements << { epoch: ts, sensor_type_id: type_id, value: value }
           offset += MEASUREMENT_SIZE
         end
         measurements
       end
 
-      def validate_checksum!(binary)
+      def validate_checksum!(binary, count)
         expected_xor = binary.byteslice(0, binary.bytesize - 1).bytes.inject(0, :^)
         actual_xor = binary.bytes.last
-        raise ParseError.new(ErrorCodes::INVALID_CHECKSUM, 'XOR checksum does not match payload') unless actual_xor == expected_xor
+        raise ParseError.new(ErrorCodes::INVALID_CHECKSUM, 'XOR checksum does not match payload', measurement_count: count) unless actual_xor == expected_xor
       end
     end
   end

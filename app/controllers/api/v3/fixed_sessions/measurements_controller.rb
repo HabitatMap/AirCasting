@@ -17,7 +17,7 @@ module Api
           unless session
             monitor.report_session_not_found(
               session_uuid: params[:fixed_session_uuid],
-              auth_method: @authenticated_session ? 'bearer' : 'basic',
+              auth_method: bearer_token.present? ? 'bearer' : 'basic',
             )
             return render json: { error_code: ErrorCodes::SESSION_NOT_FOUND, message: 'Session not found' }, status: :not_found
           end
@@ -61,7 +61,7 @@ module Api
 
         def bearer_token
           auth = request.authorization
-          auth.sub('Bearer ', '') if auth&.start_with?('Bearer ')
+          @bearer_token ||= auth.sub('Bearer ', '') if auth&.start_with?('Bearer ')
         end
 
         def find_session_for_user

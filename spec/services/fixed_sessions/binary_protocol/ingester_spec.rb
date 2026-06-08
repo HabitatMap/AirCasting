@@ -234,6 +234,7 @@ RSpec.describe FixedSessions::BinaryProtocol::Ingester do
           message: 'XOR checksum does not match payload',
           session: session,
           binary_size: binary.bytesize,
+          measurement_count: 1,
         )
         ingester.call(session: session, binary: binary)
       end

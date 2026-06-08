@@ -12,23 +12,26 @@ RSpec.describe FixedSessions::BinaryProtocol::Monitor do
   end
 
   describe '#report_parse_error' do
-    it 'sends error-level event with parse details' do
+    it 'sends error-level event with error code in event name' do
       monitor.report_parse_error(
         error_code: 'invalid_checksum',
         message: 'XOR checksum does not match payload',
         session: session,
         binary_size: 42,
+        measurement_count: 5,
       )
 
       expect(scope).to have_received(:set_tags).with(hash_including(
         source: 'binary_protocol',
         error_code: 'invalid_checksum',
+        measurement_count: 5,
       ))
       expect(scope).to have_received(:set_context).with('binary_protocol', hash_including(
         session_uuid: 'test-uuid-123',
         binary_size: 42,
+        measurement_count: 5,
       ))
-      expect(Sentry).to have_received(:capture_message).with('binary_protocol.parse_error', level: 'error')
+      expect(Sentry).to have_received(:capture_message).with('binary_protocol.parse_error.invalid_checksum', level: 'error')
     end
   end
 
@@ -92,9 +95,10 @@ RSpec.describe FixedSessions::BinaryProtocol::Monitor do
         message: 'payload too short',
         session: session,
         binary_size: 3,
+        measurement_count: nil,
       )
 
-      expect(scope).to have_received(:set_fingerprint).with(['binary_protocol.parse_error', 'payload_too_short'])
+      expect(scope).to have_received(:set_fingerprint).with(['binary_protocol.parse_error.payload_too_short', 'payload_too_short'])
     end
 
     it 'omits nil error_code from fingerprint' do

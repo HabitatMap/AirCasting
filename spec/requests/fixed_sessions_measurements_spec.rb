@@ -49,6 +49,54 @@ describe 'POST /api/v3/fixed_sessions/:fixed_session_uuid/measurements' do
     end
   end
 
+  context 'with valid Bearer session token' do
+    let(:session) { create(:fixed_session, user: user, session_token: 'valid-token') }
+
+    it 'returns 200' do
+      post_measurements(
+        uuid: session.uuid,
+        body: build_binary,
+        headers: { 'Authorization' => 'Bearer valid-token' },
+      )
+      expect(response).to have_http_status(:ok)
+    end
+
+    it 'includes X-Server-Time header' do
+      post_measurements(
+        uuid: session.uuid,
+        body: build_binary,
+        headers: { 'Authorization' => 'Bearer valid-token' },
+      )
+      expect(response.headers['X-Server-Time']).to match(/\A\d+\z/)
+    end
+  end
+
+  context 'with invalid Bearer token and no Basic auth' do
+    let(:session) { create(:fixed_session, user: user, session_token: 'valid-token') }
+
+    it 'returns 401' do
+      post_measurements(
+        uuid: session.uuid,
+        body: build_binary,
+        headers: { 'Authorization' => 'Bearer wrong-token' },
+      )
+      expect(response).to have_http_status(:unauthorized)
+    end
+  end
+
+  context 'with Bearer token for wrong session UUID' do
+    let(:session) { create(:fixed_session, user: user, session_token: 'valid-token') }
+
+    it 'returns 401' do
+      post_measurements(
+        uuid: 'different-uuid',
+        body: build_binary,
+        headers: { 'Authorization' => 'Bearer valid-token' },
+      )
+      expect(response).to have_http_status(:unauthorized)
+    end
+  end
+
   context 'when not authenticated' do
     it 'returns 401' do
       post_measurements(uuid: session.uuid, body: build_binary)

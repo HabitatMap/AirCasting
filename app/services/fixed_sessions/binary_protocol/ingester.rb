@@ -27,6 +27,7 @@ module FixedSessions
           message: e.message,
           session: session,
           binary_size: binary.bytesize,
+          measurement_count: e.measurement_count,
         )
         return Failure.new(error_code: e.error_code, message: e.message)
       else
@@ -44,7 +45,6 @@ module FixedSessions
         stream_records = {}
         oldest_epoch = measurements.min_by { |m| m[:epoch] }[:epoch]
         known_type_ids = session.streams.pluck(:sensor_type_id)
-        streams_skipped = 0
 
         ActiveRecord::Base.transaction do
           all_records = []
@@ -55,7 +55,6 @@ module FixedSessions
               sensor_type_id: type_id,
             )
             unless stream
-              streams_skipped += 1
               monitor.report_unknown_sensor_type(
                 session: session,
                 sensor_type_id: type_id,

@@ -7,16 +7,17 @@ module FixedSessions
         INFO    = 'info'
       end
 
-      def report_parse_error(error_code:, message:, session:, binary_size:)
+      def report_parse_error(error_code:, message:, session:, binary_size:, measurement_count:)
         report(
-          event_name: "binary_protocol.parse_error",
+          event_name: "binary_protocol.parse_error.#{error_code}",
           severity: Severity::ERROR,
-          tags: { error_code: error_code },
+          tags: { error_code: error_code, measurement_count: measurement_count },
           context: {
             message: message,
             session_uuid: session.uuid,
             session_time_zone: session.time_zone,
             binary_size: binary_size,
+            measurement_count: measurement_count,
           },
         )
       end
