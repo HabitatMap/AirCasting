@@ -2,7 +2,7 @@ Sentry.init do |config|
   config.dsn = A9n.sentry_be_dsn
   config.environment = A9n.sentry_env
   config.breadcrumbs_logger = [:active_support_logger, :http_logger]
-  config.enabled_environments = %w[production staging experimental]
+  config.enabled_environments = %w[Production Staging Experimental]
 
   config.send_default_pii = false
   config.traces_sample_rate = 0.0
