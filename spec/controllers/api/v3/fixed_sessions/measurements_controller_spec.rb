@@ -31,9 +31,12 @@ RSpec.describe Api::V3::FixedSessions::MeasurementsController do
     payload + [checksum].pack('C')
   end
 
+  let(:monitor) { instance_double(FixedSessions::BinaryProtocol::Monitor, report_parse_error: nil, report_unknown_sensor_type: nil, report_transaction_error: nil, report_session_not_found: nil, report_auth_failure: nil) }
+
   before do
     stream
     sign_in user
+    allow(FixedSessions::BinaryProtocol::Monitor).to receive(:new).and_return(monitor)
   end
 
   describe 'POST #create' do
@@ -83,6 +86,42 @@ RSpec.describe Api::V3::FixedSessions::MeasurementsController do
       expect(response).to have_http_status(:not_found)
     end
 
+    it 'reports session not found to monitor' do
+      other_session = create(:fixed_session, user: create(:user))
+      allow(controller).to receive(:request).and_wrap_original do |m|
+        req = m.call
+        allow(req).to receive_message_chain(:body, :read).and_return(binary)
+        req
+      end
+      expect(monitor).to receive(:report_session_not_found).with(
+        session_uuid: other_session.uuid,
+        auth_method: 'basic',
+      )
+      post :create, params: { fixed_session_uuid: other_session.uuid }
+    end
+
+    it 'reports parse error to monitor for invalid binary' do
+      allow(controller).to receive(:request).and_wrap_original do |m|
+        req = m.call
+        allow(req).to receive_message_chain(:body, :read).and_return('not valid binary')
+        req
+      end
+      expect(monitor).to receive(:report_parse_error)
+      post :create, params: { fixed_session_uuid: session.uuid }
+    end
+
+    it 'does not report errors for valid requests' do
+      allow(controller).to receive(:request).and_wrap_original do |m|
+        req = m.call
+        allow(req).to receive_message_chain(:body, :read).and_return(binary)
+        req
+      end
+      expect(monitor).not_to receive(:report_parse_error)
+      expect(monitor).not_to receive(:report_session_not_found)
+      expect(monitor).not_to receive(:report_auth_failure)
+      post :create, params: { fixed_session_uuid: session.uuid }
+    end
+
     context 'authenticated via Bearer session token (AirBeam)' do
       before do
         sign_out user
@@ -103,6 +142,14 @@ RSpec.describe Api::V3::FixedSessions::MeasurementsController do
         request.headers['Authorization'] = 'Bearer wrong-token'
         post :create, params: { fixed_session_uuid: session.uuid }
         expect(response).to have_http_status(:unauthorized)
+      end
+
+      it 'reports auth failure to monitor for invalid token' do
+        request.headers['Authorization'] = 'Bearer wrong-token'
+        expect(monitor).to receive(:report_auth_failure).with(
+          session_uuid: session.uuid,
+        )
+        post :create, params: { fixed_session_uuid: session.uuid }
       end
     end
   end

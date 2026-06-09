@@ -21,3 +21,5 @@ defaults:
   sidekiq_averages_calculation_enabled: false
   sidekiq_eea_import_enabled: false
   sidekiq_epa_ingest_enabled: true
+  sentry_be_dsn:
+  sentry_env: Development

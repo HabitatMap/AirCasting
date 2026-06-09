@@ -2125,6 +2125,13 @@ GEM
       sprockets (> 3.0)
       sprockets-rails
       tilt
+    sentry-rails (6.6.0)
+      railties (>= 5.2.0)
+      sentry-ruby (~> 6.6.0)
+    sentry-ruby (6.6.0)
+      bigdecimal
+      concurrent-ruby (~> 1.0, >= 1.0.2)
+      logger
     sexp_processor (4.17.3)
     shoulda-matchers (6.5.0)
       activesupport (>= 5.2.0)
@@ -2276,6 +2283,8 @@ DEPENDENCIES
   rubycritic
   rubyzip
   sassc-rails
+  sentry-rails
+  sentry-ruby
   shoulda-matchers
   sidekiq (< 7)
   sidekiq-failures

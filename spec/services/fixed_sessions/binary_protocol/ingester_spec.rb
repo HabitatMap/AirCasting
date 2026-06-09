@@ -3,10 +3,12 @@ require 'rails_helper'
 RSpec.describe FixedSessions::BinaryProtocol::Ingester do
   let(:daily_recalculator) { instance_double(FixedStreaming::StreamDailyAveragesRecalculator, call: nil) }
   let(:hourly_recalculator) { instance_double(FixedStreaming::StreamHourlyAveragesRecalculator, call: nil) }
+  let(:monitor) { instance_double(FixedSessions::BinaryProtocol::Monitor, report_parse_error: nil, report_unknown_sensor_type: nil, report_transaction_error: nil) }
   subject(:ingester) do
     described_class.new(
       daily_averages_recalculator: daily_recalculator,
       hourly_averages_recalculator: hourly_recalculator,
+      monitor: monitor,
     )
   end
 
@@ -177,6 +179,41 @@ RSpec.describe FixedSessions::BinaryProtocol::Ingester do
           ingester.call(session: session, binary: binary)
         }.not_to change(FixedMeasurement, :count)
       end
+
+      it 'reports unknown sensor type to monitor' do
+        expect(monitor).to receive(:report_unknown_sensor_type).with(
+          session: session,
+          sensor_type_id: 9,
+          known_sensor_type_ids: [stream.sensor_type_id],
+        )
+        ingester.call(session: session, binary: binary)
+      end
+
+    end
+
+    context 'with a mix of known and unknown sensor_type_ids' do
+      let(:binary) do
+        build_binary([
+          { epoch: epoch, sensor_type_id: 2, value: 25.5 },
+          { epoch: epoch + 1, sensor_type_id: 99, value: 10.0 },
+        ])
+      end
+
+      it 'reports unknown sensor type for the unrecognized one' do
+        expect(monitor).to receive(:report_unknown_sensor_type).with(
+          session: session,
+          sensor_type_id: 99,
+          known_sensor_type_ids: [stream.sensor_type_id],
+        )
+        ingester.call(session: session, binary: binary)
+      end
+
+      it 'still ingests the known sensor type' do
+        expect {
+          ingester.call(session: session, binary: binary)
+        }.to change(FixedMeasurement, :count).by(1)
+      end
+
     end
 
     context 'with invalid binary (bad checksum)' do
@@ -189,6 +226,31 @@ RSpec.describe FixedSessions::BinaryProtocol::Ingester do
         result = ingester.call(session: session, binary: binary)
         expect(result).to be_failure
         expect(result.errors[:error_code]).to eq('invalid_checksum')
+      end
+
+      it 'reports parse error to monitor' do
+        expect(monitor).to receive(:report_parse_error).with(
+          error_code: 'invalid_checksum',
+          message: 'XOR checksum does not match payload',
+          session: session,
+          binary_size: binary.bytesize,
+          measurement_count: 1,
+        )
+        ingester.call(session: session, binary: binary)
+      end
+    end
+
+    context 'monitoring on successful ingestion without issues' do
+      let(:binary) { build_binary([{ epoch: epoch, sensor_type_id: 2, value: 25.5 }]) }
+
+      it 'does not report parse errors' do
+        expect(monitor).not_to receive(:report_parse_error)
+        ingester.call(session: session, binary: binary)
+      end
+
+      it 'does not report unknown sensor types' do
+        expect(monitor).not_to receive(:report_unknown_sensor_type)
+        ingester.call(session: session, binary: binary)
       end
     end
   end

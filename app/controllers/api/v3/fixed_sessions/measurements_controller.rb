@@ -13,8 +13,16 @@ module Api
           return head :ok if binary.empty?
 
           session = @authenticated_session || find_session_for_user
-          return render json: { error_code: ErrorCodes::SESSION_NOT_FOUND, message: 'Session not found' }, status: :not_found unless session
-          result = ::FixedSessions::BinaryProtocol::Ingester.new.call(
+
+          unless session
+            monitor.report_session_not_found(
+              session_uuid: params[:fixed_session_uuid],
+              auth_method: bearer_token.present? ? 'bearer' : 'basic',
+            )
+            return render json: { error_code: ErrorCodes::SESSION_NOT_FOUND, message: 'Session not found' }, status: :not_found
+          end
+
+          result = ::FixedSessions::BinaryProtocol::Ingester.new(monitor: monitor).call(
             session: session,
             binary: binary,
           )
@@ -41,6 +49,7 @@ module Api
         def require_authentication!
           return if current_user.present? || @authenticated_session.present?
 
+          monitor.report_auth_failure(session_uuid: params[:fixed_session_uuid])
           render json: { error_code: ErrorCodes::UNAUTHORIZED, message: 'Unauthorized' }, status: :unauthorized
         end
 
@@ -52,7 +61,7 @@ module Api
 
         def bearer_token
           auth = request.authorization
-          auth.sub('Bearer ', '') if auth&.start_with?('Bearer ')
+          @bearer_token ||= auth.sub('Bearer ', '') if auth&.start_with?('Bearer ')
         end
 
         def find_session_for_user
@@ -60,6 +69,10 @@ module Api
             uuid: params[:fixed_session_uuid],
             user_id: current_user.id,
           )
+        end
+
+        def monitor
+          @monitor ||= ::FixedSessions::BinaryProtocol::Monitor.new
         end
       end
     end
