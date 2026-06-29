@@ -32,6 +32,8 @@ Rails.application.routes.draw do
       },
       :as => :short_session
 
+  get 'l/:slug' => 'shortened_urls#show', as: :short_link
+
   namespace :api do
     namespace :v2 do
       namespace :data do
@@ -121,7 +123,7 @@ Rails.application.routes.draw do
 
     get 'measurements' => 'measurements#index'
 
-    resources :short_url, only: %i[index]
+    resources :short_url, only: %i[create]
 
     get 'autocomplete/usernames' => 'autocomplete#usernames'
   end
