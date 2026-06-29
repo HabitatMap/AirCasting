@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 
 import { PopupProps } from "reactjs-popup/dist/types";
 
@@ -63,10 +63,13 @@ const CopyLinkComponent = ({
     onClose && onClose();
   };
 
-  const handleCopyError = (error: Error) => {
-    console.error("Error copying link: ", error.message);
-    alert(t("alert.linkShortenedFailed"));
-  };
+  const handleCopyError = useCallback(
+    (error: Error) => {
+      console.error("Error copying link: ", error.message);
+      alert(t("alert.linkShortenedFailed"));
+    },
+    [t]
+  );
 
   const rect = buttonRef.current && buttonRef.current.getBoundingClientRect();
 

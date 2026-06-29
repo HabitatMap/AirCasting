@@ -1,40 +1,31 @@
-import axios from "axios";
 import { useEffect, useState } from "react";
 
-export interface BitlyResponse {
-  link: string;
-}
+import { oldApiClient } from "../api/apiClient";
 
-const useShortenedLink = (url: string, accessToken: string) => {
+const useShortenedLink = (url: string) => {
   const [shortenedLink, setShortenedLink] = useState<string>(url);
   const [error, setError] = useState<Error | null>(null);
 
   useEffect(() => {
     const shortenLink = async () => {
-      if (!url || !accessToken) {
-        setError(new Error("URL or access token is missing."));
+      if (!url) {
+        setError(new Error("URL is missing."));
         return;
       }
 
       try {
-        const response = await axios.post<BitlyResponse>(
-          "https://api-ssl.bitly.com/v4/shorten",
-          { long_url: url },
-          {
-            headers: {
-              Authorization: `Bearer ${accessToken}`,
-              "Content-Type": "application/json",
-            },
-          }
-        );
-        setShortenedLink(response.data.link);
+        const response = await oldApiClient.post("/short_url", {
+          longUrl: url,
+        });
+        // Response keys are camelized by the apiClient interceptor.
+        setShortenedLink(response.data.shortUrl);
       } catch (error) {
         setError(error as Error);
       }
     };
 
     shortenLink();
-  }, [url, accessToken]);
+  }, [url]);
 
   return { shortenedLink, error };
 };

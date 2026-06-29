@@ -6,8 +6,6 @@ import useShortenedLink from "../../../utils/useShortenedLink";
 import { ModalInput } from "./atoms/ModalInput";
 import { BlueButton, FormWrapper } from "./Modals.style";
 
-const BITLY_ACCESS_TOKEN = process.env.BITLY_ACCESS_TOKEN || "";
-
 export interface CopyLinkModalData {
   link: string;
 }
@@ -24,10 +22,7 @@ interface CopyLinkModalProps {
 const CopyLinkModal: React.FC<CopyLinkModalProps> = ({ onSubmit, onError }) => {
   const focusInputRef = useRef<HTMLInputElement | null>(null);
   const { t } = useTranslation();
-  const { shortenedLink, error } = useShortenedLink(
-    window.location.href,
-    BITLY_ACCESS_TOKEN
-  );
+  const { shortenedLink, error } = useShortenedLink(window.location.href);
   const [formState, setFormState] = useState<CopyLinkModalData>(
     initialCopyLinkModalData
   );
