@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2026_04_01_000001) do
+ActiveRecord::Schema[7.0].define(version: 2026_06_29_120000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
   enable_extension "postgis"
@@ -269,6 +269,17 @@ ActiveRecord::Schema[7.0].define(version: 2026_04_01_000001) do
     t.index ["url_token"], name: "index_sessions_on_url_token"
     t.index ["user_id"], name: "index_sessions_on_user_id"
     t.index ["uuid"], name: "index_sessions_on_uuid"
+  end
+
+  create_table "shortened_urls", force: :cascade do |t|
+    t.string "slug", null: false
+    t.text "long_url", null: false
+    t.string "url_hash", null: false
+    t.integer "click_count", default: 0, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["slug"], name: "index_shortened_urls_on_slug", unique: true
+    t.index ["url_hash"], name: "index_shortened_urls_on_url_hash", unique: true
   end
 
   create_table "source_stream_configurations", force: :cascade do |t|
