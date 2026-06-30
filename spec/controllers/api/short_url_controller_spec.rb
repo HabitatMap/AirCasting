@@ -20,6 +20,22 @@ describe Api::ShortUrlController do
       end
     end
 
+    context 'when the database is unavailable for writes (e.g. read-only staging)' do
+      let(:long_url) { 'http://test.host/?sessionId=1' }
+
+      before do
+        allow(ShortenedUrl).to receive(:shorten)
+          .and_raise(ActiveRecord::StatementInvalid, 'PG::InsufficientPrivilege')
+      end
+
+      it 'falls back to the full url without erroring' do
+        post :create, format: :json, params: { longUrl: long_url }
+
+        expect(response).to have_http_status(:ok)
+        expect(json_response['short_url']).to eq(long_url)
+      end
+    end
+
     context 'with a different-host url' do
       it 'rejects the request' do
         post :create, format: :json, params: { longUrl: 'http://evil.example.com/steal' }
