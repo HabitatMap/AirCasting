@@ -627,6 +627,13 @@ const Map = () => {
 
   useEffect(() => {
     if (!mapInstance || !city || lastHandledCityRef.current === city) return;
+    // A selected session owns the zoom: don't let the ad-landing city
+    // geocode fit-bounds the map back out to the whole city (e.g. a shared
+    // permalink that still carries ?city= alongside sessionId/streamId).
+    if (sessionId || streamId) {
+      lastHandledCityRef.current = city;
+      return;
+    }
     // In-app search already handled this city; skip the ad-landing path so
     // we don't re-geocode or double-fire GA4.
     if (isCitySettlePending()) {
@@ -704,6 +711,8 @@ const Map = () => {
   }, [
     mapInstance,
     city,
+    sessionId,
+    streamId,
     sessionType,
     setUrlParams,
     setSearchParams,
@@ -818,6 +827,10 @@ const Map = () => {
         dispatch(fetchMobileStreamById(selectedStreamId));
       }
     }
+
+    // Drop the ad-landing city param so the session permalink we share/reload
+    // zooms to the session, not back out to the whole city.
+    newSearchParams.delete(UrlParamsTypes.city);
 
     if (isMobile) {
       if (fixedSessionTypeSelected) {
