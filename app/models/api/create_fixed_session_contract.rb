@@ -23,6 +23,12 @@ module Api
       key.failure('must have at least one stream') if value.empty?
     end
 
+    rule(:uuid) do
+      if key? && value && Session.where('LOWER(uuid) = LOWER(?)', value).exists?
+        key.failure('has already been taken')
+      end
+    end
+
     rule(:time_zone) do
       if key? && value
         begin

@@ -75,6 +75,13 @@ RSpec.describe Api::CreateFixedSessionContract do
     expect(result.errors.to_h.dig(:streams, 0, :unit_symbol)).to be_present
   end
 
+  it 'fails when the uuid is already taken (case-insensitive)' do
+    existing = create(:fixed_session)
+    result = contract.call(valid_params.merge(uuid: existing.uuid.upcase))
+    expect(result).to be_failure
+    expect(result.errors[:uuid]).to be_present
+  end
+
   it 'succeeds without a time_zone (optional)' do
     expect(contract.call(valid_params.except(:time_zone))).to be_success
   end
