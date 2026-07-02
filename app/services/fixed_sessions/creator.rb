@@ -26,10 +26,12 @@ module FixedSessions
     end
 
     def create_session(data, user, device)
-      time_zone = TimeZoneFinderWrapper.instance.time_zone_at(
-        lat: data[:latitude],
-        lng: data[:longitude],
-      )
+      time_zone =
+        data[:time_zone].presence ||
+        TimeZoneFinderWrapper.instance.time_zone_at(
+          lat: data[:latitude],
+          lng: data[:longitude],
+        )
       url_token = TokenGenerator.new.generate_unique(5) { |t| !Session.exists?(url_token: t) }
 
       now = Time.current

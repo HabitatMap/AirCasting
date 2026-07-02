@@ -7,6 +7,7 @@ module Api
       required(:longitude).filled(:float)
       required(:contribute).filled(:bool)
       optional(:is_indoor).maybe(:bool)
+      optional(:time_zone).maybe(:string)
       required(:airbeam).hash do
         required(:mac_address).filled(:string)
         required(:model).filled(:string)
@@ -20,6 +21,16 @@ module Api
 
     rule(:streams) do
       key.failure('must have at least one stream') if value.empty?
+    end
+
+    rule(:time_zone) do
+      if key? && value
+        begin
+          TZInfo::Timezone.get(value)
+        rescue TZInfo::InvalidTimezoneIdentifier
+          key.failure('must be a valid IANA time zone identifier (e.g. Europe/Warsaw)')
+        end
+      end
     end
 
     rule(:streams) do
