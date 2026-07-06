@@ -74,4 +74,27 @@ RSpec.describe Api::CreateFixedSessionContract do
     expect(result).to be_failure
     expect(result.errors.to_h.dig(:streams, 0, :unit_symbol)).to be_present
   end
+
+  it 'fails when the uuid is already taken (case-insensitive)' do
+    existing = create(:fixed_session)
+    result = contract.call(valid_params.merge(uuid: existing.uuid.upcase))
+    expect(result).to be_failure
+    expect(result.errors[:uuid]).to be_present
+  end
+
+  it 'succeeds without a time_zone (optional)' do
+    expect(contract.call(valid_params.except(:time_zone))).to be_success
+  end
+
+  it 'accepts a valid IANA time_zone' do
+    result = contract.call(valid_params.merge(time_zone: 'Europe/Warsaw'))
+    expect(result).to be_success
+    expect(result.to_h[:time_zone]).to eq('Europe/Warsaw')
+  end
+
+  it 'fails for an invalid time_zone' do
+    result = contract.call(valid_params.merge(time_zone: 'Not/AZone'))
+    expect(result).to be_failure
+    expect(result.errors[:time_zone]).to be_present
+  end
 end

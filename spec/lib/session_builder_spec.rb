@@ -67,6 +67,49 @@ describe SessionBuilder do
                                                                  )
   end
 
+  describe 'time_zone' do
+    it 'derives the time zone from coordinates when none is provided' do
+      allow(TimeZoneFinderWrapper.instance)
+        .to receive(:time_zone_at).and_return('Europe/Warsaw')
+
+      subject.build!
+
+      expect(TimeZoneFinderWrapper.instance)
+        .to have_received(:time_zone_at)
+        .with(lat: session_data[:latitude], lng: session_data[:longitude])
+      expect(Session.last.time_zone).to eq('Europe/Warsaw')
+    end
+
+    context 'when a valid time_zone is provided' do
+      let(:session_data) { super().merge(time_zone: 'America/New_York') }
+
+      it 'keeps it and skips deriving the session zone from coordinates' do
+        allow(TimeZoneFinderWrapper.instance)
+          .to receive(:time_zone_at).and_call_original
+
+        subject.build!
+
+        expect(Session.last.time_zone).to eq('America/New_York')
+        expect(TimeZoneFinderWrapper.instance)
+          .not_to have_received(:time_zone_at)
+          .with(lat: session_data[:latitude], lng: session_data[:longitude])
+      end
+    end
+
+    context 'when an invalid time_zone is provided' do
+      let(:session_data) { super().merge(time_zone: 'Not/AZone') }
+
+      it 'falls back to deriving it from coordinates' do
+        allow(TimeZoneFinderWrapper.instance)
+          .to receive(:time_zone_at).and_return('Europe/Warsaw')
+
+        subject.build!
+
+        expect(Session.last.time_zone).to eq('Europe/Warsaw')
+      end
+    end
+  end
+
   describe '.normalize_tags' do
     it 'replaces spaces and commas with commas as tag delimiters' do
       expect(SessionBuilder.normalize_tags('jola misio, foo')).to eq(

@@ -50,6 +50,19 @@ RSpec.describe FixedSessions::Creator do
       expect(FixedSession.last.is_indoor).to be true
     end
 
+    it 'derives time_zone from coordinates when not provided' do
+      creator.call(data: valid_params, user: user)
+      expect(TimeZoneFinderWrapper.instance)
+        .to have_received(:time_zone_at).with(lat: 40.7128, lng: -74.0060)
+      expect(FixedSession.last.time_zone).to eq('America/New_York')
+    end
+
+    it 'uses the provided time_zone and skips coordinate lookup' do
+      creator.call(data: valid_params.merge(time_zone: 'Europe/Warsaw'), user: user)
+      expect(FixedSession.last.time_zone).to eq('Europe/Warsaw')
+      expect(TimeZoneFinderWrapper.instance).not_to have_received(:time_zone_at)
+    end
+
     it 'creates a Device and links it to the session' do
       expect { creator.call(data: valid_params, user: user) }
         .to change(Device, :count).by(1)

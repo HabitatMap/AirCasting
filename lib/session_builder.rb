@@ -19,11 +19,7 @@ class SessionBuilder
     stream_data = data.delete(:streams)
 
     data = build_local_start_and_end_time(data)
-    data[:time_zone] =
-      TimeZoneFinderWrapper.instance.time_zone_at(
-        lat: data[:latitude],
-        lng: data[:longitude],
-      )
+    data[:time_zone] = time_zone_for(data)
 
     allowed = Session.attribute_names + %w[notes_attributes tag_list user]
     filtered = data.select { |k, _| allowed.include?(k.to_s) }
@@ -49,6 +45,26 @@ class SessionBuilder
     Rails.logger.warn("[SessionBuilder] data: #{data}")
     Rails.logger.warn(invalid.record.errors.full_messages)
     nil
+  end
+
+  # Prefer a time zone supplied by the client (indoor sessions send placeholder
+  # coordinates, so their zone can't be derived from lat/lng). Fall back to
+  # deriving it from the coordinates when absent or not a valid IANA identifier.
+  def time_zone_for(data)
+    provided = data[:time_zone].presence
+    return provided if provided && valid_iana_time_zone?(provided)
+
+    TimeZoneFinderWrapper.instance.time_zone_at(
+      lat: data[:latitude],
+      lng: data[:longitude],
+    )
+  end
+
+  def valid_iana_time_zone?(time_zone)
+    TZInfo::Timezone.get(time_zone)
+    true
+  rescue TZInfo::InvalidTimezoneIdentifier
+    false
   end
 
   def build_local_start_and_end_time(session_data)

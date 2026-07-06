@@ -49,6 +49,12 @@ RSpec.describe 'AirBeamMini Fixed Sessions Binary Flow', type: :request do
           longitude: { type: :number, format: :float, example: -74.0060 },
           contribute: { type: :boolean, example: true },
           is_indoor: { type: :boolean, nullable: true, example: false, description: 'Whether the sensor is deployed indoors. Defaults to false when omitted.' },
+          time_zone: {
+            type: :string,
+            nullable: true,
+            example: 'America/New_York',
+            description: 'IANA time zone identifier of the sensor location. Required for indoor sessions, which send placeholder coordinates (200, 200); used to convert UTC measurement timestamps to local time for display. When omitted, the time zone is derived from latitude/longitude.',
+          },
           airbeam: {
             type: :object,
             required: %w[mac_address model],
