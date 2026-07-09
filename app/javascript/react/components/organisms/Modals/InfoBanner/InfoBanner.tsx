@@ -3,9 +3,10 @@ import { useTranslation } from "react-i18next";
 
 import closeIcon from "../../../../assets/icons/closeButton.svg";
 import habitatMapLogo from "../../../../assets/icons/habitatMapLogo.svg";
-import { BlogPost } from "./config";
+import { BannerVariant, BlogPost } from "./config";
 import {
   pickPost,
+  pickVariant,
   recordClicked,
   recordDismissed,
   recordShown,
@@ -17,10 +18,12 @@ const InfoBanner: React.FC = () => {
   const { t } = useTranslation();
   // Decide once on mount so the roll/pick is stable for this page load.
   const [post, setPost] = useState<BlogPost | null>(null);
+  const [variant, setVariant] = useState<BannerVariant | null>(null);
   const recorded = useRef(false);
 
   useEffect(() => {
     if (shouldShow()) {
+      setVariant(pickVariant());
       setPost(pickPost());
     }
   }, []);
@@ -32,7 +35,7 @@ const InfoBanner: React.FC = () => {
     }
   }, [post]);
 
-  if (!post) return null;
+  if (!post || !variant) return null;
 
   const handleDismiss = () => {
     recordDismissed();
@@ -43,20 +46,49 @@ const InfoBanner: React.FC = () => {
     recordClicked();
   };
 
-  const hasImage = Boolean(post.image);
-
   const logo = (
     <img src={habitatMapLogo} alt={t("infoBanner.habitatMapAlt")} />
   );
-  const closeButton = (
+
+  const closeButton = (onImage: boolean) => (
     <S.CloseButton
-      $onImage={hasImage}
+      $onImage={onImage}
       onClick={handleDismiss}
       aria-label={t("infoBanner.dismiss")}
     >
       <img src={closeIcon} alt="" />
     </S.CloseButton>
   );
+
+  // --- Minimal variant: whole card is one clickable link, no image/button ---
+  if (variant === "minimal") {
+    return (
+      <S.MinimalBanner
+        role="complementary"
+        aria-label={t("infoBanner.ariaLabel")}
+      >
+        <S.Accent />
+        <S.Body>
+          <S.MinimalTop>
+            <S.HabitatBadge>{logo}</S.HabitatBadge>
+            {closeButton(false)}
+          </S.MinimalTop>
+          <S.Kicker>{t("infoBanner.kicker")}</S.Kicker>
+          <S.MinimalLink
+            href={post.url}
+            target="_blank"
+            rel="noopener noreferrer"
+            onClick={handleClick}
+          >
+            <S.Title>{post.title}</S.Title>
+          </S.MinimalLink>
+        </S.Body>
+      </S.MinimalBanner>
+    );
+  }
+
+  // --- Full variant (default): image when available + read-more button ------
+  const hasImage = Boolean(post.image);
 
   return (
     <S.BannerWrapper
@@ -68,7 +100,7 @@ const InfoBanner: React.FC = () => {
         <S.Thumb>
           <img src={post.image} alt="" decoding="async" />
           <S.HabitatBadge $onImage>{logo}</S.HabitatBadge>
-          {closeButton}
+          {closeButton(true)}
         </S.Thumb>
       ) : (
         <S.Accent />
@@ -78,7 +110,7 @@ const InfoBanner: React.FC = () => {
         {!hasImage && (
           <S.TopRow>
             <S.HabitatBadge>{logo}</S.HabitatBadge>
-            {closeButton}
+            {closeButton(false)}
           </S.TopRow>
         )}
         <S.Kicker>{t("infoBanner.kicker")}</S.Kicker>

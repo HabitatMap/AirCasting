@@ -1,11 +1,13 @@
 import {
+  AB_SPLIT_MINIMAL,
   BLOG_POSTS,
-  BlogPost,
+  BannerVariant,
   CLICKED_DAYS,
   COOLDOWN_DAYS,
   DISMISS_DAYS,
   SHOW_PROBABILITY,
   STORAGE_KEYS,
+  BlogPost,
 } from "./config";
 
 const DAY_MS = 24 * 60 * 60 * 1000;
@@ -47,6 +49,19 @@ export const shouldShow = (): boolean => {
   if (isWithin(STORAGE_KEYS.dismissedAt, DISMISS_DAYS)) return false;
   if (isWithin(STORAGE_KEYS.lastShown, COOLDOWN_DAYS)) return false;
   return Math.random() < SHOW_PROBABILITY;
+};
+
+/**
+ * Return the user's A/B variant, assigning (and persisting) one on first call.
+ * Sticky: once rolled, the same variant is returned for every future show.
+ */
+export const pickVariant = (): BannerVariant => {
+  const stored = safeGet(STORAGE_KEYS.variant);
+  if (stored === "full" || stored === "minimal") return stored;
+  const variant: BannerVariant =
+    Math.random() < AB_SPLIT_MINIMAL ? "minimal" : "full";
+  safeSet(STORAGE_KEYS.variant, variant);
+  return variant;
 };
 
 /** Pick a random post, avoiding the one shown last time when possible. */

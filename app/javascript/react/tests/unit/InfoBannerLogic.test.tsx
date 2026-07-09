@@ -13,6 +13,7 @@ const STORAGE_KEYS = {
   dismissedAt: "ac_blog_dismissed_at",
   clickedAt: "ac_blog_clicked_at",
   lastSlug: "ac_blog_last_slug",
+  variant: "ac_blog_ab_variant",
 };
 
 jest.mock(
@@ -22,6 +23,7 @@ jest.mock(
     COOLDOWN_DAYS: 7,
     DISMISS_DAYS: 30,
     CLICKED_DAYS: 60,
+    AB_SPLIT_MINIMAL: 0.5,
     STORAGE_KEYS,
     BLOG_POSTS: MOCK_POSTS,
   }),
@@ -30,6 +32,7 @@ jest.mock(
 
 import {
   pickPost,
+  pickVariant,
   recordClicked,
   recordDismissed,
   recordShown,
@@ -114,6 +117,33 @@ describe("pickPost", () => {
       jest.spyOn(Math, "random").mockReturnValue(r);
       expect(pickPost().slug).not.toBe("a");
     }
+  });
+});
+
+describe("pickVariant", () => {
+  it("rolls 'minimal' when the random draw is below the split", () => {
+    jest.spyOn(Math, "random").mockReturnValue(0.1); // < 0.5
+    expect(pickVariant()).toBe("minimal");
+    expect(window.localStorage.getItem(STORAGE_KEYS.variant)).toBe("minimal");
+  });
+
+  it("rolls 'full' when the random draw is at/above the split", () => {
+    jest.spyOn(Math, "random").mockReturnValue(0.9); // >= 0.5
+    expect(pickVariant()).toBe("full");
+    expect(window.localStorage.getItem(STORAGE_KEYS.variant)).toBe("full");
+  });
+
+  it("is sticky: returns the persisted variant regardless of the roll", () => {
+    window.localStorage.setItem(STORAGE_KEYS.variant, "minimal");
+    // Roll would pick 'full', but the stored value wins.
+    jest.spyOn(Math, "random").mockReturnValue(0.9);
+    expect(pickVariant()).toBe("minimal");
+  });
+
+  it("ignores a corrupt stored value and re-rolls", () => {
+    window.localStorage.setItem(STORAGE_KEYS.variant, "garbage");
+    jest.spyOn(Math, "random").mockReturnValue(0.1);
+    expect(pickVariant()).toBe("minimal");
   });
 });
 

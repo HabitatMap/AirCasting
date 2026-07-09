@@ -31,7 +31,23 @@ export const STORAGE_KEYS = {
   dismissedAt: "ac_blog_dismissed_at",
   clickedAt: "ac_blog_clicked_at",
   lastSlug: "ac_blog_last_slug",
+  variant: "ac_blog_ab_variant",
 } as const;
+
+// ---------------------------------------------------------------------------
+// A/B test — two banner presentations.
+//   "full"    = image (when the post has one) + a "read more" button.
+//   "minimal" = no image, no button; kicker + title only, the whole card is
+//               one clickable link with a hover affordance.
+// The variant is rolled ONCE per user and persisted (STORAGE_KEYS.variant) so
+// every subsequent show is the same variant — clean per-user close/click rates
+// and clean downstream conversion attribution.
+// ---------------------------------------------------------------------------
+
+export type BannerVariant = "full" | "minimal";
+
+/** Probability (0–1) that a new user is assigned the "minimal" variant. */
+export const AB_SPLIT_MINIMAL = 0.5;
 
 export interface BlogPost {
   /** Stable id used to avoid showing the same post twice in a row. */

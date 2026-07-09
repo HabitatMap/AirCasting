@@ -82,6 +82,74 @@ const Accent = styled.div`
   background: ${acBlue};
 `;
 
+// --- Minimal variant (A/B "minimal") --------------------------------------
+// A single clickable card: no image, no button. The whole surface is the
+// click target via a stretched link (MinimalLink::after covers the card).
+
+const MinimalBanner = styled.aside`
+  position: fixed;
+  left: 1.6rem;
+  bottom: 1.6rem;
+  width: 34rem;
+  max-width: calc(100vw - 3.2rem);
+  background: ${white};
+  border-radius: 1.2rem;
+  overflow: hidden;
+  box-shadow: 0 0.6rem 2.4rem rgba(12, 40, 60, 0.18);
+  z-index: 1000;
+  display: flex;
+  align-items: stretch;
+  cursor: pointer;
+  transition: box-shadow 0.15s ease, transform 0.15s ease, background 0.15s ease;
+  animation: ${rise} 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
+
+  &:hover {
+    background: ${gray100};
+    box-shadow: 0 0.9rem 3rem rgba(12, 40, 60, 0.26);
+    transform: translateY(-0.2rem);
+  }
+
+  &:hover p:last-of-type,
+  &:focus-within p:last-of-type {
+    text-decoration: underline;
+    text-decoration-color: ${acBlue};
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    animation: none;
+    transition: none;
+    &:hover {
+      transform: none;
+    }
+  }
+
+  @media ${media.mobile} {
+    left: 1.2rem;
+    right: 1.2rem;
+    bottom: 1.2rem;
+    width: auto;
+    max-width: none;
+  }
+`;
+
+// Invisible anchor whose ::after overlay makes the entire card clickable.
+// The close button sits above this overlay (higher z-index) so it stays usable.
+const MinimalLink = styled.a`
+  text-decoration: none;
+  color: inherit;
+
+  &::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+  }
+
+  body:not(.user-is-tabbing) &:focus-visible {
+    outline: none;
+  }
+`;
+
 // --- Shared ----------------------------------------------------------------
 
 const HabitatBadge = styled.div<{ $onImage?: boolean }>`
@@ -169,6 +237,13 @@ const TopRow = styled.div`
   gap: 0.8rem;
 `;
 
+// Same as TopRow but lifted above the minimal variant's stretched-link overlay
+// so the close button remains clickable.
+const MinimalTop = styled(TopRow)`
+  position: relative;
+  z-index: 2;
+`;
+
 const Kicker = styled.p`
   margin: 0;
   font-size: 1.15rem;
@@ -214,6 +289,9 @@ export {
   CloseButton,
   HabitatBadge,
   Kicker,
+  MinimalBanner,
+  MinimalLink,
+  MinimalTop,
   ReadLink,
   Thumb,
   Title,
