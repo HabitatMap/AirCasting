@@ -1,0 +1,91 @@
+// ---------------------------------------------------------------------------
+// InfoBanner configuration — the ONE place to tune everything.
+//
+// The InfoBanner surfaces a HabitatMap blog post on the map, occasionally and
+// non-intrusively. Adjust the numbers below to change how often it appears and
+// edit BLOG_POSTS to change what it links to. No other file needs touching.
+// ---------------------------------------------------------------------------
+
+/**
+ * Chance (0–1) that the banner is eligible to appear on any given page load,
+ * assuming no cooldown/dismiss/click suppression is active. Lower = rarer.
+ * "Gentle" default: ~1 in 3 loads.
+ */
+export const SHOW_PROBABILITY = 1;//0.35;
+
+/**
+ * After the banner is shown, don't show it again for this many days
+ * (even across page loads where the probability roll would pass).
+ */
+export const COOLDOWN_DAYS = 0;//7;
+
+/** After the user closes (✕) the banner, suppress it for this many days. */
+export const DISMISS_DAYS = 0;//30;
+
+/** After the user clicks through to an article, suppress it for this many days. */
+export const CLICKED_DAYS = 0;//60;
+
+/** localStorage keys — namespaced to avoid clashes with other features. */
+export const STORAGE_KEYS = {
+  lastShown: "ac_blog_last_shown",
+  dismissedAt: "ac_blog_dismissed_at",
+  clickedAt: "ac_blog_clicked_at",
+  lastSlug: "ac_blog_last_slug",
+} as const;
+
+export interface BlogPost {
+  /** Stable id used to avoid showing the same post twice in a row. */
+  slug: string;
+  /** Full HabitatMap blog URL. */
+  url: string;
+  /** Post title shown in the banner. */
+  title: string;
+  /**
+   * Optional hero thumbnail. Either a HabitatMap image URL (values below) or a
+   * locally bundled asset (import it at the top of this file and reference it).
+   * Posts without an image render the lighter, text-only variant automatically.
+   */
+  image?: string;
+}
+
+// How the image URLs below were found: each HabitatMap blog post exposes its
+// hero image in the page's <meta property="og:image"> tag. Grab it with:
+//   curl -sL <post-url> | grep -oiE '<meta property="og:image"[^>]*content="[^"]*"'
+// The `?nf_resize=smartcrop&w=680&h=280` suffix is HabitatMap's (Netlify) image
+// CDN resizing it to a banner-sized crop so we don't pull the full-res original.
+//
+// Prefer to bundle assets instead of hotlinking? Download each image into
+// assets/images/blog/, import it here, and set `image` to the import.
+const CDN_CROP = "?nf_resize=smartcrop&w=680&h=280";
+
+/**
+ * Hardcoded list of posts. Keep it to ~3–5. One is chosen at random on each
+ * real show (never repeating the previous one).
+ */
+export const BLOG_POSTS: BlogPost[] = [
+  {
+    slug: "aqi-colored-dots",
+    url: "https://www.habitatmap.org/blog/what-do-those-colored-circles-mean-understanding-air-quality-on-the-aircasting-map",
+    title: "What do those colored dots mean? Understanding the Air Quality Index",
+    image: `https://www.habitatmap.org/images/uploads/aircastingmapdots.png${CDN_CROP}`,
+  },
+  {
+    slug: "candles-incense",
+    url: "https://www.habitatmap.org/blog/when-fresh-scents-turn-toxic-how-candles-and-incense-impact-your-health",
+    title:
+      "When fresh scents turn toxic: how candles and incense impact your health",
+    image: `https://www.habitatmap.org/images/uploads/burning-candles-zz-230419-5dd288.avif${CDN_CROP}`,
+  },
+  {
+    slug: "green-spaces-jordan",
+    url: "https://www.habitatmap.org/blog/breathing-easier-how-green-spaces-shape-air-quality-in-jordan-s-cities",
+    title: "Breathing easier: how green spaces shape air quality in Jordan's cities",
+    image: `https://www.habitatmap.org/images/uploads/1000013028.jpg${CDN_CROP}`,
+  },
+  {
+    slug: "citizen-science-brussels",
+    url: "https://www.habitatmap.org/blog/the-empowering-virtues-of-citizen-science-claiming-clean-air-in-brussels",
+    title: "The empowering virtues of citizen science: claiming clean air in Brussels",
+    // image: `https://www.habitatmap.org/images/uploads/radiographie.jpg${CDN_CROP}`,
+  },
+];
