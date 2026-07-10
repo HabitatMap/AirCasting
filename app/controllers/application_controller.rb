@@ -10,6 +10,16 @@ class ApplicationController < ActionController::Base
 
   before_action :configure_permitted_parameters, if: :devise_controller?
 
+  helper_method :consent_required?
+
+  # Whether this request needs a prior-consent (opt-in) cookie banner, based on
+  # the visitor's country. Memoized per request. See GeoConsent.
+  def consent_required?
+    return @consent_required if defined?(@consent_required)
+
+    @consent_required = GeoConsent.consent_required?(request.remote_ip)
+  end
+
   [
     [NotFound, '404 Not Found', :not_found],
     [NotAcceptable, '406 Not Acceptable', :not_acceptable],
