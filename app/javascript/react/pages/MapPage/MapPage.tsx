@@ -44,7 +44,7 @@ const MapPage: React.FC<MapPageProps> = ({ children }) => {
       {!isMobile && <MapButtons />}
       <FocusTabController />
       <Map />
-      <CookieBanner onOpenCookieSettings={handleOpenCookieSettings} />
+      <CookieBanner onOpenCookieSettings={handleOpenCookieSettings} cookieSettingsModalOpen={cookieSettingsModalOpen} />
       <CookieSettingsModal
         isOpen={cookieSettingsModalOpen}
         onClose={handleCloseCookieSettings}
