@@ -5,6 +5,9 @@ declare global {
       action: string,
       parameters: Record<string, string>
     ) => void;
+    // Set server-side in shared/_gtm.html.erb: true for EEA/UK/CH (opt-in
+    // required), false elsewhere. Undefined if the inline script didn't run.
+    CONSENT_REQUIRED?: boolean;
   }
 }
 
