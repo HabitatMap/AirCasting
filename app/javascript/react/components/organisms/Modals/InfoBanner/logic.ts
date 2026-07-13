@@ -53,17 +53,11 @@ export const shouldShow = (): boolean => {
 };
 
 /**
- * Return the user's A/B variant, assigning (and persisting) one on first call.
- * Sticky: once rolled, the same variant is returned for every future show.
+ * Roll the A/B variant fresh on every show (not persisted), so the split stays
+ * ~50/50 across all impressions and a returning user may see either version.
  */
-export const pickVariant = (): BannerVariant => {
-  const stored = safeGet(STORAGE_KEYS.variant);
-  if (stored === "full" || stored === "minimal") return stored;
-  const variant: BannerVariant =
-    Math.random() < AB_SPLIT_MINIMAL ? "minimal" : "full";
-  safeSet(STORAGE_KEYS.variant, variant);
-  return variant;
-};
+export const pickVariant = (): BannerVariant =>
+  Math.random() < AB_SPLIT_MINIMAL ? "minimal" : "full";
 
 /**
  * Append attribution params to a blog URL so the click can be traced through to

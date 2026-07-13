@@ -13,7 +13,6 @@ const STORAGE_KEYS = {
   dismissedAt: "ac_blog_dismissed_at",
   clickedAt: "ac_blog_clicked_at",
   lastSlug: "ac_blog_last_slug",
-  variant: "ac_blog_ab_variant",
 };
 
 jest.mock(
@@ -130,26 +129,26 @@ describe("pickVariant", () => {
   it("rolls 'minimal' when the random draw is below the split", () => {
     jest.spyOn(Math, "random").mockReturnValue(0.1); // < 0.5
     expect(pickVariant()).toBe("minimal");
-    expect(window.localStorage.getItem(STORAGE_KEYS.variant)).toBe("minimal");
   });
 
   it("rolls 'full' when the random draw is at/above the split", () => {
     jest.spyOn(Math, "random").mockReturnValue(0.9); // >= 0.5
     expect(pickVariant()).toBe("full");
-    expect(window.localStorage.getItem(STORAGE_KEYS.variant)).toBe("full");
   });
 
-  it("is sticky: returns the persisted variant regardless of the roll", () => {
-    window.localStorage.setItem(STORAGE_KEYS.variant, "minimal");
-    // Roll would pick 'full', but the stored value wins.
-    jest.spyOn(Math, "random").mockReturnValue(0.9);
-    expect(pickVariant()).toBe("minimal");
-  });
-
-  it("ignores a corrupt stored value and re-rolls", () => {
-    window.localStorage.setItem(STORAGE_KEYS.variant, "garbage");
+  it("does not persist the variant (fresh roll every call)", () => {
+    const setItem = jest.spyOn(Storage.prototype, "setItem");
     jest.spyOn(Math, "random").mockReturnValue(0.1);
+    pickVariant();
+    expect(setItem).not.toHaveBeenCalled();
+  });
+
+  it("can return different variants across calls", () => {
+    const random = jest.spyOn(Math, "random");
+    random.mockReturnValueOnce(0.1); // minimal
+    random.mockReturnValueOnce(0.9); // full
     expect(pickVariant()).toBe("minimal");
+    expect(pickVariant()).toBe("full");
   });
 });
 

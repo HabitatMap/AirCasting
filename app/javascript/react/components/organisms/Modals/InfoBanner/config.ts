@@ -31,7 +31,6 @@ export const STORAGE_KEYS = {
   dismissedAt: "ac_blog_dismissed_at",
   clickedAt: "ac_blog_clicked_at",
   lastSlug: "ac_blog_last_slug",
-  variant: "ac_blog_ab_variant",
 } as const;
 
 // ---------------------------------------------------------------------------
@@ -39,14 +38,14 @@ export const STORAGE_KEYS = {
 //   "full"    = image (when the post has one) + a "read more" button.
 //   "minimal" = no image, no button; kicker + title only, the whole card is
 //               one clickable link with a hover affordance.
-// The variant is rolled ONCE per user and persisted (STORAGE_KEYS.variant) so
-// every subsequent show is the same variant — clean per-user close/click rates
-// and clean downstream conversion attribution.
+// The variant is rolled fresh on every show (NOT persisted) — a returning user
+// may see a different version across visits, keeping the split ~50/50 across all
+// impressions.
 // ---------------------------------------------------------------------------
 
 export type BannerVariant = "full" | "minimal";
 
-/** Probability (0–1) that a new user is assigned the "minimal" variant. */
+/** Probability (0–1) that any given show uses the "minimal" variant. */
 export const AB_SPLIT_MINIMAL = 0.5;
 
 /**
