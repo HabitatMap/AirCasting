@@ -58,9 +58,11 @@ const MapPage: React.FC<MapPageProps> = ({ children }) => {
       <Suspense fallback={null}>
         <SurveyBanner />
       </Suspense>
-      <Suspense fallback={null}>
-        <InfoBanner />
-      </Suspense>
+      {!isMobile && (
+        <Suspense fallback={null}>
+          <InfoBanner />
+        </Suspense>
+      )}
     </APIProvider>
   );
 };
