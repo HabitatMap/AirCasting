@@ -1,37 +1,49 @@
 
-<!-- Google Tag Manager with Consent Mode V2 -->
+<!-- Google Tag Manager with Consent Mode V2 (geo-aware, Basic) -->
 <script>
   window.dataLayer = window.dataLayer || [];
   function gtag() { dataLayer.push(arguments); }
 
-  const consentState = {
-    ad_storage: 'denied',
-    analytics_storage: 'denied',
-    ad_user_data: 'denied',
-    ad_personalization: 'denied',
+  // Server-detected: true for EEA/UK/CH (opt-in required), false elsewhere.
+  // Exposed for the React cookie banner (only shown where consent is required).
+  window.CONSENT_REQUIRED = <%= consent_required? %>;
+
+  // Region default: consent-required regions start denied (banner will ask);
+  // everywhere else starts granted (implied/opt-out consent, no banner).
+  var regionDefault = window.CONSENT_REQUIRED ? 'denied' : 'granted';
+
+  var consentState = {
+    ad_storage: regionDefault,
+    analytics_storage: regionDefault,
+    ad_user_data: regionDefault,
+    ad_personalization: regionDefault,
     wait_for_update: 500
   };
 
+  // A saved user choice always wins over the region default (e.g. an EU user
+  // who accepted, or a US user who opted out).
   try {
-    const saved = localStorage.getItem('cookiePreferences');
+    var saved = localStorage.getItem('cookiePreferences');
     if (saved) {
-      const prefs = JSON.parse(saved);
-      if (prefs.analytics) {
-        consentState.analytics_storage = 'granted';
-      }
-      if (prefs.marketing) {
-        consentState.ad_storage = 'granted';
-        consentState.ad_user_data = 'granted';
-        consentState.ad_personalization = 'granted';
-      }
+      var prefs = JSON.parse(saved);
+      consentState.analytics_storage = prefs.analytics ? 'granted' : 'denied';
+      var marketing = prefs.marketing ? 'granted' : 'denied';
+      consentState.ad_storage = marketing;
+      consentState.ad_user_data = marketing;
+      consentState.ad_personalization = marketing;
     }
   } catch (e) {}
 
   gtag('consent', 'default', consentState);
 
-  // Defer the heavy GTM container so it never competes with the map/filters
-  // for the main thread during initial load. The consent signal above stays
-  // inline/early; only gtm.js is deferred until after the page is interactive.
+  // Defer the heavy GTM container so it never competes with the map/filters for
+  // the main thread during initial load. The consent signal above stays
+  // inline/early; only gtm.js is deferred.
+  //
+  // Consent mode here is Basic: tags in GTM are gated on the consent signal and
+  // do nothing until granted. So we only load gtm.js when it can actually do
+  // something (analytics or ads granted) — for denied users it would be pure
+  // wasted download. Denied users load it later, if/when they accept.
   (function (w, d, s, l, i) {
     var loaded = false;
     function loadGTM() {
@@ -47,9 +59,13 @@
       f.parentNode.insertBefore(j, f);
     }
 
-    // Load when the browser is idle after the page has finished loading, so the
-    // map and filters win the main thread first. Falls back to a short timeout
-    // to keep the bounce window (missed pageviews) small.
+    var consentGranted =
+      consentState.analytics_storage === 'granted' ||
+      consentState.ad_storage === 'granted';
+
+    // Load when the browser is idle after load, so the map/filters win the main
+    // thread first. Falls back to a short timeout to keep the missed-pageview
+    // window small.
     function scheduleLoad() {
       if ('requestIdleCallback' in w) {
         w.requestIdleCallback(loadGTM, { timeout: 3000 });
@@ -58,25 +74,38 @@
       }
     }
 
-    // Also load on the first user interaction. This guarantees GTM is present
-    // before the user can reach the "Buy it Now" CTA (an outbound, same-tab
-    // link whose click fires the Google Ads conversion), closing the race
-    // where a very fast click would navigate away before GTM had loaded.
-    var interactionEvents = ['pointerdown', 'keydown', 'scroll', 'touchstart'];
-    function onFirstInteraction() {
+    if (consentGranted) {
+      // Also load on the first user interaction, guaranteeing GTM is present
+      // before the user can reach the "Buy it Now" CTA (an outbound, same-tab
+      // link whose click fires the Google Ads conversion).
+      var interactionEvents = ['pointerdown', 'keydown', 'scroll', 'touchstart'];
+      function onFirstInteraction() {
+        interactionEvents.forEach(function (ev) {
+          w.removeEventListener(ev, onFirstInteraction, { capture: true });
+        });
+        loadGTM();
+      }
       interactionEvents.forEach(function (ev) {
-        w.removeEventListener(ev, onFirstInteraction, { capture: true });
+        w.addEventListener(ev, onFirstInteraction, { capture: true, passive: true });
       });
-      loadGTM();
-    }
-    interactionEvents.forEach(function (ev) {
-      w.addEventListener(ev, onFirstInteraction, { capture: true, passive: true });
-    });
 
-    if (d.readyState === 'complete') {
-      scheduleLoad();
-    } else {
-      w.addEventListener('load', scheduleLoad);
+      if (d.readyState === 'complete') {
+        scheduleLoad();
+      } else {
+        w.addEventListener('load', scheduleLoad);
+      }
     }
+
+    // If the user grants consent via the banner later, load GTM immediately so
+    // its tags can start firing.
+    w.addEventListener('cookieConsentChanged', function () {
+      try {
+        var s = localStorage.getItem('cookiePreferences');
+        if (s) {
+          var p = JSON.parse(s);
+          if (p.analytics || p.marketing) loadGTM();
+        }
+      } catch (e) {}
+    });
   })(window, document, 'script', 'dataLayer', 'GTM-T948MNX');
 </script>

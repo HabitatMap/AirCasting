@@ -16,17 +16,27 @@ const CookieBanner: React.FC<CookieBannerProps> = ({
   const [visible, setVisible] = useState(false);
   const { t } = useTranslation();
 
-  useEffect(() => {
-    if (!CookieManager.hasPreferences()) {
-      setVisible(true);
-    }
-  }, []);
+  // Only shown where prior consent is required (EEA/UK/CH). Elsewhere consent is
+  // implied/opt-out and no banner is needed. When uncertain (server flag missing
+  // or geo unresolved) we default to non-EU/opt-out, so only show the banner
+  // when the flag is explicitly true.
+  const consentRequired = window.CONSENT_REQUIRED === true;
 
   useEffect(() => {
-    if (cookieSettingsModalOpen === false && !CookieManager.hasPreferences()) {
+    if (consentRequired && !CookieManager.hasPreferences()) {
       setVisible(true);
     }
-  }, [cookieSettingsModalOpen]);
+  }, [consentRequired]);
+
+  useEffect(() => {
+    if (
+      consentRequired &&
+      cookieSettingsModalOpen === false &&
+      !CookieManager.hasPreferences()
+    ) {
+      setVisible(true);
+    }
+  }, [consentRequired, cookieSettingsModalOpen]);
 
   if (!visible) return null;
 
