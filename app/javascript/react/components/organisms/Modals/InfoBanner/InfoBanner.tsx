@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next";
 
 import closeIcon from "../../../../assets/icons/closeButton.svg";
 import habitatMapLogo from "../../../../assets/icons/habitatMapLogo.svg";
+import { trackBannerEvent } from "../../../../utils/trackBannerEvent";
 import { BannerVariant, BlogPost } from "./config";
 import {
   pickPost,
@@ -11,6 +12,7 @@ import {
   recordDismissed,
   recordShown,
   shouldShow,
+  withRef,
 } from "./logic";
 import * as S from "./InfoBanner.style";
 
@@ -29,22 +31,39 @@ const InfoBanner: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    if (post && !recorded.current) {
+    if (post && variant && !recorded.current) {
       recorded.current = true;
       recordShown(post);
+      trackBannerEvent({
+        event: "info_banner_shown",
+        variant,
+        postSlug: post.slug,
+      });
     }
-  }, [post]);
+  }, [post, variant]);
 
   if (!post || !variant) return null;
 
   const handleDismiss = () => {
     recordDismissed();
+    trackBannerEvent({
+      event: "info_banner_dismissed",
+      variant,
+      postSlug: post.slug,
+    });
     setPost(null);
   };
 
   const handleClick = () => {
     recordClicked();
+    trackBannerEvent({
+      event: "info_banner_clicked",
+      variant,
+      postSlug: post.slug,
+    });
   };
+
+  const href = withRef(post.url, variant, post.slug);
 
   const logo = (
     <img src={habitatMapLogo} alt={t("infoBanner.habitatMapAlt")} />
@@ -75,7 +94,7 @@ const InfoBanner: React.FC = () => {
           </S.MinimalTop>
           <S.Kicker>{t("infoBanner.kicker")}</S.Kicker>
           <S.MinimalLink
-            href={post.url}
+            href={href}
             target="_blank"
             rel="noopener noreferrer"
             onClick={handleClick}
@@ -116,7 +135,7 @@ const InfoBanner: React.FC = () => {
         <S.Kicker>{t("infoBanner.kicker")}</S.Kicker>
         <S.Title>{post.title}</S.Title>
         <S.ReadLink
-          href={post.url}
+          href={href}
           target="_blank"
           rel="noopener noreferrer"
           onClick={handleClick}

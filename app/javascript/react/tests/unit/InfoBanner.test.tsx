@@ -17,6 +17,9 @@ jest.mock("../../components/organisms/Modals/InfoBanner/logic", () => ({
   recordShown: jest.fn(),
   recordDismissed: jest.fn(),
   recordClicked: jest.fn(),
+  // Identity by default so href assertions read the raw post URL; the dedicated
+  // withRef unit tests (InfoBannerLogic) cover param building.
+  withRef: jest.fn((url: string) => url),
 }));
 
 const mocked = logic as jest.Mocked<typeof logic>;
@@ -39,7 +42,14 @@ beforeEach(() => {
   // Default to the "full" variant so existing image/button expectations hold;
   // the minimal-variant test overrides this.
   mocked.pickVariant.mockReturnValue("full");
+  mocked.withRef.mockImplementation((url: string) => url);
+  (window as any).dataLayer = [];
 });
+
+const eventsOf = (name: string) =>
+  ((window as any).dataLayer as Array<Record<string, unknown>>).filter(
+    (e) => e.event === name
+  );
 
 describe("InfoBanner", () => {
   it("renders nothing when shouldShow is false", () => {
@@ -168,6 +178,71 @@ describe("InfoBanner", () => {
       expect(
         screen.queryByText(POST_WITH_IMAGE.title)
       ).not.toBeInTheDocument();
+    });
+  });
+
+  describe("GA4 / dataLayer tracking", () => {
+    it("pushes info_banner_shown once on mount with variant + slug", () => {
+      mocked.shouldShow.mockReturnValue(true);
+      mocked.pickVariant.mockReturnValue("minimal");
+      mocked.pickPost.mockReturnValue(POST_WITH_IMAGE);
+
+      render(<InfoBanner />);
+
+      const shown = eventsOf("info_banner_shown");
+      expect(shown).toHaveLength(1);
+      expect(shown[0]).toMatchObject({
+        banner_variant: "minimal",
+        post_slug: POST_WITH_IMAGE.slug,
+      });
+    });
+
+    it("pushes info_banner_clicked on click-through", () => {
+      mocked.shouldShow.mockReturnValue(true);
+      mocked.pickVariant.mockReturnValue("full");
+      mocked.pickPost.mockReturnValue(POST_WITH_IMAGE);
+
+      render(<InfoBanner />);
+      fireEvent.click(
+        screen.getByRole("link", { name: "infoBanner.readMore" })
+      );
+
+      expect(eventsOf("info_banner_clicked")).toMatchObject([
+        { banner_variant: "full", post_slug: POST_WITH_IMAGE.slug },
+      ]);
+    });
+
+    it("pushes info_banner_dismissed on close", () => {
+      mocked.shouldShow.mockReturnValue(true);
+      mocked.pickVariant.mockReturnValue("full");
+      mocked.pickPost.mockReturnValue(POST_WITH_IMAGE);
+
+      render(<InfoBanner />);
+      fireEvent.click(
+        screen.getByRole("button", { name: "infoBanner.dismiss" })
+      );
+
+      expect(eventsOf("info_banner_dismissed")).toMatchObject([
+        { banner_variant: "full", post_slug: POST_WITH_IMAGE.slug },
+      ]);
+    });
+
+    it("builds the outbound href via withRef", () => {
+      mocked.shouldShow.mockReturnValue(true);
+      mocked.pickVariant.mockReturnValue("full");
+      mocked.pickPost.mockReturnValue(POST_WITH_IMAGE);
+      mocked.withRef.mockReturnValue("https://example.com/tagged");
+
+      render(<InfoBanner />);
+
+      expect(mocked.withRef).toHaveBeenCalledWith(
+        POST_WITH_IMAGE.url,
+        "full",
+        POST_WITH_IMAGE.slug
+      );
+      expect(
+        screen.getByRole("link", { name: "infoBanner.readMore" })
+      ).toHaveAttribute("href", "https://example.com/tagged");
     });
   });
 });

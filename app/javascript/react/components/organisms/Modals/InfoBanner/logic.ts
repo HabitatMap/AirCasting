@@ -5,6 +5,7 @@ import {
   CLICKED_DAYS,
   COOLDOWN_DAYS,
   DISMISS_DAYS,
+  LINK_REF,
   SHOW_PROBABILITY,
   STORAGE_KEYS,
   BlogPost,
@@ -62,6 +63,29 @@ export const pickVariant = (): BannerVariant => {
     Math.random() < AB_SPLIT_MINIMAL ? "minimal" : "full";
   safeSet(STORAGE_KEYS.variant, variant);
   return variant;
+};
+
+/**
+ * Append attribution params to a blog URL so the click can be traced through to
+ * a HabitatMap purchase. Preserves any existing query string; falls back to the
+ * raw URL if it can't be parsed.
+ */
+export const withRef = (
+  url: string,
+  variant: BannerVariant,
+  slug: string
+): string => {
+  try {
+    const u = new URL(url);
+    u.searchParams.set("utm_source", LINK_REF.utmSource);
+    u.searchParams.set("utm_medium", LINK_REF.utmMedium);
+    u.searchParams.set("utm_campaign", LINK_REF.utmCampaign);
+    u.searchParams.set("utm_content", variant);
+    u.searchParams.set("ac_post", slug);
+    return u.toString();
+  } catch {
+    return url;
+  }
 };
 
 /** Pick a random post, avoiding the one shown last time when possible. */

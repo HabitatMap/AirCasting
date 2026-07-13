@@ -24,6 +24,11 @@ jest.mock(
     DISMISS_DAYS: 30,
     CLICKED_DAYS: 60,
     AB_SPLIT_MINIMAL: 0.5,
+    LINK_REF: {
+      utmSource: "aircasting",
+      utmMedium: "info_banner",
+      utmCampaign: "blog_promo",
+    },
     STORAGE_KEYS,
     BLOG_POSTS: MOCK_POSTS,
   }),
@@ -37,6 +42,7 @@ import {
   recordDismissed,
   recordShown,
   shouldShow,
+  withRef,
 } from "../../components/organisms/Modals/InfoBanner/logic";
 
 const DAY_MS = 24 * 60 * 60 * 1000;
@@ -144,6 +150,29 @@ describe("pickVariant", () => {
     window.localStorage.setItem(STORAGE_KEYS.variant, "garbage");
     jest.spyOn(Math, "random").mockReturnValue(0.1);
     expect(pickVariant()).toBe("minimal");
+  });
+});
+
+describe("withRef", () => {
+  it("appends utm params, variant (utm_content) and ac_post slug", () => {
+    const out = withRef("https://example.com/a", "minimal", "a");
+    const u = new URL(out);
+    expect(u.searchParams.get("utm_source")).toBe("aircasting");
+    expect(u.searchParams.get("utm_medium")).toBe("info_banner");
+    expect(u.searchParams.get("utm_campaign")).toBe("blog_promo");
+    expect(u.searchParams.get("utm_content")).toBe("minimal");
+    expect(u.searchParams.get("ac_post")).toBe("a");
+  });
+
+  it("preserves an existing query string on the post URL", () => {
+    const out = withRef("https://example.com/a?foo=bar", "full", "a");
+    const u = new URL(out);
+    expect(u.searchParams.get("foo")).toBe("bar");
+    expect(u.searchParams.get("utm_content")).toBe("full");
+  });
+
+  it("falls back to the raw URL when it can't be parsed", () => {
+    expect(withRef("not a url", "full", "a")).toBe("not a url");
   });
 });
 

@@ -49,6 +49,19 @@ export type BannerVariant = "full" | "minimal";
 /** Probability (0–1) that a new user is assigned the "minimal" variant. */
 export const AB_SPLIT_MINIMAL = 0.5;
 
+/**
+ * Attribution params appended to the outbound blog link so HabitatMap's GTM /
+ * GA4 can trace the visit (and any resulting AirBeam purchase) back to the
+ * banner. `utm_content` carries the variant and `ac_post` the post slug — both
+ * are persisted into HabitatMap's `ac_ref` cookie downstream. See
+ * INFO_BANNER_TRACKING_SPEC.md §3b / §4b.
+ */
+export const LINK_REF = {
+  utmSource: "aircasting",
+  utmMedium: "info_banner",
+  utmCampaign: "blog_promo",
+} as const;
+
 export interface BlogPost {
   /** Stable id used to avoid showing the same post twice in a row. */
   slug: string;
