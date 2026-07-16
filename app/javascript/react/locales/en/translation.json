@@ -295,5 +295,12 @@
     "acceptAll": "Accept All",
     "rejectAll": "Reject All",
     "save": "Save Preferences"
+  },
+  "infoBanner": {
+    "ariaLabel": "Featured article from HabitatMap",
+    "habitatMapAlt": "HabitatMap logo",
+    "kicker": "Learn more about air quality",
+    "readMore": "Read on the blog →",
+    "dismiss": "Dismiss"
   }
 }

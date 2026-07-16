@@ -15,6 +15,12 @@ const SurveyBanner = lazy(() =>
   )
 );
 
+const InfoBanner = lazy(() =>
+  import("../../components/organisms/Modals/InfoBanner/InfoBanner").then(
+    (m) => ({ default: m.InfoBanner })
+  )
+);
+
 const googleMapsApiKey = process.env.GOOGLE_MAPS_API_KEY || "";
 
 interface MapPageProps {
@@ -52,6 +58,11 @@ const MapPage: React.FC<MapPageProps> = ({ children }) => {
       <Suspense fallback={null}>
         <SurveyBanner />
       </Suspense>
+      {!isMobile && (
+        <Suspense fallback={null}>
+          <InfoBanner />
+        </Suspense>
+      )}
     </APIProvider>
   );
 };
