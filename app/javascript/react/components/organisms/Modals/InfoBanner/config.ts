@@ -93,27 +93,21 @@ const CDN_CROP = "?nf_resize=smartcrop&w=680&h=280";
 export const BLOG_POSTS: BlogPost[] = [
   {
     slug: "aqi-colored-dots",
-    url: "https://www.habitatmap.org/blog/what-do-those-colored-circles-mean-understanding-air-quality-on-the-aircasting-map",
+    url: "https://deploy-preview-244--habitatmap.netlify.app/blog/what-do-those-colored-circles-mean-understanding-air-quality-on-the-aircasting-map",
     title: "What do those colored dots mean? Understanding the Air Quality Index",
     image: `https://www.habitatmap.org/images/uploads/aircastingmapdots.png${CDN_CROP}`,
   },
   {
     slug: "candles-incense",
-    url: "https://www.habitatmap.org/blog/when-fresh-scents-turn-toxic-how-candles-and-incense-impact-your-health",
+    url: "https://deploy-preview-244--habitatmap.netlify.app/blog/when-fresh-scents-turn-toxic-how-candles-and-incense-impact-your-health",
     title:
       "When fresh scents turn toxic: how candles and incense impact your health",
     image: `https://www.habitatmap.org/images/uploads/burning-candles-zz-230419-5dd288.avif${CDN_CROP}`,
   },
   {
     slug: "green-spaces-jordan",
-    url: "https://www.habitatmap.org/blog/breathing-easier-how-green-spaces-shape-air-quality-in-jordan-s-cities",
-    title: "Breathing easier: how green spaces shape air quality in Jordan's cities",
-    image: `https://www.habitatmap.org/images/uploads/1000013028.jpg${CDN_CROP}`,
-  },
-  {
-    slug: "citizen-science-brussels",
-    url: "https://www.habitatmap.org/blog/the-empowering-virtues-of-citizen-science-claiming-clean-air-in-brussels",
-    title: "The empowering virtues of citizen science: claiming clean air in Brussels",
-    // image: `https://www.habitatmap.org/images/uploads/radiographie.jpg${CDN_CROP}`,
+    url: "https://deploy-preview-244--habitatmap.netlify.app/blog/nyc-community-organizations-use-aircasting-to-study-hyperlocal-air-quality-1",
+    title: "NYC Community Organizations Use AirCasting to Study Hyperlocal Air Quality",
+    image: `https://www.habitatmap.org/images/uploads/williamsburghexagonmap.png${CDN_CROP}`,
   },
 ];
