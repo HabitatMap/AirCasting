@@ -3,16 +3,16 @@
 // config.ts (probability / cooldown windows / post list).
 
 const MOCK_POSTS = [
-  { slug: "a", url: "https://example.com/a", title: "A", image: "a.jpg" },
-  { slug: "b", url: "https://example.com/b", title: "B" },
-  { slug: "c", url: "https://example.com/c", title: "C" },
+  { postSlug: "a", url: "https://example.com/a", title: "A", image: "a.jpg" },
+  { postSlug: "b", url: "https://example.com/b", title: "B" },
+  { postSlug: "c", url: "https://example.com/c", title: "C" },
 ];
 
 const STORAGE_KEYS = {
   lastShown: "ac_blog_last_shown",
   dismissedAt: "ac_blog_dismissed_at",
   clickedAt: "ac_blog_clicked_at",
-  lastSlug: "ac_blog_last_slug",
+  lastPostSlug: "ac_blog_last_post_slug",
 };
 
 jest.mock(
@@ -116,11 +116,11 @@ describe("pickPost", () => {
   });
 
   it("never repeats the last shown slug", () => {
-    window.localStorage.setItem(STORAGE_KEYS.lastSlug, "a");
+    window.localStorage.setItem(STORAGE_KEYS.lastPostSlug, "a");
     // Sweep the random space; "a" must never be chosen.
     for (let r = 0; r < 1; r += 0.05) {
       jest.spyOn(Math, "random").mockReturnValue(r);
-      expect(pickPost().slug).not.toBe("a");
+      expect(pickPost().postSlug).not.toBe("a");
     }
   });
 });
@@ -176,12 +176,12 @@ describe("withRef", () => {
 });
 
 describe("recorders", () => {
-  it("recordShown stamps lastShown (now) and lastSlug", () => {
+  it("recordShown stamps lastShown (now) and lastPostSlug", () => {
     recordShown(MOCK_POSTS[1]);
     expect(window.localStorage.getItem(STORAGE_KEYS.lastShown)).toBe(
       String(NOW)
     );
-    expect(window.localStorage.getItem(STORAGE_KEYS.lastSlug)).toBe("b");
+    expect(window.localStorage.getItem(STORAGE_KEYS.lastPostSlug)).toBe("b");
   });
 
   it("recordDismissed stamps dismissedAt", () => {

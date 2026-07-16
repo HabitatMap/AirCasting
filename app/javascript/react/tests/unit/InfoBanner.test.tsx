@@ -25,14 +25,14 @@ jest.mock("../../components/organisms/Modals/InfoBanner/logic", () => ({
 const mocked = logic as jest.Mocked<typeof logic>;
 
 const POST_WITH_IMAGE = {
-  slug: "candles",
+  postSlug: "candles",
   url: "https://example.com/candles",
   title: "Candles and your health",
   image: "https://cdn.example.com/candles.jpg",
 };
 
 const POST_NO_IMAGE = {
-  slug: "brussels",
+  postSlug: "brussels",
   url: "https://example.com/brussels",
   title: "Clean air in Brussels",
 };
@@ -182,22 +182,24 @@ describe("InfoBanner", () => {
   });
 
   describe("GA4 / dataLayer tracking", () => {
-    it("pushes info_banner_shown once on mount with variant + slug", () => {
+    it("pushes banner_shown once on mount with the shared schema", () => {
       mocked.shouldShow.mockReturnValue(true);
       mocked.pickVariant.mockReturnValue("minimal");
       mocked.pickPost.mockReturnValue(POST_WITH_IMAGE);
 
       render(<InfoBanner />);
 
-      const shown = eventsOf("info_banner_shown");
+      const shown = eventsOf("banner_shown");
       expect(shown).toHaveLength(1);
       expect(shown[0]).toMatchObject({
+        banner_source: "aircasting",
+        banner_campaign: "blog_promo",
         banner_variant: "minimal",
-        post_slug: POST_WITH_IMAGE.slug,
+        post_slug: POST_WITH_IMAGE.postSlug,
       });
     });
 
-    it("pushes info_banner_clicked on click-through", () => {
+    it("pushes banner_clicked on click-through", () => {
       mocked.shouldShow.mockReturnValue(true);
       mocked.pickVariant.mockReturnValue("full");
       mocked.pickPost.mockReturnValue(POST_WITH_IMAGE);
@@ -207,12 +209,12 @@ describe("InfoBanner", () => {
         screen.getByRole("link", { name: "infoBanner.readMore" })
       );
 
-      expect(eventsOf("info_banner_clicked")).toMatchObject([
-        { banner_variant: "full", post_slug: POST_WITH_IMAGE.slug },
+      expect(eventsOf("banner_clicked")).toMatchObject([
+        { banner_variant: "full", post_slug: POST_WITH_IMAGE.postSlug },
       ]);
     });
 
-    it("pushes info_banner_dismissed on close", () => {
+    it("pushes banner_dismissed on close", () => {
       mocked.shouldShow.mockReturnValue(true);
       mocked.pickVariant.mockReturnValue("full");
       mocked.pickPost.mockReturnValue(POST_WITH_IMAGE);
@@ -222,8 +224,8 @@ describe("InfoBanner", () => {
         screen.getByRole("button", { name: "infoBanner.dismiss" })
       );
 
-      expect(eventsOf("info_banner_dismissed")).toMatchObject([
-        { banner_variant: "full", post_slug: POST_WITH_IMAGE.slug },
+      expect(eventsOf("banner_dismissed")).toMatchObject([
+        { banner_variant: "full", post_slug: POST_WITH_IMAGE.postSlug },
       ]);
     });
 
@@ -238,7 +240,7 @@ describe("InfoBanner", () => {
       expect(mocked.withRef).toHaveBeenCalledWith(
         POST_WITH_IMAGE.url,
         "full",
-        POST_WITH_IMAGE.slug
+        POST_WITH_IMAGE.postSlug
       );
       expect(
         screen.getByRole("link", { name: "infoBanner.readMore" })

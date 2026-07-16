@@ -5,53 +5,53 @@ describe("trackBannerEvent", () => {
     (window as any).dataLayer = [];
   });
 
-  it("pushes info_banner_shown with variant + slug", () => {
+  it("pushes banner_shown with the shared schema (source + campaign + variant + slug)", () => {
     trackBannerEvent({
-      event: "info_banner_shown",
+      event: "banner_shown",
       variant: "minimal",
       postSlug: "candles-incense",
     });
 
     expect(window.dataLayer).toEqual([
       {
-        event: "info_banner_shown",
+        event: "banner_shown",
+        banner_source: "aircasting",
+        banner_campaign: "blog_promo",
         banner_variant: "minimal",
         post_slug: "candles-incense",
       },
     ]);
   });
 
-  it("pushes info_banner_clicked and info_banner_dismissed", () => {
+  it("pushes banner_clicked and banner_dismissed", () => {
     trackBannerEvent({
-      event: "info_banner_clicked",
+      event: "banner_clicked",
       variant: "full",
       postSlug: "aqi-colored-dots",
     });
     trackBannerEvent({
-      event: "info_banner_dismissed",
+      event: "banner_dismissed",
       variant: "full",
       postSlug: "aqi-colored-dots",
     });
 
-    expect(window.dataLayer).toEqual([
-      {
-        event: "info_banner_clicked",
-        banner_variant: "full",
-        post_slug: "aqi-colored-dots",
-      },
-      {
-        event: "info_banner_dismissed",
-        banner_variant: "full",
-        post_slug: "aqi-colored-dots",
-      },
+    expect(window.dataLayer!.map((e) => e.event)).toEqual([
+      "banner_clicked",
+      "banner_dismissed",
     ]);
+    expect(window.dataLayer![0]).toMatchObject({
+      banner_source: "aircasting",
+      banner_campaign: "blog_promo",
+      banner_variant: "full",
+      post_slug: "aqi-colored-dots",
+    });
   });
 
   it("initializes dataLayer if undefined", () => {
     delete (window as any).dataLayer;
 
     trackBannerEvent({
-      event: "info_banner_shown",
+      event: "banner_shown",
       variant: "full",
       postSlug: "x",
     });

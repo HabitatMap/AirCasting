@@ -67,7 +67,7 @@ export const pickVariant = (): BannerVariant =>
 export const withRef = (
   url: string,
   variant: BannerVariant,
-  slug: string
+  postSlug: string
 ): string => {
   try {
     const u = new URL(url);
@@ -75,7 +75,7 @@ export const withRef = (
     u.searchParams.set("utm_medium", LINK_REF.utmMedium);
     u.searchParams.set("utm_campaign", LINK_REF.utmCampaign);
     u.searchParams.set("utm_content", variant);
-    u.searchParams.set("ac_post", slug);
+    u.searchParams.set("ac_post", postSlug);
     return u.toString();
   } catch {
     return url;
@@ -84,10 +84,10 @@ export const withRef = (
 
 /** Pick a random post, avoiding the one shown last time when possible. */
 export const pickPost = (): BlogPost => {
-  const lastSlug = safeGet(STORAGE_KEYS.lastSlug);
+  const lastPostSlug = safeGet(STORAGE_KEYS.lastPostSlug);
   const candidates =
     BLOG_POSTS.length > 1
-      ? BLOG_POSTS.filter((p) => p.slug !== lastSlug)
+      ? BLOG_POSTS.filter((p) => p.postSlug !== lastPostSlug)
       : BLOG_POSTS;
   const pool = candidates.length > 0 ? candidates : BLOG_POSTS;
   return pool[Math.floor(Math.random() * pool.length)];
@@ -96,7 +96,7 @@ export const pickPost = (): BlogPost => {
 /** Record that the banner was actually shown (starts the cooldown). */
 export const recordShown = (post: BlogPost): void => {
   safeSet(STORAGE_KEYS.lastShown, String(Date.now()));
-  safeSet(STORAGE_KEYS.lastSlug, post.slug);
+  safeSet(STORAGE_KEYS.lastPostSlug, post.postSlug);
 };
 
 export const recordDismissed = (): void => {

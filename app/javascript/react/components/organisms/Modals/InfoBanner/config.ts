@@ -30,7 +30,7 @@ export const STORAGE_KEYS = {
   lastShown: "ac_blog_last_shown",
   dismissedAt: "ac_blog_dismissed_at",
   clickedAt: "ac_blog_clicked_at",
-  lastSlug: "ac_blog_last_slug",
+  lastPostSlug: "ac_blog_last_post_slug",
 } as const;
 
 // ---------------------------------------------------------------------------
@@ -48,22 +48,39 @@ export type BannerVariant = "full" | "minimal";
 /** Probability (0–1) that any given show uses the "minimal" variant. */
 export const AB_SPLIT_MINIMAL = 0.5;
 
+// ---------------------------------------------------------------------------
+// Shared analytics schema — MUST stay identical to HabitatMap.
+// Source of truth: HabitatMap/docs/analytics-tracking.md §1.3.
+// This banner is Test A: banner_source "aircasting", banner_campaign "blog_promo".
+// ---------------------------------------------------------------------------
+
+/** `banner_source` — which property shows the banner. */
+export const BANNER_SOURCE = "aircasting";
+
+/** `banner_campaign` — the experiment id (Test A). */
+export const BANNER_CAMPAIGN = "blog_promo";
+
 /**
  * Attribution params appended to the outbound blog link so HabitatMap's GTM /
  * GA4 can trace the visit (and any resulting AirBeam purchase) back to the
- * banner. `utm_content` carries the variant and `ac_post` the post slug — both
- * are persisted into HabitatMap's `ac_ref` cookie downstream. See
- * INFO_BANNER_TRACKING_SPEC.md §3b / §4b.
+ * banner. `utm_content` carries the variant and `ac_post` the post slug (= the
+ * HM post's URL slug). See HabitatMap/docs/analytics-tracking.md §3.3.
  */
 export const LINK_REF = {
-  utmSource: "aircasting",
+  utmSource: BANNER_SOURCE,
   utmMedium: "info_banner",
-  utmCampaign: "blog_promo",
+  utmCampaign: BANNER_CAMPAIGN,
 } as const;
 
 export interface BlogPost {
-  /** Stable id used to avoid showing the same post twice in a row. */
-  slug: string;
+  /**
+   * The HabitatMap post's URL slug (= their `page.slug`, the last path segment
+   * of `url`). This is the canonical id: it's the analytics join key shared with
+   * HabitatMap (sent as `post_slug` + `ac_post`) AND the local dedup key. MUST
+   * match HM exactly — set it explicitly, don't derive. See
+   * HabitatMap/docs/analytics-tracking.md §1.3.
+   */
+  postSlug: string;
   /** Full HabitatMap blog URL. */
   url: string;
   /** Post title shown in the banner. */
@@ -92,20 +109,20 @@ const CDN_CROP = "?nf_resize=smartcrop&w=680&h=280";
  */
 export const BLOG_POSTS: BlogPost[] = [
   {
-    slug: "aqi-colored-dots",
+    postSlug: "what-do-those-colored-circles-mean-understanding-air-quality-on-the-aircasting-map",
     url: "https://deploy-preview-244--habitatmap.netlify.app/blog/what-do-those-colored-circles-mean-understanding-air-quality-on-the-aircasting-map",
     title: "What do those colored dots mean? Understanding the Air Quality Index",
     image: `https://www.habitatmap.org/images/uploads/aircastingmapdots.png${CDN_CROP}`,
   },
   {
-    slug: "candles-incense",
+    postSlug: "when-fresh-scents-turn-toxic-how-candles-and-incense-impact-your-health",
     url: "https://deploy-preview-244--habitatmap.netlify.app/blog/when-fresh-scents-turn-toxic-how-candles-and-incense-impact-your-health",
     title:
       "When fresh scents turn toxic: how candles and incense impact your health",
     image: `https://www.habitatmap.org/images/uploads/burning-candles-zz-230419-5dd288.avif${CDN_CROP}`,
   },
   {
-    slug: "green-spaces-jordan",
+    postSlug: "nyc-community-organizations-use-aircasting-to-study-hyperlocal-air-quality-1",
     url: "https://deploy-preview-244--habitatmap.netlify.app/blog/nyc-community-organizations-use-aircasting-to-study-hyperlocal-air-quality-1",
     title: "NYC Community Organizations Use AirCasting to Study Hyperlocal Air Quality",
     image: `https://www.habitatmap.org/images/uploads/williamsburghexagonmap.png${CDN_CROP}`,

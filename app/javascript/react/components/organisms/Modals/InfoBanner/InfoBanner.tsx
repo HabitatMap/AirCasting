@@ -35,35 +35,30 @@ const InfoBanner: React.FC = () => {
       recorded.current = true;
       recordShown(post);
       trackBannerEvent({
-        event: "info_banner_shown",
+        event: "banner_shown",
         variant,
-        postSlug: post.slug,
+        postSlug: post.postSlug,
       });
     }
   }, [post, variant]);
 
   if (!post || !variant) return null;
 
+  // Canonical join key shared with HabitatMap (= their page.slug).
+  const postSlug = post.postSlug;
+
   const handleDismiss = () => {
     recordDismissed();
-    trackBannerEvent({
-      event: "info_banner_dismissed",
-      variant,
-      postSlug: post.slug,
-    });
+    trackBannerEvent({ event: "banner_dismissed", variant, postSlug });
     setPost(null);
   };
 
   const handleClick = () => {
     recordClicked();
-    trackBannerEvent({
-      event: "info_banner_clicked",
-      variant,
-      postSlug: post.slug,
-    });
+    trackBannerEvent({ event: "banner_clicked", variant, postSlug });
   };
 
-  const href = withRef(post.url, variant, post.slug);
+  const href = withRef(post.url, variant, postSlug);
 
   const logo = (
     <img src={habitatMapLogo} alt={t("infoBanner.habitatMapAlt")} />
