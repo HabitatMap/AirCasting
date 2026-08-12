@@ -104,7 +104,7 @@ Legacy REST API: [doc/api.md](doc/api.md).
 AirBeamMini2 and mobile app endpoints are documented with OpenAPI/Swagger:
 - **Swagger UI:** `/api-docs` (when the app is running)
 - **Spec (source of truth):** `spec/swagger/v3/fixed_sessions_spec.rb`
-- **Generated YAML:** `swagger/v3/swagger.yaml`
+- **Generated YAML:** `swagger/swagger.yaml`
 
 To regenerate the YAML after editing the spec:
 ```bash

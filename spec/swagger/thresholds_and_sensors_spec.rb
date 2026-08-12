@@ -5,7 +5,7 @@ require 'swagger_helper'
 RSpec.describe 'Thresholds and sensors', type: :request do
   path '/api/thresholds/{id}' do
     get 'Threshold set for a sensor' do
-      tags 'Sensors & thresholds'
+      tags 'Web app: Sensors & thresholds'
       produces 'application/json'
       security []
       description <<~DESC
@@ -39,7 +39,7 @@ RSpec.describe 'Thresholds and sensors', type: :request do
 
   path '/api/sensors' do
     get 'Sensors available for a session type' do
-      tags 'Sensors & thresholds'
+      tags 'Web app: Sensors & thresholds'
       produces 'application/json'
       security []
       description <<~DESC
@@ -72,7 +72,7 @@ RSpec.describe 'Thresholds and sensors', type: :request do
       end
 
       response '400', 'validation error (missing session_type)' do
-        schema type: :object, additionalProperties: true
+        schema type: :object, additionalProperties: { type: :array, items: { type: :string } }, example: { field_name: ['error message'] }
 
         let(:session_type) { '' }
 

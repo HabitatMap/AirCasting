@@ -19,7 +19,7 @@ RSpec.describe 'V3 Measurements', type: :request do
 
   path '/api/v3/fixed_measurements' do
     get 'AirBeam fixed measurements in a time range' do
-      tags 'Fixed sessions'
+      tags 'Web app: Fixed sessions'
       produces 'application/json'
       security []
       description <<~DESC
@@ -59,12 +59,12 @@ RSpec.describe 'V3 Measurements', type: :request do
   end
 
   path '/api/v3/station_measurements' do
-    get 'Government station measurements in a time range' do
-      tags 'Government stations'
+    get 'Station measurements in a time range (government)' do
+      tags 'Web app: Station data (government)'
       produces 'application/json'
       security []
       description <<~DESC
-        Returns government `station_measurements` for one `station_stream_id` within
+        Returns Station (government) `station_measurements` for one `station_stream_id` within
         `[start_time, end_time]`. Public (no auth). `start_time`/`end_time` are epoch
         **milliseconds** in the station-local-as-UTC domain (same convention as AirBeam).
       DESC

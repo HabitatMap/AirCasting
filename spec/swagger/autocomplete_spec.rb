@@ -8,7 +8,7 @@ RSpec.describe 'Autocomplete', type: :request do
 
   path '/api/fixed/autocomplete/tags' do
     get 'Autocomplete fixed-session tag names' do
-      tags 'Autocomplete'
+      tags 'Web app: Autocomplete'
       produces 'application/json'
       security []
       description 'Returns matching fixed-session tag names as a string array. Public (no auth). Uses nested q[...] params.'
@@ -47,7 +47,7 @@ RSpec.describe 'Autocomplete', type: :request do
 
   path '/api/mobile/autocomplete/tags' do
     get 'Autocomplete mobile-session tag names' do
-      tags 'Autocomplete'
+      tags 'Web app: Autocomplete'
       produces 'application/json'
       security []
       description 'Returns matching mobile-session tag names as a string array. Public (no auth). Uses nested q[...] params.'
@@ -82,7 +82,7 @@ RSpec.describe 'Autocomplete', type: :request do
 
   path '/api/autocomplete/usernames' do
     get 'Autocomplete usernames' do
-      tags 'Autocomplete'
+      tags 'Web app: Autocomplete'
       produces 'application/json'
       security []
       description 'Returns matching contributor usernames as a sorted, unique string array. Public (no auth). Uses nested q[...] params. Note: is_dormant is a string "true"/"false", session_type is "fixed" or "mobile".'

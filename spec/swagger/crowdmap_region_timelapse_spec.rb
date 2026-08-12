@@ -4,7 +4,7 @@ require 'swagger_helper'
 RSpec.describe 'Map aggregations (web)', type: :request do
   path '/api/averages2.json' do
     get 'CrowdMap grid-cell averages in a bounding box' do
-      tags 'Map aggregations'
+      tags 'Web app: Map aggregations'
       produces 'application/json'
       security []
       description <<~DESC
@@ -47,7 +47,7 @@ RSpec.describe 'Map aggregations (web)', type: :request do
 
   path '/api/region.json' do
     get 'Region summary (average, contributors, samples)' do
-      tags 'Map aggregations'
+      tags 'Web app: Map aggregations'
       produces 'application/json'
       security []
       description <<~DESC
@@ -96,7 +96,7 @@ RSpec.describe 'Map aggregations (web)', type: :request do
 
   path '/api/v3/timelapse' do
     get 'Timelapse clusters by hour' do
-      tags 'Map aggregations'
+      tags 'Web app: Map aggregations'
       produces 'application/json'
       security []
       description <<~DESC
@@ -105,13 +105,19 @@ RSpec.describe 'Map aggregations (web)', type: :request do
         each value an array of cluster points. `q` is URL-encoded JSON validated by the
         same contract as the fixed session lists (required: `time_from`, `time_to`
         (epoch seconds), `sensor_name`, `measurement_type`, `unit_symbol`, `tags`,
-        `usernames`; optional bbox + `zoom_level`). Government sensors are supported.
+        `usernames`; optional bbox + `zoom_level`). Station (government) sensors are supported.
       DESC
 
       parameter name: :q, in: :query, type: :string, required: true, description: 'URL-encoded JSON filter'
 
       response '200', 'clusters keyed by hour' do
         schema type: :object,
+               description: 'Keyed by hour timestamp',
+               example: {
+                 '2026-08-12 10:00:00 +0000' => [
+                   { value: 12.0, latitude: 40.7, longitude: -74.0, sessions: 3 },
+                 ],
+               },
                additionalProperties: {
                  type: :array,
                  items: {

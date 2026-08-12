@@ -63,7 +63,7 @@ RSpec.describe 'V3 Fixed streams', type: :request do
 
   path '/api/v3/fixed_streams/{id}' do
     get 'Fixed stream detail with recent measurements and daily averages' do
-      tags 'Fixed sessions'
+      tags 'Web app: Fixed sessions'
       produces 'application/json'
       security []
       description <<~DESC
@@ -72,7 +72,7 @@ RSpec.describe 'V3 Fixed streams', type: :request do
 
         Times: measurement `time` is epoch **milliseconds** in local-as-UTC (station-local
         wall clock encoded as a UTC epoch). `stream.start_time`/`end_time`/`last_update` are
-        ISO 8601 date-times. Government stations use `/api/v3/station_streams/{id}` instead.
+        ISO 8601 date-times. Station (government) data uses `/api/v3/station_streams/{id}` instead.
       DESC
 
       parameter name: :id, in: :path, type: :integer, required: true,

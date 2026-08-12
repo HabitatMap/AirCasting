@@ -61,14 +61,14 @@ RSpec.describe 'V3 Station streams (government)', type: :request do
   }.freeze
 
   path '/api/v3/station_streams/{id}' do
-    get 'Government station stream detail (new model)' do
-      tags 'Government stations'
+    get 'Station stream detail (government, new model)' do
+      tags 'Web app: Station data (government)'
       produces 'application/json'
       security []
       description <<~DESC
-        Returns one government pollutant stream (`station_streams.id`) from the new model,
+        Returns one Station (government) pollutant stream (`station_streams.id`) from the new model,
         with the last 2 days of `station_measurements` and 3 months of daily averages.
-        Public (no auth). A physical station has one such stream per pollutant
+        Public (no auth). A physical Station has one such stream per pollutant
         (PM2.5 / NO2 / Ozone).
       DESC
 
@@ -103,8 +103,8 @@ RSpec.describe 'V3 Station streams (government)', type: :request do
   end
 
   path '/api/v3/station_streams/export' do
-    get 'Schedule a CSV export of government station streams (emailed)' do
-      tags 'Government stations'
+    get 'Export Station (government) streams as CSV (emailed)' do
+      tags 'Web app: Station data (government)'
       produces 'application/json'
       security []
       description <<~DESC
@@ -131,7 +131,7 @@ RSpec.describe 'V3 Station streams (government)', type: :request do
       end
 
       response '400', 'validation error' do
-        schema type: :object, additionalProperties: true
+        schema type: :object, additionalProperties: { type: :array, items: { type: :string } }, example: { field_name: ['error message'] }
 
         let(:'station_stream_ids[]') { [] }
         let(:email) { '' }

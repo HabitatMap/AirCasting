@@ -18,7 +18,7 @@ RSpec.describe 'V3 Daily averages', type: :request do
 
   path '/api/v3/fixed_stream_daily_averages' do
     get 'AirBeam fixed daily averages in a date range' do
-      tags 'Fixed sessions'
+      tags 'Web app: Fixed sessions'
       produces 'application/json'
       security []
       description 'Returns daily averages for one legacy AirBeam stream within [start_date, end_date]. Public (no auth).'
@@ -44,11 +44,11 @@ RSpec.describe 'V3 Daily averages', type: :request do
   end
 
   path '/api/v3/station_stream_daily_averages' do
-    get 'Government station daily averages in a date range' do
-      tags 'Government stations'
+    get 'Station daily averages in a date range (government)' do
+      tags 'Web app: Station data (government)'
       produces 'application/json'
       security []
-      description 'Returns government daily averages for one station_stream within [start_date, end_date]. Public (no auth). Note: the query param is `stream_id` but its value is a `station_streams.id`.'
+      description 'Returns Station (government) daily averages for one station_stream within [start_date, end_date]. Public (no auth). Note: the query param is `stream_id` but its value is a `station_streams.id`.'
 
       parameter name: :stream_id, in: :query, type: :integer, required: true, description: 'station_streams.id (param name is stream_id for frontend parity)'
       parameter name: :start_date, in: :query, type: :string, format: :date, required: true, description: 'YYYY-MM-DD (inclusive)'

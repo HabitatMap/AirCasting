@@ -4,7 +4,7 @@ require 'swagger_helper'
 RSpec.describe 'Exports and short URL (web)', type: :request do
   path '/api/sessions/export.json' do
     get 'Schedule a CSV export of sessions (emailed)' do
-      tags 'Export & sharing'
+      tags 'Web app: Export & sharing'
       produces 'application/json'
       security []
       description <<~DESC
@@ -32,7 +32,7 @@ RSpec.describe 'Exports and short URL (web)', type: :request do
       end
 
       response '400', 'validation error' do
-        schema type: :object, additionalProperties: true
+        schema type: :object, additionalProperties: { type: :array, items: { type: :string } }, example: { field_name: ['error message'] }
 
         let(:'session_ids[]') { [] }
         let(:email) { '' }
@@ -44,7 +44,7 @@ RSpec.describe 'Exports and short URL (web)', type: :request do
 
   path '/api/short_url' do
     post 'Shorten a same-host URL' do
-      tags 'Export & sharing'
+      tags 'Web app: Export & sharing'
       consumes 'application/json'
       produces 'application/json'
       security []

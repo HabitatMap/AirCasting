@@ -26,7 +26,7 @@ RSpec.describe 'Fixed session lists (web map)', type: :request do
         items: {
           type: :object,
           properties: {
-            id: { type: :integer, description: 'AirBeam: sessions.id. Government: station_streams.id' },
+            id: { type: :integer, description: 'AirBeam fixed: sessions.id. Station (government): station_streams.id' },
             uuid: { type: :string },
             end_time_local: { type: :string, nullable: true, description: 'Local wall time, e.g. 2026-08-01T10:00:00.000Z' },
             start_time_local: { type: :string, nullable: true },
@@ -35,10 +35,20 @@ RSpec.describe 'Fixed session lists (web map)', type: :request do
             latitude: { type: :number, format: :float },
             longitude: { type: :number, format: :float },
             title: { type: :string },
-            username: { type: :string, description: 'AirBeam owner username / "anonymous" (indoor); "Government" for gov stations' },
+            username: { type: :string, description: 'AirBeam owner username / "anonymous" (indoor); "Government" for Station (government) rows' },
             is_active: { type: :boolean },
             last_hourly_average_value: { type: :number, nullable: true, description: 'AirBeam branch only' },
-            streams: { type: :object, additionalProperties: ACTIVE_STREAM_ENTRY, description: 'Keyed by sensor_name' },
+            streams: {
+              type: :object,
+              description: 'Keyed by sensor_name',
+              additionalProperties: ACTIVE_STREAM_ENTRY,
+              example: {
+                'AirBeam2-PM2.5' => {
+                  measurement_short_type: 'PM', sensor_name: 'AirBeam2-PM2.5',
+                  unit_symbol: 'µg/m³', id: 123, stream_daily_average: 12
+                },
+              },
+            },
           },
         },
       },
@@ -81,7 +91,7 @@ RSpec.describe 'Fixed session lists (web map)', type: :request do
     `usernames` (string, may be empty); optional `is_indoor` (bool),
     `west`/`east`/`south`/`north` (float), `limit`/`offset`/`zoom_level` (int).
     A `sensor_name` of government-pm2.5 / government-no2 / government-ozone
-    returns government stations from the new station_streams model.
+    returns Station (government) data from the station_streams model.
   Q
 
   def q_json(sensor_name: 'airbeam2-pm2.5')
@@ -98,8 +108,8 @@ RSpec.describe 'Fixed session lists (web map)', type: :request do
   end
 
   path '/api/fixed/active/sessions2.json' do
-    get 'Active fixed sessions in a bounding box (AirBeam + government)' do
-      tags 'Fixed sessions'
+    get 'Active fixed sessions in a bounding box (AirBeam fixed + Station/government)' do
+      tags 'Web app: Fixed sessions'
       produces 'application/json'
       security []
       description "Returns active fixed sessions as map markers. Public (no auth). Response is gzipped.\n\n#{Q_DESCRIPTION}"
@@ -115,7 +125,7 @@ RSpec.describe 'Fixed session lists (web map)', type: :request do
       end
 
       response '400', 'validation error (invalid q)' do
-        schema type: :object, additionalProperties: true
+        schema type: :object, additionalProperties: { type: :array, items: { type: :string } }, example: { field_name: ['error message'] }
         # Valid epoch times (parsed before the contract) but a required field missing.
         let(:q) do
           {
@@ -130,8 +140,8 @@ RSpec.describe 'Fixed session lists (web map)', type: :request do
   end
 
   path '/api/fixed/dormant/sessions.json' do
-    get 'Dormant fixed sessions in a bounding box (AirBeam + government)' do
-      tags 'Fixed sessions'
+    get 'Dormant fixed sessions in a bounding box (AirBeam fixed + Station/government)' do
+      tags 'Web app: Fixed sessions'
       produces 'application/json'
       security []
       description "Returns dormant (inactive) fixed sessions with full per-stream metadata. Public (no auth).\n\n#{Q_DESCRIPTION}"
@@ -158,7 +168,25 @@ RSpec.describe 'Fixed session lists (web map)', type: :request do
                        type: { type: :string, description: 'STI class, e.g. FixedSession' },
                        username: { type: :string },
                        last_hourly_average_value: { type: :number, nullable: true },
-                       streams: { type: :object, additionalProperties: DORMANT_STREAM_ENTRY },
+                       streams: {
+                         type: :object,
+                         description: 'Keyed by sensor_name',
+                         additionalProperties: DORMANT_STREAM_ENTRY,
+                         example: {
+                           'AirBeam2-PM2.5' => {
+                             average_value: 12, id: 123, sensor_name: 'AirBeam2-PM2.5',
+                             sensor_package_name: 'AirBeam2:00189610719F',
+                             measurement_type: 'Particulate Matter', measurement_short_type: 'PM',
+                             unit_name: 'microgram per cubic meter', unit_symbol: 'µg/m³',
+                             measurements_count: 1440, session_id: 456, size: 1440,
+                             min_latitude: 40.7, max_latitude: 40.8,
+                             min_longitude: -74.01, max_longitude: -73.99,
+                             start_latitude: 40.7, start_longitude: -74.0,
+                             threshold_very_low: 0, threshold_low: 9, threshold_medium: 35,
+                             threshold_high: 55, threshold_very_high: 150
+                           },
+                         },
+                       },
                      },
                    },
                  },

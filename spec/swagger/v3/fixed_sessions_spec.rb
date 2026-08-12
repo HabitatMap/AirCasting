@@ -20,7 +20,7 @@ RSpec.describe 'AirBeamMini Fixed Sessions Binary Flow', type: :request do
 
   path '/api/v3/fixed_sessions' do
     post 'Create a new AirBeamMini fixed session' do
-      tags 'Fixed sessions'
+      tags 'Mobile app: AirBeam fixed streaming'
       consumes 'application/json'
       produces 'application/json'
       description <<~DESC
@@ -185,7 +185,7 @@ RSpec.describe 'AirBeamMini Fixed Sessions Binary Flow', type: :request do
 
   path '/api/v3/fixed_sessions/{uuid}/measurements' do
     post 'Upload binary measurements for an AirBeamMini session' do
-      tags 'Fixed sessions'
+      tags 'Mobile app: AirBeam fixed streaming'
       consumes 'application/octet-stream'
       produces 'application/json'
       description <<~DESC

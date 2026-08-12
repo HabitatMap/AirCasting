@@ -39,7 +39,7 @@ RSpec.describe 'Mobile session lists (web)', type: :request do
 
   path '/api/mobile/sessions.json' do
     get 'Mobile sessions in a bounding box' do
-      tags 'Mobile sessions'
+      tags 'Web app: Mobile sessions'
       produces 'application/json'
       security []
       description "Returns mobile (moving) sessions with per-stream metadata. Public (no auth).\n\n#{Q_DESCRIPTION}"
@@ -62,7 +62,25 @@ RSpec.describe 'Mobile session lists (web)', type: :request do
                        end_time_local: { type: :string },
                        type: { type: :string, description: 'STI class, e.g. MobileSession' },
                        username: { type: :string },
-                       streams: { type: :object, additionalProperties: MOBILE_STREAM_ENTRY },
+                       streams: {
+                         type: :object,
+                         description: 'Keyed by sensor_name',
+                         additionalProperties: MOBILE_STREAM_ENTRY,
+                         example: {
+                           'AirBeam2-PM2.5' => {
+                             average_value: 12, id: 123, sensor_name: 'AirBeam2-PM2.5',
+                             sensor_package_name: 'AirBeam2:00189610719F',
+                             measurement_type: 'Particulate Matter', measurement_short_type: 'PM',
+                             unit_name: 'microgram per cubic meter', unit_symbol: 'µg/m³',
+                             measurements_count: 1440, session_id: 456, size: 1440,
+                             min_latitude: 40.7, max_latitude: 40.8,
+                             min_longitude: -74.01, max_longitude: -73.99,
+                             start_latitude: 40.7, start_longitude: -74.0,
+                             threshold_very_low: 0, threshold_low: 9, threshold_medium: 35,
+                             threshold_high: 55, threshold_very_high: 150
+                           },
+                         },
+                       },
                      },
                    },
                  },
@@ -104,7 +122,7 @@ RSpec.describe 'Mobile session lists (web)', type: :request do
 
   path '/api/mobile/streams/{id}' do
     get 'Single mobile stream with measurements' do
-      tags 'Mobile sessions'
+      tags 'Web app: Mobile sessions'
       produces 'application/json'
       security []
       description 'Returns one mobile stream (legacy streams.id) with all its measurements and notes. Public (no auth). Times are epoch milliseconds.'
@@ -143,7 +161,7 @@ RSpec.describe 'Mobile session lists (web)', type: :request do
                  minLongitude: { type: :number, format: :float, nullable: true },
                  startLatitude: { type: :number, format: :float, nullable: true },
                  startLongitude: { type: :number, format: :float, nullable: true },
-                 notes: { type: :array, items: { type: :object, additionalProperties: true } },
+                 notes: { type: :array, items: { type: :object, properties: { id: { type: :integer }, text: { type: :string }, date: { type: :string }, latitude: { type: :number, format: :float }, longitude: { type: :number, format: :float }, photo: { type: :string, nullable: true }, photo_thumbnail: { type: :string, nullable: true }, photo_location: { type: :string, nullable: true }, number: { type: :integer } } } },
                }
 
         let(:session) { create(:mobile_session) }

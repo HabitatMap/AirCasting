@@ -3,9 +3,7 @@ openapi: 3.0.1
 info:
   title: AirCasting Mobile & Web API
   version: 1.0.0
-  description: Endpoints used by the AirCasting mobile apps and web frontend. Spans
-    several route namespaces (/api, /api/fixed, /api/mobile, /api/v3, …), not only
-    /api/v3.
+  description: Endpoints used by the AirCasting mobile apps and web frontend.
 components:
   securitySchemes:
     token_auth:
@@ -16,28 +14,47 @@ components:
 security:
 - token_auth: []
 tags:
-- name: Fixed sessions
-  description: 'AirBeam fixed (stationary) sessions: create/upload, stream detail,
-    measurements, daily averages, and the fixed map lists (also serve government stations).'
-- name: Mobile sessions
-  description: 'AirBeam mobile (moving) sessions: list and single stream detail.'
-- name: Government stations
-  description: 'Government (EEA/EPA) air-quality stations from the new station_streams
-    model: detail, measurements, daily averages, CSV export.'
-- name: Map aggregations
-  description: CrowdMap grid averages, region summary, and timelapse clusters.
-- name: Autocomplete
-  description: Filter autocomplete for tag names and usernames.
-- name: Sensors & thresholds
-  description: Sensor lists and threshold sets (model-agnostic lookups).
-- name: Export & sharing
-  description: Session CSV export and short-URL creation.
+- name: 'Mobile app: Account & auth'
+  description: 'iOS/Android: sign in/up, user settings, account deletion, password
+    reset.'
+- name: 'Mobile app: Sessions & sync'
+  description: 'iOS/Android: upload/update AirBeam mobile sessions, sync, download
+    session metadata, email export.'
+- name: 'Mobile app: AirBeam fixed streaming'
+  description: 'iOS/Android: create AirBeam fixed sessions and upload measurements
+    — the new AirBeamMini binary flow (POST /api/v3/fixed_sessions[/{uuid}/measurements])
+    and the legacy realtime (WiFi) flow — plus poll for new measurements.'
+- name: 'Mobile app: Fixed map & streams'
+  description: 'iOS/Android: active AirBeam fixed sessions in a bounding box, fixed
+    session/stream detail with measurements.'
+- name: 'Mobile app: Threshold alerts'
+  description: 'iOS/Android: manage threshold (push-notification) alerts.'
+- name: 'Web app: Fixed sessions'
+  description: 'Web frontend: AirBeam fixed (roof-mounted) stream detail, measurements,
+    daily averages, and the fixed map lists (these lists also carry Station/government
+    data).'
+- name: 'Web app: Mobile sessions'
+  description: 'Web frontend: AirBeam mobile (moving) session list and single stream
+    detail.'
+- name: 'Web app: Station data (government)'
+  description: 'Web frontend: Station data — government (EEA/EPA) integration, in
+    the station_streams / station_measurements model: station stream detail, measurements,
+    daily averages, CSV export.'
+- name: 'Web app: Map aggregations'
+  description: 'Web frontend: CrowdMap grid averages, region summary, timelapse clusters.'
+- name: 'Web app: Autocomplete'
+  description: 'Web frontend: filter autocomplete for tag names and usernames.'
+- name: 'Web app: Sensors & thresholds'
+  description: 'Web frontend: sensor lists and threshold sets. (Mobile apps do not
+    call these — they receive threshold values embedded in session/stream responses.)'
+- name: 'Web app: Export & sharing'
+  description: 'Web frontend: session CSV export and short-URL creation.'
 paths:
   "/api/fixed/autocomplete/tags":
     get:
       summary: Autocomplete fixed-session tag names
       tags:
-      - Autocomplete
+      - 'Web app: Autocomplete'
       security: []
       description: Returns matching fixed-session tag names as a string array. Public
         (no auth). Uses nested q[...] params.
@@ -119,7 +136,7 @@ paths:
     get:
       summary: Autocomplete mobile-session tag names
       tags:
-      - Autocomplete
+      - 'Web app: Autocomplete'
       security: []
       description: Returns matching mobile-session tag names as a string array. Public
         (no auth). Uses nested q[...] params.
@@ -190,7 +207,7 @@ paths:
     get:
       summary: Autocomplete usernames
       tags:
-      - Autocomplete
+      - 'Web app: Autocomplete'
       security: []
       description: 'Returns matching contributor usernames as a sorted, unique string
         array. Public (no auth). Uses nested q[...] params. Note: is_dormant is a
@@ -275,7 +292,7 @@ paths:
     get:
       summary: CrowdMap grid-cell averages in a bounding box
       tags:
-      - Map aggregations
+      - 'Web app: Map aggregations'
       security: []
       description: |
         Returns averaged measurement values over a grid, for the CrowdMap. Public (no auth).
@@ -325,7 +342,7 @@ paths:
     get:
       summary: Region summary (average, contributors, samples)
       tags:
-      - Map aggregations
+      - 'Web app: Map aggregations'
       security: []
       description: |
         Returns a summary for a rectangular region. Public (no auth). Uses **flat** query
@@ -420,7 +437,7 @@ paths:
     get:
       summary: Timelapse clusters by hour
       tags:
-      - Map aggregations
+      - 'Web app: Map aggregations'
       security: []
       description: |
         Returns clustered hourly averages for the timelapse animation. Public (no auth).
@@ -428,7 +445,7 @@ paths:
         each value an array of cluster points. `q` is URL-encoded JSON validated by the
         same contract as the fixed session lists (required: `time_from`, `time_to`
         (epoch seconds), `sensor_name`, `measurement_type`, `unit_symbol`, `tags`,
-        `usernames`; optional bbox + `zoom_level`). Government sensors are supported.
+        `usernames`; optional bbox + `zoom_level`). Station (government) sensors are supported.
       parameters:
       - name: q
         in: query
@@ -443,6 +460,13 @@ paths:
             application/json:
               schema:
                 type: object
+                description: Keyed by hour timestamp
+                example:
+                  '2026-08-12 10:00:00 +0000':
+                  - value: 12.0
+                    latitude: 40.7
+                    longitude: -74.0
+                    sessions: 3
                 additionalProperties:
                   type: array
                   items:
@@ -469,7 +493,7 @@ paths:
     get:
       summary: Schedule a CSV export of sessions (emailed)
       tags:
-      - Export & sharing
+      - 'Web app: Export & sharing'
       security: []
       description: |
         Schedules a background CSV export of the given sessions and emails the result.
@@ -506,12 +530,18 @@ paths:
             application/json:
               schema:
                 type: object
-                additionalProperties: true
+                additionalProperties:
+                  type: array
+                  items:
+                    type: string
+                example:
+                  field_name:
+                  - error message
   "/api/short_url":
     post:
       summary: Shorten a same-host URL
       tags:
-      - Export & sharing
+      - 'Web app: Export & sharing'
       security: []
       description: Creates a shortened link for a URL on the same host. Public (no
         auth). Returns the shortened URL; off-host URLs are rejected with 422.
@@ -555,9 +585,9 @@ paths:
         required: true
   "/api/fixed/active/sessions2.json":
     get:
-      summary: Active fixed sessions in a bounding box (AirBeam + government)
+      summary: Active fixed sessions in a bounding box (AirBeam fixed + Station/government)
       tags:
-      - Fixed sessions
+      - 'Web app: Fixed sessions'
       security: []
       description: |
         Returns active fixed sessions as map markers. Public (no auth). Response is gzipped.
@@ -568,7 +598,7 @@ paths:
         `usernames` (string, may be empty); optional `is_indoor` (bool),
         `west`/`east`/`south`/`north` (float), `limit`/`offset`/`zoom_level` (int).
         A `sensor_name` of government-pm2.5 / government-no2 / government-ozone
-        returns government stations from the new station_streams model.
+        returns Station (government) data from the station_streams model.
       parameters:
       - name: q
         in: query
@@ -580,7 +610,7 @@ paths:
           `usernames` (string, may be empty); optional `is_indoor` (bool),
           `west`/`east`/`south`/`north` (float), `limit`/`offset`/`zoom_level` (int).
           A `sensor_name` of government-pm2.5 / government-no2 / government-ozone
-          returns government stations from the new station_streams model.
+          returns Station (government) data from the station_streams model.
         schema:
           type: string
       responses:
@@ -604,7 +634,8 @@ paths:
                       properties:
                         id:
                           type: integer
-                          description: 'AirBeam: sessions.id. Government: station_streams.id'
+                          description: 'AirBeam fixed: sessions.id. Station (government):
+                            station_streams.id'
                         uuid:
                           type: string
                         end_time_local:
@@ -630,7 +661,7 @@ paths:
                         username:
                           type: string
                           description: AirBeam owner username / "anonymous" (indoor);
-                            "Government" for gov stations
+                            "Government" for Station (government) rows
                         is_active:
                           type: boolean
                         last_hourly_average_value:
@@ -639,6 +670,7 @@ paths:
                           description: AirBeam branch only
                         streams:
                           type: object
+                          description: Keyed by sensor_name
                           additionalProperties:
                             type: object
                             properties:
@@ -657,19 +689,31 @@ paths:
                                 description: 'AirBeam branch only: rounded integer
                                   or the string "no data"'
                                 example: 12
-                          description: Keyed by sensor_name
+                          example:
+                            AirBeam2-PM2.5:
+                              measurement_short_type: PM
+                              sensor_name: AirBeam2-PM2.5
+                              unit_symbol: µg/m³
+                              id: 123
+                              stream_daily_average: 12
         '400':
           description: validation error (invalid q)
           content:
             application/json:
               schema:
                 type: object
-                additionalProperties: true
+                additionalProperties:
+                  type: array
+                  items:
+                    type: string
+                example:
+                  field_name:
+                  - error message
   "/api/fixed/dormant/sessions.json":
     get:
-      summary: Dormant fixed sessions in a bounding box (AirBeam + government)
+      summary: Dormant fixed sessions in a bounding box (AirBeam fixed + Station/government)
       tags:
-      - Fixed sessions
+      - 'Web app: Fixed sessions'
       security: []
       description: |
         Returns dormant (inactive) fixed sessions with full per-stream metadata. Public (no auth).
@@ -680,7 +724,7 @@ paths:
         `usernames` (string, may be empty); optional `is_indoor` (bool),
         `west`/`east`/`south`/`north` (float), `limit`/`offset`/`zoom_level` (int).
         A `sensor_name` of government-pm2.5 / government-no2 / government-ozone
-        returns government stations from the new station_streams model.
+        returns Station (government) data from the station_streams model.
       parameters:
       - name: q
         in: query
@@ -692,7 +736,7 @@ paths:
           `usernames` (string, may be empty); optional `is_indoor` (bool),
           `west`/`east`/`south`/`north` (float), `limit`/`offset`/`zoom_level` (int).
           A `sensor_name` of government-pm2.5 / government-no2 / government-ozone
-          returns government stations from the new station_streams model.
+          returns Station (government) data from the station_streams model.
         schema:
           type: string
       responses:
@@ -740,6 +784,7 @@ paths:
                           nullable: true
                         streams:
                           type: object
+                          description: Keyed by sensor_name
                           additionalProperties:
                             type: object
                             properties:
@@ -794,11 +839,1693 @@ paths:
                                 type: string
                               unit_symbol:
                                 type: string
+                          example:
+                            AirBeam2-PM2.5:
+                              average_value: 12
+                              id: 123
+                              sensor_name: AirBeam2-PM2.5
+                              sensor_package_name: AirBeam2:00189610719F
+                              measurement_type: Particulate Matter
+                              measurement_short_type: PM
+                              unit_name: microgram per cubic meter
+                              unit_symbol: µg/m³
+                              measurements_count: 1440
+                              session_id: 456
+                              size: 1440
+                              min_latitude: 40.7
+                              max_latitude: 40.8
+                              min_longitude: -74.01
+                              max_longitude: -73.99
+                              start_latitude: 40.7
+                              start_longitude: -74.0
+                              threshold_very_low: 0
+                              threshold_low: 9
+                              threshold_medium: 35
+                              threshold_high: 55
+                              threshold_very_high: 150
+  "/api/user.json":
+    get:
+      summary: Sign in (fetch the current user)
+      tags:
+      - 'Mobile app: Account & auth'
+      description: 'Returns the authenticated user. Auth: `Token token=<user_token>`
+        via HTTP Basic (token as username, "X" as password).'
+      responses:
+        '200':
+          description: user
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - id
+                - email
+                - username
+                - authentication_token
+                - session_stopped_alert
+                properties:
+                  id:
+                    type: integer
+                  email:
+                    type: string
+                  username:
+                    type: string
+                  authentication_token:
+                    type: string
+                    description: API token; sent back as the HTTP Basic username on
+                      authenticated requests
+                  session_stopped_alert:
+                    type: boolean
+    post:
+      summary: Sign up (create an account)
+      tags:
+      - 'Mobile app: Account & auth'
+      security: []
+      description: Creates a new user account. No auth.
+      parameters: []
+      responses:
+        '201':
+          description: created
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - id
+                - email
+                - username
+                - authentication_token
+                - session_stopped_alert
+                properties:
+                  id:
+                    type: integer
+                  email:
+                    type: string
+                  username:
+                    type: string
+                  authentication_token:
+                    type: string
+                    description: API token; sent back as the HTTP Basic username on
+                      authenticated requests
+                  session_stopped_alert:
+                    type: boolean
+        '422':
+          description: validation error
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties:
+                  type: array
+                  items:
+                    type: string
+                example:
+                  field_name:
+                  - error message
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+              - user
+              properties:
+                user:
+                  type: object
+                  required:
+                  - username
+                  - email
+                  - password
+                  - password_confirmation
+                  properties:
+                    username:
+                      type: string
+                    email:
+                      type: string
+                    password:
+                      type: string
+                    password_confirmation:
+                      type: string
+                    send_emails:
+                      type: boolean
+                      nullable: true
+        required: true
+  "/api/user/settings":
+    post:
+      summary: Update user settings
+      tags:
+      - 'Mobile app: Account & auth'
+      description: Updates the `session_stopped_alert` preference. Auth required.
+      parameters: []
+      responses:
+        '200':
+          description: updated
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - action
+                properties:
+                  action:
+                    type: string
+                    example: session_stopped_alert was set to true
+        '400':
+          description: validation error
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties:
+                  type: array
+                  items:
+                    type: string
+                example:
+                  field_name:
+                  - error message
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+              - data
+              properties:
+                data:
+                  type: object
+                  required:
+                  - session_stopped_alert
+                  properties:
+                    session_stopped_alert:
+                      type: boolean
+        required: true
+  "/api/user/delete_account_send_code":
+    post:
+      summary: Send account-deletion confirmation code (email)
+      tags:
+      - 'Mobile app: Account & auth'
+      description: Emails a 4-digit confirmation code (valid 30 minutes) to the current
+        user. Auth required. Empty 200 body.
+      responses:
+        '200':
+          description: code sent
+  "/api/user/delete_account_confirm":
+    post:
+      summary: Confirm account deletion with code
+      tags:
+      - 'Mobile app: Account & auth'
+      description: Deletes the account if the supplied `code` matches and is unexpired.
+        Auth required.
+      parameters: []
+      responses:
+        '200':
+          description: account deleted
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - message
+                properties:
+                  message:
+                    type: string
+                    example: Account successfully deleted.
+        '401':
+          description: invalid or expired code
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - error
+                properties:
+                  error:
+                    type: string
+                    example: Invalid or expired confirmation code.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+              - code
+              properties:
+                code:
+                  type: string
+                  example: '0042'
+        required: true
+  "/users/password.json":
+    post:
+      summary: Request a password-reset email
+      tags:
+      - 'Mobile app: Account & auth'
+      security: []
+      description: 'Sends password-reset instructions to the given email (Devise).
+        No auth. Note: this path has no /api prefix.'
+      parameters: []
+      responses:
+        '201':
+          description: reset email sent
+          content:
+            application/json:
+              schema:
+                type: object
+                description: Empty object
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+              - user
+              properties:
+                user:
+                  type: object
+                  required:
+                  - email
+                  properties:
+                    email:
+                      type: string
+        required: true
+  "/api/fixed/active/sessions.json":
+    get:
+      summary: Active fixed sessions in a bounding box
+      tags:
+      - 'Mobile app: Fixed map & streams'
+      security: []
+      description: |
+        Returns active fixed sessions with per-stream metadata. Public (no auth).
+        `q` is URL-encoded JSON: required `time_from`, `time_to` (Unix epoch **seconds**),
+        `sensor_name`, `measurement_type`, `unit_symbol`, `tags` (may be empty),
+        `usernames` (may be empty); optional `is_indoor` (bool), `west`/`east`/`south`/`north`
+        (float), `limit`/`offset`/`zoom_level` (int).
+      parameters:
+      - name: q
+        in: query
+        required: true
+        description: URL-encoded JSON filter
+        schema:
+          type: string
+      responses:
+        '200':
+          description: active sessions
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - sessions
+                - fetchableSessionsCount
+                properties:
+                  fetchableSessionsCount:
+                    type: integer
+                    example: 0
+                  sessions:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: integer
+                        uuid:
+                          type: string
+                        title:
+                          type: string
+                        start_time_local:
+                          type: string
+                        end_time_local:
+                          type: string
+                        last_hour_average:
+                          type: number
+                          nullable: true
+                        is_indoor:
+                          type: boolean
+                        latitude:
+                          type: number
+                          format: float
+                        longitude:
+                          type: number
+                          format: float
+                        type:
+                          type: string
+                        username:
+                          type: string
+                        streams:
+                          type: object
+                          description: Keyed by sensor_name
+                          additionalProperties:
+                            type: object
+                            properties:
+                              average_value:
+                                type: number
+                                nullable: true
+                              id:
+                                type: integer
+                              max_latitude:
+                                type: number
+                                format: float
+                              max_longitude:
+                                type: number
+                                format: float
+                              measurement_short_type:
+                                type: string
+                              measurement_type:
+                                type: string
+                              measurements_count:
+                                type: integer
+                              min_latitude:
+                                type: number
+                                format: float
+                              min_longitude:
+                                type: number
+                                format: float
+                              sensor_name:
+                                type: string
+                              sensor_package_name:
+                                type: string
+                              session_id:
+                                type: integer
+                              size:
+                                type: integer
+                              start_latitude:
+                                type: number
+                                format: float
+                              start_longitude:
+                                type: number
+                                format: float
+                              threshold_high:
+                                type: number
+                              threshold_low:
+                                type: number
+                              threshold_medium:
+                                type: number
+                              threshold_very_high:
+                                type: number
+                              threshold_very_low:
+                                type: number
+                              unit_name:
+                                type: string
+                              unit_symbol:
+                                type: string
+                          example:
+                            AirBeam2-PM2.5:
+                              average_value: 12
+                              id: 123
+                              sensor_name: AirBeam2-PM2.5
+                              sensor_package_name: AirBeam2:00189610719F
+                              measurement_type: Particulate Matter
+                              measurement_short_type: PM
+                              unit_name: microgram per cubic meter
+                              unit_symbol: µg/m³
+                              measurements_count: 1440
+                              session_id: 456
+                              size: 1440
+                              min_latitude: 40.7
+                              max_latitude: 40.8
+                              min_longitude: -74.01
+                              max_longitude: -73.99
+                              start_latitude: 40.7
+                              start_longitude: -74.0
+                              threshold_very_low: 0
+                              threshold_low: 9
+                              threshold_medium: 35
+                              threshold_high: 55
+                              threshold_very_high: 150
+  "/api/fixed/sessions/{id}/streams.json":
+    get:
+      summary: Fixed session with all its streams and measurements
+      tags:
+      - 'Mobile app: Fixed map & streams'
+      security: []
+      description: Returns one fixed session (sessions.id) with every stream and its
+        measurements. Public (no auth). Times are epoch milliseconds.
+      parameters:
+      - name: id
+        in: path
+        required: true
+        description: sessions.id
+        schema:
+          type: integer
+      - name: measurements_limit
+        in: query
+        required: false
+        description: Max measurements per stream
+        schema:
+          type: integer
+      responses:
+        '200':
+          description: session with streams
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - id
+                - title
+                - streams
+                properties:
+                  id:
+                    type: integer
+                  title:
+                    type: string
+                  username:
+                    type: string
+                  start_time:
+                    type: integer
+                    format: int64
+                    description: Epoch ms
+                  end_time:
+                    type: integer
+                    format: int64
+                  latitude:
+                    type: number
+                    format: float
+                  longitude:
+                    type: number
+                    format: float
+                  is_indoor:
+                    type: boolean
+                  notes:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: integer
+                        text:
+                          type: string
+                        date:
+                          type: string
+                        latitude:
+                          type: number
+                          format: float
+                        longitude:
+                          type: number
+                          format: float
+                        photo:
+                          type: string
+                          nullable: true
+                        photo_thumbnail:
+                          type: string
+                          nullable: true
+                        photo_location:
+                          type: string
+                          nullable: true
+                        number:
+                          type: integer
+                  streams:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        stream_id:
+                          type: integer
+                        sensor_name:
+                          type: string
+                        last_measurement_value:
+                          type: number
+                          nullable: true
+                        max_latitude:
+                          type: number
+                          format: float
+                          nullable: true
+                        max_longitude:
+                          type: number
+                          format: float
+                          nullable: true
+                        min_latitude:
+                          type: number
+                          format: float
+                          nullable: true
+                        min_longitude:
+                          type: number
+                          format: float
+                          nullable: true
+                        sensor_unit:
+                          type: string
+                        unit_name:
+                          type: string
+                        measurement_short_type:
+                          type: string
+                        measurement_type:
+                          type: string
+                        threshold_very_low:
+                          type: number
+                        threshold_low:
+                          type: number
+                        threshold_medium:
+                          type: number
+                        threshold_high:
+                          type: number
+                        threshold_very_high:
+                          type: number
+                        measurements:
+                          type: array
+                          items:
+                            type: object
+                            properties:
+                              value:
+                                type: number
+                              time:
+                                type: integer
+                                format: int64
+                                description: Epoch ms
+                              latitude:
+                                type: number
+                                format: float
+                              longitude:
+                                type: number
+                                format: float
+  "/api/fixed/streams/{id}.json":
+    get:
+      summary: Single fixed stream with measurements
+      tags:
+      - 'Mobile app: Fixed map & streams'
+      security: []
+      description: Returns one fixed stream (streams.id) with its measurements and
+        notes. Public (no auth). Times are epoch milliseconds.
+      parameters:
+      - name: id
+        in: path
+        required: true
+        description: streams.id (fixed)
+        schema:
+          type: integer
+      - name: measurements_limit
+        in: query
+        required: false
+        schema:
+          type: integer
+      responses:
+        '200':
+          description: stream found
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - id
+                - streamId
+                - sensorName
+                - measurements
+                properties:
+                  title:
+                    type: string
+                  username:
+                    type: string
+                  sensorName:
+                    type: string
+                  measurements:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        value:
+                          type: number
+                        time:
+                          type: integer
+                          format: int64
+                        longitude:
+                          type: number
+                          format: float
+                        latitude:
+                          type: number
+                          format: float
+                  startTime:
+                    type: integer
+                    format: int64
+                    nullable: true
+                  endTime:
+                    type: integer
+                    format: int64
+                    nullable: true
+                  id:
+                    type: integer
+                    description: Session id
+                  streamId:
+                    type: integer
+                  sensorUnit:
+                    type: string
+                  latitude:
+                    type: number
+                    format: float
+                    nullable: true
+                  longitude:
+                    type: number
+                    format: float
+                    nullable: true
+                  maxLatitude:
+                    type: number
+                    format: float
+                    nullable: true
+                  maxLongitude:
+                    type: number
+                    format: float
+                    nullable: true
+                  minLatitude:
+                    type: number
+                    format: float
+                    nullable: true
+                  minLongitude:
+                    type: number
+                    format: float
+                    nullable: true
+                  notes:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: integer
+                        text:
+                          type: string
+                        date:
+                          type: string
+                        latitude:
+                          type: number
+                          format: float
+                        longitude:
+                          type: number
+                          format: float
+                        photo:
+                          type: string
+                          nullable: true
+                        photo_thumbnail:
+                          type: string
+                          nullable: true
+                        photo_location:
+                          type: string
+                          nullable: true
+                        number:
+                          type: integer
+                  isIndoor:
+                    type: boolean
+                  lastMeasurementValue:
+                    type: number
+                    nullable: true
+                  threshold_very_low:
+                    type: number
+                  threshold_low:
+                    type: number
+                  threshold_medium:
+                    type: number
+                  threshold_high:
+                    type: number
+                  threshold_very_high:
+                    type: number
+                  unit_name:
+                    type: string
+                  measurement_short_type:
+                    type: string
+                  measurement_type:
+                    type: string
+  "/api/realtime/sessions.json":
+    post:
+      summary: Create an AirBeam fixed (WiFi realtime) session
+      tags:
+      - 'Mobile app: AirBeam fixed streaming'
+      description: |
+        Creates an AirBeam fixed (WiFi realtime) session. Auth required. Form fields: `session`
+        (JSON string — Base64+gzip when `compression` set, else raw), `compression` (flag),
+        `photos[]` (optional). The decoded `session` has the same shape as a mobile upload
+        (uuid, title, lat/lng, start_time/end_time, time_zone, streams keyed by sensor_name),
+        but with continuous fixed streams.
+      parameters: []
+      responses:
+        '200':
+          description: created
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - location
+                - notes
+                properties:
+                  location:
+                    type: string
+                  notes:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: integer
+                        text:
+                          type: string
+                        date:
+                          type: string
+                        latitude:
+                          type: number
+                          format: float
+                        longitude:
+                          type: number
+                          format: float
+                        photo:
+                          type: string
+                          nullable: true
+                        photo_thumbnail:
+                          type: string
+                          nullable: true
+                        photo_location:
+                          type: string
+                          nullable: true
+                        number:
+                          type: integer
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                session:
+                  type: string
+                  description: 'JSON (raw or Base64+gzip). See Mobile app: Sessions
+                    & sync for the decoded shape.'
+                compression:
+                  type: boolean
+        required: true
+  "/api/realtime/measurements":
+    post:
+      summary: Stream AirBeam fixed measurements
+      tags:
+      - 'Mobile app: AirBeam fixed streaming'
+      description: |
+        Appends measurements to one stream of an existing AirBeam fixed session. Auth required.
+        Empty 200 body on success.
+
+        **One request = one stream.** The `data` payload is a single stream descriptor plus its
+        `measurements` array.
+
+        **How measurements are matched to a stream:**
+        - **Session**: found by the authenticated user + `session_uuid`. The session must already
+          exist (created via `POST /api/realtime/sessions`); otherwise `400 "session not found"`.
+        - **Stream**: found within that session by **`sensor_name`**. If no stream with that
+          `sensor_name` exists yet, one is **created** from the descriptor
+          (`sensor_package_name`, `measurement_type`, units, thresholds). So to stream several
+          sensors, send one request per `sensor_name`.
+        - `value` must be an **integer**; `time` a parseable datetime string; measurements more
+          than 48h in the future are dropped.
+
+        **Form fields:** `data` (the JSON below), `compression` (flag). When `compression` is set,
+        `data` is Base64-encoded gzip (`:sync` flow — recalculates hourly/daily averages);
+        otherwise raw JSON (`:live` flow).
+
+        **Sample `data` (raw JSON):**
+        ```json
+        {
+          "session_uuid": "550e8400-e29b-41d4-a716-446655440000",
+          "sensor_name": "AirBeam2-PM2.5",
+          "sensor_package_name": "AirBeam2:00189610719F",
+          "measurement_type": "Particulate Matter",
+          "measurement_short_type": "PM",
+          "unit_name": "microgram per cubic meter",
+          "unit_symbol": "µg/m³",
+          "threshold_very_low": 0, "threshold_low": 9, "threshold_medium": 35,
+          "threshold_high": 55, "threshold_very_high": 150,
+          "measurements": [
+            { "longitude": -74.006, "latitude": 40.7128, "time": "2026-08-12T10:00:00", "value": 12 },
+            { "longitude": -74.006, "latitude": 40.7128, "time": "2026-08-12T10:01:00", "value": 13 }
+          ]
+        }
+        ```
+      parameters: []
+      responses:
+        '200':
+          description: measurements stored (empty body)
+        '400':
+          description: validation error
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties:
+                  type: array
+                  items:
+                    type: string
+                example:
+                  field_name:
+                  - error message
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+              - data
+              properties:
+                data:
+                  type: string
+                  description: The stream descriptor + measurements as a JSON string
+                    (raw, or Base64+gzip when compression=true). Decoded shape shown
+                    in `decoded_data`.
+                  example: '{"session_uuid":"550e8400-e29b-41d4-a716-446655440000","sensor_name":"AirBeam2-PM2.5","sensor_package_name":"AirBeam2:00189610719F","measurement_type":"Particulate
+                    Matter","measurement_short_type":"PM","unit_name":"microgram per
+                    cubic meter","unit_symbol":"µg/m³","threshold_very_low":0,"threshold_low":9,"threshold_medium":35,"threshold_high":55,"threshold_very_high":150,"measurements":[{"longitude":-74.006,"latitude":40.7128,"time":"2026-08-12T10:00:00","value":12},{"longitude":-74.006,"latitude":40.7128,"time":"2026-08-12T10:01:00","value":13}]}'
+                compression:
+                  type: boolean
+                  description: When true, `data` is Base64-encoded gzip.
+                decoded_data:
+                  type: object
+                  required:
+                  - session_uuid
+                  - sensor_name
+                  - sensor_package_name
+                  - measurement_type
+                  - measurement_short_type
+                  - unit_name
+                  - unit_symbol
+                  - threshold_very_low
+                  - threshold_low
+                  - threshold_medium
+                  - threshold_high
+                  - threshold_very_high
+                  - measurements
+                  properties:
+                    session_uuid:
+                      type: string
+                      description: UUID of an existing fixed session owned by the
+                        authenticated user (created via POST /api/realtime/sessions).
+                      example: 550e8400-e29b-41d4-a716-446655440000
+                    sensor_name:
+                      type: string
+                      description: Match key for the stream within the session. If
+                        no stream with this sensor_name exists yet, one is created
+                        from the descriptor below.
+                      example: AirBeam2-PM2.5
+                    sensor_package_name:
+                      type: string
+                      example: AirBeam2:00189610719F
+                    measurement_type:
+                      type: string
+                      example: Particulate Matter
+                    measurement_short_type:
+                      type: string
+                      example: PM
+                    unit_name:
+                      type: string
+                      example: microgram per cubic meter
+                    unit_symbol:
+                      type: string
+                      example: µg/m³
+                    threshold_very_low:
+                      type: integer
+                      example: 0
+                    threshold_low:
+                      type: integer
+                      example: 9
+                    threshold_medium:
+                      type: integer
+                      example: 35
+                    threshold_high:
+                      type: integer
+                      example: 55
+                    threshold_very_high:
+                      type: integer
+                      example: 150
+                    measurements:
+                      type: array
+                      description: Measurements with time > 48h in the future are
+                        dropped.
+                      items:
+                        type: object
+                        required:
+                        - longitude
+                        - latitude
+                        - time
+                        - value
+                        properties:
+                          longitude:
+                            type: number
+                            format: float
+                            example: -74.006
+                          latitude:
+                            type: number
+                            format: float
+                            example: 40.7128
+                          time:
+                            type: string
+                            description: Parseable datetime string
+                            example: '2026-08-12T10:00:00'
+                          value:
+                            type: integer
+                            description: Integer only (contract requires :integer)
+                            example: 12
+        required: true
+  "/api/realtime/sync_measurements.json":
+    get:
+      summary: Poll an AirBeam fixed session for new measurements
+      tags:
+      - 'Mobile app: AirBeam fixed streaming'
+      security: []
+      description: |
+        Returns an AirBeam fixed session with measurements newer than `last_measurement_sync`
+        (capped to a 24h window). Public (no auth). Times are ISO 8601 with milliseconds.
+      parameters:
+      - name: uuid
+        in: query
+        required: true
+        description: Session UUID
+        schema:
+          type: string
+      - name: last_measurement_sync
+        in: query
+        required: true
+        description: Datetime; only newer measurements are returned
+        schema:
+          type: string
+      responses:
+        '200':
+          description: session with new measurements
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - id
+                - type
+                - uuid
+                - title
+                - start_time
+                - end_time
+                - version
+                - streams
+                properties:
+                  id:
+                    type: integer
+                  type:
+                    type: string
+                    example: FixedSession
+                  uuid:
+                    type: string
+                  title:
+                    type: string
+                  tag_list:
+                    type: string
+                  start_time:
+                    type: string
+                    description: ISO 8601 with ms
+                  end_time:
+                    type: string
+                  version:
+                    type: integer
+                  streams:
+                    type: object
+                    description: Keyed by sensor_name
+                    example:
+                      AirBeam2-PM2.5:
+                        id: 456
+                        sensor_name: AirBeam2-PM2.5
+                        sensor_package_name: AirBeam2:00189610719F
+                        unit_name: microgram per cubic meter
+                        measurement_type: Particulate Matter
+                        measurement_short_type: PM
+                        unit_symbol: µg/m³
+                        threshold_very_low: 0
+                        threshold_low: 9
+                        threshold_medium: 35
+                        threshold_high: 55
+                        threshold_very_high: 150
+                        measurements:
+                        - id: 1
+                          stream_id: 456
+                          value: 12.5
+                          time: '2026-08-12T10:00:00.000Z'
+                          latitude: 40.7
+                          longitude: -74.0
+                          milliseconds: 0
+                    additionalProperties:
+                      type: object
+                      properties:
+                        id:
+                          type: integer
+                        sensor_name:
+                          type: string
+                        sensor_package_name:
+                          type: string
+                        unit_name:
+                          type: string
+                        measurement_type:
+                          type: string
+                        measurement_short_type:
+                          type: string
+                        unit_symbol:
+                          type: string
+                        threshold_very_low:
+                          type: number
+                        threshold_low:
+                          type: number
+                        threshold_medium:
+                          type: number
+                        threshold_high:
+                          type: number
+                        threshold_very_high:
+                          type: number
+                        measurements:
+                          type: array
+                          items:
+                            type: object
+                            properties:
+                              id:
+                                type: integer
+                              stream_id:
+                                type: integer
+                              value:
+                                type: number
+                              time:
+                                type: string
+                                description: UTC ISO 8601 with ms
+                              latitude:
+                                type: number
+                                format: float
+                              longitude:
+                                type: number
+                                format: float
+                              milliseconds:
+                                type: integer
+                                example: 0
+  "/api/sessions":
+    post:
+      summary: Upload a mobile session
+      tags:
+      - 'Mobile app: Sessions & sync'
+      description: |
+        Uploads a completed mobile (moving) session in one request. Auth required.
+        Form fields: `session` (JSON string — Base64+gzip when `compression` is set,
+        else raw JSON; decoded shape below), `compression` (flag), `photos[]` (optional
+        Base64 images, index-paired with notes). `type` is forced to MobileSession.
+      parameters: []
+      responses:
+        '200':
+          description: created
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - location
+                - notes
+                properties:
+                  location:
+                    type: string
+                    description: Short session URL
+                  notes:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: integer
+                        text:
+                          type: string
+                        date:
+                          type: string
+                        latitude:
+                          type: number
+                          format: float
+                        longitude:
+                          type: number
+                          format: float
+                        photo:
+                          type: string
+                          nullable: true
+                        photo_thumbnail:
+                          type: string
+                          nullable: true
+                        photo_location:
+                          type: string
+                          nullable: true
+                        number:
+                          type: integer
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                session:
+                  type: string
+                  description: JSON (see decoded shape). Raw when compression unset;
+                    Base64+gzip when set.
+                compression:
+                  type: boolean
+                decoded_session:
+                  type: object
+                  required:
+                  - uuid
+                  - title
+                  - start_time
+                  - end_time
+                  - streams
+                  properties:
+                    uuid:
+                      type: string
+                    title:
+                      type: string
+                    tag_list:
+                      type: string
+                      description: Space/comma separated
+                    contribute:
+                      type: boolean
+                    is_indoor:
+                      type: boolean
+                    deleted:
+                      type: boolean
+                    version:
+                      type: integer
+                    latitude:
+                      type: number
+                      format: float
+                    longitude:
+                      type: number
+                      format: float
+                    start_time:
+                      type: string
+                      description: ISO 8601
+                    end_time:
+                      type: string
+                      description: ISO 8601
+                    time_zone:
+                      type: string
+                      nullable: true
+                      description: IANA tz; derived from lat/lng if omitted
+                    notes:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          id:
+                            type: integer
+                          text:
+                            type: string
+                          date:
+                            type: string
+                          latitude:
+                            type: number
+                            format: float
+                          longitude:
+                            type: number
+                            format: float
+                          photo:
+                            type: string
+                            nullable: true
+                          photo_thumbnail:
+                            type: string
+                            nullable: true
+                          photo_location:
+                            type: string
+                            nullable: true
+                          number:
+                            type: integer
+                    streams:
+                      type: object
+                      description: Keyed by sensor name
+                      example:
+                        AirBeam2-PM2.5:
+                          sensor_name: AirBeam2-PM2.5
+                          sensor_package_name: AirBeam2:00189610719F
+                          measurement_type: Particulate Matter
+                          measurement_short_type: PM
+                          unit_name: microgram per cubic meter
+                          unit_symbol: µg/m³
+                          threshold_very_low: 0
+                          threshold_low: 9
+                          threshold_medium: 35
+                          threshold_high: 55
+                          threshold_very_high: 150
+                          deleted: false
+                          measurements:
+                          - time: '2026-08-12T10:00:00.000Z'
+                            value: 12.5
+                            latitude: 40.7
+                            longitude: -74.0
+                            milliseconds: 0
+                      additionalProperties:
+                        type: object
+                        properties:
+                          sensor_name:
+                            type: string
+                          sensor_package_name:
+                            type: string
+                          measurement_type:
+                            type: string
+                          measurement_short_type:
+                            type: string
+                          unit_name:
+                            type: string
+                          unit_symbol:
+                            type: string
+                          threshold_very_low:
+                            type: number
+                          threshold_low:
+                            type: number
+                          threshold_medium:
+                            type: number
+                          threshold_high:
+                            type: number
+                          threshold_very_high:
+                            type: number
+                          deleted:
+                            type: boolean
+                          measurements:
+                            type: array
+                            items:
+                              type: object
+                              properties:
+                                time:
+                                  type: string
+                                  description: ISO 8601
+                                value:
+                                  type: number
+                                latitude:
+                                  type: number
+                                  format: float
+                                longitude:
+                                  type: number
+                                  format: float
+                                milliseconds:
+                                  type: integer
+        required: true
+  "/api/sessions/export_by_uuid.json":
+    get:
+      summary: Email a CSV export of one session by UUID
+      tags:
+      - 'Mobile app: Sessions & sync'
+      security: []
+      description: Schedules a CSV export of the session with the given UUID and emails
+        it. No auth.
+      parameters:
+      - name: uuid
+        in: query
+        required: true
+        schema:
+          type: string
+      - name: email
+        in: query
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: export scheduled
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - success_message
+                properties:
+                  success_message:
+                    type: string
+                    example: Export scheduled successfully.
+        '400':
+          description: unknown uuid or invalid params
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+                properties:
+                  error:
+                    type: string
+                example:
+                  error: 'Session with uuid: abc doesn''t exist'
+  "/api/user/sessions/empty.json":
+    get:
+      summary: Download session metadata by UUID (optionally with measurements)
+      tags:
+      - 'Mobile app: Sessions & sync'
+      description: |
+        Returns one of the current user's sessions as a synchronizable object. Auth required.
+        The `:id` path segment is a placeholder ("empty"); the session is selected by the
+        `uuid` query param. Pass `stream_measurements=true` to embed measurements.
+      parameters:
+      - name: uuid
+        in: query
+        required: true
+        schema:
+          type: string
+      - name: stream_measurements
+        in: query
+        required: false
+        description: '"true" to embed measurements'
+        schema:
+          type: string
+      responses:
+        '200':
+          description: session metadata
+          content:
+            application/json:
+              schema:
+                type: object
+                description: All session columns plus injected keys
+                additionalProperties: true
+                properties:
+                  uuid:
+                    type: string
+                  title:
+                    type: string
+                  type:
+                    type: string
+                    example: MobileSession
+                  start_time:
+                    type: string
+                  end_time:
+                    type: string
+                  location:
+                    type: string
+                  tag_list:
+                    type: string
+                  notes:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: integer
+                        text:
+                          type: string
+                        date:
+                          type: string
+                        latitude:
+                          type: number
+                          format: float
+                        longitude:
+                          type: number
+                          format: float
+                        photo:
+                          type: string
+                          nullable: true
+                        photo_thumbnail:
+                          type: string
+                          nullable: true
+                        photo_location:
+                          type: string
+                          nullable: true
+                        number:
+                          type: integer
+                  streams:
+                    type: object
+                    description: Keyed by sensor_name
+                    example:
+                      AirBeam2-PM2.5:
+                        id: 123
+                        sensor_name: AirBeam2-PM2.5
+                        unit_symbol: µg/m³
+                        measurement_type: Particulate Matter
+                        measurement_short_type: PM
+                        unit_name: microgram per cubic meter
+                        size: 1440
+                        threshold_very_low: 0
+                        threshold_low: 9
+                        threshold_medium: 35
+                        threshold_high: 55
+                        threshold_very_high: 150
+                    additionalProperties:
+                      type: object
+                      additionalProperties: true
+  "/api/user/sessions/sync_with_versioning.json":
+    post:
+      summary: Sync sessions (diff of what to upload/download/delete)
+      tags:
+      - 'Mobile app: Sessions & sync'
+      description: |
+        Given the app's local session list (uuid + version + deleted), returns which UUIDs
+        to upload, download, and mark deleted. Auth required. `data` is a JSON **string**
+        (a JSON array), not a JSON object body.
+      parameters: []
+      responses:
+        '200':
+          description: sync diff
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - upload
+                - download
+                - deleted
+                properties:
+                  upload:
+                    type: array
+                    items:
+                      type: string
+                  download:
+                    type: array
+                    items:
+                      type: string
+                  deleted:
+                    type: array
+                    items:
+                      type: string
+        '400':
+          description: validation error
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+                description: Per-item validation errors keyed by array index
+                example:
+                  data:
+                    '0':
+                      deleted:
+                      - is missing
+                      version:
+                      - is missing
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+              - data
+              properties:
+                data:
+                  type: string
+                  description: 'JSON array string: [{uuid, deleted(bool), version(int)}]'
+                  example: '[{"uuid":"abc","deleted":false,"version":3}]'
+        required: true
+  "/api/user/sessions/update_session.json":
+    post:
+      summary: Update a session (rename, tags, notes, delete streams)
+      tags:
+      - 'Mobile app: Sessions & sync'
+      description: |
+        Updates title/tags/notes and deletes flagged streams, bumping the session version.
+        Auth required. `data` is a JSON **string**. Streams flagged `deleted: true` are
+        removed (matched by sensor_name + sensor_package_name).
+      parameters: []
+      responses:
+        '200':
+          description: updated session
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+                properties:
+                  uuid:
+                    type: string
+                  title:
+                    type: string
+                  tag_list:
+                    type: string
+                  version:
+                    type: integer
+                  type:
+                    type: string
+                  notes:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: integer
+                        text:
+                          type: string
+                        date:
+                          type: string
+                        latitude:
+                          type: number
+                          format: float
+                        longitude:
+                          type: number
+                          format: float
+                        photo:
+                          type: string
+                          nullable: true
+                        photo_thumbnail:
+                          type: string
+                          nullable: true
+                        photo_location:
+                          type: string
+                          nullable: true
+                        number:
+                          type: integer
+                  streams:
+                    type: object
+                    description: Keyed by sensor_name
+                    example:
+                      AirBeam2-PM2.5:
+                        id: 123
+                        sensor_name: AirBeam2-PM2.5
+                        unit_symbol: µg/m³
+                        measurement_type: Particulate Matter
+                        measurement_short_type: PM
+                        unit_name: microgram per cubic meter
+                        size: 1440
+                        threshold_very_low: 0
+                        threshold_low: 9
+                        threshold_medium: 35
+                        threshold_high: 55
+                        threshold_very_high: 150
+                    additionalProperties:
+                      type: object
+                      additionalProperties: true
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+              - data
+              properties:
+                data:
+                  type: string
+                  description: 'JSON string: {uuid, title, tag_list, notes:[{number,text}],
+                    streams:{"<name>":{sensor_name,sensor_package_name,deleted}}}'
+        required: true
+  "/api/fixed/threshold_alerts":
+    get:
+      summary: List the current user's threshold alerts
+      tags:
+      - 'Mobile app: Threshold alerts'
+      description: 'Returns all threshold alerts for the authenticated user. Auth:
+        `Token token=<user_token>` (HTTP Basic; token as username).'
+      responses:
+        '200':
+          description: alerts
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  required:
+                  - id
+                  - session_uuid
+                  - sensor_name
+                  - threshold_value
+                  - frequency
+                  - timezone_offset
+                  properties:
+                    id:
+                      type: integer
+                    session_uuid:
+                      type: string
+                    sensor_name:
+                      type: string
+                      example: AirBeam2-PM2.5
+                    threshold_value:
+                      type: number
+                      format: float
+                      example: 35.0
+                    frequency:
+                      type: integer
+                      description: Minimum minutes between alert emails
+                      example: 60
+                    timezone_offset:
+                      type: integer
+                      description: Seconds offset from UTC
+                      example: -18000
+    post:
+      summary: Create a threshold alert
+      tags:
+      - 'Mobile app: Threshold alerts'
+      description: Creates a threshold alert for a stream identified by `session_uuid`
+        + `sensor_name`. Auth required.
+      parameters: []
+      responses:
+        '201':
+          description: created
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - id
+                properties:
+                  id:
+                    type: integer
+        '400':
+          description: validation error
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties:
+                  type: array
+                  items:
+                    type: string
+                example:
+                  field_name:
+                  - error message
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+              - data
+              properties:
+                data:
+                  type: object
+                  required:
+                  - sensor_name
+                  - session_uuid
+                  - threshold_value
+                  - frequency
+                  - timezone_offset
+                  properties:
+                    sensor_name:
+                      type: string
+                      example: AirBeam2-PM2.5
+                    session_uuid:
+                      type: string
+                    threshold_value:
+                      type: number
+                      format: float
+                      example: 35.0
+                    frequency:
+                      type: integer
+                      example: 60
+                    timezone_offset:
+                      type: integer
+                      example: -18000
+        required: true
+  "/api/fixed/threshold_alerts/{id}":
+    delete:
+      summary: Delete a threshold alert
+      tags:
+      - 'Mobile app: Threshold alerts'
+      description: Deletes one of the current user's threshold alerts. Auth required.
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+      responses:
+        '204':
+          description: deleted
+        '401':
+          description: alert not found for this user
   "/api/mobile/sessions.json":
     get:
       summary: Mobile sessions in a bounding box
       tags:
-      - Mobile sessions
+      - 'Web app: Mobile sessions'
       security: []
       description: |
         Returns mobile (moving) sessions with per-stream metadata. Public (no auth).
@@ -852,6 +2579,7 @@ paths:
                           type: string
                         streams:
                           type: object
+                          description: Keyed by sensor_name
                           additionalProperties:
                             type: object
                             properties:
@@ -905,6 +2633,30 @@ paths:
                                 type: string
                               unit_symbol:
                                 type: string
+                          example:
+                            AirBeam2-PM2.5:
+                              average_value: 12
+                              id: 123
+                              sensor_name: AirBeam2-PM2.5
+                              sensor_package_name: AirBeam2:00189610719F
+                              measurement_type: Particulate Matter
+                              measurement_short_type: PM
+                              unit_name: microgram per cubic meter
+                              unit_symbol: µg/m³
+                              measurements_count: 1440
+                              session_id: 456
+                              size: 1440
+                              min_latitude: 40.7
+                              max_latitude: 40.8
+                              min_longitude: -74.01
+                              max_longitude: -73.99
+                              start_latitude: 40.7
+                              start_longitude: -74.0
+                              threshold_very_low: 0
+                              threshold_low: 9
+                              threshold_medium: 35
+                              threshold_high: 55
+                              threshold_very_high: 150
         '400':
           description: validation error
           content:
@@ -927,7 +2679,7 @@ paths:
     get:
       summary: Single mobile stream with measurements
       tags:
-      - Mobile sessions
+      - 'Web app: Mobile sessions'
       security: []
       description: Returns one mobile stream (legacy streams.id) with all its measurements
         and notes. Public (no auth). Times are epoch milliseconds.
@@ -1028,12 +2780,35 @@ paths:
                     type: array
                     items:
                       type: object
-                      additionalProperties: true
+                      properties:
+                        id:
+                          type: integer
+                        text:
+                          type: string
+                        date:
+                          type: string
+                        latitude:
+                          type: number
+                          format: float
+                        longitude:
+                          type: number
+                          format: float
+                        photo:
+                          type: string
+                          nullable: true
+                        photo_thumbnail:
+                          type: string
+                          nullable: true
+                        photo_location:
+                          type: string
+                          nullable: true
+                        number:
+                          type: integer
   "/api/thresholds/{id}":
     get:
       summary: Threshold set for a sensor
       tags:
-      - Sensors & thresholds
+      - 'Web app: Sensors & thresholds'
       security: []
       description: |
         Returns the default (or most popular) threshold set for a sensor as an ordered
@@ -1074,7 +2849,7 @@ paths:
     get:
       summary: Sensors available for a session type
       tags:
-      - Sensors & thresholds
+      - 'Web app: Sensors & thresholds'
       security: []
       description: |
         Returns the aggregated built-in AirBeam sensors plus every distinct contributed
@@ -1125,12 +2900,18 @@ paths:
             application/json:
               schema:
                 type: object
-                additionalProperties: true
+                additionalProperties:
+                  type: array
+                  items:
+                    type: string
+                example:
+                  field_name:
+                  - error message
   "/api/v3/fixed_stream_daily_averages":
     get:
       summary: AirBeam fixed daily averages in a date range
       tags:
-      - Fixed sessions
+      - 'Web app: Fixed sessions'
       security: []
       description: Returns daily averages for one legacy AirBeam stream within [start_date,
         end_date]. Public (no auth).
@@ -1178,13 +2959,13 @@ paths:
                       example: 14
   "/api/v3/station_stream_daily_averages":
     get:
-      summary: Government station daily averages in a date range
+      summary: Station daily averages in a date range (government)
       tags:
-      - Government stations
+      - 'Web app: Station data (government)'
       security: []
-      description: 'Returns government daily averages for one station_stream within
-        [start_date, end_date]. Public (no auth). Note: the query param is `stream_id`
-        but its value is a `station_streams.id`.'
+      description: 'Returns Station (government) daily averages for one station_stream
+        within [start_date, end_date]. Public (no auth). Note: the query param is
+        `stream_id` but its value is a `station_streams.id`.'
       parameters:
       - name: stream_id
         in: query
@@ -1231,7 +3012,7 @@ paths:
     post:
       summary: Create a new AirBeamMini fixed session
       tags:
-      - Fixed sessions
+      - 'Mobile app: AirBeam fixed streaming'
       description: |
         Creates a new fixed session for an AirBeamMini device. The mobile app calls this
         before configuring the AirBeamMini. The response includes a `sensor_type_id` per
@@ -1414,7 +3195,7 @@ paths:
     post:
       summary: Upload binary measurements for an AirBeamMini session
       tags:
-      - Fixed sessions
+      - 'Mobile app: AirBeam fixed streaming'
       description: |
         Receives a binary measurement payload from the AirBeamMini. Can be called once per
         minute for live uploads or in bulk after connectivity loss — both are handled identically.
@@ -1526,7 +3307,7 @@ paths:
     get:
       summary: Fixed stream detail with recent measurements and daily averages
       tags:
-      - Fixed sessions
+      - 'Web app: Fixed sessions'
       security: []
       description: |
         Returns one AirBeam fixed stream (legacy `streams.id`) with the last 2 days of
@@ -1534,7 +3315,7 @@ paths:
 
         Times: measurement `time` is epoch **milliseconds** in local-as-UTC (station-local
         wall clock encoded as a UTC epoch). `stream.start_time`/`end_time`/`last_update` are
-        ISO 8601 date-times. Government stations use `/api/v3/station_streams/{id}` instead.
+        ISO 8601 date-times. Station (government) data uses `/api/v3/station_streams/{id}` instead.
       parameters:
       - name: id
         in: path
@@ -1672,7 +3453,7 @@ paths:
     get:
       summary: AirBeam fixed measurements in a time range
       tags:
-      - Fixed sessions
+      - 'Web app: Fixed sessions'
       security: []
       description: |
         Returns AirBeam fixed measurements for one legacy stream within `[start_time, end_time]`.
@@ -1730,12 +3511,12 @@ paths:
                 description: Per-field validation errors
   "/api/v3/station_measurements":
     get:
-      summary: Government station measurements in a time range
+      summary: Station measurements in a time range (government)
       tags:
-      - Government stations
+      - 'Web app: Station data (government)'
       security: []
       description: |
-        Returns government `station_measurements` for one `station_stream_id` within
+        Returns Station (government) `station_measurements` for one `station_stream_id` within
         `[start_time, end_time]`. Public (no auth). `start_time`/`end_time` are epoch
         **milliseconds** in the station-local-as-UTC domain (same convention as AirBeam).
       parameters:
@@ -1791,14 +3572,14 @@ paths:
                 description: Per-field validation errors
   "/api/v3/station_streams/{id}":
     get:
-      summary: Government station stream detail (new model)
+      summary: Station stream detail (government, new model)
       tags:
-      - Government stations
+      - 'Web app: Station data (government)'
       security: []
       description: |
-        Returns one government pollutant stream (`station_streams.id`) from the new model,
+        Returns one Station (government) pollutant stream (`station_streams.id`) from the new model,
         with the last 2 days of `station_measurements` and 3 months of daily averages.
-        Public (no auth). A physical station has one such stream per pollutant
+        Public (no auth). A physical Station has one such stream per pollutant
         (PM2.5 / NO2 / Ozone).
       parameters:
       - name: id
@@ -1944,9 +3725,9 @@ paths:
                       type: string
   "/api/v3/station_streams/export":
     get:
-      summary: Schedule a CSV export of government station streams (emailed)
+      summary: Export Station (government) streams as CSV (emailed)
       tags:
-      - Government stations
+      - 'Web app: Station data (government)'
       security: []
       description: |
         Schedules a background CSV export of the given `station_stream_ids` and emails the
@@ -1983,4 +3764,10 @@ paths:
             application/json:
               schema:
                 type: object
-                additionalProperties: true
+                additionalProperties:
+                  type: array
+                  items:
+                    type: string
+                example:
+                  field_name:
+                  - error message
