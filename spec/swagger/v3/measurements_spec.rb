@@ -28,8 +28,8 @@ RSpec.describe 'V3 Measurements', type: :request do
       DESC
 
       parameter name: :stream_id, in: :query, type: :string, required: true, description: 'Legacy streams.id'
-      parameter name: :start_time, in: :query, type: :number, format: :int64, required: true, description: 'Epoch ms, inclusive'
-      parameter name: :end_time, in: :query, type: :number, format: :int64, required: true, description: 'Epoch ms, must be > start_time'
+      parameter name: :start_time, in: :query, required: true, schema: { type: :number, format: :int64 }, description: 'Epoch ms, inclusive'
+      parameter name: :end_time, in: :query, required: true, schema: { type: :number, format: :int64 }, description: 'Epoch ms, must be > start_time'
 
       response '200', 'measurements' do
         schema MEASUREMENTS_ARRAY_SCHEMA
@@ -70,8 +70,8 @@ RSpec.describe 'V3 Measurements', type: :request do
       DESC
 
       parameter name: :station_stream_id, in: :query, type: :string, required: true, description: 'station_streams.id'
-      parameter name: :start_time, in: :query, type: :number, format: :int64, required: true, description: 'Epoch ms, inclusive'
-      parameter name: :end_time, in: :query, type: :number, format: :int64, required: true, description: 'Epoch ms, must be > start_time'
+      parameter name: :start_time, in: :query, required: true, schema: { type: :number, format: :int64 }, description: 'Epoch ms, inclusive'
+      parameter name: :end_time, in: :query, required: true, schema: { type: :number, format: :int64 }, description: 'Epoch ms, must be > start_time'
 
       response '200', 'measurements' do
         schema MEASUREMENTS_ARRAY_SCHEMA

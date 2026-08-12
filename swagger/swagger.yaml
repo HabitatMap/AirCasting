@@ -2924,18 +2924,18 @@ paths:
           type: integer
       - name: start_date
         in: query
-        format: date
         required: true
-        description: YYYY-MM-DD (inclusive)
         schema:
           type: string
+          format: date
+        description: YYYY-MM-DD (inclusive)
       - name: end_date
         in: query
-        format: date
         required: true
-        description: YYYY-MM-DD (inclusive)
         schema:
           type: string
+          format: date
+        description: YYYY-MM-DD (inclusive)
       responses:
         '200':
           description: daily averages
@@ -2975,18 +2975,18 @@ paths:
           type: integer
       - name: start_date
         in: query
-        format: date
         required: true
-        description: YYYY-MM-DD (inclusive)
         schema:
           type: string
+          format: date
+        description: YYYY-MM-DD (inclusive)
       - name: end_date
         in: query
-        format: date
         required: true
-        description: YYYY-MM-DD (inclusive)
         schema:
           type: string
+          format: date
+        description: YYYY-MM-DD (inclusive)
       responses:
         '200':
           description: daily averages
@@ -3467,18 +3467,18 @@ paths:
           type: string
       - name: start_time
         in: query
-        format: int64
         required: true
-        description: Epoch ms, inclusive
         schema:
           type: number
+          format: int64
+        description: Epoch ms, inclusive
       - name: end_time
         in: query
-        format: int64
         required: true
-        description: Epoch ms, must be > start_time
         schema:
           type: number
+          format: int64
+        description: Epoch ms, must be > start_time
       responses:
         '200':
           description: measurements
@@ -3528,18 +3528,18 @@ paths:
           type: string
       - name: start_time
         in: query
-        format: int64
         required: true
-        description: Epoch ms, inclusive
         schema:
           type: number
+          format: int64
+        description: Epoch ms, inclusive
       - name: end_time
         in: query
-        format: int64
         required: true
-        description: Epoch ms, must be > start_time
         schema:
           type: number
+          format: int64
+        description: Epoch ms, must be > start_time
       responses:
         '200':
           description: measurements

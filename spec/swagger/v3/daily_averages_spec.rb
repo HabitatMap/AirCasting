@@ -24,8 +24,8 @@ RSpec.describe 'V3 Daily averages', type: :request do
       description 'Returns daily averages for one legacy AirBeam stream within [start_date, end_date]. Public (no auth).'
 
       parameter name: :stream_id, in: :query, type: :integer, required: true, description: 'Legacy streams.id'
-      parameter name: :start_date, in: :query, type: :string, format: :date, required: true, description: 'YYYY-MM-DD (inclusive)'
-      parameter name: :end_date, in: :query, type: :string, format: :date, required: true, description: 'YYYY-MM-DD (inclusive)'
+      parameter name: :start_date, in: :query, required: true, schema: { type: :string, format: :date }, description: 'YYYY-MM-DD (inclusive)'
+      parameter name: :end_date, in: :query, required: true, schema: { type: :string, format: :date }, description: 'YYYY-MM-DD (inclusive)'
 
       response '200', 'daily averages' do
         schema DAILY_AVERAGES_SCHEMA
@@ -51,8 +51,8 @@ RSpec.describe 'V3 Daily averages', type: :request do
       description 'Returns Station (government) daily averages for one station_stream within [start_date, end_date]. Public (no auth). Note: the query param is `stream_id` but its value is a `station_streams.id`.'
 
       parameter name: :stream_id, in: :query, type: :integer, required: true, description: 'station_streams.id (param name is stream_id for frontend parity)'
-      parameter name: :start_date, in: :query, type: :string, format: :date, required: true, description: 'YYYY-MM-DD (inclusive)'
-      parameter name: :end_date, in: :query, type: :string, format: :date, required: true, description: 'YYYY-MM-DD (inclusive)'
+      parameter name: :start_date, in: :query, required: true, schema: { type: :string, format: :date }, description: 'YYYY-MM-DD (inclusive)'
+      parameter name: :end_date, in: :query, required: true, schema: { type: :string, format: :date }, description: 'YYYY-MM-DD (inclusive)'
 
       response '200', 'daily averages' do
         schema DAILY_AVERAGES_SCHEMA
