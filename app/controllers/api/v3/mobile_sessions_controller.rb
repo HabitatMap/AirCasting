@@ -5,6 +5,14 @@ module Api
       before_action :authenticate_user_from_token!
       before_action :authenticate_user!
 
+      def index
+        render json: ::MobileSessions::List.new(
+          user: current_user,
+          page: params[:page],
+          per_page: params[:per_page],
+        ).call, status: :ok
+      end
+
       def create
         contract = Api::CreateMobileSessionContract.new.call(
           params.to_unsafe_h.deep_symbolize_keys,
