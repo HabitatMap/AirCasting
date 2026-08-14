@@ -63,6 +63,26 @@ RSpec.describe MobileSessions::BinaryProtocol::Ingester do
     expect(session.end_time_local).to eq(Time.utc(2026, 8, 14, 6, 0, 0))
   end
 
+  it 'is idempotent on resend — no duplicate rows, no counter inflation' do
+    binary = payload([frame(epoch: epoch, type_id: 2, value: 1.0, lat: 40.0, lng: -74.0)])
+    ingester.call(session: session, binary: binary)
+
+    expect { ingester.call(session: session, binary: binary) }.not_to change(Measurement, :count)
+    expect(stream.reload.measurements_count).to eq(1)
+  end
+
+  it 'sets session bounds from earliest/latest across resends (backfill does not regress end)' do
+    later = payload([frame(epoch: epoch + 3600, type_id: 2, value: 1.0, lat: 40.0, lng: -74.0)])
+    earlier = payload([frame(epoch: epoch, type_id: 2, value: 1.0, lat: 41.0, lng: -75.0)])
+
+    ingester.call(session: session, binary: later)
+    ingester.call(session: session, binary: earlier) # older batch arrives after
+
+    session.reload
+    expect(session.start_time_local).to eq(Time.utc(2026, 8, 14, 6, 0, 0))  # epoch 10:00 UTC = 06:00 NY
+    expect(session.end_time_local).to eq(Time.utc(2026, 8, 14, 7, 0, 0))    # +1h, not pulled back
+  end
+
   it 'silently skips frames for an unknown sensor_type_id' do
     binary = payload([frame(epoch: epoch, type_id: 99, value: 1.0, lat: 40.0, lng: -74.0)])
     expect { ingester.call(session: session, binary: binary) }.not_to change(Measurement, :count)
