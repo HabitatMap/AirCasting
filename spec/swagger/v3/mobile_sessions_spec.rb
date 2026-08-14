@@ -4,6 +4,14 @@ require 'swagger_helper'
 # only — measurements upload is binary (see the /measurements path). All endpoints
 # require the user token; the caller owns the sessions (implicit from the token).
 RSpec.describe 'AirBeam Mobile Sessions', type: :request do
+  def build_mobile_measurement_binary(type_id:, epoch: Time.current.to_i, value: 12.5, lat: 40.7128, lng: -74.006)
+    header = ["\xAB\xBA", 1].pack('a2n')
+    measurement = [epoch, type_id, value, lat, lng].pack('NCgGG')
+    payload = header + measurement
+    checksum = payload.bytes.inject(0, :^)
+    payload + [checksum].pack('C')
+  end
+
   ERROR_SCHEMA = {
     type: :object,
     required: %w[error_code message],
@@ -155,6 +163,128 @@ RSpec.describe 'AirBeam Mobile Sessions', type: :request do
 
         let(:Authorization) { 'Token token=invalid' }
         let(:body) { {} }
+
+        run_test!
+      end
+    end
+  end
+
+  path '/api/v3/mobile_sessions/{uuid}/measurements' do
+    post 'Send binary measurements for a mobile session' do
+      tags 'Mobile app: Sessions & sync'
+      consumes 'application/octet-stream'
+      produces 'application/json'
+      description <<~DESC
+        Uploads AirBeam mobile measurements as a binary payload. Authenticated with
+        the **user token** (no per-session token). Can be called live during a
+        recording or in bulk to sync measurements the AirBeam delivered late.
+
+        ## Binary Format
+
+        Each frame extends the fixed frame with per-point location. **No
+        milliseconds** — mobile records at interval sampling (1s / 5s / 1 / 5 / 10 min).
+
+        ```
+        Offset     Size  Type         Description
+        0          2     uint8[2]     Magic bytes: 0xAB 0xBA
+        2          2     uint16 BE    Measurement count N
+        --- repeated N times (25 bytes each) ---
+        +0         4     uint32 BE    Unix timestamp (seconds, UTC)
+        +4         1     uint8        sensor_type_id (from session creation)
+        +5         4     float32 BE   Sensor value
+        +9         8     float64 BE   Latitude
+        +17        8     float64 BE   Longitude
+        --- end repeat ---
+        4+N*25     1     uint8        XOR checksum of all preceding bytes
+        ```
+
+        On ingest the session's start/end are refined from the measurement bounds
+        and the stream aggregates (bounding box, average, start coordinates) are
+        recomputed. An empty body returns 200 (reads server time from `X-Server-Time`).
+
+        ## Error Codes
+
+        | `error_code` | HTTP | Description |
+        |---|---|---|
+        | `unauthorized` | 401 | Missing or invalid `Authorization` token |
+        | `session_not_found` | 404 | No mobile session with the given UUID for this user |
+        | `payload_too_short` / `invalid_magic_bytes` / `empty_measurement_count` / `payload_size_mismatch` / `invalid_checksum` / `invalid_epoch` / `invalid_value` / `invalid_location` | 400 | Malformed payload |
+      DESC
+
+      parameter name: :uuid, in: :path, type: :string, required: true,
+                description: 'Session UUID (same as used in session creation)'
+      parameter name: :Authorization, in: :header, type: :string, required: true,
+                description: 'Token token=<user_token>'
+      parameter name: :body, in: :body, required: true, schema: {
+        type: :string, format: :binary, description: 'Binary payload as described above',
+      }
+
+      response '200', 'measurements stored (or empty body time-sync)' do
+        before(:all) do
+          @user = create(:user)
+          @session = create(:mobile_session, user: @user, time_zone: 'America/New_York')
+          @threshold_set = ThresholdSet.find_or_create_by!(
+            sensor_name: 'AirBeam-PM2.5', unit_symbol: 'µg/m³', is_default: true,
+            threshold_very_low: 0, threshold_low: 9, threshold_medium: 35,
+            threshold_high: 55, threshold_very_high: 150,
+          )
+          @stream = Stream.create!(
+            session: @session, sensor_name: 'AirBeamMini-PM2.5',
+            sensor_package_name: 'AA:BB:CC:DD:EE:FF', unit_name: 'micrograms per cubic meter',
+            measurement_type: 'Particulate Matter', measurement_short_type: 'PM',
+            unit_symbol: 'µg/m³', threshold_set: @threshold_set, sensor_type_id: 2,
+          )
+        end
+
+        after(:all) do
+          @stream&.delete
+          @threshold_set&.delete
+          @session&.delete
+          @user&.destroy
+        end
+
+        let(:uuid) { @session.uuid }
+        let(:Authorization) { "Token token=#{@user.authentication_token}" }
+        let(:body) { build_mobile_measurement_binary(type_id: 2) }
+
+        before { sign_in @user }
+
+        run_test!
+      end
+
+      response '400', 'invalid payload' do
+        schema ERROR_SCHEMA
+
+        let(:user) { create(:user) }
+        let(:session) { create(:mobile_session, user: user) }
+        let(:uuid) { session.uuid }
+        let(:Authorization) { "Token token=#{user.authentication_token}" }
+        let(:body) { 'not valid binary' }
+
+        before { sign_in user }
+
+        run_test!
+      end
+
+      response '404', 'session not found' do
+        schema ERROR_SCHEMA
+
+        let(:user) { create(:user) }
+        let(:uuid) { 'non-existent-uuid' }
+        let(:Authorization) { "Token token=#{user.authentication_token}" }
+        let(:body) { build_mobile_measurement_binary(type_id: 2) }
+
+        before { sign_in user }
+
+        run_test!
+      end
+
+      response '401', 'unauthorized' do
+        schema ERROR_SCHEMA
+
+        let(:uuid) { 'any-uuid' }
+        let(:Authorization) { 'Token token=invalid' }
+        let(:body) { "\x00" }
 
         run_test!
       end
