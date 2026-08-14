@@ -3570,6 +3570,180 @@ paths:
                 type: object
                 additionalProperties: true
                 description: Per-field validation errors
+  "/api/v3/mobile_sessions":
+    post:
+      summary: Create a mobile session
+      tags:
+      - 'Mobile app: Sessions & sync'
+      description: |
+        Creates a new AirBeam mobile (moving) session, wrapping the legacy
+        `sessions` / `streams` model. The app calls this once at the start of a
+        recording; measurements are then streamed to
+        `POST /api/v3/mobile_sessions/{uuid}/measurements`.
+
+        Notes vs. the fixed-session create:
+        - `time_zone` is **required** (not derived from coordinates).
+        - `start_time` / `end_time` are **not** sent — they are derived from the
+          measurement bounds on ingest.
+        - `latitude` / `longitude` are optional (the session start point); each
+          measurement carries its own location.
+        - No `session_token` is returned — the measurements upload authenticates
+          with the user token.
+
+        The response includes a `sensor_type_id` per stream, used to identify
+        streams in the binary measurement upload.
+      parameters:
+      - name: Authorization
+        in: header
+        required: true
+        description: Token token=<user_token>
+        schema:
+          type: string
+      responses:
+        '201':
+          description: session created
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - location
+                - streams
+                properties:
+                  location:
+                    type: string
+                    example: http://aircasting.org/s/ab12c
+                  streams:
+                    type: array
+                    items:
+                      type: object
+                      required:
+                      - sensor_name
+                      - sensor_type_id
+                      properties:
+                        sensor_name:
+                          type: string
+                          example: AirBeamMini-PM2.5
+                        sensor_type_id:
+                          type: integer
+                          example: 2
+        '400':
+          description: validation error
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - error_code
+                - message
+                properties:
+                  error_code:
+                    type: string
+                    example: validation_error
+                  message:
+                    type: string
+                    example: Request body is invalid
+                  fields:
+                    type: object
+                    description: Per-field validation errors
+                    additionalProperties:
+                      type: array
+                      items:
+                        type: string
+        '401':
+          description: unauthorized
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - error_code
+                - message
+                properties:
+                  error_code:
+                    type: string
+                  message:
+                    type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+              - uuid
+              - title
+              - time_zone
+              - contribute
+              - airbeam
+              - streams
+              properties:
+                uuid:
+                  type: string
+                  format: uuid
+                  example: 550e8400-e29b-41d4-a716-446655440000
+                title:
+                  type: string
+                  example: Morning bike ride
+                time_zone:
+                  type: string
+                  example: America/New_York
+                  description: IANA time zone identifier (required).
+                contribute:
+                  type: boolean
+                  example: true
+                tag_list:
+                  type: string
+                  nullable: true
+                  example: commute, bike
+                  description: Space/comma separated tags.
+                latitude:
+                  type: number
+                  format: float
+                  nullable: true
+                  example: 40.7128
+                  description: Optional session start point.
+                longitude:
+                  type: number
+                  format: float
+                  nullable: true
+                  example: -74.006
+                airbeam:
+                  type: object
+                  required:
+                  - mac_address
+                  - model
+                  properties:
+                    mac_address:
+                      type: string
+                      example: AA:BB:CC:DD:EE:FF
+                    model:
+                      type: string
+                      example: AirBeamMini
+                    name:
+                      type: string
+                      nullable: true
+                      example: My AirBeam
+                streams:
+                  type: array
+                  minItems: 1
+                  items:
+                    type: object
+                    required:
+                    - sensor_name
+                    - unit_symbol
+                    properties:
+                      sensor_name:
+                        type: string
+                        example: AirBeamMini-PM2.5
+                      unit_symbol:
+                        type: string
+                        example: µg/m³
+                  example:
+                  - sensor_name: AirBeamMini-PM1
+                    unit_symbol: µg/m³
+                  - sensor_name: AirBeamMini-PM2.5
+                    unit_symbol: µg/m³
+        required: true
   "/api/v3/station_streams/{id}":
     get:
       summary: Station stream detail (government, new model)
