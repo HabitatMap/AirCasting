@@ -4,6 +4,11 @@ module MobileSessions
     # (per-point location included), then refreshes stream aggregates and the
     # session's start/end bounds — mirroring how FixedSessions ingest works, but
     # writing `measurements` (with location) instead of `fixed_measurements`.
+    #
+    # Resends are supported (the endpoint syncs measurements the AirBeam delivered
+    # late), so ingest is idempotent: frames whose (stream_id, time) already exists
+    # are skipped. Aggregates and session bounds are recomputed with SQL so cost is
+    # independent of session size.
     class Ingester
       ErrorCodes = ::FixedSessions::BinaryProtocol::ErrorCodes
 
@@ -31,7 +36,6 @@ module MobileSessions
         grouped = measurements.group_by { |m| m[:sensor_type_id] }
         factory = RGeo::Geographic.spherical_factory(srid: 4326)
         touched_streams = []
-        local_times = []
 
         ActiveRecord::Base.transaction do
           grouped.each do |type_id, type_measurements|
@@ -39,18 +43,24 @@ module MobileSessions
               session_id: session.id,
               sensor_type_id: type_id,
             )
-            next unless stream
+            unless stream
+              Rails.logger.warn(
+                "[MobileSessions::Ingester] unknown sensor_type_id=#{type_id} " \
+                "for session=#{session.uuid}; #{type_measurements.size} frame(s) dropped",
+              )
+              next
+            end
 
-            records = build_records(type_measurements, session, stream, factory)
-            local_times.concat(records.map(&:time))
+            records = reject_existing(stream, build_records(type_measurements, session, stream, factory))
+            next if records.empty?
 
-            Measurement.import(records)
-            Stream.update_counters(stream.id, measurements_count: records.size)
+            imported = import(stream, records)
+            Stream.update_counters(stream.id, measurements_count: imported) if imported.positive?
             touched_streams << stream
           end
 
           refresh_stream_aggregates(touched_streams)
-          refresh_session_times(session, local_times)
+          refresh_session_times(session)
         end
 
         Success.new('measurements ingested')
@@ -73,22 +83,62 @@ module MobileSessions
         end
       end
 
+      # Idempotent resend: drop frames whose (stream_id, time) already exists.
+      def reject_existing(stream, records)
+        return records if records.empty?
+
+        existing =
+          Measurement
+            .where(stream_id: stream.id, time: records.map(&:time))
+            .pluck(:time)
+            .map(&:to_i)
+            .to_set
+        records.reject { |record| existing.include?(record.time.to_i) }
+      end
+
+      def import(stream, records)
+        result = Measurement.import(records)
+        if result.failed_instances.any?
+          Rails.logger.warn(
+            "[MobileSessions::Ingester] #{result.failed_instances.size} measurement(s) " \
+            "failed to import for stream=#{stream.id}",
+          )
+        end
+        records.size - result.failed_instances.size
+      end
+
+      # SQL aggregates — cost independent of session size (no row materialization).
       def refresh_stream_aggregates(streams)
         streams.each do |stream|
-          streams_repository.calculate_bounding_box!(stream)
-          streams_repository.calculate_average_value!(stream)
-          streams_repository.add_start_coordinates!(stream)
+          min_lat, max_lat, min_lng, max_lng, average = stream.measurements.reorder(nil).pick(
+            Arel.sql('MIN(latitude)'), Arel.sql('MAX(latitude)'),
+            Arel.sql('MIN(longitude)'), Arel.sql('MAX(longitude)'),
+            Arel.sql('AVG(value)'),
+          )
+          start_coords = stream.measurements.order(time: :asc).limit(1).pick(:latitude, :longitude)
+
+          stream.update!(
+            min_latitude: min_lat,
+            max_latitude: max_lat,
+            min_longitude: min_lng,
+            max_longitude: max_lng,
+            average_value: average,
+            start_latitude: start_coords&.first,
+            start_longitude: start_coords&.last,
+          )
         end
       end
 
-      def refresh_session_times(session, local_times)
-        return if local_times.empty?
+      # True bounds from all of the session's measurements — correct regardless of
+      # upload order or late/bulk backfill (unlike a seed-vs-batch min/max).
+      def refresh_session_times(session)
+        first, last = Measurement
+          .where(stream_id: session.streams.select(:id))
+          .reorder(nil)
+          .pick(Arel.sql('MIN(time)'), Arel.sql('MAX(time)'))
+        return unless first
 
-        first = local_times.min
-        last = local_times.max
-        session.end_time_local = last
-        session.start_time_local = first if first < session.start_time_local
-        session.save!
+        session.update!(start_time_local: first, end_time_local: last)
       end
     end
   end
