@@ -3968,6 +3968,107 @@ paths:
                   message:
                     type: string
   "/api/v3/mobile_sessions/{uuid}/measurements":
+    get:
+      summary: Get measurements for a mobile session
+      tags:
+      - 'Mobile app: Sessions & sync'
+      description: |
+        Returns measurements for the session, keyed by sensor_name, each an array
+        of `{ time, value, latitude, longitude }`. Defaults to the **latest 24h**
+        (anchored on the session end) for a light initial fetch; pass
+        `start_time` / `end_time` (epoch **milliseconds**) to pull any older range.
+        Optional `sensor_name` / `measurement_type` fetch a single stream.
+      parameters:
+      - name: uuid
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: Authorization
+        in: header
+        required: true
+        description: Token token=<user_token>
+        schema:
+          type: string
+      - name: sensor_name
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: measurement_type
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: start_time
+        in: query
+        required: false
+        schema:
+          type: integer
+        description: Epoch ms (defaults to end - 24h)
+      - name: end_time
+        in: query
+        required: false
+        schema:
+          type: integer
+        description: Epoch ms (defaults to session end)
+      responses:
+        '200':
+          description: measurements keyed by sensor_name
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      time:
+                        type: string
+                        description: ISO 8601 (local-as-utc)
+                      value:
+                        type: number
+                      latitude:
+                        type: number
+                        format: float
+                      longitude:
+                        type: number
+                        format: float
+                example:
+                  AirBeamMini-PM2.5:
+                  - time: '2026-08-14T11:30:00.000Z'
+                    value: 12.5
+                    latitude: 40.0
+                    longitude: -74.0
+        '404':
+          description: session not found
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - error_code
+                - message
+                properties:
+                  error_code:
+                    type: string
+                  message:
+                    type: string
+        '401':
+          description: unauthorized
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - error_code
+                - message
+                properties:
+                  error_code:
+                    type: string
+                  message:
+                    type: string
     post:
       summary: Send binary measurements for a mobile session
       tags:

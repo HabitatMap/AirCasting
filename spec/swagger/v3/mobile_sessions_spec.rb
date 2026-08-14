@@ -320,6 +320,76 @@ RSpec.describe 'AirBeam Mobile Sessions', type: :request do
   end
 
   path '/api/v3/mobile_sessions/{uuid}/measurements' do
+    get 'Get measurements for a mobile session' do
+      tags 'Mobile app: Sessions & sync'
+      produces 'application/json'
+      description <<~DESC
+        Returns measurements for the session, keyed by sensor_name, each an array
+        of `{ time, value, latitude, longitude }`. Defaults to the **latest 24h**
+        (anchored on the session end) for a light initial fetch; pass
+        `start_time` / `end_time` (epoch **milliseconds**) to pull any older range.
+        Optional `sensor_name` / `measurement_type` fetch a single stream.
+      DESC
+
+      parameter name: :uuid, in: :path, type: :string, required: true
+      parameter name: :Authorization, in: :header, type: :string, required: true,
+                description: 'Token token=<user_token>'
+      parameter name: :sensor_name, in: :query, required: false, schema: { type: :string }
+      parameter name: :measurement_type, in: :query, required: false, schema: { type: :string }
+      parameter name: :start_time, in: :query, required: false, schema: { type: :integer }, description: 'Epoch ms (defaults to end - 24h)'
+      parameter name: :end_time, in: :query, required: false, schema: { type: :integer }, description: 'Epoch ms (defaults to session end)'
+
+      response '200', 'measurements keyed by sensor_name' do
+        schema type: :object,
+               additionalProperties: {
+                 type: :array,
+                 items: {
+                   type: :object,
+                   properties: {
+                     time: { type: :string, description: 'ISO 8601 (local-as-utc)' },
+                     value: { type: :number },
+                     latitude: { type: :number, format: :float },
+                     longitude: { type: :number, format: :float },
+                   },
+                 },
+               },
+               example: {
+                 'AirBeamMini-PM2.5' => [
+                   { time: '2026-08-14T11:30:00.000Z', value: 12.5, latitude: 40.0, longitude: -74.0 },
+                 ],
+               }
+
+        let(:user) { create(:user) }
+        let(:Authorization) { "Token token=#{user.authentication_token}" }
+        let(:session_record) do
+          create(:mobile_session, user: user, time_zone: 'UTC', end_time_local: Time.utc(2026, 8, 14, 12, 0, 0))
+        end
+        let(:uuid) { session_record.uuid }
+        before do
+          stream = create(:stream, session: session_record, sensor_name: 'AirBeamMini-PM2.5')
+          stream.build_measurements!([{ time: Time.utc(2026, 8, 14, 11, 30, 0), value: 12.5, latitude: 40.0, longitude: -74.0 }])
+          sign_in user
+        end
+        run_test!
+      end
+
+      response '404', 'session not found' do
+        schema ERROR_SCHEMA
+        let(:user) { create(:user) }
+        let(:Authorization) { "Token token=#{user.authentication_token}" }
+        let(:uuid) { 'does-not-exist' }
+        before { sign_in user }
+        run_test!
+      end
+
+      response '401', 'unauthorized' do
+        schema ERROR_SCHEMA
+        let(:uuid) { 'any-uuid' }
+        let(:Authorization) { 'Token token=invalid' }
+        run_test!
+      end
+    end
+
     post 'Send binary measurements for a mobile session' do
       tags 'Mobile app: Sessions & sync'
       consumes 'application/octet-stream'
