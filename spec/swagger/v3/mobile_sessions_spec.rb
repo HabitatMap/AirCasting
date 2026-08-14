@@ -414,6 +414,47 @@ RSpec.describe 'AirBeam Mobile Sessions', type: :request do
         run_test!
       end
     end
+
+    delete 'Delete a mobile session' do
+      tags 'Mobile app: Sessions & sync'
+      consumes 'application/json'
+      produces 'application/json'
+      description <<~DESC
+        Deletes one of the caller's mobile sessions. Cascades its streams,
+        measurements and notes, and records a tombstone so other devices can drop
+        the session (the list endpoint also reflects the deletion by absence).
+        Returns 204 No Content.
+      DESC
+
+      parameter name: :uuid, in: :path, type: :string, required: true
+      parameter name: :Authorization, in: :header, type: :string, required: true,
+                description: 'Token token=<user_token>'
+
+      response '204', 'deleted' do
+        let(:user) { create(:user) }
+        let(:Authorization) { "Token token=#{user.authentication_token}" }
+        let(:session_record) { create(:mobile_session, user: user) }
+        let(:uuid) { session_record.uuid }
+        before { sign_in user }
+        run_test!
+      end
+
+      response '404', 'session not found' do
+        schema ERROR_SCHEMA
+        let(:user) { create(:user) }
+        let(:Authorization) { "Token token=#{user.authentication_token}" }
+        let(:uuid) { 'does-not-exist' }
+        before { sign_in user }
+        run_test!
+      end
+
+      response '401', 'unauthorized' do
+        schema ERROR_SCHEMA
+        let(:uuid) { 'any-uuid' }
+        let(:Authorization) { 'Token token=invalid' }
+        run_test!
+      end
+    end
   end
 
   path '/api/v3/mobile_sessions/{uuid}/measurements' do
