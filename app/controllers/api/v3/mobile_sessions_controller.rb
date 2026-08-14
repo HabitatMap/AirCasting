@@ -14,29 +14,15 @@ module Api
       end
 
       def show
-        session = current_user
-          .mobile_sessions
-          .includes(:device, :tags, streams: :threshold_set)
-          .find_by(uuid: params[:uuid])
+        session = find_owned_session
+        return session_not_found unless session
 
-        unless session
-          return render json: {
-            error_code: ErrorCodes::SESSION_NOT_FOUND,
-            message: 'Session not found',
-          }, status: :not_found
-        end
-
-        render json: ::MobileSessions::SessionSerializer.new.call(session), status: :ok
+        render json: serialize(session), status: :ok
       end
 
       def update
         session = current_user.mobile_sessions.find_by(uuid: params[:uuid])
-        unless session
-          return render json: {
-            error_code: ErrorCodes::SESSION_NOT_FOUND,
-            message: 'Session not found',
-          }, status: :not_found
-        end
+        return session_not_found unless session
 
         contract = Api::UpdateMobileSessionContract.new.call(
           params.to_unsafe_h.deep_symbolize_keys,
@@ -51,7 +37,7 @@ module Api
 
         result = ::MobileSessions::Updater.new.call(session: session, data: contract.to_h)
         if result.success?
-          render json: ::MobileSessions::SessionSerializer.new.call(result.value[:session].reload), status: :ok
+          render json: serialize(find_owned_session), status: :ok
         else
           render json: result.errors, status: :bad_request
         end
@@ -59,12 +45,7 @@ module Api
 
       def destroy
         session = current_user.mobile_sessions.find_by(uuid: params[:uuid])
-        unless session
-          return render json: {
-            error_code: ErrorCodes::SESSION_NOT_FOUND,
-            message: 'Session not found',
-          }, status: :not_found
-        end
+        return session_not_found unless session
 
         # Cascades streams/measurements/notes and writes a deleted_sessions
         # tombstone (Session#after_destroy).
@@ -99,6 +80,26 @@ module Api
         else
           render json: result.errors, status: :bad_request
         end
+      end
+
+      private
+
+      def find_owned_session
+        current_user
+          .mobile_sessions
+          .includes(:device, :tags, streams: :threshold_set)
+          .find_by(uuid: params[:uuid])
+      end
+
+      def session_not_found
+        render json: {
+          error_code: ErrorCodes::SESSION_NOT_FOUND,
+          message: 'Session not found',
+        }, status: :not_found
+      end
+
+      def serialize(session)
+        ::MobileSessions::SessionSerializer.new.call(session)
       end
     end
   end

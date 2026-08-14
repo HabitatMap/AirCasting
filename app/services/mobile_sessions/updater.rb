@@ -10,7 +10,7 @@ module MobileSessions
         session.title = data[:title] if data.key?(:title)
         session.tag_list = SessionBuilder.normalize_tags(data[:tag_list]) if data.key?(:tag_list)
         update_device(session, data[:airbeam]) if data.key?(:airbeam)
-        delete_flagged_streams(session, data[:streams]) if data[:streams]
+        delete_flagged_streams(session, data[:streams]) if data.key?(:streams)
         reconcile_notes(session, data[:notes]) if data.key?(:notes)
         session.version = session.version.to_i + 1
         session.save!
@@ -18,13 +18,17 @@ module MobileSessions
 
       Success.new(session: session)
     rescue ActiveRecord::RecordInvalid => e
-      Failure.new(error_code: ErrorCodes::INTERNAL_ERROR, message: e.message)
+      # The invalid data came from the client payload (note/device/stream fields),
+      # so this is a validation error, not an internal one.
+      Failure.new(error_code: ErrorCodes::VALIDATION_ERROR, message: e.message)
     end
 
     private
 
     def update_device(session, airbeam)
       return if airbeam.blank?
+      # Nothing to attach to: no existing device and no mac_address to identify one.
+      return if airbeam[:mac_address].blank? && session.device.nil?
 
       device =
         if session.device && (airbeam[:mac_address].blank? || session.device.mac_address == airbeam[:mac_address])
