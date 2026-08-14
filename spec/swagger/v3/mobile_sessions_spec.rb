@@ -22,6 +22,78 @@ RSpec.describe 'AirBeam Mobile Sessions', type: :request do
   }.freeze
 
   path '/api/v3/mobile_sessions' do
+    get "List the signed-in user's mobile sessions" do
+      tags 'Mobile app: Sessions & sync'
+      produces 'application/json'
+      description <<~DESC
+        Returns the authenticated user's own mobile sessions — metadata and
+        per-stream aggregates, **no measurements**. Ownership is implicit from the
+        token. Returns the full authoritative set by default, so the client can
+        treat a locally-known session that is absent here as deleted; pass
+        `page` / `per_page` to paginate the rare heavy account.
+      DESC
+
+      parameter name: :Authorization, in: :header, type: :string, required: true,
+                description: 'Token token=<user_token>'
+      parameter name: :page, in: :query, required: false, schema: { type: :integer }, description: '1-based page (with per_page)'
+      parameter name: :per_page, in: :query, required: false, schema: { type: :integer }, description: 'Page size; omit for the full set'
+
+      response '200', 'sessions' do
+        schema type: :array, items: {
+          type: :object,
+          properties: {
+            id: { type: :integer },
+            uuid: { type: :string },
+            title: { type: :string },
+            type: { type: :string, example: 'MobileSession' },
+            tag_list: { type: :string },
+            contribute: { type: :boolean },
+            start_time_local: { type: :string },
+            end_time_local: { type: :string },
+            version: { type: :integer },
+            latitude: { type: :number, format: :float, nullable: true },
+            longitude: { type: :number, format: :float, nullable: true },
+            airbeam: {
+              type: :object, nullable: true,
+              properties: {
+                mac_address: { type: :string },
+                model: { type: :string },
+                name: { type: :string, nullable: true },
+              },
+            },
+            streams: {
+              type: :object,
+              description: 'Keyed by sensor_name; aggregates only',
+              additionalProperties: { type: :object, additionalProperties: true },
+              example: {
+                'AirBeamMini-PM2.5' => {
+                  id: 123, sensor_name: 'AirBeamMini-PM2.5', measurement_type: 'Particulate Matter',
+                  unit_symbol: 'µg/m³', measurements_count: 1440, average_value: 12.5,
+                  min_latitude: 40.70, max_latitude: 40.75, min_longitude: -74.02, max_longitude: -73.98,
+                  threshold_low: 9, threshold_medium: 35, threshold_high: 55, threshold_very_high: 150, threshold_very_low: 0
+                },
+              },
+            },
+          },
+        }
+
+        let(:user) { create(:user) }
+        let(:Authorization) { "Token token=#{user.authentication_token}" }
+        before do
+          session = create(:mobile_session, user: user)
+          create(:stream, session: session, sensor_name: 'AirBeamMini-PM2.5')
+          sign_in user
+        end
+        run_test!
+      end
+
+      response '401', 'unauthorized' do
+        schema ERROR_SCHEMA
+        let(:Authorization) { 'Token token=invalid' }
+        run_test!
+      end
+    end
+
     post 'Create a mobile session' do
       tags 'Mobile app: Sessions & sync'
       consumes 'application/json'
