@@ -29,6 +29,34 @@ module Api
         render json: ::MobileSessions::SessionSerializer.new.call(session), status: :ok
       end
 
+      def update
+        session = current_user.mobile_sessions.find_by(uuid: params[:uuid])
+        unless session
+          return render json: {
+            error_code: ErrorCodes::SESSION_NOT_FOUND,
+            message: 'Session not found',
+          }, status: :not_found
+        end
+
+        contract = Api::UpdateMobileSessionContract.new.call(
+          params.to_unsafe_h.deep_symbolize_keys,
+        )
+        if contract.failure?
+          return render json: {
+            error_code: ErrorCodes::VALIDATION_ERROR,
+            message: 'Request body is invalid',
+            fields: contract.errors.to_h,
+          }, status: :bad_request
+        end
+
+        result = ::MobileSessions::Updater.new.call(session: session, data: contract.to_h)
+        if result.success?
+          render json: ::MobileSessions::SessionSerializer.new.call(result.value[:session].reload), status: :ok
+        else
+          render json: result.errors, status: :bad_request
+        end
+      end
+
       def create
         contract = Api::CreateMobileSessionContract.new.call(
           params.to_unsafe_h.deep_symbolize_keys,

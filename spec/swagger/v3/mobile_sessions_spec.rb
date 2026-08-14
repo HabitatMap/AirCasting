@@ -317,6 +317,103 @@ RSpec.describe 'AirBeam Mobile Sessions', type: :request do
         run_test!
       end
     end
+
+    patch 'Update a mobile session' do
+      tags 'Mobile app: Sessions & sync'
+      consumes 'application/json'
+      produces 'application/json'
+      description <<~DESC
+        Partial update of a mobile session: any subset of `title`, `tag_list`,
+        `notes`, `streams` (to delete), and `airbeam` (device) info. Only the
+        provided fields change. Streams flagged `deleted: true` are removed. The
+        `airbeam` object adds a device when the session has none, updates
+        `model`/`name` on the current device, or swaps to another by `mac_address`.
+        Bumps the session `version` and returns the updated session.
+      DESC
+
+      parameter name: :uuid, in: :path, type: :string, required: true
+      parameter name: :Authorization, in: :header, type: :string, required: true,
+                description: 'Token token=<user_token>'
+      parameter name: :body, in: :body, required: true, schema: {
+        type: :object,
+        properties: {
+          title: { type: :string, example: 'Renamed ride' },
+          tag_list: { type: :string, example: 'commute, bike' },
+          notes: {
+            type: :array,
+            items: {
+              type: :object,
+              required: %w[number],
+              properties: {
+                number: { type: :integer },
+                text: { type: :string },
+                date: { type: :string, description: 'ISO 8601 (required for new notes)' },
+                latitude: { type: :number, format: :float },
+                longitude: { type: :number, format: :float },
+              },
+            },
+          },
+          streams: {
+            type: :array,
+            description: 'Streams to delete (flag deleted: true)',
+            items: {
+              type: :object,
+              required: %w[sensor_name],
+              properties: {
+                sensor_name: { type: :string, example: 'AirBeamMini-PM1' },
+                sensor_package_name: { type: :string },
+                deleted: { type: :boolean, example: true },
+              },
+            },
+          },
+          airbeam: {
+            type: :object,
+            properties: {
+              mac_address: { type: :string, example: 'AA:BB:CC:DD:EE:FF' },
+              model: { type: :string, example: 'AirBeamMini' },
+              name: { type: :string, nullable: true, example: 'Backpack' },
+            },
+          },
+        },
+      }
+
+      response '200', 'updated session' do
+        schema type: :object, properties: {
+          uuid: { type: :string },
+          title: { type: :string },
+          version: { type: :integer },
+          tag_list: { type: :string },
+          airbeam: { type: :object, nullable: true, additionalProperties: true },
+          streams: { type: :object, additionalProperties: { type: :object, additionalProperties: true } },
+        }
+
+        let(:user) { create(:user) }
+        let(:Authorization) { "Token token=#{user.authentication_token}" }
+        let(:session_record) { create(:mobile_session, user: user) }
+        let(:uuid) { session_record.uuid }
+        let(:body) { { title: 'Renamed ride', airbeam: { mac_address: 'AA:BB:CC:DD:EE:FF', model: 'AirBeamMini', name: 'Backpack' } } }
+        before { sign_in user }
+        run_test!
+      end
+
+      response '404', 'session not found' do
+        schema ERROR_SCHEMA
+        let(:user) { create(:user) }
+        let(:Authorization) { "Token token=#{user.authentication_token}" }
+        let(:uuid) { 'does-not-exist' }
+        let(:body) { { title: 'x' } }
+        before { sign_in user }
+        run_test!
+      end
+
+      response '401', 'unauthorized' do
+        schema ERROR_SCHEMA
+        let(:uuid) { 'any-uuid' }
+        let(:Authorization) { 'Token token=invalid' }
+        let(:body) { { title: 'x' } }
+        run_test!
+      end
+    end
   end
 
   path '/api/v3/mobile_sessions/{uuid}/measurements' do
