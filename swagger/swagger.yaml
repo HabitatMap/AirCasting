@@ -3744,6 +3744,112 @@ paths:
                   - sensor_name: AirBeamMini-PM2.5
                     unit_symbol: µg/m³
         required: true
+  "/api/v3/mobile_sessions/{uuid}/measurements":
+    post:
+      summary: Send binary measurements for a mobile session
+      tags:
+      - 'Mobile app: Sessions & sync'
+      description: |
+        Uploads AirBeam mobile measurements as a binary payload. Authenticated with
+        the **user token** (no per-session token). Can be called live during a
+        recording or in bulk to sync measurements the AirBeam delivered late.
+
+        ## Binary Format
+
+        Each frame extends the fixed frame with per-point location. **No
+        milliseconds** — mobile records at interval sampling (1s / 5s / 1 / 5 / 10 min).
+
+        ```
+        Offset     Size  Type         Description
+        0          2     uint8[2]     Magic bytes: 0xAB 0xBA
+        2          2     uint16 BE    Measurement count N
+        --- repeated N times (25 bytes each) ---
+        +0         4     uint32 BE    Unix timestamp (seconds, UTC)
+        +4         1     uint8        sensor_type_id (from session creation)
+        +5         4     float32 BE   Sensor value
+        +9         8     float64 BE   Latitude
+        +17        8     float64 BE   Longitude
+        --- end repeat ---
+        4+N*25     1     uint8        XOR checksum of all preceding bytes
+        ```
+
+        On ingest the session's start/end are refined from the measurement bounds
+        and the stream aggregates (bounding box, average, start coordinates) are
+        recomputed. An empty body returns 200 (reads server time from `X-Server-Time`).
+
+        ## Error Codes
+
+        | `error_code` | HTTP | Description |
+        |---|---|---|
+        | `unauthorized` | 401 | Missing or invalid `Authorization` token |
+        | `session_not_found` | 404 | No mobile session with the given UUID for this user |
+        | `payload_too_short` / `invalid_magic_bytes` / `empty_measurement_count` / `payload_size_mismatch` / `invalid_checksum` / `invalid_epoch` / `invalid_value` / `invalid_location` | 400 | Malformed payload |
+      parameters:
+      - name: uuid
+        in: path
+        required: true
+        description: Session UUID (same as used in session creation)
+        schema:
+          type: string
+      - name: Authorization
+        in: header
+        required: true
+        description: Token token=<user_token>
+        schema:
+          type: string
+      responses:
+        '200':
+          description: measurements stored (or empty body time-sync)
+        '400':
+          description: invalid payload
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - error_code
+                - message
+                properties:
+                  error_code:
+                    type: string
+                  message:
+                    type: string
+        '404':
+          description: session not found
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - error_code
+                - message
+                properties:
+                  error_code:
+                    type: string
+                  message:
+                    type: string
+        '401':
+          description: unauthorized
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - error_code
+                - message
+                properties:
+                  error_code:
+                    type: string
+                  message:
+                    type: string
+      requestBody:
+        content:
+          application/octet-stream:
+            schema:
+              type: string
+              format: binary
+              description: Binary payload as described above
+        required: true
   "/api/v3/station_streams/{id}":
     get:
       summary: Station stream detail (government, new model)
