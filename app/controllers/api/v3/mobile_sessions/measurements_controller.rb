@@ -7,18 +7,27 @@ module Api
         before_action :authenticate_user_from_token!
         before_action :authenticate_user!
 
+        def index
+          session = find_session
+          return session_not_found unless session
+
+          data = ::MobileSessions::MeasurementsQuery.new(
+            session: session,
+            sensor_name: params[:sensor_name],
+            measurement_type: params[:measurement_type],
+            start_time: params[:start_time],
+            end_time: params[:end_time],
+          ).call
+
+          render json: data, status: :ok
+        end
+
         def create
           binary = request.body.read
           return head :ok if binary.empty?
 
-          session = current_user.mobile_sessions.find_by(uuid: params[:mobile_session_uuid])
-
-          unless session
-            return render json: {
-              error_code: ErrorCodes::SESSION_NOT_FOUND,
-              message: 'Session not found',
-            }, status: :not_found
-          end
+          session = find_session
+          return session_not_found unless session
 
           result = ::MobileSessions::BinaryProtocol::Ingester.new.call(
             session: session,
@@ -33,6 +42,17 @@ module Api
         end
 
         private
+
+        def find_session
+          current_user.mobile_sessions.find_by(uuid: params[:mobile_session_uuid])
+        end
+
+        def session_not_found
+          render json: {
+            error_code: ErrorCodes::SESSION_NOT_FOUND,
+            message: 'Session not found',
+          }, status: :not_found
+        end
 
         def with_server_time_header
           yield

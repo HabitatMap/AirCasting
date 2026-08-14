@@ -120,7 +120,7 @@ Rails.application.routes.draw do
         resources :measurements, only: %i[create], module: :fixed_sessions
       end
       resources :mobile_sessions, only: %i[index show create], param: :uuid do
-        resources :measurements, only: %i[create], module: :mobile_sessions
+        resources :measurements, only: %i[index create], module: :mobile_sessions
       end
     end
 
