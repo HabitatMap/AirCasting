@@ -13,6 +13,22 @@ module Api
         ).call, status: :ok
       end
 
+      def show
+        session = current_user
+          .mobile_sessions
+          .includes(:device, :tags, streams: :threshold_set)
+          .find_by(uuid: params[:uuid])
+
+        unless session
+          return render json: {
+            error_code: ErrorCodes::SESSION_NOT_FOUND,
+            message: 'Session not found',
+          }, status: :not_found
+        end
+
+        render json: ::MobileSessions::SessionSerializer.new.call(session), status: :ok
+      end
+
       def create
         contract = Api::CreateMobileSessionContract.new.call(
           params.to_unsafe_h.deep_symbolize_keys,

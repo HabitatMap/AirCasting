@@ -241,6 +241,84 @@ RSpec.describe 'AirBeam Mobile Sessions', type: :request do
     end
   end
 
+  path '/api/v3/mobile_sessions/{uuid}' do
+    get 'Get one of the signed-in user\'s mobile sessions' do
+      tags 'Mobile app: Sessions & sync'
+      produces 'application/json'
+      description <<~DESC
+        Returns a single mobile session owned by the authenticated user — metadata
+        and per-stream aggregates, **no measurements** (fetch those from the
+        `/measurements` path). Same shape as one element of the list endpoint.
+      DESC
+
+      parameter name: :uuid, in: :path, type: :string, required: true
+      parameter name: :Authorization, in: :header, type: :string, required: true,
+                description: 'Token token=<user_token>'
+
+      response '200', 'session' do
+        schema type: :object,
+               properties: {
+                 id: { type: :integer },
+                 uuid: { type: :string },
+                 title: { type: :string },
+                 type: { type: :string, example: 'MobileSession' },
+                 tag_list: { type: :string },
+                 contribute: { type: :boolean },
+                 start_time_local: { type: :string },
+                 end_time_local: { type: :string },
+                 version: { type: :integer },
+                 latitude: { type: :number, format: :float, nullable: true },
+                 longitude: { type: :number, format: :float, nullable: true },
+                 airbeam: {
+                   type: :object, nullable: true,
+                   properties: {
+                     mac_address: { type: :string },
+                     model: { type: :string },
+                     name: { type: :string, nullable: true },
+                   },
+                 },
+                 streams: {
+                   type: :object,
+                   description: 'Keyed by sensor_name; aggregates only',
+                   additionalProperties: { type: :object, additionalProperties: true },
+                   example: {
+                     'AirBeamMini-PM2.5' => {
+                       id: 123, sensor_name: 'AirBeamMini-PM2.5', measurement_type: 'Particulate Matter',
+                       unit_symbol: 'µg/m³', measurements_count: 1440, average_value: 12.5,
+                     },
+                   },
+                 },
+               }
+
+        let(:user) { create(:user) }
+        let(:Authorization) { "Token token=#{user.authentication_token}" }
+        let(:session_record) { create(:mobile_session, user: user) }
+        let(:uuid) { session_record.uuid }
+        before do
+          create(:stream, session: session_record, sensor_name: 'AirBeamMini-PM2.5')
+          sign_in user
+        end
+        run_test!
+      end
+
+      response '404', 'session not found' do
+        schema ERROR_SCHEMA
+        let(:user) { create(:user) }
+        let(:Authorization) { "Token token=#{user.authentication_token}" }
+        let(:uuid) { 'does-not-exist' }
+        before { sign_in user }
+        run_test!
+      end
+
+      response '401', 'unauthorized' do
+        schema ERROR_SCHEMA
+        let(:uuid) { 'any-uuid' }
+        let(:Authorization) { 'Token token=invalid' }
+        run_test!
+      end
+    end
+  end
+
   path '/api/v3/mobile_sessions/{uuid}/measurements' do
     post 'Send binary measurements for a mobile session' do
       tags 'Mobile app: Sessions & sync'
