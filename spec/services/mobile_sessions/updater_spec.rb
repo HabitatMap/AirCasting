@@ -52,7 +52,43 @@ RSpec.describe MobileSessions::Updater do
     expect(notes.find { |n| n.number == 1 }.text).to eq('updated')
   end
 
+  it 'starts version at 1 when it was nil' do
+    session.update_column(:version, nil)
+    updater.call(session: session, data: { title: 'x' })
+    expect(session.reload.version).to eq(1)
+  end
+
+  it 'wipes all notes when an empty notes array is sent (declarative-full)' do
+    create(:note, session: session, number: 1)
+    updater.call(session: session, data: { notes: [] })
+    expect(session.reload.notes).to be_empty
+  end
+
+  it 'returns a validation failure (not a raise) for a new note missing required fields' do
+    result = updater.call(session: session, data: { notes: [{ number: 5, text: 'no coords/date' }] })
+    expect(result).to be_failure
+    expect(result.errors[:error_code]).to eq('validation_error')
+  end
+
   describe 'airbeam (device) info' do
+    it 'is a no-op when the session has no device and no mac_address is given' do
+      session.update!(device: nil)
+
+      result = updater.call(session: session, data: { airbeam: { name: 'Backpack' } })
+
+      expect(result).to be_success
+      expect(session.reload.device).to be_nil
+    end
+
+    it 'returns a validation failure when attaching a new device without a model' do
+      session.update!(device: nil)
+
+      result = updater.call(session: session, data: { airbeam: { mac_address: 'AA:BB:CC:DD:EE:99' } })
+
+      expect(result).to be_failure
+      expect(result.errors[:error_code]).to eq('validation_error')
+    end
+
     it 'attaches a device when the session has none' do
       session.update!(device: nil)
 

@@ -55,4 +55,29 @@ RSpec.describe MobileSessions::MeasurementsQuery do
     times = result['AirBeamMini-PM2.5'].map { |p| p[:time] }
     expect(times).to eq(times.sort)
   end
+
+  context 'with a non-UTC session time zone (local-as-utc round trip via the ingester)' do
+    let(:ny_session) do
+      create(:mobile_session, user: user, time_zone: 'America/New_York',
+                              end_time_local: Time.utc(2026, 8, 14, 8, 0, 0))
+    end
+    let!(:ny_stream) do
+      create(:stream, session: ny_session, sensor_name: 'AirBeamMini-PM2.5', sensor_type_id: 2)
+    end
+
+    before do
+      # epoch 10:00 UTC = 06:00 America/New_York; the ingester stores it local-as-utc (06:00Z)
+      frame = [Time.utc(2026, 8, 14, 10, 0, 0).to_i, 2, 12.5, 40.0, -74.0].pack('NCgGG')
+      body = ["\xAB\xBA", 1].pack('a2n') + frame
+      binary = body + [body.bytes.inject(0, :^)].pack('C')
+      MobileSessions::BinaryProtocol::Ingester.new.call(session: ny_session, binary: binary)
+    end
+
+    it 'returns the point in the session-local domain within the default 24h window' do
+      points = described_class.new(session: ny_session).call['AirBeamMini-PM2.5']
+
+      expect(points.size).to eq(1)
+      expect(points.first[:time]).to eq(Time.utc(2026, 8, 14, 6, 0, 0)) # 06:00 local-as-utc
+    end
+  end
 end
