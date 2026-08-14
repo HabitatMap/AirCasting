@@ -4105,6 +4105,58 @@ paths:
                       nullable: true
                       example: Backpack
         required: true
+    delete:
+      summary: Delete a mobile session
+      tags:
+      - 'Mobile app: Sessions & sync'
+      description: |
+        Deletes one of the caller's mobile sessions. Cascades its streams,
+        measurements and notes, and records a tombstone so other devices can drop
+        the session (the list endpoint also reflects the deletion by absence).
+        Returns 204 No Content.
+      parameters:
+      - name: uuid
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: Authorization
+        in: header
+        required: true
+        description: Token token=<user_token>
+        schema:
+          type: string
+      responses:
+        '204':
+          description: deleted
+        '404':
+          description: session not found
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - error_code
+                - message
+                properties:
+                  error_code:
+                    type: string
+                  message:
+                    type: string
+        '401':
+          description: unauthorized
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - error_code
+                - message
+                properties:
+                  error_code:
+                    type: string
+                  message:
+                    type: string
   "/api/v3/mobile_sessions/{uuid}/measurements":
     get:
       summary: Get measurements for a mobile session

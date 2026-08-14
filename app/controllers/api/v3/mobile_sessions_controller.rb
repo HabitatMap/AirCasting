@@ -57,6 +57,21 @@ module Api
         end
       end
 
+      def destroy
+        session = current_user.mobile_sessions.find_by(uuid: params[:uuid])
+        unless session
+          return render json: {
+            error_code: ErrorCodes::SESSION_NOT_FOUND,
+            message: 'Session not found',
+          }, status: :not_found
+        end
+
+        # Cascades streams/measurements/notes and writes a deleted_sessions
+        # tombstone (Session#after_destroy).
+        session.destroy!
+        head :no_content
+      end
+
       def create
         contract = Api::CreateMobileSessionContract.new.call(
           params.to_unsafe_h.deep_symbolize_keys,
