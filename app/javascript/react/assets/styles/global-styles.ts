@@ -32,7 +32,7 @@ const GlobalStyles = createGlobalStyle`
 
   body, button {
     box-sizing: border-box;
-    font-family: 'Roboto';
+    font-family: 'Roboto', sans-serif;
     line-height: 1;
   }
 
