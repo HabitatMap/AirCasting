@@ -75,6 +75,13 @@ module FixedSessions
       )
     rescue ActiveRecord::RecordInvalid, ActiveRecord::RecordNotFound => e
       Failure.new(error_code: BinaryProtocol::ErrorCodes::INTERNAL_ERROR, message: e.message)
+    rescue ActiveRecord::RecordNotUnique
+      # Backstop for a constraint the contract should have caught (today: one
+      # stream per sensor type). Deliberately generic — no raw database text.
+      Failure.new(
+        error_code: BinaryProtocol::ErrorCodes::VALIDATION_ERROR,
+        message: 'Request conflicts with an existing record',
+      )
     end
 
     private

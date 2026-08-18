@@ -14,8 +14,8 @@ RSpec.describe 'AirBeamMini Fixed Sessions Binary Flow', type: :request do
     required: %w[error_code message],
     properties: {
       error_code: { type: :string },
-      message: { type: :string },
-    },
+      message: { type: :string }
+    }
   }.freeze
 
   path '/api/v3/fixed_sessions' do
@@ -58,12 +58,13 @@ RSpec.describe 'AirBeamMini Fixed Sessions Binary Flow', type: :request do
           latitude: { type: :number, format: :float, example: 40.7128 },
           longitude: { type: :number, format: :float, example: -74.0060 },
           contribute: { type: :boolean, example: true },
-          is_indoor: { type: :boolean, nullable: true, example: false, description: 'Whether the sensor is deployed indoors. Defaults to false when omitted.' },
+          is_indoor: { type: :boolean, nullable: true, example: false,
+                       description: 'Whether the sensor is deployed indoors. Defaults to false when omitted.' },
           time_zone: {
             type: :string,
             nullable: true,
             example: 'America/New_York',
-            description: 'IANA time zone identifier of the sensor location. Required for indoor sessions, which send placeholder coordinates (200, 200); used to convert UTC measurement timestamps to local time for display. When omitted, the time zone is derived from latitude/longitude.',
+            description: 'IANA time zone identifier of the sensor location. Required for indoor sessions, which send placeholder coordinates (200, 200); used to convert UTC measurement timestamps to local time for display. When omitted, the time zone is derived from latitude/longitude.'
           },
           airbeam: {
             type: :object,
@@ -71,8 +72,8 @@ RSpec.describe 'AirBeamMini Fixed Sessions Binary Flow', type: :request do
             properties: {
               mac_address: { type: :string, example: 'AA:BB:CC:DD:EE:FF' },
               model: { type: :string, example: 'AirBeamMini' },
-              name: { type: :string, nullable: true, example: 'Roof sensor' },
-            },
+              name: { type: :string, nullable: true, example: 'Roof sensor' }
+            }
           },
           streams: {
             type: :array,
@@ -84,21 +85,21 @@ RSpec.describe 'AirBeamMini Fixed Sessions Binary Flow', type: :request do
                 sensor_name: {
                   type: :string,
                   description: 'Sensor name as reported by the device (e.g. AirBeamMini-PM1, AirBeamMini-PM2.5)',
-                  example: 'AirBeamMini-PM2.5',
+                  example: 'AirBeamMini-PM2.5'
                 },
                 unit_symbol: {
                   type: :string,
                   description: 'Unit symbol for this sensor (e.g. µg/m³, %, F)',
-                  example: 'µg/m³',
-                },
-              },
+                  example: 'µg/m³'
+                }
+              }
             },
             example: [
               { sensor_name: 'AirBeamMini-PM1', unit_symbol: 'µg/m³' },
-              { sensor_name: 'AirBeamMini-PM2.5', unit_symbol: 'µg/m³' },
-            ],
-          },
-        },
+              { sensor_name: 'AirBeamMini-PM2.5', unit_symbol: 'µg/m³' }
+            ]
+          }
+        }
       }
 
       response '201', 'session created' do
@@ -108,17 +109,17 @@ RSpec.describe 'AirBeamMini Fixed Sessions Binary Flow', type: :request do
                  location: {
                    type: :string,
                    example: 'http://aircasting.org/s/ab12c',
-                   description: 'LEGACY alias of `share_url`, read by shipped app versions. Kept indefinitely; new clients should use `share_url`.',
+                   description: 'LEGACY alias of `share_url`, read by shipped app versions. Kept indefinitely; new clients should use `share_url`.'
                  },
                  share_url: {
                    type: :string,
                    example: 'http://aircasting.org/s/ab12c',
-                   description: 'Shareable session link (`<host>/s/<token>`). Append `?sensor_name=<stream>` before sharing — the link only resolves with that query parameter.',
+                   description: 'Shareable session link (`<host>/s/<token>`). Append `?sensor_name=<stream>` before sharing — the link only resolves with that query parameter.'
                  },
                  session_token: {
                    type: :string,
                    description: 'Bearer token for AirBeam measurement uploads. The mobile app passes this to the AirBeam over BLE after session creation.',
-                   example: 'a3f2c1d4e5b6a7f8c9d0e1f2a3b4c5d6',
+                   example: 'a3f2c1d4e5b6a7f8c9d0e1f2a3b4c5d6'
                  },
                  streams: {
                    type: :array,
@@ -130,11 +131,11 @@ RSpec.describe 'AirBeamMini Fixed Sessions Binary Flow', type: :request do
                        sensor_type_id: {
                          type: :integer,
                          description: 'Compact numeric ID used by the AirBeam in the binary upload format to identify this stream',
-                         example: 2,
-                       },
-                     },
-                   },
-                 },
+                         example: 2
+                       }
+                     }
+                   }
+                 }
                }
 
         before(:all) do
@@ -159,8 +160,8 @@ RSpec.describe 'AirBeamMini Fixed Sessions Binary Flow', type: :request do
             airbeam: { mac_address: 'AA:BB:CC:DD:EE:FF', model: 'AirBeamMini' },
             streams: [
               { sensor_name: 'AirBeamMini-PM1', unit_symbol: 'µg/m³' },
-              { sensor_name: 'AirBeamMini-PM2.5', unit_symbol: 'µg/m³' },
-            ],
+              { sensor_name: 'AirBeamMini-PM2.5', unit_symbol: 'µg/m³' }
+            ]
           }
         end
 
@@ -178,8 +179,8 @@ RSpec.describe 'AirBeamMini Fixed Sessions Binary Flow', type: :request do
                  fields: {
                    type: :object,
                    description: 'Per-field validation errors',
-                   additionalProperties: { type: :array, items: { type: :string } },
-                 },
+                   additionalProperties: { type: :array, items: { type: :string } }
+                 }
                }
 
         let(:user) { create(:user) }
@@ -258,7 +259,7 @@ RSpec.describe 'AirBeamMini Fixed Sessions Binary Flow', type: :request do
       parameter name: :body, in: :body, required: true, schema: {
         type: :string,
         format: :binary,
-        description: 'Binary payload as described in the endpoint description',
+        description: 'Binary payload as described in the endpoint description'
       }
 
       response '200', 'measurements stored (or empty body time-sync)' do
@@ -268,7 +269,7 @@ RSpec.describe 'AirBeamMini Fixed Sessions Binary Flow', type: :request do
           @threshold_set = ThresholdSet.find_or_create_by!(
             sensor_name: 'AirBeam-PM2.5', unit_symbol: 'µg/m³', is_default: true,
             threshold_very_low: 0, threshold_low: 9, threshold_medium: 35,
-            threshold_high: 55, threshold_very_high: 150,
+            threshold_high: 55, threshold_very_high: 150
           )
           @stream = Stream.create!(
             session: @session,
@@ -283,7 +284,7 @@ RSpec.describe 'AirBeamMini Fixed Sessions Binary Flow', type: :request do
             min_latitude: 40.7128,
             max_latitude: 40.7128,
             min_longitude: -74.006,
-            max_longitude: -74.006,
+            max_longitude: -74.006
           )
         end
 

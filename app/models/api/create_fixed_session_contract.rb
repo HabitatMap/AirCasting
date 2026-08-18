@@ -40,6 +40,11 @@ module Api
     end
 
     rule(:streams) do
+      # A session holds at most one stream per sensor type (unique index on
+      # streams.session_id + sensor_type_id), and the AirBeam addresses streams
+      # by that id in the binary upload — two of one type would be unaddressable.
+      seen = {}
+
       value.each_with_index do |stream, i|
         canonical = Sensor.canonical_sensor_name(stream[:sensor_name])
 
@@ -47,6 +52,14 @@ module Api
           key([:streams, i, :sensor_name]).failure("'#{stream[:sensor_name]}' is not a supported sensor type")
           next
         end
+
+        if seen.key?(canonical)
+          key([:streams, i, :sensor_name]).failure(
+            "duplicates the #{canonical} stream already requested at index #{seen[canonical]}",
+          )
+          next
+        end
+        seen[canonical] = i
 
         expected_unit = Sensor::CANONICAL_UNIT_SYMBOLS[canonical]
         if stream[:unit_symbol] != expected_unit
