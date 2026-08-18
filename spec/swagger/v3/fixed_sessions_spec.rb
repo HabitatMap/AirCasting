@@ -28,17 +28,27 @@ RSpec.describe 'AirBeamMini Fixed Sessions Binary Flow', type: :request do
         before configuring the AirBeamMini. The response includes a `sensor_type_id` per
         stream that the AirBeamMini uses to identify stream types in the binary upload payload.
 
-        ## Error Codes
-
-        | `error_code` | HTTP | Description |
-        |---|---|---|
-        | `unauthorized` | 401 | Missing or invalid `Authorization` token |
-        | `validation_error` | 400 | Request body failed validation. See `fields` for per-field details |
+        `uuid` must be in canonical UUID form (what `UUID.randomUUID()` / `UUID()`
+        produce) and not already in use.
 
         Each sensor type may appear **once** per session — `AirBeamMini-PM2.5`
         and `AirBeam2-PM2.5` are the same type (`AirBeam-PM2.5`) and cannot both
         be requested. A session holds one stream per type, and the AirBeam
         addresses streams by `sensor_type_id` in the binary upload.
+
+        ## Error Codes
+
+        Same vocabulary as `POST /api/v3/mobile_sessions`: a request whose
+        **shape** is wrong answers `validation_error` with `fields`; a request
+        that conflicts with **stored state** gets its own code and no `fields`.
+
+        | `error_code` | HTTP | Description | Client should |
+        |---|---|---|---|
+        | `unauthorized` | 401 | Missing or invalid `Authorization` token | Re-authenticate |
+        | `validation_error` | 400 | Body failed validation. See `fields` | Treat as a client bug — do not retry unchanged |
+        | `session_uuid_taken` | 400 | A session with this `uuid` already exists. No `fields` | Stop retrying; the session is already created — continue with it |
+        | `unsupported_sensor_type` | 400 | A requested `sensor_name` has no known sensor type | Unrecoverable; do not retry |
+        | `internal_error` | 400 | Server could not create the session (e.g. missing default thresholds) | Retry with backoff |
       DESC
 
       parameter name: :Authorization, in: :header, type: :string, required: true,

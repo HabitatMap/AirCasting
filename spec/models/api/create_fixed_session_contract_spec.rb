@@ -5,7 +5,7 @@ RSpec.describe Api::CreateFixedSessionContract do
 
   let(:valid_params) do
     {
-      uuid: 'test-uuid-abc',
+      uuid: SecureRandom.uuid,
       title: 'Roof Session',
       latitude: 40.7128,
       longitude: -74.0060,
@@ -75,11 +75,19 @@ RSpec.describe Api::CreateFixedSessionContract do
     expect(result.errors.to_h.dig(:streams, 0, :unit_symbol)).to be_present
   end
 
-  it 'fails when the uuid is already taken (case-insensitive)' do
-    existing = create(:fixed_session)
-    result = contract.call(valid_params.merge(uuid: existing.uuid.upcase))
+  it 'leaves the already-taken uuid check to the creator (shape only here)' do
+    existing = create(:fixed_session, uuid: SecureRandom.uuid)
+    expect(contract.call(valid_params.merge(uuid: existing.uuid.upcase))).to be_success
+  end
+
+  it 'fails when uuid is not a UUID' do
+    result = contract.call(valid_params.merge(uuid: 'test-uuid-abc'))
     expect(result).to be_failure
-    expect(result.errors[:uuid]).to be_present
+    expect(result.errors[:uuid].first).to match(/must be a UUID/)
+  end
+
+  it 'accepts an uppercase UUID' do
+    expect(contract.call(valid_params.merge(uuid: SecureRandom.uuid.upcase))).to be_success
   end
 
   it 'fails when the same sensor type is requested twice' do

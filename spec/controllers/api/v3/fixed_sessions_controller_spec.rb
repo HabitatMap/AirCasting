@@ -12,7 +12,7 @@ RSpec.describe Api::V3::FixedSessionsController do
   describe 'POST #create' do
     let(:valid_params) do
       {
-        uuid: 'test-uuid-abc',
+        uuid: SecureRandom.uuid,
         title: 'Roof Session',
         latitude: 40.7128,
         longitude: -74.0060,

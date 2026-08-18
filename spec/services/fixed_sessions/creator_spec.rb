@@ -120,6 +120,33 @@ RSpec.describe FixedSessions::Creator do
       expect(result).to be_failure
     end
 
+    it 'returns session_uuid_taken when the uuid is already used (case-insensitive)' do
+      existing = create(:fixed_session)
+      result = creator.call(data: valid_params.merge(uuid: existing.uuid.upcase), user: user)
+
+      expect(result).to be_failure
+      expect(result.errors[:error_code]).to eq('session_uuid_taken')
+      expect(result.errors[:message]).to eq(described_class::UUID_TAKEN_MESSAGE)
+    end
+
+    it 'creates nothing when the uuid is taken' do
+      existing = create(:fixed_session)
+
+      expect { creator.call(data: valid_params.merge(uuid: existing.uuid), user: user) }
+        .not_to change(FixedSession, :count)
+    end
+
+    it 'maps a raced uuid (model validation) to session_uuid_taken too' do
+      allow(FixedSession).to receive(:create!) do
+        session = FixedSession.new
+        session.errors.add(:uuid, :taken)
+        raise ActiveRecord::RecordInvalid, session
+      end
+
+      result = creator.call(data: valid_params, user: user)
+      expect(result.errors[:error_code]).to eq('session_uuid_taken')
+    end
+
     it 'maps a unique-constraint violation to validation_error without leaking database text' do
       allow_any_instance_of(StreamsRepository).to receive(:create!)
         .and_raise(ActiveRecord::RecordNotUnique, 'PG::UniqueViolation: duplicate key ... idx_streams_session_sensor_type_id')

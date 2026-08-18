@@ -2,7 +2,11 @@ module FixedSessions
   class Creator
     UnknownStreamTypeError = Class.new(StandardError)
 
+    UUID_TAKEN_MESSAGE = 'A session with this uuid already exists'.freeze
+
     def call(data:, user:)
+      return uuid_taken if uuid_taken?(data[:uuid])
+
       ActiveRecord::Base.transaction do
         device = find_or_create_device(data[:airbeam])
         session = create_session(data, user, device)
@@ -11,7 +15,13 @@ module FixedSessions
       end
     rescue UnknownStreamTypeError => e
       Failure.new(error_code: BinaryProtocol::ErrorCodes::UNSUPPORTED_SENSOR_TYPE, message: e.message)
-    rescue ActiveRecord::RecordInvalid, ActiveRecord::RecordNotFound => e
+    rescue ActiveRecord::RecordInvalid => e
+      # Two creates racing on one uuid can both clear the check above; the model
+      # validation is the second line of defence (there is no unique index).
+      return uuid_taken if uuid_taken_error?(e)
+
+      Failure.new(error_code: BinaryProtocol::ErrorCodes::INTERNAL_ERROR, message: e.message)
+    rescue ActiveRecord::RecordNotFound => e
       Failure.new(error_code: BinaryProtocol::ErrorCodes::INTERNAL_ERROR, message: e.message)
     rescue ActiveRecord::RecordNotUnique
       # Backstop for a constraint the contract should have caught (today: one
@@ -23,6 +33,21 @@ module FixedSessions
     end
 
     private
+
+    def uuid_taken?(uuid)
+      uuid.present? && Session.where('LOWER(uuid) = LOWER(?)', uuid).exists?
+    end
+
+    def uuid_taken_error?(error)
+      error.record.is_a?(Session) && error.record.errors.of_kind?(:uuid, :taken)
+    end
+
+    def uuid_taken
+      Failure.new(
+        error_code: BinaryProtocol::ErrorCodes::SESSION_UUID_TAKEN,
+        message: UUID_TAKEN_MESSAGE,
+      )
+    end
 
     def find_or_create_device(airbeam_params)
       device = Device.find_or_initialize_by(mac_address: airbeam_params[:mac_address])
