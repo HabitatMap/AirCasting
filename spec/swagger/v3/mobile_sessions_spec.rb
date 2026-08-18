@@ -136,6 +136,28 @@ RSpec.describe 'AirBeam Mobile Sessions', type: :request do
         `<share_url>?sensor_name=AirBeamMini-PM2.5` — the link only resolves
         with that query parameter. It is a full URL, not a token, because the
         backend host is configurable.
+
+        ## Streams
+
+        Each sensor type may appear **once** per session — `AirBeamMini-PM2.5`
+        and `AirBeam2-PM2.5` are the same type (`AirBeam-PM2.5`) and cannot both
+        be requested. A session holds one stream per type, and the binary upload
+        addresses streams by `sensor_type_id`.
+
+        ## Error Codes
+
+        A request whose **shape** is wrong answers `validation_error` with
+        `fields`; a request that conflicts with **stored state** gets its own
+        code and no `fields`. `POST /api/v3/fixed_sessions` uses the same
+        vocabulary.
+
+        | `error_code` | HTTP | Description | Client should |
+        |---|---|---|---|
+        | `unauthorized` | 401 | Missing or invalid `Authorization` token | Re-authenticate |
+        | `validation_error` | 400 | Body failed validation. See `fields` | Treat as a client bug — do not retry unchanged |
+        | `session_uuid_taken` | 400 | A session with this `uuid` already exists. No `fields` | Stop retrying; the session is already created — continue with it |
+        | `unsupported_sensor_type` | 400 | A requested `sensor_name` has no known sensor type | Unrecoverable; do not retry |
+        | `internal_error` | 400 | Server could not create the session (e.g. missing default thresholds) | Retry with backoff |
       DESC
 
       parameter name: :Authorization, in: :header, type: :string, required: true,

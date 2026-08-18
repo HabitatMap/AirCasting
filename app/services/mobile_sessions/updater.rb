@@ -3,7 +3,6 @@ module MobileSessions
   # add/update the AirBeam (device) info. Only the provided fields change; the
   # session version is bumped on every update so other devices re-fetch.
   class Updater
-    ErrorCodes = ::FixedSessions::BinaryProtocol::ErrorCodes
 
     def call(session:, data:)
       ActiveRecord::Base.transaction do

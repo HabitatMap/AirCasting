@@ -1,7 +1,7 @@
 module Api
   module V3
     class MobileSessionsController < BaseController
-      ErrorCodes = ::FixedSessions::BinaryProtocol::ErrorCodes
+      ErrorCodes = ::MobileSessions::ErrorCodes
       before_action :authenticate_user_from_token!
       before_action :authenticate_user!
 
