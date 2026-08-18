@@ -82,6 +82,18 @@ RSpec.describe Api::CreateFixedSessionContract do
     expect(result.errors[:uuid]).to be_present
   end
 
+  it 'fails when the same sensor type is requested twice' do
+    params = valid_params.merge(
+      streams: [
+        { sensor_name: 'AirBeamMini-PM2.5', unit_symbol: 'µg/m³' },
+        { sensor_name: 'AirBeam2-PM2.5', unit_symbol: 'µg/m³' },
+      ],
+    )
+    result = contract.call(params)
+    expect(result).to be_failure
+    expect(result.errors.to_h.dig(:streams, 1, :sensor_name).first).to match(/duplicates the AirBeam-PM2.5 stream/)
+  end
+
   it 'succeeds without a time_zone (optional)' do
     expect(contract.call(valid_params.except(:time_zone))).to be_success
   end

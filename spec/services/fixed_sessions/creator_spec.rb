@@ -119,5 +119,16 @@ RSpec.describe FixedSessions::Creator do
       result = creator.call(data: params, user: user)
       expect(result).to be_failure
     end
+
+    it 'maps a unique-constraint violation to validation_error without leaking database text' do
+      allow_any_instance_of(StreamsRepository).to receive(:create!)
+        .and_raise(ActiveRecord::RecordNotUnique, 'PG::UniqueViolation: duplicate key ... idx_streams_session_sensor_type_id')
+
+      result = creator.call(data: valid_params, user: user)
+
+      expect(result).to be_failure
+      expect(result.errors[:error_code]).to eq('validation_error')
+      expect(result.errors[:message]).to eq('Request conflicts with an existing record')
+    end
   end
 end

@@ -34,6 +34,11 @@ RSpec.describe 'AirBeamMini Fixed Sessions Binary Flow', type: :request do
         |---|---|---|
         | `unauthorized` | 401 | Missing or invalid `Authorization` token |
         | `validation_error` | 400 | Request body failed validation. See `fields` for per-field details |
+
+        Each sensor type may appear **once** per session — `AirBeamMini-PM2.5`
+        and `AirBeam2-PM2.5` are the same type (`AirBeam-PM2.5`) and cannot both
+        be requested. A session holds one stream per type, and the AirBeam
+        addresses streams by `sensor_type_id` in the binary upload.
       DESC
 
       parameter name: :Authorization, in: :header, type: :string, required: true,
