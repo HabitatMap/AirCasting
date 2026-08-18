@@ -34,16 +34,29 @@ RSpec.describe 'AirBeamMini Fixed Sessions Binary Flow', type: :request do
         request that loses the race is answered with the session the winner created,
         including **its** `session_token` and `streams`. A device configured from either
         response therefore reports into the same session. A create for a `uuid` that
-        already existed before the request is a `validation_error`, not a reuse.
+        already existed before the request is a `session_uuid_taken`, not a reuse.
+
+        `uuid` must be in canonical UUID form (what `UUID.randomUUID()` / `UUID()`
+        produce) and not already in use.
+
+        Each sensor type may appear **once** per session — `AirBeamMini-PM2.5`
+        and `AirBeam2-PM2.5` are the same type (`AirBeam-PM2.5`) and cannot both
+        be requested. A session holds one stream per type, and the AirBeam
+        addresses streams by `sensor_type_id` in the binary upload.
 
         ## Error Codes
 
-        | `error_code` | HTTP | Description |
-        |---|---|---|
-        | `unauthorized` | 401 | Missing or invalid `Authorization` token |
-        | `validation_error` | 400 | Request body failed validation, including a `uuid` already in use. See `fields` for per-field details |
-        | `unsupported_sensor_type` | 400 | A `sensor_name` in `streams` is not a recognised AirBeam sensor |
-        | `internal_error` | 400 | The session could not be created — a missing default threshold set, or a conflicting write that could not be resolved |
+        Same vocabulary as `POST /api/v3/mobile_sessions`: a request whose
+        **shape** is wrong answers `validation_error` with `fields`; a request
+        that conflicts with **stored state** gets its own code and no `fields`.
+
+        | `error_code` | HTTP | Description | Client should |
+        |---|---|---|---|
+        | `unauthorized` | 401 | Missing or invalid `Authorization` token | Re-authenticate |
+        | `validation_error` | 400 | Body failed validation, including a `uuid` that is not canonical UUID form. See `fields` | Treat as a client bug — do not retry unchanged |
+        | `session_uuid_taken` | 400 | A session with this `uuid` already existed before the request. No `fields` | Stop retrying; the session is already created — continue with it |
+        | `unsupported_sensor_type` | 400 | A `sensor_name` in `streams` is not a recognised AirBeam sensor | Unrecoverable; do not retry |
+        | `internal_error` | 400 | The session could not be created — a missing default threshold set, or a conflicting write that could not be resolved | Retry with backoff |
       DESC
 
       parameter name: :Authorization, in: :header, type: :string, required: true,

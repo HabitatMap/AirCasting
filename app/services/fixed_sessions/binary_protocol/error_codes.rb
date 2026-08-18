@@ -3,6 +3,7 @@ module FixedSessions
     module ErrorCodes
       UNSUPPORTED_SENSOR_TYPE = 'unsupported_sensor_type'
       SESSION_NOT_FOUND       = 'session_not_found'
+      SESSION_UUID_TAKEN      = 'session_uuid_taken'
       VALIDATION_ERROR        = 'validation_error'
       UNAUTHORIZED            = 'unauthorized'
       INTERNAL_ERROR          = 'internal_error'

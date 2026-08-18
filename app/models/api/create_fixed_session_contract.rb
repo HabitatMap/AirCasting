@@ -1,5 +1,9 @@
 module Api
   class CreateFixedSessionContract < Dry::Validation::Contract
+    # RFC 4122 canonical form — both apps generate uuids this way
+    # (Android `UUID.randomUUID`, iOS `UUID`).
+    UUID_FORMAT = /\A\h{8}-\h{4}-\h{4}-\h{4}-\h{12}\z/
+
     params do
       required(:uuid).filled(:string)
       required(:title).filled(:string)
@@ -23,9 +27,11 @@ module Api
       key.failure('must have at least one stream') if value.empty?
     end
 
+    # Shape only — whether the uuid is already taken depends on stored state, so
+    # FixedSessions::Creator checks that and answers with `session_uuid_taken`.
     rule(:uuid) do
-      if key? && value && Session.where('LOWER(uuid) = LOWER(?)', value).exists?
-        key.failure('has already been taken')
+      if key? && value && !UUID_FORMAT.match?(value)
+        key.failure('must be a UUID (e.g. 550e8400-e29b-41d4-a716-446655440000)')
       end
     end
 

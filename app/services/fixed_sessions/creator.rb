@@ -1,6 +1,12 @@
 module FixedSessions
   class Creator
     UnknownStreamTypeError = Class.new(StandardError)
+    # A stream conflict is a request problem; a uuid or device conflict is not.
+    # Both surface as RecordNotUnique, so this one is retyped at the raise site to
+    # keep the method-level rescue below from having to read PG message text.
+    DuplicateStreamError = Class.new(StandardError)
+
+    UUID_TAKEN_MESSAGE = 'A session with this uuid already exists'.freeze
 
     # How long to wait for a rival's in-flight insert of this uuid before failing.
     LOCK_TIMEOUT = '3s'.freeze
@@ -8,11 +14,12 @@ module FixedSessions
     def call(data:, user:)
       # The unique index on LOWER(uuid) makes a duplicate impossible; this decides
       # what the losing request is told. Insert first and let the constraint refuse
-      # us, rather than asking whether the uuid is free.
+      # us, rather than asking whether the uuid is free — the answer to that
+      # question is stale the moment it is given.
       #
-      # A sequential retry never reaches the constraint — the contract's uuid rule
-      # rejects it first, and the model validation after that. Only a request whose
-      # rival had not yet committed gets here.
+      # A sequential retry never reaches the constraint: the model's uniqueness
+      # validation rejects it first and answers session_uuid_taken. Only a request
+      # whose rival had not yet committed gets here.
       begin
         # requires_new so the recovery below still works if a caller ever wraps this
         # in its own transaction; SET LOCAL lock_timeout bounds the wait on a
@@ -60,6 +67,13 @@ module FixedSessions
       )
     rescue UnknownStreamTypeError => e
       Failure.new(error_code: BinaryProtocol::ErrorCodes::UNSUPPORTED_SENSOR_TYPE, message: e.message)
+    rescue DuplicateStreamError
+      # A constraint the contract should have caught (today: one stream per sensor
+      # type). Deliberately generic — no raw database text.
+      Failure.new(
+        error_code: BinaryProtocol::ErrorCodes::VALIDATION_ERROR,
+        message: 'Request conflicts with an existing record',
+      )
     # Re-raised from the rescue above when the conflict was not a session this
     # request may reuse — most often devices.mac_address, which is unique and which
     # find_or_create_device races when two creates for one AirBeam arrive under
@@ -67,24 +81,36 @@ module FixedSessions
     rescue ActiveRecord::RecordNotUnique => e
       # errors render straight to the client, and a PG::UniqueViolation message
       # carries the constraint name and a DETAIL line quoting the conflicting
-      # values. Only this class needs suppressing — the two below are app-written.
+      # values. Only this class needs suppressing — the ones below are app-written.
       Rails.logger.warn("[FixedSessions::Creator] #{e.class}: #{e.message}")
       Failure.new(
         error_code: BinaryProtocol::ErrorCodes::INTERNAL_ERROR,
         message: 'Could not create this session',
       )
-    rescue ActiveRecord::RecordInvalid, ActiveRecord::RecordNotFound => e
+    rescue ActiveRecord::RecordInvalid => e
+      # The uuid belongs to a row that committed before this request started. The
+      # contract no longer asks whether a uuid is free, so the model's uniqueness
+      # validation is what catches it. Not scoped to the current user: that
+      # validation is global, so another user's uuid is refused here too.
+      return uuid_taken if uuid_taken_error?(e)
+
       Failure.new(error_code: BinaryProtocol::ErrorCodes::INTERNAL_ERROR, message: e.message)
-    rescue ActiveRecord::RecordNotUnique
-      # Backstop for a constraint the contract should have caught (today: one
-      # stream per sensor type). Deliberately generic — no raw database text.
-      Failure.new(
-        error_code: BinaryProtocol::ErrorCodes::VALIDATION_ERROR,
-        message: 'Request conflicts with an existing record',
-      )
+    rescue ActiveRecord::RecordNotFound => e
+      Failure.new(error_code: BinaryProtocol::ErrorCodes::INTERNAL_ERROR, message: e.message)
     end
 
     private
+
+    def uuid_taken_error?(error)
+      error.record.is_a?(Session) && error.record.errors.of_kind?(:uuid, :taken)
+    end
+
+    def uuid_taken
+      Failure.new(
+        error_code: BinaryProtocol::ErrorCodes::SESSION_UUID_TAKEN,
+        message: UUID_TAKEN_MESSAGE,
+      )
+    end
 
     # Only a row this request could itself have produced: created by this endpoint
     # (token, streams, sensor types) *and* bound to the AirBeam this request is
@@ -103,8 +129,8 @@ module FixedSessions
     # winner's values on a session both requests agree is the same station: wrong
     # label, not lost data.
     def reusable_session(data, user)
-      # LOWER() because the contract's uuid rule, the model's uniqueness validation
-      # and the index that just refused us are all case-insensitive.
+      # LOWER() because the model's uniqueness validation and the index that just
+      # refused us are both case-insensitive.
       session =
         user.sessions
             .where('LOWER(sessions.uuid) = ?', data[:uuid].to_s.downcase)
@@ -201,6 +227,12 @@ module FixedSessions
           sensor_type_id: stream.sensor_type_id,
         }
       end
+    rescue ActiveRecord::RecordNotUnique
+      # One stream per sensor type is a database constraint; the contract rejects
+      # a repeated type first, so arriving here means a request it let through.
+      # Retyped so the rescue chain in #call can tell it from a uuid or device
+      # conflict without matching on PG message text.
+      raise DuplicateStreamError
     end
 
     def find_or_create_threshold_set(canonical, unit_symbol)
