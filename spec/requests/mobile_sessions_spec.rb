@@ -28,12 +28,13 @@ describe 'POST /api/v3/mobile_sessions' do
   end
 
   context 'with a valid body' do
-    it 'creates a MobileSession and returns 201 with location + streams (no session_token)' do
+    it 'creates a MobileSession and returns 201 with share_url + streams (no session_token)' do
       expect { post_session(valid_body) }.to change(MobileSession, :count).by(1)
 
       expect(response).to have_http_status(:created)
       json = response.parsed_body
-      expect(json['location']).to be_present
+      expect(json['share_url']).to be_present
+      expect(json['share_url']).to end_with("/s/#{MobileSession.last.url_token}")
       expect(json).not_to have_key('session_token')
       expect(json['streams']).to eq([{ 'sensor_name' => 'AirBeamMini-PM2.5', 'sensor_type_id' => 2 }])
     end

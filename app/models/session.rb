@@ -14,8 +14,15 @@ class Session < ApplicationRecord
   has_many :notes, inverse_of: :session, dependent: :destroy
 
   validates :user, :uuid, :url_token, presence: true
-  validates :start_time_local, presence: true
-  validates :end_time_local, presence: true
+  # Mobile sessions are created empty by POST /api/v3/mobile_sessions and take
+  # their bounds from the first measurements upload, so their times stay NULL
+  # until then. Every other session still has to carry them.
+  # (Government stations are bulk-inserted with `insert_all!`, which skips
+  # validations — those rows have NULL times too, exactly as before.)
+  validates :start_time_local,
+            :end_time_local,
+            presence: true,
+            unless: -> { is_a?(MobileSession) }
   validates :type, presence: :true
   validates :url_token, :uuid, uniqueness: { case_sensitive: false }
 

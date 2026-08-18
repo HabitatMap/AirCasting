@@ -20,7 +20,7 @@ RSpec.describe MobileSessions::List do
 
     row = described_class.new(user: user).call.first
 
-    expect(row).to include(:uuid, :title, :version, :start_time_local, :end_time_local, :tag_list)
+    expect(row).to include(:uuid, :title, :version, :start_time_local, :end_time_local, :tag_list, :share_url)
     expect(row[:airbeam]).to eq(mac_address: 'AA:BB:CC:DD:EE:01', model: 'AirBeamMini', name: nil)
     expect(row[:streams]).to have_key('AirBeamMini-PM2.5')
     expect(row[:streams]['AirBeamMini-PM2.5']).to include(:measurements_count, :average_value, :min_latitude)

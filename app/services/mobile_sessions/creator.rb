@@ -27,10 +27,10 @@ module MobileSessions
     end
 
     def create_session(data, user, device)
-      # start/end are seeded to now and later refined from measurement bounds by
-      # the measurements endpoint (mirrors FixedSessions).
-      now = Time.current
-
+      # Create is configuration only: start/end stay NULL until the first
+      # measurements arrive (the measurements endpoint derives them from the
+      # measurement bounds). A session without times is skipped by every map /
+      # search query and is visible only to its owner.
       MobileSession.create!(
         uuid: data[:uuid],
         title: data[:title],
@@ -41,8 +41,9 @@ module MobileSessions
         time_zone: data[:time_zone],
         tag_list: SessionBuilder.normalize_tags(data[:tag_list]),
         contribute: data[:contribute],
-        start_time_local: now,
-        end_time_local: now,
+        # Mobile sessions are always outdoor; the old API took this from the
+        # client payload, which sent false (or nothing) for mobile.
+        is_indoor: false,
       )
     end
 

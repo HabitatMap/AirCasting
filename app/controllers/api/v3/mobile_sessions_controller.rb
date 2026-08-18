@@ -74,7 +74,7 @@ module Api
         if result.success?
           session = result.value[:session]
           render json: {
-            location: short_session_url(session, host: A9n.host_),
+            share_url: short_session_url(session, host: A9n.host_),
             streams: result.value[:streams],
           }, status: :created
         else

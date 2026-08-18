@@ -17,12 +17,24 @@ module MobileSessions
         version: session.version,
         latitude: session.latitude,
         longitude: session.longitude,
+        share_url: share_url(session),
         airbeam: airbeam(session.device),
         streams: streams(session),
       }
     end
 
     private
+
+    # Capability link to the session — anyone holding it can view the session,
+    # which is how a private (non-contributed) session gets shared. Served as a
+    # full URL because the backend host is configurable (self-hosted installs);
+    # the app appends `?sensor_name=<stream>` before sharing.
+    def share_url(session)
+      Rails.application.routes.url_helpers.short_session_url(
+        session,
+        host: A9n.host_,
+      )
+    end
 
     def airbeam(device)
       return nil unless device

@@ -16,6 +16,10 @@ module MobileSessions
     end
 
     def call
+      # A session created but not yet fed measurements has no end_time_local to
+      # anchor the default window on — there is nothing to return either.
+      return {} if session.end_time_local.nil? && end_time.blank?
+
       selected_streams.each_with_object({}) do |stream, acc|
         acc[stream.sensor_name] = points(stream)
       end

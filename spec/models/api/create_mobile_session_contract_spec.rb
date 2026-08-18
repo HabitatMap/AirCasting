@@ -5,7 +5,7 @@ RSpec.describe Api::CreateMobileSessionContract do
 
   let(:valid_params) do
     {
-      uuid: 'test-uuid-abc',
+      uuid: SecureRandom.uuid,
       title: 'Bike ride',
       time_zone: 'America/New_York',
       contribute: true,
@@ -22,6 +22,16 @@ RSpec.describe Api::CreateMobileSessionContract do
     result = contract.call(valid_params.except(:uuid))
     expect(result).to be_failure
     expect(result.errors[:uuid]).to be_present
+  end
+
+  it 'fails when uuid is not a UUID' do
+    result = contract.call(valid_params.merge(uuid: 'test-uuid-abc'))
+    expect(result).to be_failure
+    expect(result.errors[:uuid].first).to match(/must be a UUID/)
+  end
+
+  it 'accepts an uppercase UUID' do
+    expect(contract.call(valid_params.merge(uuid: SecureRandom.uuid.upcase))).to be_success
   end
 
   it 'fails when time_zone is missing (required for mobile)' do
