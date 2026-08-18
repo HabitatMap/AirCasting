@@ -40,6 +40,37 @@ describe 'POST /api/v3/mobile_sessions' do
     end
   end
 
+  context 'when the uuid is already used' do
+    it 'returns 400 session_uuid_taken without a fields key' do
+      existing = create(:mobile_session, user: user, uuid: SecureRandom.uuid)
+
+      post_session(valid_body.merge(uuid: existing.uuid.upcase))
+
+      expect(response).to have_http_status(:bad_request)
+      json = response.parsed_body
+      expect(json['error_code']).to eq('session_uuid_taken')
+      expect(json).not_to have_key('fields')
+    end
+  end
+
+  context 'when the same sensor type is requested twice' do
+    it 'returns 400 validation_error naming the duplicate stream' do
+      body = valid_body.merge(
+        streams: [
+          { sensor_name: 'AirBeamMini-PM2.5', unit_symbol: 'µg/m³' },
+          { sensor_name: 'AirBeam2-PM2.5', unit_symbol: 'µg/m³' },
+        ],
+      )
+
+      expect { post_session(body) }.not_to change(MobileSession, :count)
+
+      expect(response).to have_http_status(:bad_request)
+      json = response.parsed_body
+      expect(json['error_code']).to eq('validation_error')
+      expect(json.dig('fields', 'streams', '1', 'sensor_name')).to be_present
+    end
+  end
+
   context 'when the request body fails contract validation' do
     it 'returns 400 with error_code validation_error and per-field details' do
       post_session(valid_body.except(:time_zone))

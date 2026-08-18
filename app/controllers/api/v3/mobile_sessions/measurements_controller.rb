@@ -2,7 +2,7 @@ module Api
   module V3
     module MobileSessions
       class MeasurementsController < BaseController
-        ErrorCodes = ::FixedSessions::BinaryProtocol::ErrorCodes
+        ErrorCodes = ::MobileSessions::ErrorCodes
         around_action :with_server_time_header
         before_action :authenticate_user_from_token!
         before_action :authenticate_user!

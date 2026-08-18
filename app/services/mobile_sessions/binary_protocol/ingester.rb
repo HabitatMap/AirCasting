@@ -10,7 +10,6 @@ module MobileSessions
     # are skipped. Aggregates and session bounds are recomputed with SQL so cost is
     # independent of session size.
     class Ingester
-      ErrorCodes = ::FixedSessions::BinaryProtocol::ErrorCodes
 
       def initialize(
         parser: Parser.new,

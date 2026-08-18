@@ -87,10 +87,32 @@ RSpec.describe Api::CreateMobileSessionContract do
     expect(result.errors.to_h.dig(:streams, 0, :unit_symbol)).to be_present
   end
 
-  it 'fails when the uuid is already taken (case-insensitive)' do
-    existing = create(:mobile_session)
-    result = contract.call(valid_params.merge(uuid: existing.uuid.upcase))
+  it 'leaves the already-taken uuid check to the creator (shape only here)' do
+    existing = create(:mobile_session, uuid: SecureRandom.uuid)
+    expect(contract.call(valid_params.merge(uuid: existing.uuid.upcase))).to be_success
+  end
+
+  it 'fails when the same sensor is requested twice' do
+    params = valid_params.merge(
+      streams: [
+        { sensor_name: 'AirBeamMini-PM2.5', unit_symbol: 'µg/m³' },
+        { sensor_name: 'AirBeamMini-PM2.5', unit_symbol: 'µg/m³' },
+      ],
+    )
+    result = contract.call(params)
     expect(result).to be_failure
-    expect(result.errors[:uuid]).to be_present
+    expect(result.errors.to_h.dig(:streams, 1, :sensor_name).first).to match(/duplicates the AirBeam-PM2.5 stream/)
+  end
+
+  it 'fails when two aliases of one sensor type are requested' do
+    params = valid_params.merge(
+      streams: [
+        { sensor_name: 'AirBeamMini-PM2.5', unit_symbol: 'µg/m³' },
+        { sensor_name: 'AirBeam2-PM2.5', unit_symbol: 'µg/m³' },
+      ],
+    )
+    result = contract.call(params)
+    expect(result).to be_failure
+    expect(result.errors.to_h.dig(:streams, 1, :sensor_name)).to be_present
   end
 end
