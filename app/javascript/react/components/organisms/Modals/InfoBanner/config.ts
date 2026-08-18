@@ -9,9 +9,9 @@
 /**
  * Chance (0–1) that the banner is eligible to appear on any given page load,
  * assuming no cooldown/dismiss/click suppression is active. Lower = rarer.
- * "Gentle" default: ~1 in 3 loads.
+ * Set to 1 = always eligible (suppression windows still apply).
  */
-export const SHOW_PROBABILITY = 0.3;
+export const SHOW_PROBABILITY = 1;
 
 /**
  * After the banner is shown, don't show it again for this many days
@@ -20,7 +20,7 @@ export const SHOW_PROBABILITY = 0.3;
 export const COOLDOWN_DAYS = 1;
 
 /** After the user closes (✕) the banner, suppress it for this many days. */
-export const DISMISS_DAYS = 7;
+export const DISMISS_DAYS = 5;
 
 /** After the user clicks through to an article, suppress it for this many days. */
 export const CLICKED_DAYS = 1;
