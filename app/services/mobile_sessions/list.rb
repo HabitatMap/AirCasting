@@ -23,7 +23,9 @@ module MobileSessions
       user
         .mobile_sessions
         .includes(:device, :tags, streams: :threshold_set)
-        .order(start_time_local: :desc)
+        # Postgres DESC sorts NULLs first, so a just-created session (no times
+        # until its first measurements land) heads the owner's list.
+        .order(Arel.sql('sessions.start_time_local DESC NULLS FIRST'))
     end
 
     def paginate(relation)

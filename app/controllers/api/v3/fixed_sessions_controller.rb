@@ -26,7 +26,11 @@ module Api
         if result.success?
           session = result.value[:session]
           render json: {
+            # LEGACY: `location` is the name shipped app versions read; kept
+            # forever. `share_url` is the same value under the name used
+            # everywhere in v3 — new clients should read that one.
             location: short_session_url(session, host: A9n.host_),
+            share_url: short_session_url(session, host: A9n.host_),
             session_token: result.value[:session_token],
             streams: result.value[:streams],
           }, status: :created

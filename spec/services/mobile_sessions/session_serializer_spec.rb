@@ -24,6 +24,12 @@ RSpec.describe MobileSessions::SessionSerializer do
     expect(result[:streams]['AirBeamMini-PM2.5']).not_to have_key(:measurements)
   end
 
+  it 'exposes the shareable session link so a synced session stays shareable' do
+    session = create(:mobile_session, user: user)
+
+    expect(serializer.call(session)[:share_url]).to end_with("/s/#{session.url_token}")
+  end
+
   it 'returns nil airbeam when the session has no device' do
     session = create(:mobile_session, user: user, device: nil)
     expect(serializer.call(session)[:airbeam]).to be_nil

@@ -93,9 +93,18 @@ RSpec.describe 'AirBeamMini Fixed Sessions Binary Flow', type: :request do
 
       response '201', 'session created' do
         schema type: :object,
-               required: %w[location session_token streams],
+               required: %w[location share_url session_token streams],
                properties: {
-                 location: { type: :string, example: 'http://aircasting.org/s/ab12c' },
+                 location: {
+                   type: :string,
+                   example: 'http://aircasting.org/s/ab12c',
+                   description: 'LEGACY alias of `share_url`, read by shipped app versions. Kept indefinitely; new clients should use `share_url`.',
+                 },
+                 share_url: {
+                   type: :string,
+                   example: 'http://aircasting.org/s/ab12c',
+                   description: 'Shareable session link (`<host>/s/<token>`). Append `?sensor_name=<stream>` before sharing — the link only resolves with that query parameter.',
+                 },
                  session_token: {
                    type: :string,
                    description: 'Bearer token for AirBeam measurement uploads. The mobile app passes this to the AirBeam over BLE after session creation.',

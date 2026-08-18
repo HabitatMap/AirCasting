@@ -48,11 +48,12 @@ RSpec.describe 'AirBeam Mobile Sessions', type: :request do
             type: { type: :string, example: 'MobileSession' },
             tag_list: { type: :string },
             contribute: { type: :boolean },
-            start_time_local: { type: :string },
-            end_time_local: { type: :string },
+            start_time_local: { type: :string, nullable: true, description: 'null until the first measurements arrive' },
+            end_time_local: { type: :string, nullable: true },
             version: { type: :integer },
             latitude: { type: :number, format: :float, nullable: true },
             longitude: { type: :number, format: :float, nullable: true },
+            share_url: { type: :string, example: 'http://aircasting.org/s/ab12c', description: 'Shareable session link' },
             airbeam: {
               type: :object, nullable: true,
               properties: {
@@ -104,6 +105,11 @@ RSpec.describe 'AirBeam Mobile Sessions', type: :request do
         recording; measurements are then streamed to
         `POST /api/v3/mobile_sessions/{uuid}/measurements`.
 
+        This call is configuration only. `start_time_local` / `end_time_local`
+        stay `null` until the first measurements arrive; such a session is
+        skipped by every map / search query and is visible only to its owner
+        (list, show, update, delete).
+
         Notes vs. the fixed-session create:
         - `time_zone` is **required** (not derived from coordinates).
         - `start_time` / `end_time` are **not** sent — they are derived from the
@@ -112,9 +118,24 @@ RSpec.describe 'AirBeam Mobile Sessions', type: :request do
           measurement carries its own location.
         - No `session_token` is returned — the measurements upload authenticates
           with the user token.
+        - `uuid` must be in canonical UUID form and unused.
+        - Fields outside this schema (`is_indoor`, `version`, `start_time`, …)
+          are ignored; mobile sessions are always stored as outdoor and the
+          version is server-owned (bumped by `PATCH`).
 
         The response includes a `sensor_type_id` per stream, used to identify
         streams in the binary measurement upload.
+
+        ## share_url
+
+        `share_url` is the session's capability link (`<host>/s/<token>`).
+        Anyone holding it can open the session, which is how a private
+        (`contribute: false`) session is shared. Store it with the session — the
+        list / show / update responses return it too, so a session synced onto a
+        second device stays shareable. Append the stream before sharing:
+        `<share_url>?sensor_name=AirBeamMini-PM2.5` — the link only resolves
+        with that query parameter. It is a full URL, not a token, because the
+        backend host is configurable.
       DESC
 
       parameter name: :Authorization, in: :header, type: :string, required: true,
@@ -161,9 +182,13 @@ RSpec.describe 'AirBeam Mobile Sessions', type: :request do
 
       response '201', 'session created' do
         schema type: :object,
-               required: %w[location streams],
+               required: %w[share_url streams],
                properties: {
-                 location: { type: :string, example: 'http://aircasting.org/s/ab12c' },
+                 share_url: {
+                   type: :string,
+                   example: 'http://aircasting.org/s/ab12c',
+                   description: 'Shareable session link — see the endpoint description.',
+                 },
                  streams: {
                    type: :array,
                    items: {
@@ -264,11 +289,12 @@ RSpec.describe 'AirBeam Mobile Sessions', type: :request do
                  type: { type: :string, example: 'MobileSession' },
                  tag_list: { type: :string },
                  contribute: { type: :boolean },
-                 start_time_local: { type: :string },
-                 end_time_local: { type: :string },
+                 start_time_local: { type: :string, nullable: true, description: 'null until the first measurements arrive' },
+                 end_time_local: { type: :string, nullable: true },
                  version: { type: :integer },
                  latitude: { type: :number, format: :float, nullable: true },
                  longitude: { type: :number, format: :float, nullable: true },
+                 share_url: { type: :string, example: 'http://aircasting.org/s/ab12c', description: 'Shareable session link' },
                  airbeam: {
                    type: :object, nullable: true,
                    properties: {
@@ -383,6 +409,7 @@ RSpec.describe 'AirBeam Mobile Sessions', type: :request do
           title: { type: :string },
           version: { type: :integer },
           tag_list: { type: :string },
+          share_url: { type: :string, example: 'http://aircasting.org/s/ab12c', description: 'Shareable session link' },
           airbeam: { type: :object, nullable: true, additionalProperties: true },
           streams: { type: :object, additionalProperties: { type: :object, additionalProperties: true } },
         }

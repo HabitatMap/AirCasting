@@ -54,11 +54,29 @@ RSpec.describe MobileSessions::Creator do
       expect(session.longitude).to eq(-74.0060)
     end
 
-    it 'seeds start/end times (refined later from measurements)' do
+    it 'leaves start/end times NULL until the first measurements arrive' do
       creator.call(data: valid_params, user: user)
       session = MobileSession.last
-      expect(session.start_time_local).to be_present
-      expect(session.end_time_local).to be_present
+      expect(session.start_time_local).to be_nil
+      expect(session.end_time_local).to be_nil
+    end
+
+    it 'marks the session as outdoor' do
+      creator.call(data: valid_params, user: user)
+      expect(MobileSession.last.is_indoor).to be false
+    end
+
+    it 'ignores params outside the schema (contract strips them)' do
+      contract = Api::CreateMobileSessionContract.new.call(
+        valid_params.merge(uuid: SecureRandom.uuid, is_indoor: true, version: 7, start_time: '2026-08-01T10:00:00Z'),
+      )
+      expect(contract).to be_success
+      expect(contract.to_h.keys).not_to include(:is_indoor, :version, :start_time)
+    end
+
+    it 'is excluded from map search until it has measurements' do
+      creator.call(data: valid_params, user: user)
+      expect(MobileSession.filter_({})).to be_empty
     end
 
     it 'creates a Device and links it to the session' do

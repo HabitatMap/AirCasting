@@ -1,5 +1,9 @@
 module Api
   class CreateMobileSessionContract < Dry::Validation::Contract
+    # RFC 4122 canonical form — both apps generate uuids this way
+    # (Android `UUID.randomUUID`, iOS `UUID`).
+    UUID_FORMAT = /\A\h{8}-\h{4}-\h{4}-\h{4}-\h{12}\z/
+
     params do
       required(:uuid).filled(:string)
       required(:title).filled(:string)
@@ -24,7 +28,11 @@ module Api
     end
 
     rule(:uuid) do
-      if key? && value && Session.where('LOWER(uuid) = LOWER(?)', value).exists?
+      next unless key? && value
+
+      if !UUID_FORMAT.match?(value)
+        key.failure('must be a UUID (e.g. 550e8400-e29b-41d4-a716-446655440000)')
+      elsif Session.where('LOWER(uuid) = LOWER(?)', value).exists?
         key.failure('has already been taken')
       end
     end
