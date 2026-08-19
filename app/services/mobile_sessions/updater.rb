@@ -29,11 +29,15 @@ module MobileSessions
       # Nothing to attach to: no existing device and no mac_address to identify one.
       return if airbeam[:mac_address].blank? && session.device.nil?
 
+      mac_address = Device.normalize_mac_address(airbeam[:mac_address])
+
       device =
-        if session.device && (airbeam[:mac_address].blank? || session.device.mac_address == airbeam[:mac_address])
+        if session.device && (mac_address.blank? || session.device.mac_address == mac_address)
           session.device
         else
-          Device.find_or_initialize_by(mac_address: airbeam[:mac_address])
+          # Scoped to the session's owner — a request can never reach another
+          # user's device row (see Device).
+          session.user.devices.find_or_initialize_by(mac_address: mac_address)
         end
 
       device.model = airbeam[:model] if airbeam[:model].present?

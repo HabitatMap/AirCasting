@@ -35,7 +35,7 @@ module FixedSessions
             ActiveRecord::Base.connection.execute("SET LOCAL lock_timeout = '#{LOCK_TIMEOUT}'")
           end
 
-          device = find_or_create_device(data[:airbeam])
+          device = find_or_create_device(data[:airbeam], user)
           session = create_session(data, user, device)
           streams = create_streams(data, session)
           Success.new(session: session, session_token: session.session_token, streams: streams)
@@ -75,9 +75,9 @@ module FixedSessions
         message: 'Request conflicts with an existing record',
       )
     # Re-raised from the rescue above when the conflict was not a session this
-    # request may reuse — most often devices.mac_address, which is unique and which
-    # find_or_create_device races when two creates for one AirBeam arrive under
-    # different uuids. Do not narrow this to the uuid constraint.
+    # request may reuse — most often index_devices_on_user_id_and_mac_address,
+    # which find_or_create_device races when two creates for one AirBeam arrive
+    # under different uuids. Do not narrow this to the uuid constraint.
     rescue ActiveRecord::RecordNotUnique => e
       # errors render straight to the client, and a PG::UniqueViolation message
       # carries the constraint name and a DETAIL line quoting the conflicting
@@ -145,13 +145,19 @@ module FixedSessions
         session.session_token.present? &&
         streams.any? &&
         streams.all? { |stream| stream.sensor_type_id.present? } &&
-        session.device&.mac_address == data.dig(:airbeam, :mac_address)
+        session.device&.mac_address ==
+          Device.normalize_mac_address(data.dig(:airbeam, :mac_address))
 
       reusable ? session : nil
     end
 
-    def find_or_create_device(airbeam_params)
-      device = Device.find_or_initialize_by(mac_address: airbeam_params[:mac_address])
+    def find_or_create_device(airbeam_params, user)
+      # Scoped to the caller: a mac_address identifies a device only within one
+      # user's account (see Device).
+      device =
+        user.devices.find_or_initialize_by(
+          mac_address: Device.normalize_mac_address(airbeam_params[:mac_address]),
+        )
       device.model = airbeam_params[:model]
       device.name = airbeam_params[:name] if airbeam_params.key?(:name)
       device.save!

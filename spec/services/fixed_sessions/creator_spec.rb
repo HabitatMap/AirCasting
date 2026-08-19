@@ -83,9 +83,20 @@ RSpec.describe FixedSessions::Creator do
     end
 
     it 'does not overwrite device name when name is absent from request' do
-      device = Device.create!(mac_address: 'AA:BB:CC:DD:EE:FF', model: 'AirBeamMini', name: 'Existing Name')
+      device = Device.create!(user: user, mac_address: 'AA:BB:CC:DD:EE:FF', model: 'AirBeamMini', name: 'Existing Name')
       creator.call(data: valid_params, user: user)
       expect(device.reload.name).to eq('Existing Name')
+    end
+
+    it 'gives each user their own device row for one mac_address' do
+      other_user = create(:user)
+
+      creator.call(data: valid_params, user: user)
+      creator.call(data: valid_params.merge(uuid: SecureRandom.uuid), user: other_user)
+
+      devices = Device.where(mac_address: 'AA:BB:CC:DD:EE:FF')
+      expect(devices.count).to eq(2)
+      expect(devices.map(&:user_id)).to match_array([user.id, other_user.id])
     end
 
     it 'creates one Stream per requested sensor' do
@@ -198,7 +209,7 @@ RSpec.describe FixedSessions::Creator do
 
     it 'refuses a row bound to a different AirBeam' do
       force_race
-      other = Device.create!(mac_address: 'FF:EE:DD:CC:BB:AA', model: 'AirBeamMini')
+      other = Device.create!(user: user, mac_address: 'FF:EE:DD:CC:BB:AA', model: 'AirBeamMini')
       winner[:session].update_columns(device_id: other.id)
 
       expect(creator.call(data: valid_params, user: user)).to be_failure
@@ -240,7 +251,7 @@ RSpec.describe FixedSessions::Creator do
       allow(FixedSession).to receive(:create!).and_raise(
         ActiveRecord::RecordNotUnique,
         'PG::UniqueViolation: duplicate key value violates unique constraint ' \
-        '"index_devices_on_mac_address"\nDETAIL:  Key (mac_address)=(AA:BB:CC:DD:EE:FF) already exists.',
+        '"index_devices_on_user_id_and_mac_address"\nDETAIL:  Key (user_id, mac_address)=(1, AA:BB:CC:DD:EE:FF) already exists.',
       )
 
       result = creator.call(data: valid_params, user: user)
