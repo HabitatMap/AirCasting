@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2026_08_18_120001) do
+ActiveRecord::Schema[7.0].define(version: 2026_08_19_120000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
   enable_extension "postgis"
@@ -58,7 +58,7 @@ ActiveRecord::Schema[7.0].define(version: 2026_08_18_120001) do
     t.string "name"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.bigint "user_id"
+    t.bigint "user_id", null: false
     t.index ["user_id", "mac_address"], name: "index_devices_on_user_id_and_mac_address", unique: true
     t.index ["user_id"], name: "index_devices_on_user_id"
   end
