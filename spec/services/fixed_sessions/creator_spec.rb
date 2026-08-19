@@ -83,9 +83,20 @@ RSpec.describe FixedSessions::Creator do
     end
 
     it 'does not overwrite device name when name is absent from request' do
-      device = Device.create!(mac_address: 'AA:BB:CC:DD:EE:FF', model: 'AirBeamMini', name: 'Existing Name')
+      device = Device.create!(user: user, mac_address: 'AA:BB:CC:DD:EE:FF', model: 'AirBeamMini', name: 'Existing Name')
       creator.call(data: valid_params, user: user)
       expect(device.reload.name).to eq('Existing Name')
+    end
+
+    it 'gives each user their own device row for one mac_address' do
+      other_user = create(:user)
+
+      creator.call(data: valid_params, user: user)
+      creator.call(data: valid_params.merge(uuid: SecureRandom.uuid), user: other_user)
+
+      devices = Device.where(mac_address: 'AA:BB:CC:DD:EE:FF')
+      expect(devices.count).to eq(2)
+      expect(devices.map(&:user_id)).to match_array([user.id, other_user.id])
     end
 
     it 'creates one Stream per requested sensor' do

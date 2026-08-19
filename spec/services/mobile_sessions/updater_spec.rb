@@ -108,6 +108,19 @@ RSpec.describe MobileSessions::Updater do
       expect(device.reload.name).to eq('Backpack')
     end
 
+    it 'never reaches another user\'s device row' do
+      other_user = create(:user)
+      foreign = create(:device, user: other_user, mac_address: 'AA:BB:CC:DD:EE:33', name: 'Their AirBeam')
+
+      updater.call(session: session, data: {
+        airbeam: { mac_address: 'AA:BB:CC:DD:EE:33', model: 'AirBeamMini', name: 'Mine' },
+      })
+
+      expect(foreign.reload.name).to eq('Their AirBeam')
+      expect(session.reload.device.user_id).to eq(session.user_id)
+      expect(session.device.id).not_to eq(foreign.id)
+    end
+
     it 'swaps to another device by mac_address' do
       session.update!(device: create(:device, mac_address: 'AA:BB:CC:DD:EE:11'))
 

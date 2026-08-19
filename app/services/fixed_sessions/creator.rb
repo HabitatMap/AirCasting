@@ -8,7 +8,7 @@ module FixedSessions
       return uuid_taken if uuid_taken?(data[:uuid])
 
       ActiveRecord::Base.transaction do
-        device = find_or_create_device(data[:airbeam])
+        device = find_or_create_device(data[:airbeam], user)
         session = create_session(data, user, device)
         streams = create_streams(data, session)
         Success.new(session: session, session_token: session.session_token, streams: streams)
@@ -49,8 +49,13 @@ module FixedSessions
       )
     end
 
-    def find_or_create_device(airbeam_params)
-      device = Device.find_or_initialize_by(mac_address: airbeam_params[:mac_address])
+    def find_or_create_device(airbeam_params, user)
+      # Scoped to the caller: a mac_address identifies a device only within one
+      # user's account (see Device).
+      device =
+        user.devices.find_or_initialize_by(
+          mac_address: Device.normalize_mac_address(airbeam_params[:mac_address]),
+        )
       device.model = airbeam_params[:model]
       device.name = airbeam_params[:name] if airbeam_params.key?(:name)
       device.save!

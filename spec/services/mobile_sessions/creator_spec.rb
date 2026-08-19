@@ -90,6 +90,27 @@ RSpec.describe MobileSessions::Creator do
         .not_to change(Device, :count)
     end
 
+    it 'gives each user their own device row for one mac_address' do
+      other_user = create(:user)
+
+      creator.call(data: valid_params, user: user)
+      creator.call(data: valid_params.merge(uuid: SecureRandom.uuid), user: other_user)
+
+      devices = Device.where(mac_address: 'AA:BB:CC:DD:EE:FF')
+      expect(devices.count).to eq(2)
+      expect(devices.map(&:user_id)).to match_array([user.id, other_user.id])
+    end
+
+    it 'never reuses another user\'s device row' do
+      other_user = create(:user)
+      foreign = create(:device, user: other_user, mac_address: 'AA:BB:CC:DD:EE:FF', name: 'Their AirBeam')
+
+      creator.call(data: valid_params.deep_merge(airbeam: { name: 'My AirBeam' }), user: user)
+
+      expect(foreign.reload.name).to eq('Their AirBeam')
+      expect(MobileSession.last.device.user_id).to eq(user.id)
+    end
+
     it 'updates device name when provided' do
       params = valid_params.deep_merge(airbeam: { name: 'My AirBeam' })
       creator.call(data: params, user: user)
