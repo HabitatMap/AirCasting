@@ -99,6 +99,12 @@ RSpec.describe FixedSessions::Creator do
       expect(devices.map(&:user_id)).to match_array([user.id, other_user.id])
     end
 
+    it 'writes sensor_package_name as <Model>:<mac>, matching legacy rows' do
+      creator.call(data: valid_params, user: user)
+
+      expect(Stream.last.sensor_package_name).to eq('AirBeamMini:aa:bb:cc:dd:ee:ff')
+    end
+
     it 'creates one Stream per requested sensor' do
       expect { creator.call(data: valid_params, user: user) }.to change(Stream, :count).by(2)
     end

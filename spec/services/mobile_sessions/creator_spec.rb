@@ -117,6 +117,12 @@ RSpec.describe MobileSessions::Creator do
       expect(Device.last.name).to eq('My AirBeam')
     end
 
+    it 'writes sensor_package_name as <Model>:<mac>, matching legacy rows' do
+      creator.call(data: valid_params, user: user)
+
+      expect(Stream.last.sensor_package_name).to eq('AirBeamMini:aa:bb:cc:dd:ee:ff')
+    end
+
     it 'creates one Stream per requested sensor with sensor_type_id' do
       expect { creator.call(data: valid_params, user: user) }.to change(Stream, :count).by(2)
       streams = Stream.last(2)
