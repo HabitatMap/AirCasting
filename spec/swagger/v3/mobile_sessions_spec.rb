@@ -170,7 +170,7 @@ RSpec.describe 'AirBeam Mobile Sessions', type: :request do
           uuid: { type: :string, format: :uuid, example: '550e8400-e29b-41d4-a716-446655440000' },
           title: { type: :string, example: 'Morning bike ride' },
           time_zone: { type: :string, example: 'America/New_York', description: 'IANA time zone identifier (required).' },
-          contribute: { type: :boolean, example: true },
+          contribute: { type: :boolean, example: true, description: 'Required — send it explicitly; the server applies no default.' },
           tag_list: { type: :string, nullable: true, example: 'commute, bike', description: 'Space/comma separated tags.' },
           latitude: { type: :number, format: :float, nullable: true, example: 40.7128, description: 'Optional session start point.' },
           longitude: { type: :number, format: :float, nullable: true, example: -74.0060 },
