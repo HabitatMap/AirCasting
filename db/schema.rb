@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2026_06_29_120000) do
+ActiveRecord::Schema[7.0].define(version: 2026_08_18_120001) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
   enable_extension "postgis"
@@ -58,7 +58,9 @@ ActiveRecord::Schema[7.0].define(version: 2026_06_29_120000) do
     t.string "name"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.index ["mac_address"], name: "index_devices_on_mac_address", unique: true
+    t.bigint "user_id"
+    t.index ["user_id", "mac_address"], name: "index_devices_on_user_id_and_mac_address", unique: true
+    t.index ["user_id"], name: "index_devices_on_user_id"
   end
 
   create_table "eea_ingest_batches", force: :cascade do |t|
@@ -491,6 +493,7 @@ ActiveRecord::Schema[7.0].define(version: 2026_06_29_120000) do
 
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
+  add_foreign_key "devices", "users"
   add_foreign_key "epa_load_batches", "epa_ingest_cycles"
   add_foreign_key "epa_staging_batches", "epa_ingest_cycles"
   add_foreign_key "fixed_measurements", "fixed_streams"
