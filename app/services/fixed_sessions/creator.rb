@@ -214,7 +214,7 @@ module FixedSessions
           params: {
             session: session,
             sensor_name: stream_params[:sensor_name],
-            sensor_package_name: data[:airbeam][:mac_address],
+            sensor_package_name: stream_package_name(session.device),
             unit_name: Sensor::CANONICAL_UNIT_NAMES[canonical],
             unit_symbol: unit_symbol,
             measurement_type: Sensor::CANONICAL_MEASUREMENT_TYPES[canonical],
@@ -239,6 +239,17 @@ module FixedSessions
       # Retyped so the rescue chain in #call can tell it from a uuid or device
       # conflict without matching on PG message text.
       raise DuplicateStreamError
+    end
+
+    # `<Model>:<mac>` is the shape every legacy row uses, and the
+    # `Sessions::IndexInteractor` package-name filter lowercases everything after
+    # the first separator, so the mac is stored lowercased here even though
+    # `devices.mac_address` keeps its canonical upper-case form. Falls back to the
+    # column default when a session has no device.
+    def stream_package_name(device)
+      return 'Builtin' unless device
+
+      "#{device.model}:#{device.mac_address.downcase}"
     end
 
     def find_or_create_threshold_set(canonical, unit_symbol)
