@@ -62,7 +62,7 @@ RSpec.describe 'AirBeamMini Fixed Sessions Binary Flow', type: :request do
           title: { type: :string, example: 'Rooftop PM2.5 monitor' },
           latitude: { type: :number, format: :float, example: 40.7128 },
           longitude: { type: :number, format: :float, example: -74.0060 },
-          contribute: { type: :boolean, example: true },
+          contribute: { type: :boolean, example: true, description: 'Required — send it explicitly; the server applies no default.' },
           is_indoor: { type: :boolean, nullable: true, example: false, description: 'Whether the sensor is deployed indoors. Defaults to false when omitted.' },
           time_zone: {
             type: :string,
