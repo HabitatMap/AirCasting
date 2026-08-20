@@ -74,7 +74,7 @@ RSpec.describe MobileSessions::Updater do
     it 'is a no-op when the session has no device and no mac_address is given' do
       session.update!(device: nil)
 
-      result = updater.call(session: session, data: { airbeam: { name: 'Backpack' } })
+      result = updater.call(session: session, data: { device: { name: 'Backpack' } })
 
       expect(result).to be_success
       expect(session.reload.device).to be_nil
@@ -83,7 +83,7 @@ RSpec.describe MobileSessions::Updater do
     it 'returns a validation failure when attaching a new device without a model' do
       session.update!(device: nil)
 
-      result = updater.call(session: session, data: { airbeam: { mac_address: 'AA:BB:CC:DD:EE:99' } })
+      result = updater.call(session: session, data: { device: { mac_address: 'AA:BB:CC:DD:EE:99' } })
 
       expect(result).to be_failure
       expect(result.errors[:error_code]).to eq('validation_error')
@@ -93,7 +93,7 @@ RSpec.describe MobileSessions::Updater do
       session.update!(device: nil)
 
       updater.call(session: session, data: {
-        airbeam: { mac_address: 'AA:BB:CC:DD:EE:10', model: 'AirBeamMini' },
+        device: { mac_address: 'AA:BB:CC:DD:EE:10', model: 'AirBeamMini' },
       })
 
       expect(session.reload.device.mac_address).to eq('AA:BB:CC:DD:EE:10')
@@ -103,7 +103,7 @@ RSpec.describe MobileSessions::Updater do
       device = create(:device, mac_address: 'AA:BB:CC:DD:EE:11', model: 'AirBeamMini', name: nil)
       session.update!(device: device)
 
-      updater.call(session: session, data: { airbeam: { name: 'Backpack' } })
+      updater.call(session: session, data: { device: { name: 'Backpack' } })
 
       expect(device.reload.name).to eq('Backpack')
     end
@@ -113,7 +113,7 @@ RSpec.describe MobileSessions::Updater do
       foreign = create(:device, user: other_user, mac_address: 'AA:BB:CC:DD:EE:33', name: 'Their AirBeam')
 
       updater.call(session: session, data: {
-        airbeam: { mac_address: 'AA:BB:CC:DD:EE:33', model: 'AirBeamMini', name: 'Mine' },
+        device: { mac_address: 'AA:BB:CC:DD:EE:33', model: 'AirBeamMini', name: 'Mine' },
       })
 
       expect(foreign.reload.name).to eq('Their AirBeam')
@@ -125,7 +125,7 @@ RSpec.describe MobileSessions::Updater do
       session.update!(device: create(:device, mac_address: 'AA:BB:CC:DD:EE:11'))
 
       updater.call(session: session, data: {
-        airbeam: { mac_address: 'AA:BB:CC:DD:EE:22', model: 'AirBeamMini' },
+        device: { mac_address: 'AA:BB:CC:DD:EE:22', model: 'AirBeamMini' },
       })
 
       expect(session.reload.device.mac_address).to eq('AA:BB:CC:DD:EE:22')

@@ -12,7 +12,10 @@ module Api
       optional(:tag_list).maybe(:string)
       optional(:latitude).maybe(:float)
       optional(:longitude).maybe(:float)
-      required(:airbeam).hash do
+      # `mac_address` is a *device identifier*, not necessarily a hardware MAC:
+      # custom integrations should send whatever stable id their hardware has,
+      # and `model` is a free string, not an AirBeam enum.
+      required(:device).hash do
         required(:mac_address).filled(:string)
         required(:model).filled(:string)
         optional(:name).maybe(:string)

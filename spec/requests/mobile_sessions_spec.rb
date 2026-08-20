@@ -22,7 +22,7 @@ describe 'POST /api/v3/mobile_sessions' do
       title: 'Bike ride',
       time_zone: 'America/New_York',
       contribute: true,
-      airbeam: { mac_address: 'AA:BB:CC:DD:EE:FF', model: 'AirBeamMini' },
+      device: { mac_address: 'AA:BB:CC:DD:EE:FF', model: 'AirBeamMini' },
       streams: [{ sensor_name: 'AirBeamMini-PM2.5', unit_symbol: 'µg/m³' }],
     }
   end

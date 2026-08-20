@@ -11,7 +11,7 @@ RSpec.describe FixedSessions::Creator do
       latitude: 40.7128,
       longitude: -74.0060,
       contribute: true,
-      airbeam: { mac_address: 'AA:BB:CC:DD:EE:FF', model: 'AirBeamMini' },
+      device: { mac_address: 'AA:BB:CC:DD:EE:FF', model: 'AirBeamMini' },
       streams: [
         { sensor_name: 'AirBeamMini-PM1', unit_symbol: 'µg/m³' },
         { sensor_name: 'AirBeamMini-PM2.5', unit_symbol: 'µg/m³' },
@@ -77,7 +77,7 @@ RSpec.describe FixedSessions::Creator do
     end
 
     it 'updates device name when provided' do
-      params = valid_params.deep_merge(airbeam: { name: 'Bedroom' })
+      params = valid_params.deep_merge(device: { name: 'Bedroom' })
       creator.call(data: params, user: user)
       expect(Device.last.name).to eq('Bedroom')
     end

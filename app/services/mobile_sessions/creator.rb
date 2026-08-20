@@ -9,7 +9,7 @@ module MobileSessions
       return uuid_taken if uuid_taken?(data[:uuid])
 
       ActiveRecord::Base.transaction do
-        device = find_or_create_device(data[:airbeam], user)
+        device = find_or_create_device(data[:device], user)
         session = create_session(data, user, device)
         streams = create_streams(data, session)
         Success.new(session: session, streams: streams)
@@ -49,15 +49,15 @@ module MobileSessions
       Failure.new(error_code: ErrorCodes::SESSION_UUID_TAKEN, message: UUID_TAKEN_MESSAGE)
     end
 
-    def find_or_create_device(airbeam_params, user)
+    def find_or_create_device(device_params, user)
       # Scoped to the caller: a mac_address identifies a device only within one
       # user's account (see Device).
       device =
         user.devices.find_or_initialize_by(
-          mac_address: Device.normalize_mac_address(airbeam_params[:mac_address]),
+          mac_address: Device.normalize_mac_address(device_params[:mac_address]),
         )
-      device.model = airbeam_params[:model]
-      device.name = airbeam_params[:name] if airbeam_params.key?(:name)
+      device.model = device_params[:model]
+      device.name = device_params[:name] if device_params.key?(:name)
       device.save!
       device
     end

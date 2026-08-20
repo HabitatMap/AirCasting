@@ -28,6 +28,11 @@ RSpec.describe 'AirBeamMini Fixed Sessions Binary Flow', type: :request do
         before configuring the AirBeamMini. The response includes a `sensor_type_id` per
         stream that the AirBeamMini uses to identify stream types in the binary upload payload.
 
+        The device object is `device`; the old name `airbeam` is still accepted as a
+        deprecated alias for shipped app versions. `mac_address` is a stable device
+        identifier — an AirBeam's MAC, or whatever id a custom integration can offer —
+        and `model` is a free-form string.
+
         `uuid` must be in canonical UUID form (what `UUID.randomUUID()` / `UUID()`
         produce) and not already in use.
 
@@ -56,7 +61,7 @@ RSpec.describe 'AirBeamMini Fixed Sessions Binary Flow', type: :request do
 
       parameter name: :body, in: :body, required: true, schema: {
         type: :object,
-        required: %w[uuid title latitude longitude contribute airbeam streams],
+        required: %w[uuid title latitude longitude contribute device streams],
         properties: {
           uuid: { type: :string, format: :uuid, example: '550e8400-e29b-41d4-a716-446655440000' },
           title: { type: :string, example: 'Rooftop PM2.5 monitor' },
@@ -70,7 +75,7 @@ RSpec.describe 'AirBeamMini Fixed Sessions Binary Flow', type: :request do
             example: 'America/New_York',
             description: 'IANA time zone identifier of the sensor location. Required for indoor sessions, which send placeholder coordinates (200, 200); used to convert UTC measurement timestamps to local time for display. When omitted, the time zone is derived from latitude/longitude.',
           },
-          airbeam: {
+          device: {
             type: :object,
             required: %w[mac_address model],
             properties: {
@@ -161,7 +166,7 @@ RSpec.describe 'AirBeamMini Fixed Sessions Binary Flow', type: :request do
             latitude: 40.7128,
             longitude: -74.0060,
             contribute: true,
-            airbeam: { mac_address: 'AA:BB:CC:DD:EE:FF', model: 'AirBeamMini' },
+            device: { mac_address: 'AA:BB:CC:DD:EE:FF', model: 'AirBeamMini' },
             streams: [
               { sensor_name: 'AirBeamMini-PM1', unit_symbol: 'µg/m³' },
               { sensor_name: 'AirBeamMini-PM2.5', unit_symbol: 'µg/m³' },
