@@ -20,6 +20,9 @@ tags:
 - name: 'Mobile app: Sessions & sync'
   description: 'iOS/Android: upload/update AirBeam mobile sessions, sync, download
     session metadata, email export.'
+- name: 'Mobile app: Mobile sessions'
+  description: 'iOS/Android: the AirBeam and phone microphone mobile (moving) session API — create/list/show/update/delete
+    a session and upload or read its measurements.'
 - name: 'Mobile app: AirBeam fixed streaming'
   description: 'iOS/Android: create AirBeam fixed sessions and upload measurements
     — the new AirBeamMini binary flow (POST /api/v3/fixed_sessions[/{uuid}/measurements])
@@ -3018,12 +3021,27 @@ paths:
         before configuring the AirBeamMini. The response includes a `sensor_type_id` per
         stream that the AirBeamMini uses to identify stream types in the binary upload payload.
 
+        `uuid` must be in canonical UUID form (what `UUID.randomUUID()` / `UUID()`
+        produce) and not already in use.
+
+        Each sensor type may appear **once** per session — `AirBeamMini-PM2.5`
+        and `AirBeam2-PM2.5` are the same type (`AirBeam-PM2.5`) and cannot both
+        be requested. A session holds one stream per type, and the AirBeam
+        addresses streams by `sensor_type_id` in the binary upload.
+
         ## Error Codes
 
-        | `error_code` | HTTP | Description |
-        |---|---|---|
-        | `unauthorized` | 401 | Missing or invalid `Authorization` token |
-        | `validation_error` | 400 | Request body failed validation. See `fields` for per-field details |
+        Same vocabulary as `POST /api/v3/mobile_sessions`: a request whose
+        **shape** is wrong answers `validation_error` with `fields`; a request
+        that conflicts with **stored state** gets its own code and no `fields`.
+
+        | `error_code` | HTTP | Description | Client should |
+        |---|---|---|---|
+        | `unauthorized` | 401 | Missing or invalid `Authorization` token | Re-authenticate |
+        | `validation_error` | 400 | Body failed validation. See `fields` | Treat as a client bug — do not retry unchanged |
+        | `session_uuid_taken` | 400 | A session with this `uuid` already exists. No `fields` | Stop retrying; the session is already created — continue with it |
+        | `unsupported_sensor_type` | 400 | A requested `sensor_name` has no known sensor type | Unrecoverable; do not retry |
+        | `internal_error` | 400 | Server could not create the session (e.g. missing default thresholds) | Retry with backoff |
       parameters:
       - name: Authorization
         in: header
@@ -3040,12 +3058,21 @@ paths:
                 type: object
                 required:
                 - location
+                - share_url
                 - session_token
                 - streams
                 properties:
                   location:
                     type: string
                     example: http://aircasting.org/s/ab12c
+                    description: LEGACY alias of `share_url`, read by shipped app
+                      versions. Kept indefinitely; new clients should use `share_url`.
+                  share_url:
+                    type: string
+                    example: http://aircasting.org/s/ab12c
+                    description: Shareable session link (`<host>/s/<token>`). Append
+                      `?sensor_name=<stream>` before sharing — the link only resolves
+                      with that query parameter.
                   session_token:
                     type: string
                     description: Bearer token for AirBeam measurement uploads. The
@@ -3137,6 +3164,8 @@ paths:
                 contribute:
                   type: boolean
                   example: true
+                  description: Required — send it explicitly; the server applies no
+                    default.
                 is_indoor:
                   type: boolean
                   nullable: true
@@ -3574,7 +3603,7 @@ paths:
     get:
       summary: List the signed-in user's mobile sessions
       tags:
-      - 'Mobile app: Sessions & sync'
+      - 'Mobile app: Mobile sessions'
       description: |
         Returns the authenticated user's own mobile sessions — metadata and
         per-stream aggregates, **no measurements**. Ownership is implicit from the
@@ -3625,8 +3654,11 @@ paths:
                       type: boolean
                     start_time_local:
                       type: string
+                      nullable: true
+                      description: null until the first measurements arrive
                     end_time_local:
                       type: string
+                      nullable: true
                     version:
                       type: integer
                     latitude:
@@ -3637,6 +3669,10 @@ paths:
                       type: number
                       format: float
                       nullable: true
+                    share_url:
+                      type: string
+                      example: http://aircasting.org/s/ab12c
+                      description: Shareable session link
                     airbeam:
                       type: object
                       nullable: true
@@ -3688,12 +3724,17 @@ paths:
     post:
       summary: Create a mobile session
       tags:
-      - 'Mobile app: Sessions & sync'
+      - 'Mobile app: Mobile sessions'
       description: |
         Creates a new AirBeam mobile (moving) session, wrapping the legacy
         `sessions` / `streams` model. The app calls this once at the start of a
         recording; measurements are then streamed to
         `POST /api/v3/mobile_sessions/{uuid}/measurements`.
+
+        This call is configuration only. `start_time_local` / `end_time_local`
+        stay `null` until the first measurements arrive; such a session is
+        skipped by every map / search query and is visible only to its owner
+        (list, show, update, delete).
 
         Notes vs. the fixed-session create:
         - `time_zone` is **required** (not derived from coordinates).
@@ -3703,9 +3744,46 @@ paths:
           measurement carries its own location.
         - No `session_token` is returned — the measurements upload authenticates
           with the user token.
+        - `uuid` must be in canonical UUID form and unused.
+        - Fields outside this schema (`is_indoor`, `version`, `start_time`, …)
+          are ignored; mobile sessions are always stored as outdoor and the
+          version is server-owned (bumped by `PATCH`).
 
         The response includes a `sensor_type_id` per stream, used to identify
         streams in the binary measurement upload.
+
+        ## share_url
+
+        `share_url` is the session's capability link (`<host>/s/<token>`).
+        Anyone holding it can open the session, which is how a private
+        (`contribute: false`) session is shared. Store it with the session — the
+        list / show / update responses return it too, so a session synced onto a
+        second device stays shareable. Append the stream before sharing:
+        `<share_url>?sensor_name=AirBeamMini-PM2.5` — the link only resolves
+        with that query parameter. It is a full URL, not a token, because the
+        backend host is configurable.
+
+        ## Streams
+
+        Each sensor type may appear **once** per session — `AirBeamMini-PM2.5`
+        and `AirBeam2-PM2.5` are the same type (`AirBeam-PM2.5`) and cannot both
+        be requested. A session holds one stream per type, and the binary upload
+        addresses streams by `sensor_type_id`.
+
+        ## Error Codes
+
+        A request whose **shape** is wrong answers `validation_error` with
+        `fields`; a request that conflicts with **stored state** gets its own
+        code and no `fields`. `POST /api/v3/fixed_sessions` uses the same
+        vocabulary.
+
+        | `error_code` | HTTP | Description | Client should |
+        |---|---|---|---|
+        | `unauthorized` | 401 | Missing or invalid `Authorization` token | Re-authenticate |
+        | `validation_error` | 400 | Body failed validation. See `fields` | Treat as a client bug — do not retry unchanged |
+        | `session_uuid_taken` | 400 | A session with this `uuid` already exists. No `fields` | Stop retrying; the session is already created — continue with it |
+        | `unsupported_sensor_type` | 400 | A requested `sensor_name` has no known sensor type | Unrecoverable; do not retry |
+        | `internal_error` | 400 | Server could not create the session (e.g. missing default thresholds) | Retry with backoff |
       parameters:
       - name: Authorization
         in: header
@@ -3721,12 +3799,13 @@ paths:
               schema:
                 type: object
                 required:
-                - location
+                - share_url
                 - streams
                 properties:
-                  location:
+                  share_url:
                     type: string
                     example: http://aircasting.org/s/ab12c
+                    description: Shareable session link — see the endpoint description.
                   streams:
                     type: array
                     items:
@@ -3805,6 +3884,8 @@ paths:
                 contribute:
                   type: boolean
                   example: true
+                  description: Required — send it explicitly; the server applies no
+                    default.
                 tag_list:
                   type: string
                   nullable: true
@@ -3862,7 +3943,7 @@ paths:
     get:
       summary: Get one of the signed-in user's mobile sessions
       tags:
-      - 'Mobile app: Sessions & sync'
+      - 'Mobile app: Mobile sessions'
       description: |
         Returns a single mobile session owned by the authenticated user — metadata
         and per-stream aggregates, **no measurements** (fetch those from the
@@ -3902,8 +3983,11 @@ paths:
                     type: boolean
                   start_time_local:
                     type: string
+                    nullable: true
+                    description: null until the first measurements arrive
                   end_time_local:
                     type: string
+                    nullable: true
                   version:
                     type: integer
                   latitude:
@@ -3914,6 +3998,10 @@ paths:
                     type: number
                     format: float
                     nullable: true
+                  share_url:
+                    type: string
+                    example: http://aircasting.org/s/ab12c
+                    description: Shareable session link
                   airbeam:
                     type: object
                     nullable: true
@@ -3970,7 +4058,7 @@ paths:
     patch:
       summary: Update a mobile session
       tags:
-      - 'Mobile app: Sessions & sync'
+      - 'Mobile app: Mobile sessions'
       description: |
         Partial update of a mobile session: any subset of `title`, `tag_list`,
         `notes`, `streams` (to delete), and `airbeam` (device) info. Only the
@@ -4006,6 +4094,10 @@ paths:
                     type: integer
                   tag_list:
                     type: string
+                  share_url:
+                    type: string
+                    example: http://aircasting.org/s/ab12c
+                    description: Shareable session link
                   airbeam:
                     type: object
                     nullable: true
@@ -4108,7 +4200,7 @@ paths:
     delete:
       summary: Delete a mobile session
       tags:
-      - 'Mobile app: Sessions & sync'
+      - 'Mobile app: Mobile sessions'
       description: |
         Deletes one of the caller's mobile sessions. Cascades its streams,
         measurements and notes, and records a tombstone so other devices can drop
@@ -4161,7 +4253,7 @@ paths:
     get:
       summary: Get measurements for a mobile session
       tags:
-      - 'Mobile app: Sessions & sync'
+      - 'Mobile app: Mobile sessions'
       description: |
         Returns measurements for the session, keyed by sensor_name, each an array
         of `{ time, value, latitude, longitude }`. Defaults to the **latest 24h**
@@ -4262,7 +4354,7 @@ paths:
     post:
       summary: Send binary measurements for a mobile session
       tags:
-      - 'Mobile app: Sessions & sync'
+      - 'Mobile app: Mobile sessions'
       description: |
         Uploads AirBeam mobile measurements as a binary payload. Authenticated with
         the **user token** (no per-session token). Can be called live during a
