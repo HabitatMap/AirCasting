@@ -117,4 +117,37 @@ RSpec.describe Api::CreateFixedSessionContract do
     expect(result).to be_failure
     expect(result.errors[:time_zone]).to be_present
   end
+  it 'accepts optional thresholds on a stream' do
+    result = contract.call(valid_params.merge(
+      streams: [{ sensor_name: 'AirBeamMini-PM2.5', unit_symbol: 'µg/m³',
+                  thresholds: { very_low: 0.0, low: 9.0, medium: 35.0, high: 55.0, very_high: 150.0 } }],
+    ))
+    expect(result).to be_success
+  end
+
+  it 'fails when thresholds are given but incomplete' do
+    result = contract.call(valid_params.merge(
+      streams: [{ sensor_name: 'AirBeamMini-PM2.5', unit_symbol: 'µg/m³',
+                  thresholds: { very_low: 0.0, low: 9.0 } }],
+    ))
+    expect(result).to be_failure
+    expect(result.errors.to_h.dig(:streams, 0, :thresholds)).to be_present
+  end
+
+  it 'fails when thresholds are not in ascending order' do
+    result = contract.call(valid_params.merge(
+      streams: [{ sensor_name: 'AirBeamMini-PM2.5', unit_symbol: 'µg/m³',
+                  thresholds: { very_low: 50.0, low: 20.0, medium: 70.0, high: 80.0, very_high: 100.0 } }],
+    ))
+    expect(result).to be_failure
+    expect(result.errors.to_h.dig(:streams, 0, :thresholds).first).to match(/ascending order/)
+  end
+
+  it 'accepts a calibrated mic scale with a negative floor' do
+    result = contract.call(valid_params.merge(
+      streams: [{ sensor_name: 'Phone Microphone', unit_symbol: 'dB',
+                  thresholds: { very_low: -100.0, low: 60.0, medium: 70.0, high: 80.0, very_high: 100.0 } }],
+    ))
+    expect(result).to be_success
+  end
 end

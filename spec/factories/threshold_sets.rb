@@ -35,6 +35,16 @@ FactoryBot.define do
       threshold_very_high { 150 }
     end
 
+    trait :phone_microphone do
+      sensor_name { 'Phone Microphone' }
+      unit_symbol { 'dB' }
+      threshold_very_low { 20 }
+      threshold_low { 60 }
+      threshold_medium { 70 }
+      threshold_high { 80 }
+      threshold_very_high { 100 }
+    end
+
     trait :air_now_pm2_5 do
       sensor_name { 'Government-PM2.5' }
       unit_symbol { 'µg/m³' }
