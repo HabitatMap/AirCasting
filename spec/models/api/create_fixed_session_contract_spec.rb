@@ -31,10 +31,10 @@ RSpec.describe Api::CreateFixedSessionContract do
     expect(result.errors[:latitude]).to be_present
   end
 
-  it 'fails when airbeam mac_address is missing' do
+  it 'fails when device mac_address is missing' do
     result = contract.call(valid_params.deep_merge(airbeam: { mac_address: nil }))
     expect(result).to be_failure
-    expect(result.errors[:airbeam][:mac_address]).to be_present
+    expect(result.errors[:device][:mac_address]).to be_present
   end
 
   it 'fails when streams is empty' do
@@ -43,10 +43,33 @@ RSpec.describe Api::CreateFixedSessionContract do
     expect(result.errors[:streams]).to be_present
   end
 
-  it 'accepts optional device name in airbeam' do
+  it 'accepts an optional device name' do
     result = contract.call(valid_params.deep_merge(airbeam: { name: 'Bedroom sensor' }))
     expect(result).to be_success
-    expect(result.to_h[:airbeam][:name]).to eq('Bedroom sensor')
+    expect(result.to_h[:device][:name]).to eq('Bedroom sensor')
+  end
+
+  it 'accepts the new `device` key' do
+    params = valid_params.except(:airbeam).merge(
+      device: { mac_address: 'AA:BB:CC:DD:EE:FF', model: 'AirBeamMini' },
+    )
+    result = contract.call(params)
+    expect(result).to be_success
+    expect(result.to_h[:device][:model]).to eq('AirBeamMini')
+  end
+
+  it 'still accepts the legacy `airbeam` key and normalizes it to `device`' do
+    result = contract.call(valid_params)
+    expect(result).to be_success
+    expect(result.to_h).to have_key(:device)
+    expect(result.to_h).not_to have_key(:airbeam)
+  end
+
+  it 'prefers `device` when both keys are sent' do
+    params = valid_params.merge(device: { mac_address: 'FF:EE:DD:CC:BB:AA', model: 'Custom' })
+    result = contract.call(params)
+    expect(result).to be_success
+    expect(result.to_h[:device][:model]).to eq('Custom')
   end
 
   it 'accepts multiple valid streams' do

@@ -36,7 +36,7 @@ module FixedSessions
             ActiveRecord::Base.connection.execute("SET LOCAL lock_timeout = '#{LOCK_TIMEOUT}'")
           end
 
-          device = find_or_create_device(data[:airbeam], user)
+          device = find_or_create_device(data[:device], user)
           session = create_session(data, user, device)
           streams = create_streams(data, session)
           Success.new(session: session, session_token: session.session_token, streams: streams)
@@ -149,20 +149,20 @@ module FixedSessions
         streams.any? &&
         streams.all? { |stream| stream.sensor_type_id.present? } &&
         session.device&.mac_address ==
-          Device.normalize_mac_address(data.dig(:airbeam, :mac_address))
+          Device.normalize_mac_address(data.dig(:device, :mac_address))
 
       reusable ? session : nil
     end
 
-    def find_or_create_device(airbeam_params, user)
+    def find_or_create_device(device_params, user)
       # Scoped to the caller: a mac_address identifies a device only within one
       # user's account (see Device).
       device =
         user.devices.find_or_initialize_by(
-          mac_address: Device.normalize_mac_address(airbeam_params[:mac_address]),
+          mac_address: Device.normalize_mac_address(device_params[:mac_address]),
         )
-      device.model = airbeam_params[:model]
-      device.name = airbeam_params[:name] if airbeam_params.key?(:name)
+      device.model = device_params[:model]
+      device.name = device_params[:name] if device_params.key?(:name)
       device.save!
       device
     end

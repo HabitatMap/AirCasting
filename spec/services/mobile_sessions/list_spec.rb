@@ -13,7 +13,7 @@ RSpec.describe MobileSessions::List do
     expect(result.map { |s| s[:uuid] }).to eq([mine.uuid])
   end
 
-  it 'includes metadata, version, airbeam and per-stream aggregates (no measurements)' do
+  it 'includes metadata, version, device and per-stream aggregates (no measurements)' do
     device = create(:device, mac_address: 'AA:BB:CC:DD:EE:01', model: 'AirBeamMini')
     session = create(:mobile_session, user: user, device: device)
     create(:stream, session: session, sensor_name: 'AirBeamMini-PM2.5')
@@ -21,7 +21,7 @@ RSpec.describe MobileSessions::List do
     row = described_class.new(user: user).call.first
 
     expect(row).to include(:uuid, :title, :version, :start_time_local, :end_time_local, :tag_list, :share_url)
-    expect(row[:airbeam]).to eq(mac_address: 'AA:BB:CC:DD:EE:01', model: 'AirBeamMini', name: nil)
+    expect(row[:device]).to eq(mac_address: 'AA:BB:CC:DD:EE:01', model: 'AirBeamMini', name: nil)
     expect(row[:streams]).to have_key('AirBeamMini-PM2.5')
     expect(row[:streams]['AirBeamMini-PM2.5']).to include(:measurements_count, :average_value, :min_latitude)
     expect(row[:streams]['AirBeamMini-PM2.5']).not_to have_key(:measurements)

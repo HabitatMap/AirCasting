@@ -18,7 +18,7 @@ RSpec.describe MobileSessions::SessionSerializer do
       type: 'MobileSession',
       version: session.version,
     )
-    expect(result[:airbeam]).to eq(mac_address: 'AA:BB:CC:DD:EE:01', model: 'AirBeamMini', name: nil)
+    expect(result[:device]).to eq(mac_address: 'AA:BB:CC:DD:EE:01', model: 'AirBeamMini', name: nil)
     expect(result[:streams]).to have_key('AirBeamMini-PM2.5')
     expect(result[:streams]['AirBeamMini-PM2.5']).to include(:measurements_count, :average_value, :min_latitude)
     expect(result[:streams]['AirBeamMini-PM2.5']).not_to have_key(:measurements)
@@ -30,9 +30,9 @@ RSpec.describe MobileSessions::SessionSerializer do
     expect(serializer.call(session)[:share_url]).to end_with("/s/#{session.url_token}")
   end
 
-  it 'returns nil airbeam when the session has no device' do
+  it 'returns nil device when the session has none' do
     session = create(:mobile_session, user: user, device: nil)
-    expect(serializer.call(session)[:airbeam]).to be_nil
+    expect(serializer.call(session)[:device]).to be_nil
   end
 
   it 'is null-safe for a stream without measurements yet' do

@@ -58,7 +58,7 @@ RSpec.describe 'AirBeam Mobile Sessions', type: :request do
             longitude: { type: :number, format: :float, nullable: true },
             share_url: { type: :string, example: 'http://aircasting.org/s/ab12c',
                          description: 'Shareable session link' },
-            airbeam: {
+            device: {
               type: :object, nullable: true,
               properties: {
                 mac_address: { type: :string },
@@ -182,7 +182,7 @@ RSpec.describe 'AirBeam Mobile Sessions', type: :request do
 
       parameter name: :body, in: :body, required: true, schema: {
         type: :object,
-        required: %w[uuid title time_zone contribute airbeam streams],
+        required: %w[uuid title time_zone contribute device streams],
         properties: {
           uuid: { type: :string, format: :uuid, example: '550e8400-e29b-41d4-a716-446655440000' },
           title: { type: :string, example: 'Morning bike ride' },
@@ -195,12 +195,15 @@ RSpec.describe 'AirBeam Mobile Sessions', type: :request do
           latitude: { type: :number, format: :float, nullable: true, example: 40.7128,
                       description: 'Optional session start point.' },
           longitude: { type: :number, format: :float, nullable: true, example: -74.0060 },
-          airbeam: {
+          device: {
             type: :object,
             required: %w[mac_address model],
             properties: {
-              mac_address: { type: :string, example: 'AA:BB:CC:DD:EE:FF' },
-              model: { type: :string, example: 'AirBeamMini' },
+              mac_address: { type: :string, example: 'AA:BB:CC:DD:EE:FF',
+                             description: 'Stable device identifier. For an AirBeam this is its MAC; ' \
+                                          'a custom integration may send any stable id its hardware exposes.' },
+              model: { type: :string, example: 'AirBeamMini',
+                       description: 'Free-form model name — not restricted to AirBeam models.' },
               name: { type: :string, nullable: true, example: 'My AirBeam' }
             }
           },
@@ -277,7 +280,7 @@ RSpec.describe 'AirBeam Mobile Sessions', type: :request do
             title: 'Morning bike ride',
             time_zone: 'America/New_York',
             contribute: true,
-            airbeam: { mac_address: 'AA:BB:CC:DD:EE:FF', model: 'AirBeamMini' },
+            device: { mac_address: 'AA:BB:CC:DD:EE:FF', model: 'AirBeamMini' },
             streams: [
               { sensor_name: 'AirBeamMini-PM1', unit_symbol: 'µg/m³' },
               { sensor_name: 'AirBeamMini-PM2.5', unit_symbol: 'µg/m³' }
@@ -354,7 +357,7 @@ RSpec.describe 'AirBeam Mobile Sessions', type: :request do
                  longitude: { type: :number, format: :float, nullable: true },
                  share_url: { type: :string, example: 'http://aircasting.org/s/ab12c',
                               description: 'Shareable session link' },
-                 airbeam: {
+                 device: {
                    type: :object, nullable: true,
                    properties: {
                      mac_address: { type: :string },
@@ -409,9 +412,9 @@ RSpec.describe 'AirBeam Mobile Sessions', type: :request do
       produces 'application/json'
       description <<~DESC
         Partial update of a mobile session: any subset of `title`, `tag_list`,
-        `notes`, `streams` (to delete), and `airbeam` (device) info. Only the
+        `notes`, `streams` (to delete), and `device` info. Only the
         provided fields change. Streams flagged `deleted: true` are removed. The
-        `airbeam` object adds a device when the session has none, updates
+        `device` object adds a device when the session has none, updates
         `model`/`name` on the current device, or swaps to another by `mac_address`.
         Bumps the session `version` and returns the updated session.
       DESC
@@ -451,7 +454,7 @@ RSpec.describe 'AirBeam Mobile Sessions', type: :request do
               }
             }
           },
-          airbeam: {
+          device: {
             type: :object,
             properties: {
               mac_address: { type: :string, example: 'AA:BB:CC:DD:EE:FF' },
@@ -469,7 +472,7 @@ RSpec.describe 'AirBeam Mobile Sessions', type: :request do
           version: { type: :integer },
           tag_list: { type: :string },
           share_url: { type: :string, example: 'http://aircasting.org/s/ab12c', description: 'Shareable session link' },
-          airbeam: { type: :object, nullable: true, additionalProperties: true },
+          device: { type: :object, nullable: true, additionalProperties: true },
           streams: { type: :object, additionalProperties: { type: :object, additionalProperties: true } }
         }
 
@@ -479,7 +482,7 @@ RSpec.describe 'AirBeam Mobile Sessions', type: :request do
         let(:uuid) { session_record.uuid }
         let(:body) do
           { title: 'Renamed ride',
-            airbeam: { mac_address: 'AA:BB:CC:DD:EE:FF', model: 'AirBeamMini', name: 'Backpack' } }
+            device: { mac_address: 'AA:BB:CC:DD:EE:FF', model: 'AirBeamMini', name: 'Backpack' } }
         end
         before { sign_in user }
         run_test!

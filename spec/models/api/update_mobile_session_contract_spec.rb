@@ -43,13 +43,13 @@ RSpec.describe Api::UpdateMobileSessionContract do
     expect(result.errors.to_h.dig(:streams, 0, :sensor_name)).to be_present
   end
 
-  it 'fails when airbeam mac_address is blank' do
-    result = contract.call(airbeam: { mac_address: '' })
+  it 'fails when device mac_address is blank' do
+    result = contract.call(device: { mac_address: '' })
     expect(result).to be_failure
-    expect(result.errors.to_h.dig(:airbeam, :mac_address)).to be_present
+    expect(result.errors.to_h.dig(:device, :mac_address)).to be_present
   end
 
   it 'accepts airbeam with only a name (partial device update)' do
-    expect(contract.call(airbeam: { name: 'Backpack' })).to be_success
+    expect(contract.call(device: { name: 'Backpack' })).to be_success
   end
 end

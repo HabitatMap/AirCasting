@@ -9,7 +9,7 @@ RSpec.describe Api::CreateMobileSessionContract do
       title: 'Bike ride',
       time_zone: 'America/New_York',
       contribute: true,
-      airbeam: { mac_address: 'AA:BB:CC:DD:EE:FF', model: 'AirBeamMini' },
+      device: { mac_address: 'AA:BB:CC:DD:EE:FF', model: 'AirBeamMini' },
       streams: [{ sensor_name: 'AirBeamMini-PM2.5', unit_symbol: 'µg/m³' }],
     }
   end
@@ -55,16 +55,16 @@ RSpec.describe Api::CreateMobileSessionContract do
     expect(result).to be_success
   end
 
-  it 'fails when airbeam mac_address is missing' do
-    result = contract.call(valid_params.deep_merge(airbeam: { mac_address: nil }))
+  it 'fails when device mac_address is missing' do
+    result = contract.call(valid_params.deep_merge(device: { mac_address: nil }))
     expect(result).to be_failure
-    expect(result.errors[:airbeam][:mac_address]).to be_present
+    expect(result.errors[:device][:mac_address]).to be_present
   end
 
-  it 'accepts optional device name in airbeam' do
-    result = contract.call(valid_params.deep_merge(airbeam: { name: 'My AirBeam' }))
+  it 'accepts an optional device name' do
+    result = contract.call(valid_params.deep_merge(device: { name: 'My AirBeam' }))
     expect(result).to be_success
-    expect(result.to_h[:airbeam][:name]).to eq('My AirBeam')
+    expect(result.to_h[:device][:name]).to eq('My AirBeam')
   end
 
   it 'fails when streams is empty' do
