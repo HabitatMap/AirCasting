@@ -73,11 +73,45 @@ RSpec.describe Api::CreateMobileSessionContract do
     expect(result.errors[:streams]).to be_present
   end
 
-  it 'fails for unsupported sensor_name' do
-    params = valid_params.merge(streams: [{ sensor_name: 'UnknownSensor-XYZ', unit_symbol: 'µg/m³' }])
-    result = contract.call(params)
-    expect(result).to be_failure
-    expect(result.errors.to_h.dig(:streams, 0, :sensor_name)).to be_present
+  context 'custom sensors' do
+    let(:custom_stream) do
+      { sensor_name: 'Bosch-BMP180', unit_symbol: 'hPa', measurement_type: 'Barometric pressure',
+        measurement_short_type: 'hPa', unit_name: 'hectopascals',
+        thresholds: { very_low: 950.0, low: 980.0, medium: 1000.0, high: 1020.0, very_high: 1050.0 } }
+    end
+
+    it 'accepts an unknown sensor when the client describes it' do
+      expect(contract.call(valid_params.merge(streams: [custom_stream]))).to be_success
+    end
+
+    it 'requires the metadata the server cannot infer' do
+      result = contract.call(valid_params.merge(
+        streams: [{ sensor_name: 'Bosch-BMP180', unit_symbol: 'hPa' }],
+      ))
+      expect(result).to be_failure
+      errors = result.errors.to_h.dig(:streams, 0)
+      expect(errors.keys).to match_array(%i[measurement_type measurement_short_type unit_name])
+    end
+
+    it 'caps the length of client-described fields' do
+      result = contract.call(valid_params.merge(
+        streams: [custom_stream.merge(measurement_type: 'x' * 65)],
+      ))
+      expect(result).to be_failure
+      expect(result.errors.to_h.dig(:streams, 0, :measurement_type).first).to match(/at most 64/)
+    end
+
+    it 'rejects a custom sensor that reuses a built-in name' do
+      result = contract.call(valid_params.merge(
+        streams: [custom_stream.merge(sensor_name: 'airbeam2-pm2.5')],
+      ))
+      expect(result).to be_failure
+      expect(result.errors.to_h.dig(:streams, 0, :sensor_name).first).to match(/built-in sensor name/)
+    end
+
+    it 'does not ask a known sensor for metadata' do
+      expect(contract.call(valid_params)).to be_success
+    end
   end
 
   it 'fails when unit_symbol does not match the sensor' do

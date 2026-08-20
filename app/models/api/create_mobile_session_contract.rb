@@ -4,6 +4,16 @@ module Api
     # (Android `UUID.randomUUID`, iOS `UUID`).
     UUID_FORMAT = /\A\h{8}-\h{4}-\h{4}-\h{4}-\h{12}\z/
 
+    # Metadata a custom sensor must carry, because the server cannot infer it.
+    CUSTOM_SENSOR_FIELDS = %i[measurement_type measurement_short_type unit_name].freeze
+    # Well above the longest value in production (41 chars) and short enough to
+    # keep the public sensor list readable.
+    MAX_SENSOR_FIELD_LENGTH = 64
+    # Names that resolve to a server-known sensor, in any casing.
+    BUILTIN_SENSOR_NAMES = (
+      Sensor::CANONICAL_SENSOR_NAME_MAP.keys + Sensor::CANONICAL_SENSOR_TYPE_IDS.keys
+    ).map(&:downcase).uniq.freeze
+
     params do
       required(:uuid).filled(:string)
       required(:title).filled(:string)
@@ -23,6 +33,11 @@ module Api
       required(:streams).array(:hash) do
         required(:sensor_name).filled(:string)
         required(:unit_symbol).filled(:string)
+        # Required for sensors the server does not know (see the streams rule);
+        # ignored for known ones, whose metadata is server-owned.
+        optional(:measurement_type).filled(:string)
+        optional(:measurement_short_type).filled(:string)
+        optional(:unit_name).filled(:string)
         optional(:thresholds).hash do
           required(:very_low).filled(:float)
           required(:low).filled(:float)
@@ -70,18 +85,20 @@ module Api
     end
 
     rule(:streams) do
+      # Two tiers. A sensor the server knows (`Sensor::CANONICAL_SENSOR_TYPE_IDS`)
+      # is described entirely server-side — the client sends only a name and unit.
+      # Anything else is a custom integration: it may be uploaded, but the client
+      # has to describe it, because nothing else can.
+      #
       # A session holds at most one stream per sensor type (unique index on
       # streams.session_id + sensor_type_id), and the binary upload addresses
-      # streams by that id — two streams of one type would be unaddressable.
+      # streams by that id, so a type may appear only once either way.
       seen = {}
 
       value.each_with_index do |stream, i|
-        canonical = Sensor.canonical_sensor_name(stream[:sensor_name])
-
-        unless Sensor::CANONICAL_SENSOR_TYPE_IDS.key?(canonical)
-          key([:streams, i, :sensor_name]).failure("'#{stream[:sensor_name]}' is not a supported sensor type")
-          next
-        end
+        name = stream[:sensor_name].to_s.strip
+        canonical = Sensor.canonical_sensor_name(name)
+        known = Sensor::CANONICAL_SENSOR_TYPE_IDS.key?(canonical)
 
         if seen.key?(canonical)
           key([:streams, i, :sensor_name]).failure(
@@ -91,10 +108,35 @@ module Api
         end
         seen[canonical] = i
 
-        expected_unit = Sensor::CANONICAL_UNIT_SYMBOLS[canonical]
-        if stream[:unit_symbol] != expected_unit
-          key([:streams, i, :unit_symbol]).failure(
-            "expected '#{expected_unit}' for #{canonical}, got '#{stream[:unit_symbol]}'",
+        if known
+          expected_unit = Sensor::CANONICAL_UNIT_SYMBOLS[canonical]
+          if stream[:unit_symbol] != expected_unit
+            key([:streams, i, :unit_symbol]).failure(
+              "expected '#{expected_unit}' for #{canonical}, got '#{stream[:unit_symbol]}'",
+            )
+          end
+          next
+        end
+
+        # --- custom sensor ---
+        CUSTOM_SENSOR_FIELDS.each do |field|
+          next if stream[field].to_s.strip.present?
+
+          key([:streams, i, field]).failure(
+            "is required for '#{name}', which is not a sensor the server knows",
+          )
+        end
+
+        (CUSTOM_SENSOR_FIELDS + %i[sensor_name unit_symbol]).each do |field|
+          text = stream[field].to_s.strip
+          next if text.empty? || text.length <= MAX_SENSOR_FIELD_LENGTH
+
+          key([:streams, i, field]).failure("must be at most #{MAX_SENSOR_FIELD_LENGTH} characters")
+        end
+
+        if BUILTIN_SENSOR_NAMES.include?(name.downcase)
+          key([:streams, i, :sensor_name]).failure(
+            "'#{name}' is a built-in sensor name — send it with its own unit and no custom metadata",
           )
         end
       end
