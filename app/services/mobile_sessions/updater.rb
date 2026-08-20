@@ -8,7 +8,7 @@ module MobileSessions
       ActiveRecord::Base.transaction do
         session.title = data[:title] if data.key?(:title)
         session.tag_list = SessionBuilder.normalize_tags(data[:tag_list]) if data.key?(:tag_list)
-        update_device(session, data[:airbeam]) if data.key?(:airbeam)
+        update_device(session, data[:device]) if data.key?(:device)
         delete_flagged_streams(session, data[:streams]) if data.key?(:streams)
         reconcile_notes(session, data[:notes]) if data.key?(:notes)
         session.version = session.version.to_i + 1
@@ -24,12 +24,12 @@ module MobileSessions
 
     private
 
-    def update_device(session, airbeam)
-      return if airbeam.blank?
+    def update_device(session, device_params)
+      return if device_params.blank?
       # Nothing to attach to: no existing device and no mac_address to identify one.
-      return if airbeam[:mac_address].blank? && session.device.nil?
+      return if device_params[:mac_address].blank? && session.device.nil?
 
-      mac_address = Device.normalize_mac_address(airbeam[:mac_address])
+      mac_address = Device.normalize_mac_address(device_params[:mac_address])
 
       device =
         if session.device && (mac_address.blank? || session.device.mac_address == mac_address)
@@ -40,8 +40,8 @@ module MobileSessions
           session.user.devices.find_or_initialize_by(mac_address: mac_address)
         end
 
-      device.model = airbeam[:model] if airbeam[:model].present?
-      device.name = airbeam[:name] if airbeam.key?(:name)
+      device.model = device_params[:model] if device_params[:model].present?
+      device.name = device_params[:name] if device_params.key?(:name)
       device.save!
       session.device = device
     end

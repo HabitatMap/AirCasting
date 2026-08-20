@@ -12,10 +12,21 @@ module Api
       required(:contribute).filled(:bool)
       optional(:is_indoor).maybe(:bool)
       optional(:time_zone).maybe(:string)
-      required(:airbeam).hash do
+      # `mac_address` is a *device identifier*, not necessarily a hardware MAC:
+      # custom integrations should send whatever stable id their hardware has,
+      # and `model` is a free string, not an AirBeam enum.
+      required(:device).hash do
         required(:mac_address).filled(:string)
         required(:model).filled(:string)
         optional(:name).maybe(:string)
+      end
+
+      # LEGACY: shipped app versions send this object as `airbeam`. Accepted as an
+      # alias so they keep working; everything downstream sees `device`.
+      before(:key_coercer) do |result|
+        hash = result.to_h
+        hash[:device] = hash.delete(:airbeam) if hash.key?(:airbeam) && !hash.key?(:device)
+        hash
       end
       required(:streams).array(:hash) do
         required(:sensor_name).filled(:string)

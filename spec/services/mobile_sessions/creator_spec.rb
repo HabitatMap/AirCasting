@@ -13,7 +13,7 @@ RSpec.describe MobileSessions::Creator do
       tag_list: 'commute, bike',
       latitude: 40.7128,
       longitude: -74.0060,
-      airbeam: { mac_address: 'AA:BB:CC:DD:EE:FF', model: 'AirBeamMini' },
+      device: { mac_address: 'AA:BB:CC:DD:EE:FF', model: 'AirBeamMini' },
       streams: [
         { sensor_name: 'AirBeamMini-PM1', unit_symbol: 'µg/m³' },
         { sensor_name: 'AirBeamMini-PM2.5', unit_symbol: 'µg/m³' },
@@ -105,14 +105,14 @@ RSpec.describe MobileSessions::Creator do
       other_user = create(:user)
       foreign = create(:device, user: other_user, mac_address: 'AA:BB:CC:DD:EE:FF', name: 'Their AirBeam')
 
-      creator.call(data: valid_params.deep_merge(airbeam: { name: 'My AirBeam' }), user: user)
+      creator.call(data: valid_params.deep_merge(device: { name: 'My AirBeam' }), user: user)
 
       expect(foreign.reload.name).to eq('Their AirBeam')
       expect(MobileSession.last.device.user_id).to eq(user.id)
     end
 
     it 'updates device name when provided' do
-      params = valid_params.deep_merge(airbeam: { name: 'My AirBeam' })
+      params = valid_params.deep_merge(device: { name: 'My AirBeam' })
       creator.call(data: params, user: user)
       expect(Device.last.name).to eq('My AirBeam')
     end

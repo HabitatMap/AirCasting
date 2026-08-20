@@ -1,6 +1,6 @@
 module Api
   # Partial update for a mobile session: any subset of title, tag_list, notes,
-  # streams (to delete), and airbeam (device) info may be sent.
+  # streams (to delete), and device info may be sent.
   class UpdateMobileSessionContract < Dry::Validation::Contract
     params do
       optional(:title).filled(:string)
@@ -17,7 +17,7 @@ module Api
         optional(:sensor_package_name).maybe(:string)
         optional(:deleted).maybe(:bool)
       end
-      optional(:airbeam).hash do
+      optional(:device).hash do
         optional(:mac_address).filled(:string)
         optional(:model).filled(:string)
         optional(:name).maybe(:string)

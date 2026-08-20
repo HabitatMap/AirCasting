@@ -18,7 +18,7 @@ module MobileSessions
         latitude: session.latitude,
         longitude: session.longitude,
         share_url: share_url(session),
-        airbeam: airbeam(session.device),
+        device: device(session.device),
         streams: streams(session),
       }
     end
@@ -36,10 +36,10 @@ module MobileSessions
       )
     end
 
-    def airbeam(device)
-      return nil unless device
+    def device(record)
+      return nil unless record
 
-      { mac_address: device.mac_address, model: device.model, name: device.name }
+      { mac_address: record.mac_address, model: record.model, name: record.name }
     end
 
     def streams(session)

@@ -3021,6 +3021,11 @@ paths:
         before configuring the AirBeamMini. The response includes a `sensor_type_id` per
         stream that the AirBeamMini uses to identify stream types in the binary upload payload.
 
+        The device object is `device`; the old name `airbeam` is still accepted as a
+        deprecated alias for shipped app versions. `mac_address` is a stable device
+        identifier — an AirBeam's MAC, or whatever id a custom integration can offer —
+        and `model` is a free-form string.
+
         `uuid` must be in canonical UUID form (what `UUID.randomUUID()` / `UUID()`
         produce) and not already in use.
 
@@ -3143,7 +3148,7 @@ paths:
               - latitude
               - longitude
               - contribute
-              - airbeam
+              - device
               - streams
               properties:
                 uuid:
@@ -3180,7 +3185,7 @@ paths:
                     for indoor sessions, which send placeholder coordinates (200,
                     200); used to convert UTC measurement timestamps to local time
                     for display. When omitted, the time zone is derived from latitude/longitude.
-                airbeam:
+                device:
                   type: object
                   required:
                   - mac_address
@@ -3673,7 +3678,7 @@ paths:
                       type: string
                       example: http://aircasting.org/s/ab12c
                       description: Shareable session link
-                    airbeam:
+                    device:
                       type: object
                       nullable: true
                       properties:
@@ -3880,7 +3885,7 @@ paths:
               - title
               - time_zone
               - contribute
-              - airbeam
+              - device
               - streams
               properties:
                 uuid:
@@ -3915,7 +3920,7 @@ paths:
                   format: float
                   nullable: true
                   example: -74.006
-                airbeam:
+                device:
                   type: object
                   required:
                   - mac_address
@@ -3924,9 +3929,14 @@ paths:
                     mac_address:
                       type: string
                       example: AA:BB:CC:DD:EE:FF
+                      description: Stable device identifier. For an AirBeam this is
+                        its MAC; a custom integration may send any stable id its hardware
+                        exposes.
                     model:
                       type: string
                       example: AirBeamMini
+                      description: Free-form model name — not restricted to AirBeam
+                        models.
                     name:
                       type: string
                       nullable: true
@@ -4043,7 +4053,7 @@ paths:
                     type: string
                     example: http://aircasting.org/s/ab12c
                     description: Shareable session link
-                  airbeam:
+                  device:
                     type: object
                     nullable: true
                     properties:
@@ -4102,9 +4112,9 @@ paths:
       - 'Mobile app: Mobile sessions'
       description: |
         Partial update of a mobile session: any subset of `title`, `tag_list`,
-        `notes`, `streams` (to delete), and `airbeam` (device) info. Only the
+        `notes`, `streams` (to delete), and `device` info. Only the
         provided fields change. Streams flagged `deleted: true` are removed. The
-        `airbeam` object adds a device when the session has none, updates
+        `device` object adds a device when the session has none, updates
         `model`/`name` on the current device, or swaps to another by `mac_address`.
         Bumps the session `version` and returns the updated session.
       parameters:
@@ -4139,7 +4149,7 @@ paths:
                     type: string
                     example: http://aircasting.org/s/ab12c
                     description: Shareable session link
-                  airbeam:
+                  device:
                     type: object
                     nullable: true
                     additionalProperties: true
@@ -4224,7 +4234,7 @@ paths:
                       deleted:
                         type: boolean
                         example: true
-                airbeam:
+                device:
                   type: object
                   properties:
                     mac_address:
