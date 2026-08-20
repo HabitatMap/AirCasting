@@ -276,13 +276,14 @@ RSpec.describe FixedSessions::Creator do
       expect(result.errors[:message]).to eq(described_class::UUID_TAKEN_MESSAGE)
     end
 
-    it 'keeps the seed hint when no default ThresholdSet exists' do
+    it 'tells the client to send thresholds when no default ThresholdSet exists' do
       ThresholdSet.delete_all
 
       result = creator.call(data: valid_params, user: user)
 
       expect(result).to be_failure
-      expect(result.errors[:message]).to include('run db:seed')
+      expect(result.errors[:error_code]).to eq('validation_error')
+      expect(result.errors[:message]).to include('send `thresholds` for this stream')
     end
   end
 

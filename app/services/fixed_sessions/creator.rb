@@ -1,6 +1,7 @@
 module FixedSessions
   class Creator
     UnknownStreamTypeError = Class.new(StandardError)
+    MissingThresholdsError = Class.new(StandardError)
     # A stream conflict is a request problem; a uuid or device conflict is not.
     # Both surface as RecordNotUnique, so this one is retyped at the raise site to
     # keep the method-level rescue below from having to read PG message text.
@@ -65,6 +66,8 @@ module FixedSessions
         error_code: BinaryProtocol::ErrorCodes::INTERNAL_ERROR,
         message: 'Could not create this session, please retry',
       )
+    rescue MissingThresholdsError => e
+      Failure.new(error_code: BinaryProtocol::ErrorCodes::VALIDATION_ERROR, message: e.message)
     rescue UnknownStreamTypeError => e
       Failure.new(error_code: BinaryProtocol::ErrorCodes::UNSUPPORTED_SENSOR_TYPE, message: e.message)
     rescue DuplicateStreamError
@@ -208,7 +211,7 @@ module FixedSessions
         raise UnknownStreamTypeError, "unsupported sensor: #{stream_params[:sensor_name]}" unless type_id
 
         unit_symbol = stream_params[:unit_symbol]
-        threshold_set = find_or_create_threshold_set(canonical, unit_symbol)
+        threshold_set = resolve_threshold_set(canonical, unit_symbol, stream_params[:thresholds])
 
         stream = streams_repository.create!(
           params: {
@@ -234,10 +237,11 @@ module FixedSessions
         }
       end
     rescue ActiveRecord::RecordNotUnique
-      # One stream per sensor type is a database constraint; the contract rejects
-      # a repeated type first, so arriving here means a request it let through.
-      # Retyped so the rescue chain in #call can tell it from a uuid or device
-      # conflict without matching on PG message text.
+      # idx_streams_session_sensor_type_id is the only unique constraint anything
+      # in here can violate — the contract rejects a repeated sensor type first, so
+      # arriving at it means a request it let through. Retyped so the rescue chain
+      # in #call can tell it from a uuid or device conflict without matching on PG
+      # message text.
       raise DuplicateStreamError
     end
 
@@ -252,11 +256,30 @@ module FixedSessions
       "#{device.model}:#{device.mac_address.downcase}"
     end
 
-    def find_or_create_threshold_set(canonical, unit_symbol)
-      ThresholdSet.find_by!(sensor_name: canonical, unit_symbol: unit_symbol, is_default: true)
-    rescue ActiveRecord::RecordNotFound
-      raise ActiveRecord::RecordNotFound,
-            "No default ThresholdSet for #{canonical} (#{unit_symbol}) — run db:seed"
+    # Threshold resolution, in order:
+    #   1. values sent by the client — reused if an identical set already exists,
+    #      which also matches the default row when the client sends default values
+    #      (the lookup ignores `is_default`, exactly as the legacy upload did);
+    #   2. the seeded default set for the sensor;
+    #   3. neither — a client error, not a server fault.
+    def resolve_threshold_set(canonical, unit_symbol, values)
+      if values.present?
+        return ThresholdSet.find_or_create_by!(
+          sensor_name: canonical,
+          unit_symbol: unit_symbol,
+          threshold_very_low: values[:very_low],
+          threshold_low: values[:low],
+          threshold_medium: values[:medium],
+          threshold_high: values[:high],
+          threshold_very_high: values[:very_high],
+        )
+      end
+
+      default = ThresholdSet.find_by(sensor_name: canonical, unit_symbol: unit_symbol, is_default: true)
+      return default if default
+
+      raise MissingThresholdsError,
+            "no default thresholds exist for #{canonical} (#{unit_symbol}) — send `thresholds` for this stream"
     end
   end
 end
