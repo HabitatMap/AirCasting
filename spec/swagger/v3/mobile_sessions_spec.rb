@@ -17,13 +17,13 @@ RSpec.describe 'AirBeam Mobile Sessions', type: :request do
     required: %w[error_code message],
     properties: {
       error_code: { type: :string },
-      message: { type: :string },
-    },
+      message: { type: :string }
+    }
   }.freeze
 
   path '/api/v3/mobile_sessions' do
     get "List the signed-in user's mobile sessions" do
-      tags 'Mobile app: Sessions & sync'
+      tags 'Mobile app: Mobile sessions'
       produces 'application/json'
       description <<~DESC
         Returns the authenticated user's own mobile sessions — metadata and
@@ -35,8 +35,10 @@ RSpec.describe 'AirBeam Mobile Sessions', type: :request do
 
       parameter name: :Authorization, in: :header, type: :string, required: true,
                 description: 'Token token=<user_token>'
-      parameter name: :page, in: :query, required: false, schema: { type: :integer }, description: '1-based page (with per_page)'
-      parameter name: :per_page, in: :query, required: false, schema: { type: :integer }, description: 'Page size; omit for the full set'
+      parameter name: :page, in: :query, required: false, schema: { type: :integer },
+                description: '1-based page (with per_page)'
+      parameter name: :per_page, in: :query, required: false, schema: { type: :integer },
+                description: 'Page size; omit for the full set'
 
       response '200', 'sessions' do
         schema type: :array, items: {
@@ -48,19 +50,21 @@ RSpec.describe 'AirBeam Mobile Sessions', type: :request do
             type: { type: :string, example: 'MobileSession' },
             tag_list: { type: :string },
             contribute: { type: :boolean },
-            start_time_local: { type: :string, nullable: true, description: 'null until the first measurements arrive' },
+            start_time_local: { type: :string, nullable: true,
+                                description: 'null until the first measurements arrive' },
             end_time_local: { type: :string, nullable: true },
             version: { type: :integer },
             latitude: { type: :number, format: :float, nullable: true },
             longitude: { type: :number, format: :float, nullable: true },
-            share_url: { type: :string, example: 'http://aircasting.org/s/ab12c', description: 'Shareable session link' },
+            share_url: { type: :string, example: 'http://aircasting.org/s/ab12c',
+                         description: 'Shareable session link' },
             airbeam: {
               type: :object, nullable: true,
               properties: {
                 mac_address: { type: :string },
                 model: { type: :string },
-                name: { type: :string, nullable: true },
-              },
+                name: { type: :string, nullable: true }
+              }
             },
             streams: {
               type: :object,
@@ -72,10 +76,10 @@ RSpec.describe 'AirBeam Mobile Sessions', type: :request do
                   unit_symbol: 'µg/m³', measurements_count: 1440, average_value: 12.5,
                   min_latitude: 40.70, max_latitude: 40.75, min_longitude: -74.02, max_longitude: -73.98,
                   threshold_low: 9, threshold_medium: 35, threshold_high: 55, threshold_very_high: 150, threshold_very_low: 0
-                },
-              },
-            },
-          },
+                }
+              }
+            }
+          }
         }
 
         let(:user) { create(:user) }
@@ -96,7 +100,7 @@ RSpec.describe 'AirBeam Mobile Sessions', type: :request do
     end
 
     post 'Create a mobile session' do
-      tags 'Mobile app: Sessions & sync'
+      tags 'Mobile app: Mobile sessions'
       consumes 'application/json'
       produces 'application/json'
       description <<~DESC
@@ -169,10 +173,14 @@ RSpec.describe 'AirBeam Mobile Sessions', type: :request do
         properties: {
           uuid: { type: :string, format: :uuid, example: '550e8400-e29b-41d4-a716-446655440000' },
           title: { type: :string, example: 'Morning bike ride' },
-          time_zone: { type: :string, example: 'America/New_York', description: 'IANA time zone identifier (required).' },
-          contribute: { type: :boolean, example: true, description: 'Required — send it explicitly; the server applies no default.' },
-          tag_list: { type: :string, nullable: true, example: 'commute, bike', description: 'Space/comma separated tags.' },
-          latitude: { type: :number, format: :float, nullable: true, example: 40.7128, description: 'Optional session start point.' },
+          time_zone: { type: :string, example: 'America/New_York',
+                       description: 'IANA time zone identifier (required).' },
+          contribute: { type: :boolean, example: true,
+                        description: 'Required — send it explicitly; the server applies no default.' },
+          tag_list: { type: :string, nullable: true, example: 'commute, bike',
+                      description: 'Space/comma separated tags.' },
+          latitude: { type: :number, format: :float, nullable: true, example: 40.7128,
+                      description: 'Optional session start point.' },
           longitude: { type: :number, format: :float, nullable: true, example: -74.0060 },
           airbeam: {
             type: :object,
@@ -180,8 +188,8 @@ RSpec.describe 'AirBeam Mobile Sessions', type: :request do
             properties: {
               mac_address: { type: :string, example: 'AA:BB:CC:DD:EE:FF' },
               model: { type: :string, example: 'AirBeamMini' },
-              name: { type: :string, nullable: true, example: 'My AirBeam' },
-            },
+              name: { type: :string, nullable: true, example: 'My AirBeam' }
+            }
           },
           streams: {
             type: :array,
@@ -191,15 +199,15 @@ RSpec.describe 'AirBeam Mobile Sessions', type: :request do
               required: %w[sensor_name unit_symbol],
               properties: {
                 sensor_name: { type: :string, example: 'AirBeamMini-PM2.5' },
-                unit_symbol: { type: :string, example: 'µg/m³' },
-              },
+                unit_symbol: { type: :string, example: 'µg/m³' }
+              }
             },
             example: [
               { sensor_name: 'AirBeamMini-PM1', unit_symbol: 'µg/m³' },
-              { sensor_name: 'AirBeamMini-PM2.5', unit_symbol: 'µg/m³' },
-            ],
-          },
-        },
+              { sensor_name: 'AirBeamMini-PM2.5', unit_symbol: 'µg/m³' }
+            ]
+          }
+        }
       }
 
       response '201', 'session created' do
@@ -209,7 +217,7 @@ RSpec.describe 'AirBeam Mobile Sessions', type: :request do
                  share_url: {
                    type: :string,
                    example: 'http://aircasting.org/s/ab12c',
-                   description: 'Shareable session link — see the endpoint description.',
+                   description: 'Shareable session link — see the endpoint description.'
                  },
                  streams: {
                    type: :array,
@@ -218,10 +226,10 @@ RSpec.describe 'AirBeam Mobile Sessions', type: :request do
                      required: %w[sensor_name sensor_type_id],
                      properties: {
                        sensor_name: { type: :string, example: 'AirBeamMini-PM2.5' },
-                       sensor_type_id: { type: :integer, example: 2 },
-                     },
-                   },
-                 },
+                       sensor_type_id: { type: :integer, example: 2 }
+                     }
+                   }
+                 }
                }
 
         before(:all) do
@@ -245,8 +253,8 @@ RSpec.describe 'AirBeam Mobile Sessions', type: :request do
             airbeam: { mac_address: 'AA:BB:CC:DD:EE:FF', model: 'AirBeamMini' },
             streams: [
               { sensor_name: 'AirBeamMini-PM1', unit_symbol: 'µg/m³' },
-              { sensor_name: 'AirBeamMini-PM2.5', unit_symbol: 'µg/m³' },
-            ],
+              { sensor_name: 'AirBeamMini-PM2.5', unit_symbol: 'µg/m³' }
+            ]
           }
         end
 
@@ -264,8 +272,8 @@ RSpec.describe 'AirBeam Mobile Sessions', type: :request do
                  fields: {
                    type: :object,
                    description: 'Per-field validation errors',
-                   additionalProperties: { type: :array, items: { type: :string } },
-                 },
+                   additionalProperties: { type: :array, items: { type: :string } }
+                 }
                }
 
         let(:user) { create(:user) }
@@ -290,7 +298,7 @@ RSpec.describe 'AirBeam Mobile Sessions', type: :request do
 
   path '/api/v3/mobile_sessions/{uuid}' do
     get 'Get one of the signed-in user\'s mobile sessions' do
-      tags 'Mobile app: Sessions & sync'
+      tags 'Mobile app: Mobile sessions'
       produces 'application/json'
       description <<~DESC
         Returns a single mobile session owned by the authenticated user — metadata
@@ -311,19 +319,21 @@ RSpec.describe 'AirBeam Mobile Sessions', type: :request do
                  type: { type: :string, example: 'MobileSession' },
                  tag_list: { type: :string },
                  contribute: { type: :boolean },
-                 start_time_local: { type: :string, nullable: true, description: 'null until the first measurements arrive' },
+                 start_time_local: { type: :string, nullable: true,
+                                     description: 'null until the first measurements arrive' },
                  end_time_local: { type: :string, nullable: true },
                  version: { type: :integer },
                  latitude: { type: :number, format: :float, nullable: true },
                  longitude: { type: :number, format: :float, nullable: true },
-                 share_url: { type: :string, example: 'http://aircasting.org/s/ab12c', description: 'Shareable session link' },
+                 share_url: { type: :string, example: 'http://aircasting.org/s/ab12c',
+                              description: 'Shareable session link' },
                  airbeam: {
                    type: :object, nullable: true,
                    properties: {
                      mac_address: { type: :string },
                      model: { type: :string },
-                     name: { type: :string, nullable: true },
-                   },
+                     name: { type: :string, nullable: true }
+                   }
                  },
                  streams: {
                    type: :object,
@@ -332,10 +342,10 @@ RSpec.describe 'AirBeam Mobile Sessions', type: :request do
                    example: {
                      'AirBeamMini-PM2.5' => {
                        id: 123, sensor_name: 'AirBeamMini-PM2.5', measurement_type: 'Particulate Matter',
-                       unit_symbol: 'µg/m³', measurements_count: 1440, average_value: 12.5,
-                     },
-                   },
-                 },
+                       unit_symbol: 'µg/m³', measurements_count: 1440, average_value: 12.5
+                     }
+                   }
+                 }
                }
 
         let(:user) { create(:user) }
@@ -367,7 +377,7 @@ RSpec.describe 'AirBeam Mobile Sessions', type: :request do
     end
 
     patch 'Update a mobile session' do
-      tags 'Mobile app: Sessions & sync'
+      tags 'Mobile app: Mobile sessions'
       consumes 'application/json'
       produces 'application/json'
       description <<~DESC
@@ -397,9 +407,9 @@ RSpec.describe 'AirBeam Mobile Sessions', type: :request do
                 text: { type: :string },
                 date: { type: :string, description: 'ISO 8601 (required for new notes)' },
                 latitude: { type: :number, format: :float },
-                longitude: { type: :number, format: :float },
-              },
-            },
+                longitude: { type: :number, format: :float }
+              }
+            }
           },
           streams: {
             type: :array,
@@ -410,19 +420,19 @@ RSpec.describe 'AirBeam Mobile Sessions', type: :request do
               properties: {
                 sensor_name: { type: :string, example: 'AirBeamMini-PM1' },
                 sensor_package_name: { type: :string },
-                deleted: { type: :boolean, example: true },
-              },
-            },
+                deleted: { type: :boolean, example: true }
+              }
+            }
           },
           airbeam: {
             type: :object,
             properties: {
               mac_address: { type: :string, example: 'AA:BB:CC:DD:EE:FF' },
               model: { type: :string, example: 'AirBeamMini' },
-              name: { type: :string, nullable: true, example: 'Backpack' },
-            },
-          },
-        },
+              name: { type: :string, nullable: true, example: 'Backpack' }
+            }
+          }
+        }
       }
 
       response '200', 'updated session' do
@@ -433,14 +443,17 @@ RSpec.describe 'AirBeam Mobile Sessions', type: :request do
           tag_list: { type: :string },
           share_url: { type: :string, example: 'http://aircasting.org/s/ab12c', description: 'Shareable session link' },
           airbeam: { type: :object, nullable: true, additionalProperties: true },
-          streams: { type: :object, additionalProperties: { type: :object, additionalProperties: true } },
+          streams: { type: :object, additionalProperties: { type: :object, additionalProperties: true } }
         }
 
         let(:user) { create(:user) }
         let(:Authorization) { "Token token=#{user.authentication_token}" }
         let(:session_record) { create(:mobile_session, user: user) }
         let(:uuid) { session_record.uuid }
-        let(:body) { { title: 'Renamed ride', airbeam: { mac_address: 'AA:BB:CC:DD:EE:FF', model: 'AirBeamMini', name: 'Backpack' } } }
+        let(:body) do
+          { title: 'Renamed ride',
+            airbeam: { mac_address: 'AA:BB:CC:DD:EE:FF', model: 'AirBeamMini', name: 'Backpack' } }
+        end
         before { sign_in user }
         run_test!
       end
@@ -465,7 +478,7 @@ RSpec.describe 'AirBeam Mobile Sessions', type: :request do
     end
 
     delete 'Delete a mobile session' do
-      tags 'Mobile app: Sessions & sync'
+      tags 'Mobile app: Mobile sessions'
       consumes 'application/json'
       produces 'application/json'
       description <<~DESC
@@ -508,7 +521,7 @@ RSpec.describe 'AirBeam Mobile Sessions', type: :request do
 
   path '/api/v3/mobile_sessions/{uuid}/measurements' do
     get 'Get measurements for a mobile session' do
-      tags 'Mobile app: Sessions & sync'
+      tags 'Mobile app: Mobile sessions'
       produces 'application/json'
       description <<~DESC
         Returns measurements for the session, keyed by sensor_name, each an array
@@ -523,8 +536,10 @@ RSpec.describe 'AirBeam Mobile Sessions', type: :request do
                 description: 'Token token=<user_token>'
       parameter name: :sensor_name, in: :query, required: false, schema: { type: :string }
       parameter name: :measurement_type, in: :query, required: false, schema: { type: :string }
-      parameter name: :start_time, in: :query, required: false, schema: { type: :integer }, description: 'Epoch ms (defaults to end - 24h)'
-      parameter name: :end_time, in: :query, required: false, schema: { type: :integer }, description: 'Epoch ms (defaults to session end)'
+      parameter name: :start_time, in: :query, required: false, schema: { type: :integer },
+                description: 'Epoch ms (defaults to end - 24h)'
+      parameter name: :end_time, in: :query, required: false, schema: { type: :integer },
+                description: 'Epoch ms (defaults to session end)'
 
       response '200', 'measurements keyed by sensor_name' do
         schema type: :object,
@@ -536,14 +551,14 @@ RSpec.describe 'AirBeam Mobile Sessions', type: :request do
                      time: { type: :string, description: 'ISO 8601 (local-as-utc)' },
                      value: { type: :number },
                      latitude: { type: :number, format: :float },
-                     longitude: { type: :number, format: :float },
-                   },
-                 },
+                     longitude: { type: :number, format: :float }
+                   }
+                 }
                },
                example: {
                  'AirBeamMini-PM2.5' => [
-                   { time: '2026-08-14T11:30:00.000Z', value: 12.5, latitude: 40.0, longitude: -74.0 },
-                 ],
+                   { time: '2026-08-14T11:30:00.000Z', value: 12.5, latitude: 40.0, longitude: -74.0 }
+                 ]
                }
 
         let(:user) { create(:user) }
@@ -554,7 +569,8 @@ RSpec.describe 'AirBeam Mobile Sessions', type: :request do
         let(:uuid) { session_record.uuid }
         before do
           stream = create(:stream, session: session_record, sensor_name: 'AirBeamMini-PM2.5')
-          stream.build_measurements!([{ time: Time.utc(2026, 8, 14, 11, 30, 0), value: 12.5, latitude: 40.0, longitude: -74.0 }])
+          stream.build_measurements!([{ time: Time.utc(2026, 8, 14, 11, 30, 0), value: 12.5, latitude: 40.0,
+                                        longitude: -74.0 }])
           sign_in user
         end
         run_test!
@@ -578,7 +594,7 @@ RSpec.describe 'AirBeam Mobile Sessions', type: :request do
     end
 
     post 'Send binary measurements for a mobile session' do
-      tags 'Mobile app: Sessions & sync'
+      tags 'Mobile app: Mobile sessions'
       consumes 'application/octet-stream'
       produces 'application/json'
       description <<~DESC
@@ -623,7 +639,7 @@ RSpec.describe 'AirBeam Mobile Sessions', type: :request do
       parameter name: :Authorization, in: :header, type: :string, required: true,
                 description: 'Token token=<user_token>'
       parameter name: :body, in: :body, required: true, schema: {
-        type: :string, format: :binary, description: 'Binary payload as described above',
+        type: :string, format: :binary, description: 'Binary payload as described above'
       }
 
       response '200', 'measurements stored (or empty body time-sync)' do
@@ -633,13 +649,13 @@ RSpec.describe 'AirBeam Mobile Sessions', type: :request do
           @threshold_set = ThresholdSet.find_or_create_by!(
             sensor_name: 'AirBeam-PM2.5', unit_symbol: 'µg/m³', is_default: true,
             threshold_very_low: 0, threshold_low: 9, threshold_medium: 35,
-            threshold_high: 55, threshold_very_high: 150,
+            threshold_high: 55, threshold_very_high: 150
           )
           @stream = Stream.create!(
             session: @session, sensor_name: 'AirBeamMini-PM2.5',
             sensor_package_name: 'AA:BB:CC:DD:EE:FF', unit_name: 'micrograms per cubic meter',
             measurement_type: 'Particulate Matter', measurement_short_type: 'PM',
-            unit_symbol: 'µg/m³', threshold_set: @threshold_set, sensor_type_id: 2,
+            unit_symbol: 'µg/m³', threshold_set: @threshold_set, sensor_type_id: 2
           )
         end
 
