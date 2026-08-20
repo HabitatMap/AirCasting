@@ -154,7 +154,22 @@ RSpec.describe 'AirBeam Mobile Sessions', type: :request do
         Values must ascend (`very_low ≤ low ≤ medium ≤ high ≤ very_high`); a negative floor
         is fine, which is what a calibrated microphone scale looks like.
 
-        ## Streams
+        ## Streams — known and custom sensors
+
+        **Known sensors** (AirBeam PM1 / PM2.5 / PM10 / RH / F and `Phone Microphone`) need
+        only `sensor_name` and `unit_symbol`; the server owns their measurement type, unit
+        name and short type, and their `sensor_type_id` is globally stable because AirBeam
+        firmware is configured with it.
+
+        **Custom sensors** — anything else, for integrations built against this API — are
+        accepted, but the client has to describe them: `measurement_type`,
+        `measurement_short_type` and `unit_name` are required, and `thresholds` too unless a
+        default set already exists for that sensor. Fields are capped at 64 characters, and a
+        custom `sensor_name` may not reuse a built-in name.
+
+        A custom sensor is assigned a `sensor_type_id` from **100–255, unique within the
+        session** — read it from the response and use it in the binary upload. Built-in ids
+        (1–99) never change.
 
         Each sensor type may appear **once** per session — `AirBeamMini-PM2.5`
         and `AirBeam2-PM2.5` are the same type (`AirBeam-PM2.5`) and cannot both
@@ -216,6 +231,12 @@ RSpec.describe 'AirBeam Mobile Sessions', type: :request do
               properties: {
                 sensor_name: { type: :string, example: 'AirBeamMini-PM2.5' },
                 unit_symbol: { type: :string, example: 'µg/m³' },
+                measurement_type: { type: :string, nullable: true, example: 'Barometric pressure',
+                                    description: 'Custom sensors only — required when the server does not know the sensor.' },
+                measurement_short_type: { type: :string, nullable: true, example: 'hPa',
+                                          description: 'Custom sensors only.' },
+                unit_name: { type: :string, nullable: true, example: 'hectopascals',
+                             description: 'Custom sensors only.' },
                 thresholds: {
                   type: :object,
                   nullable: true,

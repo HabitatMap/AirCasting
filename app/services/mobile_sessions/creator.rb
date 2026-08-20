@@ -3,6 +3,11 @@ module MobileSessions
     UnknownStreamTypeError = Class.new(StandardError)
     MissingThresholdsError = Class.new(StandardError)
 
+    # 1..99 stay reserved for built-in sensors, whose ids are globally stable
+    # because AirBeam firmware is configured with them. Custom sensors get an id
+    # allocated per session out of what is left of the uint8 wire field.
+    CUSTOM_SENSOR_TYPE_ID_RANGE = (100..255).freeze
+
     UUID_TAKEN_MESSAGE = 'A session with this uuid already exists'.freeze
 
     def call(data:, user:)
@@ -85,24 +90,40 @@ module MobileSessions
 
     def create_streams(data, session)
       streams_repository = StreamsRepository.new
+      next_custom_type_id = CUSTOM_SENSOR_TYPE_ID_RANGE.first
 
       data[:streams].map do |stream_params|
-        canonical = Sensor.canonical_sensor_name(stream_params[:sensor_name])
+        sensor_name = stream_params[:sensor_name].strip
+        canonical = Sensor.canonical_sensor_name(sensor_name)
         type_id = Sensor::CANONICAL_SENSOR_TYPE_IDS[canonical]
-        raise UnknownStreamTypeError, "unsupported sensor: #{stream_params[:sensor_name]}" unless type_id
 
-        unit_symbol = stream_params[:unit_symbol]
+        if type_id.nil?
+          # Custom sensor: the id only has to be unique within this session — the
+          # phone reads it back from the response and uses it in its own binary
+          # uploads. Ids stay out of the range reserved for built-in sensors,
+          # whose values are globally stable because firmware relies on them.
+          type_id = next_custom_type_id
+          unless CUSTOM_SENSOR_TYPE_ID_RANGE.cover?(type_id)
+            raise UnknownStreamTypeError, "too many custom sensors in one session (max #{CUSTOM_SENSOR_TYPE_ID_RANGE.size})"
+          end
+
+          next_custom_type_id += 1
+        end
+
+        unit_symbol = stream_params[:unit_symbol].strip
         threshold_set = resolve_threshold_set(canonical, unit_symbol, stream_params[:thresholds])
 
         stream = streams_repository.create!(
           params: {
             session: session,
-            sensor_name: stream_params[:sensor_name],
+            sensor_name: sensor_name,
             sensor_package_name: stream_package_name(session.device),
-            unit_name: Sensor::CANONICAL_UNIT_NAMES[canonical],
+            unit_name: metadata(stream_params, canonical, :unit_name, Sensor::CANONICAL_UNIT_NAMES),
             unit_symbol: unit_symbol,
-            measurement_type: Sensor::CANONICAL_MEASUREMENT_TYPES[canonical],
-            measurement_short_type: Sensor::CANONICAL_MEASUREMENT_SHORT_TYPES[canonical],
+            measurement_type: metadata(stream_params, canonical, :measurement_type, Sensor::CANONICAL_MEASUREMENT_TYPES),
+            measurement_short_type: metadata(
+              stream_params, canonical, :measurement_short_type, Sensor::CANONICAL_MEASUREMENT_SHORT_TYPES
+            ),
             threshold_set: threshold_set,
             sensor_type_id: type_id,
             min_latitude: data[:latitude],
@@ -117,6 +138,12 @@ module MobileSessions
           sensor_type_id: stream.sensor_type_id,
         }
       end
+    end
+
+    # Known sensors are described by the server; custom ones by the client, which
+    # is the only party that knows what the hardware measures.
+    def metadata(stream_params, canonical, field, canonical_values)
+      canonical_values[canonical] || stream_params[field].to_s.strip.presence
     end
 
     # `<Model>:<mac>` is the shape every legacy row uses, and the

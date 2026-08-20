@@ -246,9 +246,54 @@ RSpec.describe MobileSessions::Creator do
       end
     end
 
-    it 'returns Failure for unsupported sensor name' do
-      params = valid_params.merge(streams: [{ sensor_name: 'UnknownSensor-XYZ', unit_symbol: 'µg/m³' }])
-      expect(creator.call(data: params, user: user)).to be_failure
+    context 'custom sensors' do
+      let(:custom_stream) do
+        { sensor_name: 'Bosch-BMP180', unit_symbol: 'hPa', measurement_type: 'Barometric pressure',
+          measurement_short_type: 'hPa', unit_name: 'hectopascals',
+          thresholds: { very_low: 950.0, low: 980.0, medium: 1000.0, high: 1020.0, very_high: 1050.0 } }
+      end
+
+      it 'stores the client-described metadata verbatim' do
+        creator.call(data: valid_params.merge(streams: [custom_stream]), user: user)
+
+        stream = Stream.last
+        expect(stream.sensor_name).to eq('Bosch-BMP180')
+        expect(stream.measurement_type).to eq('Barometric pressure')
+        expect(stream.unit_name).to eq('hectopascals')
+        expect(stream.unit_symbol).to eq('hPa')
+      end
+
+      it 'allocates a per-session sensor_type_id outside the built-in range' do
+        result = creator.call(data: valid_params.merge(streams: [custom_stream]), user: user)
+
+        expect(result.value[:streams]).to eq([{ sensor_name: 'Bosch-BMP180', sensor_type_id: 100 }])
+      end
+
+      it 'numbers several custom sensors sequentially, leaving built-ins their fixed ids' do
+        params = valid_params.merge(
+          streams: [
+            { sensor_name: 'AirBeamMini-PM2.5', unit_symbol: 'µg/m³' },
+            custom_stream,
+            custom_stream.merge(sensor_name: 'ELT-S300', unit_symbol: 'ppm', measurement_type: 'CO2 concentration'),
+          ],
+        )
+
+        result = creator.call(data: params, user: user)
+
+        expect(result.value[:streams]).to eq([
+          { sensor_name: 'AirBeamMini-PM2.5', sensor_type_id: 2 },
+          { sensor_name: 'Bosch-BMP180', sensor_type_id: 100 },
+          { sensor_name: 'ELT-S300', sensor_type_id: 101 },
+        ])
+      end
+
+      it 'creates a threshold set from the values sent for the custom sensor' do
+        creator.call(data: valid_params.merge(streams: [custom_stream]), user: user)
+
+        set = Stream.last.threshold_set
+        expect(set.sensor_name).to eq('Bosch-BMP180')
+        expect(set.threshold_very_high).to eq(1050.0)
+      end
     end
   end
 end
