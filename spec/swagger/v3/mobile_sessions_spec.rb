@@ -141,6 +141,19 @@ RSpec.describe 'AirBeam Mobile Sessions', type: :request do
         with that query parameter. It is a full URL, not a token, because the
         backend host is configurable.
 
+        ## Thresholds
+
+        Each stream may carry `thresholds` — the colour-scale bounds shown in the app and
+        on the map. Resolution order:
+
+        1. values sent with the stream — an identical set is reused rather than duplicated,
+           and sending the sensor's default values simply reuses the default row;
+        2. the sensor's seeded default set (AirBeam sensors and `Phone Microphone` have one);
+        3. neither — `validation_error`, telling the client to send `thresholds`.
+
+        Values must ascend (`very_low ≤ low ≤ medium ≤ high ≤ very_high`); a negative floor
+        is fine, which is what a calibrated microphone scale looks like.
+
         ## Streams
 
         Each sensor type may appear **once** per session — `AirBeamMini-PM2.5`
@@ -199,7 +212,21 @@ RSpec.describe 'AirBeam Mobile Sessions', type: :request do
               required: %w[sensor_name unit_symbol],
               properties: {
                 sensor_name: { type: :string, example: 'AirBeamMini-PM2.5' },
-                unit_symbol: { type: :string, example: 'µg/m³' }
+                unit_symbol: { type: :string, example: 'µg/m³' },
+                thresholds: {
+                  type: :object,
+                  nullable: true,
+                  required: %w[very_low low medium high very_high],
+                  description: 'Optional colour-scale bounds. Omit to use the sensor default; ' \
+                               'required for sensors that have none. Must be in ascending order.',
+                  properties: {
+                    very_low: { type: :number, example: 0 },
+                    low: { type: :number, example: 9 },
+                    medium: { type: :number, example: 35 },
+                    high: { type: :number, example: 55 },
+                    very_high: { type: :number, example: 150 }
+                  }
+                }
               }
             },
             example: [

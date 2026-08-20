@@ -20,11 +20,32 @@ module Api
       required(:streams).array(:hash) do
         required(:sensor_name).filled(:string)
         required(:unit_symbol).filled(:string)
+        optional(:thresholds).hash do
+          required(:very_low).filled(:float)
+          required(:low).filled(:float)
+          required(:medium).filled(:float)
+          required(:high).filled(:float)
+          required(:very_high).filled(:float)
+        end
       end
     end
 
     rule(:streams) do
       key.failure('must have at least one stream') if value.empty?
+    end
+
+    rule(:streams) do
+      value.each_with_index do |stream, i|
+        thresholds = stream[:thresholds]
+        next if thresholds.blank?
+
+        ordered = thresholds.values_at(:very_low, :low, :medium, :high, :very_high)
+        if ordered.each_cons(2).any? { |a, b| a > b }
+          key([:streams, i, :thresholds]).failure(
+            'must be in ascending order (very_low ≤ low ≤ medium ≤ high ≤ very_high)',
+          )
+        end
+      end
     end
 
     # Shape only — whether the uuid is already taken depends on stored state, so

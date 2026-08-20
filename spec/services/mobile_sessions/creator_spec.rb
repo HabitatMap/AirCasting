@@ -175,6 +175,77 @@ RSpec.describe MobileSessions::Creator do
       expect(result.errors[:message]).to eq('Request conflicts with an existing record')
     end
 
+    context 'thresholds' do
+      it 'uses the seeded default set when the client sends none' do
+        default = ThresholdSet.find_by!(sensor_name: 'AirBeam-PM2.5', is_default: true)
+
+        creator.call(data: valid_params, user: user)
+
+        pm25 = Stream.find_by(sensor_name: 'AirBeamMini-PM2.5')
+        expect(pm25.threshold_set_id).to eq(default.id)
+      end
+
+      it 'stores client-sent values as their own set' do
+        params = valid_params.merge(
+          streams: [{ sensor_name: 'AirBeamMini-PM2.5', unit_symbol: 'µg/m³',
+                      thresholds: { very_low: 0.0, low: 12.0, medium: 40.0, high: 60.0, very_high: 200.0 } }],
+        )
+
+        creator.call(data: params, user: user)
+
+        set = Stream.last.threshold_set
+        expect(set.threshold_low).to eq(12.0)
+        expect(set.threshold_very_high).to eq(200.0)
+        expect(set.is_default).to be_falsey
+      end
+
+      it 'reuses the default row when the client sends the default values' do
+        default = ThresholdSet.find_by!(sensor_name: 'AirBeam-PM2.5', is_default: true)
+        params = valid_params.merge(
+          streams: [{ sensor_name: 'AirBeamMini-PM2.5', unit_symbol: 'µg/m³',
+                      thresholds: { very_low: 0.0, low: 9.0, medium: 35.0, high: 55.0, very_high: 150.0 } }],
+        )
+
+        expect { creator.call(data: params, user: user) }.not_to change(ThresholdSet, :count)
+        expect(Stream.last.threshold_set_id).to eq(default.id)
+      end
+
+      it 'reuses an existing custom set instead of creating a duplicate' do
+        values = { very_low: 0.0, low: 12.0, medium: 40.0, high: 60.0, very_high: 200.0 }
+        params = valid_params.merge(
+          streams: [{ sensor_name: 'AirBeamMini-PM2.5', unit_symbol: 'µg/m³', thresholds: values }],
+        )
+        creator.call(data: params, user: user)
+
+        expect {
+          creator.call(data: params.merge(uuid: SecureRandom.uuid), user: user)
+        }.not_to change(ThresholdSet, :count)
+      end
+
+      it 'creates a phone microphone session against the seeded mic default' do
+        mic_default = create(:threshold_set, :phone_microphone, :default)
+        params = valid_params.merge(
+          streams: [{ sensor_name: 'Phone Microphone', unit_symbol: 'dB' }],
+        )
+
+        result = creator.call(data: params, user: user)
+
+        expect(result).to be_success
+        expect(result.value[:streams]).to eq([{ sensor_name: 'Phone Microphone', sensor_type_id: 6 }])
+        expect(Stream.last.threshold_set_id).to eq(mic_default.id)
+        expect(Stream.last.measurement_type).to eq('Sound Level')
+      end
+
+      it 'returns validation_error when no default exists and no values are sent' do
+        ThresholdSet.delete_all
+        result = creator.call(data: valid_params, user: user)
+
+        expect(result).to be_failure
+        expect(result.errors[:error_code]).to eq('validation_error')
+        expect(result.errors[:message]).to match(/no default thresholds exist/)
+      end
+    end
+
     it 'returns Failure for unsupported sensor name' do
       params = valid_params.merge(streams: [{ sensor_name: 'UnknownSensor-XYZ', unit_symbol: 'µg/m³' }])
       expect(creator.call(data: params, user: user)).to be_failure
