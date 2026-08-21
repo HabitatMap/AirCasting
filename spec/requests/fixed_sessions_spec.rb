@@ -33,7 +33,7 @@ describe 'POST /api/v3/fixed_sessions' do
   end
 
   context 'when the uuid is already used' do
-    it 'returns 400 session_uuid_taken without a fields key' do
+    it 'returns 409 session_uuid_taken without a fields key' do
       create(:threshold_set, :air_beam_pm2_5, :default)
       existing = create(:fixed_session, user: user, uuid: SecureRandom.uuid)
 
@@ -47,7 +47,7 @@ describe 'POST /api/v3/fixed_sessions' do
         streams: [{ sensor_name: 'AirBeamMini-PM2.5', unit_symbol: 'µg/m³' }],
       )
 
-      expect(response).to have_http_status(:bad_request)
+      expect(response).to have_http_status(:conflict)
       json = response.parsed_body
       expect(json['error_code']).to eq('session_uuid_taken')
       expect(json).not_to have_key('fields')

@@ -131,7 +131,13 @@ RSpec.describe 'V3 Station streams (government)', type: :request do
       end
 
       response '400', 'validation error' do
-        schema type: :object, additionalProperties: { type: :array, items: { type: :string } }, example: { field_name: ['error message'] }
+        schema type: :object,
+               required: %w[error_code message],
+               properties: {
+                 error_code: { type: :string, example: 'validation_error' },
+                 message: { type: :string, example: 'Request body is invalid' },
+                 fields: { type: :object, additionalProperties: { type: :array, items: { type: :string } } },
+               }
 
         let(:'station_stream_ids[]') { [] }
         let(:email) { '' }

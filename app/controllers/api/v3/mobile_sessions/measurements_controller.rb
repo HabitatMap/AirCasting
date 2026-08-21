@@ -37,7 +37,7 @@ module Api
           if result.success?
             head :ok
           else
-            render json: result.errors, status: :bad_request
+            render_failure(result)
           end
         end
 
@@ -48,10 +48,7 @@ module Api
         end
 
         def session_not_found
-          render json: {
-            error_code: ErrorCodes::SESSION_NOT_FOUND,
-            message: 'Session not found',
-          }, status: :not_found
+          render_error(ErrorCodes::SESSION_NOT_FOUND, 'Session not found')
         end
 
         def with_server_time_header
