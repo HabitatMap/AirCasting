@@ -41,12 +41,12 @@ describe 'POST /api/v3/mobile_sessions' do
   end
 
   context 'when the uuid is already used' do
-    it 'returns 400 session_uuid_taken without a fields key' do
+    it 'returns 409 session_uuid_taken without a fields key' do
       existing = create(:mobile_session, user: user, uuid: SecureRandom.uuid)
 
       post_session(valid_body.merge(uuid: existing.uuid.upcase))
 
-      expect(response).to have_http_status(:bad_request)
+      expect(response).to have_http_status(:conflict)
       json = response.parsed_body
       expect(json['error_code']).to eq('session_uuid_taken')
       expect(json).not_to have_key('fields')

@@ -28,18 +28,14 @@ module Api
           params.to_unsafe_h.deep_symbolize_keys,
         )
         if contract.failure?
-          return render json: {
-            error_code: ErrorCodes::VALIDATION_ERROR,
-            message: 'Request body is invalid',
-            fields: contract.errors.to_h,
-          }, status: :bad_request
+          return render_validation_error(contract.errors)
         end
 
         result = ::MobileSessions::Updater.new.call(session: session, data: contract.to_h)
         if result.success?
           render json: serialize(find_owned_session), status: :ok
         else
-          render json: result.errors, status: :bad_request
+          render_failure(result)
         end
       end
 
@@ -58,11 +54,7 @@ module Api
           params.to_unsafe_h.deep_symbolize_keys,
         )
         if contract.failure?
-          return render json: {
-            error_code: ErrorCodes::VALIDATION_ERROR,
-            message: 'Request body is invalid',
-            fields: contract.errors.to_h,
-          }, status: :bad_request
+          return render_validation_error(contract.errors)
         end
 
         result =
@@ -78,7 +70,7 @@ module Api
             streams: result.value[:streams],
           }, status: :created
         else
-          render json: result.errors, status: :bad_request
+          render_failure(result)
         end
       end
 
@@ -92,10 +84,7 @@ module Api
       end
 
       def session_not_found
-        render json: {
-          error_code: ErrorCodes::SESSION_NOT_FOUND,
-          message: 'Session not found',
-        }, status: :not_found
+        render_error(ErrorCodes::SESSION_NOT_FOUND, 'Session not found')
       end
 
       def serialize(session)

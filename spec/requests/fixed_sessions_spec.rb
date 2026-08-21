@@ -41,7 +41,7 @@ describe 'POST /api/v3/fixed_sessions' do
         latitude: 40.7128,
         longitude: -74.0060,
         contribute: true,
-        airbeam: { mac_address: 'AA:BB:CC:DD:EE:FF', model: 'AirBeamMini' },
+        device: { mac_address: 'AA:BB:CC:DD:EE:FF', model: 'AirBeamMini' },
         streams: [{ sensor_name: 'AirBeamMini-PM2.5', unit_symbol: 'µg/m³' }],
       }
     end
@@ -53,9 +53,9 @@ describe 'POST /api/v3/fixed_sessions' do
 
     # End to end, which is what proves the code the client actually sees. The
     # contract passes a well-formed uuid straight through — it checks shape only —
-    # so the refusal comes from the creator, and is session_uuid_taken rather than
-    # validation_error: the request is not malformed, it conflicts with stored
-    # state, and so carries no `fields`.
+    # so the refusal comes from the creator, and is session_uuid_taken/409 rather
+    # than validation_error/400: the request is not malformed, it conflicts with
+    # stored state, and so carries no `fields`.
     it 'rejects the second attempt when nothing was raced' do
       post_session(body)
       expect(response).to have_http_status(:created)
@@ -63,7 +63,7 @@ describe 'POST /api/v3/fixed_sessions' do
 
       post_session(body)
 
-      expect(response).to have_http_status(:bad_request)
+      expect(response).to have_http_status(:conflict)
       json = response.parsed_body
       expect(json['error_code']).to eq('session_uuid_taken')
       expect(json).not_to have_key('fields')
@@ -77,7 +77,7 @@ describe 'POST /api/v3/fixed_sessions' do
 
       post_session(body.merge(uuid: uuid.upcase))
 
-      expect(response).to have_http_status(:bad_request)
+      expect(response).to have_http_status(:conflict)
       expect(response.parsed_body['error_code']).to eq('session_uuid_taken')
       expect(Session.where('LOWER(uuid) = ?', uuid.downcase).count).to eq(1)
     end
