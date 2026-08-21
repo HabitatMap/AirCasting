@@ -178,18 +178,19 @@ RSpec.describe 'AirBeam Mobile Sessions', type: :request do
 
         ## Error Codes
 
-        A request whose **shape** is wrong answers `validation_error` with
-        `fields`; a request that conflicts with **stored state** gets its own
-        code and no `fields`. `POST /api/v3/fixed_sessions` uses the same
-        vocabulary.
+        Errors come back as `{ error_code, message, fields? }`, shared with the
+        other v3 endpoints. `fields` appears only when the request *shape* is
+        wrong; a conflict with stored state gets its own code and no `fields`. The
+        HTTP status carries the same meaning, so a client can react without
+        parsing the body.
 
         | `error_code` | HTTP | Description | Client should |
         |---|---|---|---|
         | `unauthorized` | 401 | Missing or invalid `Authorization` token | Re-authenticate |
         | `validation_error` | 400 | Body failed validation. See `fields` | Treat as a client bug — do not retry unchanged |
-        | `session_uuid_taken` | 400 | A session with this `uuid` already exists. No `fields` | Stop retrying; the session is already created — continue with it |
+        | `session_uuid_taken` | 409 | A session with this `uuid` already exists. No `fields` | Stop retrying; the session is already created — continue with it |
         | `unsupported_sensor_type` | 400 | A requested `sensor_name` has no known sensor type | Unrecoverable; do not retry |
-        | `internal_error` | 400 | Server could not create the session (e.g. missing default thresholds) | Retry with backoff |
+        | `internal_error` | 500 | Server could not create the session (e.g. missing default thresholds) | Retry with backoff |
       DESC
 
       parameter name: :Authorization, in: :header, type: :string, required: true,
