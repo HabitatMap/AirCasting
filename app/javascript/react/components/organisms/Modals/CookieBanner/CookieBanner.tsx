@@ -38,6 +38,12 @@ const CookieBanner: React.FC<CookieBannerProps> = ({
     }
   }, [consentRequired, cookieSettingsModalOpen]);
 
+  useEffect(() => {
+    if (cookieSettingsModalOpen === false && !CookieManager.hasPreferences()) {
+      setVisible(true);
+    }
+  }, [cookieSettingsModalOpen]);
+
   if (!visible) return null;
 
   const handleAllowAll = () => {

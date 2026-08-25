@@ -39,27 +39,27 @@ describe GeoConsent do
       expect(consent_required?('1.2.3.4', country_response('1.2.3.4', 'de'))).to be true
     end
 
-    context 'fallback when geolocation is unavailable (defaults to non-EU / opt-out)' do
-      it 'returns false when the API returns an error' do
+    context 'fail-safe (defaults to requiring consent)' do
+      it 'returns true when the API returns an error' do
         conn = connection { |stub| stub.get('/1.2.3.4') { [500, {}, ''] } }
-        expect(consent_required?('1.2.3.4', conn)).to be false
+        expect(consent_required?('1.2.3.4', conn)).to be true
       end
 
-      it 'returns false when the request times out' do
+      it 'returns true when the request times out' do
         conn = connection { |stub| stub.get('/1.2.3.4') { raise Faraday::TimeoutError } }
-        expect(consent_required?('1.2.3.4', conn)).to be false
+        expect(consent_required?('1.2.3.4', conn)).to be true
       end
 
-      it 'returns false when the response has no country' do
+      it 'returns true when the response has no country' do
         conn = connection do |stub|
           stub.get('/1.2.3.4') { [200, {}, { ip: '1.2.3.4' }.to_json] }
         end
-        expect(consent_required?('1.2.3.4', conn)).to be false
+        expect(consent_required?('1.2.3.4', conn)).to be true
       end
 
-      it 'returns false for a blank IP without calling the API' do
+      it 'returns true for a blank IP without calling the API' do
         conn = connection { |stub| stub.get(//) { raise 'should not be called' } }
-        expect(consent_required?('', conn)).to be false
+        expect(consent_required?('', conn)).to be true
       end
     end
 

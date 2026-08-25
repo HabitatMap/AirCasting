@@ -10,11 +10,9 @@
 # commercial use allowed) and cached per IP. We never rely on maxmemory
 # eviction — the cache key carries a TTL.
 #
-# Fallback: if geolocation is unavailable (API error/timeout, private IP,
-# unknown country) we treat the request as non-EU (opt-out, no banner). Ads run
-# only in the US/CA and the bulk of traffic is non-EU, so an unresolved visitor
-# is far more likely non-EU; defaulting to opt-out avoids showing an unnecessary
-# banner and losing analytics/conversions for them.
+# Fail-safe: if geolocation is unavailable (API error/timeout, private IP,
+# unknown country) we treat the request as consent-required so we never drop a
+# user into "no banner" by accident.
 class GeoConsent
   # EEA (27 EU + Norway, Iceland, Liechtenstein) + UK + Switzerland.
   STRICT_COUNTRIES = %w[
@@ -39,7 +37,7 @@ class GeoConsent
 
   def consent_required?
     country = country_code
-    return false if country.nil? # unknown -> treat as non-EU (opt-out)
+    return true if country.nil? # fail-safe: unknown -> require consent
 
     STRICT_COUNTRIES.include?(country)
   end
