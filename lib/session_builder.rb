@@ -24,7 +24,10 @@ class SessionBuilder
     allowed = Session.attribute_names + %w[notes_attributes tag_list user]
     filtered = data.select { |k, _| allowed.include?(k.to_s) }
 
-    Session.transaction do
+    # Serialised per uuid so two concurrent uploads of the same session cannot
+    # both pass the uniqueness check and insert (see Session.with_uuid_lock).
+    # Measurements are created after this block, so the lock is short-lived.
+    Session.with_uuid_lock(data[:uuid]) do
       session = Session.create!(filtered)
 
       stream_data.values.each do |a_stream|
@@ -44,6 +47,11 @@ class SessionBuilder
   rescue ActiveRecord::RecordInvalid => invalid
     Rails.logger.warn("[SessionBuilder] data: #{data}")
     Rails.logger.warn(invalid.record.errors.full_messages)
+    nil
+  rescue ActiveRecord::LockWaitTimeout
+    # Another upload of this uuid is still in flight. Same outcome as an invalid
+    # session: the controller answers 400 and the app retries on its next sync.
+    Rails.logger.warn("[SessionBuilder] uuid lock timeout for #{data[:uuid]}")
     nil
   end
 

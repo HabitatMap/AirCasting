@@ -3,12 +3,21 @@ module FixedSessions
     UnknownStreamTypeError = Class.new(StandardError)
 
     def call(data:, user:)
-      ActiveRecord::Base.transaction do
+      # Serialised per uuid: two creates arriving at once would otherwise both
+      # pass the uniqueness validation's SELECT and both insert. The loser now
+      # waits, then fails validation as it would have on any later attempt.
+      Session.with_uuid_lock(data[:uuid]) do
         device = find_or_create_device(data[:airbeam])
         session = create_session(data, user, device)
         streams = create_streams(data, session)
         Success.new(session: session, session_token: session.session_token, streams: streams)
       end
+    rescue ActiveRecord::LockWaitTimeout
+      # Another create for this uuid is still running; the client should retry.
+      Failure.new(
+        error_code: BinaryProtocol::ErrorCodes::INTERNAL_ERROR,
+        message: 'Could not acquire a lock for this session, please retry',
+      )
     rescue UnknownStreamTypeError => e
       Failure.new(error_code: BinaryProtocol::ErrorCodes::UNSUPPORTED_SENSOR_TYPE, message: e.message)
     rescue ActiveRecord::RecordInvalid, ActiveRecord::RecordNotFound => e
