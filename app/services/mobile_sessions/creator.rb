@@ -11,14 +11,22 @@ module MobileSessions
     UUID_TAKEN_MESSAGE = 'A session with this uuid already exists'.freeze
 
     def call(data:, user:)
-      return uuid_taken if uuid_taken?(data[:uuid])
+      # The lock has to wrap the check as well as the insert — checking first and
+      # locking afterwards leaves exactly the race it is meant to close.
+      Session.with_uuid_lock(data[:uuid]) do
+        return uuid_taken if uuid_taken?(data[:uuid])
 
-      ActiveRecord::Base.transaction do
         device = find_or_create_device(data[:device], user)
         session = create_session(data, user, device)
         streams = create_streams(data, session)
         Success.new(session: session, streams: streams)
       end
+    rescue ActiveRecord::LockWaitTimeout
+      # Another create for this uuid is still running; the client should retry.
+      Failure.new(
+        error_code: ErrorCodes::INTERNAL_ERROR,
+        message: 'Could not acquire a lock for this session, please retry',
+      )
     rescue MissingThresholdsError => e
       Failure.new(error_code: ErrorCodes::VALIDATION_ERROR, message: e.message)
     rescue UnknownStreamTypeError => e
