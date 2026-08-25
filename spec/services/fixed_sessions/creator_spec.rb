@@ -11,7 +11,7 @@ RSpec.describe FixedSessions::Creator do
       latitude: 40.7128,
       longitude: -74.0060,
       contribute: true,
-      airbeam: { mac_address: 'AA:BB:CC:DD:EE:FF', model: 'AirBeamMini' },
+      device: { mac_address: 'AA:BB:CC:DD:EE:FF', model: 'AirBeamMini' },
       streams: [
         { sensor_name: 'AirBeamMini-PM1', unit_symbol: 'µg/m³' },
         { sensor_name: 'AirBeamMini-PM2.5', unit_symbol: 'µg/m³' },
@@ -77,15 +77,32 @@ RSpec.describe FixedSessions::Creator do
     end
 
     it 'updates device name when provided' do
-      params = valid_params.deep_merge(airbeam: { name: 'Bedroom' })
+      params = valid_params.deep_merge(device: { name: 'Bedroom' })
       creator.call(data: params, user: user)
       expect(Device.last.name).to eq('Bedroom')
     end
 
     it 'does not overwrite device name when name is absent from request' do
-      device = Device.create!(mac_address: 'AA:BB:CC:DD:EE:FF', model: 'AirBeamMini', name: 'Existing Name')
+      device = Device.create!(user: user, mac_address: 'AA:BB:CC:DD:EE:FF', model: 'AirBeamMini', name: 'Existing Name')
       creator.call(data: valid_params, user: user)
       expect(device.reload.name).to eq('Existing Name')
+    end
+
+    it 'gives each user their own device row for one mac_address' do
+      other_user = create(:user)
+
+      creator.call(data: valid_params, user: user)
+      creator.call(data: valid_params.merge(uuid: SecureRandom.uuid), user: other_user)
+
+      devices = Device.where(mac_address: 'AA:BB:CC:DD:EE:FF')
+      expect(devices.count).to eq(2)
+      expect(devices.map(&:user_id)).to match_array([user.id, other_user.id])
+    end
+
+    it 'writes sensor_package_name as <Model>:<mac>, matching legacy rows' do
+      creator.call(data: valid_params, user: user)
+
+      expect(Stream.last.sensor_package_name).to eq('AirBeamMini:aa:bb:cc:dd:ee:ff')
     end
 
     it 'creates one Stream per requested sensor' do
@@ -118,6 +135,44 @@ RSpec.describe FixedSessions::Creator do
       params = valid_params.merge(streams: [{ sensor_name: 'UnknownSensor-XYZ' }])
       result = creator.call(data: params, user: user)
       expect(result).to be_failure
+    end
+
+    it 'returns session_uuid_taken when the uuid is already used (case-insensitive)' do
+      existing = create(:fixed_session)
+      result = creator.call(data: valid_params.merge(uuid: existing.uuid.upcase), user: user)
+
+      expect(result).to be_failure
+      expect(result.errors[:error_code]).to eq('session_uuid_taken')
+      expect(result.errors[:message]).to eq(described_class::UUID_TAKEN_MESSAGE)
+    end
+
+    it 'creates nothing when the uuid is taken' do
+      existing = create(:fixed_session)
+
+      expect { creator.call(data: valid_params.merge(uuid: existing.uuid), user: user) }
+        .not_to change(FixedSession, :count)
+    end
+
+    it 'maps a raced uuid (model validation) to session_uuid_taken too' do
+      allow(FixedSession).to receive(:create!) do
+        session = FixedSession.new
+        session.errors.add(:uuid, :taken)
+        raise ActiveRecord::RecordInvalid, session
+      end
+
+      result = creator.call(data: valid_params, user: user)
+      expect(result.errors[:error_code]).to eq('session_uuid_taken')
+    end
+
+    it 'maps a unique-constraint violation to validation_error without leaking database text' do
+      allow_any_instance_of(StreamsRepository).to receive(:create!)
+        .and_raise(ActiveRecord::RecordNotUnique, 'PG::UniqueViolation: duplicate key ... idx_streams_session_sensor_type_id')
+
+      result = creator.call(data: valid_params, user: user)
+
+      expect(result).to be_failure
+      expect(result.errors[:error_code]).to eq('validation_error')
+      expect(result.errors[:message]).to eq('Request conflicts with an existing record')
     end
   end
 end

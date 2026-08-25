@@ -14,10 +14,47 @@ class Session < ApplicationRecord
   has_many :notes, inverse_of: :session, dependent: :destroy
 
   validates :user, :uuid, :url_token, presence: true
-  validates :start_time_local, presence: true
-  validates :end_time_local, presence: true
+  # Mobile sessions are created empty by POST /api/v3/mobile_sessions and take
+  # their bounds from the first measurements upload, so their times stay NULL
+  # until then. Every other session still has to carry them.
+  # (Government stations are bulk-inserted with `insert_all!`, which skips
+  # validations — those rows have NULL times too, exactly as before.)
+  validates :start_time_local,
+            :end_time_local,
+            presence: true,
+            unless: -> { is_a?(MobileSession) }
   validates :type, presence: :true
   validates :url_token, :uuid, uniqueness: { case_sensitive: false }
+
+  # Serialises session creation per uuid.
+  #
+  # Both the API contracts and the uniqueness validation ask "does this uuid
+  # exist?" with a SELECT before the INSERT, so two requests arriving in the same
+  # second both hear "no" and both insert — which is exactly how the duplicates in
+  # production were created (identical copies, created_at 0-1s apart). An advisory
+  # lock makes the second request wait for the first to finish, so its check sees
+  # the committed row and it takes the normal "uuid taken" path.
+  #
+  # `pg_advisory_xact_lock` is released automatically when the transaction ends,
+  # so nothing can leak a lock, and it works under transaction-pooling connection
+  # poolers. It locks no table and no row: measurement inserts happen outside this
+  # transaction, so the lock is held for milliseconds.
+  #
+  # This is a guard, not a guarantee — `hashtext` can collide, and only code paths
+  # that call it are protected. The permanent fix is a unique index on
+  # `sessions.uuid`, which needs the existing duplicates resolved first.
+  UUID_LOCK_TIMEOUT = '3s'.freeze
+
+  def self.with_uuid_lock(uuid)
+    transaction do
+      connection.execute("SET LOCAL lock_timeout = '#{UUID_LOCK_TIMEOUT}'")
+      connection.execute(
+        sanitize_sql_array(['SELECT pg_advisory_xact_lock(hashtext(?))', uuid.to_s]),
+      )
+
+      yield
+    end
+  end
 
   accepts_nested_attributes_for :notes, :streams
 

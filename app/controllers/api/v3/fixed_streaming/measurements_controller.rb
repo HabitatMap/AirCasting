@@ -16,6 +16,8 @@ module Api
           if result.success?
             head :ok
           else
+            # LEGACY: AirBeams post here over WiFi. Left exactly as it was —
+            # unifying the body is not worth changing a live device contract.
             render json: result.errors, status: :bad_request
           end
         end

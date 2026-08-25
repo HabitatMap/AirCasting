@@ -9,7 +9,7 @@ module Api
         if result.success?
           render json: result.value, status: :ok
         else
-          render json: result.errors, status: :bad_request
+          render_failure(result)
         end
       end
     end

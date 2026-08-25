@@ -36,6 +36,8 @@ RSpec.configure do |config|
           description: 'iOS/Android: sign in/up, user settings, account deletion, password reset.' },
         { name: 'Mobile app: Sessions & sync',
           description: 'iOS/Android: upload/update AirBeam mobile sessions, sync, download session metadata, email export.' },
+        { name: 'Mobile app: Mobile sessions',
+          description: 'iOS/Android: the new AirBeam mobile (moving) session API — create/list/show/update/delete a session and upload or read its measurements (POST /api/v3/mobile_sessions[/{uuid}/measurements]).' },
         { name: 'Mobile app: AirBeam fixed streaming',
           description: 'iOS/Android: create AirBeam fixed sessions and upload measurements — the new AirBeamMini binary flow (POST /api/v3/fixed_sessions[/{uuid}/measurements]) and the legacy realtime (WiFi) flow — plus poll for new measurements.' },
         { name: 'Mobile app: Fixed map & streams',

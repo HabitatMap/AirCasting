@@ -28,12 +28,32 @@ RSpec.describe 'AirBeamMini Fixed Sessions Binary Flow', type: :request do
         before configuring the AirBeamMini. The response includes a `sensor_type_id` per
         stream that the AirBeamMini uses to identify stream types in the binary upload payload.
 
+        The device object is `device`; the old name `airbeam` is still accepted as a
+        deprecated alias for shipped app versions. `mac_address` is a stable device
+        identifier — an AirBeam's MAC, or whatever id a custom integration can offer —
+        and `model` is a free-form string.
+
+        `uuid` must be in canonical UUID form (what `UUID.randomUUID()` / `UUID()`
+        produce) and not already in use.
+
+        Each sensor type may appear **once** per session — `AirBeamMini-PM2.5`
+        and `AirBeam2-PM2.5` are the same type (`AirBeam-PM2.5`) and cannot both
+        be requested. A session holds one stream per type, and the AirBeam
+        addresses streams by `sensor_type_id` in the binary upload.
+
         ## Error Codes
 
-        | `error_code` | HTTP | Description |
-        |---|---|---|
-        | `unauthorized` | 401 | Missing or invalid `Authorization` token |
-        | `validation_error` | 400 | Request body failed validation. See `fields` for per-field details |
+        Same contract as every v3 endpoint — `{ error_code, message, fields? }`,
+        with `fields` only for shape errors, and the HTTP status carrying the same
+        meaning as the code.
+
+        | `error_code` | HTTP | Description | Client should |
+        |---|---|---|---|
+        | `unauthorized` | 401 | Missing or invalid `Authorization` token | Re-authenticate |
+        | `validation_error` | 400 | Body failed validation. See `fields` | Treat as a client bug — do not retry unchanged |
+        | `session_uuid_taken` | 409 | A session with this `uuid` already exists. No `fields` | Stop retrying; the session is already created — continue with it |
+        | `unsupported_sensor_type` | 400 | A requested `sensor_name` has no known sensor type | Unrecoverable; do not retry |
+        | `internal_error` | 500 | Server could not create the session (e.g. missing default thresholds) | Retry with backoff |
       DESC
 
       parameter name: :Authorization, in: :header, type: :string, required: true,
@@ -41,13 +61,13 @@ RSpec.describe 'AirBeamMini Fixed Sessions Binary Flow', type: :request do
 
       parameter name: :body, in: :body, required: true, schema: {
         type: :object,
-        required: %w[uuid title latitude longitude contribute airbeam streams],
+        required: %w[uuid title latitude longitude contribute device streams],
         properties: {
           uuid: { type: :string, format: :uuid, example: '550e8400-e29b-41d4-a716-446655440000' },
           title: { type: :string, example: 'Rooftop PM2.5 monitor' },
           latitude: { type: :number, format: :float, example: 40.7128 },
           longitude: { type: :number, format: :float, example: -74.0060 },
-          contribute: { type: :boolean, example: true },
+          contribute: { type: :boolean, example: true, description: 'Required — send it explicitly; the server applies no default.' },
           is_indoor: { type: :boolean, nullable: true, example: false, description: 'Whether the sensor is deployed indoors. Defaults to false when omitted.' },
           time_zone: {
             type: :string,
@@ -55,7 +75,7 @@ RSpec.describe 'AirBeamMini Fixed Sessions Binary Flow', type: :request do
             example: 'America/New_York',
             description: 'IANA time zone identifier of the sensor location. Required for indoor sessions, which send placeholder coordinates (200, 200); used to convert UTC measurement timestamps to local time for display. When omitted, the time zone is derived from latitude/longitude.',
           },
-          airbeam: {
+          device: {
             type: :object,
             required: %w[mac_address model],
             properties: {
@@ -93,9 +113,18 @@ RSpec.describe 'AirBeamMini Fixed Sessions Binary Flow', type: :request do
 
       response '201', 'session created' do
         schema type: :object,
-               required: %w[location session_token streams],
+               required: %w[location share_url session_token streams],
                properties: {
-                 location: { type: :string, example: 'http://aircasting.org/s/ab12c' },
+                 location: {
+                   type: :string,
+                   example: 'http://aircasting.org/s/ab12c',
+                   description: 'LEGACY alias of `share_url`, read by shipped app versions. Kept indefinitely; new clients should use `share_url`.',
+                 },
+                 share_url: {
+                   type: :string,
+                   example: 'http://aircasting.org/s/ab12c',
+                   description: 'Shareable session link (`<host>/s/<token>`). Append `?sensor_name=<stream>` before sharing — the link only resolves with that query parameter.',
+                 },
                  session_token: {
                    type: :string,
                    description: 'Bearer token for AirBeam measurement uploads. The mobile app passes this to the AirBeam over BLE after session creation.',
@@ -137,7 +166,7 @@ RSpec.describe 'AirBeamMini Fixed Sessions Binary Flow', type: :request do
             latitude: 40.7128,
             longitude: -74.0060,
             contribute: true,
-            airbeam: { mac_address: 'AA:BB:CC:DD:EE:FF', model: 'AirBeamMini' },
+            device: { mac_address: 'AA:BB:CC:DD:EE:FF', model: 'AirBeamMini' },
             streams: [
               { sensor_name: 'AirBeamMini-PM1', unit_symbol: 'µg/m³' },
               { sensor_name: 'AirBeamMini-PM2.5', unit_symbol: 'µg/m³' },
