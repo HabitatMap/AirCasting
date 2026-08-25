@@ -9,21 +9,21 @@
 /**
  * Chance (0–1) that the banner is eligible to appear on any given page load,
  * assuming no cooldown/dismiss/click suppression is active. Lower = rarer.
- * "Gentle" default: ~1 in 3 loads.
+ * Set to 1 = always eligible (suppression windows still apply).
  */
-export const SHOW_PROBABILITY = 1;//0.35;
+export const SHOW_PROBABILITY = 1;
 
 /**
  * After the banner is shown, don't show it again for this many days
  * (even across page loads where the probability roll would pass).
  */
-export const COOLDOWN_DAYS = 0;//7;
+export const COOLDOWN_DAYS = 1;
 
 /** After the user closes (✕) the banner, suppress it for this many days. */
-export const DISMISS_DAYS = 0;//30;
+export const DISMISS_DAYS = 5;
 
 /** After the user clicks through to an article, suppress it for this many days. */
-export const CLICKED_DAYS = 0;//60;
+export const CLICKED_DAYS = 1;
 
 /** localStorage keys — namespaced to avoid clashes with other features. */
 export const STORAGE_KEYS = {
@@ -110,20 +110,32 @@ const CDN_CROP = "?nf_resize=smartcrop&w=680&h=280";
 export const BLOG_POSTS: BlogPost[] = [
   {
     postSlug: "what-do-those-colored-circles-mean-understanding-air-quality-on-the-aircasting-map",
+<<<<<<< HEAD
     url: "https://deploy-preview-244--habitatmap.netlify.app/blog/what-do-those-colored-circles-mean-understanding-air-quality-on-the-aircasting-map",
+=======
+    url: "https://www.habitatmap.org/blog/what-do-those-colored-circles-mean-understanding-air-quality-on-the-aircasting-map",
+>>>>>>> master
     title: "What do those colored dots mean? Understanding the Air Quality Index",
     image: `https://www.habitatmap.org/images/uploads/aircastingmapdots.png${CDN_CROP}`,
   },
   {
     postSlug: "when-fresh-scents-turn-toxic-how-candles-and-incense-impact-your-health",
+<<<<<<< HEAD
     url: "https://deploy-preview-244--habitatmap.netlify.app/blog/when-fresh-scents-turn-toxic-how-candles-and-incense-impact-your-health",
+=======
+    url: "https://www.habitatmap.org/blog/when-fresh-scents-turn-toxic-how-candles-and-incense-impact-your-health",
+>>>>>>> master
     title:
       "When fresh scents turn toxic: how candles and incense impact your health",
     image: `https://www.habitatmap.org/images/uploads/burning-candles-zz-230419-5dd288.avif${CDN_CROP}`,
   },
   {
     postSlug: "nyc-community-organizations-use-aircasting-to-study-hyperlocal-air-quality-1",
+<<<<<<< HEAD
     url: "https://deploy-preview-244--habitatmap.netlify.app/blog/nyc-community-organizations-use-aircasting-to-study-hyperlocal-air-quality-1",
+=======
+    url: "https://www.habitatmap.org/blog/nyc-community-organizations-use-aircasting-to-study-hyperlocal-air-quality-1",
+>>>>>>> master
     title: "NYC Community Organizations Use AirCasting to Study Hyperlocal Air Quality",
     image: `https://www.habitatmap.org/images/uploads/williamsburghexagonmap.png${CDN_CROP}`,
   },

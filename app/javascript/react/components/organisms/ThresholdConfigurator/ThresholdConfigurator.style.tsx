@@ -410,7 +410,7 @@ const NumberInput = styled.input<{
   $isActive?: boolean;
   $isMin?: boolean;
 }>`
-  font-family: Roboto;
+  font-family: Roboto, sans-serif;
   font-weight: 400;
   font-size: 16px;
   text-align: center;
