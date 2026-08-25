@@ -19,6 +19,39 @@ class Session < ApplicationRecord
   validates :type, presence: :true
   validates :url_token, :uuid, uniqueness: { case_sensitive: false }
 
+  # Serialises session creation per uuid.
+  #
+  # Both the API contracts and the uniqueness validation ask "does this uuid
+  # exist?" with a SELECT before the INSERT, so two requests arriving in the same
+  # second both hear "no" and both insert — which is exactly how the duplicates in
+  # production were created (identical copies, created_at 0-1s apart). An advisory
+  # lock makes the second request wait for the first to finish, so its check sees
+  # the committed row and it takes the normal "uuid taken" path.
+  #
+  # `pg_advisory_xact_lock` is released automatically when the transaction ends,
+  # so nothing can leak a lock, and it works under transaction-pooling connection
+  # poolers. It locks no table and no row: measurement inserts happen outside this
+  # transaction, so the lock is held for milliseconds.
+  #
+  # `hashtextextended` gives a 64-bit key (Postgres 11+), so unrelated uuids do
+  # not collide the way they can with the 32-bit `hashtext`.
+  #
+  # This is a guard, not a guarantee: only code paths that call it are protected,
+  # so a rake task or console insert bypasses it. The permanent fix is a unique
+  # index on `sessions.uuid`, which needs the existing duplicates resolved first.
+  UUID_LOCK_TIMEOUT = '3s'.freeze
+
+  def self.with_uuid_lock(uuid)
+    transaction do
+      connection.execute("SET LOCAL lock_timeout = '#{UUID_LOCK_TIMEOUT}'")
+      connection.execute(
+        sanitize_sql_array(['SELECT pg_advisory_xact_lock(hashtextextended(?, 0))', uuid.to_s]),
+      )
+
+      yield
+    end
+  end
+
   accepts_nested_attributes_for :notes, :streams
 
   before_validation :set_url_token, unless: :url_token
