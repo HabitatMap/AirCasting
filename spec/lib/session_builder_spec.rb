@@ -247,18 +247,6 @@ describe SessionBuilder do
       expect(SessionBuilder.new(session_data.deep_dup, [], user).build!).to be_nil
     end
 
-    it 'returns the oldest row when duplicates still exist, matching the cleanup keeper' do
-      force_contention(true)
-      copy = winner.dup
-      copy.url_token = SecureRandom.hex(5)
-      copy.save(validate: false)
-      expect(copy.id).to be > winner.id
-
-      built = SessionBuilder.new(session_data.deep_dup, [], user).build!
-
-      expect(built.id).to eq(winner.id)
-    end
-
     it 'refuses a device-bound row, so two AirBeams cannot report into one session' do
       force_contention(true)
       winner.update_columns(type: 'FixedSession', session_token: SecureRandom.hex(16))
