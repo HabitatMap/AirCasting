@@ -120,4 +120,93 @@ RSpec.describe FixedSessions::Creator do
       expect(result).to be_failure
     end
   end
+
+  describe 'when a concurrent create of the same uuid won the race' do
+    # Real contention is covered by spec/models/session_uuid_lock_spec.rb; the flag
+    # is forced here so each branch can be asserted on its own.
+    def force_contention(contended)
+      allow(Session).to receive(:with_uuid_lock) { |_uuid, &block| block.call(contended) }
+    end
+
+    let!(:winner) { creator.call(data: valid_params, user: user).value }
+
+    it "returns the winner's session, token and streams" do
+      force_contention(true)
+
+      result = creator.call(data: valid_params, user: user)
+
+      expect(result).to be_success
+      expect(result.value[:session].id).to eq(winner[:session].id)
+      expect(result.value[:session_token]).to eq(winner[:session_token])
+      expect(result.value[:streams]).to eq(winner[:streams])
+    end
+
+    it 'writes no second session, streams or device' do
+      force_contention(true)
+
+      counts = -> { [Session.count, Stream.count, Device.count] }
+      before = counts.call()
+
+      creator.call(data: valid_params, user: user)
+
+      expect(counts.call()).to eq(before)
+    end
+
+    it 'keeps failing when nothing was raced' do
+      force_contention(false)
+
+      expect(creator.call(data: valid_params, user: user)).to be_failure
+    end
+
+    it 'refuses a row bound to a different AirBeam' do
+      force_contention(true)
+      other = Device.create!(mac_address: 'FF:EE:DD:CC:BB:AA', model: 'AirBeamMini')
+      winner[:session].update_columns(device_id: other.id)
+
+      expect(creator.call(data: valid_params, user: user)).to be_failure
+    end
+
+    it 'refuses a legacy row with no session_token, rather than answering with null' do
+      force_contention(true)
+      winner[:session].update_columns(session_token: nil)
+
+      result = creator.call(data: valid_params, user: user)
+
+      expect(result).to be_failure
+    end
+
+    it 'refuses a legacy row whose streams carry no sensor_type_id' do
+      force_contention(true)
+      Stream.where(session_id: winner[:session].id).update_all(sensor_type_id: nil)
+
+      expect(creator.call(data: valid_params, user: user)).to be_failure
+    end
+
+    it 'refuses a row with no streams at all' do
+      force_contention(true)
+      Stream.where(session_id: winner[:session].id).delete_all
+
+      expect(creator.call(data: valid_params, user: user)).to be_failure
+    end
+
+    it "never returns another user's session" do
+      force_contention(true)
+      winner[:session].update_columns(user_id: create(:user).id)
+
+      expect(creator.call(data: valid_params, user: user)).to be_failure
+    end
+  end
+
+  describe 'when the database refuses a duplicate uuid' do
+    it 'fails rather than raising, once a unique index exists' do
+      allow(FixedSession).to receive(:create!).and_raise(
+        ActiveRecord::RecordNotUnique, 'duplicate key value violates unique constraint',
+      )
+
+      result = creator.call(data: valid_params, user: user)
+
+      expect(result).to be_failure
+      expect(result.errors[:error_code]).to eq(FixedSessions::BinaryProtocol::ErrorCodes::INTERNAL_ERROR)
+    end
+  end
 end
