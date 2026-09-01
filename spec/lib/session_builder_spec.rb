@@ -138,4 +138,157 @@ describe SessionBuilder do
       expect(result.first[:s3_photo]).to be_a(ActiveStorage::Blob)
     end
   end
+
+  describe 'when a concurrent upload of the same uuid won the race' do
+    # The real contention is covered by spec/models/session_uuid_lock_spec.rb with
+    # two threads; here the flag is forced so each branch can be asserted exactly.
+    def force_contention(contended)
+      allow(Session).to receive(:with_uuid_lock) { |_uuid, &block| block.call(contended) }
+    end
+
+    let!(:winner) do
+      SessionBuilder.new(session_data.deep_dup, [], user).build!
+    end
+
+    it "returns the winner's session instead of writing a second copy" do
+      force_contention(true)
+
+      built = SessionBuilder.new(session_data.deep_dup, [], user).build!
+
+      expect(built.id).to eq(winner.id)
+      expect(Session.where(uuid: session_data[:uuid]).count).to eq(1)
+    end
+
+    it 'does not enqueue the losing payload, so measurements are not doubled' do
+      before_count = Measurement.where(stream_id: winner.streams.select(:id)).count
+      force_contention(true)
+
+      expect(MeasurementsCreator).not_to receive(:new)
+      SessionBuilder.new(session_data.deep_dup, [], user).build!
+
+      expect(Measurement.where(stream_id: winner.streams.select(:id)).count).to eq(before_count)
+      expect(winner.streams.count).to eq(1)
+    end
+
+    it 'keeps the "uuid taken" failure when nothing was raced' do
+      force_contention(false)
+
+      expect(SessionBuilder.new(session_data.deep_dup, [], user).build!).to be_nil
+      expect(Session.where(uuid: session_data[:uuid]).count).to eq(1)
+    end
+
+    it 'refuses a row holding a different recording under the same uuid' do
+      force_contention(true)
+      winner.update_columns(title: 'a completely different ride')
+
+      expect(SessionBuilder.new(session_data.deep_dup, [], user).build!).to be_nil
+    end
+
+    it 'refuses a row differing in any field the payload also carries' do
+      %i[contribute is_indoor time_zone].each do |field|
+        winner.reload
+        original = winner.public_send(field)
+        changed = field == :time_zone ? 'America/New_York' : !original
+
+        force_contention(true)
+        winner.update_columns(field => changed)
+        expect(SessionBuilder.new(session_data.deep_dup, [], user).build!)
+          .to(be_nil, "expected a differing #{field} to be refused")
+
+        winner.update_columns(field => original)
+      end
+    end
+
+    it 'refuses a row bound to a device the payload does not name' do
+      force_contention(true)
+      device = Device.create!(mac_address: 'AA:11:BB:22:CC:33', model: 'AirBeam3')
+      winner.update_columns(device_id: device.id)
+
+      expect(SessionBuilder.new(session_data.deep_dup, [], user).build!).to be_nil
+    end
+
+    it 'refuses a row whose tags differ' do
+      force_contention(true)
+      winner.tag_list = 'somebody-elses-tag'
+      winner.save!
+
+      expect(SessionBuilder.new(session_data.deep_dup, [], user).build!).to be_nil
+    end
+
+    it 'still matches when a tag is repeated in the payload' do
+      # normalize_tags turns "beach beach" into "beach,beach"; the stored row reads
+      # back one tagging. TagList dedups on assignment today, so this guards the
+      # comparison against that gem detail changing.
+      repeated = session_data.deep_dup
+      repeated[:tag_list] = 'beach beach'
+      winner.tag_list = 'beach'
+      winner.save!
+      force_contention(true)
+
+      expect(SessionBuilder.new(repeated, [], user).build!&.id).to eq(winner.id)
+    end
+
+    it 'still matches when the payload carries sub-second precision' do
+      # TimeToLocalInUTC#convert formats with %FT%T, dropping any fraction, and it
+      # runs on both the stored row and the comparison object. A change there would
+      # start rejecting uploads whose timestamps carry more precision than the
+      # column keeps, with nothing in the logs to explain the 400.
+      precise = session_data.deep_dup
+      precise[:start_time] = '2024-05-23T13:58:33.123456789Z'
+      force_contention(true)
+
+      expect(SessionBuilder.new(precise, [], user).build!&.id).to eq(winner.id)
+    end
+
+    it 'refuses a row whose times differ from the payload' do
+      force_contention(true)
+      winner.update_columns(end_time_local: winner.end_time_local + 5.minutes)
+
+      expect(SessionBuilder.new(session_data.deep_dup, [], user).build!).to be_nil
+    end
+
+    it 'returns the oldest row when duplicates still exist, matching the cleanup keeper' do
+      force_contention(true)
+      copy = winner.dup
+      copy.url_token = SecureRandom.hex(5)
+      copy.save(validate: false)
+      expect(copy.id).to be > winner.id
+
+      built = SessionBuilder.new(session_data.deep_dup, [], user).build!
+
+      expect(built.id).to eq(winner.id)
+    end
+
+    it 'refuses a device-bound row, so two AirBeams cannot report into one session' do
+      force_contention(true)
+      winner.update_columns(type: 'FixedSession', session_token: SecureRandom.hex(16))
+      session_data[:type] = 'FixedSession'
+
+      expect(SessionBuilder.new(session_data.deep_dup, [], user).build!).to be_nil
+    end
+
+    it 'ignores a session of another type holding the same uuid' do
+      force_contention(true)
+      winner.update_columns(type: 'FixedSession')
+
+      expect(SessionBuilder.new(session_data.deep_dup, [], user).build!).to be_nil
+    end
+
+    it 'never returns another user\'s session' do
+      force_contention(true)
+      winner.update_columns(user_id: create_user!(email: 'someone-else@example.com').id)
+
+      expect(SessionBuilder.new(session_data.deep_dup, [], user).build!).to be_nil
+    end
+  end
+
+  describe 'when the database refuses a duplicate uuid' do
+    it 'answers 400 rather than raising, once a unique index exists' do
+      allow(Session).to receive(:create!).and_raise(
+        ActiveRecord::RecordNotUnique, 'duplicate key value violates unique constraint',
+      )
+
+      expect(SessionBuilder.new(session_data.deep_dup, [], user).build!).to be_nil
+    end
+  end
 end
