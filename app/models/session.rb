@@ -19,21 +19,21 @@ class Session < ApplicationRecord
   validates :type, presence: :true
   validates :url_token, :uuid, uniqueness: { case_sensitive: false }
 
-  # Serialises session creation per uuid, so two requests arriving in the same
-  # second cannot both pass the uniqueness check and insert — which is exactly how
-  # the duplicates in production were created.
+  # Serialises session creation per uuid, so a request that loses a race can be
+  # answered with the winner's row instead of an error.
   #
-  # The block is yielded `contended`: was another transaction already holding this
-  # lock when we arrived? Callers use it to tell a request that lost a race (hand
-  # it the winner's row) from one that simply found the uuid taken (a late retry or
-  # a reused uuid, which keeps failing as it always has). It is exact about
-  # contention, which is not quite "a concurrent create of this uuid" — a 64-bit
-  # hash collision or the deduplication rake tasks, which take this same lock per
-  # group, also set it. A collision is harmless — the caller looks the uuid up and
-  # finds nothing. A create landing mid-cleanup either waits and finds the keeper,
-  # or exceeds UUID_LOCK_TIMEOUT and 400s, since that task holds the lock across
-  # its fingerprint and md5 work. Re-entering for the same uuid within one
-  # transaction reports false, advisory locks being re-entrant.
+  # The unique index on LOWER(uuid) is what makes duplicates impossible; this
+  # makes the losing request useful. The block is yielded `contended` — was another
+  # transaction already holding this lock when we arrived? — which lets callers
+  # tell a request that lost a race (hand it the winner's row) from one that simply
+  # found the uuid taken (a late retry or a reused uuid, which keeps failing as it
+  # always has).
+  #
+  # `contended` is exact about contention, which is not quite "a concurrent create
+  # of this uuid": a 64-bit hash collision with an unrelated uuid sets it too. That
+  # is harmless — the caller looks the uuid up and finds nothing. Re-entering for
+  # the same uuid within one transaction reports false, advisory locks being
+  # re-entrant.
   #
   # The key is downcased because the rules this protects are case-insensitive —
   # `validates :uuid, uniqueness: { case_sensitive: false }` and the contracts'

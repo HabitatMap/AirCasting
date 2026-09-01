@@ -6,10 +6,9 @@ module FixedSessions
       # Serialised per uuid: two creates arriving at once would otherwise both
       # pass the uniqueness validation's SELECT and both insert.
       Session.with_uuid_lock(data[:uuid]) do |contended|
-        # order(:id) for the same reason as SessionBuilder: while duplicate rows
-        # still exist, an unordered LIMIT 1 could return a copy the deduplication
-        # task is about to delete. LOWER() because the contract's uuid rule and the
-        # model's uniqueness validation are both case-insensitive.
+        # LOWER() because the contract's uuid rule and the model's uniqueness
+        # validation are both case-insensitive, and so is the unique index. order(:id)
+        # is redundant while that index stands, and costs nothing if it is dropped.
         existing =
           if contended
             user.sessions

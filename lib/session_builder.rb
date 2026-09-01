@@ -41,11 +41,9 @@ class SessionBuilder
       # Both here and in FixedSessions::Creator the rule is the same: only hand
       # back a row this path could have produced itself, carrying what this request
       # actually uploaded.
-      # order(:id): until the cleanup has run, 463 uuids still have more than one
-      # row, and an unordered LIMIT 1 could hand back a copy the deduplication task
-      # is about to delete — leaving the phone holding a url_location that stops
-      # resolving. min(id) is the row that task keeps, so both agree on which copy
-      # is canonical.
+      # order(:id) is redundant while the unique index on LOWER(uuid) stands — it
+      # cannot match more than one row — and costs nothing if that index is ever
+      # rolled back.
       # LOWER(): the uniqueness validation this bypasses is case-insensitive, so an
       # exact match would miss a row that is about to reject this upload anyway.
       # Scoped to the user first, so the index does the work before LOWER runs.
@@ -78,12 +76,11 @@ class SessionBuilder
       # differ between two uploads of one recording is therefore included, since
       # adding one can only ever turn a silent discard into a 400.
       #
-      # Narrower than MobileSessionFingerprint on purpose, though it asks the same
-      # question: that one compares stream shape and measurement counts, which are
-      # unreadable here. The winner commits its session and streams while Sidekiq
-      # is still inserting measurements, so mid-race it legitimately reads zero.
-      # Everything compared below is written in that same transaction and is
-      # readable the moment the loser takes the lock.
+      # Streams and measurement counts are deliberately not compared: the winner
+      # commits its session and streams while Sidekiq is still inserting
+      # measurements, so mid-race it legitimately reads zero. Everything below is
+      # written in that same transaction and is readable the moment the loser takes
+      # the lock.
       #
       # Comparing against a non-persisted Session runs the same setters as the
       # create below, so the local-time conversion is applied to both sides rather
