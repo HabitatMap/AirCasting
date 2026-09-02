@@ -122,16 +122,18 @@ RSpec.describe FixedSessions::Creator do
   end
 
   describe 'when a concurrent create of the same uuid won the race' do
-    # Real contention is covered by spec/models/session_uuid_lock_spec.rb; the flag
-    # is forced here so each branch can be asserted on its own.
-    def force_contention(contended)
-      allow(Session).to receive(:with_uuid_lock) { |_uuid, &block| block.call(contended) }
+    # Real races are covered by spec/models/session_uuid_race_spec.rb; the
+    # constraint violation is forced here so each branch of the recovery can be
+    # asserted on its own.
+    def force_race
+      allow(FixedSession).to receive(:create!)
+        .and_raise(ActiveRecord::RecordNotUnique, 'duplicate key value violates unique constraint')
     end
 
     let!(:winner) { creator.call(data: valid_params, user: user).value }
 
     it "returns the winner's session, token and streams" do
-      force_contention(true)
+      force_race
 
       result = creator.call(data: valid_params, user: user)
 
@@ -142,7 +144,7 @@ RSpec.describe FixedSessions::Creator do
     end
 
     it 'writes no second session, streams or device' do
-      force_contention(true)
+      force_race
 
       counts = -> { [Session.count, Stream.count, Device.count] }
       before = counts.call()
@@ -153,13 +155,11 @@ RSpec.describe FixedSessions::Creator do
     end
 
     it 'keeps failing when nothing was raced' do
-      force_contention(false)
-
       expect(creator.call(data: valid_params, user: user)).to be_failure
     end
 
     it 'refuses a row bound to a different AirBeam' do
-      force_contention(true)
+      force_race
       other = Device.create!(mac_address: 'FF:EE:DD:CC:BB:AA', model: 'AirBeamMini')
       winner[:session].update_columns(device_id: other.id)
 
@@ -167,7 +167,7 @@ RSpec.describe FixedSessions::Creator do
     end
 
     it 'refuses a legacy row with no session_token, rather than answering with null' do
-      force_contention(true)
+      force_race
       winner[:session].update_columns(session_token: nil)
 
       result = creator.call(data: valid_params, user: user)
@@ -176,24 +176,58 @@ RSpec.describe FixedSessions::Creator do
     end
 
     it 'refuses a legacy row whose streams carry no sensor_type_id' do
-      force_contention(true)
+      force_race
       Stream.where(session_id: winner[:session].id).update_all(sensor_type_id: nil)
 
       expect(creator.call(data: valid_params, user: user)).to be_failure
     end
 
     it 'refuses a row with no streams at all' do
-      force_contention(true)
+      force_race
       Stream.where(session_id: winner[:session].id).delete_all
 
       expect(creator.call(data: valid_params, user: user)).to be_failure
     end
 
     it "never returns another user's session" do
-      force_contention(true)
+      force_race
       winner[:session].update_columns(user_id: create(:user).id)
 
       expect(creator.call(data: valid_params, user: user)).to be_failure
+    end
+  end
+
+  describe 'what the client is told when a create fails' do
+    it 'suppresses the PG detail on a conflict it cannot recover from' do
+      allow(FixedSession).to receive(:create!).and_raise(
+        ActiveRecord::RecordNotUnique,
+        'PG::UniqueViolation: duplicate key value violates unique constraint ' \
+        '"index_devices_on_mac_address"\nDETAIL:  Key (mac_address)=(AA:BB:CC:DD:EE:FF) already exists.',
+      )
+
+      result = creator.call(data: valid_params, user: user)
+
+      expect(result.errors[:message]).to eq('Could not create this session')
+      expect(result.errors[:message]).not_to include('duplicate key', 'mac_address', 'DETAIL')
+    end
+
+    it 'keeps the validation message on a sequential duplicate' do
+      creator.call(data: valid_params, user: user)
+
+      result = creator.call(data: valid_params, user: user)
+
+      expect(result).to be_failure
+      expect(result.errors[:message]).to include('has already been taken')
+    end
+
+    it 'keeps the seed hint when no default ThresholdSet exists' do
+      ThresholdSet.delete_all
+      allow(ThresholdSet).to receive(:create!).and_raise(ActiveRecord::RecordNotFound, 'boom')
+
+      result = creator.call(data: valid_params, user: user)
+
+      expect(result).to be_failure
+      expect(result.errors[:message]).not_to eq('Could not create this session')
     end
   end
 

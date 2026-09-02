@@ -140,10 +140,13 @@ describe SessionBuilder do
   end
 
   describe 'when a concurrent upload of the same uuid won the race' do
-    # The real contention is covered by spec/models/session_uuid_lock_spec.rb with
-    # two threads; here the flag is forced so each branch can be asserted exactly.
-    def force_contention(contended)
-      allow(Session).to receive(:with_uuid_lock) { |_uuid, &block| block.call(contended) }
+    # Real races are covered by spec/models/session_uuid_race_spec.rb with two
+    # threads. Here the constraint violation is forced, so each branch of the
+    # recovery can be asserted exactly — the validation would otherwise reject this
+    # payload before the insert, which is the separate case asserted below.
+    def force_race
+      allow(Session).to receive(:create!)
+        .and_raise(ActiveRecord::RecordNotUnique, 'duplicate key value violates unique constraint')
     end
 
     let!(:winner) do
@@ -151,7 +154,7 @@ describe SessionBuilder do
     end
 
     it "returns the winner's session instead of writing a second copy" do
-      force_contention(true)
+      force_race
 
       built = SessionBuilder.new(session_data.deep_dup, [], user).build!
 
@@ -161,7 +164,7 @@ describe SessionBuilder do
 
     it 'does not enqueue the losing payload, so measurements are not doubled' do
       before_count = Measurement.where(stream_id: winner.streams.select(:id)).count
-      force_contention(true)
+      force_race
 
       expect(MeasurementsCreator).not_to receive(:new)
       SessionBuilder.new(session_data.deep_dup, [], user).build!
@@ -171,14 +174,55 @@ describe SessionBuilder do
     end
 
     it 'keeps the "uuid taken" failure when nothing was raced' do
-      force_contention(false)
+      expect(SessionBuilder.new(session_data.deep_dup, [], user).build!).to be_nil
+      expect(Session.where(uuid: session_data[:uuid]).count).to eq(1)
+    end
+
+    it "refuses a uuid another user already owns, without a race" do
+      # The uniqueness validation is global, not scoped to the user, so this is
+      # rejected before any insert — the same answer it gave before this work.
+      winner.update_columns(user_id: create_user!(email: 'owner@example.com').id)
 
       expect(SessionBuilder.new(session_data.deep_dup, [], user).build!).to be_nil
       expect(Session.where(uuid: session_data[:uuid]).count).to eq(1)
     end
 
+    it 'never hands back an old session, however well it matches' do
+      # The recovery path can only be reached when the rival row was committed
+      # between this request's uniqueness SELECT and its INSERT. A row that already
+      # existed is caught by the validation — LOWER(uuid) = LOWER(?), the same
+      # predicate as the index — so a re-upload months later still gets its 400
+      # rather than being handed the earlier recording.
+      winner.update_columns(created_at: 6.months.ago, updated_at: 6.months.ago)
+
+      expect(SessionBuilder.new(session_data.deep_dup, [], user).build!).to be_nil
+      expect(Session.where(uuid: session_data[:uuid]).count).to eq(1)
+    end
+
+    it 'refuses an old session re-uploaded under a different case' do
+      # The one way an old row could reach reusable_session: if the validation
+      # stopped matching the index. The validation is LOWER(uuid) = LOWER(?) and the
+      # index is UNIQUE (LOWER(uuid)); make either side case-sensitive and this
+      # upload slips past the validation, hits the constraint, and is handed a
+      # months-old recording instead of a 400.
+      winner.update_columns(created_at: 6.months.ago)
+      recased = session_data.deep_dup
+      recased[:uuid] = session_data[:uuid].swapcase
+
+      expect(SessionBuilder.new(recased, [], user).build!).to be_nil
+      expect(Session.where('LOWER(uuid) = ?', session_data[:uuid].downcase).count).to eq(1)
+    end
+
+    it 'reaches the recovery path only through a constraint violation' do
+      # If the validation ever stopped matching the index — a case-sensitivity
+      # change on either side — old rows would start flowing into reusable_session.
+      expect_any_instance_of(SessionBuilder).not_to receive(:reusable_session)
+
+      SessionBuilder.new(session_data.deep_dup, [], user).build!
+    end
+
     it 'refuses a row holding a different recording under the same uuid' do
-      force_contention(true)
+      force_race
       winner.update_columns(title: 'a completely different ride')
 
       expect(SessionBuilder.new(session_data.deep_dup, [], user).build!).to be_nil
@@ -190,7 +234,7 @@ describe SessionBuilder do
         original = winner.public_send(field)
         changed = field == :time_zone ? 'America/New_York' : !original
 
-        force_contention(true)
+        force_race
         winner.update_columns(field => changed)
         expect(SessionBuilder.new(session_data.deep_dup, [], user).build!)
           .to(be_nil, "expected a differing #{field} to be refused")
@@ -200,7 +244,7 @@ describe SessionBuilder do
     end
 
     it 'refuses a row bound to a device the payload does not name' do
-      force_contention(true)
+      force_race
       device = Device.create!(mac_address: 'AA:11:BB:22:CC:33', model: 'AirBeam3')
       winner.update_columns(device_id: device.id)
 
@@ -208,7 +252,7 @@ describe SessionBuilder do
     end
 
     it 'refuses a row whose tags differ' do
-      force_contention(true)
+      force_race
       winner.tag_list = 'somebody-elses-tag'
       winner.save!
 
@@ -223,7 +267,7 @@ describe SessionBuilder do
       repeated[:tag_list] = 'beach beach'
       winner.tag_list = 'beach'
       winner.save!
-      force_contention(true)
+      force_race
 
       expect(SessionBuilder.new(repeated, [], user).build!&.id).to eq(winner.id)
     end
@@ -235,20 +279,20 @@ describe SessionBuilder do
       # column keeps, with nothing in the logs to explain the 400.
       precise = session_data.deep_dup
       precise[:start_time] = '2024-05-23T13:58:33.123456789Z'
-      force_contention(true)
+      force_race
 
       expect(SessionBuilder.new(precise, [], user).build!&.id).to eq(winner.id)
     end
 
     it 'refuses a row whose times differ from the payload' do
-      force_contention(true)
+      force_race
       winner.update_columns(end_time_local: winner.end_time_local + 5.minutes)
 
       expect(SessionBuilder.new(session_data.deep_dup, [], user).build!).to be_nil
     end
 
     it 'refuses a device-bound row, so two AirBeams cannot report into one session' do
-      force_contention(true)
+      force_race
       winner.update_columns(type: 'FixedSession', session_token: SecureRandom.hex(16))
       session_data[:type] = 'FixedSession'
 
@@ -256,14 +300,14 @@ describe SessionBuilder do
     end
 
     it 'ignores a session of another type holding the same uuid' do
-      force_contention(true)
+      force_race
       winner.update_columns(type: 'FixedSession')
 
       expect(SessionBuilder.new(session_data.deep_dup, [], user).build!).to be_nil
     end
 
     it 'never returns another user\'s session' do
-      force_contention(true)
+      force_race
       winner.update_columns(user_id: create_user!(email: 'someone-else@example.com').id)
 
       expect(SessionBuilder.new(session_data.deep_dup, [], user).build!).to be_nil
