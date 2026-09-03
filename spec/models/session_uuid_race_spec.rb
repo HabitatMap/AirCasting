@@ -1,9 +1,19 @@
 require 'rails_helper'
 
-# What happens when two requests race, which a transactional example cannot show —
-# the second connection would not see the first one's uncommitted rows. These
-# examples therefore manage their own data, and they are the only place the
-# recovery path runs for real rather than from a stubbed constraint violation.
+# What happens when two requests race — the only place the recovery path runs for
+# real rather than from a stubbed constraint violation.
+#
+# use_transactional_tests must stay false, for both styles here. It sets
+# lock_thread on the pool, which hands every thread the *same* connection: the
+# threaded examples would then have no second session to race against, and the
+# before_create harness deadlocks outright — the rival waits for a connection the
+# main thread is holding mid-INSERT, while the main thread waits to join the rival.
+# Measured at six and a half minutes before something gave way, so this fails as a
+# hang rather than as a red example.
+#
+# The cost is manual teardown, which is why the `after` block ensures the user is
+# destroyed and why the factories generate collision-proof emails and usernames: a
+# row left behind here used to take the next run down with it.
 RSpec.describe 'Concurrent session creation', type: :model do
   self.use_transactional_tests = false
 
@@ -27,7 +37,10 @@ RSpec.describe 'Concurrent session creation', type: :model do
     DeletedSession.where('LOWER(uuid) = ?', uuid.downcase).delete_all
     Device.where(mac_address: 'AA:BB:CC:DD:EE:FF').delete_all
     ThresholdSet.where(sensor_name: 'AirBeam-PM2.5').delete_all
-    user.destroy
+  ensure
+    # Last, and in an ensure: a raise in any cleanup above would otherwise leave the
+    # user behind, and nothing rolls it back for us.
+    user.destroy if user&.persisted?
   end
 
   # A rival that commits in the one window the recovery path needs: after this
@@ -128,9 +141,12 @@ RSpec.describe 'Concurrent session creation', type: :model do
       end
     end.each(&:join)
 
+    # Whether the loser recovers or is caught by the validation depends on which
+    # side of the winner's COMMIT it lands, which no barrier can pin down. What must
+    # hold either way: one row, and nobody handed a session that is not this one.
     expect(Session.where('LOWER(uuid) = ?', uuid.downcase).count).to eq(1)
-    expect(results.count(&:success?)).to eq(2)
-    expect(results.map { |r| r.value[:session].id }.uniq.size).to eq(1)
+    expect(results.count(&:success?)).to be >= 1
+    expect(results.select(&:success?).map { |r| r.value[:session].id }.uniq.size).to eq(1)
   end
 
   it 'still creates the session when nothing competes' do
@@ -160,8 +176,8 @@ RSpec.describe 'Concurrent session creation', type: :model do
     threads.each(&:join)
 
     expect(Session.where(uuid: uuid).count).to eq(1)
-    expect(results.compact.size).to eq(2)
-    expect(results.map(&:id).uniq.size).to eq(1)
+    expect(results.compact).not_to be_empty
+    expect(results.compact.map(&:id).uniq.size).to eq(1)
   end
 
   it 'bounds the wait on a rival\'s in-flight insert instead of parking forever' do
@@ -250,6 +266,39 @@ RSpec.describe 'Concurrent session creation', type: :model do
       SessionBuilder.new(legacy_session_data, [], user).build!
 
       expect(ActiveRecord::Base.connection.select_value('SHOW lock_timeout')).to eq(before)
+    end
+  end
+
+  describe 'recovering from a rival that commits mid-insert' do
+    # Deterministic where the threaded examples above cannot be: the rival commits
+    # in the window between this request's validation and its INSERT, so the
+    # recovery path is guaranteed to run.
+    it "answers the fixed create with the winner's session" do
+      Device.create!(mac_address: 'AA:BB:CC:DD:EE:FF', model: 'AirBeamMini')
+      winner = nil
+      rival = -> { winner = FixedSessions::Creator.new.call(data: create_params, user: user) }
+
+      result = rival_commits_during_insert(FixedSession, rival) do
+        FixedSessions::Creator.new.call(data: create_params, user: user)
+      end
+
+      expect(result).to be_success
+      expect(result.value[:session].id).to eq(winner.value[:session].id)
+      expect(Session.where('LOWER(uuid) = ?', uuid.downcase).count).to eq(1)
+    end
+
+    it "answers the legacy upload with the winner's session" do
+      data = legacy_session_data
+      winner = nil
+      rival = -> { winner = SessionBuilder.new(data.dup, [], user).build! }
+
+      built = rival_commits_during_insert(MobileSession, rival) do
+        SessionBuilder.new(data.dup, [], user).build!
+      end
+
+      expect(built).to be_present
+      expect(built.id).to eq(winner.id)
+      expect(Session.where(uuid: uuid).count).to eq(1)
     end
   end
 

@@ -222,12 +222,11 @@ RSpec.describe FixedSessions::Creator do
 
     it 'keeps the seed hint when no default ThresholdSet exists' do
       ThresholdSet.delete_all
-      allow(ThresholdSet).to receive(:create!).and_raise(ActiveRecord::RecordNotFound, 'boom')
 
       result = creator.call(data: valid_params, user: user)
 
       expect(result).to be_failure
-      expect(result.errors[:message]).not_to eq('Could not create this session')
+      expect(result.errors[:message]).to include('run db:seed')
     end
   end
 
