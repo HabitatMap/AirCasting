@@ -2,71 +2,78 @@ module FixedSessions
   class Creator
     UnknownStreamTypeError = Class.new(StandardError)
 
+    # How long to wait for a rival's in-flight insert of this uuid before failing.
+    LOCK_TIMEOUT = '3s'.freeze
+
     def call(data:, user:)
-      # Serialised per uuid: two creates arriving at once would otherwise both
-      # pass the uniqueness validation's SELECT and both insert.
-      Session.with_uuid_lock(data[:uuid]) do |contended|
-        # LOWER() because the contract's uuid rule and the model's uniqueness
-        # validation are both case-insensitive, and so is the unique index. order(:id)
-        # is redundant while that index stands, and costs nothing if it is dropped.
-        existing =
-          if contended
-            user.sessions
-                .where('LOWER(sessions.uuid) = ?', data[:uuid].to_s.downcase)
-                .where(type: 'FixedSession')
-                .order(:id)
-                .first
+      # The unique index on LOWER(uuid) makes a duplicate impossible; this decides
+      # what the losing request is told. Insert first and let the constraint refuse
+      # us, rather than asking whether the uuid is free.
+      #
+      # A sequential retry never reaches the constraint — the contract's uuid rule
+      # rejects it first, and the model validation after that. Only a request whose
+      # rival had not yet committed gets here.
+      begin
+        # requires_new so the recovery below still works if a caller ever wraps this
+        # in its own transaction; SET LOCAL lock_timeout bounds the wait on a
+        # rival's uncommitted index entry, which nothing else bounds.
+        ActiveRecord::Base.transaction(requires_new: true) do
+          # SET LOCAL is scoped to the transaction, not the savepoint: a released
+          # savepoint leaves it in force for the rest of a caller's transaction,
+          # which would hand them a 3s lock_timeout they never asked for. Only the
+          # outermost transaction is ours to bound — open_transactions is 1 then,
+          # and 2+ when a caller wraps us (transaction_open? is true either way,
+          # since it sees our own).
+          if ActiveRecord::Base.connection.open_transactions == 1
+            ActiveRecord::Base.connection.execute("SET LOCAL lock_timeout = '#{LOCK_TIMEOUT}'")
           end
 
-        # Only a row this endpoint produced can be handed back. A FixedSession
-        # created through the legacy /api/realtime/sessions path carries no
-        # session_token, and its streams have no sensor_type_id — neither path
-        # sets them. Returning one would answer with `session_token: null`, which
-        # Android drops and iOS rejects, leaving the AirBeam unconfigured: exactly
-        # the dead end this short-circuit exists to avoid. Falling through instead
-        # fails the uuid validation and returns the 400 that path has always given.
-        existing = nil unless reusable?(existing, data)
-
-        if existing
-          # Lost a race with a concurrent create of this uuid. Answer with the
-          # winner's row, and with the winner's session_token above all: the token
-          # is flashed into the AirBeam over BLE and is how it authenticates every
-          # upload, so handing out a second one would leave the device reporting
-          # against a session nobody reads.
-          Success.new(
-            session: existing,
-            session_token: existing.session_token,
-            # Unordered on purpose: both apps resolve a stream by sensor name,
-            # never by position, and create_streams follows the payload's order
-            # rather than any sort. Do not "fix" this into an ordered scope.
-            streams: existing.streams.map do |stream|
-              { sensor_name: stream.sensor_name, sensor_type_id: stream.sensor_type_id }
-            end,
-          )
-        else
           device = find_or_create_device(data[:airbeam])
           session = create_session(data, user, device)
           streams = create_streams(data, session)
           Success.new(session: session, session_token: session.session_token, streams: streams)
         end
+      rescue ActiveRecord::RecordNotUnique
+        existing = reusable_session(data, user) or raise
+
+        # Lost a race with a concurrent create of this uuid. Answer with the
+        # winner's row, and with the winner's session_token above all: the token is
+        # flashed into the AirBeam over BLE and is how it authenticates every
+        # upload, so handing out a second one would leave the device reporting
+        # against a session nobody reads.
+        Success.new(
+          session: existing,
+          session_token: existing.session_token,
+          # Unordered on purpose: both apps resolve a stream by sensor name, never
+          # by position, and create_streams follows the payload's order rather than
+          # any sort. Do not "fix" this into an ordered scope.
+          streams: existing.streams.map do |stream|
+            { sensor_name: stream.sensor_name, sensor_type_id: stream.sensor_type_id }
+          end,
+        )
       end
     rescue ActiveRecord::LockWaitTimeout
-      # Another create for this uuid is still running; the client should retry.
+      # A rival's create for this uuid is still running; the client should retry.
       Failure.new(
         error_code: BinaryProtocol::ErrorCodes::INTERNAL_ERROR,
-        message: 'Could not acquire a lock for this session, please retry',
+        message: 'Could not create this session, please retry',
       )
     rescue UnknownStreamTypeError => e
       Failure.new(error_code: BinaryProtocol::ErrorCodes::UNSUPPORTED_SENSOR_TYPE, message: e.message)
-    rescue ActiveRecord::RecordInvalid,
-           ActiveRecord::RecordNotFound,
-           # Two constraints raise this. devices.mac_address is unique and
-           # find_or_create_device is a check-then-insert against it, so two
-           # creates for the same AirBeam under *different* uuids race today —
-           # with_uuid_lock keys on uuid and does not serialise them. That was an
-           # unrescued 500 before this line. sessions.uuid will raise it too once
-           # its unique index lands.
-           ActiveRecord::RecordNotUnique => e
+    # Re-raised from the rescue above when the conflict was not a session this
+    # request may reuse — most often devices.mac_address, which is unique and which
+    # find_or_create_device races when two creates for one AirBeam arrive under
+    # different uuids. Do not narrow this to the uuid constraint.
+    rescue ActiveRecord::RecordNotUnique => e
+      # errors render straight to the client, and a PG::UniqueViolation message
+      # carries the constraint name and a DETAIL line quoting the conflicting
+      # values. Only this class needs suppressing — the two below are app-written.
+      Rails.logger.warn("[FixedSessions::Creator] #{e.class}: #{e.message}")
+      Failure.new(
+        error_code: BinaryProtocol::ErrorCodes::INTERNAL_ERROR,
+        message: 'Could not create this session',
+      )
+    rescue ActiveRecord::RecordInvalid, ActiveRecord::RecordNotFound => e
       Failure.new(error_code: BinaryProtocol::ErrorCodes::INTERNAL_ERROR, message: e.message)
     end
 
@@ -88,15 +95,26 @@ module FixedSessions
     # already pinned below. What remains — title, coordinates — would leave the
     # winner's values on a session both requests agree is the same station: wrong
     # label, not lost data.
-    def reusable?(session, data)
-      return false if session.nil?
+    def reusable_session(data, user)
+      # LOWER() because the contract's uuid rule, the model's uniqueness validation
+      # and the index that just refused us are all case-insensitive.
+      session =
+        user.sessions
+            .where('LOWER(sessions.uuid) = ?', data[:uuid].to_s.downcase)
+            .where(type: 'FixedSession')
+            .first
 
-      streams = session.streams.to_a # also memoised for the response below
+      return nil if session.nil?
 
-      session.session_token.present? &&
+      streams = session.streams.to_a # also memoised for the response
+
+      reusable =
+        session.session_token.present? &&
         streams.any? &&
         streams.all? { |stream| stream.sensor_type_id.present? } &&
         session.device&.mac_address == data.dig(:airbeam, :mac_address)
+
+      reusable ? session : nil
     end
 
     def find_or_create_device(airbeam_params)

@@ -19,48 +19,6 @@ class Session < ApplicationRecord
   validates :type, presence: :true
   validates :url_token, :uuid, uniqueness: { case_sensitive: false }
 
-  # Serialises session creation per uuid, so a request that loses a race can be
-  # answered with the winner's row instead of an error.
-  #
-  # The unique index on LOWER(uuid) is what makes duplicates impossible; this
-  # makes the losing request useful. The block is yielded `contended` — was another
-  # transaction already holding this lock when we arrived? — which lets callers
-  # tell a request that lost a race (hand it the winner's row) from one that simply
-  # found the uuid taken (a late retry or a reused uuid, which keeps failing as it
-  # always has).
-  #
-  # `contended` is exact about contention, which is not quite "a concurrent create
-  # of this uuid": a 64-bit hash collision with an unrelated uuid sets it too. That
-  # is harmless — the caller looks the uuid up and finds nothing. Re-entering for
-  # the same uuid within one transaction reports false, advisory locks being
-  # re-entrant.
-  #
-  # The key is downcased because the rules this protects are case-insensitive —
-  # `validates :uuid, uniqueness: { case_sensitive: false }` and the contracts'
-  # `LOWER(uuid) = LOWER(?)`. Hashing the raw string let two creates differing only
-  # in case run unserialised, and the loser died on an unrelated unique constraint.
-  #
-  # Requires READ COMMITTED, which is Postgres's default and is not overridden
-  # anywhere here. The lock statement is the transaction's first query, so under
-  # REPEATABLE READ it would pin a snapshot taken before the winner committed, the
-  # caller's lookup would find nothing, and a duplicate would be written. Do not
-  # wrap a create in `transaction(isolation:)`, and do not call this inside an
-  # outer transaction: the lock would then be held until that one commits rather
-  # than for the milliseconds this needs.
-  UUID_LOCK_TIMEOUT = '3s'.freeze
-
-  def self.with_uuid_lock(uuid)
-    transaction do
-      connection.execute("SET LOCAL lock_timeout = '#{UUID_LOCK_TIMEOUT}'")
-      key = sanitize_sql_array(['hashtextextended(?, 0)', uuid.to_s.downcase])
-
-      contended = !connection.select_value("SELECT pg_try_advisory_xact_lock(#{key})")
-      connection.execute("SELECT pg_advisory_xact_lock(#{key})") if contended
-
-      yield contended
-    end
-  end
-
   accepts_nested_attributes_for :notes, :streams
 
   before_validation :set_url_token, unless: :url_token
