@@ -88,6 +88,11 @@ RSpec.describe 'Mobile app — sessions & sync', type: :request do
         Form fields: `session` (JSON string — Base64+gzip when `compression` is set,
         else raw JSON; decoded shape below), `compression` (flag), `photos[]` (optional
         Base64 images, index-paired with notes). `type` is forced to MobileSession.
+
+        Concurrent uploads of the same `uuid` resolve to one session: the request that
+        loses the race is answered with the session the winner created, so both receive
+        the same `location`. A `uuid` that already existed before the request is
+        rejected with a bodiless `400`, as is any payload that fails validation.
       DESC
 
       parameter name: :body, in: :body, required: true, schema: {
@@ -103,6 +108,11 @@ RSpec.describe 'Mobile app — sessions & sync', type: :request do
         schema UPLOAD_RESPONSE
         # Doc-only: exercising SessionBuilder needs a full valid gzip/JSON payload;
         # documented here without a live request.
+        skip 'swagger doc: upload payload not exercised live'
+      end
+
+      response '400', 'invalid payload, or uuid already in use' do
+        # No body: the controller answers `head :bad_request`.
         skip 'swagger doc: upload payload not exercised live'
       end
     end

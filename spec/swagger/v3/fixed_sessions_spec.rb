@@ -28,12 +28,22 @@ RSpec.describe 'AirBeamMini Fixed Sessions Binary Flow', type: :request do
         before configuring the AirBeamMini. The response includes a `sensor_type_id` per
         stream that the AirBeamMini uses to identify stream types in the binary upload payload.
 
+        ## Concurrent creates
+
+        Two creates for the same `uuid` arriving together resolve to one session: the
+        request that loses the race is answered with the session the winner created,
+        including **its** `session_token` and `streams`. A device configured from either
+        response therefore reports into the same session. A create for a `uuid` that
+        already existed before the request is a `validation_error`, not a reuse.
+
         ## Error Codes
 
         | `error_code` | HTTP | Description |
         |---|---|---|
         | `unauthorized` | 401 | Missing or invalid `Authorization` token |
-        | `validation_error` | 400 | Request body failed validation. See `fields` for per-field details |
+        | `validation_error` | 400 | Request body failed validation, including a `uuid` already in use. See `fields` for per-field details |
+        | `unsupported_sensor_type` | 400 | A `sensor_name` in `streams` is not a recognised AirBeam sensor |
+        | `internal_error` | 400 | The session could not be created — a missing default threshold set, or a conflicting write that could not be resolved |
       DESC
 
       parameter name: :Authorization, in: :header, type: :string, required: true,
