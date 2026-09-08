@@ -1550,6 +1550,11 @@ paths:
         `photos[]` (optional). The decoded `session` has the same shape as a mobile upload
         (uuid, title, lat/lng, start_time/end_time, time_zone, streams keyed by sensor_name),
         but with continuous fixed streams.
+
+        Concurrent uploads of the same `uuid` resolve to one session: the request that
+        loses the race is answered with the session the winner created, so both receive
+        the same `location`. A `uuid` that already existed before the request is
+        rejected with a bodiless `400`, as is any payload that fails validation.
       parameters: []
       responses:
         '200':
@@ -1592,6 +1597,8 @@ paths:
                           nullable: true
                         number:
                           type: integer
+        '400':
+          description: invalid payload, or uuid already in use
       requestBody:
         content:
           multipart/form-data:
@@ -1914,6 +1921,11 @@ paths:
         Form fields: `session` (JSON string — Base64+gzip when `compression` is set,
         else raw JSON; decoded shape below), `compression` (flag), `photos[]` (optional
         Base64 images, index-paired with notes). `type` is forced to MobileSession.
+
+        Concurrent uploads of the same `uuid` resolve to one session: the request that
+        loses the race is answered with the session the winner created, so both receive
+        the same `location`. A `uuid` that already existed before the request is
+        rejected with a bodiless `400`, as is any payload that fails validation.
       parameters: []
       responses:
         '200':
@@ -1957,6 +1969,8 @@ paths:
                           nullable: true
                         number:
                           type: integer
+        '400':
+          description: invalid payload, or uuid already in use
       requestBody:
         content:
           multipart/form-data:
@@ -3018,12 +3032,22 @@ paths:
         before configuring the AirBeamMini. The response includes a `sensor_type_id` per
         stream that the AirBeamMini uses to identify stream types in the binary upload payload.
 
+        ## Concurrent creates
+
+        Two creates for the same `uuid` arriving together resolve to one session: the
+        request that loses the race is answered with the session the winner created,
+        including **its** `session_token` and `streams`. A device configured from either
+        response therefore reports into the same session. A create for a `uuid` that
+        already existed before the request is a `validation_error`, not a reuse.
+
         ## Error Codes
 
         | `error_code` | HTTP | Description |
         |---|---|---|
         | `unauthorized` | 401 | Missing or invalid `Authorization` token |
-        | `validation_error` | 400 | Request body failed validation. See `fields` for per-field details |
+        | `validation_error` | 400 | Request body failed validation, including a `uuid` already in use. See `fields` for per-field details |
+        | `unsupported_sensor_type` | 400 | A `sensor_name` in `streams` is not a recognised AirBeam sensor |
+        | `internal_error` | 400 | The session could not be created — a missing default threshold set, or a conflicting write that could not be resolved |
       parameters:
       - name: Authorization
         in: header

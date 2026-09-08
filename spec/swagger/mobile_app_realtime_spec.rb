@@ -69,6 +69,11 @@ RSpec.describe 'Mobile app — realtime (fixed WiFi)', type: :request do
         `photos[]` (optional). The decoded `session` has the same shape as a mobile upload
         (uuid, title, lat/lng, start_time/end_time, time_zone, streams keyed by sensor_name),
         but with continuous fixed streams.
+
+        Concurrent uploads of the same `uuid` resolve to one session: the request that
+        loses the race is answered with the session the winner created, so both receive
+        the same `location`. A `uuid` that already existed before the request is
+        rejected with a bodiless `400`, as is any payload that fails validation.
       DESC
 
       parameter name: :body, in: :body, required: true, schema: {
@@ -85,6 +90,11 @@ RSpec.describe 'Mobile app — realtime (fixed WiFi)', type: :request do
                  location: { type: :string },
                  notes: { type: :array, items: { type: :object, properties: { id: { type: :integer }, text: { type: :string }, date: { type: :string }, latitude: { type: :number, format: :float }, longitude: { type: :number, format: :float }, photo: { type: :string, nullable: true }, photo_thumbnail: { type: :string, nullable: true }, photo_location: { type: :string, nullable: true }, number: { type: :integer } } } },
                }
+        skip 'swagger doc: upload payload not exercised live'
+      end
+
+      response '400', 'invalid payload, or uuid already in use' do
+        # No body: the controller answers `head :bad_request`.
         skip 'swagger doc: upload payload not exercised live'
       end
     end
