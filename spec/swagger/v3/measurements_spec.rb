@@ -15,7 +15,20 @@ RSpec.describe 'V3 Measurements', type: :request do
     },
   }.freeze
 
-  ERRORS_SCHEMA = { type: :object, additionalProperties: true, description: 'Per-field validation errors' }.freeze
+  # Unified v3 error body: { error_code, message, fields? }
+  ERRORS_SCHEMA = {
+    type: :object,
+    required: %w[error_code message],
+    properties: {
+      error_code: { type: :string, example: 'validation_error' },
+      message: { type: :string, example: 'Request body is invalid' },
+      fields: {
+        type: :object,
+        description: 'Per-field validation errors — only present for shape errors',
+        additionalProperties: { type: :array, items: { type: :string } },
+      },
+    },
+  }.freeze
 
   path '/api/v3/fixed_measurements' do
     get 'AirBeam fixed measurements in a time range' do

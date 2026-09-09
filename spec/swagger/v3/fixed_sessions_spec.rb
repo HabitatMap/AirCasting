@@ -14,8 +14,8 @@ RSpec.describe 'AirBeamMini Fixed Sessions Binary Flow', type: :request do
     required: %w[error_code message],
     properties: {
       error_code: { type: :string },
-      message: { type: :string },
-    },
+      message: { type: :string }
+    }
   }.freeze
 
   path '/api/v3/fixed_sessions' do
@@ -24,26 +24,37 @@ RSpec.describe 'AirBeamMini Fixed Sessions Binary Flow', type: :request do
       consumes 'application/json'
       produces 'application/json'
       description <<~DESC
-        Creates a new fixed session for an AirBeamMini device. The mobile app calls this
-        before configuring the AirBeamMini. The response includes a `sensor_type_id` per
-        stream that the AirBeamMini uses to identify stream types in the binary upload payload.
+        Creates a fixed session for an AirBeamMini. The app calls this before
+        configuring the device. The response carries the `session_token` to flash to
+        the AirBeam, and a `sensor_type_id` per stream that the binary upload uses to
+        address streams.
 
-        ## Concurrent creates
+        - **`uuid`** — canonical UUID form (what `UUID.randomUUID()` / `UUID()` produce),
+          not already in use.
+        - **`device`** — shipped app versions may still send this object as `airbeam`.
+          `mac_address` is any stable device id, not necessarily a hardware MAC;
+          `model` is a free-form string.
+        - **`streams`** — one per sensor type. `AirBeamMini-PM2.5` and `AirBeam2-PM2.5`
+          are the same type (`AirBeam-PM2.5`) and cannot both be requested.
 
-        Two creates for the same `uuid` arriving together resolve to one session: the
-        request that loses the race is answered with the session the winner created,
-        including **its** `session_token` and `streams`. A device configured from either
-        response therefore reports into the same session. A create for a `uuid` that
-        already existed before the request is a `validation_error`, not a reuse.
+        Two creates racing on one `uuid` resolve to a single session: the loser is
+        answered with the winner's session, token and streams, so a device configured
+        from either response reports into the same place. A `uuid` that already existed
+        before the request is `session_uuid_taken`, not a reuse.
 
-        ## Error Codes
+        ## Error codes
 
-        | `error_code` | HTTP | Description |
-        |---|---|---|
-        | `unauthorized` | 401 | Missing or invalid `Authorization` token |
-        | `validation_error` | 400 | Request body failed validation, including a `uuid` already in use. See `fields` for per-field details |
-        | `unsupported_sensor_type` | 400 | A `sensor_name` in `streams` is not a recognised AirBeam sensor |
-        | `internal_error` | 400 | The session could not be created — a missing default threshold set, or a conflicting write that could not be resolved |
+        `{ error_code, message, fields? }`, as everywhere in v3. `fields` appears only
+        when the request *shape* is wrong, and the status carries the same meaning as
+        the code.
+
+        | `error_code` | HTTP | When | Client should |
+        |---|---|---|---|
+        | `unauthorized` | 401 | Missing or invalid token | Re-authenticate |
+        | `validation_error` | 400 | Malformed body, or a stream with no `thresholds` and no seeded default | Client bug — do not retry unchanged |
+        | `session_uuid_taken` | 409 | The `uuid` is already in use | Stop retrying; continue with the existing session |
+        | `unsupported_sensor_type` | 400 | A `sensor_name` is not a known AirBeam sensor | Unrecoverable |
+        | `internal_error` | 500 | Unresolvable write conflict, or a rival create still in flight | Retry with backoff |
       DESC
 
       parameter name: :Authorization, in: :header, type: :string, required: true,
@@ -51,28 +62,30 @@ RSpec.describe 'AirBeamMini Fixed Sessions Binary Flow', type: :request do
 
       parameter name: :body, in: :body, required: true, schema: {
         type: :object,
-        required: %w[uuid title latitude longitude contribute airbeam streams],
+        required: %w[uuid title latitude longitude contribute device streams],
         properties: {
           uuid: { type: :string, format: :uuid, example: '550e8400-e29b-41d4-a716-446655440000' },
           title: { type: :string, example: 'Rooftop PM2.5 monitor' },
           latitude: { type: :number, format: :float, example: 40.7128 },
           longitude: { type: :number, format: :float, example: -74.0060 },
-          contribute: { type: :boolean, example: true },
-          is_indoor: { type: :boolean, nullable: true, example: false, description: 'Whether the sensor is deployed indoors. Defaults to false when omitted.' },
+          contribute: { type: :boolean, example: true,
+                        description: 'Required — send it explicitly; the server applies no default.' },
+          is_indoor: { type: :boolean, nullable: true, example: false,
+                       description: 'Whether the sensor is deployed indoors. Defaults to false when omitted.' },
           time_zone: {
             type: :string,
             nullable: true,
             example: 'America/New_York',
-            description: 'IANA time zone identifier of the sensor location. Required for indoor sessions, which send placeholder coordinates (200, 200); used to convert UTC measurement timestamps to local time for display. When omitted, the time zone is derived from latitude/longitude.',
+            description: 'IANA time zone identifier of the sensor location. Required for indoor sessions, which send placeholder coordinates (200, 200); used to convert UTC measurement timestamps to local time for display. When omitted, the time zone is derived from latitude/longitude.'
           },
-          airbeam: {
+          device: {
             type: :object,
             required: %w[mac_address model],
             properties: {
               mac_address: { type: :string, example: 'AA:BB:CC:DD:EE:FF' },
               model: { type: :string, example: 'AirBeamMini' },
-              name: { type: :string, nullable: true, example: 'Roof sensor' },
-            },
+              name: { type: :string, nullable: true, example: 'Roof sensor' }
+            }
           },
           streams: {
             type: :array,
@@ -84,32 +97,41 @@ RSpec.describe 'AirBeamMini Fixed Sessions Binary Flow', type: :request do
                 sensor_name: {
                   type: :string,
                   description: 'Sensor name as reported by the device (e.g. AirBeamMini-PM1, AirBeamMini-PM2.5)',
-                  example: 'AirBeamMini-PM2.5',
+                  example: 'AirBeamMini-PM2.5'
                 },
                 unit_symbol: {
                   type: :string,
                   description: 'Unit symbol for this sensor (e.g. µg/m³, %, F)',
-                  example: 'µg/m³',
-                },
-              },
+                  example: 'µg/m³'
+                }
+              }
             },
             example: [
               { sensor_name: 'AirBeamMini-PM1', unit_symbol: 'µg/m³' },
-              { sensor_name: 'AirBeamMini-PM2.5', unit_symbol: 'µg/m³' },
-            ],
-          },
-        },
+              { sensor_name: 'AirBeamMini-PM2.5', unit_symbol: 'µg/m³' }
+            ]
+          }
+        }
       }
 
       response '201', 'session created' do
         schema type: :object,
-               required: %w[location session_token streams],
+               required: %w[location share_url session_token streams],
                properties: {
-                 location: { type: :string, example: 'http://aircasting.org/s/ab12c' },
+                 location: {
+                   type: :string,
+                   example: 'http://aircasting.org/s/ab12c',
+                   description: 'LEGACY alias of `share_url`, read by shipped app versions. Kept indefinitely; new clients should use `share_url`.'
+                 },
+                 share_url: {
+                   type: :string,
+                   example: 'http://aircasting.org/s/ab12c',
+                   description: 'Shareable session link (`<host>/s/<token>`). Append `?sensor_name=<stream>` before sharing — the link only resolves with that query parameter.'
+                 },
                  session_token: {
                    type: :string,
                    description: 'Bearer token for AirBeam measurement uploads. The mobile app passes this to the AirBeam over BLE after session creation.',
-                   example: 'a3f2c1d4e5b6a7f8c9d0e1f2a3b4c5d6',
+                   example: 'a3f2c1d4e5b6a7f8c9d0e1f2a3b4c5d6'
                  },
                  streams: {
                    type: :array,
@@ -121,11 +143,11 @@ RSpec.describe 'AirBeamMini Fixed Sessions Binary Flow', type: :request do
                        sensor_type_id: {
                          type: :integer,
                          description: 'Compact numeric ID used by the AirBeam in the binary upload format to identify this stream',
-                         example: 2,
-                       },
-                     },
-                   },
-                 },
+                         example: 2
+                       }
+                     }
+                   }
+                 }
                }
 
         before(:all) do
@@ -147,11 +169,11 @@ RSpec.describe 'AirBeamMini Fixed Sessions Binary Flow', type: :request do
             latitude: 40.7128,
             longitude: -74.0060,
             contribute: true,
-            airbeam: { mac_address: 'AA:BB:CC:DD:EE:FF', model: 'AirBeamMini' },
+            device: { mac_address: 'AA:BB:CC:DD:EE:FF', model: 'AirBeamMini' },
             streams: [
               { sensor_name: 'AirBeamMini-PM1', unit_symbol: 'µg/m³' },
-              { sensor_name: 'AirBeamMini-PM2.5', unit_symbol: 'µg/m³' },
-            ],
+              { sensor_name: 'AirBeamMini-PM2.5', unit_symbol: 'µg/m³' }
+            ]
           }
         end
 
@@ -169,8 +191,8 @@ RSpec.describe 'AirBeamMini Fixed Sessions Binary Flow', type: :request do
                  fields: {
                    type: :object,
                    description: 'Per-field validation errors',
-                   additionalProperties: { type: :array, items: { type: :string } },
-                 },
+                   additionalProperties: { type: :array, items: { type: :string } }
+                 }
                }
 
         let(:user) { create(:user) }
@@ -178,6 +200,65 @@ RSpec.describe 'AirBeamMini Fixed Sessions Binary Flow', type: :request do
         let(:body) { { uuid: '' } }
 
         before { sign_in user }
+
+        run_test!
+      end
+
+      response '409', 'uuid already in use' do
+        schema ERROR_SCHEMA
+
+        let!(:user) { create(:user) }
+        let(:Authorization) { "Token token=#{user.authentication_token}" }
+        let!(:existing) { create(:fixed_session, user: user, uuid: SecureRandom.uuid) }
+        let(:body) do
+          {
+            uuid: existing.uuid,
+            title: 'Rooftop PM2.5 monitor',
+            latitude: 40.7128,
+            longitude: -74.0060,
+            contribute: true,
+            device: { mac_address: 'AA:BB:CC:DD:EE:FF', model: 'AirBeamMini' },
+            streams: [{ sensor_name: 'AirBeamMini-PM2.5', unit_symbol: 'µg/m³' }]
+          }
+        end
+
+        before { sign_in user }
+
+        run_test! do |response|
+          expect(JSON.parse(response.body)['error_code']).to eq('session_uuid_taken')
+        end
+      end
+
+      # Stubbed: the conditions behind internal_error are an unresolvable write
+      # conflict and a rival create still holding the uuid, neither of which a
+      # single-threaded request spec can produce. The mapping itself is what this
+      # documents; FixedSessions::Creator's own spec covers when it is returned.
+      response '500', 'session could not be created' do
+        schema ERROR_SCHEMA
+
+        let!(:user) { create(:user) }
+        let(:Authorization) { "Token token=#{user.authentication_token}" }
+        let(:body) do
+          {
+            uuid: SecureRandom.uuid,
+            title: 'Rooftop PM2.5 monitor',
+            latitude: 40.7128,
+            longitude: -74.0060,
+            contribute: true,
+            device: { mac_address: 'AA:BB:CC:DD:EE:FF', model: 'AirBeamMini' },
+            streams: [{ sensor_name: 'AirBeamMini-PM2.5', unit_symbol: 'µg/m³' }]
+          }
+        end
+
+        before do
+          sign_in user
+          allow_any_instance_of(FixedSessions::Creator).to receive(:call).and_return(
+            Failure.new(
+              error_code: FixedSessions::BinaryProtocol::ErrorCodes::INTERNAL_ERROR,
+              message: 'Could not create this session',
+            ),
+          )
+        end
 
         run_test!
       end
@@ -249,7 +330,7 @@ RSpec.describe 'AirBeamMini Fixed Sessions Binary Flow', type: :request do
       parameter name: :body, in: :body, required: true, schema: {
         type: :string,
         format: :binary,
-        description: 'Binary payload as described in the endpoint description',
+        description: 'Binary payload as described in the endpoint description'
       }
 
       response '200', 'measurements stored (or empty body time-sync)' do
@@ -259,7 +340,7 @@ RSpec.describe 'AirBeamMini Fixed Sessions Binary Flow', type: :request do
           @threshold_set = ThresholdSet.find_or_create_by!(
             sensor_name: 'AirBeam-PM2.5', unit_symbol: 'µg/m³', is_default: true,
             threshold_very_low: 0, threshold_low: 9, threshold_medium: 35,
-            threshold_high: 55, threshold_very_high: 150,
+            threshold_high: 55, threshold_very_high: 150
           )
           @stream = Stream.create!(
             session: @session,
@@ -274,7 +355,7 @@ RSpec.describe 'AirBeamMini Fixed Sessions Binary Flow', type: :request do
             min_latitude: 40.7128,
             max_latitude: 40.7128,
             min_longitude: -74.006,
-            max_longitude: -74.006,
+            max_longitude: -74.006
           )
         end
 

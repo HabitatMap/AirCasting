@@ -10,7 +10,7 @@ module Api
         if result.success?
           render json: result.value, status: :ok
         else
-          render json: result.errors, status: :not_found
+          render_error(ErrorCodes::NOT_FOUND, 'Station stream not found')
         end
       end
 
@@ -22,7 +22,7 @@ module Api
         if result.success?
           render json: result.value, status: :ok
         else
-          render json: result.errors, status: :bad_request
+          render_failure(result)
         end
       end
     end

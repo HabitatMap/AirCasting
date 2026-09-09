@@ -19,7 +19,7 @@ module Api
               session_uuid: params[:fixed_session_uuid],
               auth_method: bearer_token.present? ? 'bearer' : 'basic',
             )
-            return render json: { error_code: ErrorCodes::SESSION_NOT_FOUND, message: 'Session not found' }, status: :not_found
+            return render_error(ErrorCodes::SESSION_NOT_FOUND, 'Session not found')
           end
 
           result = ::FixedSessions::BinaryProtocol::Ingester.new(monitor: monitor).call(
@@ -30,7 +30,11 @@ module Api
           if result.success?
             head :ok
           else
-            render json: result.errors, status: :bad_request
+            # The AirBeamMini posts here directly. Verified safe to use the shared
+            # status mapping: the firmware buckets every non-2xx the same way
+            # (`!(200..300).contains(status)` → retry, measurements kept in
+            # storage) and never reads the body — it only takes `X-Server-Time`.
+            render_failure(result)
           end
         end
 
@@ -50,7 +54,7 @@ module Api
           return if current_user.present? || @authenticated_session.present?
 
           monitor.report_auth_failure(session_uuid: params[:fixed_session_uuid])
-          render json: { error_code: ErrorCodes::UNAUTHORIZED, message: 'Unauthorized' }, status: :unauthorized
+          render_error(ErrorCodes::UNAUTHORIZED, 'Unauthorized')
         end
 
         def with_server_time_header

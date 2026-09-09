@@ -84,7 +84,20 @@ RSpec.describe 'Concurrent session creation', type: :model do
       latitude: 40.7128,
       longitude: -74.0060,
       contribute: true,
-      airbeam: { mac_address: 'AA:BB:CC:DD:EE:FF', model: 'AirBeamMini' },
+      device: { mac_address: 'AA:BB:CC:DD:EE:FF', model: 'AirBeamMini' },
+      streams: [{ sensor_name: 'AirBeamMini-PM2.5', unit_symbol: 'µg/m³' }],
+    }
+  end
+
+  def mobile_create_params
+    {
+      uuid: uuid,
+      title: 'Bike ride',
+      time_zone: 'America/New_York',
+      contribute: true,
+      latitude: 40.7128,
+      longitude: -74.0060,
+      device: { mac_address: 'AA:BB:CC:DD:EE:FF', model: 'AirBeamMini' },
       streams: [{ sensor_name: 'AirBeamMini-PM2.5', unit_symbol: 'µg/m³' }],
     }
   end
@@ -121,6 +134,40 @@ RSpec.describe 'Concurrent session creation', type: :model do
     streams = results.map { |r| r.value[:streams] }
     expect(streams.first).to eq(streams.last)
     expect(Stream.where(session_id: sessions.first.id).count).to eq(1)
+  end
+
+  it 'answers both simultaneous v3 mobile creates with the same session, creating one row' do
+    results = []
+    mutex = Mutex.new
+    barrier = Concurrent::CountDownLatch.new(2)
+
+    threads = 2.times.map do
+      Thread.new do
+        ActiveRecord::Base.connection_pool.with_connection do
+          barrier.count_down
+          barrier.wait(5)
+          result = MobileSessions::Creator.new.call(data: mobile_create_params, user: user)
+          mutex.synchronize { results << result }
+        end
+      end
+    end
+    threads.each(&:join)
+
+    expect(Session.where(uuid: uuid).count).to eq(1)
+    expect(results.count(&:success?)).to eq(2)
+
+    sessions = results.map { |r| r.value[:session] }
+    expect(sessions.map(&:id).uniq.size).to eq(1)
+
+    # The phone uploads measurements addressed by sensor_type_id, so both answers
+    # have to describe the one session's streams.
+    mappings = results.map { |r| r.value[:streams] }
+    expect(mappings.uniq.size).to eq(1)
+    expect(mappings.first).to eq(
+      Session.find_by(uuid: uuid).streams.map do |stream|
+        { sensor_name: stream.sensor_name, sensor_type_id: stream.sensor_type_id }
+      end,
+    )
   end
 
   it 'answers two creates whose uuids differ only in case with one session' do
@@ -274,7 +321,7 @@ RSpec.describe 'Concurrent session creation', type: :model do
     # in the window between this request's validation and its INSERT, so the
     # recovery path is guaranteed to run.
     it "answers the fixed create with the winner's session" do
-      Device.create!(mac_address: 'AA:BB:CC:DD:EE:FF', model: 'AirBeamMini')
+      Device.create!(user: user, mac_address: 'AA:BB:CC:DD:EE:FF', model: 'AirBeamMini')
       winner = nil
       rival = -> { winner = FixedSessions::Creator.new.call(data: create_params, user: user) }
 
@@ -284,6 +331,21 @@ RSpec.describe 'Concurrent session creation', type: :model do
 
       expect(result).to be_success
       expect(result.value[:session].id).to eq(winner.value[:session].id)
+      expect(Session.where('LOWER(uuid) = ?', uuid.downcase).count).to eq(1)
+    end
+
+    it "answers the v3 mobile create with the winner's session" do
+      Device.create!(user: user, mac_address: 'AA:BB:CC:DD:EE:FF', model: 'AirBeamMini')
+      winner = nil
+      rival = -> { winner = MobileSessions::Creator.new.call(data: mobile_create_params, user: user) }
+
+      result = rival_commits_during_insert(MobileSession, rival) do
+        MobileSessions::Creator.new.call(data: mobile_create_params, user: user)
+      end
+
+      expect(result).to be_success
+      expect(result.value[:session].id).to eq(winner.value[:session].id)
+      expect(result.value[:streams]).to eq(winner.value[:streams])
       expect(Session.where('LOWER(uuid) = ?', uuid.downcase).count).to eq(1)
     end
 
@@ -309,7 +371,7 @@ RSpec.describe 'Concurrent session creation', type: :model do
     it 'answers the fixed create with the winner\'s session' do
       # The rival's find_or_create_device would otherwise block on the device row
       # this call has already inserted but not committed.
-      Device.create!(mac_address: 'AA:BB:CC:DD:EE:FF', model: 'AirBeamMini')
+      Device.create!(user: user, mac_address: 'AA:BB:CC:DD:EE:FF', model: 'AirBeamMini')
 
       winner = nil
       result = nil

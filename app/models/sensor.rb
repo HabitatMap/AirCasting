@@ -17,57 +17,65 @@ class Sensor
     'AirBeam2-RH' => 'AirBeam-RH',
     'AirBeam3-RH' => 'AirBeam-RH',
     'AirBeamMini-RH' => 'AirBeam-RH',
+    'Phone Microphone' => 'Phone Microphone',
     'AirBeam-F' => 'AirBeam-F',
     'AirBeam2-F' => 'AirBeam-F',
     'AirBeam3-F' => 'AirBeam-F',
-    'AirBeamMini-F' => 'AirBeam-F',
+    'AirBeamMini-F' => 'AirBeam-F'
   }
 
   # Globally stable sensor_type_id values for standard AirBeam sensor types.
   # Configured in AirBeam on creating new sessions— never change existing values, only append new ones.
   # Any AirBeam model using the binary protocol (POST /api/v3/fixed_sessions) can rely on these.
   CANONICAL_SENSOR_TYPE_IDS = {
-    'AirBeam-PM1'   => 1,
+    'AirBeam-PM1' => 1,
     'AirBeam-PM2.5' => 2,
-    'AirBeam-PM10'  => 3,
-    'AirBeam-RH'    => 4,
-    'AirBeam-F'     => 5,
+    'AirBeam-PM10' => 3,
+    'AirBeam-RH' => 4,
+    'AirBeam-F' => 5,
+    # The phone's own microphone — an officially supported AirCasting session
+    # type, not a custom integration, so it lives here with the AirBeam sensors.
+    'Phone Microphone' => 6
   }.freeze
 
   # unit_symbol for ThresholdSet lookup per canonical sensor name.
   CANONICAL_UNIT_SYMBOLS = {
-    'AirBeam-PM1'   => 'µg/m³',
+    'AirBeam-PM1' => 'µg/m³',
     'AirBeam-PM2.5' => 'µg/m³',
-    'AirBeam-PM10'  => 'µg/m³',
-    'AirBeam-RH'    => '%',
-    'AirBeam-F'     => 'F',
+    'AirBeam-PM10' => 'µg/m³',
+    'AirBeam-RH' => '%',
+    'AirBeam-F' => 'F',
+    'Phone Microphone' => 'dB'
   }.freeze
 
   # measurement_type string per canonical sensor name.
   CANONICAL_MEASUREMENT_TYPES = {
-    'AirBeam-PM1'   => 'Particulate Matter',
+    'AirBeam-PM1' => 'Particulate Matter',
     'AirBeam-PM2.5' => 'Particulate Matter',
-    'AirBeam-PM10'  => 'Particulate Matter',
-    'AirBeam-RH'    => 'Humidity',
-    'AirBeam-F'     => 'Temperature',
+    'AirBeam-PM10' => 'Particulate Matter',
+    'AirBeam-RH' => 'Humidity',
+    'AirBeam-F' => 'Temperature',
+    'Phone Microphone' => 'Sound Level'
   }.freeze
 
   # unit_name per canonical sensor name (required by Stream model).
   CANONICAL_UNIT_NAMES = {
-    'AirBeam-PM1'   => 'micrograms per cubic meter',
+    'AirBeam-PM1' => 'micrograms per cubic meter',
     'AirBeam-PM2.5' => 'micrograms per cubic meter',
-    'AirBeam-PM10'  => 'micrograms per cubic meter',
-    'AirBeam-RH'    => 'percent',
-    'AirBeam-F'     => 'degrees Fahrenheit',
+    'AirBeam-PM10' => 'micrograms per cubic meter',
+    'AirBeam-RH' => 'percent',
+    'AirBeam-F' => 'degrees Fahrenheit',
+    'Phone Microphone' => 'decibels'
   }.freeze
 
   # measurement_short_type per canonical sensor name (required by Stream model).
   CANONICAL_MEASUREMENT_SHORT_TYPES = {
-    'AirBeam-PM1'   => 'PM',
+    'AirBeam-PM1' => 'PM',
     'AirBeam-PM2.5' => 'PM',
-    'AirBeam-PM10'  => 'PM',
-    'AirBeam-RH'    => 'RH',
-    'AirBeam-F'     => 'F',
+    'AirBeam-PM10' => 'PM',
+    'AirBeam-RH' => 'RH',
+    'AirBeam-F' => 'F',
+    'Phone Microphone' => 'dB'
   }.freeze
 
   def self.aggregated
@@ -75,28 +83,28 @@ class Sensor
       {
         sensor_name: 'AirBeam-PM10',
         measurement_type: 'Particulate Matter',
-        unit_symbol: 'µg/m³',
+        unit_symbol: 'µg/m³'
       },
       {
         sensor_name: 'AirBeam-PM2.5',
         measurement_type: 'Particulate Matter',
-        unit_symbol: 'µg/m³',
+        unit_symbol: 'µg/m³'
       },
       {
         sensor_name: 'AirBeam-PM1',
         measurement_type: 'Particulate Matter',
-        unit_symbol: 'µg/m³',
+        unit_symbol: 'µg/m³'
       },
       {
         sensor_name: 'AirBeam-RH',
         measurement_type: 'Humidity',
-        unit_symbol: '%',
+        unit_symbol: '%'
       },
       {
         sensor_name: 'AirBeam-F',
         measurement_type: 'Temperature',
-        unit_symbol: 'F',
-      },
+        unit_symbol: 'F'
+      }
     ]
   end
 
@@ -111,7 +119,7 @@ class Sensor
       ],
       'airbeam-pm1' => %w[airbeam2-pm1 airbeam3-pm1 airbeammini-pm1],
       'airbeam-rh' => %w[airbeam3-rh airbeam2-rh airbeam-rh],
-      'airbeam-f' => %w[airbeam3-f airbeam2-f airbeam-f],
+      'airbeam-f' => %w[airbeam3-f airbeam2-f airbeam-f]
     }
 
     normalized_names.fetch(sensor_name.downcase, [sensor_name]).map(&:downcase)

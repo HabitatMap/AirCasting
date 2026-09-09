@@ -12,6 +12,9 @@ module Api
           if result.success?
             render json: result.value, status: :ok
           else
+            # LEGACY PATH: served as GET /api/realtime/sync_measurements. Old
+            # AirBeam firmware is not inspectable, so this response is left
+            # exactly as it shipped.
             render json: result.errors, status: :bad_request
           end
         end
