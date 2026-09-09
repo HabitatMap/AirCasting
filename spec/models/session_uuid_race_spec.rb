@@ -274,7 +274,7 @@ RSpec.describe 'Concurrent session creation', type: :model do
     # in the window between this request's validation and its INSERT, so the
     # recovery path is guaranteed to run.
     it "answers the fixed create with the winner's session" do
-      Device.create!(mac_address: 'AA:BB:CC:DD:EE:FF', model: 'AirBeamMini')
+      Device.create!(user: user, mac_address: 'AA:BB:CC:DD:EE:FF', model: 'AirBeamMini')
       winner = nil
       rival = -> { winner = FixedSessions::Creator.new.call(data: create_params, user: user) }
 
@@ -309,7 +309,7 @@ RSpec.describe 'Concurrent session creation', type: :model do
     it 'answers the fixed create with the winner\'s session' do
       # The rival's find_or_create_device would otherwise block on the device row
       # this call has already inserted but not committed.
-      Device.create!(mac_address: 'AA:BB:CC:DD:EE:FF', model: 'AirBeamMini')
+      Device.create!(user: user, mac_address: 'AA:BB:CC:DD:EE:FF', model: 'AirBeamMini')
 
       winner = nil
       result = nil
