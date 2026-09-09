@@ -175,6 +175,39 @@ RSpec.describe MobileSessions::Creator do
       expect(result.errors[:message]).to eq('Request conflicts with an existing record')
     end
 
+    it 'names the conflict on a sequential duplicate rather than leaking the model message' do
+      creator.call(data: valid_params, user: user)
+
+      result = creator.call(data: valid_params, user: user)
+
+      expect(result).to be_failure
+      expect(result.errors[:error_code]).to eq('session_uuid_taken')
+      expect(result.errors[:message]).to eq(described_class::UUID_TAKEN_MESSAGE)
+    end
+
+    it 'suppresses the PG detail on a conflict it cannot recover from' do
+      allow(MobileSession).to receive(:create!).and_raise(
+        ActiveRecord::RecordNotUnique,
+        'PG::UniqueViolation: duplicate key value violates unique constraint ' \
+        '"index_devices_on_user_id_and_mac_address"\nDETAIL:  Key (user_id, mac_address)=(1, AA:BB:CC:DD:EE:FF) already exists.',
+      )
+
+      result = creator.call(data: valid_params, user: user)
+
+      expect(result.errors[:error_code]).to eq('internal_error')
+      expect(result.errors[:message]).to eq('Could not create this session')
+      expect(result.errors[:message]).not_to include('duplicate key', 'mac_address', 'DETAIL')
+    end
+
+    it 'tells the client to retry when a rival insert is still in flight' do
+      allow(MobileSession).to receive(:create!).and_raise(ActiveRecord::LockWaitTimeout)
+
+      result = creator.call(data: valid_params, user: user)
+
+      expect(result.errors[:error_code]).to eq('internal_error')
+      expect(result.errors[:message]).to eq('Could not create this session, please retry')
+    end
+
     context 'thresholds' do
       it 'uses the seeded default set when the client sends none' do
         default = ThresholdSet.find_by!(sensor_name: 'AirBeam-PM2.5', is_default: true)
@@ -294,6 +327,97 @@ RSpec.describe MobileSessions::Creator do
         expect(set.sensor_name).to eq('Bosch-BMP180')
         expect(set.threshold_very_high).to eq(1050.0)
       end
+    end
+  end
+  describe 'when a concurrent create of the same uuid won the race' do
+    # Real races are covered by spec/models/session_uuid_race_spec.rb; the
+    # constraint violation is forced here so each branch of the recovery can be
+    # asserted on its own.
+    def force_race
+      allow(MobileSession).to receive(:create!)
+        .and_raise(ActiveRecord::RecordNotUnique, 'duplicate key value violates unique constraint')
+    end
+
+    let!(:winner) { creator.call(data: valid_params, user: user).value }
+
+    it "returns the winner's session and stream mapping" do
+      force_race
+
+      result = creator.call(data: valid_params, user: user)
+
+      expect(result).to be_success
+      expect(result.value[:session].id).to eq(winner[:session].id)
+      expect(result.value[:streams]).to match_array(winner[:streams])
+    end
+
+    # The phone addresses streams by these ids in every binary upload, and a
+    # custom sensor's id is allocated per session — the loser must be told the
+    # winner's, not the ones its own rolled-back insert would have used.
+    it "returns the winner's custom sensor_type_ids" do
+      custom = valid_params.merge(
+        streams: [{ sensor_name: 'Geiger-CPM', unit_symbol: 'cpm',
+                    measurement_type: 'Radiation', measurement_short_type: 'Rad',
+                    unit_name: 'counts per minute',
+                    thresholds: { very_low: 0.0, low: 10.0, medium: 20.0, high: 30.0, very_high: 40.0 } }],
+      )
+      first = creator.call(data: custom.merge(uuid: SecureRandom.uuid), user: user).value
+      creator.call(data: custom, user: user)
+      allow(MobileSession).to receive(:create!)
+        .and_raise(ActiveRecord::RecordNotUnique, 'duplicate key value violates unique constraint')
+
+      result = creator.call(data: custom, user: user)
+
+      expect(result).to be_success
+      expect(result.value[:streams].map { |s| s[:sensor_type_id] })
+        .to eq(result.value[:session].streams.map(&:sensor_type_id))
+      expect(first[:streams].first[:sensor_type_id])
+        .to eq(described_class::CUSTOM_SENSOR_TYPE_ID_RANGE.first)
+    end
+
+    it 'writes no second session, streams or device' do
+      force_race
+
+      counts = -> { [Session.count, Stream.count, Device.count] }
+      before = counts.call()
+
+      creator.call(data: valid_params, user: user)
+
+      expect(counts.call()).to eq(before)
+    end
+
+    it 'keeps failing when nothing was raced' do
+      expect(creator.call(data: valid_params, user: user)).to be_failure
+    end
+
+    it 'refuses a row bound to a different phone' do
+      force_race
+      other = Device.create!(user: user, mac_address: 'FF:EE:DD:CC:BB:AA', model: 'AirBeamMini')
+      winner[:session].update_columns(device_id: other.id)
+
+      expect(creator.call(data: valid_params, user: user)).to be_failure
+    end
+
+    # A mobile session carries no session_token, so this is the marker that a row
+    # came from this endpoint rather than from a legacy SessionBuilder upload.
+    it 'refuses a legacy row whose streams carry no sensor_type_id' do
+      force_race
+      Stream.where(session_id: winner[:session].id).update_all(sensor_type_id: nil)
+
+      expect(creator.call(data: valid_params, user: user)).to be_failure
+    end
+
+    it 'refuses a row with no streams at all' do
+      force_race
+      Stream.where(session_id: winner[:session].id).delete_all
+
+      expect(creator.call(data: valid_params, user: user)).to be_failure
+    end
+
+    it "never returns another user's session" do
+      force_race
+      winner[:session].update_columns(user_id: create(:user).id)
+
+      expect(creator.call(data: valid_params, user: user)).to be_failure
     end
   end
 end

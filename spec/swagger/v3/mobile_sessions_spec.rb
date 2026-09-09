@@ -158,39 +158,39 @@ RSpec.describe 'AirBeam Mobile Sessions', type: :request do
 
         **Known sensors** (AirBeam PM1 / PM2.5 / PM10 / RH / F and `Phone Microphone`) need
         only `sensor_name` and `unit_symbol`; the server owns their measurement type, unit
-        name and short type, and their `sensor_type_id` is globally stable because AirBeam
-        firmware is configured with it.
+        name and short type.
 
-        **Custom sensors** — anything else, for integrations built against this API — are
-        accepted, but the client has to describe them: `measurement_type`,
-        `measurement_short_type` and `unit_name` are required, and `thresholds` too unless a
-        default set already exists for that sensor. Fields are capped at 64 characters, and a
-        custom `sensor_name` may not reuse a built-in name.
+        **Custom sensors** — anything else, for integrations built against this API — must
+        be described by the client: `measurement_type`, `measurement_short_type` and
+        `unit_name` are required, and `thresholds` too unless a default set already exists.
+        Fields cap at 64 characters, and a custom `sensor_name` may not reuse a built-in one.
 
-        A custom sensor is assigned a `sensor_type_id` from **100–255, unique within the
-        session** — read it from the response and use it in the binary upload. Built-in ids
-        (1–99) never change.
+        Every stream comes back with a `sensor_type_id`, which the binary upload uses to
+        address it. Built-in ids (1–99) are globally stable — AirBeam firmware is
+        configured with them. A custom sensor is assigned one from **100–255, unique
+        within the session**, so read it from the response rather than assuming it.
 
-        Each sensor type may appear **once** per session — `AirBeamMini-PM2.5`
-        and `AirBeam2-PM2.5` are the same type (`AirBeam-PM2.5`) and cannot both
-        be requested. A session holds one stream per type, and the binary upload
-        addresses streams by `sensor_type_id`.
+        Each sensor type may appear **once** per session: `AirBeamMini-PM2.5` and
+        `AirBeam2-PM2.5` are the same type (`AirBeam-PM2.5`) and cannot both be requested.
 
-        ## Error Codes
+        Two creates racing on one `uuid` resolve to a single session: the loser is answered
+        with the winner's session and **its** streams, so the `sensor_type_id`s it gets are
+        the ones that exist in the session its uploads will address. A `uuid` that already
+        existed before the request is `session_uuid_taken`, not a reuse.
 
-        Errors come back as `{ error_code, message, fields? }`, shared with the
-        other v3 endpoints. `fields` appears only when the request *shape* is
-        wrong; a conflict with stored state gets its own code and no `fields`. The
-        HTTP status carries the same meaning, so a client can react without
-        parsing the body.
+        ## Error codes
 
-        | `error_code` | HTTP | Description | Client should |
+        `{ error_code, message, fields? }`, as everywhere in v3. `fields` appears only
+        when the request *shape* is wrong, and the status carries the same meaning as
+        the code.
+
+        | `error_code` | HTTP | When | Client should |
         |---|---|---|---|
-        | `unauthorized` | 401 | Missing or invalid `Authorization` token | Re-authenticate |
-        | `validation_error` | 400 | Body failed validation. See `fields` | Treat as a client bug — do not retry unchanged |
-        | `session_uuid_taken` | 409 | A session with this `uuid` already exists. No `fields` | Stop retrying; the session is already created — continue with it |
-        | `unsupported_sensor_type` | 400 | A requested `sensor_name` has no known sensor type | Unrecoverable; do not retry |
-        | `internal_error` | 500 | Server could not create the session (e.g. missing default thresholds) | Retry with backoff |
+        | `unauthorized` | 401 | Missing or invalid token | Re-authenticate |
+        | `validation_error` | 400 | Malformed body, or a custom sensor with no `thresholds` and no seeded default | Client bug — do not retry unchanged |
+        | `session_uuid_taken` | 409 | The `uuid` is already in use | Stop retrying; continue with the existing session |
+        | `unsupported_sensor_type` | 400 | Unknown `sensor_name`, or more custom sensors than the 100–255 range holds | Unrecoverable |
+        | `internal_error` | 500 | Unresolvable write conflict, or a rival create still in flight | Retry with backoff |
       DESC
 
       parameter name: :Authorization, in: :header, type: :string, required: true,
@@ -333,6 +333,63 @@ RSpec.describe 'AirBeam Mobile Sessions', type: :request do
         let(:body) { { uuid: '' } }
 
         before { sign_in user }
+
+        run_test!
+      end
+
+      response '409', 'uuid already in use' do
+        schema ERROR_SCHEMA
+
+        let!(:user) { create(:user) }
+        let(:Authorization) { "Token token=#{user.authentication_token}" }
+        let!(:existing) { create(:mobile_session, user: user, uuid: SecureRandom.uuid) }
+        let(:body) do
+          {
+            uuid: existing.uuid,
+            title: 'Morning bike ride',
+            time_zone: 'America/New_York',
+            contribute: true,
+            device: { mac_address: 'AA:BB:CC:DD:EE:FF', model: 'AirBeamMini' },
+            streams: [{ sensor_name: 'AirBeamMini-PM2.5', unit_symbol: 'µg/m³' }]
+          }
+        end
+
+        before { sign_in user }
+
+        run_test! do |response|
+          expect(JSON.parse(response.body)['error_code']).to eq('session_uuid_taken')
+        end
+      end
+
+      # Stubbed: the conditions behind internal_error are an unresolvable write
+      # conflict and a rival create still holding the uuid, neither of which a
+      # single-threaded request spec can produce. The mapping itself is what this
+      # documents; MobileSessions::Creator's own spec covers when it is returned.
+      response '500', 'session could not be created' do
+        schema ERROR_SCHEMA
+
+        let!(:user) { create(:user) }
+        let(:Authorization) { "Token token=#{user.authentication_token}" }
+        let(:body) do
+          {
+            uuid: SecureRandom.uuid,
+            title: 'Morning bike ride',
+            time_zone: 'America/New_York',
+            contribute: true,
+            device: { mac_address: 'AA:BB:CC:DD:EE:FF', model: 'AirBeamMini' },
+            streams: [{ sensor_name: 'AirBeamMini-PM2.5', unit_symbol: 'µg/m³' }]
+          }
+        end
+
+        before do
+          sign_in user
+          allow_any_instance_of(MobileSessions::Creator).to receive(:call).and_return(
+            Failure.new(
+              error_code: MobileSessions::ErrorCodes::INTERNAL_ERROR,
+              message: 'Could not create this session',
+            ),
+          )
+        end
 
         run_test!
       end
