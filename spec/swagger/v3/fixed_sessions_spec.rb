@@ -24,44 +24,37 @@ RSpec.describe 'AirBeamMini Fixed Sessions Binary Flow', type: :request do
       consumes 'application/json'
       produces 'application/json'
       description <<~DESC
-        Creates a new fixed session for an AirBeamMini device. The mobile app calls this
-        before configuring the AirBeamMini. The response includes a `sensor_type_id` per
-        stream that the AirBeamMini uses to identify stream types in the binary upload payload.
+        Creates a fixed session for an AirBeamMini. The app calls this before
+        configuring the device. The response carries the `session_token` to flash to
+        the AirBeam, and a `sensor_type_id` per stream that the binary upload uses to
+        address streams.
 
-        The device object is `device`; the old name `airbeam` is still accepted as a
-        deprecated alias for shipped app versions. `mac_address` is a stable device
-        identifier — an AirBeam's MAC, or whatever id a custom integration can offer —
-        and `model` is a free-form string.
+        - **`uuid`** — canonical UUID form (what `UUID.randomUUID()` / `UUID()` produce),
+          not already in use.
+        - **`device`** — shipped app versions may still send this object as `airbeam`.
+          `mac_address` is any stable device id, not necessarily a hardware MAC;
+          `model` is a free-form string.
+        - **`streams`** — one per sensor type. `AirBeamMini-PM2.5` and `AirBeam2-PM2.5`
+          are the same type (`AirBeam-PM2.5`) and cannot both be requested.
 
-        ## Concurrent creates
+        Two creates racing on one `uuid` resolve to a single session: the loser is
+        answered with the winner's session, token and streams, so a device configured
+        from either response reports into the same place. A `uuid` that already existed
+        before the request is `session_uuid_taken`, not a reuse.
 
-        Two creates for the same `uuid` arriving together resolve to one session: the
-        request that loses the race is answered with the session the winner created,
-        including **its** `session_token` and `streams`. A device configured from either
-        response therefore reports into the same session. A create for a `uuid` that
-        already existed before the request is a `session_uuid_taken` (409), not a reuse.
+        ## Error codes
 
-        `uuid` must be in canonical UUID form (what `UUID.randomUUID()` / `UUID()`
-        produce) and not already in use.
+        `{ error_code, message, fields? }`, as everywhere in v3. `fields` appears only
+        when the request *shape* is wrong, and the status carries the same meaning as
+        the code.
 
-        Each sensor type may appear **once** per session — `AirBeamMini-PM2.5`
-        and `AirBeam2-PM2.5` are the same type (`AirBeam-PM2.5`) and cannot both
-        be requested. A session holds one stream per type, and the AirBeam
-        addresses streams by `sensor_type_id` in the binary upload.
-
-        ## Error Codes
-
-        Same contract as every v3 endpoint — `{ error_code, message, fields? }`,
-        with `fields` only for shape errors, and the HTTP status carrying the same
-        meaning as the code.
-
-        | `error_code` | HTTP | Description | Client should |
+        | `error_code` | HTTP | When | Client should |
         |---|---|---|---|
-        | `unauthorized` | 401 | Missing or invalid `Authorization` token | Re-authenticate |
-        | `validation_error` | 400 | Body failed validation — a `uuid` that is not canonical UUID form, or a stream with no `thresholds` and no seeded default for its sensor. `fields` is present when the body shape is wrong | Treat as a client bug — do not retry unchanged |
-        | `session_uuid_taken` | 409 | A session with this `uuid` already existed before the request. No `fields` | Stop retrying; the session is already created — continue with it |
-        | `unsupported_sensor_type` | 400 | A `sensor_name` in `streams` is not a recognised AirBeam sensor | Unrecoverable; do not retry |
-        | `internal_error` | 500 | The session could not be created — a conflicting write that could not be resolved, or a rival create for the same `uuid` still in flight | Retry with backoff |
+        | `unauthorized` | 401 | Missing or invalid token | Re-authenticate |
+        | `validation_error` | 400 | Malformed body, or a stream with no `thresholds` and no seeded default | Client bug — do not retry unchanged |
+        | `session_uuid_taken` | 409 | The `uuid` is already in use | Stop retrying; continue with the existing session |
+        | `unsupported_sensor_type` | 400 | A `sensor_name` is not a known AirBeam sensor | Unrecoverable |
+        | `internal_error` | 500 | Unresolvable write conflict, or a rival create still in flight | Retry with backoff |
       DESC
 
       parameter name: :Authorization, in: :header, type: :string, required: true,
@@ -207,6 +200,65 @@ RSpec.describe 'AirBeamMini Fixed Sessions Binary Flow', type: :request do
         let(:body) { { uuid: '' } }
 
         before { sign_in user }
+
+        run_test!
+      end
+
+      response '409', 'uuid already in use' do
+        schema ERROR_SCHEMA
+
+        let!(:user) { create(:user) }
+        let(:Authorization) { "Token token=#{user.authentication_token}" }
+        let!(:existing) { create(:fixed_session, user: user, uuid: SecureRandom.uuid) }
+        let(:body) do
+          {
+            uuid: existing.uuid,
+            title: 'Rooftop PM2.5 monitor',
+            latitude: 40.7128,
+            longitude: -74.0060,
+            contribute: true,
+            device: { mac_address: 'AA:BB:CC:DD:EE:FF', model: 'AirBeamMini' },
+            streams: [{ sensor_name: 'AirBeamMini-PM2.5', unit_symbol: 'µg/m³' }]
+          }
+        end
+
+        before { sign_in user }
+
+        run_test! do |response|
+          expect(JSON.parse(response.body)['error_code']).to eq('session_uuid_taken')
+        end
+      end
+
+      # Stubbed: the conditions behind internal_error are an unresolvable write
+      # conflict and a rival create still holding the uuid, neither of which a
+      # single-threaded request spec can produce. The mapping itself is what this
+      # documents; FixedSessions::Creator's own spec covers when it is returned.
+      response '500', 'session could not be created' do
+        schema ERROR_SCHEMA
+
+        let!(:user) { create(:user) }
+        let(:Authorization) { "Token token=#{user.authentication_token}" }
+        let(:body) do
+          {
+            uuid: SecureRandom.uuid,
+            title: 'Rooftop PM2.5 monitor',
+            latitude: 40.7128,
+            longitude: -74.0060,
+            contribute: true,
+            device: { mac_address: 'AA:BB:CC:DD:EE:FF', model: 'AirBeamMini' },
+            streams: [{ sensor_name: 'AirBeamMini-PM2.5', unit_symbol: 'µg/m³' }]
+          }
+        end
+
+        before do
+          sign_in user
+          allow_any_instance_of(FixedSessions::Creator).to receive(:call).and_return(
+            Failure.new(
+              error_code: FixedSessions::BinaryProtocol::ErrorCodes::INTERNAL_ERROR,
+              message: 'Could not create this session',
+            ),
+          )
+        end
 
         run_test!
       end
