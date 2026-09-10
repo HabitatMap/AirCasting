@@ -1,9 +1,13 @@
 module MobileSessions
-  # API-level error codes for the mobile session endpoints. Deliberately a copy
-  # of (not a reference to) the fixed-session list: the two sets already differ
-  # — mobile has `session_uuid_taken`, fixed has `unauthorized` — and they are
-  # free to drift further. The binary parsers own their own code lists the same
-  # way (see BinaryProtocol::Parser::ErrorCodes).
+  # API-level error codes specific to the mobile session endpoints. Deliberately a
+  # copy of (not a reference to) the fixed-session list — the two sets differ
+  # (mobile has `session_uuid_taken`) and are free to drift further. The binary
+  # parser owns its own code list the same way (see
+  # BinaryProtocol::Parser::ErrorCodes).
+  #
+  # `unauthorized` is intentionally absent: it comes from the shared
+  # `Api::V3::ErrorCodes` via `Api::V3::BaseController#require_authentication!`,
+  # which is what these endpoints render on a 401.
   module ErrorCodes
     UNSUPPORTED_SENSOR_TYPE = 'unsupported_sensor_type'
     SESSION_NOT_FOUND       = 'session_not_found'

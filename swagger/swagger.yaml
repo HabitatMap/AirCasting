@@ -6,13 +6,17 @@ info:
   description: Endpoints used by the AirCasting mobile apps and web frontend.
 components:
   securitySchemes:
-    token_auth:
-      type: apiKey
-      in: header
-      name: Authorization
-      description: Token token=<user_token>
+    bearer_auth:
+      type: http
+      scheme: bearer
+      description: "`Authorization: Bearer <user_token>` (RFC 6750). The token is
+        returned by sign-in and never rotates."
+    basic_auth:
+      type: http
+      scheme: basic
+      description: '**Deprecated.** `Authorization: Basic base64("<user_token>:X")`.'
 security:
-- token_auth: []
+- bearer_auth: []
 tags:
 - name: 'Mobile app: Account & auth'
   description: 'iOS/Android: sign in/up, user settings, account deletion, password
@@ -871,8 +875,9 @@ paths:
       summary: Sign in (fetch the current user)
       tags:
       - 'Mobile app: Account & auth'
-      description: 'Returns the authenticated user. Auth: `Token token=<user_token>`
-        via HTTP Basic (token as username, "X" as password).'
+      description: 'Returns the authenticated user. Auth: HTTP Basic with the user
+        token as the username and a literal `X` as the password (legacy scheme; /api/v3
+        uses `Bearer <user_token>`).'
       responses:
         '200':
           description: user
@@ -3062,11 +3067,15 @@ paths:
         | `session_uuid_taken` | 409 | The `uuid` is already in use | Stop retrying; continue with the existing session |
         | `unsupported_sensor_type` | 400 | A `sensor_name` is not a known AirBeam sensor | Unrecoverable |
         | `internal_error` | 500 | Unresolvable write conflict, or a rival create still in flight | Retry with backoff |
+      security:
+      - bearer_auth: []
+      - basic_auth: []
       parameters:
       - name: Authorization
         in: header
         required: true
-        description: Token token=<user_token>
+        description: '`Bearer <user_token>`. `Basic base64("<user_token>:X")` also
+          works here, deprecated.'
         schema:
           type: string
       responses:
@@ -3323,8 +3332,9 @@ paths:
       - name: Authorization
         in: header
         required: true
-        description: 'Mobile app: `Token token=<user_token>`. AirBeam: `Bearer <session_token>`
-          (returned by session creation endpoint).'
+        description: 'AirBeam: `Bearer <session_token>` (returned by session creation),
+          matched against this UUID first so it can never act as an account-wide credential.
+          Mobile app: `Bearer <user_token>`.'
         schema:
           type: string
       responses:
@@ -3694,7 +3704,7 @@ paths:
       - name: Authorization
         in: header
         required: true
-        description: Token token=<user_token>
+        description: Bearer <user_token>
         schema:
           type: string
       - name: page
@@ -3897,7 +3907,7 @@ paths:
       - name: Authorization
         in: header
         required: true
-        description: Token token=<user_token>
+        description: Bearer <user_token>
         schema:
           type: string
       responses:
@@ -4143,7 +4153,7 @@ paths:
       - name: Authorization
         in: header
         required: true
-        description: Token token=<user_token>
+        description: Bearer <user_token>
         schema:
           type: string
       responses:
@@ -4261,7 +4271,7 @@ paths:
       - name: Authorization
         in: header
         required: true
-        description: Token token=<user_token>
+        description: Bearer <user_token>
         schema:
           type: string
       responses:
@@ -4401,7 +4411,7 @@ paths:
       - name: Authorization
         in: header
         required: true
-        description: Token token=<user_token>
+        description: Bearer <user_token>
         schema:
           type: string
       responses:
@@ -4455,7 +4465,7 @@ paths:
       - name: Authorization
         in: header
         required: true
-        description: Token token=<user_token>
+        description: Bearer <user_token>
         schema:
           type: string
       - name: sensor_name
@@ -4586,7 +4596,7 @@ paths:
       - name: Authorization
         in: header
         required: true
-        description: Token token=<user_token>
+        description: Bearer <user_token>
         schema:
           type: string
       responses:

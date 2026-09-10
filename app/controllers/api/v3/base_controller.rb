@@ -29,6 +29,28 @@ module Api
 
       private
 
+      def authenticate_user_from_bearer_token
+        return if current_user
+        return if bearer_token.blank?
+
+        user = User.find_by(authentication_token: bearer_token)
+        sign_in user, store: false if user
+      end
+
+      def require_authentication!
+        return if current_user
+
+        render_error(ErrorCodes::UNAUTHORIZED, 'Unauthorized')
+      end
+
+      def bearer_token
+        return @bearer_token if defined?(@bearer_token)
+
+        auth = request.authorization
+        @bearer_token =
+          auth&.start_with?('Bearer ') ? auth.delete_prefix('Bearer ').strip : nil
+      end
+
       # A dry-validation failure: the payload itself is malformed.
       def render_validation_error(errors, message: 'Request body is invalid', status: :bad_request)
         render json: {
@@ -44,13 +66,6 @@ module Api
                status: status || STATUS_BY_ERROR_CODE.fetch(error_code, DEFAULT_ERROR_STATUS)
       end
 
-      # A Failure from a service. Services that already speak the vocabulary pass
-      # their own `error_code`; the rest carry raw contract errors, which are a
-      # validation failure by definition.
-      #
-      # Pass `status:` only to pin the response code regardless of the error code.
-      # Endpoints that hardware already talks to use it so the shared mapping
-      # cannot change what live firmware sees.
       def render_failure(result, message: 'Request body is invalid', status: nil)
         errors = result.errors
 

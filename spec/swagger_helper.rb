@@ -13,15 +13,21 @@ RSpec.configure do |config|
       },
       components: {
         securitySchemes: {
-          token_auth: {
-            type: :apiKey,
-            in: :header,
-            name: 'Authorization',
-            description: 'Token token=<user_token>'
+          bearer_auth: {
+            type: :http,
+            scheme: :bearer,
+            description: '`Authorization: Bearer <user_token>` (RFC 6750). The token is returned by sign-in and never rotates.'
+          },
+          # Opted into per operation, never globally. Exactly one endpoint
+          # accepts it; see POST /api/v3/fixed_sessions.
+          basic_auth: {
+            type: :http,
+            scheme: :basic,
+            description: '**Deprecated.** `Authorization: Basic base64("<user_token>:X")`.'
           }
         }
       },
-      security: [{ token_auth: [] }],
+      security: [{ bearer_auth: [] }],
       # Tag order + descriptions control the grouping shown in Swagger UI.
       # Unified data vocabulary across the whole API:
       #   AirBeam fixed  - roof-mounted AirBeam, streams continuously over WiFi

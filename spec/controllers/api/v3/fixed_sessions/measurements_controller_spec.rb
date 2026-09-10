@@ -95,7 +95,7 @@ RSpec.describe Api::V3::FixedSessions::MeasurementsController do
       end
       expect(monitor).to receive(:report_session_not_found).with(
         session_uuid: other_session.uuid,
-        auth_method: 'basic',
+        auth_method: 'user_token',
       )
       post :create, params: { fixed_session_uuid: other_session.uuid }
     end

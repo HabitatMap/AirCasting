@@ -4,8 +4,8 @@ module Api
       class MeasurementsController < BaseController
         ErrorCodes = ::FixedSessions::BinaryProtocol::ErrorCodes
         around_action :with_server_time_header
-        before_action :authenticate_user_from_token!
-        before_action :authenticate_session_from_token!
+        before_action :authenticate_session_from_token
+        before_action :authenticate_user_from_bearer_token
         before_action :require_authentication!
 
         def create
@@ -17,7 +17,7 @@ module Api
           unless session
             monitor.report_session_not_found(
               session_uuid: params[:fixed_session_uuid],
-              auth_method: bearer_token.present? ? 'bearer' : 'basic',
+              auth_method: 'user_token',
             )
             return render_error(ErrorCodes::SESSION_NOT_FOUND, 'Session not found')
           end
@@ -30,17 +30,13 @@ module Api
           if result.success?
             head :ok
           else
-            # The AirBeamMini posts here directly. Verified safe to use the shared
-            # status mapping: the firmware buckets every non-2xx the same way
-            # (`!(200..300).contains(status)` → retry, measurements kept in
-            # storage) and never reads the body — it only takes `X-Server-Time`.
             render_failure(result)
           end
         end
 
         private
 
-        def authenticate_session_from_token!
+        def authenticate_session_from_token
           token = bearer_token
           return unless token
 
@@ -48,6 +44,12 @@ module Api
             uuid: params[:fixed_session_uuid],
             session_token: token,
           )
+        end
+
+        def authenticate_user_from_bearer_token
+          return if @authenticated_session
+
+          super
         end
 
         def require_authentication!
@@ -61,11 +63,6 @@ module Api
           yield
         ensure
           response.set_header('X-Server-Time', Time.now.to_i.to_s)
-        end
-
-        def bearer_token
-          auth = request.authorization
-          @bearer_token ||= auth.sub('Bearer ', '') if auth&.start_with?('Bearer ')
         end
 
         def find_session_for_user

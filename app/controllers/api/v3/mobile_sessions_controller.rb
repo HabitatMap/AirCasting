@@ -2,8 +2,8 @@ module Api
   module V3
     class MobileSessionsController < BaseController
       ErrorCodes = ::MobileSessions::ErrorCodes
-      before_action :authenticate_user_from_token!
-      before_action :authenticate_user!
+      before_action :authenticate_user_from_bearer_token
+      before_action :require_authentication!
 
       def index
         render json: ::MobileSessions::List.new(

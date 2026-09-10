@@ -57,8 +57,12 @@ RSpec.describe 'AirBeamMini Fixed Sessions Binary Flow', type: :request do
         | `internal_error` | 500 | Unresolvable write conflict, or a rival create still in flight | Retry with backoff |
       DESC
 
+      # The only operation that still accepts the deprecated Basic scheme:
+      # Android 4.0.0-4.0.5 and the iOS AirBeamMini V2 build already post it.
+      security [{ bearer_auth: [] }, { basic_auth: [] }]
+
       parameter name: :Authorization, in: :header, type: :string, required: true,
-                description: 'Token token=<user_token>'
+                description: '`Bearer <user_token>`. `Basic base64("<user_token>:X")` also works here, deprecated.'
 
       parameter name: :body, in: :body, required: true, schema: {
         type: :object,
@@ -161,7 +165,7 @@ RSpec.describe 'AirBeamMini Fixed Sessions Binary Flow', type: :request do
         end
 
         let!(:user) { create(:user) }
-        let(:Authorization) { "Token token=#{user.authentication_token}" }
+        let(:Authorization) { "Bearer #{user.authentication_token}" }
         let(:body) do
           {
             uuid: SecureRandom.uuid,
@@ -177,7 +181,6 @@ RSpec.describe 'AirBeamMini Fixed Sessions Binary Flow', type: :request do
           }
         end
 
-        before { sign_in user }
 
         run_test!
       end
@@ -196,10 +199,9 @@ RSpec.describe 'AirBeamMini Fixed Sessions Binary Flow', type: :request do
                }
 
         let(:user) { create(:user) }
-        let(:Authorization) { "Token token=#{user.authentication_token}" }
+        let(:Authorization) { "Bearer #{user.authentication_token}" }
         let(:body) { { uuid: '' } }
 
-        before { sign_in user }
 
         run_test!
       end
@@ -208,7 +210,7 @@ RSpec.describe 'AirBeamMini Fixed Sessions Binary Flow', type: :request do
         schema ERROR_SCHEMA
 
         let!(:user) { create(:user) }
-        let(:Authorization) { "Token token=#{user.authentication_token}" }
+        let(:Authorization) { "Bearer #{user.authentication_token}" }
         let!(:existing) { create(:fixed_session, user: user, uuid: SecureRandom.uuid) }
         let(:body) do
           {
@@ -222,7 +224,6 @@ RSpec.describe 'AirBeamMini Fixed Sessions Binary Flow', type: :request do
           }
         end
 
-        before { sign_in user }
 
         run_test! do |response|
           expect(JSON.parse(response.body)['error_code']).to eq('session_uuid_taken')
@@ -237,7 +238,7 @@ RSpec.describe 'AirBeamMini Fixed Sessions Binary Flow', type: :request do
         schema ERROR_SCHEMA
 
         let!(:user) { create(:user) }
-        let(:Authorization) { "Token token=#{user.authentication_token}" }
+        let(:Authorization) { "Bearer #{user.authentication_token}" }
         let(:body) do
           {
             uuid: SecureRandom.uuid,
@@ -251,7 +252,6 @@ RSpec.describe 'AirBeamMini Fixed Sessions Binary Flow', type: :request do
         end
 
         before do
-          sign_in user
           allow_any_instance_of(FixedSessions::Creator).to receive(:call).and_return(
             Failure.new(
               error_code: FixedSessions::BinaryProtocol::ErrorCodes::INTERNAL_ERROR,
@@ -266,7 +266,7 @@ RSpec.describe 'AirBeamMini Fixed Sessions Binary Flow', type: :request do
       response '401', 'unauthorized' do
         schema ERROR_SCHEMA
 
-        let(:Authorization) { 'Token token=invalid' }
+        let(:Authorization) { 'Bearer invalid' }
         let(:body) { {} }
 
         run_test!
@@ -325,7 +325,7 @@ RSpec.describe 'AirBeamMini Fixed Sessions Binary Flow', type: :request do
                 description: 'Session UUID (same as used in session creation)'
 
       parameter name: :Authorization, in: :header, type: :string, required: true,
-                description: 'Mobile app: `Token token=<user_token>`. AirBeam: `Bearer <session_token>` (returned by session creation endpoint).'
+                description: 'AirBeam: `Bearer <session_token>` (returned by session creation), matched against this UUID first so it can never act as an account-wide credential. Mobile app: `Bearer <user_token>`.'
 
       parameter name: :body, in: :body, required: true, schema: {
         type: :string,
@@ -367,10 +367,9 @@ RSpec.describe 'AirBeamMini Fixed Sessions Binary Flow', type: :request do
         end
 
         let(:uuid) { @session.uuid }
-        let(:Authorization) { "Token token=#{@user.authentication_token}" }
+        let(:Authorization) { "Bearer #{@user.authentication_token}" }
         let(:body) { build_measurement_binary(type_id: 2) }
 
-        before { sign_in @user }
 
         run_test!
       end
@@ -381,10 +380,9 @@ RSpec.describe 'AirBeamMini Fixed Sessions Binary Flow', type: :request do
         let(:user) { create(:user) }
         let(:session) { create(:fixed_session, user: user) }
         let(:uuid) { session.uuid }
-        let(:Authorization) { "Token token=#{user.authentication_token}" }
+        let(:Authorization) { "Bearer #{user.authentication_token}" }
         let(:body) { 'not valid binary' }
 
-        before { sign_in user }
 
         run_test!
       end
@@ -394,10 +392,9 @@ RSpec.describe 'AirBeamMini Fixed Sessions Binary Flow', type: :request do
 
         let(:user) { create(:user) }
         let(:uuid) { 'non-existent-uuid' }
-        let(:Authorization) { "Token token=#{user.authentication_token}" }
+        let(:Authorization) { "Bearer #{user.authentication_token}" }
         let(:body) { build_measurement_binary(type_id: 1) }
 
-        before { sign_in user }
 
         run_test!
       end
@@ -406,7 +403,7 @@ RSpec.describe 'AirBeamMini Fixed Sessions Binary Flow', type: :request do
         schema ERROR_SCHEMA
 
         let(:uuid) { 'any-uuid' }
-        let(:Authorization) { 'Token token=invalid' }
+        let(:Authorization) { 'Bearer invalid' }
         let(:body) { "\x00" }
 
         run_test!

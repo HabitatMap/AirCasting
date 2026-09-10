@@ -4,8 +4,8 @@ module Api
       class MeasurementsController < BaseController
         ErrorCodes = ::MobileSessions::ErrorCodes
         around_action :with_server_time_header
-        before_action :authenticate_user_from_token!
-        before_action :authenticate_user!
+        before_action :authenticate_user_from_bearer_token
+        before_action :require_authentication!
 
         def index
           session = find_session

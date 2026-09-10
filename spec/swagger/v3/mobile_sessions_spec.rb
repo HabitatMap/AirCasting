@@ -34,7 +34,7 @@ RSpec.describe 'AirBeam Mobile Sessions', type: :request do
       DESC
 
       parameter name: :Authorization, in: :header, type: :string, required: true,
-                description: 'Token token=<user_token>'
+                description: 'Bearer <user_token>'
       parameter name: :page, in: :query, required: false, schema: { type: :integer },
                 description: '1-based page (with per_page)'
       parameter name: :per_page, in: :query, required: false, schema: { type: :integer },
@@ -83,18 +83,17 @@ RSpec.describe 'AirBeam Mobile Sessions', type: :request do
         }
 
         let(:user) { create(:user) }
-        let(:Authorization) { "Token token=#{user.authentication_token}" }
+        let(:Authorization) { "Bearer #{user.authentication_token}" }
         before do
           session = create(:mobile_session, user: user)
           create(:stream, session: session, sensor_name: 'AirBeamMini-PM2.5')
-          sign_in user
         end
         run_test!
       end
 
       response '401', 'unauthorized' do
         schema ERROR_SCHEMA
-        let(:Authorization) { 'Token token=invalid' }
+        let(:Authorization) { 'Bearer invalid' }
         run_test!
       end
     end
@@ -194,7 +193,7 @@ RSpec.describe 'AirBeam Mobile Sessions', type: :request do
       DESC
 
       parameter name: :Authorization, in: :header, type: :string, required: true,
-                description: 'Token token=<user_token>'
+                description: 'Bearer <user_token>'
 
       parameter name: :body, in: :body, required: true, schema: {
         type: :object,
@@ -295,7 +294,7 @@ RSpec.describe 'AirBeam Mobile Sessions', type: :request do
         end
 
         let!(:user) { create(:user) }
-        let(:Authorization) { "Token token=#{user.authentication_token}" }
+        let(:Authorization) { "Bearer #{user.authentication_token}" }
         let(:body) do
           {
             uuid: SecureRandom.uuid,
@@ -310,7 +309,6 @@ RSpec.describe 'AirBeam Mobile Sessions', type: :request do
           }
         end
 
-        before { sign_in user }
 
         run_test!
       end
@@ -329,10 +327,9 @@ RSpec.describe 'AirBeam Mobile Sessions', type: :request do
                }
 
         let(:user) { create(:user) }
-        let(:Authorization) { "Token token=#{user.authentication_token}" }
+        let(:Authorization) { "Bearer #{user.authentication_token}" }
         let(:body) { { uuid: '' } }
 
-        before { sign_in user }
 
         run_test!
       end
@@ -341,7 +338,7 @@ RSpec.describe 'AirBeam Mobile Sessions', type: :request do
         schema ERROR_SCHEMA
 
         let!(:user) { create(:user) }
-        let(:Authorization) { "Token token=#{user.authentication_token}" }
+        let(:Authorization) { "Bearer #{user.authentication_token}" }
         let!(:existing) { create(:mobile_session, user: user, uuid: SecureRandom.uuid) }
         let(:body) do
           {
@@ -354,7 +351,6 @@ RSpec.describe 'AirBeam Mobile Sessions', type: :request do
           }
         end
 
-        before { sign_in user }
 
         run_test! do |response|
           expect(JSON.parse(response.body)['error_code']).to eq('session_uuid_taken')
@@ -369,7 +365,7 @@ RSpec.describe 'AirBeam Mobile Sessions', type: :request do
         schema ERROR_SCHEMA
 
         let!(:user) { create(:user) }
-        let(:Authorization) { "Token token=#{user.authentication_token}" }
+        let(:Authorization) { "Bearer #{user.authentication_token}" }
         let(:body) do
           {
             uuid: SecureRandom.uuid,
@@ -382,7 +378,6 @@ RSpec.describe 'AirBeam Mobile Sessions', type: :request do
         end
 
         before do
-          sign_in user
           allow_any_instance_of(MobileSessions::Creator).to receive(:call).and_return(
             Failure.new(
               error_code: MobileSessions::ErrorCodes::INTERNAL_ERROR,
@@ -397,7 +392,7 @@ RSpec.describe 'AirBeam Mobile Sessions', type: :request do
       response '401', 'unauthorized' do
         schema ERROR_SCHEMA
 
-        let(:Authorization) { 'Token token=invalid' }
+        let(:Authorization) { 'Bearer invalid' }
         let(:body) { {} }
 
         run_test!
@@ -417,7 +412,7 @@ RSpec.describe 'AirBeam Mobile Sessions', type: :request do
 
       parameter name: :uuid, in: :path, type: :string, required: true
       parameter name: :Authorization, in: :header, type: :string, required: true,
-                description: 'Token token=<user_token>'
+                description: 'Bearer <user_token>'
 
       response '200', 'session' do
         schema type: :object,
@@ -458,12 +453,11 @@ RSpec.describe 'AirBeam Mobile Sessions', type: :request do
                }
 
         let(:user) { create(:user) }
-        let(:Authorization) { "Token token=#{user.authentication_token}" }
+        let(:Authorization) { "Bearer #{user.authentication_token}" }
         let(:session_record) { create(:mobile_session, user: user) }
         let(:uuid) { session_record.uuid }
         before do
           create(:stream, session: session_record, sensor_name: 'AirBeamMini-PM2.5')
-          sign_in user
         end
         run_test!
       end
@@ -471,16 +465,15 @@ RSpec.describe 'AirBeam Mobile Sessions', type: :request do
       response '404', 'session not found' do
         schema ERROR_SCHEMA
         let(:user) { create(:user) }
-        let(:Authorization) { "Token token=#{user.authentication_token}" }
+        let(:Authorization) { "Bearer #{user.authentication_token}" }
         let(:uuid) { 'does-not-exist' }
-        before { sign_in user }
         run_test!
       end
 
       response '401', 'unauthorized' do
         schema ERROR_SCHEMA
         let(:uuid) { 'any-uuid' }
-        let(:Authorization) { 'Token token=invalid' }
+        let(:Authorization) { 'Bearer invalid' }
         run_test!
       end
     end
@@ -500,7 +493,7 @@ RSpec.describe 'AirBeam Mobile Sessions', type: :request do
 
       parameter name: :uuid, in: :path, type: :string, required: true
       parameter name: :Authorization, in: :header, type: :string, required: true,
-                description: 'Token token=<user_token>'
+                description: 'Bearer <user_token>'
       parameter name: :body, in: :body, required: true, schema: {
         type: :object,
         properties: {
@@ -556,31 +549,29 @@ RSpec.describe 'AirBeam Mobile Sessions', type: :request do
         }
 
         let(:user) { create(:user) }
-        let(:Authorization) { "Token token=#{user.authentication_token}" }
+        let(:Authorization) { "Bearer #{user.authentication_token}" }
         let(:session_record) { create(:mobile_session, user: user) }
         let(:uuid) { session_record.uuid }
         let(:body) do
           { title: 'Renamed ride',
             device: { mac_address: 'AA:BB:CC:DD:EE:FF', model: 'AirBeamMini', name: 'Backpack' } }
         end
-        before { sign_in user }
         run_test!
       end
 
       response '404', 'session not found' do
         schema ERROR_SCHEMA
         let(:user) { create(:user) }
-        let(:Authorization) { "Token token=#{user.authentication_token}" }
+        let(:Authorization) { "Bearer #{user.authentication_token}" }
         let(:uuid) { 'does-not-exist' }
         let(:body) { { title: 'x' } }
-        before { sign_in user }
         run_test!
       end
 
       response '401', 'unauthorized' do
         schema ERROR_SCHEMA
         let(:uuid) { 'any-uuid' }
-        let(:Authorization) { 'Token token=invalid' }
+        let(:Authorization) { 'Bearer invalid' }
         let(:body) { { title: 'x' } }
         run_test!
       end
@@ -599,30 +590,28 @@ RSpec.describe 'AirBeam Mobile Sessions', type: :request do
 
       parameter name: :uuid, in: :path, type: :string, required: true
       parameter name: :Authorization, in: :header, type: :string, required: true,
-                description: 'Token token=<user_token>'
+                description: 'Bearer <user_token>'
 
       response '204', 'deleted' do
         let(:user) { create(:user) }
-        let(:Authorization) { "Token token=#{user.authentication_token}" }
+        let(:Authorization) { "Bearer #{user.authentication_token}" }
         let(:session_record) { create(:mobile_session, user: user) }
         let(:uuid) { session_record.uuid }
-        before { sign_in user }
         run_test!
       end
 
       response '404', 'session not found' do
         schema ERROR_SCHEMA
         let(:user) { create(:user) }
-        let(:Authorization) { "Token token=#{user.authentication_token}" }
+        let(:Authorization) { "Bearer #{user.authentication_token}" }
         let(:uuid) { 'does-not-exist' }
-        before { sign_in user }
         run_test!
       end
 
       response '401', 'unauthorized' do
         schema ERROR_SCHEMA
         let(:uuid) { 'any-uuid' }
-        let(:Authorization) { 'Token token=invalid' }
+        let(:Authorization) { 'Bearer invalid' }
         run_test!
       end
     end
@@ -642,7 +631,7 @@ RSpec.describe 'AirBeam Mobile Sessions', type: :request do
 
       parameter name: :uuid, in: :path, type: :string, required: true
       parameter name: :Authorization, in: :header, type: :string, required: true,
-                description: 'Token token=<user_token>'
+                description: 'Bearer <user_token>'
       parameter name: :sensor_name, in: :query, required: false, schema: { type: :string }
       parameter name: :measurement_type, in: :query, required: false, schema: { type: :string }
       parameter name: :start_time, in: :query, required: false, schema: { type: :integer },
@@ -671,7 +660,7 @@ RSpec.describe 'AirBeam Mobile Sessions', type: :request do
                }
 
         let(:user) { create(:user) }
-        let(:Authorization) { "Token token=#{user.authentication_token}" }
+        let(:Authorization) { "Bearer #{user.authentication_token}" }
         let(:session_record) do
           create(:mobile_session, user: user, time_zone: 'UTC', end_time_local: Time.utc(2026, 8, 14, 12, 0, 0))
         end
@@ -680,7 +669,6 @@ RSpec.describe 'AirBeam Mobile Sessions', type: :request do
           stream = create(:stream, session: session_record, sensor_name: 'AirBeamMini-PM2.5')
           stream.build_measurements!([{ time: Time.utc(2026, 8, 14, 11, 30, 0), value: 12.5, latitude: 40.0,
                                         longitude: -74.0 }])
-          sign_in user
         end
         run_test!
       end
@@ -688,16 +676,15 @@ RSpec.describe 'AirBeam Mobile Sessions', type: :request do
       response '404', 'session not found' do
         schema ERROR_SCHEMA
         let(:user) { create(:user) }
-        let(:Authorization) { "Token token=#{user.authentication_token}" }
+        let(:Authorization) { "Bearer #{user.authentication_token}" }
         let(:uuid) { 'does-not-exist' }
-        before { sign_in user }
         run_test!
       end
 
       response '401', 'unauthorized' do
         schema ERROR_SCHEMA
         let(:uuid) { 'any-uuid' }
-        let(:Authorization) { 'Token token=invalid' }
+        let(:Authorization) { 'Bearer invalid' }
         run_test!
       end
     end
@@ -746,7 +733,7 @@ RSpec.describe 'AirBeam Mobile Sessions', type: :request do
       parameter name: :uuid, in: :path, type: :string, required: true,
                 description: 'Session UUID (same as used in session creation)'
       parameter name: :Authorization, in: :header, type: :string, required: true,
-                description: 'Token token=<user_token>'
+                description: 'Bearer <user_token>'
       parameter name: :body, in: :body, required: true, schema: {
         type: :string, format: :binary, description: 'Binary payload as described above'
       }
@@ -776,10 +763,9 @@ RSpec.describe 'AirBeam Mobile Sessions', type: :request do
         end
 
         let(:uuid) { @session.uuid }
-        let(:Authorization) { "Token token=#{@user.authentication_token}" }
+        let(:Authorization) { "Bearer #{@user.authentication_token}" }
         let(:body) { build_mobile_measurement_binary(type_id: 2) }
 
-        before { sign_in @user }
 
         run_test!
       end
@@ -790,10 +776,9 @@ RSpec.describe 'AirBeam Mobile Sessions', type: :request do
         let(:user) { create(:user) }
         let(:session) { create(:mobile_session, user: user) }
         let(:uuid) { session.uuid }
-        let(:Authorization) { "Token token=#{user.authentication_token}" }
+        let(:Authorization) { "Bearer #{user.authentication_token}" }
         let(:body) { 'not valid binary' }
 
-        before { sign_in user }
 
         run_test!
       end
@@ -803,10 +788,9 @@ RSpec.describe 'AirBeam Mobile Sessions', type: :request do
 
         let(:user) { create(:user) }
         let(:uuid) { 'non-existent-uuid' }
-        let(:Authorization) { "Token token=#{user.authentication_token}" }
+        let(:Authorization) { "Bearer #{user.authentication_token}" }
         let(:body) { build_mobile_measurement_binary(type_id: 2) }
 
-        before { sign_in user }
 
         run_test!
       end
@@ -815,7 +799,7 @@ RSpec.describe 'AirBeam Mobile Sessions', type: :request do
         schema ERROR_SCHEMA
 
         let(:uuid) { 'any-uuid' }
-        let(:Authorization) { 'Token token=invalid' }
+        let(:Authorization) { 'Bearer invalid' }
         let(:body) { "\x00" }
 
         run_test!
