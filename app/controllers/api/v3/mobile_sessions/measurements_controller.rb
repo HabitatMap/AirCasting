@@ -27,9 +27,13 @@ module Api
           return head :ok if binary.empty?
 
           session = find_session
-          return session_not_found unless session
 
-          result = ::MobileSessions::BinaryProtocol::Ingester.new.call(
+          unless session
+            monitor.report_session_not_found(session_uuid: params[:mobile_session_uuid])
+            return session_not_found
+          end
+
+          result = ::MobileSessions::BinaryProtocol::Ingester.new(monitor: monitor).call(
             session: session,
             binary: binary,
           )
@@ -42,6 +46,17 @@ module Api
         end
 
         private
+
+        def require_authentication!
+          return if current_user
+
+          monitor.report_auth_failure(session_uuid: params[:mobile_session_uuid])
+          super
+        end
+
+        def monitor
+          @monitor ||= ::BinaryProtocol::Monitor.new(source: ::BinaryProtocol::Monitor::MOBILE)
+        end
 
         def find_session
           current_user.mobile_sessions.find_by(uuid: params[:mobile_session_uuid])

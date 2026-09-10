@@ -73,7 +73,7 @@ module Api
         end
 
         def monitor
-          @monitor ||= ::FixedSessions::BinaryProtocol::Monitor.new
+          @monitor ||= ::BinaryProtocol::Monitor.new(source: ::BinaryProtocol::Monitor::FIXED)
         end
       end
     end

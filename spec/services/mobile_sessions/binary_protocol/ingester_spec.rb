@@ -1,7 +1,17 @@
 require 'rails_helper'
 
 RSpec.describe MobileSessions::BinaryProtocol::Ingester do
-  subject(:ingester) { described_class.new }
+  subject(:ingester) { described_class.new(monitor: monitor) }
+
+  let(:monitor) do
+    instance_double(
+      ::BinaryProtocol::Monitor,
+      report_parse_error: nil,
+      report_unknown_sensor_type: nil,
+      report_import_failure: nil,
+      report_transaction_error: nil,
+    )
+  end
 
   let(:user) { create(:user) }
   let(:session) do
@@ -93,5 +103,71 @@ RSpec.describe MobileSessions::BinaryProtocol::Ingester do
     result = ingester.call(session: session, binary: 'not binary')
     expect(result).to be_failure
     expect(result.errors[:error_code]).to be_present
+  end
+
+  describe 'monitoring' do
+    it 'reports dropped frames for an unknown sensor_type_id' do
+      expect(monitor).to receive(:report_unknown_sensor_type).with(
+        session: session,
+        sensor_type_id: 99,
+        known_sensor_type_ids: [2],
+      )
+
+      ingester.call(
+        session: session,
+        binary: payload([frame(epoch: epoch, type_id: 99, value: 1.0, lat: 40.0, lng: -74.0)]),
+      )
+    end
+
+    it 'reports a parse error with the payload size and the frame count the header claimed' do
+      expect(monitor).to receive(:report_parse_error).with(
+        hash_including(
+          error_code: MobileSessions::BinaryProtocol::Parser::ErrorCodes::INVALID_CHECKSUM,
+          session: session,
+          binary_size: 30,
+          measurement_count: 1,
+        ),
+      )
+
+      binary = payload([frame(epoch: epoch, type_id: 2, value: 1.0, lat: 40.0, lng: -74.0)])
+      ingester.call(session: session, binary: binary[0..-2] + [0xFF].pack('C'))
+    end
+
+    it 'reports rows the bulk import rejected, which the 200 response hides' do
+      failed = double(errors: double(full_messages: ['Value is not a number']))
+      allow(Measurement).to receive(:import).and_return(double(failed_instances: [failed]))
+
+      expect(monitor).to receive(:report_import_failure).with(
+        session: session,
+        stream_id: stream.id,
+        failed_count: 1,
+        message: 'Value is not a number',
+      )
+
+      ingester.call(
+        session: session,
+        binary: payload([frame(epoch: epoch, type_id: 2, value: 1.0, lat: 40.0, lng: -74.0)]),
+      )
+    end
+
+    it 'stays quiet on a clean ingest' do
+      expect(monitor).not_to receive(:report_parse_error)
+      expect(monitor).not_to receive(:report_unknown_sensor_type)
+      expect(monitor).not_to receive(:report_import_failure)
+      expect(monitor).not_to receive(:report_transaction_error)
+
+      ingester.call(
+        session: session,
+        binary: payload([frame(epoch: epoch, type_id: 2, value: 1.0, lat: 40.0, lng: -74.0)]),
+      )
+    end
+
+    it 'defaults to the mobile source so events never merge with the fixed ones' do
+      expect(::BinaryProtocol::Monitor).to receive(:new)
+        .with(source: ::BinaryProtocol::Monitor::MOBILE)
+        .and_return(monitor)
+
+      described_class.new
+    end
   end
 end

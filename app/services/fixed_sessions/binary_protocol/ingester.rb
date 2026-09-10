@@ -8,7 +8,7 @@ module FixedSessions
         fixed_sessions_repository: FixedSessionsRepository.new,
         daily_averages_recalculator: FixedStreaming::StreamDailyAveragesRecalculator.new,
         hourly_averages_recalculator: FixedStreaming::StreamHourlyAveragesRecalculator.new,
-        monitor: Monitor.new
+        monitor: ::BinaryProtocol::Monitor.new(source: ::BinaryProtocol::Monitor::FIXED)
       )
         @parser = parser
         @streams_repository = streams_repository

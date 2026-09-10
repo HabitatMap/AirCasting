@@ -3,7 +3,7 @@ require 'rails_helper'
 RSpec.describe FixedSessions::BinaryProtocol::Ingester do
   let(:daily_recalculator) { instance_double(FixedStreaming::StreamDailyAveragesRecalculator, call: nil) }
   let(:hourly_recalculator) { instance_double(FixedStreaming::StreamHourlyAveragesRecalculator, call: nil) }
-  let(:monitor) { instance_double(FixedSessions::BinaryProtocol::Monitor, report_parse_error: nil, report_unknown_sensor_type: nil, report_transaction_error: nil) }
+  let(:monitor) { instance_double(::BinaryProtocol::Monitor, report_parse_error: nil, report_unknown_sensor_type: nil, report_transaction_error: nil) }
   subject(:ingester) do
     described_class.new(
       daily_averages_recalculator: daily_recalculator,

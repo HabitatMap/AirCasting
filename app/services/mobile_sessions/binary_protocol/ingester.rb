@@ -13,15 +13,24 @@ module MobileSessions
 
       def initialize(
         parser: Parser.new,
-        streams_repository: StreamsRepository.new
+        streams_repository: StreamsRepository.new,
+        monitor: ::BinaryProtocol::Monitor.new(source: ::BinaryProtocol::Monitor::MOBILE)
       )
         @parser = parser
         @streams_repository = streams_repository
+        @monitor = monitor
       end
 
       def call(session:, binary:)
         measurements = parser.call(binary)
       rescue Parser::ParseError => e
+        monitor.report_parse_error(
+          error_code: e.error_code,
+          message: e.message,
+          session: session,
+          binary_size: binary.bytesize,
+          measurement_count: e.measurement_count,
+        )
         Failure.new(error_code: e.error_code, message: e.message)
       else
         ingest(session: session, measurements: measurements)
@@ -29,12 +38,13 @@ module MobileSessions
 
       private
 
-      attr_reader :parser, :streams_repository
+      attr_reader :parser, :streams_repository, :monitor
 
       def ingest(session:, measurements:)
         grouped = measurements.group_by { |m| m[:sensor_type_id] }
         factory = RGeo::Geographic.spherical_factory(srid: 4326)
         touched_streams = []
+        known_type_ids = session.streams.pluck(:sensor_type_id)
 
         ActiveRecord::Base.transaction do
           grouped.each do |type_id, type_measurements|
@@ -43,9 +53,10 @@ module MobileSessions
               sensor_type_id: type_id,
             )
             unless stream
-              Rails.logger.warn(
-                "[MobileSessions::Ingester] unknown sensor_type_id=#{type_id} " \
-                "for session=#{session.uuid}; #{type_measurements.size} frame(s) dropped",
+              monitor.report_unknown_sensor_type(
+                session: session,
+                sensor_type_id: type_id,
+                known_sensor_type_ids: known_type_ids,
               )
               next
             end
@@ -53,7 +64,7 @@ module MobileSessions
             records = reject_existing(stream, build_records(type_measurements, session, stream, factory))
             next if records.empty?
 
-            imported = import(stream, records)
+            imported = import(session, stream, records)
             Stream.update_counters(stream.id, measurements_count: imported) if imported.positive?
             touched_streams << stream
           end
@@ -64,7 +75,8 @@ module MobileSessions
 
         Success.new('measurements ingested')
       rescue ActiveRecord::RecordInvalid => e
-        Failure.new(error_code: ErrorCodes::INTERNAL_ERROR, message: e.message)
+        monitor.report_transaction_error(session: session, message: e.message)
+        Failure.new(error_code: ::MobileSessions::ErrorCodes::INTERNAL_ERROR, message: e.message)
       end
 
       def build_records(type_measurements, session, stream, factory)
@@ -95,12 +107,14 @@ module MobileSessions
         records.reject { |record| existing.include?(record.time.to_i) }
       end
 
-      def import(stream, records)
+      def import(session, stream, records)
         result = Measurement.import(records)
         if result.failed_instances.any?
-          Rails.logger.warn(
-            "[MobileSessions::Ingester] #{result.failed_instances.size} measurement(s) " \
-            "failed to import for stream=#{stream.id}",
+          monitor.report_import_failure(
+            session: session,
+            stream_id: stream.id,
+            failed_count: result.failed_instances.size,
+            message: result.failed_instances.first&.errors&.full_messages&.join(', '),
           )
         end
         records.size - result.failed_instances.size

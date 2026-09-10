@@ -31,12 +31,12 @@ RSpec.describe Api::V3::FixedSessions::MeasurementsController do
     payload + [checksum].pack('C')
   end
 
-  let(:monitor) { instance_double(FixedSessions::BinaryProtocol::Monitor, report_parse_error: nil, report_unknown_sensor_type: nil, report_transaction_error: nil, report_session_not_found: nil, report_auth_failure: nil) }
+  let(:monitor) { instance_double(::BinaryProtocol::Monitor, report_parse_error: nil, report_unknown_sensor_type: nil, report_transaction_error: nil, report_session_not_found: nil, report_auth_failure: nil) }
 
   before do
     stream
     sign_in user
-    allow(FixedSessions::BinaryProtocol::Monitor).to receive(:new).and_return(monitor)
+    allow(::BinaryProtocol::Monitor).to receive(:new).and_return(monitor)
   end
 
   describe 'POST #create' do

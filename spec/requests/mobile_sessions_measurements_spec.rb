@@ -115,4 +115,51 @@ describe 'POST /api/v3/mobile_sessions/:mobile_session_uuid/measurements' do
       expect(response.parsed_body['error_code']).to eq('invalid_magic_bytes')
     end
   end
+
+  describe 'monitoring' do
+    let(:monitor) do
+      instance_double(
+        ::BinaryProtocol::Monitor,
+        report_parse_error: nil,
+        report_unknown_sensor_type: nil,
+        report_import_failure: nil,
+        report_transaction_error: nil,
+        report_session_not_found: nil,
+        report_auth_failure: nil,
+      )
+    end
+
+    before do
+      allow(::BinaryProtocol::Monitor).to receive(:new)
+        .with(source: ::BinaryProtocol::Monitor::MOBILE)
+        .and_return(monitor)
+    end
+
+    it 'reports a rejected credential' do
+      expect(monitor).to receive(:report_auth_failure).with(session_uuid: session.uuid)
+
+      post_measurements(uuid: session.uuid, body: build_binary, headers: bearer('nonsense'))
+
+      expect(response).to have_http_status(:unauthorized)
+    end
+
+    it 'reports an upload aimed at a session the caller does not own' do
+      other = create(:mobile_session, user: create(:user))
+
+      expect(monitor).to receive(:report_session_not_found).with(session_uuid: other.uuid)
+
+      post_measurements(uuid: other.uuid, body: build_binary, headers: bearer(user.authentication_token))
+
+      expect(response).to have_http_status(:not_found)
+    end
+
+    it 'stays quiet on a successful upload' do
+      expect(monitor).not_to receive(:report_auth_failure)
+      expect(monitor).not_to receive(:report_session_not_found)
+
+      post_measurements(uuid: session.uuid, body: build_binary, headers: bearer(user.authentication_token))
+
+      expect(response).to have_http_status(:ok)
+    end
+  end
 end
