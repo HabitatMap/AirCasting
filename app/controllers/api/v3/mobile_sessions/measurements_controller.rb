@@ -50,10 +50,9 @@ module Api
 
         private
 
-        # Answered before the body is read, so an oversized upload costs us the
-        # headers and nothing more. A request without Content-Length (chunked)
-        # gets past this and is caught by the parser instead, which by then has
-        # the session to report against.
+        # Answered before the body is read, so an oversized upload costs the headers
+        # and nothing more. A chunked request carries no Content-Length and is
+        # caught by the parser instead.
         def declared_size_over_limit?
           request.content_length.to_i > Parser::MAX_PAYLOAD_SIZE
         end

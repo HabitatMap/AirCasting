@@ -230,7 +230,7 @@ RSpec.describe 'Concurrent session creation', type: :model do
   it 'bounds the wait on a rival\'s in-flight insert instead of parking forever' do
     # Nothing in the server config or database.yml sets lock_timeout, so without
     # SET LOCAL an insert meeting an uncommitted index entry waits for that
-    # transaction with no bound, holding a puma thread.
+    # transaction with no bound, holding a unicorn worker.
     winner_started = Concurrent::CountDownLatch.new(1)
     loser_done = Concurrent::CountDownLatch.new(1)
     outcome = nil

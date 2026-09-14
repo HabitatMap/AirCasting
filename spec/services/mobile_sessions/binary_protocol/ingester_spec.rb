@@ -14,10 +14,8 @@ RSpec.describe MobileSessions::BinaryProtocol::Ingester do
   end
 
   let(:user) { create(:user) }
-  # Times left NULL, as MobileSessions::Creator leaves them: the session carries
-  # no declared range until the first upload derives one. The factory's defaults
-  # would otherwise put a range here that no real session this endpoint can reach
-  # ever has.
+  # NULL times, as MobileSessions::Creator leaves them — the factory's defaults
+  # would put a range here that no session reaching this endpoint ever has.
   let(:session) do
     create(:mobile_session, user: user, time_zone: 'America/New_York',
                             start_time_local: nil, end_time_local: nil)
@@ -130,9 +128,8 @@ RSpec.describe MobileSessions::BinaryProtocol::Ingester do
     end
 
     it 'increments measurements_count rather than replacing it' do
-      # Rows this ingester did not write. update_counters emits
-      # `SET measurements_count = COALESCE(measurements_count, 0) + $1`, so the
-      # batch has to add to these, not stand in for them.
+      # Rows this ingester did not write: the batch has to add to them, not stand
+      # in for them.
       Stream.update_counters(stream.id, measurements_count: 5)
 
       binary = payload([
@@ -144,12 +141,9 @@ RSpec.describe MobileSessions::BinaryProtocol::Ingester do
       expect(stream.reload.measurements_count).to eq(7)
     end
 
-    # measurements_count is a counter_cache column, so Rails marks it readonly and
-    # raises on any attempt to assign it — the aggregate update cannot clobber the
-    # increment even if it wanted to. What is worth pinning is the shape of the
-    # writes: exactly one COALESCE increment per stream per batch, and an aggregate
-    # UPDATE that leaves the column alone. Swapping update_counters for a raw
-    # update_all would satisfy neither.
+    # measurements_count is a counter_cache column, so Rails refuses to assign it;
+    # what is worth pinning is the shape of the writes — one increment per stream
+    # per batch, and an aggregate UPDATE that leaves the column alone.
     it 'keeps measurements_count out of the aggregate update' do
       statements = []
       subscriber = ActiveSupport::Notifications.subscribe('sql.active_record') do |*, payload|
@@ -188,10 +182,8 @@ RSpec.describe MobileSessions::BinaryProtocol::Ingester do
       create(:stream, session: session, sensor_name: 'AirBeamMini-RH', sensor_type_id: 3)
     end
 
-    # Serialises concurrent uploads for the same stream. `measurements` has no
-    # unique constraint on (stream_id, time), so reject_existing is a plain
-    # read-then-write and the aggregate update is a read-modify-write; neither is
-    # safe without this.
+    # Serialises concurrent uploads for one stream: without it reject_existing is
+    # an unguarded read-then-write and the aggregates a read-modify-write.
     it 'takes one transaction-scoped lock per stream, in stream id order' do
       locked = []
       allow(ActiveRecord::Base.connection).to receive(:execute).and_wrap_original do |original, sql, *args|
@@ -210,9 +202,8 @@ RSpec.describe MobileSessions::BinaryProtocol::Ingester do
   end
 
   describe 'duplicate timestamps inside one payload' do
-    # reject_existing only sees what is already stored. Without the in-batch pass
-    # both rows land, which overstates measurements_count and — worse — makes
-    # CREATE UNIQUE INDEX CONCURRENTLY on (stream_id, time) impossible to build.
+    # reject_existing only sees what is already stored, so without the in-batch
+    # pass both rows land — and a unique index could then never be built.
     it 'stores one row per timestamp' do
       binary = payload([
         frame(epoch: epoch, type_id: 2, value: 10.0, lat: 40.0, lng: -74.0),
@@ -303,10 +294,9 @@ RSpec.describe MobileSessions::BinaryProtocol::Ingester do
   end
 
   describe 'stream bounding box' do
-    # MobileSessions::Creator seeds it with the phone's position at session
-    # creation. Widening from that point never removes it, and Stream.in_rectangle
-    # asks ST_Contains(window, stream_box), so an inflated box makes the session
-    # vanish from map windows the real track sits inside.
+    # MobileSessions::Creator seeds it with one point, and Stream.in_rectangle asks
+    # ST_Contains(window, stream_box) — an inflated box hides the session from map
+    # windows the real track sits inside.
     it 'replaces the seeded point with the first batch of real measurements' do
       stream.update!(min_latitude: 10.0, max_latitude: 10.0, min_longitude: 20.0, max_longitude: 20.0)
 
@@ -407,9 +397,8 @@ RSpec.describe MobileSessions::BinaryProtocol::Ingester do
     expect(session.end_time_local).to eq(Time.utc(2026, 8, 14, 7, 0, 0))    # +1h, not pulled back
   end
 
-  # Not reachable from MobileSessions::Creator, which leaves both NULL — but a
-  # legacy sync path can write them, and shrinking a session to the batch in hand
-  # would hide the measurements outside it from every range query.
+  # Not reachable from MobileSessions::Creator, which leaves both NULL, but the
+  # legacy sync path writes them.
   it 'never shrinks a session that already carries a range' do
     session.update!(start_time_local: Time.utc(2026, 8, 14, 0, 0, 0),
                     end_time_local: Time.utc(2026, 8, 14, 23, 0, 0))

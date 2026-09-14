@@ -1,16 +1,12 @@
 require 'rails_helper'
 
-# What happens when two uploads for one session race — the only place the
-# advisory lock, the lock_timeout and the re-read under the lock run for real
-# rather than from a stub. Modelled on spec/models/session_uuid_race_spec.rb.
+# Two uploads for one session racing — the only place the advisory lock, the
+# lock_timeout and the re-read under it run for real. Modelled on
+# spec/models/session_uuid_race_spec.rb.
 #
-# use_transactional_tests must stay false. It sets lock_thread on the pool, which
-# hands every thread the *same* connection: the threaded examples would then have
-# no second session to race against, and the one that holds an advisory lock
-# while another waits for it would deadlock against itself.
-#
-# The cost is manual teardown, which is why the `after` block deletes everything
-# these examples create, innermost first.
+# use_transactional_tests must stay false: it pins every thread to one connection,
+# so a thread waiting on another's advisory lock would deadlock against itself.
+# The cost is the manual teardown below.
 RSpec.describe 'Concurrent mobile measurement ingest', type: :model do
   self.use_transactional_tests = false
 
@@ -39,16 +35,15 @@ RSpec.describe 'Concurrent mobile measurement ingest', type: :model do
   let(:epoch) { Time.utc(2026, 8, 14, 10, 0, 0).to_i }
 
   after do
-    # Nothing here is rolled back for us, and destroying a session writes a
-    # `deleted_sessions` tombstone that other examples read — clear it too.
+    # Nothing is rolled back for us, and destroying a session leaves a
+    # `deleted_sessions` tombstone other examples read.
     session.streams.each { |s| s.measurements.delete_all }
     session.streams.delete_all
     session.destroy
     DeletedSession.where(uuid: session.uuid).delete_all
     threshold_set.destroy if threshold_set&.persisted?
   ensure
-    # Last, and in an ensure: a raise in any cleanup above would otherwise leave
-    # the user behind, and nothing rolls it back for us.
+    # In an ensure: a raise above would otherwise leave the user behind.
     user.destroy if user&.persisted?
   end
 
@@ -93,9 +88,8 @@ RSpec.describe 'Concurrent mobile measurement ingest', type: :model do
   end
 
   describe 'a rival that commits after the stream was resolved' do
-    # The stream is loaded before the advisory lock is taken. This drives a rival
-    # upload to completion in exactly that window, so the lock is already stale
-    # when we acquire it — deterministic, no thread timing.
+    # Drives a rival upload to completion in the window between the stream being
+    # loaded and the lock being taken. Deterministic — no thread timing.
     def rival_commits_after_stream_resolved(rival)
       fired = false
       allow_any_instance_of(StreamsRepository)
@@ -162,9 +156,8 @@ RSpec.describe 'Concurrent mobile measurement ingest', type: :model do
   end
 
   it 'gives up on a rival holding the stream rather than parking forever' do
-    # Nothing in the server config or database.yml sets lock_timeout, so without
-    # SET LOCAL an upload meeting another one's advisory lock waits for that
-    # transaction with no bound, holding a puma thread.
+    # Nothing in the server config sets lock_timeout, so without SET LOCAL this
+    # wait is unbounded and holds a unicorn worker.
     namespace = MobileSessions::BinaryProtocol::Ingester::ADVISORY_LOCK_NAMESPACE
     holder_started = Concurrent::CountDownLatch.new(1)
     loser_done = Concurrent::CountDownLatch.new(1)
@@ -202,8 +195,7 @@ RSpec.describe 'Concurrent mobile measurement ingest', type: :model do
   end
 
   it "leaves a caller's own lock_timeout alone when nested" do
-    # SET LOCAL is transaction-scoped, not savepoint-scoped: a released savepoint
-    # would leave our 3s bound in force for the rest of the caller's transaction.
+    # SET LOCAL is transaction-scoped, not savepoint-scoped.
     ActiveRecord::Base.transaction do
       before = ActiveRecord::Base.connection.select_value('SHOW lock_timeout')
 

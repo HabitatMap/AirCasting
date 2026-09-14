@@ -148,9 +148,8 @@ describe 'POST /api/v3/mobile_sessions/:mobile_session_uuid/measurements' do
       expect(response.parsed_body['error_code']).to eq('payload_too_large')
     end
 
-    # Content-Length alone decides this, so the request is refused before the
-    # body is read and before the session is looked up — a wrong uuid still
-    # answers 413, not 404.
+    # Decided on Content-Length alone, before the body is read and before the
+    # session is looked up — a wrong uuid still answers 413, not 404.
     it 'answers before looking the session up' do
       post_measurements(uuid: 'no-such-uuid', body: build_binary_with(max + 1), headers: bearer(user.authentication_token))
 

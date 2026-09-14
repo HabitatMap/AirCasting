@@ -269,7 +269,8 @@ module MobileSessions
       # Widen-only; nothing to replace on the first batch, as MobileSessions::Creator
       # leaves both times NULL. `lock!` because uploads for different streams of one
       # session take different advisory locks and never meet — without it the second
-      # folds into the copy it loaded and overwrites the first's bounds.
+      # folds into the copy it loaded and overwrites the first's bounds. It raises
+      # on a session carrying unsaved changes, so callers pass a freshly loaded one.
       def apply_session_times(session, records)
         return if records.empty?
 

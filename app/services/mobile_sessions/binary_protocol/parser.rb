@@ -1,8 +1,7 @@
 module MobileSessions
   module BinaryProtocol
-    # Binary frame for AirBeam MOBILE measurements. Extends the fixed frame with
-    # per-point location. No milliseconds — mobile records at interval sampling
-    # (1s / 5s / 1min / 5min / 10min), so sub-second ordering is never needed.
+    # Binary frame for AirBeam MOBILE measurements — the fixed frame plus per-point
+    # location:
     #
     #   uint32 BE epoch | uint8 type_id | float32 BE value | float64 BE lat | float64 BE lng
     class Parser
@@ -10,18 +9,15 @@ module MobileSessions
       HEADER_SIZE = 4  # 2 bytes magic + 2 bytes uint16 count
       MEASUREMENT_SIZE = 25 # 4 epoch + 1 type_id + 4 value + 8 lat + 8 lng
 
-      # Ten minutes of 1 Hz sampling across the five streams an AirBeam 3 records
-      # — the densest setup currently in the field. A client with more to send
-      # splits it across requests; each one is stored on its own, and resends are
-      # idempotent, so chunking costs nothing.
+      # Ten minutes of 1 Hz sampling across the five streams of an AirBeam 3, the
+      # densest setup in the field. Resends are idempotent, so a client with more
+      # to send splits it across requests at no cost.
       MAX_MEASUREMENTS = 3_000
       MAX_PAYLOAD_SIZE = HEADER_SIZE + (MAX_MEASUREMENTS * MEASUREMENT_SIZE) + 1 # 75_005 bytes
 
-      # An AirBeam whose RTC never got set sends 1970 or 2000 epochs. Those pass a
-      # zero check, get stored, and drag `start_time_local` back with them — and
-      # since session bounds only ever widen after the first batch, the session
-      # never recovers and every duration or range query over it is wrong. This
-      # protocol did not exist before 2020, so nothing legitimate predates it.
+      # An AirBeam whose RTC never got set sends 1970 or 2000 epochs, which pass a
+      # zero check and then drag `start_time_local` back with them for good, since
+      # session bounds only widen. The protocol did not exist before 2020.
       MIN_EPOCH = Time.utc(2020, 1, 1).to_i
       MAX_EPOCH_SKEW = 86_400 # a phone clock may run ahead; a day is generous
 
@@ -50,9 +46,8 @@ module MobileSessions
       def call(binary)
         raise ParseError.new(ErrorCodes::PAYLOAD_TOO_SHORT, 'payload too short') if binary.bytesize < HEADER_SIZE + 1
 
-        # Guarded here as well as in the controller: the controller rejects on
-        # Content-Length before reading the body, which a chunked request does not
-        # carry. The parser does not get to trust its caller either way.
+        # Also guarded in the controller, which rejects on Content-Length before
+        # reading the body — a chunked request carries none.
         raise ParseError.new(ErrorCodes::PAYLOAD_TOO_LARGE, "payload exceeds #{MAX_PAYLOAD_SIZE} bytes") if binary.bytesize > MAX_PAYLOAD_SIZE
 
         magic, count = binary.unpack('a2n')

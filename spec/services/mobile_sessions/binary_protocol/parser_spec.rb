@@ -74,9 +74,8 @@ RSpec.describe MobileSessions::BinaryProtocol::Parser do
       .to raise_error(described_class::ParseError) { |e| expect(e.error_code).to eq(EC::INVALID_EPOCH) }
   end
 
-  # An AirBeam whose RTC never got set sends 1970 or 2000 epochs. Stored, they
-  # drag the session's start_time_local back with them, and since session bounds
-  # only widen after the first batch, it never recovers.
+  # An AirBeam whose RTC never got set sends 1970 or 2000 epochs, which drag
+  # start_time_local back with them for good, since session bounds only widen.
   it 'raises invalid_epoch for a timestamp before the protocol existed' do
     binary = payload([frame(epoch: Time.utc(2001, 1, 1).to_i, type_id: 2, value: 1.0, lat: 1.0, lng: 1.0)])
     expect { parser.call(binary) }
@@ -122,10 +121,8 @@ RSpec.describe MobileSessions::BinaryProtocol::Parser do
         .to raise_error(described_class::ParseError) { |e| expect(e.error_code).to eq(EC::PAYLOAD_TOO_LARGE) }
     end
 
-    # A short payload with a header claiming more frames than the cap. The byte
-    # check cannot see this, and the count check has to run before the
-    # size-mismatch check or the answer would be the misleading
-    # `payload_size_mismatch`.
+    # The byte check cannot see a lying header, and the count check has to precede
+    # the size-mismatch check or the answer is the misleading size mismatch.
     it 'raises payload_too_large for an oversized count on a small payload' do
       binary = payload(uniform_frames(1), count: max + 1)
 
@@ -136,8 +133,7 @@ RSpec.describe MobileSessions::BinaryProtocol::Parser do
       end
     end
 
-    # uint16 caps the header count at 65_535, so no payload can ever declare
-    # more than this. Nothing is allocated for it either way.
+    # uint16 caps the header count at 65_535; nothing is allocated for it either way.
     it 'raises payload_too_large for the largest count the header can hold' do
       binary = payload(uniform_frames(1), count: 65_535)
 
