@@ -348,7 +348,7 @@ RSpec.describe MobileSessions::BinaryProtocol::Ingester do
       ]))
 
       expect(result).to be_failure
-      expect(result.errors[:error_code]).to eq('internal_error')
+      expect(result.errors[:error_code]).to eq('try_again_later')
       expect(result.errors[:message]).to eq('Could not store these measurements, please retry')
       expect(monitor).to have_received(:report_transaction_error)
     end

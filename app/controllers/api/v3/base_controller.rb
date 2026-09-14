@@ -23,10 +23,16 @@ module Api
         'session_not_found' => :not_found,
         'session_uuid_taken' => :conflict,
         'payload_too_large' => :payload_too_large,
+        'try_again_later' => :service_unavailable,
         'internal_error' => :internal_server_error,
       }.freeze
 
       DEFAULT_ERROR_STATUS = :bad_request
+
+      # Longer than the longest lock_timeout the services wait on (3s in the
+      # creators, 1s in the ingesters), so a client that honours it comes back
+      # after the rival transaction has ended either way.
+      RETRY_AFTER_SECONDS = 5
 
       private
 
@@ -63,6 +69,8 @@ module Api
 
       # `status: nil` means "derive it from the error code" — the usual case.
       def render_error(error_code, message, status: nil)
+        response.set_header('Retry-After', RETRY_AFTER_SECONDS.to_s) if error_code == ErrorCodes::TRY_AGAIN_LATER
+
         render json: { error_code: error_code, message: message },
                status: status || STATUS_BY_ERROR_CODE.fetch(error_code, DEFAULT_ERROR_STATUS)
       end

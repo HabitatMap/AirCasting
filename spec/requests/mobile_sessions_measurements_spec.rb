@@ -158,6 +158,19 @@ describe 'POST /api/v3/mobile_sessions/:mobile_session_uuid/measurements' do
     end
   end
 
+  describe 'a rival upload holding the stream' do
+    it 'answers 503 with Retry-After so the client knows to come back' do
+      allow(Measurement).to receive(:import)
+        .and_raise(ActiveRecord::LockWaitTimeout.new('canceling statement due to lock timeout'))
+
+      post_measurements(uuid: session.uuid, body: build_binary, headers: bearer(user.authentication_token))
+
+      expect(response).to have_http_status(:service_unavailable)
+      expect(response.parsed_body['error_code']).to eq('try_again_later')
+      expect(response.headers['Retry-After']).to eq('5')
+    end
+  end
+
   describe 'sensor_type_id the session has no stream for' do
     it 'returns 400 unsupported_sensor_type and stores nothing' do
       expect {

@@ -195,6 +195,7 @@ RSpec.describe 'Concurrent mobile measurement ingest', type: :model do
     [holder, loser].each(&:join)
 
     expect(outcome).to be_failure
+    expect(outcome.errors[:error_code]).to eq('try_again_later')
     expect(outcome.errors[:message]).to eq('Could not store these measurements, please retry')
     expect(waited).to be < 10 # gave up on the timeout, did not wait out the holder
     expect(stream.measurements.count).to eq(0)

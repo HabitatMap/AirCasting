@@ -54,7 +54,8 @@ RSpec.describe 'AirBeamMini Fixed Sessions Binary Flow', type: :request do
         | `validation_error` | 400 | Malformed body, or a stream with no `thresholds` and no seeded default | Client bug — do not retry unchanged |
         | `session_uuid_taken` | 409 | The `uuid` is already in use | Stop retrying; continue with the existing session |
         | `unsupported_sensor_type` | 400 | A `sensor_name` is not a known AirBeam sensor | Unrecoverable |
-        | `internal_error` | 500 | Unresolvable write conflict, or a rival create still in flight | Retry with backoff |
+        | `try_again_later` | 503 | A rival create is still in flight | Retry after the `Retry-After` header (seconds) |
+        | `internal_error` | 500 | Unresolvable write conflict | Retry with backoff |
       DESC
 
       # The only operation that still accepts the deprecated Basic scheme:
@@ -319,6 +320,7 @@ RSpec.describe 'AirBeamMini Fixed Sessions Binary Flow', type: :request do
         | `invalid_checksum` | 400 | XOR checksum of payload does not match the final byte |
         | `invalid_epoch` | 400 | A frame's timestamp is zero or implausibly far in the future |
         | `invalid_value` | 400 | A frame's sensor value is NaN or Infinity |
+        | `try_again_later` | 503 | A rival writer held the session for longer than the server waits. Nothing is stored — resend after the `Retry-After` header (seconds) |
       DESC
 
       parameter name: :uuid, in: :path, type: :string, required: true,

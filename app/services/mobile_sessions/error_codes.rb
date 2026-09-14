@@ -14,5 +14,6 @@ module MobileSessions
     SESSION_UUID_TAKEN      = 'session_uuid_taken'
     VALIDATION_ERROR        = 'validation_error'
     INTERNAL_ERROR          = 'internal_error'
+    TRY_AGAIN_LATER         = 'try_again_later'
   end
 end

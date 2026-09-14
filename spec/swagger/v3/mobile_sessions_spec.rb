@@ -189,7 +189,8 @@ RSpec.describe 'AirBeam Mobile Sessions', type: :request do
         | `validation_error` | 400 | Malformed body, or a custom sensor with no `thresholds` and no seeded default | Client bug — do not retry unchanged |
         | `session_uuid_taken` | 409 | The `uuid` is already in use | Stop retrying; continue with the existing session |
         | `unsupported_sensor_type` | 400 | Unknown `sensor_name`, or more custom sensors than the 100–255 range holds | Unrecoverable |
-        | `internal_error` | 500 | Unresolvable write conflict, or a rival create still in flight | Retry with backoff |
+        | `try_again_later` | 503 | A rival create is still in flight | Retry after the `Retry-After` header (seconds) |
+        | `internal_error` | 500 | Unresolvable write conflict | Retry with backoff |
       DESC
 
       parameter name: :Authorization, in: :header, type: :string, required: true,
@@ -748,6 +749,7 @@ RSpec.describe 'AirBeam Mobile Sessions', type: :request do
         | `unsupported_sensor_type` | 400 | A frame names a `sensor_type_id` this session has no stream for. Nothing is stored — re-read the session's streams and resend |
         | `payload_too_short` / `invalid_magic_bytes` / `empty_measurement_count` / `payload_size_mismatch` / `invalid_checksum` / `invalid_epoch` / `invalid_value` / `invalid_location` | 400 | Malformed payload |
         | `payload_too_large` | 413 | More than 3000 measurements (or more than 75005 bytes). Nothing is stored — resend in smaller batches |
+        | `try_again_later` | 503 | A rival upload held this session's streams for longer than the server waits. Nothing is stored — resend after the `Retry-After` header (seconds) |
       DESC
 
       parameter name: :uuid, in: :path, type: :string, required: true,

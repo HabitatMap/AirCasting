@@ -90,11 +90,12 @@ module MobileSessions
       rescue ActiveRecord::RecordInvalid => e
         monitor.report_transaction_error(session: session, message: e.message)
         Failure.new(error_code: ::MobileSessions::ErrorCodes::INTERNAL_ERROR, message: e.message)
-      # Before StatementInvalid, which it subclasses.
+      # Before StatementInvalid, which it subclasses. Nothing is wrong with the
+      # request — another upload held the stream — so it is worth retrying.
       rescue ActiveRecord::LockWaitTimeout => e
         monitor.report_transaction_error(session: session, message: e.message)
         Failure.new(
-          error_code: ::MobileSessions::ErrorCodes::INTERNAL_ERROR,
+          error_code: ::MobileSessions::ErrorCodes::TRY_AGAIN_LATER,
           message: 'Could not store these measurements, please retry',
         )
       # Deadlock, cancelled statement, connection loss. The real message goes to

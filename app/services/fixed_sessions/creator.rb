@@ -51,7 +51,7 @@ module FixedSessions
       end
     rescue ActiveRecord::LockWaitTimeout
       Failure.new(
-        error_code: BinaryProtocol::ErrorCodes::INTERNAL_ERROR,
+        error_code: BinaryProtocol::ErrorCodes::TRY_AGAIN_LATER,
         message: 'Could not create this session, please retry',
       )
     rescue MissingThresholdsError => e
