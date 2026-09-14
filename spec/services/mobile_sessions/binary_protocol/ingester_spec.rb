@@ -93,10 +93,35 @@ RSpec.describe MobileSessions::BinaryProtocol::Ingester do
     expect(session.end_time_local).to eq(Time.utc(2026, 8, 14, 7, 0, 0))    # +1h, not pulled back
   end
 
-  it 'silently skips frames for an unknown sensor_type_id' do
+  it 'rejects the whole upload when a sensor_type_id has no stream on this session' do
     binary = payload([frame(epoch: epoch, type_id: 99, value: 1.0, lat: 40.0, lng: -74.0)])
+
+    result = nil
+    expect { result = ingester.call(session: session, binary: binary) }
+      .not_to change(Measurement, :count)
+    expect(result).to be_failure
+    expect(result.errors[:error_code]).to eq(MobileSessions::ErrorCodes::UNSUPPORTED_SENSOR_TYPE)
+    expect(result.errors[:message]).to include('99')
+  end
+
+  it 'stores nothing at all when only some of the frames name an unknown sensor' do
+    binary = payload([
+      frame(epoch: epoch, type_id: 2, value: 1.0, lat: 40.0, lng: -74.0),
+      frame(epoch: epoch + 1, type_id: 99, value: 2.0, lat: 40.0, lng: -74.0),
+    ])
+
     expect { ingester.call(session: session, binary: binary) }.not_to change(Measurement, :count)
-    expect(ingester.call(session: session, binary: binary)).to be_success
+    expect(stream.reload.measurements_count).to eq(0)
+  end
+
+  it 'names every unknown sensor_type_id, not just the first' do
+    binary = payload([
+      frame(epoch: epoch, type_id: 98, value: 1.0, lat: 40.0, lng: -74.0),
+      frame(epoch: epoch + 1, type_id: 99, value: 2.0, lat: 40.0, lng: -74.0),
+    ])
+
+    result = ingester.call(session: session, binary: binary)
+    expect(result.errors[:message]).to include('98, 99')
   end
 
   it 'returns Failure with the parser error_code on a corrupt payload' do
@@ -106,7 +131,7 @@ RSpec.describe MobileSessions::BinaryProtocol::Ingester do
   end
 
   describe 'monitoring' do
-    it 'reports dropped frames for an unknown sensor_type_id' do
+    it 'reports the rejected sensor_type_id alongside what the session does have' do
       expect(monitor).to receive(:report_unknown_sensor_type).with(
         session: session,
         sensor_type_id: 99,

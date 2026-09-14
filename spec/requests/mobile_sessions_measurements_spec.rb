@@ -116,6 +116,37 @@ describe 'POST /api/v3/mobile_sessions/:mobile_session_uuid/measurements' do
     end
   end
 
+  describe 'sensor_type_id the session has no stream for' do
+    it 'returns 400 unsupported_sensor_type and stores nothing' do
+      expect {
+        post_measurements(
+          uuid: session.uuid,
+          body: build_binary(type_id: 99),
+          headers: bearer(user.authentication_token),
+        )
+      }.not_to change(Measurement, :count)
+
+      expect(response).to have_http_status(:bad_request)
+      expect(response.parsed_body['error_code']).to eq('unsupported_sensor_type')
+    end
+
+    it 'rejects the whole payload, not only the offending frames' do
+      header = ["\xAB\xBA", 2].pack('a2n')
+      epoch = Time.current.to_i - 60
+      payload = header +
+                [epoch, 2, 12.5, 40.7128, -74.006].pack('NCgGG') +
+                [epoch + 1, 99, 13.5, 40.7128, -74.006].pack('NCgGG')
+      body = payload + [payload.bytes.inject(0, :^)].pack('C')
+
+      expect {
+        post_measurements(uuid: session.uuid, body: body, headers: bearer(user.authentication_token))
+      }.not_to change(Measurement, :count)
+
+      expect(response).to have_http_status(:bad_request)
+      expect(stream.reload.measurements_count).to eq(0)
+    end
+  end
+
   describe 'monitoring' do
     let(:monitor) do
       instance_double(

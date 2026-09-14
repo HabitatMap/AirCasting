@@ -42,24 +42,17 @@ module MobileSessions
 
       def ingest(session:, measurements:)
         grouped = measurements.group_by { |m| m[:sensor_type_id] }
+        streams = resolve_streams(session, grouped.keys)
+
+        unknown_type_ids = grouped.keys - streams.keys
+        return reject_unknown_sensor_types(session, unknown_type_ids) if unknown_type_ids.any?
+
         factory = RGeo::Geographic.spherical_factory(srid: 4326)
         touched_streams = []
-        known_type_ids = session.streams.pluck(:sensor_type_id)
 
         ActiveRecord::Base.transaction do
           grouped.each do |type_id, type_measurements|
-            stream = streams_repository.find_by_session_id_and_sensor_type_id(
-              session_id: session.id,
-              sensor_type_id: type_id,
-            )
-            unless stream
-              monitor.report_unknown_sensor_type(
-                session: session,
-                sensor_type_id: type_id,
-                known_sensor_type_ids: known_type_ids,
-              )
-              next
-            end
+            stream = streams.fetch(type_id)
 
             records = reject_existing(stream, build_records(type_measurements, session, stream, factory))
             next if records.empty?
@@ -77,6 +70,33 @@ module MobileSessions
       rescue ActiveRecord::RecordInvalid => e
         monitor.report_transaction_error(session: session, message: e.message)
         Failure.new(error_code: ::MobileSessions::ErrorCodes::INTERNAL_ERROR, message: e.message)
+      end
+
+      def resolve_streams(session, type_ids)
+        type_ids.each_with_object({}) do |type_id, acc|
+          stream = streams_repository.find_by_session_id_and_sensor_type_id(
+            session_id: session.id,
+            sensor_type_id: type_id,
+          )
+          acc[type_id] = stream if stream
+        end
+      end
+
+      def reject_unknown_sensor_types(session, unknown_type_ids)
+        known_type_ids = session.streams.pluck(:sensor_type_id)
+
+        unknown_type_ids.each do |type_id|
+          monitor.report_unknown_sensor_type(
+            session: session,
+            sensor_type_id: type_id,
+            known_sensor_type_ids: known_type_ids,
+          )
+        end
+
+        Failure.new(
+          error_code: ::MobileSessions::ErrorCodes::UNSUPPORTED_SENSOR_TYPE,
+          message: "session has no stream for sensor_type_id #{unknown_type_ids.sort.join(', ')}",
+        )
       end
 
       def build_records(type_measurements, session, stream, factory)

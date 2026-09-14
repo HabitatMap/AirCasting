@@ -4585,6 +4585,7 @@ paths:
         |---|---|---|
         | `unauthorized` | 401 | Missing or invalid `Authorization` token |
         | `session_not_found` | 404 | No mobile session with the given UUID for this user |
+        | `unsupported_sensor_type` | 400 | A frame names a `sensor_type_id` this session has no stream for. Nothing is stored — re-read the session's streams and resend |
         | `payload_too_short` / `invalid_magic_bytes` / `empty_measurement_count` / `payload_size_mismatch` / `invalid_checksum` / `invalid_epoch` / `invalid_value` / `invalid_location` | 400 | Malformed payload |
       parameters:
       - name: uuid
@@ -4603,7 +4604,7 @@ paths:
         '200':
           description: measurements stored (or empty body time-sync)
         '400':
-          description: invalid payload
+          description: sensor_type_id has no stream on this session
           content:
             application/json:
               schema:

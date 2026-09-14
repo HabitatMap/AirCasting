@@ -727,6 +727,7 @@ RSpec.describe 'AirBeam Mobile Sessions', type: :request do
         |---|---|---|
         | `unauthorized` | 401 | Missing or invalid `Authorization` token |
         | `session_not_found` | 404 | No mobile session with the given UUID for this user |
+        | `unsupported_sensor_type` | 400 | A frame names a `sensor_type_id` this session has no stream for. Nothing is stored — re-read the session's streams and resend |
         | `payload_too_short` / `invalid_magic_bytes` / `empty_measurement_count` / `payload_size_mismatch` / `invalid_checksum` / `invalid_epoch` / `invalid_value` / `invalid_location` | 400 | Malformed payload |
       DESC
 
@@ -779,6 +780,18 @@ RSpec.describe 'AirBeam Mobile Sessions', type: :request do
         let(:Authorization) { "Bearer #{user.authentication_token}" }
         let(:body) { 'not valid binary' }
 
+
+        run_test!
+      end
+
+      response '400', 'sensor_type_id has no stream on this session' do
+        schema ERROR_SCHEMA
+
+        let(:user) { create(:user) }
+        let(:session) { create(:mobile_session, user: user) }
+        let(:uuid) { session.uuid }
+        let(:Authorization) { "Bearer #{user.authentication_token}" }
+        let(:body) { build_mobile_measurement_binary(type_id: 99) }
 
         run_test!
       end
