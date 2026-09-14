@@ -11,9 +11,11 @@ module MobileSessions
       # advisory lock elsewhere in the cluster.
       ADVISORY_LOCK_NAMESPACE = 0x4D454153
 
-      # pg_advisory_xact_lock waits forever by default, parking a puma thread per
-      # queued upload. Same value as MobileSessions::Creator::LOCK_TIMEOUT.
-      LOCK_TIMEOUT = '3s'.freeze
+      # pg_advisory_xact_lock waits forever by default, and production runs 16
+      # single-request unicorn workers, so a queued upload holds a whole worker.
+      # Shorter than the creators' 3s: an upload is idempotent and the client
+      # re-sends it, while a rejected create costs the user a session.
+      LOCK_TIMEOUT = '1s'.freeze
 
       # Above this average gap between frames, a range scan stops being the cheaper
       # way to ask. Mobile sampling is 1s / 5s / 1min / 5min / 10min.

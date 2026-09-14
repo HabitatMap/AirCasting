@@ -227,7 +227,8 @@ RSpec.describe 'Concurrent mobile measurement ingest', type: :model do
       binary: payload([frame(epoch: epoch, value: 1.0, lat: 40.0, lng: -74.0)]),
     )
 
-    timeout = statements.index { |sql| sql.include?("SET LOCAL lock_timeout = '3s'") }
+    expected = "SET LOCAL lock_timeout = '#{MobileSessions::BinaryProtocol::Ingester::LOCK_TIMEOUT}'"
+    timeout = statements.index { |sql| sql.include?(expected) }
     lock = statements.index { |sql| sql.include?('pg_advisory_xact_lock') }
     expect(timeout).not_to be_nil
     expect(lock).not_to be_nil
