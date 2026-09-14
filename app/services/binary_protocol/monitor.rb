@@ -68,6 +68,23 @@ module BinaryProtocol
       )
     end
 
+    # Frames the parser dropped instead of rejecting the payload over. The
+    # response is a 200, so this is the only trace the device sent them.
+    def report_skipped_frames(session:, reason:, count:, total:, sample_epochs:)
+      report(
+        event: "skipped_frames.#{reason}",
+        severity: Severity::WARNING,
+        tags: { reason: reason },
+        context: {
+          session_uuid: session.uuid,
+          reason: reason,
+          skipped_count: count,
+          frame_count: total,
+          sample_epochs: sample_epochs,
+        },
+      )
+    end
+
     def report_session_not_found(session_uuid:, auth_method: nil)
       report(
         event: 'session_not_found',

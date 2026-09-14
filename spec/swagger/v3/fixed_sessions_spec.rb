@@ -301,6 +301,14 @@ RSpec.describe 'AirBeamMini Fixed Sessions Binary Flow', type: :request do
         **Resend behaviour:** sending a measurement with an already-stored
         `(stream_id, time_with_time_zone)` pair is silently ignored — no duplicate is created.
 
+        **Size limit:** at most 6000 frames (54005 bytes) per request. A larger backlog
+        is split across requests; each is stored on its own and resends are idempotent.
+
+        **Unusable timestamps:** a frame whose epoch is zero, before 2020-01-01 UTC, or
+        more than 24 hours ahead of server time is dropped and the rest of the payload is
+        stored; the response is still 200. A device with an unset clock therefore keeps
+        draining its backlog instead of stalling on a batch the server refuses.
+
         **Time synchronisation:** an empty body is valid and returns 200 immediately. The AirBeamMini
         uses this to read the current server time from the `X-Server-Time` response header
         (Unix epoch, UTC) when its clock drifts.
@@ -318,8 +326,8 @@ RSpec.describe 'AirBeamMini Fixed Sessions Binary Flow', type: :request do
         | `empty_measurement_count` | 400 | Frame count field in header is zero |
         | `payload_size_mismatch` | 400 | Actual payload size does not match the declared frame count |
         | `invalid_checksum` | 400 | XOR checksum of payload does not match the final byte |
-        | `invalid_epoch` | 400 | A frame's timestamp is zero or implausibly far in the future |
         | `invalid_value` | 400 | A frame's sensor value is NaN or Infinity |
+        | `payload_too_large` | 413 | More than 6000 frames, or a body over 54005 bytes. Nothing is stored — resend in smaller batches |
         | `try_again_later` | 503 | A rival writer held the session for longer than the server waits. Nothing is stored — resend after the `Retry-After` header (seconds) |
       DESC
 
@@ -385,6 +393,24 @@ RSpec.describe 'AirBeamMini Fixed Sessions Binary Flow', type: :request do
         let(:Authorization) { "Bearer #{user.authentication_token}" }
         let(:body) { 'not valid binary' }
 
+
+        run_test!
+      end
+
+      response '413', 'payload larger than one request may carry' do
+        schema ERROR_SCHEMA
+
+        let(:user) { create(:user) }
+        let(:session) { create(:fixed_session, user: user) }
+        let(:uuid) { session.uuid }
+        let(:Authorization) { "Bearer #{user.authentication_token}" }
+        # A header declaring more frames than the cap. Rejected on the count alone,
+        # so the example does not have to carry 54 KB of frames.
+        let(:body) do
+          over = ::FixedSessions::BinaryProtocol::Parser::MAX_MEASUREMENTS + 1
+          payload = ["\xAB\xBA", over].pack('a2n') + [Time.current.to_i, 2, 12.5].pack('NCg')
+          payload + [payload.bytes.inject(0, :^)].pack('C')
+        end
 
         run_test!
       end

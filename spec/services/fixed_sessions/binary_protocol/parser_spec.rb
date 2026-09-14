@@ -24,12 +24,13 @@ RSpec.describe FixedSessions::BinaryProtocol::Parser do
       let(:epoch) { 1_711_619_400 }
       let(:binary) { build_binary([{ epoch: epoch, sensor_type_id: 2, value: 25.5 }]) }
 
-      it 'returns an array with one measurement' do
+      it 'returns one measurement and nothing skipped' do
         result = parser.call(binary)
-        expect(result.size).to eq(1)
-        expect(result.first[:epoch]).to eq(epoch)
-        expect(result.first[:sensor_type_id]).to eq(2)
-        expect(result.first[:value]).to be_within(0.01).of(25.5)
+        expect(result.measurements.size).to eq(1)
+        expect(result.measurements.first[:epoch]).to eq(epoch)
+        expect(result.measurements.first[:sensor_type_id]).to eq(2)
+        expect(result.measurements.first[:value]).to be_within(0.01).of(25.5)
+        expect(result.skipped).to be_empty
       end
     end
 
@@ -43,8 +44,8 @@ RSpec.describe FixedSessions::BinaryProtocol::Parser do
 
       it 'parses all measurements in order' do
         result = parser.call(binary)
-        expect(result.size).to eq(2)
-        expect(result.map { |m| m[:sensor_type_id] }).to eq([1, 2])
+        expect(result.measurements.size).to eq(2)
+        expect(result.measurements.map { |m| m[:sensor_type_id] }).to eq([1, 2])
       end
     end
 
@@ -81,19 +82,83 @@ RSpec.describe FixedSessions::BinaryProtocol::Parser do
       end
     end
 
-    context 'with epoch zero in a frame' do
-      let(:binary) { build_binary([{ epoch: 0, sensor_type_id: 2, value: 1.0 }]) }
+    # A rejected payload is re-POSTed by the Mini forever and thrown away by
+    # Android's BLE sync, so an unsettable clock must not fail the request.
+    describe 'frames the clock cannot be trusted for' do
+      let(:good_epoch) { 1_711_619_400 }
 
-      it 'raises ParseError with error_code invalid_epoch and measurement_count' do
-        expect_parse_error(binary, error_code: 'invalid_epoch', message: /greater than zero/, measurement_count: 1)
+      it 'skips epoch zero and keeps the rest' do
+        result = parser.call(build_binary([
+          { epoch: 0, sensor_type_id: 2, value: 1.0 },
+          { epoch: good_epoch, sensor_type_id: 2, value: 2.0 },
+        ]))
+
+        expect(result.measurements.map { |m| m[:epoch] }).to eq([good_epoch])
+        expect(result.skipped).to eq([{ index: 0, epoch: 0, reason: described_class::SKIPPED_TOO_OLD }])
+      end
+
+      it 'skips an epoch before the protocol existed' do
+        stale = Time.utc(2019, 12, 31).to_i
+        result = parser.call(build_binary([{ epoch: stale, sensor_type_id: 2, value: 1.0 }]))
+
+        expect(result.measurements).to be_empty
+        expect(result.skipped.first).to include(epoch: stale, reason: described_class::SKIPPED_TOO_OLD)
+      end
+
+      it 'skips an epoch more than 24 hours in the future' do
+        ahead = Time.current.to_i + 90_000
+        result = parser.call(build_binary([{ epoch: ahead, sensor_type_id: 2, value: 1.0 }]))
+
+        expect(result.measurements).to be_empty
+        expect(result.skipped.first).to include(epoch: ahead, reason: described_class::SKIPPED_TOO_NEW)
+      end
+
+      it 'accepts an epoch inside the forward skew' do
+        ahead = Time.current.to_i + 3_600
+        result = parser.call(build_binary([{ epoch: ahead, sensor_type_id: 2, value: 1.0 }]))
+
+        expect(result.measurements.map { |m| m[:epoch] }).to eq([ahead])
+        expect(result.skipped).to be_empty
+      end
+
+      it 'still rejects a payload carrying a non-finite value' do
+        expect_parse_error(
+          build_binary([{ epoch: 0, sensor_type_id: 2, value: Float::NAN }]),
+          error_code: 'invalid_value', message: /finite/, measurement_count: 1,
+        )
       end
     end
 
-    context 'with epoch more than 24 hours in the future' do
-      let(:binary) { build_binary([{ epoch: Time.current.to_i + 90_000, sensor_type_id: 2, value: 1.0 }]) }
+    describe 'payload caps' do
+      let(:max) { described_class::MAX_MEASUREMENTS }
 
-      it 'raises ParseError with error_code invalid_epoch and measurement_count' do
-        expect_parse_error(binary, error_code: 'invalid_epoch', message: /future/, measurement_count: 1)
+      it 'accepts a payload at the cap' do
+        frames = Array.new(max) { |i| { epoch: 1_711_619_400 + i, sensor_type_id: 2, value: 1.0 } }
+
+        expect(parser.call(build_binary(frames)).measurements.size).to eq(max)
+      end
+
+      it 'rejects a payload one frame over the cap' do
+        frames = Array.new(max + 1) { |i| { epoch: 1_711_619_400 + i, sensor_type_id: 2, value: 1.0 } }
+
+        expect_parse_error(
+          build_binary(frames),
+          error_code: 'payload_too_large',
+          message: /exceeds #{described_class::MAX_PAYLOAD_SIZE} bytes/,
+        )
+      end
+
+      # The byte check cannot see a lying header, and the count check has to precede
+      # the size-mismatch check or the answer is the misleading size mismatch.
+      it 'rejects a header declaring more frames than the cap' do
+        binary = build_binary([{ epoch: 1_711_619_400, sensor_type_id: 2, value: 1.0 }], count: max + 1)
+
+        expect_parse_error(
+          binary,
+          error_code: 'payload_too_large',
+          message: /count exceeds #{described_class::MAX_MEASUREMENTS}/,
+          measurement_count: max + 1,
+        )
       end
     end
 

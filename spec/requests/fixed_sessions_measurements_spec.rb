@@ -43,6 +43,57 @@ describe 'POST /api/v3/fixed_sessions/:fixed_session_uuid/measurements' do
     end
   end
 
+  # An AirBeamMini only drops a batch from flash once the server answers 2xx, so
+  # a rejection here stalls every later measurement behind it.
+  describe 'a payload the device stamped with an unset clock' do
+    before { sign_in user }
+
+    let(:stale_binary) do
+      stale = Time.utc(2019, 6, 1).to_i
+      payload = ["\xAB\xBA", 2].pack('a2n') +
+                [stale, 2, 10.0].pack('NCg') + [stale + 1, 2, 11.0].pack('NCg')
+      payload + [payload.bytes.inject(0, :^)].pack('C')
+    end
+
+    it 'answers 200 and stores nothing' do
+      expect {
+        post_measurements(uuid: session.uuid, body: stale_binary, headers: bearer(session.session_token))
+      }.not_to change(FixedMeasurement, :count)
+
+      expect(response).to have_http_status(:ok)
+    end
+  end
+
+  describe 'payload size cap' do
+    before { sign_in user }
+
+    let(:max) { FixedSessions::BinaryProtocol::Parser::MAX_MEASUREMENTS }
+
+    def build_binary_with(frame_count)
+      epoch = Time.current.to_i - frame_count
+      header = ["\xAB\xBA", frame_count].pack('a2n')
+      payload = header + Array.new(frame_count) { |i| [epoch + i, 1, 10.0].pack('NCg') }.join
+      payload + [payload.bytes.inject(0, :^)].pack('C')
+    end
+
+    it 'rejects a payload one frame over the cap and stores nothing' do
+      expect {
+        post_measurements(uuid: session.uuid, body: build_binary_with(max + 1), headers: bearer(session.session_token))
+      }.not_to change(FixedMeasurement, :count)
+
+      expect(response).to have_http_status(:payload_too_large)
+      expect(response.parsed_body['error_code']).to eq('payload_too_large')
+    end
+
+    # Decided on Content-Length alone, before the body is read and before the
+    # session is looked up — a wrong uuid still answers 413, not 404.
+    it 'answers before looking the session up' do
+      post_measurements(uuid: 'no-such-uuid', body: build_binary_with(max + 1), headers: bearer(session.session_token))
+
+      expect(response).to have_http_status(:payload_too_large)
+    end
+  end
+
   context 'when session does not exist' do
     before { sign_in user }
 
