@@ -17,6 +17,14 @@ module MobileSessions
       MAX_MEASUREMENTS = 3_000
       MAX_PAYLOAD_SIZE = HEADER_SIZE + (MAX_MEASUREMENTS * MEASUREMENT_SIZE) + 1 # 75_005 bytes
 
+      # An AirBeam whose RTC never got set sends 1970 or 2000 epochs. Those pass a
+      # zero check, get stored, and drag `start_time_local` back with them — and
+      # since session bounds only ever widen after the first batch, the session
+      # never recovers and every duration or range query over it is wrong. This
+      # protocol did not exist before 2020, so nothing legitimate predates it.
+      MIN_EPOCH = Time.utc(2020, 1, 1).to_i
+      MAX_EPOCH_SKEW = 86_400 # a phone clock may run ahead; a day is generous
+
       module ErrorCodes
         PAYLOAD_TOO_SHORT       = 'payload_too_short'
         PAYLOAD_TOO_LARGE       = 'payload_too_large'
@@ -73,7 +81,8 @@ module MobileSessions
             binary.byteslice(offset, MEASUREMENT_SIZE).unpack('NCgGG')
 
           raise ParseError.new(ErrorCodes::INVALID_EPOCH, "invalid epoch in frame #{i}: must be greater than zero", measurement_count: count) if ts.zero?
-          raise ParseError.new(ErrorCodes::INVALID_EPOCH, "invalid epoch in frame #{i}: implausibly far in the future", measurement_count: count) if ts > Time.current.to_i + 86_400
+          raise ParseError.new(ErrorCodes::INVALID_EPOCH, "invalid epoch in frame #{i}: implausibly far in the past", measurement_count: count) if ts < MIN_EPOCH
+          raise ParseError.new(ErrorCodes::INVALID_EPOCH, "invalid epoch in frame #{i}: implausibly far in the future", measurement_count: count) if ts > Time.current.to_i + MAX_EPOCH_SKEW
           raise ParseError.new(ErrorCodes::INVALID_VALUE, "invalid value in frame #{i}: not a finite number", measurement_count: count) unless value.finite?
           raise ParseError.new(ErrorCodes::INVALID_LOCATION, "invalid location in frame #{i}: coordinates out of range", measurement_count: count) unless valid_location?(latitude, longitude)
 

@@ -74,6 +74,20 @@ RSpec.describe MobileSessions::BinaryProtocol::Parser do
       .to raise_error(described_class::ParseError) { |e| expect(e.error_code).to eq(EC::INVALID_EPOCH) }
   end
 
+  # An AirBeam whose RTC never got set sends 1970 or 2000 epochs. Stored, they
+  # drag the session's start_time_local back with them, and since session bounds
+  # only widen after the first batch, it never recovers.
+  it 'raises invalid_epoch for a timestamp before the protocol existed' do
+    binary = payload([frame(epoch: Time.utc(2001, 1, 1).to_i, type_id: 2, value: 1.0, lat: 1.0, lng: 1.0)])
+    expect { parser.call(binary) }
+      .to raise_error(described_class::ParseError) { |e| expect(e.error_code).to eq(EC::INVALID_EPOCH) }
+  end
+
+  it 'accepts a timestamp on the floor itself' do
+    binary = payload([frame(epoch: described_class::MIN_EPOCH, type_id: 2, value: 1.0, lat: 1.0, lng: 1.0)])
+    expect(parser.call(binary).first[:epoch]).to eq(described_class::MIN_EPOCH)
+  end
+
   it 'raises invalid_value for a NaN value' do
     binary = payload([frame(epoch: epoch, type_id: 2, value: Float::NAN, lat: 1.0, lng: 1.0)])
     expect { parser.call(binary) }

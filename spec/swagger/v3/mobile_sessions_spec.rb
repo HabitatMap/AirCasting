@@ -724,6 +724,12 @@ RSpec.describe 'AirBeam Mobile Sessions', type: :request do
 
         Resending frames already stored is safe: a frame whose `(stream, timestamp)`
         is already present is skipped, and the aggregates do not count it twice.
+        The same holds inside one payload — a timestamp repeated in a single
+        request is stored once, keeping the first occurrence.
+
+        Timestamps must fall between 2020-01-01 UTC and 24 hours ahead of server
+        time. A device with an unset clock is rejected rather than stored, because
+        a bad timestamp permanently widens the session's time range.
 
         ## Size Limit
 
