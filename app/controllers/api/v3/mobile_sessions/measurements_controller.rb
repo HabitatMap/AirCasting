@@ -78,7 +78,7 @@ module Api
         end
 
         def find_session
-          current_user.mobile_sessions.find_by(uuid: params[:mobile_session_uuid])
+          current_user.mobile_sessions.by_uuid(params[:mobile_session_uuid]).first
         end
 
         def session_not_found

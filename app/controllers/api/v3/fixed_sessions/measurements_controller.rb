@@ -40,10 +40,8 @@ module Api
           token = bearer_token
           return unless token
 
-          @authenticated_session = FixedSession.find_by(
-            uuid: params[:fixed_session_uuid],
-            session_token: token,
-          )
+          @authenticated_session =
+            FixedSession.by_uuid(params[:fixed_session_uuid]).find_by(session_token: token)
         end
 
         def authenticate_user_from_bearer_token

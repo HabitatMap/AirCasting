@@ -21,7 +21,7 @@ module Api
       end
 
       def update
-        session = current_user.mobile_sessions.find_by(uuid: params[:uuid])
+        session = current_user.mobile_sessions.by_uuid(params[:uuid]).first
         return session_not_found unless session
 
         contract = Api::UpdateMobileSessionContract.new.call(
@@ -40,7 +40,7 @@ module Api
       end
 
       def destroy
-        session = current_user.mobile_sessions.find_by(uuid: params[:uuid])
+        session = current_user.mobile_sessions.by_uuid(params[:uuid]).first
         return session_not_found unless session
 
         # Cascades streams/measurements/notes and writes a deleted_sessions
@@ -80,7 +80,8 @@ module Api
         current_user
           .mobile_sessions
           .includes(:device, :tags, streams: :threshold_set)
-          .find_by(uuid: params[:uuid])
+          .by_uuid(params[:uuid])
+          .first
       end
 
       def session_not_found
