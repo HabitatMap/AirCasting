@@ -116,6 +116,48 @@ describe 'POST /api/v3/mobile_sessions/:mobile_session_uuid/measurements' do
     end
   end
 
+  describe 'payload size cap' do
+    let(:max) { ::MobileSessions::BinaryProtocol::Parser::MAX_MEASUREMENTS }
+
+    def build_binary_with(frame_count, epoch: Time.current.to_i - frame_count)
+      header = ["\xAB\xBA", frame_count].pack('a2n')
+      payload = header + Array.new(frame_count) { |i|
+        [epoch + i, 2, 12.5, 40.7128, -74.006].pack('NCgGG')
+      }.join
+      payload + [payload.bytes.inject(0, :^)].pack('C')
+    end
+
+    it 'accepts a payload of exactly the cap' do
+      expect {
+        post_measurements(uuid: session.uuid, body: build_binary_with(max), headers: bearer(user.authentication_token))
+      }.to change { stream.measurements.count }.by(max)
+
+      expect(response).to have_http_status(:ok)
+    end
+
+    it 'returns 413 one frame over the cap and stores nothing' do
+      expect {
+        post_measurements(
+          uuid: session.uuid,
+          body: build_binary_with(max + 1),
+          headers: bearer(user.authentication_token),
+        )
+      }.not_to change(Measurement, :count)
+
+      expect(response).to have_http_status(:payload_too_large)
+      expect(response.parsed_body['error_code']).to eq('payload_too_large')
+    end
+
+    # Content-Length alone decides this, so the request is refused before the
+    # body is read and before the session is looked up — a wrong uuid still
+    # answers 413, not 404.
+    it 'answers before looking the session up' do
+      post_measurements(uuid: 'no-such-uuid', body: build_binary_with(max + 1), headers: bearer(user.authentication_token))
+
+      expect(response).to have_http_status(:payload_too_large)
+    end
+  end
+
   describe 'sensor_type_id the session has no stream for' do
     it 'returns 400 unsupported_sensor_type and stores nothing' do
       expect {

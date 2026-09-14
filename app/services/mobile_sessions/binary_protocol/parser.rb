@@ -10,8 +10,16 @@ module MobileSessions
       HEADER_SIZE = 4  # 2 bytes magic + 2 bytes uint16 count
       MEASUREMENT_SIZE = 25 # 4 epoch + 1 type_id + 4 value + 8 lat + 8 lng
 
+      # Ten minutes of 1 Hz sampling across the five streams an AirBeam 3 records
+      # — the densest setup currently in the field. A client with more to send
+      # splits it across requests; each one is stored on its own, and resends are
+      # idempotent, so chunking costs nothing.
+      MAX_MEASUREMENTS = 3_000
+      MAX_PAYLOAD_SIZE = HEADER_SIZE + (MAX_MEASUREMENTS * MEASUREMENT_SIZE) + 1 # 75_005 bytes
+
       module ErrorCodes
         PAYLOAD_TOO_SHORT       = 'payload_too_short'
+        PAYLOAD_TOO_LARGE       = 'payload_too_large'
         INVALID_MAGIC_BYTES     = 'invalid_magic_bytes'
         EMPTY_MEASUREMENT_COUNT = 'empty_measurement_count'
         PAYLOAD_SIZE_MISMATCH   = 'payload_size_mismatch'
@@ -34,9 +42,15 @@ module MobileSessions
       def call(binary)
         raise ParseError.new(ErrorCodes::PAYLOAD_TOO_SHORT, 'payload too short') if binary.bytesize < HEADER_SIZE + 1
 
+        # Guarded here as well as in the controller: the controller rejects on
+        # Content-Length before reading the body, which a chunked request does not
+        # carry. The parser does not get to trust its caller either way.
+        raise ParseError.new(ErrorCodes::PAYLOAD_TOO_LARGE, "payload exceeds #{MAX_PAYLOAD_SIZE} bytes") if binary.bytesize > MAX_PAYLOAD_SIZE
+
         magic, count = binary.unpack('a2n')
         raise ParseError.new(ErrorCodes::INVALID_MAGIC_BYTES, 'magic bytes are not 0xAB 0xBA') unless magic == MAGIC
         raise ParseError.new(ErrorCodes::EMPTY_MEASUREMENT_COUNT, 'measurement count is zero') if count.zero?
+        raise ParseError.new(ErrorCodes::PAYLOAD_TOO_LARGE, "measurement count exceeds #{MAX_MEASUREMENTS}", measurement_count: count) if count > MAX_MEASUREMENTS
 
         raise ParseError.new(ErrorCodes::PAYLOAD_TOO_SHORT, 'payload too short', measurement_count: count) if binary.bytesize < HEADER_SIZE + MEASUREMENT_SIZE + 1
 

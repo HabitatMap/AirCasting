@@ -22,6 +22,7 @@ module Api
         'not_found' => :not_found,
         'session_not_found' => :not_found,
         'session_uuid_taken' => :conflict,
+        'payload_too_large' => :payload_too_large,
         'internal_error' => :internal_server_error,
       }.freeze
 

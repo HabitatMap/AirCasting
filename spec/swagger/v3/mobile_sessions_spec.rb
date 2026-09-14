@@ -719,7 +719,19 @@ RSpec.describe 'AirBeam Mobile Sessions', type: :request do
 
         On ingest the session's start/end are refined from the measurement bounds
         and the stream aggregates (bounding box, average, start coordinates) are
-        recomputed. An empty body returns 200 (reads server time from `X-Server-Time`).
+        folded forward from the frames in the request. An empty body returns 200
+        (reads server time from `X-Server-Time`).
+
+        Resending frames already stored is safe: a frame whose `(stream, timestamp)`
+        is already present is skipped, and the aggregates do not count it twice.
+
+        ## Size Limit
+
+        At most **3000 measurements** per request — ten minutes of 1 Hz sampling
+        across the five streams an AirBeam 3 records — so **75005 bytes**
+        (`4 + 3000 * 25 + 1`). Larger uploads are refused with `413`; split them
+        across requests. Order does not matter and resends are free, so a client
+        can chunk however it likes.
 
         ## Error Codes
 
@@ -729,6 +741,7 @@ RSpec.describe 'AirBeam Mobile Sessions', type: :request do
         | `session_not_found` | 404 | No mobile session with the given UUID for this user |
         | `unsupported_sensor_type` | 400 | A frame names a `sensor_type_id` this session has no stream for. Nothing is stored — re-read the session's streams and resend |
         | `payload_too_short` / `invalid_magic_bytes` / `empty_measurement_count` / `payload_size_mismatch` / `invalid_checksum` / `invalid_epoch` / `invalid_value` / `invalid_location` | 400 | Malformed payload |
+        | `payload_too_large` | 413 | More than 3000 measurements (or more than 75005 bytes). Nothing is stored — resend in smaller batches |
       DESC
 
       parameter name: :uuid, in: :path, type: :string, required: true,
@@ -792,6 +805,25 @@ RSpec.describe 'AirBeam Mobile Sessions', type: :request do
         let(:uuid) { session.uuid }
         let(:Authorization) { "Bearer #{user.authentication_token}" }
         let(:body) { build_mobile_measurement_binary(type_id: 99) }
+
+        run_test!
+      end
+
+      response '413', 'payload larger than one request may carry' do
+        schema ERROR_SCHEMA
+
+        let(:user) { create(:user) }
+        let(:session) { create(:mobile_session, user: user) }
+        let(:uuid) { session.uuid }
+        let(:Authorization) { "Bearer #{user.authentication_token}" }
+        # A header declaring more frames than the cap. Rejected on the count
+        # alone, so the example does not have to carry 75 KB of frames.
+        let(:body) do
+          over = ::MobileSessions::BinaryProtocol::Parser::MAX_MEASUREMENTS + 1
+          payload = ["\xAB\xBA", over].pack('a2n') +
+                    [Time.current.to_i, 2, 12.5, 40.7128, -74.006].pack('NCgGG')
+          payload + [payload.bytes.inject(0, :^)].pack('C')
+        end
 
         run_test!
       end

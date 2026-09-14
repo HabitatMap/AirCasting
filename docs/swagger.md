@@ -6,6 +6,7 @@
 |------|---------|
 | `spec/swagger/**/*_spec.rb` | **Source of truth.** Edit these to change API docs. One file per resource group. |
 | `spec/swagger/v3/fixed_sessions_spec.rb` | AirBeamMini fixed sessions binary flow (create + binary measurements). |
+| `spec/swagger/v3/mobile_sessions_spec.rb` | AirBeam mobile sessions: CRUD, list, and the binary measurements upload. |
 | `spec/swagger/v3/fixed_streams_spec.rb` | `GET /api/v3/fixed_streams/{id}` (AirBeam stream detail). |
 | `spec/swagger/v3/station_streams_spec.rb` | `GET /api/v3/station_streams/{id}` + `.../export` (government, new model). |
 | `spec/swagger/v3/measurements_spec.rb` | `GET /api/v3/fixed_measurements` + `station_measurements`. |

@@ -3,6 +3,7 @@ module Api
     module MobileSessions
       class MeasurementsController < BaseController
         ErrorCodes = ::MobileSessions::ErrorCodes
+        Parser = ::MobileSessions::BinaryProtocol::Parser
         around_action :with_server_time_header
         before_action :authenticate_user_from_bearer_token
         before_action :require_authentication!
@@ -23,6 +24,8 @@ module Api
         end
 
         def create
+          return payload_too_large if declared_size_over_limit?
+
           binary = request.body.read
           return head :ok if binary.empty?
 
@@ -46,6 +49,22 @@ module Api
         end
 
         private
+
+        # Answered before the body is read, so an oversized upload costs us the
+        # headers and nothing more. A request without Content-Length (chunked)
+        # gets past this and is caught by the parser instead, which by then has
+        # the session to report against.
+        def declared_size_over_limit?
+          request.content_length.to_i > Parser::MAX_PAYLOAD_SIZE
+        end
+
+        def payload_too_large
+          render_error(
+            Parser::ErrorCodes::PAYLOAD_TOO_LARGE,
+            "Payload exceeds #{Parser::MAX_PAYLOAD_SIZE} bytes " \
+            "(#{Parser::MAX_MEASUREMENTS} measurements); split it across requests",
+          )
+        end
 
         def require_authentication!
           return if current_user

@@ -4577,7 +4577,19 @@ paths:
 
         On ingest the session's start/end are refined from the measurement bounds
         and the stream aggregates (bounding box, average, start coordinates) are
-        recomputed. An empty body returns 200 (reads server time from `X-Server-Time`).
+        folded forward from the frames in the request. An empty body returns 200
+        (reads server time from `X-Server-Time`).
+
+        Resending frames already stored is safe: a frame whose `(stream, timestamp)`
+        is already present is skipped, and the aggregates do not count it twice.
+
+        ## Size Limit
+
+        At most **3000 measurements** per request — ten minutes of 1 Hz sampling
+        across the five streams an AirBeam 3 records — so **75005 bytes**
+        (`4 + 3000 * 25 + 1`). Larger uploads are refused with `413`; split them
+        across requests. Order does not matter and resends are free, so a client
+        can chunk however it likes.
 
         ## Error Codes
 
@@ -4587,6 +4599,7 @@ paths:
         | `session_not_found` | 404 | No mobile session with the given UUID for this user |
         | `unsupported_sensor_type` | 400 | A frame names a `sensor_type_id` this session has no stream for. Nothing is stored — re-read the session's streams and resend |
         | `payload_too_short` / `invalid_magic_bytes` / `empty_measurement_count` / `payload_size_mismatch` / `invalid_checksum` / `invalid_epoch` / `invalid_value` / `invalid_location` | 400 | Malformed payload |
+        | `payload_too_large` | 413 | More than 3000 measurements (or more than 75005 bytes). Nothing is stored — resend in smaller batches |
       parameters:
       - name: uuid
         in: path
@@ -4605,6 +4618,20 @@ paths:
           description: measurements stored (or empty body time-sync)
         '400':
           description: sensor_type_id has no stream on this session
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - error_code
+                - message
+                properties:
+                  error_code:
+                    type: string
+                  message:
+                    type: string
+        '413':
+          description: payload larger than one request may carry
           content:
             application/json:
               schema:
