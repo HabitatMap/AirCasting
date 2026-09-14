@@ -73,6 +73,139 @@ RSpec.describe MobileSessions::BinaryProtocol::Ingester do
     expect(session.end_time_local).to eq(Time.utc(2026, 8, 14, 6, 0, 0))
   end
 
+  describe 'incremental aggregates' do
+    let!(:other_stream) do
+      create(:stream, session: session, sensor_name: 'AirBeamMini-RH', sensor_type_id: 3)
+    end
+
+    it 'weights the running average by the rows already stored, not by batch' do
+      # 3 rows at 10.0, then 1 row at 20.0. Weighted mean is 12.5; a mean of the
+      # two batch means would be 15.0.
+      first_batch = payload([
+        frame(epoch: epoch, type_id: 2, value: 10.0, lat: 40.0, lng: -74.0),
+        frame(epoch: epoch + 1, type_id: 2, value: 10.0, lat: 40.0, lng: -74.0),
+        frame(epoch: epoch + 2, type_id: 2, value: 10.0, lat: 40.0, lng: -74.0),
+      ])
+      second_batch = payload([frame(epoch: epoch + 3, type_id: 2, value: 20.0, lat: 40.0, lng: -74.0)])
+
+      ingester.call(session: session, binary: first_batch)
+      ingester.call(session: session, binary: second_batch)
+
+      stream.reload
+      expect(stream.measurements_count).to eq(4)
+      expect(stream.average_value).to be_within(0.001).of(12.5)
+      expect(stream.average_value).to be_within(0.001).of(Measurement.where(stream_id: stream.id).average(:value))
+    end
+
+    it 'widens stream bounds across batches and never narrows them' do
+      wide = payload([
+        frame(epoch: epoch, type_id: 2, value: 1.0, lat: 40.0, lng: -75.0),
+        frame(epoch: epoch + 1, type_id: 2, value: 1.0, lat: 42.0, lng: -73.0),
+      ])
+      narrow = payload([frame(epoch: epoch + 2, type_id: 2, value: 1.0, lat: 41.0, lng: -74.0)])
+
+      ingester.call(session: session, binary: wide)
+      ingester.call(session: session, binary: narrow)
+
+      stream.reload
+      expect(stream.min_latitude).to be_within(1e-6).of(40.0)
+      expect(stream.max_latitude).to be_within(1e-6).of(42.0)
+      expect(stream.min_longitude).to be_within(1e-6).of(-75.0)
+      expect(stream.max_longitude).to be_within(1e-6).of(-73.0)
+    end
+
+    it 'keeps start coordinates on the earliest measurement when an older batch backfills' do
+      later = payload([frame(epoch: epoch + 3600, type_id: 2, value: 1.0, lat: 41.0, lng: -75.0)])
+      earlier = payload([frame(epoch: epoch, type_id: 2, value: 1.0, lat: 40.0, lng: -74.0)])
+
+      ingester.call(session: session, binary: later)
+      ingester.call(session: session, binary: earlier)
+
+      stream.reload
+      expect(stream.start_latitude).to be_within(1e-6).of(40.0)
+      expect(stream.start_longitude).to be_within(1e-6).of(-74.0)
+    end
+
+    it 'increments measurements_count rather than replacing it' do
+      # Rows this ingester did not write. update_counters emits
+      # `SET measurements_count = COALESCE(measurements_count, 0) + $1`, so the
+      # batch has to add to these, not stand in for them.
+      Stream.update_counters(stream.id, measurements_count: 5)
+
+      binary = payload([
+        frame(epoch: epoch, type_id: 2, value: 10.0, lat: 40.0, lng: -74.0),
+        frame(epoch: epoch + 1, type_id: 2, value: 10.0, lat: 40.0, lng: -74.0),
+      ])
+      ingester.call(session: session, binary: binary)
+
+      expect(stream.reload.measurements_count).to eq(7)
+    end
+
+    # measurements_count is a counter_cache column, so Rails marks it readonly and
+    # raises on any attempt to assign it — the aggregate update cannot clobber the
+    # increment even if it wanted to. What is worth pinning is the shape of the
+    # writes: exactly one COALESCE increment per stream per batch, and an aggregate
+    # UPDATE that leaves the column alone. Swapping update_counters for a raw
+    # update_all would satisfy neither.
+    it 'keeps measurements_count out of the aggregate update' do
+      statements = []
+      subscriber = ActiveSupport::Notifications.subscribe('sql.active_record') do |*, payload|
+        statements << payload[:sql] if payload[:sql].to_s.include?('UPDATE "streams"')
+      end
+
+      begin
+        binary = payload([frame(epoch: epoch, type_id: 2, value: 10.0, lat: 40.0, lng: -74.0)])
+        ingester.call(session: session, binary: binary)
+      ensure
+        ActiveSupport::Notifications.unsubscribe(subscriber)
+      end
+
+      counter_updates, aggregate_updates = statements.partition { |sql| sql.include?('COALESCE') }
+
+      expect(counter_updates.size).to eq(1)
+      expect(aggregate_updates).not_to be_empty
+      expect(aggregate_updates.select { |sql| sql.include?('measurements_count') }).to be_empty
+    end
+
+    it 'tracks each stream separately' do
+      binary = payload([
+        frame(epoch: epoch, type_id: 2, value: 10.0, lat: 40.0, lng: -74.0),
+        frame(epoch: epoch, type_id: 3, value: 50.0, lat: 40.0, lng: -74.0),
+      ])
+
+      ingester.call(session: session, binary: binary)
+
+      expect(stream.reload.average_value).to be_within(0.001).of(10.0)
+      expect(other_stream.reload.average_value).to be_within(0.001).of(50.0)
+    end
+  end
+
+  describe 'advisory locking' do
+    let!(:other_stream) do
+      create(:stream, session: session, sensor_name: 'AirBeamMini-RH', sensor_type_id: 3)
+    end
+
+    # Serialises concurrent uploads for the same stream. `measurements` has no
+    # unique constraint on (stream_id, time), so reject_existing is a plain
+    # read-then-write and the aggregate update is a read-modify-write; neither is
+    # safe without this.
+    it 'takes one transaction-scoped lock per stream, in stream id order' do
+      locked = []
+      allow(ActiveRecord::Base.connection).to receive(:execute).and_wrap_original do |original, sql, *args|
+        locked << Regexp.last_match(1).to_i if sql =~ /pg_advisory_xact_lock\(\d+, (\d+)\)/
+        original.call(sql, *args)
+      end
+
+      binary = payload([
+        frame(epoch: epoch, type_id: 3, value: 50.0, lat: 40.0, lng: -74.0),
+        frame(epoch: epoch, type_id: 2, value: 10.0, lat: 40.0, lng: -74.0),
+      ])
+      ingester.call(session: session, binary: binary)
+
+      expect(locked).to eq([stream.id, other_stream.id].sort)
+    end
+  end
+
   it 'is idempotent on resend — no duplicate rows, no counter inflation' do
     binary = payload([frame(epoch: epoch, type_id: 2, value: 1.0, lat: 40.0, lng: -74.0)])
     ingester.call(session: session, binary: binary)

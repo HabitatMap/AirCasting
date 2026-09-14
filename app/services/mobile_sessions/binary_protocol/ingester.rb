@@ -1,15 +1,22 @@
 module MobileSessions
   module BinaryProtocol
     # Ingests parsed mobile binary frames into the legacy `measurements` table
-    # (per-point location included), then refreshes stream aggregates and the
+    # (per-point location included), then updates stream aggregates and the
     # session's start/end bounds — mirroring how FixedSessions ingest works, but
     # writing `measurements` (with location) instead of `fixed_measurements`.
     #
     # Resends are supported (the endpoint syncs measurements the AirBeam delivered
     # late), so ingest is idempotent: frames whose (stream_id, time) already exists
-    # are skipped. Aggregates and session bounds are recomputed with SQL so cost is
-    # independent of session size.
+    # are skipped. `measurements` carries no unique constraint to lean on, so that
+    # check is a read followed by a write and only holds under the per-stream
+    # advisory lock taken below.
+    #
+    # Aggregates are folded forward from the batch rather than recomputed, so the
+    # cost of an upload tracks the frames it carries, not the size of the session.
     class Ingester
+      # Namespace for pg_advisory_xact_lock so a stream id cannot collide with an
+      # unrelated advisory lock elsewhere in the cluster. 0x4D454153 == "MEAS".
+      ADVISORY_LOCK_NAMESPACE = 0x4D454153
 
       def initialize(
         parser: Parser.new,
@@ -48,22 +55,29 @@ module MobileSessions
         return reject_unknown_sensor_types(session, unknown_type_ids) if unknown_type_ids.any?
 
         factory = RGeo::Geographic.spherical_factory(srid: 4326)
-        touched_streams = []
+        inserted_for_session = []
+        # Whether the session already has data decides how its bounds move: see
+        # apply_session_times.
+        had_measurements = session.streams.sum(:measurements_count).positive?
 
         ActiveRecord::Base.transaction do
-          grouped.each do |type_id, type_measurements|
+          # Sorted by stream id so two uploads touching the same pair of streams
+          # always take the locks in the same order and cannot deadlock.
+          ordered_by_stream_id(grouped, streams).each do |type_id, type_measurements|
             stream = streams.fetch(type_id)
+            lock_stream(stream)
 
             records = reject_existing(stream, build_records(type_measurements, session, stream, factory))
             next if records.empty?
 
-            imported = import(session, stream, records)
-            Stream.update_counters(stream.id, measurements_count: imported) if imported.positive?
-            touched_streams << stream
+            inserted = import(session, stream, records)
+            next if inserted.empty?
+
+            apply_stream_aggregates(stream, inserted)
+            inserted_for_session.concat(inserted)
           end
 
-          refresh_stream_aggregates(touched_streams)
-          refresh_session_times(session)
+          apply_session_times(session, inserted_for_session, widen: had_measurements)
         end
 
         Success.new('measurements ingested')
@@ -80,6 +94,18 @@ module MobileSessions
           )
           acc[type_id] = stream if stream
         end
+      end
+
+      def ordered_by_stream_id(grouped, streams)
+        grouped.sort_by { |type_id, _| streams.fetch(type_id).id }
+      end
+
+      # Transaction-scoped: released on commit or rollback, so it cannot leak on a
+      # pooled connection the way session-scoped pg_advisory_lock would.
+      def lock_stream(stream)
+        ActiveRecord::Base.connection.execute(
+          "SELECT pg_advisory_xact_lock(#{ADVISORY_LOCK_NAMESPACE}, #{stream.id.to_i})",
+        )
       end
 
       def reject_unknown_sensor_types(session, unknown_type_ids)
@@ -115,6 +141,8 @@ module MobileSessions
       end
 
       # Idempotent resend: drop frames whose (stream_id, time) already exists.
+      # Safe only because the caller holds the stream's advisory lock — without it
+      # two uploads of the same frames both read "absent" and both insert.
       def reject_existing(stream, records)
         return records if records.empty?
 
@@ -127,8 +155,16 @@ module MobileSessions
         records.reject { |record| existing.include?(record.time.to_i) }
       end
 
+      # Returns the records that actually landed. `on_duplicate_key_ignore` is a
+      # no-op until the partial unique index on (stream_id, time) exists; it is in
+      # place so the index can be added without a code change.
+      #
+      # Note rows the database ignores are *not* reported in `failed_instances`.
+      # Subtracting them is only correct while `reject_existing` guarantees no
+      # conflicts reach the insert — drop that and this has to read the inserted
+      # rows back via `returning:`.
       def import(session, stream, records)
-        result = Measurement.import(records)
+        result = Measurement.import(records, on_duplicate_key_ignore: true)
         if result.failed_instances.any?
           monitor.report_import_failure(
             session: session,
@@ -137,41 +173,67 @@ module MobileSessions
             message: result.failed_instances.first&.errors&.full_messages&.join(', '),
           )
         end
-        records.size - result.failed_instances.size
+        records - result.failed_instances
       end
 
-      # SQL aggregates — cost independent of session size (no row materialization).
-      def refresh_stream_aggregates(streams)
-        streams.each do |stream|
-          min_lat, max_lat, min_lng, max_lng, average = stream.measurements.reorder(nil).pick(
-            Arel.sql('MIN(latitude)'), Arel.sql('MAX(latitude)'),
-            Arel.sql('MIN(longitude)'), Arel.sql('MAX(longitude)'),
-            Arel.sql('AVG(value)'),
-          )
-          start_coords = stream.measurements.order(time: :asc).limit(1).pick(:latitude, :longitude)
+      # Folded forward from the batch: bounds widen, the mean is a running mean
+      # weighted by the row count the stream already had. Only the start
+      # coordinates need a read, and that one is an index seek on
+      # (stream_id, time) for a single row.
+      def apply_stream_aggregates(stream, records)
+        previous_count = stream.measurements_count.to_i
+        latitudes = records.map(&:latitude)
+        longitudes = records.map(&:longitude)
 
-          stream.update!(
-            min_latitude: min_lat,
-            max_latitude: max_lat,
-            min_longitude: min_lng,
-            max_longitude: max_lng,
-            average_value: average,
-            start_latitude: start_coords&.first,
-            start_longitude: start_coords&.last,
-          )
-        end
+        stream.update!(
+          min_latitude: smallest(stream.min_latitude, latitudes.min),
+          max_latitude: largest(stream.max_latitude, latitudes.max),
+          min_longitude: smallest(stream.min_longitude, longitudes.min),
+          max_longitude: largest(stream.max_longitude, longitudes.max),
+          average_value: running_average(stream.average_value, previous_count, records.map(&:value)),
+          **start_coordinates(stream),
+        )
+
+        Stream.update_counters(stream.id, measurements_count: records.size)
       end
 
-      # True bounds from all of the session's measurements — correct regardless of
-      # upload order or late/bulk backfill (unlike a seed-vs-batch min/max).
-      def refresh_session_times(session)
-        first, last = Measurement
-          .where(stream_id: session.streams.select(:id))
-          .reorder(nil)
-          .pick(Arel.sql('MIN(time)'), Arel.sql('MAX(time)'))
-        return unless first
+      # Weighted by `measurements_count`, so it is exact for a session that starts
+      # empty and only as good as that counter for anything pre-existing.
+      def running_average(previous_average, previous_count, values)
+        batch_sum = values.sum(0.0)
+        return batch_sum / values.size if previous_average.nil? || previous_count <= 0
 
-        session.update!(start_time_local: first, end_time_local: last)
+        ((previous_average.to_f * previous_count) + batch_sum) / (previous_count + values.size)
+      end
+
+      def start_coordinates(stream)
+        latitude, longitude = stream.measurements.order(time: :asc).limit(1).pick(:latitude, :longitude)
+        { start_latitude: latitude, start_longitude: longitude }
+      end
+
+      # Equivalent to the MIN/MAX over every measurement this used to run, without
+      # the scan. The first batch replaces the bounds the client declared at
+      # session creation, which are a guess; every later batch only widens them,
+      # so a late or out-of-order upload cannot pull the session in around the
+      # frames it happens to carry.
+      def apply_session_times(session, records, widen:)
+        return if records.empty?
+
+        times = records.map(&:time)
+        return session.update!(start_time_local: times.min, end_time_local: times.max) unless widen
+
+        session.update!(
+          start_time_local: smallest(session.start_time_local, times.min),
+          end_time_local: largest(session.end_time_local, times.max),
+        )
+      end
+
+      def smallest(*values)
+        values.compact.min
+      end
+
+      def largest(*values)
+        values.compact.max
       end
     end
   end

@@ -171,15 +171,18 @@ class Stream < ApplicationRecord
         )
       end
 
-    result = Measurement.import measurements
+    # `on_duplicate_key_ignore` is a no-op until the partial unique index on
+    # (stream_id, time) exists. It is in place first so that adding the index
+    # cannot turn a resend into a RecordNotUnique that aborts the whole batch.
+    result = Measurement.import measurements, on_duplicate_key_ignore: true
     if result.failed_instances.any?
       Rails
         .logger.warn "Measurement.import failed for: #{result.failed_instances}"
     end
-    Stream.update_counters(
-      self.id,
-      measurements_count: measurements.size - result.failed_instances.size,
-    )
+    # Rows the database ignores are absent from `failed_instances`, so counting
+    # them out of `measurements.size` would overstate the total. `ids` holds only
+    # what was actually inserted.
+    Stream.update_counters(self.id, measurements_count: result.ids.size)
   end
 
   def self.thresholds(sensor_name, unit_symbol)
