@@ -8,6 +8,7 @@ module Api
       UNAUTHORIZED     = 'unauthorized'
       NOT_FOUND        = 'not_found'
       INTERNAL_ERROR   = 'internal_error'
+      TRY_AGAIN_LATER  = 'try_again_later'
     end
   end
 end

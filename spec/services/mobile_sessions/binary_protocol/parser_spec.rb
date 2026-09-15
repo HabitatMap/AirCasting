@@ -74,6 +74,19 @@ RSpec.describe MobileSessions::BinaryProtocol::Parser do
       .to raise_error(described_class::ParseError) { |e| expect(e.error_code).to eq(EC::INVALID_EPOCH) }
   end
 
+  # An AirBeam whose RTC never got set sends 1970 or 2000 epochs, which drag
+  # start_time_local back with them for good, since session bounds only widen.
+  it 'raises invalid_epoch for a timestamp before the protocol existed' do
+    binary = payload([frame(epoch: Time.utc(2001, 1, 1).to_i, type_id: 2, value: 1.0, lat: 1.0, lng: 1.0)])
+    expect { parser.call(binary) }
+      .to raise_error(described_class::ParseError) { |e| expect(e.error_code).to eq(EC::INVALID_EPOCH) }
+  end
+
+  it 'accepts a timestamp on the floor itself' do
+    binary = payload([frame(epoch: described_class::MIN_EPOCH, type_id: 2, value: 1.0, lat: 1.0, lng: 1.0)])
+    expect(parser.call(binary).first[:epoch]).to eq(described_class::MIN_EPOCH)
+  end
+
   it 'raises invalid_value for a NaN value' do
     binary = payload([frame(epoch: epoch, type_id: 2, value: Float::NAN, lat: 1.0, lng: 1.0)])
     expect { parser.call(binary) }
@@ -84,6 +97,49 @@ RSpec.describe MobileSessions::BinaryProtocol::Parser do
     binary = payload([frame(epoch: epoch, type_id: 2, value: 1.0, lat: 200.0, lng: 20.0)])
     expect { parser.call(binary) }
       .to raise_error(described_class::ParseError) { |e| expect(e.error_code).to eq(EC::INVALID_LOCATION) }
+  end
+
+  describe 'payload caps' do
+    let(:max) { described_class::MAX_MEASUREMENTS }
+
+    def uniform_frames(n)
+      Array.new(n) { |i| frame(epoch: epoch + i, type_id: 2, value: 1.0, lat: 1.0, lng: 1.0) }
+    end
+
+    it 'accepts a payload of exactly MAX_MEASUREMENTS frames' do
+      binary = payload(uniform_frames(max))
+
+      expect(binary.bytesize).to eq(described_class::MAX_PAYLOAD_SIZE)
+      expect(parser.call(binary).size).to eq(max)
+    end
+
+    it 'raises payload_too_large one frame over the cap' do
+      binary = payload(uniform_frames(max + 1))
+
+      expect(binary.bytesize).to be > described_class::MAX_PAYLOAD_SIZE
+      expect { parser.call(binary) }
+        .to raise_error(described_class::ParseError) { |e| expect(e.error_code).to eq(EC::PAYLOAD_TOO_LARGE) }
+    end
+
+    # The byte check cannot see a lying header, and the count check has to precede
+    # the size-mismatch check or the answer is the misleading size mismatch.
+    it 'raises payload_too_large for an oversized count on a small payload' do
+      binary = payload(uniform_frames(1), count: max + 1)
+
+      expect(binary.bytesize).to be < described_class::MAX_PAYLOAD_SIZE
+      expect { parser.call(binary) }.to raise_error(described_class::ParseError) do |e|
+        expect(e.error_code).to eq(EC::PAYLOAD_TOO_LARGE)
+        expect(e.measurement_count).to eq(max + 1)
+      end
+    end
+
+    # uint16 caps the header count at 65_535; nothing is allocated for it either way.
+    it 'raises payload_too_large for the largest count the header can hold' do
+      binary = payload(uniform_frames(1), count: 65_535)
+
+      expect { parser.call(binary) }
+        .to raise_error(described_class::ParseError) { |e| expect(e.error_code).to eq(EC::PAYLOAD_TOO_LARGE) }
+    end
   end
 
   it 'raises invalid_checksum when the trailing byte is wrong' do

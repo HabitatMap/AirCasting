@@ -7,6 +7,12 @@ module MobileSessions
   class MeasurementsQuery
     DEFAULT_WINDOW = 24.hours
 
+    # A 1 Hz session fills the default window with 86_400 points per stream, and
+    # every one of them would be built into a Ruby hash and rendered into one JSON
+    # array. The newest are the ones worth keeping; a client that wants more pages
+    # backwards with `end_time`.
+    MAX_POINTS_PER_STREAM = 10_000
+
     def initialize(session:, sensor_name: nil, measurement_type: nil, start_time: nil, end_time: nil)
       @session = session
       @sensor_name = sensor_name
@@ -40,8 +46,10 @@ module MobileSessions
       stream
         .measurements
         .where(time: window)
-        .order(:time)
+        .reorder(time: :desc)
+        .limit(MAX_POINTS_PER_STREAM)
         .pluck(:time, :value, :latitude, :longitude)
+        .reverse
         .map { |time, value, latitude, longitude| { time: time, value: value, latitude: latitude, longitude: longitude } }
     end
 
@@ -51,8 +59,11 @@ module MobileSessions
       start..finish
     end
 
+    # `measurements.time` holds the session's local time in a UTC column, which is
+    # what `start_time_local` and the ingester both write. An epoch is a real UTC
+    # instant, so comparing it raw would miss the window by the session's offset.
     def epoch_ms(value)
-      Time.at(value.to_f / 1000)
+      Utils.to_local_as_utc(Time.at(value.to_f / 1000), session.time_zone)
     end
   end
 end

@@ -29,3 +29,39 @@
 | POST | `/api/user/sessions/update_session.json` | Update an existing session | — | ✓ |
 | POST | `/api/user/settings` | Update user settings | ✓ | ✓ |
 | POST | `/users/password.json` | Forgot password — send reset email | ✓ | ✓ |
+
+## v3 endpoints, not yet called by a shipped client
+
+The table above lists what the released iOS and Android builds call. The v3
+mobile-session API is finished and documented but no shipped client uses it
+yet, so it has no column here — it gets rows once a build calls it.
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| POST | `/api/v3/mobile_sessions` | Create a mobile session and its streams |
+| GET | `/api/v3/mobile_sessions` | List the caller's mobile sessions |
+| GET | `/api/v3/mobile_sessions/{uuid}` | One session with stream metadata, no measurements |
+| PATCH | `/api/v3/mobile_sessions/{uuid}` | Update title, tags, notes |
+| DELETE | `/api/v3/mobile_sessions/{uuid}` | Delete a session and record a tombstone |
+| GET | `/api/v3/mobile_sessions/{uuid}/measurements` | Measurements keyed by `sensor_name` |
+| POST | `/api/v3/mobile_sessions/{uuid}/measurements` | Upload binary measurements (25-byte frames, 3000 max per request) |
+| POST | `/api/v3/fixed_sessions` | Create a fixed session and its streams |
+| POST | `/api/v3/fixed_sessions/{uuid}/measurements` | Upload binary measurements (9-byte frames, 6000 max per request) |
+
+Request and response shapes are in `swagger/swagger.yaml`; the source is
+`spec/swagger/v3/mobile_sessions_spec.rb` and `spec/swagger/v3/fixed_sessions_spec.rb`.
+
+### Binary upload, decided once
+
+- A frame carries one reading, written to `measurements.value` /
+  `fixed_measurements.value`. **`measurements.measured_value` stays NULL.** Its
+  last writers were the AirNow and OpenAQ importers deleted in `57afa615b`, and
+  they set it equal to `value`; nothing in `app/` writes or reads it now, and no
+  response serialiser emits it (iOS decodes it as an optional). The frame has no
+  second field to put there — adding one is a protocol change, not a column
+  default.
+- `measurements.time` is local-as-UTC (`Utils.to_local_as_utc`), derived from the
+  frame's UTC epoch and the session's `time_zone`; `time_with_time_zone` keeps
+  the real instant.
+- Resends are idempotent by design, so a client with more than the per-request
+  cap splits across requests rather than asking for a larger cap.

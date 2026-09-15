@@ -22,7 +22,7 @@ RSpec.describe 'Mobile app — account & auth', type: :request do
     get 'Sign in (fetch the current user)' do
       tags 'Mobile app: Account & auth'
       produces 'application/json'
-      description 'Returns the authenticated user. Auth: `Token token=<user_token>` via HTTP Basic (token as username, "X" as password).'
+      description 'Returns the authenticated user. Auth: HTTP Basic with the user token as the username and a literal `X` as the password (legacy scheme; /api/v3 uses `Bearer <user_token>`).'
 
       response '200', 'user' do
         schema USER_SCHEMA

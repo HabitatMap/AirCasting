@@ -6,13 +6,17 @@ info:
   description: Endpoints used by the AirCasting mobile apps and web frontend.
 components:
   securitySchemes:
-    token_auth:
-      type: apiKey
-      in: header
-      name: Authorization
-      description: Token token=<user_token>
+    bearer_auth:
+      type: http
+      scheme: bearer
+      description: "`Authorization: Bearer <user_token>` (RFC 6750). The token is
+        returned by sign-in and never rotates."
+    basic_auth:
+      type: http
+      scheme: basic
+      description: '**Deprecated.** `Authorization: Basic base64("<user_token>:X")`.'
 security:
-- token_auth: []
+- bearer_auth: []
 tags:
 - name: 'Mobile app: Account & auth'
   description: 'iOS/Android: sign in/up, user settings, account deletion, password
@@ -871,8 +875,9 @@ paths:
       summary: Sign in (fetch the current user)
       tags:
       - 'Mobile app: Account & auth'
-      description: 'Returns the authenticated user. Auth: `Token token=<user_token>`
-        via HTTP Basic (token as username, "X" as password).'
+      description: 'Returns the authenticated user. Auth: HTTP Basic with the user
+        token as the username and a literal `X` as the password (legacy scheme; /api/v3
+        uses `Bearer <user_token>`).'
       responses:
         '200':
           description: user
@@ -3061,12 +3066,17 @@ paths:
         | `validation_error` | 400 | Malformed body, or a stream with no `thresholds` and no seeded default | Client bug — do not retry unchanged |
         | `session_uuid_taken` | 409 | The `uuid` is already in use | Stop retrying; continue with the existing session |
         | `unsupported_sensor_type` | 400 | A `sensor_name` is not a known AirBeam sensor | Unrecoverable |
-        | `internal_error` | 500 | Unresolvable write conflict, or a rival create still in flight | Retry with backoff |
+        | `try_again_later` | 503 | A rival create is still in flight | Retry after the `Retry-After` header (seconds) |
+        | `internal_error` | 500 | Unresolvable write conflict | Retry with backoff |
+      security:
+      - bearer_auth: []
+      - basic_auth: []
       parameters:
       - name: Authorization
         in: header
         required: true
-        description: Token token=<user_token>
+        description: '`Bearer <user_token>`. `Basic base64("<user_token>:X")` also
+          works here, deprecated.'
         schema:
           type: string
       responses:
@@ -3294,6 +3304,14 @@ paths:
         **Resend behaviour:** sending a measurement with an already-stored
         `(stream_id, time_with_time_zone)` pair is silently ignored — no duplicate is created.
 
+        **Size limit:** at most 6000 frames (54005 bytes) per request. A larger backlog
+        is split across requests; each is stored on its own and resends are idempotent.
+
+        **Unusable timestamps:** a frame whose epoch is zero, before 2020-01-01 UTC, or
+        more than 24 hours ahead of server time is dropped and the rest of the payload is
+        stored; the response is still 200. A device with an unset clock therefore keeps
+        draining its backlog instead of stalling on a batch the server refuses.
+
         **Time synchronisation:** an empty body is valid and returns 200 immediately. The AirBeamMini
         uses this to read the current server time from the `X-Server-Time` response header
         (Unix epoch, UTC) when its clock drifts.
@@ -3311,8 +3329,9 @@ paths:
         | `empty_measurement_count` | 400 | Frame count field in header is zero |
         | `payload_size_mismatch` | 400 | Actual payload size does not match the declared frame count |
         | `invalid_checksum` | 400 | XOR checksum of payload does not match the final byte |
-        | `invalid_epoch` | 400 | A frame's timestamp is zero or implausibly far in the future |
         | `invalid_value` | 400 | A frame's sensor value is NaN or Infinity |
+        | `payload_too_large` | 413 | More than 6000 frames, or a body over 54005 bytes. Nothing is stored — resend in smaller batches |
+        | `try_again_later` | 503 | A rival writer held the session for longer than the server waits. Nothing is stored — resend after the `Retry-After` header (seconds) |
       parameters:
       - name: uuid
         in: path
@@ -3323,8 +3342,9 @@ paths:
       - name: Authorization
         in: header
         required: true
-        description: 'Mobile app: `Token token=<user_token>`. AirBeam: `Bearer <session_token>`
-          (returned by session creation endpoint).'
+        description: 'AirBeam: `Bearer <session_token>` (returned by session creation),
+          matched against this UUID first so it can never act as an account-wide credential.
+          Mobile app: `Bearer <user_token>`.'
         schema:
           type: string
       responses:
@@ -3332,6 +3352,20 @@ paths:
           description: measurements stored (or empty body time-sync)
         '400':
           description: invalid payload or unknown sensor_type_id
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - error_code
+                - message
+                properties:
+                  error_code:
+                    type: string
+                  message:
+                    type: string
+        '413':
+          description: payload larger than one request may carry
           content:
             application/json:
               schema:
@@ -3694,7 +3728,7 @@ paths:
       - name: Authorization
         in: header
         required: true
-        description: Token token=<user_token>
+        description: Bearer <user_token>
         schema:
           type: string
       - name: page
@@ -3892,12 +3926,13 @@ paths:
         | `validation_error` | 400 | Malformed body, or a custom sensor with no `thresholds` and no seeded default | Client bug — do not retry unchanged |
         | `session_uuid_taken` | 409 | The `uuid` is already in use | Stop retrying; continue with the existing session |
         | `unsupported_sensor_type` | 400 | Unknown `sensor_name`, or more custom sensors than the 100–255 range holds | Unrecoverable |
-        | `internal_error` | 500 | Unresolvable write conflict, or a rival create still in flight | Retry with backoff |
+        | `try_again_later` | 503 | A rival create is still in flight | Retry after the `Retry-After` header (seconds) |
+        | `internal_error` | 500 | Unresolvable write conflict | Retry with backoff |
       parameters:
       - name: Authorization
         in: header
         required: true
-        description: Token token=<user_token>
+        description: Bearer <user_token>
         schema:
           type: string
       responses:
@@ -4143,7 +4178,7 @@ paths:
       - name: Authorization
         in: header
         required: true
-        description: Token token=<user_token>
+        description: Bearer <user_token>
         schema:
           type: string
       responses:
@@ -4261,7 +4296,7 @@ paths:
       - name: Authorization
         in: header
         required: true
-        description: Token token=<user_token>
+        description: Bearer <user_token>
         schema:
           type: string
       responses:
@@ -4401,7 +4436,7 @@ paths:
       - name: Authorization
         in: header
         required: true
-        description: Token token=<user_token>
+        description: Bearer <user_token>
         schema:
           type: string
       responses:
@@ -4455,7 +4490,7 @@ paths:
       - name: Authorization
         in: header
         required: true
-        description: Token token=<user_token>
+        description: Bearer <user_token>
         schema:
           type: string
       - name: sensor_name
@@ -4567,7 +4602,25 @@ paths:
 
         On ingest the session's start/end are refined from the measurement bounds
         and the stream aggregates (bounding box, average, start coordinates) are
-        recomputed. An empty body returns 200 (reads server time from `X-Server-Time`).
+        folded forward from the frames in the request. An empty body returns 200
+        (reads server time from `X-Server-Time`).
+
+        Resending frames already stored is safe: a frame whose `(stream, timestamp)`
+        is already present is skipped, and the aggregates do not count it twice.
+        The same holds inside one payload — a timestamp repeated in a single
+        request is stored once, keeping the first occurrence.
+
+        Timestamps must fall between 2020-01-01 UTC and 24 hours ahead of server
+        time. A device with an unset clock is rejected rather than stored, because
+        a bad timestamp permanently widens the session's time range.
+
+        ## Size Limit
+
+        At most **3000 measurements** per request — ten minutes of 1 Hz sampling
+        across the five streams an AirBeam 3 records — so **75005 bytes**
+        (`4 + 3000 * 25 + 1`). Larger uploads are refused with `413`; split them
+        across requests. Order does not matter and resends are free, so a client
+        can chunk however it likes.
 
         ## Error Codes
 
@@ -4575,7 +4628,10 @@ paths:
         |---|---|---|
         | `unauthorized` | 401 | Missing or invalid `Authorization` token |
         | `session_not_found` | 404 | No mobile session with the given UUID for this user |
+        | `unsupported_sensor_type` | 400 | A frame names a `sensor_type_id` this session has no stream for. Nothing is stored — re-read the session's streams and resend |
         | `payload_too_short` / `invalid_magic_bytes` / `empty_measurement_count` / `payload_size_mismatch` / `invalid_checksum` / `invalid_epoch` / `invalid_value` / `invalid_location` | 400 | Malformed payload |
+        | `payload_too_large` | 413 | More than 3000 measurements (or more than 75005 bytes). Nothing is stored — resend in smaller batches |
+        | `try_again_later` | 503 | A rival upload held this session's streams for longer than the server waits. Nothing is stored — resend after the `Retry-After` header (seconds) |
       parameters:
       - name: uuid
         in: path
@@ -4586,14 +4642,28 @@ paths:
       - name: Authorization
         in: header
         required: true
-        description: Token token=<user_token>
+        description: Bearer <user_token>
         schema:
           type: string
       responses:
         '200':
           description: measurements stored (or empty body time-sync)
         '400':
-          description: invalid payload
+          description: sensor_type_id has no stream on this session
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - error_code
+                - message
+                properties:
+                  error_code:
+                    type: string
+                  message:
+                    type: string
+        '413':
+          description: payload larger than one request may carry
           content:
             application/json:
               schema:

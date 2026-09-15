@@ -22,12 +22,41 @@ module Api
         'not_found' => :not_found,
         'session_not_found' => :not_found,
         'session_uuid_taken' => :conflict,
+        'payload_too_large' => :payload_too_large,
+        'try_again_later' => :service_unavailable,
         'internal_error' => :internal_server_error,
       }.freeze
 
       DEFAULT_ERROR_STATUS = :bad_request
 
+      # Longer than the longest lock_timeout the services wait on (3s in the
+      # creators, 1s in the ingesters), so a client that honours it comes back
+      # after the rival transaction has ended either way.
+      RETRY_AFTER_SECONDS = 5
+
       private
+
+      def authenticate_user_from_bearer_token
+        return if current_user
+        return if bearer_token.blank?
+
+        user = User.find_by(authentication_token: bearer_token)
+        sign_in user, store: false if user
+      end
+
+      def require_authentication!
+        return if current_user
+
+        render_error(ErrorCodes::UNAUTHORIZED, 'Unauthorized')
+      end
+
+      def bearer_token
+        return @bearer_token if defined?(@bearer_token)
+
+        auth = request.authorization
+        @bearer_token =
+          auth&.start_with?('Bearer ') ? auth.delete_prefix('Bearer ').strip : nil
+      end
 
       # A dry-validation failure: the payload itself is malformed.
       def render_validation_error(errors, message: 'Request body is invalid', status: :bad_request)
@@ -40,17 +69,12 @@ module Api
 
       # `status: nil` means "derive it from the error code" — the usual case.
       def render_error(error_code, message, status: nil)
+        response.set_header('Retry-After', RETRY_AFTER_SECONDS.to_s) if error_code == ErrorCodes::TRY_AGAIN_LATER
+
         render json: { error_code: error_code, message: message },
                status: status || STATUS_BY_ERROR_CODE.fetch(error_code, DEFAULT_ERROR_STATUS)
       end
 
-      # A Failure from a service. Services that already speak the vocabulary pass
-      # their own `error_code`; the rest carry raw contract errors, which are a
-      # validation failure by definition.
-      #
-      # Pass `status:` only to pin the response code regardless of the error code.
-      # Endpoints that hardware already talks to use it so the shared mapping
-      # cannot change what live firmware sees.
       def render_failure(result, message: 'Request body is invalid', status: nil)
         errors = result.errors
 

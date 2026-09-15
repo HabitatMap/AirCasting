@@ -54,11 +54,16 @@ RSpec.describe 'AirBeamMini Fixed Sessions Binary Flow', type: :request do
         | `validation_error` | 400 | Malformed body, or a stream with no `thresholds` and no seeded default | Client bug — do not retry unchanged |
         | `session_uuid_taken` | 409 | The `uuid` is already in use | Stop retrying; continue with the existing session |
         | `unsupported_sensor_type` | 400 | A `sensor_name` is not a known AirBeam sensor | Unrecoverable |
-        | `internal_error` | 500 | Unresolvable write conflict, or a rival create still in flight | Retry with backoff |
+        | `try_again_later` | 503 | A rival create is still in flight | Retry after the `Retry-After` header (seconds) |
+        | `internal_error` | 500 | Unresolvable write conflict | Retry with backoff |
       DESC
 
+      # The only operation that still accepts the deprecated Basic scheme:
+      # Android 4.0.0-4.0.5 and the iOS AirBeamMini V2 build already post it.
+      security [{ bearer_auth: [] }, { basic_auth: [] }]
+
       parameter name: :Authorization, in: :header, type: :string, required: true,
-                description: 'Token token=<user_token>'
+                description: '`Bearer <user_token>`. `Basic base64("<user_token>:X")` also works here, deprecated.'
 
       parameter name: :body, in: :body, required: true, schema: {
         type: :object,
@@ -161,7 +166,7 @@ RSpec.describe 'AirBeamMini Fixed Sessions Binary Flow', type: :request do
         end
 
         let!(:user) { create(:user) }
-        let(:Authorization) { "Token token=#{user.authentication_token}" }
+        let(:Authorization) { "Bearer #{user.authentication_token}" }
         let(:body) do
           {
             uuid: SecureRandom.uuid,
@@ -177,7 +182,6 @@ RSpec.describe 'AirBeamMini Fixed Sessions Binary Flow', type: :request do
           }
         end
 
-        before { sign_in user }
 
         run_test!
       end
@@ -196,10 +200,9 @@ RSpec.describe 'AirBeamMini Fixed Sessions Binary Flow', type: :request do
                }
 
         let(:user) { create(:user) }
-        let(:Authorization) { "Token token=#{user.authentication_token}" }
+        let(:Authorization) { "Bearer #{user.authentication_token}" }
         let(:body) { { uuid: '' } }
 
-        before { sign_in user }
 
         run_test!
       end
@@ -208,7 +211,7 @@ RSpec.describe 'AirBeamMini Fixed Sessions Binary Flow', type: :request do
         schema ERROR_SCHEMA
 
         let!(:user) { create(:user) }
-        let(:Authorization) { "Token token=#{user.authentication_token}" }
+        let(:Authorization) { "Bearer #{user.authentication_token}" }
         let!(:existing) { create(:fixed_session, user: user, uuid: SecureRandom.uuid) }
         let(:body) do
           {
@@ -222,7 +225,6 @@ RSpec.describe 'AirBeamMini Fixed Sessions Binary Flow', type: :request do
           }
         end
 
-        before { sign_in user }
 
         run_test! do |response|
           expect(JSON.parse(response.body)['error_code']).to eq('session_uuid_taken')
@@ -237,7 +239,7 @@ RSpec.describe 'AirBeamMini Fixed Sessions Binary Flow', type: :request do
         schema ERROR_SCHEMA
 
         let!(:user) { create(:user) }
-        let(:Authorization) { "Token token=#{user.authentication_token}" }
+        let(:Authorization) { "Bearer #{user.authentication_token}" }
         let(:body) do
           {
             uuid: SecureRandom.uuid,
@@ -251,7 +253,6 @@ RSpec.describe 'AirBeamMini Fixed Sessions Binary Flow', type: :request do
         end
 
         before do
-          sign_in user
           allow_any_instance_of(FixedSessions::Creator).to receive(:call).and_return(
             Failure.new(
               error_code: FixedSessions::BinaryProtocol::ErrorCodes::INTERNAL_ERROR,
@@ -266,7 +267,7 @@ RSpec.describe 'AirBeamMini Fixed Sessions Binary Flow', type: :request do
       response '401', 'unauthorized' do
         schema ERROR_SCHEMA
 
-        let(:Authorization) { 'Token token=invalid' }
+        let(:Authorization) { 'Bearer invalid' }
         let(:body) { {} }
 
         run_test!
@@ -300,6 +301,14 @@ RSpec.describe 'AirBeamMini Fixed Sessions Binary Flow', type: :request do
         **Resend behaviour:** sending a measurement with an already-stored
         `(stream_id, time_with_time_zone)` pair is silently ignored — no duplicate is created.
 
+        **Size limit:** at most 6000 frames (54005 bytes) per request. A larger backlog
+        is split across requests; each is stored on its own and resends are idempotent.
+
+        **Unusable timestamps:** a frame whose epoch is zero, before 2020-01-01 UTC, or
+        more than 24 hours ahead of server time is dropped and the rest of the payload is
+        stored; the response is still 200. A device with an unset clock therefore keeps
+        draining its backlog instead of stalling on a batch the server refuses.
+
         **Time synchronisation:** an empty body is valid and returns 200 immediately. The AirBeamMini
         uses this to read the current server time from the `X-Server-Time` response header
         (Unix epoch, UTC) when its clock drifts.
@@ -317,15 +326,16 @@ RSpec.describe 'AirBeamMini Fixed Sessions Binary Flow', type: :request do
         | `empty_measurement_count` | 400 | Frame count field in header is zero |
         | `payload_size_mismatch` | 400 | Actual payload size does not match the declared frame count |
         | `invalid_checksum` | 400 | XOR checksum of payload does not match the final byte |
-        | `invalid_epoch` | 400 | A frame's timestamp is zero or implausibly far in the future |
         | `invalid_value` | 400 | A frame's sensor value is NaN or Infinity |
+        | `payload_too_large` | 413 | More than 6000 frames, or a body over 54005 bytes. Nothing is stored — resend in smaller batches |
+        | `try_again_later` | 503 | A rival writer held the session for longer than the server waits. Nothing is stored — resend after the `Retry-After` header (seconds) |
       DESC
 
       parameter name: :uuid, in: :path, type: :string, required: true,
                 description: 'Session UUID (same as used in session creation)'
 
       parameter name: :Authorization, in: :header, type: :string, required: true,
-                description: 'Mobile app: `Token token=<user_token>`. AirBeam: `Bearer <session_token>` (returned by session creation endpoint).'
+                description: 'AirBeam: `Bearer <session_token>` (returned by session creation), matched against this UUID first so it can never act as an account-wide credential. Mobile app: `Bearer <user_token>`.'
 
       parameter name: :body, in: :body, required: true, schema: {
         type: :string,
@@ -367,10 +377,9 @@ RSpec.describe 'AirBeamMini Fixed Sessions Binary Flow', type: :request do
         end
 
         let(:uuid) { @session.uuid }
-        let(:Authorization) { "Token token=#{@user.authentication_token}" }
+        let(:Authorization) { "Bearer #{@user.authentication_token}" }
         let(:body) { build_measurement_binary(type_id: 2) }
 
-        before { sign_in @user }
 
         run_test!
       end
@@ -381,10 +390,27 @@ RSpec.describe 'AirBeamMini Fixed Sessions Binary Flow', type: :request do
         let(:user) { create(:user) }
         let(:session) { create(:fixed_session, user: user) }
         let(:uuid) { session.uuid }
-        let(:Authorization) { "Token token=#{user.authentication_token}" }
+        let(:Authorization) { "Bearer #{user.authentication_token}" }
         let(:body) { 'not valid binary' }
 
-        before { sign_in user }
+
+        run_test!
+      end
+
+      response '413', 'payload larger than one request may carry' do
+        schema ERROR_SCHEMA
+
+        let(:user) { create(:user) }
+        let(:session) { create(:fixed_session, user: user) }
+        let(:uuid) { session.uuid }
+        let(:Authorization) { "Bearer #{user.authentication_token}" }
+        # A header declaring more frames than the cap. Rejected on the count alone,
+        # so the example does not have to carry 54 KB of frames.
+        let(:body) do
+          over = ::FixedSessions::BinaryProtocol::Parser::MAX_MEASUREMENTS + 1
+          payload = ["\xAB\xBA", over].pack('a2n') + [Time.current.to_i, 2, 12.5].pack('NCg')
+          payload + [payload.bytes.inject(0, :^)].pack('C')
+        end
 
         run_test!
       end
@@ -394,10 +420,9 @@ RSpec.describe 'AirBeamMini Fixed Sessions Binary Flow', type: :request do
 
         let(:user) { create(:user) }
         let(:uuid) { 'non-existent-uuid' }
-        let(:Authorization) { "Token token=#{user.authentication_token}" }
+        let(:Authorization) { "Bearer #{user.authentication_token}" }
         let(:body) { build_measurement_binary(type_id: 1) }
 
-        before { sign_in user }
 
         run_test!
       end
@@ -406,7 +431,7 @@ RSpec.describe 'AirBeamMini Fixed Sessions Binary Flow', type: :request do
         schema ERROR_SCHEMA
 
         let(:uuid) { 'any-uuid' }
-        let(:Authorization) { 'Token token=invalid' }
+        let(:Authorization) { 'Bearer invalid' }
         let(:body) { "\x00" }
 
         run_test!

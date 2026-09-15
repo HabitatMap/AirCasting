@@ -1,6 +1,12 @@
 module FixedSessions
   module BinaryProtocol
     class Ingester
+      # pg_advisory_xact_lock is not taken here — `fixed_measurements` carries the
+      # partial unique index the dedup leans on — but the session row update still
+      # waits on a rival's lock, and unbounded that holds one of the 16
+      # single-request unicorn workers. Same 1s as the mobile ingester.
+      LOCK_TIMEOUT = '1s'.freeze
+
       def initialize(
         parser: Parser.new,
         streams_repository: StreamsRepository.new,
@@ -8,7 +14,7 @@ module FixedSessions
         fixed_sessions_repository: FixedSessionsRepository.new,
         daily_averages_recalculator: FixedStreaming::StreamDailyAveragesRecalculator.new,
         hourly_averages_recalculator: FixedStreaming::StreamHourlyAveragesRecalculator.new,
-        monitor: Monitor.new
+        monitor: ::BinaryProtocol::Monitor.new(source: ::BinaryProtocol::Monitor::FIXED)
       )
         @parser = parser
         @streams_repository = streams_repository
@@ -19,8 +25,12 @@ module FixedSessions
         @monitor = monitor
       end
 
+      # How many dropped epochs travel to Sentry per reason; enough to recognise a
+      # 1970 clock without carrying a 6000-frame batch into an event.
+      SAMPLE_SKIPPED_EPOCHS = 5
+
       def call(session:, binary:)
-        measurements = parser.call(binary)
+        result = parser.call(binary)
       rescue Parser::ParseError => e
         monitor.report_parse_error(
           error_code: e.error_code,
@@ -31,7 +41,8 @@ module FixedSessions
         )
         return Failure.new(error_code: e.error_code, message: e.message)
       else
-        ingest(session: session, measurements: measurements)
+        report_skipped_frames(session, result)
+        ingest(session: session, measurements: result.measurements)
       end
 
       private
@@ -40,13 +51,37 @@ module FixedSessions
                   :fixed_sessions_repository, :daily_averages_recalculator,
                   :hourly_averages_recalculator, :monitor
 
+      def report_skipped_frames(session, result)
+        total = result.measurements.size + result.skipped.size
+
+        result.skipped.group_by { |frame| frame[:reason] }.each do |reason, frames|
+          monitor.report_skipped_frames(
+            session: session,
+            reason: reason,
+            count: frames.size,
+            total: total,
+            sample_epochs: frames.first(SAMPLE_SKIPPED_EPOCHS).map { |frame| frame[:epoch] },
+          )
+        end
+      end
+
       def ingest(session:, measurements:)
+        # A payload whose every frame was dropped still answers 2xx: the Mini only
+        # trims the batch from flash on a 2xx, and anything else leaves that batch
+        # in flash being re-POSTed for the life of the device.
+        return Success.new('measurements ingested') if measurements.empty?
+
         grouped = measurements.group_by { |m| m[:sensor_type_id] }
         stream_records = {}
         oldest_epoch = measurements.min_by { |m| m[:epoch] }[:epoch]
         known_type_ids = session.streams.pluck(:sensor_type_id)
 
+        # Unanswerable once the transaction is open: a plain `transaction` inside a
+        # caller's joins it, so `open_transactions` reads 1 either way.
+        outermost = !ActiveRecord::Base.connection.transaction_open?
+
         ActiveRecord::Base.transaction do
+          set_lock_timeout if outermost
           all_records = []
 
           grouped.each do |type_id, type_measurements|
@@ -95,6 +130,28 @@ module FixedSessions
       rescue ActiveRecord::RecordInvalid => e
         monitor.report_transaction_error(session: session, message: e.message)
         Failure.new(error_code: ErrorCodes::INTERNAL_ERROR, message: e.message)
+      # Before StatementInvalid, which it subclasses. Nothing is wrong with the
+      # request — another writer held the session — so it is worth retrying.
+      rescue ActiveRecord::LockWaitTimeout => e
+        monitor.report_transaction_error(session: session, message: e.message)
+        Failure.new(
+          error_code: ErrorCodes::TRY_AGAIN_LATER,
+          message: 'Could not store these measurements, please retry',
+        )
+      # Deadlock, cancelled statement, connection loss. The real message goes to
+      # the monitor, not the client: a PG error quotes the failing SQL and values.
+      rescue ActiveRecord::StatementInvalid => e
+        monitor.report_transaction_error(session: session, message: e.message)
+        Failure.new(
+          error_code: ErrorCodes::INTERNAL_ERROR,
+          message: 'Could not store these measurements',
+        )
+      end
+
+      # SET LOCAL lasts for the transaction, so a caller's transaction would keep a
+      # lock_timeout it never asked for.
+      def set_lock_timeout
+        ActiveRecord::Base.connection.execute("SET LOCAL lock_timeout = '#{LOCK_TIMEOUT}'")
       end
 
       def recalculate_averages(stream_records, time_zone, recalculate_hourly:, recalculate_daily:)
