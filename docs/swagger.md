@@ -6,6 +6,7 @@
 |------|---------|
 | `spec/swagger/**/*_spec.rb` | **Source of truth.** Edit these to change API docs. One file per resource group. |
 | `spec/swagger/v3/fixed_sessions_spec.rb` | AirBeamMini fixed sessions binary flow (create + binary measurements). |
+| `spec/swagger/v3/mobile_sessions_spec.rb` | AirBeam mobile sessions: CRUD, list, and the binary measurements upload. |
 | `spec/swagger/v3/fixed_streams_spec.rb` | `GET /api/v3/fixed_streams/{id}` (AirBeam stream detail). |
 | `spec/swagger/v3/station_streams_spec.rb` | `GET /api/v3/station_streams/{id}` + `.../export` (government, new model). |
 | `spec/swagger/v3/measurements_spec.rb` | `GET /api/v3/fixed_measurements` + `station_measurements`. |
@@ -24,7 +25,30 @@
 | `spec/swagger_helper.rb` | rswag configuration (output path, OpenAPI version, global security schemes, tag order). |
 | `swagger/swagger.yaml` | Generated output. **Do not edit by hand** — changes will be overwritten on next generation. |
 
-> Public read endpoints override the global token auth with `security []` per operation.
+## Authentication in the specs
+
+The global `security` in `spec/swagger_helper.rb` is `bearer_auth`
+(`Authorization: Bearer <user_token>`). An authenticated operation declares
+nothing; it inherits that.
+
+Override per operation, one line, no prose:
+
+| Operation accepts | Declare |
+|---|---|
+| Bearer (the default) | nothing |
+| No auth (public read) | `security []` |
+| Bearer **and** deprecated Basic | `security [{ bearer_auth: [] }, { basic_auth: [] }]` |
+
+`basic_auth` is the deprecated `Basic base64("<user_token>:X")` scheme. It is
+never global and it is not for new endpoints. One operation declares it —
+`POST /api/v3/fixed_sessions`, in `spec/swagger/v3/fixed_sessions_spec.rb` —
+because released Android and iOS builds already post it. Adding a second needs
+a `client-contract` verdict naming the released build and the file:line that
+sends Basic to it.
+
+Keep the deprecation note on that operation. Documenting the weaker scheme
+API-wide reads as API-wide permission, and spelling out which endpoints accept
+it is a map of where to try it.
 
 ## Terminology (keep it unified)
 

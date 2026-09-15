@@ -7,6 +7,7 @@ module FixedSessions
       VALIDATION_ERROR        = 'validation_error'
       UNAUTHORIZED            = 'unauthorized'
       INTERNAL_ERROR          = 'internal_error'
+      TRY_AGAIN_LATER         = 'try_again_later'
     end
   end
 end

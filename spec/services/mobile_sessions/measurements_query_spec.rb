@@ -56,6 +56,20 @@ RSpec.describe MobileSessions::MeasurementsQuery do
     expect(times).to eq(times.sort)
   end
 
+  it 'keeps the newest points when the window holds more than the cap' do
+    stub_const("#{described_class}::MAX_POINTS_PER_STREAM", 1)
+
+    result = described_class.new(
+      session: session,
+      start_time: (old_time.to_i * 1000).to_s,
+      end_time: (Time.utc(2026, 8, 14, 23, 0, 0).to_i * 1000).to_s,
+    ).call
+
+    points = result['AirBeamMini-PM2.5']
+    expect(points.size).to eq(1)
+    expect(points.first[:time]).to eq(recent_time)
+  end
+
   context 'with a non-UTC session time zone (local-as-utc round trip via the ingester)' do
     let(:ny_session) do
       create(:mobile_session, user: user, time_zone: 'America/New_York',
@@ -78,6 +92,19 @@ RSpec.describe MobileSessions::MeasurementsQuery do
 
       expect(points.size).to eq(1)
       expect(points.first[:time]).to eq(Time.utc(2026, 8, 14, 6, 0, 0)) # 06:00 local-as-utc
+    end
+
+    # The client sends the same epochs it uploaded, so the window has to be read in
+    # the same domain the frames were: real UTC in, local-as-utc against the column.
+    it 'reads an explicit window as epochs, not as local time' do
+      points = described_class.new(
+        session: ny_session,
+        start_time: (Time.utc(2026, 8, 14, 9, 0, 0).to_i * 1000).to_s,
+        end_time: (Time.utc(2026, 8, 14, 11, 0, 0).to_i * 1000).to_s,
+      ).call['AirBeamMini-PM2.5']
+
+      expect(points.size).to eq(1)
+      expect(points.first[:time]).to eq(Time.utc(2026, 8, 14, 6, 0, 0))
     end
   end
 end

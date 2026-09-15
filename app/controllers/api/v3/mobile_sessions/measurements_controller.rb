@@ -3,9 +3,10 @@ module Api
     module MobileSessions
       class MeasurementsController < BaseController
         ErrorCodes = ::MobileSessions::ErrorCodes
+        Parser = ::MobileSessions::BinaryProtocol::Parser
         around_action :with_server_time_header
-        before_action :authenticate_user_from_token!
-        before_action :authenticate_user!
+        before_action :authenticate_user_from_bearer_token
+        before_action :require_authentication!
 
         def index
           session = find_session
@@ -23,13 +24,19 @@ module Api
         end
 
         def create
+          return payload_too_large if declared_size_over_limit?
+
           binary = request.body.read
           return head :ok if binary.empty?
 
           session = find_session
-          return session_not_found unless session
 
-          result = ::MobileSessions::BinaryProtocol::Ingester.new.call(
+          unless session
+            monitor.report_session_not_found(session_uuid: params[:mobile_session_uuid])
+            return session_not_found
+          end
+
+          result = ::MobileSessions::BinaryProtocol::Ingester.new(monitor: monitor).call(
             session: session,
             binary: binary,
           )
@@ -43,8 +50,34 @@ module Api
 
         private
 
+        # Answered before the body is read, so an oversized upload costs the headers
+        # and nothing more. A chunked request carries no Content-Length and is
+        # caught by the parser instead.
+        def declared_size_over_limit?
+          request.content_length.to_i > Parser::MAX_PAYLOAD_SIZE
+        end
+
+        def payload_too_large
+          render_error(
+            Parser::ErrorCodes::PAYLOAD_TOO_LARGE,
+            "Payload exceeds #{Parser::MAX_PAYLOAD_SIZE} bytes " \
+            "(#{Parser::MAX_MEASUREMENTS} measurements); split it across requests",
+          )
+        end
+
+        def require_authentication!
+          return if current_user
+
+          monitor.report_auth_failure(session_uuid: params[:mobile_session_uuid])
+          super
+        end
+
+        def monitor
+          @monitor ||= ::BinaryProtocol::Monitor.new(source: ::BinaryProtocol::Monitor::MOBILE)
+        end
+
         def find_session
-          current_user.mobile_sessions.find_by(uuid: params[:mobile_session_uuid])
+          current_user.mobile_sessions.by_uuid(params[:mobile_session_uuid]).first
         end
 
         def session_not_found

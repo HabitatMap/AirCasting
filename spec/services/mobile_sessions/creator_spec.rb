@@ -204,7 +204,7 @@ RSpec.describe MobileSessions::Creator do
 
       result = creator.call(data: valid_params, user: user)
 
-      expect(result.errors[:error_code]).to eq('internal_error')
+      expect(result.errors[:error_code]).to eq('try_again_later')
       expect(result.errors[:message]).to eq('Could not create this session, please retry')
     end
 

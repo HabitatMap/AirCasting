@@ -3,7 +3,7 @@ require 'rails_helper'
 RSpec.describe FixedSessions::BinaryProtocol::Ingester do
   let(:daily_recalculator) { instance_double(FixedStreaming::StreamDailyAveragesRecalculator, call: nil) }
   let(:hourly_recalculator) { instance_double(FixedStreaming::StreamHourlyAveragesRecalculator, call: nil) }
-  let(:monitor) { instance_double(FixedSessions::BinaryProtocol::Monitor, report_parse_error: nil, report_unknown_sensor_type: nil, report_transaction_error: nil) }
+  let(:monitor) { instance_double(::BinaryProtocol::Monitor, report_parse_error: nil, report_unknown_sensor_type: nil, report_transaction_error: nil, report_skipped_frames: nil) }
   subject(:ingester) do
     described_class.new(
       daily_averages_recalculator: daily_recalculator,
@@ -216,6 +216,67 @@ RSpec.describe FixedSessions::BinaryProtocol::Ingester do
 
     end
 
+    # The device cannot be told to try again: the Mini re-POSTs the refused batch
+    # forever and Android's BLE sync has already wiped the device's flash.
+    describe 'frames with an unusable epoch' do
+      let(:stale) { Time.utc(2019, 6, 1).to_i }
+
+      it 'ingests the rest of the payload and succeeds' do
+        binary = build_binary([
+          { epoch: stale, sensor_type_id: 2, value: 1.0 },
+          { epoch: epoch, sensor_type_id: 2, value: 25.5 },
+        ])
+
+        result = ingester.call(session: session, binary: binary)
+
+        expect(result).to be_success
+        expect(stream.reload.fixed_measurements.pluck(:time))
+          .to eq([Utils.to_local_as_utc(Time.at(epoch), session.time_zone)])
+      end
+
+      it 'reports the dropped frames, the only trace of them on a 200' do
+        expect(monitor).to receive(:report_skipped_frames).with(
+          session: session,
+          reason: FixedSessions::BinaryProtocol::Parser::SKIPPED_TOO_OLD,
+          count: 1,
+          total: 2,
+          sample_epochs: [stale],
+        )
+
+        ingester.call(session: session, binary: build_binary([
+          { epoch: stale, sensor_type_id: 2, value: 1.0 },
+          { epoch: epoch, sensor_type_id: 2, value: 25.5 },
+        ]))
+      end
+
+      it 'succeeds on a payload where every frame was dropped' do
+        stream # the session has a stream for the sensor either way
+        result = ingester.call(
+          session: session,
+          binary: build_binary([{ epoch: stale, sensor_type_id: 2, value: 1.0 }]),
+        )
+
+        expect(result).to be_success
+        expect(FixedMeasurement.count).to eq(0)
+        expect(daily_recalculator).not_to have_received(:call)
+        expect(hourly_recalculator).not_to have_received(:call)
+      end
+
+      it 'leaves the session bounds where they were' do
+        before_start = session.start_time_local
+        before_end = session.end_time_local
+
+        ingester.call(
+          session: session,
+          binary: build_binary([{ epoch: stale, sensor_type_id: 2, value: 1.0 }]),
+        )
+
+        session.reload
+        expect(session.start_time_local).to eq(before_start)
+        expect(session.end_time_local).to eq(before_end)
+      end
+    end
+
     context 'with invalid binary (bad checksum)' do
       let(:binary) do
         good = build_binary([{ epoch: epoch, sensor_type_id: 2, value: 1.0 }])
@@ -237,6 +298,43 @@ RSpec.describe FixedSessions::BinaryProtocol::Ingester do
           measurement_count: 1,
         )
         ingester.call(session: session, binary: binary)
+      end
+    end
+
+    describe 'lock waits' do
+      let(:binary) { build_binary([{ epoch: epoch, sensor_type_id: 2, value: 25.5 }]) }
+
+      it 'answers a retryable failure when another writer holds the session' do
+        stream
+        allow(FixedMeasurement).to receive(:import)
+          .and_raise(ActiveRecord::LockWaitTimeout.new('canceling statement due to lock timeout'))
+        allow(monitor).to receive(:report_transaction_error)
+
+        result = ingester.call(session: session, binary: binary)
+
+        expect(result).to be_failure
+        expect(result.errors[:error_code]).to eq('try_again_later')
+        expect(result.errors[:message]).to eq('Could not store these measurements, please retry')
+        expect(monitor).to have_received(:report_transaction_error)
+      end
+    end
+
+    describe 'database errors other than a lock wait' do
+      let(:binary) { build_binary([{ epoch: epoch, sensor_type_id: 2, value: 25.5 }]) }
+
+      it 'keeps the failing SQL out of the client response' do
+        stream
+        allow(FixedMeasurement).to receive(:import)
+          .and_raise(ActiveRecord::StatementInvalid.new('PG::TRDeadlockDetected: INSERT INTO "fixed_measurements" ...'))
+        allow(monitor).to receive(:report_transaction_error)
+
+        result = ingester.call(session: session, binary: binary)
+
+        expect(result).to be_failure
+        expect(result.errors[:error_code]).to eq('internal_error')
+        expect(result.errors[:message]).to eq('Could not store these measurements')
+        expect(monitor).to have_received(:report_transaction_error)
+          .with(hash_including(message: /INSERT INTO/))
       end
     end
 

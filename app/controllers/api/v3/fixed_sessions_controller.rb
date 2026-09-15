@@ -2,7 +2,8 @@ module Api
   module V3
     class FixedSessionsController < BaseController
       before_action :authenticate_user_from_token!
-      before_action :authenticate_user!
+      before_action :authenticate_user_from_bearer_token
+      before_action :require_authentication!
 
       def create
         contract = Api::CreateFixedSessionContract.new.call(
