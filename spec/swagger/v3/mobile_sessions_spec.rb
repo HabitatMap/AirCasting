@@ -50,9 +50,11 @@ RSpec.describe 'AirBeam Mobile Sessions', type: :request do
             type: { type: :string, example: 'MobileSession' },
             tag_list: { type: :string },
             contribute: { type: :boolean },
-            start_time_local: { type: :string, nullable: true,
-                                description: 'null until the first measurements arrive' },
-            end_time_local: { type: :string, nullable: true },
+            time_zone: { type: :string, example: 'America/New_York',
+                         description: 'IANA zone the session was recorded in; render start_time / end_time and measurement times in it' },
+            start_time: { type: :integer, format: :int64, nullable: true, example: 1_786_663_800_000,
+                          description: 'Epoch ms (UTC); null until the first measurements arrive' },
+            end_time: { type: :integer, format: :int64, nullable: true, example: 1_786_707_000_000 },
             version: { type: :integer },
             latitude: { type: :number, format: :float, nullable: true },
             longitude: { type: :number, format: :float, nullable: true },
@@ -108,7 +110,7 @@ RSpec.describe 'AirBeam Mobile Sessions', type: :request do
         recording; measurements are then streamed to
         `POST /api/v3/mobile_sessions/{uuid}/measurements`.
 
-        This call is configuration only. `start_time_local` / `end_time_local`
+        This call is configuration only. `start_time` / `end_time`
         stay `null` until the first measurements arrive; such a session is
         skipped by every map / search query and is visible only to its owner
         (list, show, update, delete).
@@ -424,9 +426,11 @@ RSpec.describe 'AirBeam Mobile Sessions', type: :request do
                  type: { type: :string, example: 'MobileSession' },
                  tag_list: { type: :string },
                  contribute: { type: :boolean },
-                 start_time_local: { type: :string, nullable: true,
-                                     description: 'null until the first measurements arrive' },
-                 end_time_local: { type: :string, nullable: true },
+                 time_zone: { type: :string, example: 'America/New_York',
+                              description: 'IANA zone the session was recorded in' },
+                 start_time: { type: :integer, format: :int64, nullable: true, example: 1_786_663_800_000,
+                               description: 'Epoch ms (UTC); null until the first measurements arrive' },
+                 end_time: { type: :integer, format: :int64, nullable: true, example: 1_786_707_000_000 },
                  version: { type: :integer },
                  latitude: { type: :number, format: :float, nullable: true },
                  longitude: { type: :number, format: :float, nullable: true },
@@ -623,42 +627,81 @@ RSpec.describe 'AirBeam Mobile Sessions', type: :request do
       tags 'Mobile app: Mobile sessions'
       produces 'application/json'
       description <<~DESC
-        Returns measurements for the session, keyed by sensor_name, each an array
-        of `{ time, value, latitude, longitude }`. Defaults to the **latest 24h**
-        (anchored on the session end) for a light initial fetch; pass
-        `start_time` / `end_time` (epoch **milliseconds**) to pull any older range.
-        Optional `sensor_name` / `measurement_type` fetch a single stream.
+        Measurements for **one** stream of the session — an array of
+        `{ time, value, latitude, longitude }`. The default answer holds the
+        **newest** data (the last 6 hours); history is reached by paging
+        `end_time` backwards. Within a window the points are sorted **ascending**
+        — oldest first, i.e. plot order, so an older page prepends whole. `time` is
+        epoch **milliseconds** — the same epochs the binary upload carries, so a
+        point round-trips without any time-zone reasoning.
+
+        `sensor_name` is always required; there is no way to ask for every stream
+        at once. Mobile records at up to 1 Hz and an AirBeam 3 carries five
+        streams, so "all of them" is a payload no client wants — and the session
+        screen draws one stream at a time anyway. Read `streams[].sensor_name`
+        from the session endpoint to learn the names.
+
+        Two request shapes, and only two:
+
+        | Request | Returns |
+        |---|---|
+        | `sensor_name` only | the **last 6 hours** of that stream, anchored on the session end — what the session screen opens with |
+        | `sensor_name` + `start_time` + `end_time` | that window, at most **12 hours** wide |
+
+        There is no point cap and nothing is ever truncated silently: the window
+        is the only bound, so a short answer means there is no more data in it.
+        To go further back, move `end_time` — the same paging the web
+        fixed-session graph does. Both bounds are **inclusive**, so a point can
+        repeat between two adjacent pages; de-duplicate by `time`.
+
+        `measurement_type` is not accepted and could not work as a selector: an
+        AirBeam's PM1, PM2.5 and PM10 streams all carry `Particulate Matter`.
+
+        A session whose measurements have not arrived yet (no `end_time`) answers
+        `200` with an empty array.
+
+        ## Time
+
+        Every timestamp in this endpoint group — `time` here, `start_time` /
+        `end_time` on the session, the `start_time` / `end_time` query parameters,
+        and the epochs inside the binary upload — is a **real UTC instant**, in
+        milliseconds here and in seconds inside the binary frames. Nothing on the
+        wire is local time. Render local by applying the session's `time_zone`.
+
+        ## Error codes
+
+        | `error_code` | HTTP | When |
+        |---|---|---|
+        | `unauthorized` | 401 | Missing or invalid token |
+        | `validation_error` | 400 | Missing `sensor_name`, half a window, `end_time <= start_time`, a window over 12h, or a non-integer time. `fields` names the offending parameter. Answered **before** the session lookup |
+        | `session_not_found` | 404 | No mobile session with this uuid for this user |
+        | `not_found` | 404 | The session has no stream with this `sensor_name` |
       DESC
 
       parameter name: :uuid, in: :path, type: :string, required: true
       parameter name: :Authorization, in: :header, type: :string, required: true,
                 description: 'Bearer <user_token>'
-      parameter name: :sensor_name, in: :query, required: false, schema: { type: :string }
-      parameter name: :measurement_type, in: :query, required: false, schema: { type: :string }
+      parameter name: :sensor_name, in: :query, required: true, schema: { type: :string },
+                description: 'The one stream to read, e.g. `AirBeamMini-PM2.5`.'
       parameter name: :start_time, in: :query, required: false, schema: { type: :integer },
-                description: 'Epoch ms (defaults to end - 24h)'
+                description: 'Epoch ms. Send with end_time; omit both for the last 6h.'
       parameter name: :end_time, in: :query, required: false, schema: { type: :integer },
-                description: 'Epoch ms (defaults to session end)'
+                description: 'Epoch ms. At most 12h after start_time.'
 
-      response '200', 'measurements keyed by sensor_name' do
-        schema type: :object,
-               additionalProperties: {
-                 type: :array,
-                 items: {
-                   type: :object,
-                   properties: {
-                     time: { type: :string, description: 'ISO 8601 (local-as-utc)' },
-                     value: { type: :number },
-                     latitude: { type: :number, format: :float },
-                     longitude: { type: :number, format: :float }
-                   }
+      response '200', 'measurements for the named stream, oldest first' do
+        schema type: :array,
+               items: {
+                 type: :object,
+                 properties: {
+                   time: { type: :integer, format: :int64, description: 'Epoch milliseconds (UTC)' },
+                   value: { type: :number },
+                   latitude: { type: :number, format: :float },
+                   longitude: { type: :number, format: :float }
                  }
                },
-               example: {
-                 'AirBeamMini-PM2.5' => [
-                   { time: '2026-08-14T11:30:00.000Z', value: 12.5, latitude: 40.0, longitude: -74.0 }
-                 ]
-               }
+               example: [
+                 { time: 1_786_707_000_000, value: 12.5, latitude: 40.0, longitude: -74.0 }
+               ]
 
         let(:user) { create(:user) }
         let(:Authorization) { "Bearer #{user.authentication_token}" }
@@ -666,6 +709,7 @@ RSpec.describe 'AirBeam Mobile Sessions', type: :request do
           create(:mobile_session, user: user, time_zone: 'UTC', end_time_local: Time.utc(2026, 8, 14, 12, 0, 0))
         end
         let(:uuid) { session_record.uuid }
+        let(:sensor_name) { 'AirBeamMini-PM2.5' }
         before do
           stream = create(:stream, session: session_record, sensor_name: 'AirBeamMini-PM2.5')
           stream.build_measurements!([{ time: Time.utc(2026, 8, 14, 11, 30, 0), value: 12.5, latitude: 40.0,
@@ -674,11 +718,31 @@ RSpec.describe 'AirBeam Mobile Sessions', type: :request do
         run_test!
       end
 
-      response '404', 'session not found' do
+      response '400', 'missing sensor_name, or a window over 12 hours' do
+        schema type: :object,
+               required: %w[error_code message],
+               properties: {
+                 error_code: { type: :string, example: 'validation_error' },
+                 message: { type: :string },
+                 fields: { type: :object, additionalProperties: { type: :array, items: { type: :string } } }
+               }
+
+        let(:user) { create(:user) }
+        let(:Authorization) { "Bearer #{user.authentication_token}" }
+        let(:session_record) { create(:mobile_session, user: user, time_zone: 'UTC') }
+        let(:uuid) { session_record.uuid }
+        let(:sensor_name) { 'AirBeamMini-PM2.5' }
+        let(:start_time) { Time.utc(2026, 8, 13, 0, 0, 0).to_i * 1_000 }
+        let(:end_time) { Time.utc(2026, 8, 14, 0, 0, 0).to_i * 1_000 }
+        run_test!
+      end
+
+      response '404', 'session not found, or the session has no such stream' do
         schema ERROR_SCHEMA
         let(:user) { create(:user) }
         let(:Authorization) { "Bearer #{user.authentication_token}" }
         let(:uuid) { 'does-not-exist' }
+        let(:sensor_name) { 'AirBeamMini-PM2.5' }
         run_test!
       end
 
@@ -686,6 +750,7 @@ RSpec.describe 'AirBeam Mobile Sessions', type: :request do
         schema ERROR_SCHEMA
         let(:uuid) { 'any-uuid' }
         let(:Authorization) { 'Bearer invalid' }
+        let(:sensor_name) { 'AirBeamMini-PM2.5' }
         run_test!
       end
     end
