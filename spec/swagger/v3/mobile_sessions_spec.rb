@@ -49,6 +49,10 @@ RSpec.describe 'AirBeam Mobile Sessions', type: :request do
         `start_time` client-side if you display them in recording order. The
         order is ascending so that a session created while you are paging cannot
         shift the pages you already fetched.
+
+        **No `notes`** — this is a whole-account summary. A session's notes come
+        with `GET /api/v3/mobile_sessions/{uuid}`, or from
+        `GET /api/v3/mobile_sessions/{uuid}/notes`.
       DESC
 
       parameter name: :Authorization, in: :header, type: :string, required: true,
@@ -460,9 +464,11 @@ RSpec.describe 'AirBeam Mobile Sessions', type: :request do
       tags 'Mobile app: Mobile sessions'
       produces 'application/json'
       description <<~DESC
-        Returns a single mobile session owned by the authenticated user — metadata
-        and per-stream aggregates, **no measurements** (fetch those from the
-        `/measurements` path). Same shape as one element of the list endpoint.
+        Returns a single mobile session owned by the authenticated user — metadata,
+        per-stream aggregates and its `notes`, **no measurements** (fetch those
+        from the `/measurements` path). Same shape as one element of the list
+        endpoint, plus `notes` — this and `PATCH` are the only endpoints that
+        carry them, and the only way a second device learns a note's photo.
       DESC
 
       parameter name: :uuid, in: :path, type: :string, required: true
@@ -505,7 +511,8 @@ RSpec.describe 'AirBeam Mobile Sessions', type: :request do
                        unit_symbol: 'µg/m³', measurements_count: 1440, average_value: 12.5
                      }
                    }
-                 }
+                 },
+                 notes: { type: :array, description: 'Ordered by number, then id', items: V3_NOTE_SCHEMA }
                }
 
         let(:user) { create(:user) }
@@ -539,57 +546,44 @@ RSpec.describe 'AirBeam Mobile Sessions', type: :request do
       consumes 'application/json'
       produces 'application/json'
       description <<~DESC
-        Partial update of a mobile session: any subset of `title`, `tag_list`,
-        `notes`, `streams` (to delete), and `device` info. Only the
-        provided fields change. Streams flagged `deleted: true` are removed. The
-        `device` object adds a device when the session has none, updates
-        `model`/`name` on the current device, or swaps to another by `mac_address`.
-        Bumps the session `version` and returns the updated session.
+        Edits the metadata of an existing mobile session: `title` and `tag_list`.
+        At least one of the two must be sent; anything else in the body is
+        ignored. Answers with the same shape as `GET /{uuid}`.
+
+        **PATCH only — `PUT` is not routed.** The update is partial: a field you
+        omit is left alone, which is not what `PUT` promises.
+
+        Out of scope on purpose:
+        - **notes** — their own resource: `GET|POST /{uuid}/notes` and
+          `PATCH|DELETE /{uuid}/notes/{id}`. They used to be a declarative-full
+          array here, which meant editing one note resent all of them.
+        - **streams** — created by `POST /api/v3/mobile_sessions`, filled by the
+          measurements endpoint. Delete the whole session instead.
+        - **device** — a device row is shared by every session recorded with that
+          AirBeam, so it is managed by its own endpoints.
+        - **contribute, time_zone, latitude / longitude** — set once at create.
+
+        ## version
+
+        `version` is server-owned and tells every other device to re-download the
+        session. It is bumped **only when something actually changed** — re-sending
+        the title or the same tag set in another order leaves it alone, so a retry
+        never triggers a sync across the account. Writing a note bumps it too.
+
+        ## tag_list
+
+        A single string. Whitespace and commas both separate tags on the way in;
+        responses join them with `", "`. `null` or `""` clears every tag.
       DESC
 
       parameter name: :uuid, in: :path, type: :string, required: true
-      parameter name: :Authorization, in: :header, type: :string, required: true,
-                description: 'Bearer <user_token>'
       parameter name: :body, in: :body, required: true, schema: {
         type: :object,
+        description: 'At least one of title, tag_list',
         properties: {
           title: { type: :string, example: 'Renamed ride' },
-          tag_list: { type: :string, example: 'commute, bike' },
-          notes: {
-            type: :array,
-            items: {
-              type: :object,
-              required: %w[number],
-              properties: {
-                number: { type: :integer },
-                text: { type: :string },
-                date: { type: :string, description: 'ISO 8601 (required for new notes)' },
-                latitude: { type: :number, format: :float },
-                longitude: { type: :number, format: :float }
-              }
-            }
-          },
-          streams: {
-            type: :array,
-            description: 'Streams to delete (flag deleted: true)',
-            items: {
-              type: :object,
-              required: %w[sensor_name],
-              properties: {
-                sensor_name: { type: :string, example: 'AirBeamMini-PM1' },
-                sensor_package_name: { type: :string },
-                deleted: { type: :boolean, example: true }
-              }
-            }
-          },
-          device: {
-            type: :object,
-            properties: {
-              mac_address: { type: :string, example: 'AA:BB:CC:DD:EE:FF' },
-              model: { type: :string, example: 'AirBeamMini' },
-              name: { type: :string, nullable: true, example: 'Backpack' }
-            }
-          }
+          tag_list: { type: :string, nullable: true, example: 'commute, bike',
+                      description: 'null or "" clears every tag' },
         }
       }
 
@@ -598,10 +592,11 @@ RSpec.describe 'AirBeam Mobile Sessions', type: :request do
           uuid: { type: :string },
           title: { type: :string },
           version: { type: :integer },
-          tag_list: { type: :string },
+          tag_list: { type: :string, description: 'Tags joined with ", "' },
           share_url: { type: :string, example: 'http://aircasting.org/s/ab12c', description: 'Shareable session link' },
           device: { type: :object, nullable: true, additionalProperties: true },
-          streams: { type: :object, additionalProperties: { type: :object, additionalProperties: true } }
+          streams: { type: :object, additionalProperties: { type: :object, additionalProperties: true } },
+          notes: { type: :array, description: 'Ordered by number, then id', items: V3_NOTE_SCHEMA }
         }
 
         let(:user) { create(:user) }
@@ -609,8 +604,25 @@ RSpec.describe 'AirBeam Mobile Sessions', type: :request do
         let(:session_record) { create(:mobile_session, user: user) }
         let(:uuid) { session_record.uuid }
         let(:body) do
-          { title: 'Renamed ride',
-            device: { mac_address: 'AA:BB:CC:DD:EE:FF', model: 'AirBeamMini', name: 'Backpack' } }
+          { title: 'Renamed ride', tag_list: 'commute, bike' }
+        end
+        run_test!
+      end
+
+      response '400', 'validation error — `fields` carries the offending path' do
+        schema ERROR_SCHEMA.merge(
+          properties: ERROR_SCHEMA[:properties].merge(
+            fields: { type: :object, additionalProperties: true,
+                      example: { title: ['must be filled'] } }
+          )
+        )
+
+        let(:user) { create(:user) }
+        let(:Authorization) { "Bearer #{user.authentication_token}" }
+        let(:session_record) { create(:mobile_session, user: user) }
+        let(:uuid) { session_record.uuid }
+        let(:body) do
+          { title: '' }
         end
         run_test!
       end

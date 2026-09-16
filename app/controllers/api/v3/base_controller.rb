@@ -21,6 +21,7 @@ module Api
         'unauthorized' => :unauthorized,
         'not_found' => :not_found,
         'session_not_found' => :not_found,
+        'note_not_found' => :not_found,
         'session_uuid_taken' => :conflict,
         'payload_too_large' => :payload_too_large,
         'try_again_later' => :service_unavailable,

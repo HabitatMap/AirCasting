@@ -1,5 +1,28 @@
 require 'rails_helper'
 
+# One note, as every v3 endpoint returns it: the note endpoints and the session
+# show/update response. Defined here rather than in either spec file because
+# both need it and a second copy would drift — and because rswag spec constants
+# leak to the top level, so two definitions silently override each other.
+V3_NOTE_SCHEMA = {
+  type: :object,
+  required: %w[id],
+  properties: {
+    id: { type: :integer, description: "The note's identity — use it to address the note" },
+    number: { type: :integer, nullable: true,
+              description: 'Server-allocated ordering key, 0-based. Not an address: ' \
+                           'gaps are normal and a number can be reused after a delete.' },
+    text: { type: :string },
+    date: { type: :string, description: 'Wall clock as the recording phone saw it' },
+    latitude: { type: :number, format: :float },
+    longitude: { type: :number, format: :float },
+    photo_location: {
+      type: :string, nullable: true,
+      description: 'Full URL of the note photo (600px limit), or null when there is none'
+    }
+  }
+}.freeze
+
 RSpec.configure do |config|
   config.openapi_root = Rails.root.join('swagger').to_s
 

@@ -3713,6 +3713,471 @@ paths:
                       type: array
                       items:
                         type: string
+  "/api/v3/mobile_sessions/{uuid}/notes":
+    get:
+      summary: List a session's notes
+      tags:
+      - 'Mobile app: Mobile sessions'
+      description: |
+        Every note on the session, ordered by `number` and then `id`.
+
+        The same array appears inline on `GET /api/v3/mobile_sessions/{uuid}`.
+        This endpoint exists so a client can refresh its notes after an edit
+        without refetching the session's stream metadata — and so a second
+        device can pick up notes it did not create itself.
+      parameters:
+      - name: uuid
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: the notes
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  required:
+                  - id
+                  properties:
+                    id:
+                      type: integer
+                      description: The note's identity — use it to address the note
+                    number:
+                      type: integer
+                      nullable: true
+                      description: 'Server-allocated ordering key, 0-based. Not an
+                        address: gaps are normal and a number can be reused after
+                        a delete.'
+                    text:
+                      type: string
+                    date:
+                      type: string
+                      description: Wall clock as the recording phone saw it
+                    latitude:
+                      type: number
+                      format: float
+                    longitude:
+                      type: number
+                      format: float
+                    photo_location:
+                      type: string
+                      nullable: true
+                      description: Full URL of the note photo (600px limit), or null
+                        when there is none
+        '404':
+          description: session not found
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - error_code
+                - message
+                properties:
+                  error_code:
+                    type: string
+                  message:
+                    type: string
+        '401':
+          description: unauthorized
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - error_code
+                - message
+                properties:
+                  error_code:
+                    type: string
+                  message:
+                    type: string
+    post:
+      summary: Add a note to a session
+      tags:
+      - 'Mobile app: Mobile sessions'
+      description: |+
+        Creates one note. Answers with the created note, including the `id` you
+        need to edit or delete it later.
+
+        `number` is **server-allocated** and ignored if you send it. It is the
+        highest existing number plus one, 0-based, and is only an ordering key
+        for the legacy sync path — not an address. Deleting a note leaves a gap,
+        deliberately: nothing renumbers, here or in either app.
+
+        Creating a note bumps the session's `version`, which is what tells the
+        user's other devices to re-download it.
+
+        ## photo
+
+        The note's image as **base64**, decoded and sniffed server-side — the content
+        type you declare is never trusted. Must decode to an `image/*` of at most
+        5 MB. Line-wrapped base64 is accepted (both apps wrap at 76 columns).
+
+        | you send | what happens |
+        |---|---|
+        | absent | keeps whatever is attached — an unchanged note costs no upload |
+        | `null` | deletes the photo, file included |
+        | base64 | replaces the photo; the old file is deleted |
+
+        Read it back as `photo_location`. A request whose `Content-Length` exceeds
+        one photo plus a small envelope is refused with `413` before the body is
+        parsed.
+
+      parameters:
+      - name: uuid
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '201':
+          description: note created
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - id
+                properties:
+                  id:
+                    type: integer
+                    description: The note's identity — use it to address the note
+                  number:
+                    type: integer
+                    nullable: true
+                    description: 'Server-allocated ordering key, 0-based. Not an address:
+                      gaps are normal and a number can be reused after a delete.'
+                  text:
+                    type: string
+                  date:
+                    type: string
+                    description: Wall clock as the recording phone saw it
+                  latitude:
+                    type: number
+                    format: float
+                  longitude:
+                    type: number
+                    format: float
+                  photo_location:
+                    type: string
+                    nullable: true
+                    description: Full URL of the note photo (600px limit), or null
+                      when there is none
+        '400':
+          description: validation error — `fields` names the offending key
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - error_code
+                - message
+                properties:
+                  error_code:
+                    type: string
+                  message:
+                    type: string
+                  fields:
+                    type: object
+                    additionalProperties: true
+                    example:
+                      date:
+                      - must be an ISO 8601 date-time (e.g. 2026-08-14T10:00:00)
+        '413':
+          description: body too large for one photo
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - error_code
+                - message
+                properties:
+                  error_code:
+                    type: string
+                  message:
+                    type: string
+        '404':
+          description: session not found
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - error_code
+                - message
+                properties:
+                  error_code:
+                    type: string
+                  message:
+                    type: string
+        '401':
+          description: unauthorized
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - error_code
+                - message
+                properties:
+                  error_code:
+                    type: string
+                  message:
+                    type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+              - text
+              - date
+              - latitude
+              - longitude
+              properties:
+                text:
+                  type: string
+                  example: Smells like smoke
+                date:
+                  type: string
+                  example: '2026-08-14T10:00:00'
+                  description: ISO 8601; the wall clock the phone saw
+                latitude:
+                  type: number
+                  format: float
+                  example: 40.7128
+                longitude:
+                  type: number
+                  format: float
+                  example: -74.006
+                photo:
+                  type: string
+                  nullable: true
+                  description: Base64 image (line breaks allowed), max 5 MB decoded
+        required: true
+  "/api/v3/mobile_sessions/{uuid}/notes/{id}":
+    patch:
+      summary: Edit a note
+      tags:
+      - 'Mobile app: Mobile sessions'
+      description: |+
+        Edits one note's `text`, its `photo`, or both. At least one of the two
+        must be sent; anything else in the body is ignored.
+
+        **PATCH only — `PUT` is not routed.** The update is partial: a field you
+        omit is left alone, which is not what `PUT` promises.
+
+        `date`, `latitude`, `longitude` and `number` are **not editable**. They
+        record where the recording was when the note was taken, so moving them
+        would make the note lie — and neither app edits them.
+
+        To remove a photo without touching the text, send `{"photo": null}`.
+
+        The session's `version` moves only when something actually changed, so
+        re-sending the text a note already has does not trigger a sync across the
+        account.
+
+        ## photo
+
+        The note's image as **base64**, decoded and sniffed server-side — the content
+        type you declare is never trusted. Must decode to an `image/*` of at most
+        5 MB. Line-wrapped base64 is accepted (both apps wrap at 76 columns).
+
+        | you send | what happens |
+        |---|---|
+        | absent | keeps whatever is attached — an unchanged note costs no upload |
+        | `null` | deletes the photo, file included |
+        | base64 | replaces the photo; the old file is deleted |
+
+        Read it back as `photo_location`. A request whose `Content-Length` exceeds
+        one photo plus a small envelope is refused with `413` before the body is
+        parsed.
+
+      parameters:
+      - name: uuid
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: id
+        in: path
+        required: true
+        description: The note's `id`, not its `number`
+        schema:
+          type: integer
+      responses:
+        '200':
+          description: updated note
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - id
+                properties:
+                  id:
+                    type: integer
+                    description: The note's identity — use it to address the note
+                  number:
+                    type: integer
+                    nullable: true
+                    description: 'Server-allocated ordering key, 0-based. Not an address:
+                      gaps are normal and a number can be reused after a delete.'
+                  text:
+                    type: string
+                  date:
+                    type: string
+                    description: Wall clock as the recording phone saw it
+                  latitude:
+                    type: number
+                    format: float
+                  longitude:
+                    type: number
+                    format: float
+                  photo_location:
+                    type: string
+                    nullable: true
+                    description: Full URL of the note photo (600px limit), or null
+                      when there is none
+        '400':
+          description: validation error
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - error_code
+                - message
+                properties:
+                  error_code:
+                    type: string
+                  message:
+                    type: string
+                  fields:
+                    type: object
+                    additionalProperties: true
+                    example:
+                      '':
+                      - 'must contain at least one of: text, photo'
+        '413':
+          description: body too large for one photo
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - error_code
+                - message
+                properties:
+                  error_code:
+                    type: string
+                  message:
+                    type: string
+        '404':
+          description: session or note not found — `error_code` says which
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - error_code
+                - message
+                properties:
+                  error_code:
+                    type: string
+                  message:
+                    type: string
+        '401':
+          description: unauthorized
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - error_code
+                - message
+                properties:
+                  error_code:
+                    type: string
+                  message:
+                    type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              description: At least one of text, photo
+              properties:
+                text:
+                  type: string
+                  example: Smells like smoke
+                photo:
+                  type: string
+                  nullable: true
+                  description: Base64 image (line breaks allowed), max 5 MB decoded.
+                    Absent keeps, null removes.
+        required: true
+    delete:
+      summary: Delete a note
+      tags:
+      - 'Mobile app: Mobile sessions'
+      description: |
+        Removes the note and its photo, the stored file included.
+
+        The remaining notes keep their `number`s — a gap is left rather than
+        renumbering. Renumbering would rewrite the key the legacy sync path
+        still matches on, underneath a client that had not synced yet.
+
+        Bumps the session's `version`.
+      parameters:
+      - name: uuid
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: id
+        in: path
+        required: true
+        description: The note's `id`, not its `number`
+        schema:
+          type: integer
+      responses:
+        '204':
+          description: note deleted
+        '404':
+          description: session or note not found — `error_code` says which
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - error_code
+                - message
+                properties:
+                  error_code:
+                    type: string
+                  message:
+                    type: string
+        '401':
+          description: unauthorized
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - error_code
+                - message
+                properties:
+                  error_code:
+                    type: string
+                  message:
+                    type: string
   "/api/v3/mobile_sessions":
     get:
       summary: List the signed-in user's mobile sessions
@@ -3742,6 +4207,10 @@ paths:
         `start_time` client-side if you display them in recording order. The
         order is ascending so that a session created while you are paging cannot
         shift the pages you already fetched.
+
+        **No `notes`** — this is a whole-account summary. A session's notes come
+        with `GET /api/v3/mobile_sessions/{uuid}`, or from
+        `GET /api/v3/mobile_sessions/{uuid}/notes`.
       parameters:
       - name: Authorization
         in: header
@@ -4240,9 +4709,11 @@ paths:
       tags:
       - 'Mobile app: Mobile sessions'
       description: |
-        Returns a single mobile session owned by the authenticated user — metadata
-        and per-stream aggregates, **no measurements** (fetch those from the
-        `/measurements` path). Same shape as one element of the list endpoint.
+        Returns a single mobile session owned by the authenticated user — metadata,
+        per-stream aggregates and its `notes`, **no measurements** (fetch those
+        from the `/measurements` path). Same shape as one element of the list
+        endpoint, plus `notes` — this and `PATCH` are the only endpoints that
+        carry them, and the only way a second device learns a note's photo.
       parameters:
       - name: uuid
         in: path
@@ -4328,6 +4799,40 @@ paths:
                         unit_symbol: µg/m³
                         measurements_count: 1440
                         average_value: 12.5
+                  notes:
+                    type: array
+                    description: Ordered by number, then id
+                    items:
+                      type: object
+                      required:
+                      - id
+                      properties:
+                        id:
+                          type: integer
+                          description: The note's identity — use it to address the
+                            note
+                        number:
+                          type: integer
+                          nullable: true
+                          description: 'Server-allocated ordering key, 0-based. Not
+                            an address: gaps are normal and a number can be reused
+                            after a delete.'
+                        text:
+                          type: string
+                        date:
+                          type: string
+                          description: Wall clock as the recording phone saw it
+                        latitude:
+                          type: number
+                          format: float
+                        longitude:
+                          type: number
+                          format: float
+                        photo_location:
+                          type: string
+                          nullable: true
+                          description: Full URL of the note photo (600px limit), or
+                            null when there is none
         '404':
           description: session not found
           content:
@@ -4361,22 +4866,38 @@ paths:
       tags:
       - 'Mobile app: Mobile sessions'
       description: |
-        Partial update of a mobile session: any subset of `title`, `tag_list`,
-        `notes`, `streams` (to delete), and `device` info. Only the
-        provided fields change. Streams flagged `deleted: true` are removed. The
-        `device` object adds a device when the session has none, updates
-        `model`/`name` on the current device, or swaps to another by `mac_address`.
-        Bumps the session `version` and returns the updated session.
+        Edits the metadata of an existing mobile session: `title` and `tag_list`.
+        At least one of the two must be sent; anything else in the body is
+        ignored. Answers with the same shape as `GET /{uuid}`.
+
+        **PATCH only — `PUT` is not routed.** The update is partial: a field you
+        omit is left alone, which is not what `PUT` promises.
+
+        Out of scope on purpose:
+        - **notes** — their own resource: `GET|POST /{uuid}/notes` and
+          `PATCH|DELETE /{uuid}/notes/{id}`. They used to be a declarative-full
+          array here, which meant editing one note resent all of them.
+        - **streams** — created by `POST /api/v3/mobile_sessions`, filled by the
+          measurements endpoint. Delete the whole session instead.
+        - **device** — a device row is shared by every session recorded with that
+          AirBeam, so it is managed by its own endpoints.
+        - **contribute, time_zone, latitude / longitude** — set once at create.
+
+        ## version
+
+        `version` is server-owned and tells every other device to re-download the
+        session. It is bumped **only when something actually changed** — re-sending
+        the title or the same tag set in another order leaves it alone, so a retry
+        never triggers a sync across the account. Writing a note bumps it too.
+
+        ## tag_list
+
+        A single string. Whitespace and commas both separate tags on the way in;
+        responses join them with `", "`. `null` or `""` clears every tag.
       parameters:
       - name: uuid
         in: path
         required: true
-        schema:
-          type: string
-      - name: Authorization
-        in: header
-        required: true
-        description: Bearer <user_token>
         schema:
           type: string
       responses:
@@ -4395,6 +4916,7 @@ paths:
                     type: integer
                   tag_list:
                     type: string
+                    description: Tags joined with ", "
                   share_url:
                     type: string
                     example: http://aircasting.org/s/ab12c
@@ -4408,6 +4930,60 @@ paths:
                     additionalProperties:
                       type: object
                       additionalProperties: true
+                  notes:
+                    type: array
+                    description: Ordered by number, then id
+                    items:
+                      type: object
+                      required:
+                      - id
+                      properties:
+                        id:
+                          type: integer
+                          description: The note's identity — use it to address the
+                            note
+                        number:
+                          type: integer
+                          nullable: true
+                          description: 'Server-allocated ordering key, 0-based. Not
+                            an address: gaps are normal and a number can be reused
+                            after a delete.'
+                        text:
+                          type: string
+                        date:
+                          type: string
+                          description: Wall clock as the recording phone saw it
+                        latitude:
+                          type: number
+                          format: float
+                        longitude:
+                          type: number
+                          format: float
+                        photo_location:
+                          type: string
+                          nullable: true
+                          description: Full URL of the note photo (600px limit), or
+                            null when there is none
+        '400':
+          description: validation error — `fields` carries the offending path
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - error_code
+                - message
+                properties:
+                  error_code:
+                    type: string
+                  message:
+                    type: string
+                  fields:
+                    type: object
+                    additionalProperties: true
+                    example:
+                      title:
+                      - must be filled
         '404':
           description: session not found
           content:
@@ -4441,62 +5017,16 @@ paths:
           application/json:
             schema:
               type: object
+              description: At least one of title, tag_list
               properties:
                 title:
                   type: string
                   example: Renamed ride
                 tag_list:
                   type: string
+                  nullable: true
                   example: commute, bike
-                notes:
-                  type: array
-                  items:
-                    type: object
-                    required:
-                    - number
-                    properties:
-                      number:
-                        type: integer
-                      text:
-                        type: string
-                      date:
-                        type: string
-                        description: ISO 8601 (required for new notes)
-                      latitude:
-                        type: number
-                        format: float
-                      longitude:
-                        type: number
-                        format: float
-                streams:
-                  type: array
-                  description: 'Streams to delete (flag deleted: true)'
-                  items:
-                    type: object
-                    required:
-                    - sensor_name
-                    properties:
-                      sensor_name:
-                        type: string
-                        example: AirBeamMini-PM1
-                      sensor_package_name:
-                        type: string
-                      deleted:
-                        type: boolean
-                        example: true
-                device:
-                  type: object
-                  properties:
-                    mac_address:
-                      type: string
-                      example: AA:BB:CC:DD:EE:FF
-                    model:
-                      type: string
-                      example: AirBeamMini
-                    name:
-                      type: string
-                      nullable: true
-                      example: Backpack
+                  description: null or "" clears every tag
         required: true
     delete:
       summary: Delete a mobile session
