@@ -50,10 +50,14 @@ Highcharts can plot with `useUTC: true`.
 | Method | Endpoint | Description |
 |--------|----------|-------------|
 | POST | `/api/v3/mobile_sessions` | Create a mobile session and its streams |
-| GET | `/api/v3/mobile_sessions` | List the caller's mobile sessions — paginated, `{ sessions, meta }` |
-| GET | `/api/v3/mobile_sessions/{uuid}` | One session with stream metadata, no measurements |
-| PATCH | `/api/v3/mobile_sessions/{uuid}` | Update title, tags, notes |
+| GET | `/api/v3/mobile_sessions` | List the caller's mobile sessions — paginated, `{ sessions, meta }`; no notes |
+| GET | `/api/v3/mobile_sessions/{uuid}` | One session with stream metadata and notes, no measurements |
+| PATCH | `/api/v3/mobile_sessions/{uuid}` | Update title and tags. No PUT; never touches notes, streams or the device |
 | DELETE | `/api/v3/mobile_sessions/{uuid}` | Delete a session and record a tombstone |
+| GET | `/api/v3/mobile_sessions/{uuid}/notes` | The session's notes, ordered by `number` then `id` |
+| POST | `/api/v3/mobile_sessions/{uuid}/notes` | Add one note (optional base64 photo); `number` is server-allocated |
+| PATCH | `/api/v3/mobile_sessions/{uuid}/notes/{id}` | Edit a note's text and/or photo. No PUT. `photo: null` removes the photo |
+| DELETE | `/api/v3/mobile_sessions/{uuid}/notes/{id}` | Delete a note and its photo; remaining numbers keep their gaps |
 | GET | `/api/v3/mobile_sessions/{uuid}/measurements` | Measurements for one stream — `sensor_name` required; last 6h by default, or a ≤12h `start_time`/`end_time` window. No point cap |
 | POST | `/api/v3/mobile_sessions/{uuid}/measurements` | Upload binary measurements (25-byte frames, 3000 max per request) |
 | POST | `/api/v3/fixed_sessions` | Create a fixed session and its streams |

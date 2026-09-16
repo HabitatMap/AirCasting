@@ -32,7 +32,7 @@ module Api
       end
 
       def update
-        session = current_user.mobile_sessions.by_uuid(params[:uuid]).first
+        session = find_owned_session
         return session_not_found unless session
 
         contract = Api::UpdateMobileSessionContract.new.call(
@@ -43,11 +43,11 @@ module Api
         end
 
         result = ::MobileSessions::Updater.new.call(session: session, data: contract.to_h)
-        if result.success?
-          render json: serialize(find_owned_session), status: :ok
-        else
-          render_failure(result)
-        end
+        return render_failure(result) unless result.success?
+
+        # The associations were preloaded before the update wrote through them.
+        session.reload
+        render json: serialize(session), status: :ok
       end
 
       def destroy
@@ -90,7 +90,12 @@ module Api
       def find_owned_session
         current_user
           .mobile_sessions
-          .includes(:device, :tags, streams: :threshold_set)
+          .includes(
+            :device,
+            :tags,
+            { streams: :threshold_set },
+            { notes: { s3_photo_attachment: :blob } },
+          )
           .by_uuid(params[:uuid])
           .first
       end
@@ -99,8 +104,10 @@ module Api
         render_error(ErrorCodes::SESSION_NOT_FOUND, 'Session not found')
       end
 
+      # show and update are the only way a second device learns a session's notes
+      # and their photos, so they carry them; the list stays a summary.
       def serialize(session)
-        ::MobileSessions::SessionSerializer.new.call(session)
+        ::MobileSessions::SessionSerializer.new.call(session, include_notes: true)
       end
     end
   end

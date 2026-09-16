@@ -7,6 +7,7 @@ module Api
       VALIDATION_ERROR = 'validation_error'
       UNAUTHORIZED     = 'unauthorized'
       NOT_FOUND        = 'not_found'
+      PAYLOAD_TOO_LARGE = 'payload_too_large'
       INTERNAL_ERROR   = 'internal_error'
       TRY_AGAIN_LATER  = 'try_again_later'
     end

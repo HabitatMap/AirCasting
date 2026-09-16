@@ -75,4 +75,52 @@ RSpec.describe MobileSessions::SessionSerializer do
     expect(row).not_to have_key(:id)
     expect(row[:streams]['AirBeamMini-PM2.5']).not_to have_key(:id)
   end
+
+  it 'joins tag_list with ", " — the separator the client splits on' do
+    session = create(:mobile_session, user: user, tag_list: 'commute,bike')
+
+    expect(serializer.call(session)[:tag_list]).to eq('commute, bike')
+  end
+
+  describe 'notes' do
+    it 'omits notes by default — the list endpoint stays a summary' do
+      session = create(:mobile_session, user: user)
+      create(:note, session: session)
+
+      expect(serializer.call(session)).not_to have_key(:notes)
+    end
+
+    it 'returns notes ordered by number when asked' do
+      session = create(:mobile_session, user: user)
+      create(:note, session: session, number: 2, text: 'second')
+      create(:note, session: session, number: 1, text: 'first')
+
+      notes = serializer.call(session, include_notes: true)[:notes]
+
+      expect(notes.map { |note| note[:number] }).to eq([1, 2])
+      expect(notes.first).to include(text: 'first', latitude: 10.12, longitude: 12.12)
+    end
+
+    it 'exposes photo_location so another device can download the photo' do
+      session = create(:mobile_session, user: user)
+      create(:note, :with_photo, session: session, number: 1)
+
+      note = serializer.call(session, include_notes: true)[:notes].first
+
+      expect(note[:photo_location]).to be_present
+    end
+
+    it 'returns a null photo_location for a note without one' do
+      session = create(:mobile_session, user: user)
+      create(:note, session: session, number: 1)
+
+      expect(serializer.call(session, include_notes: true)[:notes].first[:photo_location]).to be_nil
+    end
+
+    it 'returns an empty array when the session has no notes' do
+      session = create(:mobile_session, user: user)
+
+      expect(serializer.call(session, include_notes: true)[:notes]).to eq([])
+    end
+  end
 end
