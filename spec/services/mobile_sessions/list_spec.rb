@@ -39,18 +39,18 @@ RSpec.describe MobileSessions::List do
   end
 
   describe 'ordering' do
-    # Ordering is by id DESC, not start_time_local: id is unique, so a page
+    # Ordering is by id ASC, not start_time_local: id is unique, so a page
     # boundary can never split or duplicate a tie. start_time_local is NULL for
     # every session that has not uploaded yet, which made every such session a
     # tie with every other.
-    it 'returns newest-created first and is stable across equal start times' do
+    it 'returns oldest-created first and is stable across equal start times' do
       first  = create(:mobile_session, user: user, start_time_local: nil, end_time_local: nil)
       second = create(:mobile_session, user: user, start_time_local: nil, end_time_local: nil)
       third  = create(:mobile_session, user: user, start_time_local: nil, end_time_local: nil)
 
       result = sessions_in(described_class.new(user: user).call)
 
-      expect(result.map { |s| s[:uuid] }).to eq([third.uuid, second.uuid, first.uuid])
+      expect(result.map { |s| s[:uuid] }).to eq([first.uuid, second.uuid, third.uuid])
     end
 
     it 'partitions cleanly across pages when every session has the same start time' do
@@ -61,8 +61,53 @@ RSpec.describe MobileSessions::List do
       page3 = sessions_in(described_class.new(user: user, page: 3, per_page: 2).call)
 
       uuids = (page1 + page2 + page3).map { |s| s[:uuid] }
-      expect(uuids).to eq(created.map(&:uuid).reverse)
+      expect(uuids).to eq(created.map(&:uuid))
       expect(uuids.uniq).to eq(uuids)
+    end
+  end
+
+  # A client walking the pages treats a session absent from the whole walk as
+  # deleted server-side, so anything the walk silently skips gets dropped from
+  # the phone.
+  describe 'writes landing between two pages of a walk' do
+    def walk(per_page:, after_first_page:)
+      seen = []
+      page = 1
+      loop do
+        result = described_class.new(user: user, page: page, per_page: per_page).call
+        rows = sessions_in(result)
+        seen.concat(rows.map { |s| s[:uuid] })
+        break if rows.empty?
+
+        after_first_page.call if page == 1
+        page += 1
+      end
+      seen
+    end
+
+    it 'does not skip or repeat a session when one is created mid-walk' do
+      existing = create_list(:mobile_session, 5, user: user)
+
+      seen = walk(per_page: 2, after_first_page: -> { create(:mobile_session, user: user) })
+
+      expect(seen).to include(*existing.map(&:uuid))
+      expect(seen.uniq).to eq(seen)
+      # Ascending puts the new id past the cursor, so the walk still reaches it.
+      expect(seen).to eq(user.mobile_sessions.order(:id).pluck(:uuid))
+    end
+
+    # Known residue of offset paging, documented rather than fixed: deleting a
+    # row shifts the ones behind it into the window already stepped over. Needs
+    # a user past one page (p99 is well under per_page) deleting from another
+    # device mid-walk, and the next walk returns the session. Keyset paging is
+    # the fix if that ever stops being true.
+    it 'can skip one live session when another is deleted mid-walk' do
+      create_list(:mobile_session, 5, user: user)
+
+      seen = walk(per_page: 2, after_first_page: -> { user.mobile_sessions.order(:id).first.destroy! })
+
+      skipped = user.mobile_sessions.pluck(:uuid) - seen
+      expect(skipped.size).to eq(1)
     end
   end
 
@@ -125,6 +170,25 @@ RSpec.describe MobileSessions::List do
 
       expect(sessions_in(described_class.new(user: user, page: 1, per_page: 2).call).size).to eq(2)
       expect(sessions_in(described_class.new(user: user, page: 2, per_page: 2).call).size).to eq(1)
+    end
+
+    # The contract rejects junk before it reaches here; this guards the
+    # non-HTTP callers it does not sit in front of.
+    it 'falls back to the default rather than half-reading a junk per_page' do
+      create_list(:mobile_session, 3, user: user)
+
+      result = described_class.new(user: user, per_page: '10abc').call
+
+      expect(result[:meta][:per_page]).to eq(described_class::DEFAULT_PER_PAGE)
+    end
+
+    it 'falls back to page 1 rather than half-reading a junk page' do
+      create_list(:mobile_session, 3, user: user)
+
+      result = described_class.new(user: user, page: '2nope', per_page: 2).call
+
+      expect(result[:meta][:page]).to eq(1)
+      expect(sessions_in(result).size).to eq(2)
     end
 
     it 'caps per_page at MAX_PER_PAGE even if the caller asks for more' do

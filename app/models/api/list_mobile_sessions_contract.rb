@@ -1,7 +1,7 @@
 module Api
   # Query parameters for GET /api/v3/mobile_sessions.
   #
-  # Validated, not coerced: `per_page=abc` read leniently as 0 would answer 200
+  # Validated, not silently defaulted: `per_page=abc` falling back to 0 would answer 200
   # with an empty list, and an empty list means "all your sessions were deleted"
   # under this endpoint's contract. MAX_PER_PAGE sits above the p99 sessions per
   # user, so nearly every account still fetches everything in one request.

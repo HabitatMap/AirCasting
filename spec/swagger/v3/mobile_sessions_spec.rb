@@ -45,8 +45,10 @@ RSpec.describe 'AirBeam Mobile Sessions', type: :request do
         Invalid `page` / `per_page` is `400 validation_error`, never an empty
         `200`.
 
-        Ordered by upload time, newest first — not recording time. Sort by
-        `start_time` client-side if you display them in recording order.
+        Ordered by upload time, oldest first — not recording time. Sort by
+        `start_time` client-side if you display them in recording order. The
+        order is ascending so that a session created while you are paging cannot
+        shift the pages you already fetched.
       DESC
 
       parameter name: :Authorization, in: :header, type: :string, required: true,

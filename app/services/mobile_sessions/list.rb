@@ -6,8 +6,13 @@ module MobileSessions
   # why `meta` reports the real `total`, not the page size.
   #
   # Ordered by id, not start_time_local: the latter is NULL until measurements
-  # land, so it ties every fresh session with every other and offset paging then
-  # drops and repeats rows.
+  # land, so it ties every fresh session and offset paging drops and repeats rows.
+  #
+  # Ascending, so a session created mid-walk takes the highest id and lands past
+  # the cursor instead of shifting the pages already fetched. Residue: a session
+  # deleted mid-walk shifts later rows up, so one live session can be skipped and
+  # read as deleted — self-heals on the next walk; keyset paging is the fix if
+  # that ever stops being rare.
   class List
     MAX_PER_PAGE = Api::ListMobileSessionsContract::MAX_PER_PAGE
     DEFAULT_PER_PAGE = MAX_PER_PAGE
@@ -38,9 +43,11 @@ module MobileSessions
     attr_reader :user, :page, :per_page, :serializer
 
     # Requests are already validated by the contract; this guards other callers.
+    # Whole value or nothing — `'10abc'.to_i` reading as 10 is the same silent
+    # half-interpretation the contract exists to prevent.
     def clamp(value, default:)
-      integer = value.to_s.to_i
-      integer.positive? ? integer : default
+      integer = Integer(value, exception: false)
+      integer&.positive? ? integer : default
     end
 
     # No eager loads: `total` is a plain COUNT, not a reason to hydrate rows.
@@ -51,7 +58,7 @@ module MobileSessions
     def scope
       base
         .includes(:device, :tags, streams: :threshold_set)
-        .order(id: :desc)
+        .order(id: :asc)
     end
 
     def paginate(relation)

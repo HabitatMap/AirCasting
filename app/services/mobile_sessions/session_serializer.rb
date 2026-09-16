@@ -85,11 +85,11 @@ module MobileSessions
           max_longitude: stream.max_longitude,
           start_latitude: stream.start_latitude,
           start_longitude: stream.start_longitude,
-          threshold_very_low: stream.threshold_set&.threshold_very_low,
-          threshold_low: stream.threshold_set&.threshold_low,
-          threshold_medium: stream.threshold_set&.threshold_medium,
-          threshold_high: stream.threshold_set&.threshold_high,
-          threshold_very_high: stream.threshold_set&.threshold_very_high,
+          threshold_very_low: stream.threshold_set.threshold_very_low,
+          threshold_low: stream.threshold_set.threshold_low,
+          threshold_medium: stream.threshold_set.threshold_medium,
+          threshold_high: stream.threshold_set.threshold_high,
+          threshold_very_high: stream.threshold_set.threshold_very_high,
         }
       end
     end

@@ -7,7 +7,7 @@ module Api
 
       def index
         contract = Api::ListMobileSessionsContract.new.call(
-          params.to_unsafe_h.deep_symbolize_keys,
+          params.permit(:page, :per_page).to_h.symbolize_keys,
         )
         if contract.failure?
           return render_validation_error(
