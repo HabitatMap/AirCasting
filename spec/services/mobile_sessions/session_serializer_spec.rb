@@ -65,4 +65,14 @@ RSpec.describe MobileSessions::SessionSerializer do
     create(:stream, session: session, average_value: nil)
     expect { serializer.call(session) }.not_to raise_error
   end
+
+  it 'does not leak internal database ids — clients address sessions by uuid and streams by sensor_name' do
+    session = create(:mobile_session, user: create(:user))
+    create(:stream, session: session, sensor_name: 'AirBeamMini-PM2.5')
+
+    row = described_class.new.call(session.reload)
+
+    expect(row).not_to have_key(:id)
+    expect(row[:streams]['AirBeamMini-PM2.5']).not_to have_key(:id)
+  end
 end

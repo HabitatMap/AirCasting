@@ -4,6 +4,9 @@ module MobileSessions
   # (GET /api/v3/mobile_sessions/:uuid) endpoints so they return identical shapes.
   # Aggregates only — never measurements.
   #
+  # No internal ids: v3 addresses a session by `uuid` and a stream by
+  # `sensor_name`.
+  #
   # Every timestamp this API group puts on the wire is a real UTC instant in
   # epoch milliseconds — the same domain as the epochs the binary upload carries
   # and as the measurements read endpoint. `time_zone` travels with the session
@@ -13,11 +16,10 @@ module MobileSessions
   class SessionSerializer
     def call(session)
       {
-        id: session.id,
         uuid: session.uuid,
         title: session.title,
         type: session.type,
-        tag_list: session.tag_list.to_s,
+        tag_list: tag_list(session),
         contribute: session.contribute,
         time_zone: session.time_zone,
         start_time: epoch_ms(session.start_time_local, session.time_zone),
@@ -32,6 +34,13 @@ module MobileSessions
     end
 
     private
+
+    # Same output as `Session#tag_list`, but off the preloaded association.
+    # acts-as-taggable-on builds a fresh scope in `tags_on`, discarding any
+    # preload — two queries per session on the list endpoint.
+    def tag_list(session)
+      ActsAsTaggableOn::TagList.new(*session.tags.map(&:name)).to_s
+    end
 
     # `*_local` columns hold session-local wall clock in a naive UTC column, so
     # the real instant is recovered through the session's zone. Null until the
@@ -62,7 +71,6 @@ module MobileSessions
     def streams(session)
       session.streams.each_with_object({}) do |stream, acc|
         acc[stream.sensor_name] = {
-          id: stream.id,
           sensor_name: stream.sensor_name,
           sensor_package_name: stream.sensor_package_name,
           measurement_type: stream.measurement_type,

@@ -3719,11 +3719,27 @@ paths:
       tags:
       - 'Mobile app: Mobile sessions'
       description: |
-        Returns the authenticated user's own mobile sessions — metadata and
-        per-stream aggregates, **no measurements**. Ownership is implicit from the
-        token. Returns the full authoritative set by default, so the client can
-        treat a locally-known session that is absent here as deleted; pass
-        `page` / `per_page` to paginate the rare heavy account.
+        The authenticated user's own mobile sessions — metadata and per-stream
+        aggregates, **no measurements**. Ownership is implicit from the token.
+
+        Authoritative: a session the client holds locally but never sees while
+        walking the pages has been deleted server-side. Reach the last page
+        before acting on an absence.
+
+        Always paginated; omitting both parameters gives page 1 at the default
+        size. `meta` describes the whole collection, not the page returned:
+
+        ```json
+        { "sessions": [ ... ], "meta": { "total": 812, "page": 1, "per_page": 500, "total_pages": 2 } }
+        ```
+
+        `total_pages` is `0` for a user with no sessions. A `page` past the end
+        answers `200` with an empty `sessions` array and the true `total`.
+        Invalid `page` / `per_page` is `400 validation_error`, never an empty
+        `200`.
+
+        Ordered by upload time, newest first — not recording time. Sort by
+        `start_time` client-side if you display them in recording order.
       parameters:
       - name: Authorization
         in: header
@@ -3736,101 +3752,147 @@ paths:
         required: false
         schema:
           type: integer
-        description: 1-based page (with per_page)
+          minimum: 1
+          default: 1
+        description: 1-based page number
       - name: per_page
         in: query
         required: false
         schema:
           type: integer
-        description: Page size; omit for the full set
+          minimum: 1
+          maximum: 500
+          default: 500
+        description: Page size, 1..500
       responses:
         '200':
           description: sessions
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  type: object
-                  properties:
-                    id:
-                      type: integer
-                    uuid:
-                      type: string
-                    title:
-                      type: string
-                    type:
-                      type: string
-                      example: MobileSession
-                    tag_list:
-                      type: string
-                    contribute:
-                      type: boolean
-                    time_zone:
-                      type: string
-                      example: America/New_York
-                      description: IANA zone the session was recorded in; render start_time
-                        / end_time and measurement times in it
-                    start_time:
-                      type: integer
-                      format: int64
-                      nullable: true
-                      example: 1786663800000
-                      description: Epoch ms (UTC); null until the first measurements
-                        arrive
-                    end_time:
-                      type: integer
-                      format: int64
-                      nullable: true
-                      example: 1786707000000
-                    version:
-                      type: integer
-                    latitude:
-                      type: number
-                      format: float
-                      nullable: true
-                    longitude:
-                      type: number
-                      format: float
-                      nullable: true
-                    share_url:
-                      type: string
-                      example: http://aircasting.org/s/ab12c
-                      description: Shareable session link
-                    device:
+                type: object
+                required:
+                - sessions
+                - meta
+                properties:
+                  meta:
+                    type: object
+                    description: Describes the whole collection, not the returned
+                      page
+                    required:
+                    - total
+                    - page
+                    - per_page
+                    - total_pages
+                    properties:
+                      total:
+                        type: integer
+                        example: 812
+                        description: Total mobile sessions the user owns
+                      page:
+                        type: integer
+                        example: 1
+                      per_page:
+                        type: integer
+                        example: 500
+                      total_pages:
+                        type: integer
+                        example: 2
+                        description: 0 when the user owns no sessions
+                  sessions:
+                    type: array
+                    items:
                       type: object
-                      nullable: true
                       properties:
-                        mac_address:
+                        uuid:
                           type: string
-                        model:
+                        title:
                           type: string
-                        name:
+                        type:
                           type: string
+                          example: MobileSession
+                        tag_list:
+                          type: string
+                        contribute:
+                          type: boolean
+                        time_zone:
+                          type: string
+                          example: America/New_York
+                          description: IANA zone the session was recorded in; render
+                            start_time / end_time and measurement times in it
+                        start_time:
+                          type: integer
+                          format: int64
                           nullable: true
-                    streams:
-                      type: object
-                      description: Keyed by sensor_name; aggregates only
-                      additionalProperties:
-                        type: object
-                        additionalProperties: true
-                      example:
-                        AirBeamMini-PM2.5:
-                          id: 123
-                          sensor_name: AirBeamMini-PM2.5
-                          measurement_type: Particulate Matter
-                          unit_symbol: µg/m³
-                          measurements_count: 1440
-                          average_value: 12.5
-                          min_latitude: 40.7
-                          max_latitude: 40.75
-                          min_longitude: -74.02
-                          max_longitude: -73.98
-                          threshold_low: 9
-                          threshold_medium: 35
-                          threshold_high: 55
-                          threshold_very_high: 150
-                          threshold_very_low: 0
+                          example: 1786663800000
+                          description: Epoch ms (UTC); null until the first measurements
+                            arrive
+                        end_time:
+                          type: integer
+                          format: int64
+                          nullable: true
+                          example: 1786707000000
+                        version:
+                          type: integer
+                        latitude:
+                          type: number
+                          format: float
+                          nullable: true
+                        longitude:
+                          type: number
+                          format: float
+                          nullable: true
+                        share_url:
+                          type: string
+                          example: http://aircasting.org/s/ab12c
+                          description: Shareable session link
+                        device:
+                          type: object
+                          nullable: true
+                          properties:
+                            mac_address:
+                              type: string
+                            model:
+                              type: string
+                            name:
+                              type: string
+                              nullable: true
+                        streams:
+                          type: object
+                          description: Keyed by sensor_name; aggregates only
+                          additionalProperties:
+                            type: object
+                            additionalProperties: true
+                          example:
+                            AirBeamMini-PM2.5:
+                              sensor_name: AirBeamMini-PM2.5
+                              measurement_type: Particulate Matter
+                              unit_symbol: µg/m³
+                              measurements_count: 1440
+                              average_value: 12.5
+                              min_latitude: 40.7
+                              max_latitude: 40.75
+                              min_longitude: -74.02
+                              max_longitude: -73.98
+                              threshold_low: 9
+                              threshold_medium: 35
+                              threshold_high: 55
+                              threshold_very_high: 150
+                              threshold_very_low: 0
+        '400':
+          description: invalid pagination parameters
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - error_code
+                - message
+                properties:
+                  error_code:
+                    type: string
+                  message:
+                    type: string
         '401':
           description: unauthorized
           content:
@@ -4199,8 +4261,6 @@ paths:
               schema:
                 type: object
                 properties:
-                  id:
-                    type: integer
                   uuid:
                     type: string
                   title:
@@ -4261,7 +4321,6 @@ paths:
                       additionalProperties: true
                     example:
                       AirBeamMini-PM2.5:
-                        id: 123
                         sensor_name: AirBeamMini-PM2.5
                         measurement_type: Particulate Matter
                         unit_symbol: µg/m³

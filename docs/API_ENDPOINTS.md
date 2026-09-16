@@ -50,7 +50,7 @@ Highcharts can plot with `useUTC: true`.
 | Method | Endpoint | Description |
 |--------|----------|-------------|
 | POST | `/api/v3/mobile_sessions` | Create a mobile session and its streams |
-| GET | `/api/v3/mobile_sessions` | List the caller's mobile sessions |
+| GET | `/api/v3/mobile_sessions` | List the caller's mobile sessions — paginated, `{ sessions, meta }` |
 | GET | `/api/v3/mobile_sessions/{uuid}` | One session with stream metadata, no measurements |
 | PATCH | `/api/v3/mobile_sessions/{uuid}` | Update title, tags, notes |
 | DELETE | `/api/v3/mobile_sessions/{uuid}` | Delete a session and record a tombstone |
@@ -61,18 +61,3 @@ Highcharts can plot with `useUTC: true`.
 
 Request and response shapes are in `swagger/swagger.yaml`; the source is
 `spec/swagger/v3/mobile_sessions_spec.rb` and `spec/swagger/v3/fixed_sessions_spec.rb`.
-
-### Binary upload, decided once
-
-- A frame carries one reading, written to `measurements.value` /
-  `fixed_measurements.value`. **`measurements.measured_value` stays NULL.** Its
-  last writers were the AirNow and OpenAQ importers deleted in `57afa615b`, and
-  they set it equal to `value`; nothing in `app/` writes or reads it now, and no
-  response serialiser emits it (iOS decodes it as an optional). The frame has no
-  second field to put there — adding one is a protocol change, not a column
-  default.
-- `measurements.time` is local-as-UTC (`Utils.to_local_as_utc`), derived from the
-  frame's UTC epoch and the session's `time_zone`; `time_with_time_zone` keeps
-  the real instant.
-- Resends are idempotent by design, so a client with more than the per-request
-  cap splits across requests rather than asking for a larger cap.
