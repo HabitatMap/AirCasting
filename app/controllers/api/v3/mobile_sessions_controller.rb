@@ -6,10 +6,21 @@ module Api
       before_action :require_authentication!
 
       def index
+        contract = Api::ListMobileSessionsContract.new.call(
+          params.permit(:page, :per_page).to_h.symbolize_keys,
+        )
+        if contract.failure?
+          return render_validation_error(
+            contract.errors,
+            message: 'Query parameters are invalid',
+          )
+        end
+
+        pagination = contract.to_h
         render json: ::MobileSessions::List.new(
           user: current_user,
-          page: params[:page],
-          per_page: params[:per_page],
+          page: pagination[:page],
+          per_page: pagination[:per_page],
         ).call, status: :ok
       end
 

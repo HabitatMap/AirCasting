@@ -26,25 +26,67 @@ RSpec.describe 'AirBeam Mobile Sessions', type: :request do
       tags 'Mobile app: Mobile sessions'
       produces 'application/json'
       description <<~DESC
-        Returns the authenticated user's own mobile sessions — metadata and
-        per-stream aggregates, **no measurements**. Ownership is implicit from the
-        token. Returns the full authoritative set by default, so the client can
-        treat a locally-known session that is absent here as deleted; pass
-        `page` / `per_page` to paginate the rare heavy account.
+        The authenticated user's own mobile sessions — metadata and per-stream
+        aggregates, **no measurements**. Ownership is implicit from the token.
+
+        Authoritative: a session the client holds locally but never sees while
+        walking the pages has been deleted server-side. Reach the last page
+        before acting on an absence.
+
+        Always paginated; omitting both parameters gives page 1 at the default
+        size. `meta` describes the whole collection, not the page returned:
+
+        ```json
+        { "sessions": [ ... ], "meta": { "total": 812, "page": 1, "per_page": 500, "total_pages": 2 } }
+        ```
+
+        `total_pages` is `0` for a user with no sessions. A `page` past the end
+        answers `200` with an empty `sessions` array and the true `total`.
+        Invalid `page` / `per_page` is `400 validation_error`, never an empty
+        `200`.
+
+        Ordered by upload time, oldest first — not recording time. Sort by
+        `start_time` client-side if you display them in recording order. The
+        order is ascending so that a session created while you are paging cannot
+        shift the pages you already fetched.
       DESC
 
       parameter name: :Authorization, in: :header, type: :string, required: true,
                 description: 'Bearer <user_token>'
-      parameter name: :page, in: :query, required: false, schema: { type: :integer },
-                description: '1-based page (with per_page)'
-      parameter name: :per_page, in: :query, required: false, schema: { type: :integer },
-                description: 'Page size; omit for the full set'
+      parameter name: :page, in: :query, required: false,
+                schema: { type: :integer, minimum: 1, default: 1 },
+                description: '1-based page number'
+      parameter name: :per_page, in: :query, required: false,
+                schema: {
+                  type: :integer,
+                  minimum: 1,
+                  maximum: Api::ListMobileSessionsContract::MAX_PER_PAGE,
+                  default: MobileSessions::List::DEFAULT_PER_PAGE,
+                },
+                description: "Page size, 1..#{Api::ListMobileSessionsContract::MAX_PER_PAGE}"
 
       response '200', 'sessions' do
-        schema type: :array, items: {
+        schema type: :object,
+               required: %w[sessions meta],
+               properties: {
+                 meta: {
+                   type: :object,
+                   description: 'Describes the whole collection, not the returned page',
+                   required: %w[total page per_page total_pages],
+                   properties: {
+                     total: { type: :integer, example: 812,
+                              description: "Total mobile sessions the user owns" },
+                     page: { type: :integer, example: 1 },
+                     per_page: { type: :integer, example: 500 },
+                     total_pages: { type: :integer, example: 2,
+                                    description: '0 when the user owns no sessions' },
+                   },
+                 },
+                 sessions: {
+                   type: :array,
+                   items: {
           type: :object,
           properties: {
-            id: { type: :integer },
             uuid: { type: :string },
             title: { type: :string },
             type: { type: :string, example: 'MobileSession' },
@@ -74,7 +116,7 @@ RSpec.describe 'AirBeam Mobile Sessions', type: :request do
               additionalProperties: { type: :object, additionalProperties: true },
               example: {
                 'AirBeamMini-PM2.5' => {
-                  id: 123, sensor_name: 'AirBeamMini-PM2.5', measurement_type: 'Particulate Matter',
+                  sensor_name: 'AirBeamMini-PM2.5', measurement_type: 'Particulate Matter',
                   unit_symbol: 'µg/m³', measurements_count: 1440, average_value: 12.5,
                   min_latitude: 40.70, max_latitude: 40.75, min_longitude: -74.02, max_longitude: -73.98,
                   threshold_low: 9, threshold_medium: 35, threshold_high: 55, threshold_very_high: 150, threshold_very_low: 0
@@ -82,7 +124,9 @@ RSpec.describe 'AirBeam Mobile Sessions', type: :request do
               }
             }
           }
-        }
+                   },
+                 },
+               }
 
         let(:user) { create(:user) }
         let(:Authorization) { "Bearer #{user.authentication_token}" }
@@ -90,6 +134,14 @@ RSpec.describe 'AirBeam Mobile Sessions', type: :request do
           session = create(:mobile_session, user: user)
           create(:stream, session: session, sensor_name: 'AirBeamMini-PM2.5')
         end
+        run_test!
+      end
+
+      response '400', 'invalid pagination parameters' do
+        schema ERROR_SCHEMA
+        let(:user) { create(:user) }
+        let(:Authorization) { "Bearer #{user.authentication_token}" }
+        let(:per_page) { 0 }
         run_test!
       end
 
@@ -420,7 +472,6 @@ RSpec.describe 'AirBeam Mobile Sessions', type: :request do
       response '200', 'session' do
         schema type: :object,
                properties: {
-                 id: { type: :integer },
                  uuid: { type: :string },
                  title: { type: :string },
                  type: { type: :string, example: 'MobileSession' },
@@ -450,7 +501,7 @@ RSpec.describe 'AirBeam Mobile Sessions', type: :request do
                    additionalProperties: { type: :object, additionalProperties: true },
                    example: {
                      'AirBeamMini-PM2.5' => {
-                       id: 123, sensor_name: 'AirBeamMini-PM2.5', measurement_type: 'Particulate Matter',
+                       sensor_name: 'AirBeamMini-PM2.5', measurement_type: 'Particulate Matter',
                        unit_symbol: 'µg/m³', measurements_count: 1440, average_value: 12.5
                      }
                    }
