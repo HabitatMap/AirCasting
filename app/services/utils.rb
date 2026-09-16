@@ -33,6 +33,12 @@ class Utils
   #
   #   Utils.from_local_as_utc(Time.utc(2025,1,15,8,0,0), 'America/New_York')
   #   #=> 2025-01-15 13:00:00 UTC
+  #
+  # DST: a local time maps to zero or two real instants twice a year, and
+  # +TimeZone#local+ resolves both silently — 01:30 on fall-back returns the
+  # first (DST) pass, 02:30 on spring-forward returns 03:30. Unavoidable while
+  # bounds live in wall-clock columns; measurements escape it via
+  # +time_with_time_zone+, sessions have no such column.
   def self.from_local_as_utc(naive_utc, time_zone)
     tz = ActiveSupport::TimeZone[time_zone] || ActiveSupport::TimeZone['UTC']
     tz.local(naive_utc.year, naive_utc.month, naive_utc.day,
