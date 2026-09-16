@@ -1,8 +1,14 @@
 module MobileSessions
   # Shared metadata + per-stream aggregate shape for a single mobile session.
-  # Used by both the list (GET /api/v3/mobile_sessions) and show
-  # (GET /api/v3/mobile_sessions/:uuid) endpoints so they return identical shapes.
-  # Aggregates only — never measurements.
+  # Used by the list (GET /api/v3/mobile_sessions), show
+  # (GET /api/v3/mobile_sessions/:uuid) and update (PATCH /:uuid) endpoints so
+  # they return identical shapes. Aggregates only — never measurements.
+  #
+  # `include_notes` is off for the list, which is a whole-account summary, and on
+  # for show/update. Notes are also their own resource
+  # (/mobile_sessions/:uuid/notes) — embedded here so opening a session is one
+  # request, listed there so a client can refresh them without refetching the
+  # stream metadata.
   #
   # No internal ids: v3 addresses a session by `uuid` and a stream by
   # `sensor_name`.
@@ -14,8 +20,8 @@ module MobileSessions
   # recorded in; the columns themselves hold that local time naively, which is a
   # storage detail no client should have to know.
   class SessionSerializer
-    def call(session)
-      {
+    def call(session, include_notes: false)
+      result = {
         uuid: session.uuid,
         title: session.title,
         type: session.type,
@@ -31,9 +37,24 @@ module MobileSessions
         device: device(session.device),
         streams: streams(session),
       }
+
+      result[:notes] = notes(session) if include_notes
+      result
     end
 
     private
+
+    # One implementation, shared with the note endpoints: the same record
+    # serialised two ways would drift, and the note `id` has to appear in both
+    # or a client reading a session cannot then address its notes. Notes keep an
+    # id where sessions and streams do not, because they have no natural key —
+    # `number` is reused after a delete on both apps.
+    #
+    # `with_attached_s3_photo` or the serializer asks the attachments table once
+    # per note, and the blobs table again for each one that has a photo.
+    def notes(session)
+      ::Notes::Serializer.new.call_many(session.notes.with_attached_s3_photo)
+    end
 
     # Same output as `Session#tag_list`, but off the preloaded association.
     # acts-as-taggable-on builds a fresh scope in `tags_on`, discarding any
