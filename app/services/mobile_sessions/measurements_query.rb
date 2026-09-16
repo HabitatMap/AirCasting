@@ -1,22 +1,14 @@
 module MobileSessions
   # Reads measurements for exactly one stream of a mobile session.
   #
-  # The default answer is the *newest* data — the last 6 hours of the session —
-  # and history is reached by paging `end_time` backwards. Inside that window the
-  # points are sorted ascending (oldest first), which is plot order: a client
-  # prepends an older page whole, and never reverses an array to draw a graph.
+  # The default answer is the *newest* data — the last 6 hours, anchored on the
+  # session end — and history is reached by paging `end_time` backwards. Inside
+  # the window points are ascending: plot order, so a client prepends an older
+  # page whole and never reverses an array to draw a graph.
   #
-  # The stream is always named — `sensor_name` is required — because at up to
-  # 1 Hz per stream, "every stream of this session" is a payload no client
-  # actually wants: an AirBeam 3 records five of them. The window is either the
-  # default last 6 hours (anchored on the session end) or the explicit
-  # `start_time`/`end_time` the contract holds to 12 hours.
-  #
-  # There is no point cap. The window bounds the answer, so a full response and a
-  # truncated one are never confused; a client pages backwards by moving
-  # `end_time`, the way the web fixed-session graph does.
-  #
-  # Returns `nil` when the session has no such stream — the caller answers 404.
+  # `MobileSessionMeasurementsContract` owns the window rules and why there is no
+  # point cap. Returns `nil` when the session has no such stream — the caller
+  # answers 404 — and `[]` when the stream exists but the window is empty.
   class MeasurementsQuery
     DEFAULT_WINDOW = 6.hours
 

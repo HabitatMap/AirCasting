@@ -627,46 +627,33 @@ RSpec.describe 'AirBeam Mobile Sessions', type: :request do
       tags 'Mobile app: Mobile sessions'
       produces 'application/json'
       description <<~DESC
-        Measurements for **one** stream of the session — an array of
-        `{ time, value, latitude, longitude }`. The default answer holds the
-        **newest** data (the last 6 hours); history is reached by paging
-        `end_time` backwards. Within a window the points are sorted **ascending**
-        — oldest first, i.e. plot order, so an older page prepends whole. `time` is
-        epoch **milliseconds** — the same epochs the binary upload carries, so a
-        point round-trips without any time-zone reasoning.
+        Measurements for **one** stream — an array of
+        `{ time, value, latitude, longitude }` sorted **ascending** (plot order,
+        so an older page prepends whole).
 
-        `sensor_name` is always required; there is no way to ask for every stream
-        at once. Mobile records at up to 1 Hz and an AirBeam 3 carries five
-        streams, so "all of them" is a payload no client wants — and the session
-        screen draws one stream at a time anyway. Read `streams[].sensor_name`
-        from the session endpoint to learn the names.
-
-        Two request shapes, and only two:
+        `sensor_name` is required; there is no way to fetch every stream at once.
+        Read the names from `streams[].sensor_name` on the session endpoint.
+        `measurement_type` could not stand in as a selector — an AirBeam's PM1,
+        PM2.5 and PM10 all carry `Particulate Matter`.
 
         | Request | Returns |
         |---|---|
-        | `sensor_name` only | the **last 6 hours** of that stream, anchored on the session end — what the session screen opens with |
+        | `sensor_name` only | the **last 6 hours**, anchored on the session end — what the session screen opens with |
         | `sensor_name` + `start_time` + `end_time` | that window, at most **12 hours** wide |
 
-        There is no point cap and nothing is ever truncated silently: the window
-        is the only bound, so a short answer means there is no more data in it.
-        To go further back, move `end_time` — the same paging the web
-        fixed-session graph does. Both bounds are **inclusive**, so a point can
-        repeat between two adjacent pages; de-duplicate by `time`.
-
-        `measurement_type` is not accepted and could not work as a selector: an
-        AirBeam's PM1, PM2.5 and PM10 streams all carry `Particulate Matter`.
-
-        A session whose measurements have not arrived yet (no `end_time`) answers
-        `200` with an empty array.
+        No point cap, and nothing is truncated silently: the window is the only
+        bound, so a short answer means there is no more data in it. Page further
+        back by moving `end_time`. Both bounds are **inclusive**, so a point can
+        repeat between adjacent pages — de-duplicate by `time`. A stream with no
+        measurements yet answers `200 []`.
 
         ## Time
 
-        Every timestamp in this endpoint group — `time` here, `start_time` /
-        `end_time` on the session, the `start_time` / `end_time` query parameters,
-        and the epochs inside the binary upload — is a **real UTC instant**, in
-        milliseconds here and in seconds inside the binary frames. Nothing on the
-        wire is local time. Render local by applying the session's `time_zone`.
+        Every timestamp in this endpoint group — `time` here, the `start_time` /
+        `end_time` parameters, `start_time` / `end_time` on the session, and the
+        epochs inside the binary upload — is a **real UTC instant**: milliseconds
+        in JSON, seconds in the binary frames. Nothing on the wire is local time.
+        Render local with the session's `time_zone`.
 
         ## Error codes
 
