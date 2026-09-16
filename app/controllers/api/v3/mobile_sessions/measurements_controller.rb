@@ -8,19 +8,19 @@ module Api
         before_action :authenticate_user_from_bearer_token
         before_action :require_authentication!
 
+        # The query is validated before the session is looked up, so a malformed
+        # request answers the same 400 whatever uuid it carries.
         def index
+          contract = ::Api::MobileSessionMeasurementsContract.new.call(query_params)
+          return render_validation_error(contract.errors, message: 'Query is invalid') if contract.failure?
+
           session = find_session
           return session_not_found unless session
 
-          data = ::MobileSessions::MeasurementsQuery.new(
-            session: session,
-            sensor_name: params[:sensor_name],
-            measurement_type: params[:measurement_type],
-            start_time: params[:start_time],
-            end_time: params[:end_time],
-          ).call
+          measurements = ::MobileSessions::MeasurementsQuery.new(session: session, **contract.to_h).call
+          return stream_not_found(contract[:sensor_name]) if measurements.nil?
 
-          render json: data, status: :ok
+          render json: measurements, status: :ok
         end
 
         def create
@@ -50,6 +50,19 @@ module Api
 
         private
 
+        def query_params
+          params.to_unsafe_h.slice(:sensor_name, :start_time, :end_time)
+        end
+
+        # A named stream the session does not have is a wrong request, not an
+        # empty one — an empty array would read as "recorded nothing here".
+        def stream_not_found(sensor_name)
+          render_error(
+            ::Api::V3::ErrorCodes::NOT_FOUND,
+            "Session has no stream named #{sensor_name}",
+          )
+        end
+
         # Answered before the body is read, so an oversized upload costs the headers
         # and nothing more. A chunked request carries no Content-Length and is
         # caught by the parser instead.
@@ -65,10 +78,13 @@ module Api
           )
         end
 
+        # The monitor watches the ingest path only — a rejected credential on the
+        # JSON read is an ordinary 401, not an upload failure, and counting it
+        # would blur the upload dashboards.
         def require_authentication!
           return if current_user
 
-          monitor.report_auth_failure(session_uuid: params[:mobile_session_uuid])
+          monitor.report_auth_failure(session_uuid: params[:mobile_session_uuid]) if action_name == 'create'
           super
         end
 

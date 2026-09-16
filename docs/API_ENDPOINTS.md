@@ -36,6 +36,17 @@ The table above lists what the released iOS and Android builds call. The v3
 mobile-session API is finished and documented but no shipped client uses it
 yet, so it has no column here — it gets rows once a build calls it.
 
+**Time convention for this group.** Every timestamp on the wire is a *real UTC
+instant* — epoch milliseconds in JSON, epoch seconds inside the binary upload
+frames. Nothing is local time. The session carries `time_zone` (IANA) so a client
+can render those instants as the local time the session was recorded in. The
+`sessions.*_local` columns behind them hold local wall clock in a naive UTC
+column; that is storage, and it stops at the serializer.
+
+This differs deliberately from the web graph endpoints (`/api/v3/fixed_measurements`,
+`/api/v3/station_measurements`), which send and return *local-as-UTC* epoch ms so
+Highcharts can plot with `useUTC: true`.
+
 | Method | Endpoint | Description |
 |--------|----------|-------------|
 | POST | `/api/v3/mobile_sessions` | Create a mobile session and its streams |
@@ -43,7 +54,7 @@ yet, so it has no column here — it gets rows once a build calls it.
 | GET | `/api/v3/mobile_sessions/{uuid}` | One session with stream metadata, no measurements |
 | PATCH | `/api/v3/mobile_sessions/{uuid}` | Update title, tags, notes |
 | DELETE | `/api/v3/mobile_sessions/{uuid}` | Delete a session and record a tombstone |
-| GET | `/api/v3/mobile_sessions/{uuid}/measurements` | Measurements keyed by `sensor_name` |
+| GET | `/api/v3/mobile_sessions/{uuid}/measurements` | Measurements for one stream — `sensor_name` required; last 6h by default, or a ≤12h `start_time`/`end_time` window. No point cap |
 | POST | `/api/v3/mobile_sessions/{uuid}/measurements` | Upload binary measurements (25-byte frames, 3000 max per request) |
 | POST | `/api/v3/fixed_sessions` | Create a fixed session and its streams |
 | POST | `/api/v3/fixed_sessions/{uuid}/measurements` | Upload binary measurements (9-byte frames, 6000 max per request) |
