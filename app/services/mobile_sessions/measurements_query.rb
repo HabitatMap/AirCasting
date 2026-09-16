@@ -1,69 +1,80 @@
 module MobileSessions
-  # Reads measurements for one mobile session, keyed by sensor_name. Defaults to
-  # the latest 24h so the app can do a light fetch and show recent data; an
-  # explicit start_time/end_time window (epoch milliseconds, like the web
-  # fixed/station measurement endpoints) pulls any older range on demand. Optional
-  # sensor_name / measurement_type fetch a single stream instead of all.
+  # Reads measurements for exactly one stream of a mobile session.
+  #
+  # The default answer is the *newest* data — the last 6 hours, anchored on the
+  # session end — and history is reached by paging `end_time` backwards. Inside
+  # the window points are ascending: plot order, so a client prepends an older
+  # page whole and never reverses an array to draw a graph.
+  #
+  # `MobileSessionMeasurementsContract` owns the window rules and why there is no
+  # point cap. Returns `nil` when the session has no such stream — the caller
+  # answers 404 — and `[]` when the stream exists but the window is empty.
   class MeasurementsQuery
-    DEFAULT_WINDOW = 24.hours
+    DEFAULT_WINDOW = 6.hours
 
-    # A 1 Hz session fills the default window with 86_400 points per stream, and
-    # every one of them would be built into a Ruby hash and rendered into one JSON
-    # array. The newest are the ones worth keeping; a client that wants more pages
-    # backwards with `end_time`.
-    MAX_POINTS_PER_STREAM = 10_000
-
-    def initialize(session:, sensor_name: nil, measurement_type: nil, start_time: nil, end_time: nil)
+    def initialize(session:, sensor_name:, start_time: nil, end_time: nil)
       @session = session
       @sensor_name = sensor_name
-      @measurement_type = measurement_type
       @start_time = start_time
       @end_time = end_time
     end
 
     def call
+      return nil unless stream
       # A session created but not yet fed measurements has no end_time_local to
-      # anchor the default window on — there is nothing to return either.
-      return {} if session.end_time_local.nil? && end_time.blank?
+      # anchor the default window on, and nothing to return either.
+      return [] unless window
 
-      selected_streams.each_with_object({}) do |stream, acc|
-        acc[stream.sensor_name] = points(stream)
-      end
+      points
     end
 
     private
 
-    attr_reader :session, :sensor_name, :measurement_type, :start_time, :end_time
+    attr_reader :session, :sensor_name, :start_time, :end_time
 
-    def selected_streams
-      streams = session.streams
-      streams = streams.where(sensor_name: sensor_name) if sensor_name.present?
-      streams = streams.where(measurement_type: measurement_type) if measurement_type.present?
-      streams
+    def stream
+      return @stream if defined?(@stream)
+
+      # Ordered, not `find_by`: the v3 create contract rejects a repeated
+      # sensor_name, but legacy sessions came through SessionBuilder, which never
+      # checked. Without an ORDER BY the planner picks the row, so the same
+      # request could answer from a different stream between two calls.
+      @stream = session.streams.where(sensor_name: sensor_name).order(:id).first
     end
 
-    def points(stream)
+    def points
       stream
         .measurements
         .where(time: window)
-        .reorder(time: :desc)
-        .limit(MAX_POINTS_PER_STREAM)
+        .reorder(time: :asc)
         .pluck(:time, :value, :latitude, :longitude)
-        .reverse
-        .map { |time, value, latitude, longitude| { time: time, value: value, latitude: latitude, longitude: longitude } }
+        .map do |time, value, latitude, longitude|
+          { time: to_epoch_ms(time), value: value, latitude: latitude, longitude: longitude }
+        end
     end
 
     def window
-      finish = end_time.present? ? epoch_ms(end_time) : session.end_time_local
-      start = start_time.present? ? epoch_ms(start_time) : finish - DEFAULT_WINDOW
-      start..finish
+      return @window if defined?(@window)
+
+      @window =
+        if start_time && end_time
+          from_epoch_ms(start_time)..from_epoch_ms(end_time)
+        elsif session.end_time_local
+          (session.end_time_local - DEFAULT_WINDOW)..session.end_time_local
+        end
     end
 
     # `measurements.time` holds the session's local time in a UTC column, which is
     # what `start_time_local` and the ingester both write. An epoch is a real UTC
     # instant, so comparing it raw would miss the window by the session's offset.
-    def epoch_ms(value)
-      Utils.to_local_as_utc(Time.at(value.to_f / 1000), session.time_zone)
+    def from_epoch_ms(value)
+      Utils.to_local_as_utc(Time.at(value / 1000.0), session.time_zone)
+    end
+
+    # The inverse, so the client reads back the same epochs it uploaded in the
+    # binary frames and sends in `start_time`/`end_time`.
+    def to_epoch_ms(time)
+      Utils.from_local_as_utc(time, session.time_zone).to_i * 1_000
     end
   end
 end

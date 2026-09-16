@@ -3,6 +3,13 @@ module MobileSessions
   # Used by both the list (GET /api/v3/mobile_sessions) and show
   # (GET /api/v3/mobile_sessions/:uuid) endpoints so they return identical shapes.
   # Aggregates only — never measurements.
+  #
+  # Every timestamp this API group puts on the wire is a real UTC instant in
+  # epoch milliseconds — the same domain as the epochs the binary upload carries
+  # and as the measurements read endpoint. `time_zone` travels with the session
+  # so a client can render those instants as the local time the session was
+  # recorded in; the columns themselves hold that local time naively, which is a
+  # storage detail no client should have to know.
   class SessionSerializer
     def call(session)
       {
@@ -12,8 +19,9 @@ module MobileSessions
         type: session.type,
         tag_list: session.tag_list.to_s,
         contribute: session.contribute,
-        start_time_local: session.start_time_local,
-        end_time_local: session.end_time_local,
+        time_zone: session.time_zone,
+        start_time: epoch_ms(session.start_time_local, session.time_zone),
+        end_time: epoch_ms(session.end_time_local, session.time_zone),
         version: session.version,
         latitude: session.latitude,
         longitude: session.longitude,
@@ -24,6 +32,15 @@ module MobileSessions
     end
 
     private
+
+    # `*_local` columns hold session-local wall clock in a naive UTC column, so
+    # the real instant is recovered through the session's zone. Null until the
+    # first measurements land.
+    def epoch_ms(local_as_utc, time_zone)
+      return nil unless local_as_utc
+
+      Utils.from_local_as_utc(local_as_utc, time_zone).to_i * 1_000
+    end
 
     # Capability link to the session — anyone holding it can view the session,
     # which is how a private (non-contributed) session gets shared. Served as a

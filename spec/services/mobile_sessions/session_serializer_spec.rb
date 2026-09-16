@@ -24,6 +24,31 @@ RSpec.describe MobileSessions::SessionSerializer do
     expect(result[:streams]['AirBeamMini-PM2.5']).not_to have_key(:measurements)
   end
 
+  it 'reports session bounds as real UTC epoch ms, with the zone to render them in' do
+    session = create(
+      :mobile_session,
+      user: user,
+      time_zone: 'America/New_York',
+      # Stored local-as-utc: 08:00 New York wall clock, i.e. 12:00 UTC.
+      start_time_local: Time.utc(2026, 8, 14, 8, 0, 0),
+      end_time_local: Time.utc(2026, 8, 14, 9, 0, 0),
+    )
+
+    result = serializer.call(session)
+
+    expect(result).to include(
+      time_zone: 'America/New_York',
+      start_time: Time.utc(2026, 8, 14, 12, 0, 0).to_i * 1_000,
+      end_time: Time.utc(2026, 8, 14, 13, 0, 0).to_i * 1_000,
+    )
+  end
+
+  it 'leaves the bounds null until the first measurements land' do
+    session = create(:mobile_session, user: user, start_time_local: nil, end_time_local: nil)
+
+    expect(serializer.call(session)).to include(start_time: nil, end_time: nil)
+  end
+
   it 'exposes the shareable session link so a synced session stays shareable' do
     session = create(:mobile_session, user: user)
 
