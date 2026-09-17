@@ -24,7 +24,7 @@ class Api::UserSessionsController < Api::BaseController
 
   def update_session
     contract = Api::UserSessionContract.new.call(JSON.parse(params[:data]))
-    result = Api::UpdateSession.new(contract: contract).call
+    result = Api::UpdateSession.new(contract: contract, user: current_user).call
 
     if result.success?
       render json: result.value, status: :ok

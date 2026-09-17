@@ -54,11 +54,11 @@ module Api
 
       def destroy
         session = current_user.mobile_sessions.by_uuid(params[:uuid]).first
-        return session_not_found unless session
+        return already_deleted? ? head(:no_content) : session_not_found unless session
 
-        # Cascades streams/measurements/notes and writes a deleted_sessions
-        # tombstone (Session#after_destroy).
-        session.destroy!
+        result = ::MobileSessions::Destroyer.new.call(session: session)
+        return render_failure(result) unless result.success?
+
         head :no_content
       end
 
@@ -103,6 +103,13 @@ module Api
 
       def session_not_found
         render_error(ErrorCodes::SESSION_NOT_FOUND, 'Session not found')
+      end
+
+      def already_deleted?
+        DeletedSession
+          .where(user_id: current_user.id)
+          .where('LOWER(uuid) = LOWER(?)', params[:uuid].to_s)
+          .exists?
       end
 
       # show and update are the only way a second device learns a session's notes

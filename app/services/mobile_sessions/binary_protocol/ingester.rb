@@ -87,6 +87,11 @@ module MobileSessions
         end
 
         Success.new('measurements ingested')
+      rescue ActiveRecord::RecordNotFound
+        Failure.new(
+          error_code: ::MobileSessions::ErrorCodes::SESSION_NOT_FOUND,
+          message: 'Session not found',
+        )
       rescue ActiveRecord::RecordInvalid => e
         monitor.report_transaction_error(session: session, message: e.message)
         Failure.new(error_code: ::MobileSessions::ErrorCodes::INTERNAL_ERROR, message: e.message)

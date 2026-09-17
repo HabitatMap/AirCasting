@@ -2337,6 +2337,10 @@ paths:
         Updates title/tags/notes and deletes flagged streams, bumping the session version.
         Auth required. `data` is a JSON **string**. Streams flagged `deleted: true` are
         removed (matched by sensor_name + sensor_package_name).
+
+        The session is looked up among the authenticated user's own sessions. A uuid
+        that belongs to another user answers `400`, exactly as an unknown uuid does —
+        the caller cannot tell the two apart, and cannot edit a session it does not own.
       parameters: []
       responses:
         '200':
@@ -2405,6 +2409,24 @@ paths:
                     additionalProperties:
                       type: object
                       additionalProperties: true
+        '400':
+          description: unknown uuid, a uuid owned by another user, or a validation
+            error
+          content:
+            application/json:
+              schema:
+                oneOf:
+                - type: array
+                  description: dry-validation messages
+                  items:
+                    type: object
+                    additionalProperties: true
+                  example:
+                  - text: is missing
+                    path:
+                    - title
+                - type: string
+                  example: 'Session with uuid: 1234 doesn''t exist'
       requestBody:
         content:
           application/json:
@@ -5065,9 +5087,41 @@ paths:
       - 'Mobile app: Mobile sessions'
       description: |
         Deletes one of the caller's mobile sessions. Cascades its streams,
-        measurements and notes, and records a tombstone so other devices can drop
-        the session (the list endpoint also reflects the deletion by absence).
-        Returns 204 No Content.
+        measurements, notes and note photos, and records a tombstone so other
+        devices can drop the session (the list endpoint also reflects the
+        deletion by absence). Returns 204 No Content, with no body.
+
+        Only the owner's **mobile** sessions are reachable: another user's uuid,
+        and a fixed session's uuid, both answer `404 session_not_found`. The uuid
+        is matched case-insensitively, as everywhere else in this group.
+
+        ## Safe to retry
+
+        Deleting a session that is already deleted answers **204**, not 404 — the
+        tombstone proves this account deleted this uuid, so a retry after a lost
+        response has got what it asked for. Retry on any network failure or 5xx;
+        there is no "already gone" error to special-case.
+
+        `404` therefore means something narrower than "not here": this uuid has
+        never belonged to this account. Treat it as terminal, not retryable.
+
+        ## In-flight measurement uploads
+
+        Deleting does not cancel an upload already on the wire. A
+        `POST /api/v3/mobile_sessions/{uuid}/measurements` that arrives after
+        the delete answers `404 session_not_found`, and one that was mid-flight
+        when the delete landed is rolled back whole — no partial batch survives.
+        Stop the uploader before deleting if you want to be sure nothing is
+        rejected; nothing is corrupted either way.
+
+        ## Error codes
+
+        | `error_code` | HTTP | When |
+        |---|---|---|
+        | `unauthorized` | 401 | Missing or invalid token |
+        | `session_not_found` | 404 | No mobile session with this uuid for this user, and no record of one having been deleted |
+        | `try_again_later` | 503 | A concurrent upload holds the session's rows. `Retry-After` says how long to wait |
+        | `internal_error` | 500 | The delete could not complete; the session is left intact and the call can be retried |
       parameters:
       - name: uuid
         in: path
@@ -5082,7 +5136,7 @@ paths:
           type: string
       responses:
         '204':
-          description: deleted
+          description: deleted, or already deleted
         '404':
           description: session not found
           content:

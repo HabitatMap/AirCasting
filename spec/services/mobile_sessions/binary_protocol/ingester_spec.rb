@@ -328,6 +328,24 @@ RSpec.describe MobileSessions::BinaryProtocol::Ingester do
     end
   end
 
+  describe 'when the session is deleted mid-upload' do
+    # DELETE /api/v3/mobile_sessions/:uuid takes no lock, so a delete can commit
+    # between this request loading the session and apply_session_times locking
+    # it. The import is rolled back with the transaction; the client must be told
+    # the session is gone, not handed a 500.
+    it 'answers session_not_found and imports nothing' do
+      allow(session).to receive(:lock!).and_raise(ActiveRecord::RecordNotFound)
+
+      binary = payload([frame(epoch: epoch, type_id: 2, value: 1.0, lat: 40.0, lng: -74.0)])
+
+      expect { @result = ingester.call(session: session, binary: binary) }
+        .not_to change(Measurement, :count)
+
+      expect(@result).to be_failure
+      expect(@result.errors[:error_code]).to eq('session_not_found')
+    end
+  end
+
   describe 'lock waits' do
     it 'answers a retryable failure when another upload holds the stream' do
       allow(Measurement).to receive(:import)

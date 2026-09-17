@@ -673,16 +673,48 @@ RSpec.describe 'AirBeam Mobile Sessions', type: :request do
       produces 'application/json'
       description <<~DESC
         Deletes one of the caller's mobile sessions. Cascades its streams,
-        measurements and notes, and records a tombstone so other devices can drop
-        the session (the list endpoint also reflects the deletion by absence).
-        Returns 204 No Content.
+        measurements, notes and note photos, and records a tombstone so other
+        devices can drop the session (the list endpoint also reflects the
+        deletion by absence). Returns 204 No Content, with no body.
+
+        Only the owner's **mobile** sessions are reachable: another user's uuid,
+        and a fixed session's uuid, both answer `404 session_not_found`. The uuid
+        is matched case-insensitively, as everywhere else in this group.
+
+        ## Safe to retry
+
+        Deleting a session that is already deleted answers **204**, not 404 — the
+        tombstone proves this account deleted this uuid, so a retry after a lost
+        response has got what it asked for. Retry on any network failure or 5xx;
+        there is no "already gone" error to special-case.
+
+        `404` therefore means something narrower than "not here": this uuid has
+        never belonged to this account. Treat it as terminal, not retryable.
+
+        ## In-flight measurement uploads
+
+        Deleting does not cancel an upload already on the wire. A
+        `POST /api/v3/mobile_sessions/{uuid}/measurements` that arrives after
+        the delete answers `404 session_not_found`, and one that was mid-flight
+        when the delete landed is rolled back whole — no partial batch survives.
+        Stop the uploader before deleting if you want to be sure nothing is
+        rejected; nothing is corrupted either way.
+
+        ## Error codes
+
+        | `error_code` | HTTP | When |
+        |---|---|---|
+        | `unauthorized` | 401 | Missing or invalid token |
+        | `session_not_found` | 404 | No mobile session with this uuid for this user, and no record of one having been deleted |
+        | `try_again_later` | 503 | A concurrent upload holds the session's rows. `Retry-After` says how long to wait |
+        | `internal_error` | 500 | The delete could not complete; the session is left intact and the call can be retried |
       DESC
 
       parameter name: :uuid, in: :path, type: :string, required: true
       parameter name: :Authorization, in: :header, type: :string, required: true,
                 description: 'Bearer <user_token>'
 
-      response '204', 'deleted' do
+      response '204', 'deleted, or already deleted' do
         let(:user) { create(:user) }
         let(:Authorization) { "Bearer #{user.authentication_token}" }
         let(:session_record) { create(:mobile_session, user: user) }
