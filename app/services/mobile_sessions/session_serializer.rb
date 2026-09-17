@@ -93,6 +93,7 @@ module MobileSessions
       session.streams.each_with_object({}) do |stream, acc|
         acc[stream.sensor_name] = {
           sensor_name: stream.sensor_name,
+          sensor_type_id: stream.sensor_type_id,
           sensor_package_name: stream.sensor_package_name,
           measurement_type: stream.measurement_type,
           measurement_short_type: stream.measurement_short_type,

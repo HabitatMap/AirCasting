@@ -45,9 +45,11 @@ module Api
         result = ::MobileSessions::Updater.new.call(session: session, data: contract.to_h)
         return render_failure(result) unless result.success?
 
-        # The associations were preloaded before the update wrote through them.
-        session.reload
-        render json: serialize(session), status: :ok
+        # Re-read rather than `reload`: the update wrote through the associations
+        # loaded above, and `reload` clears the association cache without
+        # restoring the preloads, so serializing would then query a threshold_set
+        # per stream. A second lookup is one query and comes back preloaded.
+        render json: serialize(find_owned_session), status: :ok
       end
 
       def destroy
@@ -87,15 +89,14 @@ module Api
 
       private
 
+      # Notes are deliberately not preloaded here: the serializer reaches them
+      # through `with_attached_s3_photo`, which is a scope and therefore a fresh
+      # relation, so a preload set up here would be discarded and the notes,
+      # attachments and blobs all read twice.
       def find_owned_session
         current_user
           .mobile_sessions
-          .includes(
-            :device,
-            :tags,
-            { streams: :threshold_set },
-            { notes: { s3_photo_attachment: :blob } },
-          )
+          .includes(:device, :tags, { streams: :threshold_set })
           .by_uuid(params[:uuid])
           .first
       end
