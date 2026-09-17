@@ -245,6 +245,10 @@ RSpec.describe 'Mobile app — sessions & sync', type: :request do
         Updates title/tags/notes and deletes flagged streams, bumping the session version.
         Auth required. `data` is a JSON **string**. Streams flagged `deleted: true` are
         removed (matched by sensor_name + sensor_package_name).
+
+        The session is looked up among the authenticated user's own sessions. A uuid
+        that belongs to another user answers `400`, exactly as an unknown uuid does —
+        the caller cannot tell the two apart, and cannot edit a session it does not own.
       DESC
 
       parameter name: :body, in: :body, required: true, schema: {
@@ -271,6 +275,26 @@ RSpec.describe 'Mobile app — sessions & sync', type: :request do
                }
         # Doc-only: requires a pre-existing session + streams matching the payload.
         skip 'swagger doc: update payload not exercised live'
+      end
+
+      response '400', 'unknown uuid, a uuid owned by another user, or a validation error' do
+        # Two shapes, because the controller renders whatever the Failure carries:
+        # a contract failure serializes the dry-validation messages as an array of
+        # objects, while a missing session is a bare string — the body is the
+        # sentence itself, not a JSON object wrapping it.
+        schema oneOf: [
+                 { type: :array,
+                   description: 'dry-validation messages',
+                   items: { type: :object, additionalProperties: true },
+                   example: [{ text: 'is missing', path: ['title'] }] },
+                 { type: :string, example: "Session with uuid: 1234 doesn't exist" },
+               ]
+        let(:user) { create(:user) }
+        # `streams` is required even to reach validation — the contract's before hook
+        # derives streams_to_delete from it. `title` is the field left missing here.
+        let(:body) { { data: { uuid: 'abc', tag_list: '', notes: [], streams: {} }.to_json } }
+        before { sign_in user }
+        run_test!
       end
     end
   end

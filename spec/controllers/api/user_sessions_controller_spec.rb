@@ -92,7 +92,7 @@ describe Api::UserSessionsController do
 
   describe '#update_session' do
     it 'updates session title and tag list' do
-      session = create_session!(title: 'old title', tag_list: 'oldtag')
+      session = create_session!(user: user, title: 'old title', tag_list: 'oldtag')
       new_title = 'new title'
       new_tag_list = 'newtag'
 
@@ -113,7 +113,7 @@ describe Api::UserSessionsController do
     end
 
     it 'deletes streams marked for deletion' do
-      session = create_session!(title: 'old title', tag_list: 'oldtag')
+      session = create_session!(user: user, title: 'old title', tag_list: 'oldtag')
       stream = create_stream!(session: session)
 
       post :update_session,
@@ -143,7 +143,7 @@ describe Api::UserSessionsController do
     end
 
     it "updates note's text" do
-      session = create_session!(title: 'old title', tag_list: 'oldtag')
+      session = create_session!(user: user, title: 'old title', tag_list: 'oldtag')
       note = create_note!(session: session)
       new_text = 'new text'
 
@@ -164,7 +164,7 @@ describe Api::UserSessionsController do
     end
 
     it 'deletes notes that are not present in the mobile app' do
-      session = create_session!(title: 'old title', tag_list: 'oldtag')
+      session = create_session!(user: user, title: 'old title', tag_list: 'oldtag')
       note = create_note!(session: session)
 
       post :update_session,
@@ -181,8 +181,40 @@ describe Api::UserSessionsController do
       expect(session.notes).to eq([])
     end
 
+    # update_session deletes streams and notes, so the uuid alone must not be
+    # enough to reach a session — uuids travel in share links and sync payloads.
+    it "refuses another user's session and leaves its contents alone" do
+      session = create_session!(title: 'old title', tag_list: 'oldtag')
+      stream = create_stream!(session: session)
+      note = create_note!(session: session)
+
+      post :update_session,
+           params: {
+             data: {
+               uuid: session.uuid,
+               title: 'hijacked',
+               tag_list: 'hijacked',
+               notes: [],
+               streams: {
+                 doomed: {
+                   sensor_package_name: stream.sensor_package_name,
+                   sensor_name: stream.sensor_name,
+                   deleted: true,
+                 },
+               },
+             }.to_json,
+           }
+
+      expect(response).to have_http_status(:bad_request)
+
+      session.reload
+      expect(session.title).to eq('old title')
+      expect(session.streams).to eq([stream])
+      expect(session.notes).to eq([note])
+    end
+
     it 'returns bumped session version' do
-      session = create_session!(version: 1)
+      session = create_session!(user: user, version: 1)
       post :update_session,
            params: {
              data: {

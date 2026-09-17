@@ -53,7 +53,7 @@ Highcharts can plot with `useUTC: true`.
 | GET | `/api/v3/mobile_sessions` | List the caller's mobile sessions — paginated, `{ sessions, meta }`; no notes |
 | GET | `/api/v3/mobile_sessions/{uuid}` | One session with stream metadata and notes, no measurements |
 | PATCH | `/api/v3/mobile_sessions/{uuid}` | Update title and tags. No PUT; never touches notes, streams or the device |
-| DELETE | `/api/v3/mobile_sessions/{uuid}` | Delete a session and record a tombstone |
+| DELETE | `/api/v3/mobile_sessions/{uuid}` | Delete a session and record a tombstone. Safe to retry — an already-deleted uuid answers 204, not 404 |
 | GET | `/api/v3/mobile_sessions/{uuid}/notes` | The session's notes, ordered by `number` then `id` |
 | POST | `/api/v3/mobile_sessions/{uuid}/notes` | Add one note (optional base64 photo); `number` is server-allocated |
 | PATCH | `/api/v3/mobile_sessions/{uuid}/notes/{id}` | Edit a note's text and/or photo. No PUT. `photo: null` removes the photo |
