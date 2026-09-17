@@ -1,13 +1,14 @@
 module Api
   class UpdateSession
-    def initialize(contract:)
+    def initialize(contract:, user:)
       @contract = contract
+      @user = user
     end
 
     def call
       return Failure.new(contract.errors) if contract.failure?
 
-      session = Session.find_by_uuid(data[:uuid])
+      session = user.sessions.find_by_uuid(data[:uuid])
       unless session
         return Failure.new("Session with uuid: #{data[:uuid]} doesn't exist")
       end
@@ -20,7 +21,7 @@ module Api
 
     private
 
-    attr_reader :contract
+    attr_reader :contract, :user
 
     def data
       contract.to_h
