@@ -116,11 +116,15 @@ RSpec.describe 'AirBeam Mobile Sessions', type: :request do
             },
             streams: {
               type: :object,
-              description: 'Keyed by sensor_name; aggregates only',
+              description: 'Keyed by sensor_name; aggregates only. `sensor_type_id` is the ' \
+                           'handle the binary measurements upload addresses the stream by, and is ' \
+                           '`null` on a session recorded before this API group existed — decode it ' \
+                           'as nullable.',
               additionalProperties: { type: :object, additionalProperties: true },
               example: {
                 'AirBeamMini-PM2.5' => {
-                  sensor_name: 'AirBeamMini-PM2.5', measurement_type: 'Particulate Matter',
+                  sensor_name: 'AirBeamMini-PM2.5', sensor_type_id: 2,
+                  measurement_type: 'Particulate Matter',
                   unit_symbol: 'µg/m³', measurements_count: 1440, average_value: 12.5,
                   min_latitude: 40.70, max_latitude: 40.75, min_longitude: -74.02, max_longitude: -73.98,
                   threshold_low: 9, threshold_medium: 35, threshold_high: 55, threshold_very_high: 150, threshold_very_low: 0
@@ -469,6 +473,18 @@ RSpec.describe 'AirBeam Mobile Sessions', type: :request do
         from the `/measurements` path). Same shape as one element of the list
         endpoint, plus `notes` — this and `PATCH` are the only endpoints that
         carry them, and the only way a second device learns a note's photo.
+
+        Each stream carries its `sensor_type_id`, the same value `POST
+        /api/v3/mobile_sessions` returned and the one the binary measurements
+        upload addresses the stream by. For a custom sensor it is allocated per
+        session, so this is how a client that no longer holds the create
+        response recovers it.
+
+        **It is nullable.** Only streams created through this API group have one;
+        a session uploaded by the older `POST /api/sessions` path has `null`, and
+        cannot be appended to by the binary upload. Decode it as optional — a
+        client that models it as a required integer will fail on exactly the
+        older sessions.
       DESC
 
       parameter name: :uuid, in: :path, type: :string, required: true
@@ -503,24 +519,30 @@ RSpec.describe 'AirBeam Mobile Sessions', type: :request do
                  },
                  streams: {
                    type: :object,
-                   description: 'Keyed by sensor_name; aggregates only',
+                   description: 'Keyed by sensor_name; aggregates only. `sensor_type_id` is the ' \
+                                'handle the binary measurements upload addresses the stream by, and is ' \
+                                '`null` on a session recorded before this API group existed — decode it ' \
+                                'as nullable.',
                    additionalProperties: { type: :object, additionalProperties: true },
                    example: {
                      'AirBeamMini-PM2.5' => {
-                       sensor_name: 'AirBeamMini-PM2.5', measurement_type: 'Particulate Matter',
+                       sensor_name: 'AirBeamMini-PM2.5', sensor_type_id: 2,
+                       measurement_type: 'Particulate Matter',
                        unit_symbol: 'µg/m³', measurements_count: 1440, average_value: 12.5
                      }
                    }
                  },
                  notes: { type: :array, description: 'Ordered by number, then id', items: V3_NOTE_SCHEMA }
-               }
+               },
+               required: %w[uuid title type tag_list contribute time_zone version share_url streams notes]
 
         let(:user) { create(:user) }
         let(:Authorization) { "Bearer #{user.authentication_token}" }
         let(:session_record) { create(:mobile_session, user: user) }
         let(:uuid) { session_record.uuid }
         before do
-          create(:stream, session: session_record, sensor_name: 'AirBeamMini-PM2.5')
+          create(:stream, session: session_record, sensor_name: 'AirBeamMini-PM2.5', sensor_type_id: 2)
+          create(:note, session: session_record, number: 0)
         end
         run_test!
       end

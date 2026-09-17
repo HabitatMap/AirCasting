@@ -4330,13 +4330,17 @@ paths:
                               nullable: true
                         streams:
                           type: object
-                          description: Keyed by sensor_name; aggregates only
+                          description: Keyed by sensor_name; aggregates only. `sensor_type_id`
+                            is the handle the binary measurements upload addresses
+                            the stream by, and is `null` on a session recorded before
+                            this API group existed — decode it as nullable.
                           additionalProperties:
                             type: object
                             additionalProperties: true
                           example:
                             AirBeamMini-PM2.5:
                               sensor_name: AirBeamMini-PM2.5
+                              sensor_type_id: 2
                               measurement_type: Particulate Matter
                               unit_symbol: µg/m³
                               measurements_count: 1440
@@ -4714,6 +4718,18 @@ paths:
         from the `/measurements` path). Same shape as one element of the list
         endpoint, plus `notes` — this and `PATCH` are the only endpoints that
         carry them, and the only way a second device learns a note's photo.
+
+        Each stream carries its `sensor_type_id`, the same value `POST
+        /api/v3/mobile_sessions` returned and the one the binary measurements
+        upload addresses the stream by. For a custom sensor it is allocated per
+        session, so this is how a client that no longer holds the create
+        response recovers it.
+
+        **It is nullable.** Only streams created through this API group have one;
+        a session uploaded by the older `POST /api/sessions` path has `null`, and
+        cannot be appended to by the binary upload. Decode it as optional — a
+        client that models it as a required integer will fail on exactly the
+        older sessions.
       parameters:
       - name: uuid
         in: path
@@ -4788,13 +4804,17 @@ paths:
                         nullable: true
                   streams:
                     type: object
-                    description: Keyed by sensor_name; aggregates only
+                    description: Keyed by sensor_name; aggregates only. `sensor_type_id`
+                      is the handle the binary measurements upload addresses the stream
+                      by, and is `null` on a session recorded before this API group
+                      existed — decode it as nullable.
                     additionalProperties:
                       type: object
                       additionalProperties: true
                     example:
                       AirBeamMini-PM2.5:
                         sensor_name: AirBeamMini-PM2.5
+                        sensor_type_id: 2
                         measurement_type: Particulate Matter
                         unit_symbol: µg/m³
                         measurements_count: 1440
@@ -4833,6 +4853,17 @@ paths:
                           nullable: true
                           description: Full URL of the note photo (600px limit), or
                             null when there is none
+                required:
+                - uuid
+                - title
+                - type
+                - tag_list
+                - contribute
+                - time_zone
+                - version
+                - share_url
+                - streams
+                - notes
         '404':
           description: session not found
           content:
