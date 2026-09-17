@@ -7,15 +7,10 @@ RSpec.describe 'Exports and short URL (web)', type: :request do
       tags 'Web app: Export & sharing'
       produces 'application/json'
       security []
-      description <<~DESC
-        Schedules a background CSV export of the given sessions and emails the result.
-        Public (no auth). All ids must be the same kind (all mobile or all fixed) and,
-        for fixed sessions, must include streams.
-      DESC
-
       parameter name: 'session_ids[]', in: :query, required: true,
                 schema: { type: :array, items: { type: :integer } },
-                style: :form, explode: true, description: 'sessions.id list'
+                style: :form, explode: true,
+                description: 'sessions.id list. All of one kind — all mobile or all fixed; fixed sessions must have streams.'
       parameter name: :email, in: :query, type: :string, required: true, description: 'Recipient email'
 
       response '200', 'export scheduled' do
@@ -48,7 +43,6 @@ RSpec.describe 'Exports and short URL (web)', type: :request do
       consumes 'application/json'
       produces 'application/json'
       security []
-      description 'Creates a shortened link for a URL on the same host. Public (no auth). Returns the shortened URL; off-host URLs are rejected with 422.'
 
       parameter name: :body, in: :body, required: true, schema: {
         type: :object,

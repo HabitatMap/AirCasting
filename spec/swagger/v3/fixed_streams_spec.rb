@@ -67,12 +67,9 @@ RSpec.describe 'V3 Fixed streams', type: :request do
       produces 'application/json'
       security []
       description <<~DESC
-        Returns one AirBeam fixed stream (legacy `streams.id`) with the last 2 days of
-        measurements and the last 3 full calendar months of daily averages. Public (no auth).
-
-        Times: measurement `time` is epoch **milliseconds** in local-as-UTC (station-local
-        wall clock encoded as a UTC epoch). `stream.start_time`/`end_time`/`last_update` are
-        ISO 8601 date-times. Station (government) data uses `/api/v3/station_streams/{id}` instead.
+        Epoch milliseconds here are local-as-UTC — the station-local wall clock
+        encoded as a UTC epoch. Station (government) data uses
+        `/api/v3/station_streams/{id}` instead.
       DESC
 
       parameter name: :id, in: :path, type: :integer, required: true,

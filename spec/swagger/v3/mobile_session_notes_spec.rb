@@ -19,36 +19,15 @@ RSpec.describe 'AirBeam Mobile Session Notes', type: :request do
   }.freeze
 
   PHOTO_DESCRIPTION = <<~DESC.freeze
-    ## photo
-
-    The note's image as **base64**, decoded and sniffed server-side — the content
-    type you declare is never trusted. Must decode to an `image/*` of at most
-    5 MB. Line-wrapped base64 is accepted (both apps wrap at 76 columns).
-
-    | you send | what happens |
-    |---|---|
-    | absent | keeps whatever is attached — an unchanged note costs no upload |
-    | `null` | deletes the photo, file included |
-    | base64 | replaces the photo; the old file is deleted |
-
-    Read it back as `photo_location`. A request whose `Content-Length` exceeds
-    one photo plus a small envelope is refused with `413` before the body is
-    parsed.
+    The `photo` bytes must decode to an `image/*`; the declared content type is
+    ignored. Read it back as `photo_location`. An oversized `Content-Length` is
+    refused with `413` before the body is parsed.
   DESC
 
   path '/api/v3/mobile_sessions/{uuid}/notes' do
     get "List a session's notes" do
       tags 'Mobile app: Mobile sessions'
       produces 'application/json'
-      description <<~DESC
-        Every note on the session, ordered by `number` and then `id`.
-
-        The same array appears inline on `GET /api/v3/mobile_sessions/{uuid}`.
-        This endpoint exists so a client can refresh its notes after an edit
-        without refetching the session's stream metadata — and so a second
-        device can pick up notes it did not create itself.
-      DESC
-
       parameter name: :uuid, in: :path, type: :string, required: true
 
       response '200', 'the notes' do
@@ -83,16 +62,11 @@ RSpec.describe 'AirBeam Mobile Session Notes', type: :request do
       consumes 'application/json'
       produces 'application/json'
       description <<~DESC
-        Creates one note. Answers with the created note, including the `id` you
-        need to edit or delete it later.
+        `number` is server-allocated (highest existing plus one, 0-based) and ignored
+        if you send it. It is an ordering key, not an address: deleting a note leaves
+        a gap and nothing renumbers. Address a note by its `id`.
 
-        `number` is **server-allocated** and ignored if you send it. It is the
-        highest existing number plus one, 0-based, and is only an ordering key
-        for the legacy sync path — not an address. Deleting a note leaves a gap,
-        deliberately: nothing renumbers, here or in either app.
-
-        Creating a note bumps the session's `version`, which is what tells the
-        user's other devices to re-download it.
+        Bumps the session's `version`.
 
         #{PHOTO_DESCRIPTION}
       DESC
@@ -186,17 +160,7 @@ RSpec.describe 'AirBeam Mobile Session Notes', type: :request do
       consumes 'application/json'
       produces 'application/json'
       description <<~DESC
-        Edits one note's `text`, its `photo`, or both. At least one of the two
-        must be sent; anything else in the body is ignored.
-
-        **PATCH only — `PUT` is not routed.** The update is partial: a field you
-        omit is left alone, which is not what `PUT` promises.
-
-        `date`, `latitude`, `longitude` and `number` are **not editable**. They
-        record where the recording was when the note was taken, so moving them
-        would make the note lie — and neither app edits them.
-
-        To remove a photo without touching the text, send `{"photo": null}`.
+        **PATCH only — `PUT` is not routed.** An omitted field is left alone.
 
         The session's `version` moves only when something actually changed, so
         re-sending the text a note already has does not trigger a sync across the
@@ -216,7 +180,7 @@ RSpec.describe 'AirBeam Mobile Session Notes', type: :request do
           photo: {
             type: :string, nullable: true,
             description: 'Base64 image (line breaks allowed), max 5 MB decoded. ' \
-                         'Absent keeps, null removes.'
+                         'Absent keeps the current photo, null deletes it, base64 replaces it.'
           }
         }
       }
@@ -238,7 +202,7 @@ RSpec.describe 'AirBeam Mobile Session Notes', type: :request do
         schema ERROR_SCHEMA.merge(
           properties: ERROR_SCHEMA[:properties].merge(
             fields: { type: :object, additionalProperties: true,
-                      example: { nil => ['must contain at least one of: text, photo'] } }
+                      example: { base: ['must contain at least one of: text, photo'] } }
           )
         )
 
@@ -291,13 +255,8 @@ RSpec.describe 'AirBeam Mobile Session Notes', type: :request do
       tags 'Mobile app: Mobile sessions'
       produces 'application/json'
       description <<~DESC
-        Removes the note and its photo, the stored file included.
-
-        The remaining notes keep their `number`s — a gap is left rather than
-        renumbering. Renumbering would rewrite the key the legacy sync path
-        still matches on, underneath a client that had not synced yet.
-
-        Bumps the session's `version`.
+        Deletes the stored photo file too. The remaining notes keep their `number`s —
+        a gap is left rather than renumbering. Bumps the session's `version`.
       DESC
 
       parameter name: :uuid, in: :path, type: :string, required: true

@@ -2,7 +2,10 @@ require 'swagger_helper'
 
 # Mobile apps (iOS/Android): fixed WiFi realtime streaming (legacy flow).
 RSpec.describe 'Mobile app — realtime (fixed WiFi)', type: :request do
-  let(:Authorization) { "Token token=#{user.authentication_token}" }
+  # These endpoints accept HTTP Basic only: user token as the username, a
+  # literal `X` as the password. The examples sign in through warden, so this
+  # header is what the docs show rather than what the test authenticates with.
+  let(:Authorization) { "Basic #{Base64.strict_encode64("#{user.authentication_token}:X")}" }
 
   # Decoded shape of the `data` string for POST /api/realtime/measurements.
   # One request carries ONE stream descriptor + its measurements.
@@ -60,26 +63,23 @@ RSpec.describe 'Mobile app — realtime (fixed WiFi)', type: :request do
 
   path '/api/realtime/sessions.json' do
     post 'Create an AirBeam fixed (WiFi realtime) session' do
-      tags 'Mobile app: AirBeam fixed streaming'
+      tags 'Mobile app: Fixed sessions [DEPRECATED]'
+      deprecated true
+      security [{ basic_auth: [] }]
       consumes 'multipart/form-data'
       produces 'application/json'
       description <<~DESC
-        Creates an AirBeam fixed (WiFi realtime) session. Auth required. Form fields: `session`
-        (JSON string — Base64+gzip when `compression` set, else raw), `compression` (flag),
-        `photos[]` (optional). The decoded `session` has the same shape as a mobile upload
-        (uuid, title, lat/lng, start_time/end_time, time_zone, streams keyed by sensor_name),
-        but with continuous fixed streams.
+        **Deprecated** — use `POST /api/v3/fixed_sessions`.
 
-        Concurrent uploads of the same `uuid` resolve to one session: the request that
-        loses the race is answered with the session the winner created, so both receive
-        the same `location`. A `uuid` that already existed before the request is
-        rejected with a bodiless `400`, as is any payload that fails validation.
+        Uploading the same `uuid` twice concurrently yields one session; both callers
+        receive the same `location`. A `uuid` that already existed before the request
+        is a bodiless `400`.
       DESC
 
       parameter name: :body, in: :body, required: true, schema: {
         type: :object,
         properties: {
-          session: { type: :string, description: 'JSON (raw or Base64+gzip). See Mobile app: Sessions & sync for the decoded shape.' },
+          session: { type: :string, description: 'JSON (raw or Base64+gzip). Same shape as the mobile upload in `Mobile app: Mobile sessions [DEPRECATED]`, with continuous fixed streams.' },
           compression: { type: :boolean },
         },
       }
@@ -102,48 +102,16 @@ RSpec.describe 'Mobile app — realtime (fixed WiFi)', type: :request do
 
   path '/api/realtime/measurements' do
     post 'Stream AirBeam fixed measurements' do
-      tags 'Mobile app: AirBeam fixed streaming'
+      tags 'Mobile app: Fixed sessions [DEPRECATED]'
+      deprecated true
+      security [{ basic_auth: [] }]
       consumes 'multipart/form-data'
       produces 'application/json'
       description <<~DESC
-        Appends measurements to one stream of an existing AirBeam fixed session. Auth required.
-        Empty 200 body on success.
+        **Deprecated** — use `POST /api/v3/fixed_sessions/{uuid}/measurements`.
 
-        **One request = one stream.** The `data` payload is a single stream descriptor plus its
-        `measurements` array.
-
-        **How measurements are matched to a stream:**
-        - **Session**: found by the authenticated user + `session_uuid`. The session must already
-          exist (created via `POST /api/realtime/sessions`); otherwise `400 "session not found"`.
-        - **Stream**: found within that session by **`sensor_name`**. If no stream with that
-          `sensor_name` exists yet, one is **created** from the descriptor
-          (`sensor_package_name`, `measurement_type`, units, thresholds). So to stream several
-          sensors, send one request per `sensor_name`.
-        - `value` must be an **integer**; `time` a parseable datetime string; measurements more
-          than 48h in the future are dropped.
-
-        **Form fields:** `data` (the JSON below), `compression` (flag). When `compression` is set,
-        `data` is Base64-encoded gzip (`:sync` flow — recalculates hourly/daily averages);
-        otherwise raw JSON (`:live` flow).
-
-        **Sample `data` (raw JSON):**
-        ```json
-        {
-          "session_uuid": "550e8400-e29b-41d4-a716-446655440000",
-          "sensor_name": "AirBeam2-PM2.5",
-          "sensor_package_name": "AirBeam2:00189610719F",
-          "measurement_type": "Particulate Matter",
-          "measurement_short_type": "PM",
-          "unit_name": "microgram per cubic meter",
-          "unit_symbol": "µg/m³",
-          "threshold_very_low": 0, "threshold_low": 9, "threshold_medium": 35,
-          "threshold_high": 55, "threshold_very_high": 150,
-          "measurements": [
-            { "longitude": -74.006, "latitude": 40.7128, "time": "2026-08-12T10:00:00", "value": 12 },
-            { "longitude": -74.006, "latitude": 40.7128, "time": "2026-08-12T10:01:00", "value": 13 }
-          ]
-        }
-        ```
+        **One request = one stream.** To stream several sensors, send one request per
+        `sensor_name`.
       DESC
 
       parameter name: :body, in: :body, required: true, schema: {
@@ -155,7 +123,7 @@ RSpec.describe 'Mobile app — realtime (fixed WiFi)', type: :request do
             description: 'The stream descriptor + measurements as a JSON string (raw, or Base64+gzip when compression=true). Decoded shape shown in `decoded_data`.',
             example: MEASUREMENTS_DATA_EXAMPLE,
           },
-          compression: { type: :boolean, description: 'When true, `data` is Base64-encoded gzip.' },
+          compression: { type: :boolean, description: 'When true, `data` is Base64-encoded gzip and hourly/daily averages are recalculated (`:sync` flow); otherwise raw JSON (`:live` flow).' },
           decoded_data: MEASUREMENTS_DATA_PAYLOAD, # documentation only — the decoded `data`
         },
       }
@@ -173,13 +141,11 @@ RSpec.describe 'Mobile app — realtime (fixed WiFi)', type: :request do
 
   path '/api/realtime/sync_measurements.json' do
     get 'Poll an AirBeam fixed session for new measurements' do
-      tags 'Mobile app: AirBeam fixed streaming'
+      tags 'Mobile app: Fixed sessions [DEPRECATED]'
+      deprecated true
       produces 'application/json'
       security []
-      description <<~DESC
-        Returns an AirBeam fixed session with measurements newer than `last_measurement_sync`
-        (capped to a 24h window). Public (no auth). Times are ISO 8601 with milliseconds.
-      DESC
+      description 'The window is capped at 24 hours, however old `last_measurement_sync` is.'
 
       parameter name: :uuid, in: :query, type: :string, required: true, description: 'Session UUID'
       parameter name: :last_measurement_sync, in: :query, type: :string, required: true, description: 'Datetime; only newer measurements are returned'

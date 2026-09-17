@@ -20,42 +20,27 @@ RSpec.describe 'AirBeamMini Fixed Sessions Binary Flow', type: :request do
 
   path '/api/v3/fixed_sessions' do
     post 'Create a new AirBeamMini fixed session' do
-      tags 'Mobile app: AirBeam fixed streaming'
+      tags 'Mobile app: Fixed sessions'
       consumes 'application/json'
       produces 'application/json'
       description <<~DESC
-        Creates a fixed session for an AirBeamMini. The app calls this before
-        configuring the device. The response carries the `session_token` to flash to
-        the AirBeam, and a `sensor_type_id` per stream that the binary upload uses to
-        address streams.
-
-        - **`uuid`** — canonical UUID form (what `UUID.randomUUID()` / `UUID()` produce),
-          not already in use.
-        - **`device`** — shipped app versions may still send this object as `airbeam`.
-          `mac_address` is any stable device id, not necessarily a hardware MAC;
-          `model` is a free-form string.
-        - **`streams`** — one per sensor type. `AirBeamMini-PM2.5` and `AirBeam2-PM2.5`
-          are the same type (`AirBeam-PM2.5`) and cannot both be requested.
-
-        Two creates racing on one `uuid` resolve to a single session: the loser is
-        answered with the winner's session, token and streams, so a device configured
-        from either response reports into the same place. A `uuid` that already existed
-        before the request is `session_uuid_taken`, not a reuse.
+        Creating the same `uuid` twice concurrently yields one session; both callers
+        are answered with it, its token and its streams. A `uuid` that already existed
+        before the request is `session_uuid_taken`.
 
         ## Error codes
 
         `{ error_code, message, fields? }`, as everywhere in v3. `fields` appears only
-        when the request *shape* is wrong, and the status carries the same meaning as
-        the code.
+        when the request shape is wrong.
 
         | `error_code` | HTTP | When | Client should |
         |---|---|---|---|
         | `unauthorized` | 401 | Missing or invalid token | Re-authenticate |
-        | `validation_error` | 400 | Malformed body, or a stream with no `thresholds` and no seeded default | Client bug — do not retry unchanged |
+        | `validation_error` | 400 | Malformed body, or a stream with no `thresholds` and no seeded default | Do not retry unchanged |
         | `session_uuid_taken` | 409 | The `uuid` is already in use | Stop retrying; continue with the existing session |
         | `unsupported_sensor_type` | 400 | A `sensor_name` is not a known AirBeam sensor | Unrecoverable |
-        | `try_again_later` | 503 | A rival create is still in flight | Retry after the `Retry-After` header (seconds) |
-        | `internal_error` | 500 | Unresolvable write conflict | Retry with backoff |
+        | `try_again_later` | 503 | Temporarily unavailable | Retry after the `Retry-After` header (seconds) |
+        | `internal_error` | 500 | Unexpected server error | Retry with backoff |
       DESC
 
       # The only operation that still accepts the deprecated Basic scheme:
@@ -63,13 +48,14 @@ RSpec.describe 'AirBeamMini Fixed Sessions Binary Flow', type: :request do
       security [{ bearer_auth: [] }, { basic_auth: [] }]
 
       parameter name: :Authorization, in: :header, type: :string, required: true,
-                description: '`Bearer <user_token>`. `Basic base64("<user_token>:X")` also works here, deprecated.'
+                description: '`Bearer <user_token>`.'
 
       parameter name: :body, in: :body, required: true, schema: {
         type: :object,
         required: %w[uuid title latitude longitude contribute device streams],
         properties: {
-          uuid: { type: :string, format: :uuid, example: '550e8400-e29b-41d4-a716-446655440000' },
+          uuid: { type: :string, format: :uuid, example: '550e8400-e29b-41d4-a716-446655440000',
+                  description: 'Canonical UUID form; must not already be in use.' },
           title: { type: :string, example: 'Rooftop PM2.5 monitor' },
           latitude: { type: :number, format: :float, example: 40.7128 },
           longitude: { type: :number, format: :float, example: -74.0060 },
@@ -86,15 +72,19 @@ RSpec.describe 'AirBeamMini Fixed Sessions Binary Flow', type: :request do
           device: {
             type: :object,
             required: %w[mac_address model],
+            description: 'Shipped app versions may still send this object under the key `airbeam`.',
             properties: {
-              mac_address: { type: :string, example: 'AA:BB:CC:DD:EE:FF' },
-              model: { type: :string, example: 'AirBeamMini' },
+              mac_address: { type: :string, example: 'AA:BB:CC:DD:EE:FF',
+                             description: 'Any stable device id — not necessarily a hardware MAC.' },
+              model: { type: :string, example: 'AirBeamMini', description: 'Free-form model name.' },
               name: { type: :string, nullable: true, example: 'Roof sensor' }
             }
           },
           streams: {
             type: :array,
             minItems: 1,
+            description: 'One per sensor type. `AirBeamMini-PM2.5` and `AirBeam2-PM2.5` are the same ' \
+                         'type (`AirBeam-PM2.5`) and cannot both be requested.',
             items: {
               type: :object,
               required: %w[sensor_name unit_symbol],
@@ -195,7 +185,8 @@ RSpec.describe 'AirBeamMini Fixed Sessions Binary Flow', type: :request do
                  fields: {
                    type: :object,
                    description: 'Per-field validation errors',
-                   additionalProperties: { type: :array, items: { type: :string } }
+                   additionalProperties: { type: :array, items: { type: :string } },
+                   example: { uuid: ['is missing'], streams: ['is missing'] }
                  }
                }
 
@@ -277,14 +268,11 @@ RSpec.describe 'AirBeamMini Fixed Sessions Binary Flow', type: :request do
 
   path '/api/v3/fixed_sessions/{uuid}/measurements' do
     post 'Upload binary measurements for an AirBeamMini session' do
-      tags 'Mobile app: AirBeam fixed streaming'
+      tags 'Mobile app: Fixed sessions'
       consumes 'application/octet-stream'
       produces 'application/json'
       description <<~DESC
-        Receives a binary measurement payload from the AirBeamMini. Can be called once per
-        minute for live uploads or in bulk after connectivity loss — both are handled identically.
-
-        ## Binary Format
+        ## Binary format
 
         ```
         Offset     Size  Type        Description
@@ -298,22 +286,20 @@ RSpec.describe 'AirBeamMini Fixed Sessions Binary Flow', type: :request do
         4+N*9      1     uint8       XOR checksum of all preceding bytes
         ```
 
-        **Resend behaviour:** sending a measurement with an already-stored
-        `(stream_id, time_with_time_zone)` pair is silently ignored — no duplicate is created.
+        **Resends are free.** A frame whose `(stream_id, time_with_time_zone)` is
+        already stored is skipped; no duplicate is created.
 
-        **Size limit:** at most 6000 frames (54005 bytes) per request. A larger backlog
-        is split across requests; each is stored on its own and resends are idempotent.
+        **Size limit:** at most 6000 frames (54005 bytes) per request. Split a larger
+        backlog across requests.
 
-        **Unusable timestamps:** a frame whose epoch is zero, before 2020-01-01 UTC, or
-        more than 24 hours ahead of server time is dropped and the rest of the payload is
-        stored; the response is still 200. A device with an unset clock therefore keeps
-        draining its backlog instead of stalling on a batch the server refuses.
+        **Unusable timestamps:** a frame whose epoch is zero, before 2020-01-01 UTC,
+        or more than 24 hours ahead of server time is dropped; the rest of the payload
+        is stored and the response is still `200`.
 
-        **Time synchronisation:** an empty body is valid and returns 200 immediately. The AirBeamMini
-        uses this to read the current server time from the `X-Server-Time` response header
-        (Unix epoch, UTC) when its clock drifts.
+        **Time synchronisation:** an empty body returns `200` immediately. Read the
+        current server time from the `X-Server-Time` response header (Unix epoch, UTC).
 
-        ## Error Codes
+        ## Error codes
 
         All error responses share the shape `{ "error_code": "...", "message": "..." }`.
 
@@ -328,14 +314,14 @@ RSpec.describe 'AirBeamMini Fixed Sessions Binary Flow', type: :request do
         | `invalid_checksum` | 400 | XOR checksum of payload does not match the final byte |
         | `invalid_value` | 400 | A frame's sensor value is NaN or Infinity |
         | `payload_too_large` | 413 | More than 6000 frames, or a body over 54005 bytes. Nothing is stored — resend in smaller batches |
-        | `try_again_later` | 503 | A rival writer held the session for longer than the server waits. Nothing is stored — resend after the `Retry-After` header (seconds) |
+        | `try_again_later` | 503 | Temporarily unavailable. Nothing is stored — resend after the `Retry-After` header (seconds) |
       DESC
 
       parameter name: :uuid, in: :path, type: :string, required: true,
                 description: 'Session UUID (same as used in session creation)'
 
       parameter name: :Authorization, in: :header, type: :string, required: true,
-                description: 'AirBeam: `Bearer <session_token>` (returned by session creation), matched against this UUID first so it can never act as an account-wide credential. Mobile app: `Bearer <user_token>`.'
+                description: 'AirBeam: `Bearer <session_token>` (returned by session creation; valid for this session only). Mobile app: `Bearer <user_token>`.'
 
       parameter name: :body, in: :body, required: true, schema: {
         type: :string,
