@@ -104,7 +104,45 @@ describe("CookieManager", () => {
   });
 
   describe("applyPreferences", () => {
-    it("should enable analytics when analytics is true", () => {
+    it("should send all 4 V2 consent params in a single gtag call", () => {
+      const preferences = {
+        necessary: true,
+        analytics: true,
+        marketing: true,
+        preferences: false,
+      };
+
+      CookieManager.applyPreferences(preferences);
+
+      expect(window.gtag).toHaveBeenCalledTimes(1);
+      expect(window.gtag).toHaveBeenCalledWith("consent", "update", {
+        analytics_storage: "granted",
+        ad_storage: "granted",
+        ad_user_data: "granted",
+        ad_personalization: "granted",
+      });
+    });
+
+    it("should deny all params when analytics and marketing are false", () => {
+      const preferences = {
+        necessary: true,
+        analytics: false,
+        marketing: false,
+        preferences: false,
+      };
+
+      CookieManager.applyPreferences(preferences);
+
+      expect(window.gtag).toHaveBeenCalledTimes(1);
+      expect(window.gtag).toHaveBeenCalledWith("consent", "update", {
+        analytics_storage: "denied",
+        ad_storage: "denied",
+        ad_user_data: "denied",
+        ad_personalization: "denied",
+      });
+    });
+
+    it("should grant only analytics when marketing is false", () => {
       const preferences = {
         necessary: true,
         analytics: true,
@@ -116,14 +154,17 @@ describe("CookieManager", () => {
 
       expect(window.gtag).toHaveBeenCalledWith("consent", "update", {
         analytics_storage: "granted",
+        ad_storage: "denied",
+        ad_user_data: "denied",
+        ad_personalization: "denied",
       });
     });
 
-    it("should disable analytics when analytics is false", () => {
+    it("should grant ad params when marketing is true", () => {
       const preferences = {
         necessary: true,
         analytics: false,
-        marketing: false,
+        marketing: true,
         preferences: false,
       };
 
@@ -131,6 +172,9 @@ describe("CookieManager", () => {
 
       expect(window.gtag).toHaveBeenCalledWith("consent", "update", {
         analytics_storage: "denied",
+        ad_storage: "granted",
+        ad_user_data: "granted",
+        ad_personalization: "granted",
       });
     });
 

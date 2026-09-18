@@ -5,6 +5,9 @@ declare global {
       action: string,
       parameters: Record<string, string>
     ) => void;
+    // Set server-side in shared/_gtm.html.erb: true for EEA/UK/CH (opt-in
+    // required), false elsewhere. Undefined if the inline script didn't run.
+    CONSENT_REQUIRED?: boolean;
   }
 }
 
@@ -49,30 +52,25 @@ export class CookieManager {
   }
 
   static applyPreferences(preferences: CookiePreferences): void {
-    if (preferences.analytics) {
-      window.gtag?.("consent", "update", {
-        analytics_storage: "granted",
-      });
-    } else {
-      window.gtag?.("consent", "update", {
-        analytics_storage: "denied",
-      });
+    const analyticsConsent = preferences.analytics ? "granted" : "denied";
+    const marketingConsent = preferences.marketing ? "granted" : "denied";
+
+    window.gtag?.("consent", "update", {
+      analytics_storage: analyticsConsent,
+      ad_storage: marketingConsent,
+      ad_user_data: marketingConsent,
+      ad_personalization: marketingConsent,
+    });
+
+    if (!preferences.analytics) {
       this.clearAnalyticsCookies();
     }
 
-    if (preferences.marketing) {
-      window.gtag?.("consent", "update", {
-        ad_storage: "granted",
-      });
-    } else {
-      window.gtag?.("consent", "update", {
-        ad_storage: "denied",
-      });
+    if (!preferences.marketing) {
       this.clearMarketingCookies();
     }
 
-    if (preferences.preferences) {
-    } else {
+    if (!preferences.preferences) {
       Cookies.remove("mapBoundsEast");
       Cookies.remove("mapBoundsNorth");
       Cookies.remove("mapBoundsSouth");
