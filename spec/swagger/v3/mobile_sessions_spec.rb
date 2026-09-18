@@ -126,7 +126,13 @@ RSpec.describe 'AirBeam Mobile Sessions', type: :request do
       end
 
       response '400', 'invalid pagination parameters' do
-        schema ERROR_SCHEMA
+        schema type: :object,
+               required: %w[error_code message],
+               properties: {
+                 error_code: { type: :string, example: 'validation_error' },
+                 message: { type: :string, example: 'Query parameters are invalid' }
+               }
+
         let(:user) { create(:user) }
         let(:Authorization) { "Bearer #{user.authentication_token}" }
         let(:per_page) { 0 }
@@ -134,7 +140,13 @@ RSpec.describe 'AirBeam Mobile Sessions', type: :request do
       end
 
       response '401', 'unauthorized' do
-        schema ERROR_SCHEMA
+        schema type: :object,
+               required: %w[error_code message],
+               properties: {
+                 error_code: { type: :string, example: 'unauthorized' },
+                 message: { type: :string, example: 'Unauthorized' }
+               }
+
         let(:Authorization) { 'Bearer invalid' }
         run_test!
       end
@@ -568,24 +580,9 @@ RSpec.describe 'AirBeam Mobile Sessions', type: :request do
       consumes 'application/json'
       produces 'application/json'
       description <<~DESC
-        Cascades to the session's streams, measurements, notes and note photos. The
+        Cascades to the session's streams, measurements, threshold alerts, notes and note photos. The
         uuid is matched case-insensitively.
 
-        **Safe to retry.** Deleting an already-deleted session answers `204`, so
-        retry on any network failure or 5xx. `404` means this uuid has never belonged
-        to this account — treat it as terminal.
-
-        Deleting does not cancel an upload already on the wire: a measurements upload
-        arriving after the delete answers `404`. Stop the uploader first.
-
-        ## Error codes
-
-        | `error_code` | HTTP | When |
-        |---|---|---|
-        | `unauthorized` | 401 | Missing or invalid token |
-        | `session_not_found` | 404 | No mobile session with this uuid for this user |
-        | `try_again_later` | 503 | Temporarily unavailable. `Retry-After` says how long to wait |
-        | `internal_error` | 500 | Unexpected server error; the session is left intact and the call can be retried |
       DESC
 
       parameter name: :uuid, in: :path, type: :string, required: true
@@ -601,15 +598,80 @@ RSpec.describe 'AirBeam Mobile Sessions', type: :request do
       end
 
       response '404', 'session not found' do
-        schema ERROR_SCHEMA
+        schema type: :object,
+               required: %w[error_code message],
+               properties: {
+                 error_code: { type: :string, example: 'session_not_found' },
+                 message: { type: :string, example: 'Session not found' }
+               }
+
         let(:user) { create(:user) }
         let(:Authorization) { "Bearer #{user.authentication_token}" }
         let(:uuid) { 'does-not-exist' }
         run_test!
       end
 
+      # Stubbed: a lock wait timeout on the delete transaction. Retry-After is set
+      # by render_error; MobileSessions::Destroyer's own spec covers when this and
+      # internal_error below are returned.
+      response '503', 'temporarily unavailable — retry after `Retry-After` seconds' do
+        schema type: :object,
+               required: %w[error_code message],
+               properties: {
+                 error_code: { type: :string, example: 'try_again_later' },
+                 message: { type: :string, example: 'Could not delete this session, please retry' }
+               }
+
+        let!(:user) { create(:user) }
+        let(:Authorization) { "Bearer #{user.authentication_token}" }
+        let!(:session_record) { create(:mobile_session, user: user) }
+        let(:uuid) { session_record.uuid }
+
+        before do
+          allow_any_instance_of(MobileSessions::Destroyer).to receive(:call).and_return(
+            Failure.new(
+              error_code: MobileSessions::ErrorCodes::TRY_AGAIN_LATER,
+              message: 'Could not delete this session, please retry',
+            ),
+          )
+        end
+
+        run_test!
+      end
+
+      response '500', 'session could not be deleted' do
+        schema type: :object,
+               required: %w[error_code message],
+               properties: {
+                 error_code: { type: :string, example: 'internal_error' },
+                 message: { type: :string, example: 'Could not delete this session' }
+               }
+
+        let!(:user) { create(:user) }
+        let(:Authorization) { "Bearer #{user.authentication_token}" }
+        let!(:session_record) { create(:mobile_session, user: user) }
+        let(:uuid) { session_record.uuid }
+
+        before do
+          allow_any_instance_of(MobileSessions::Destroyer).to receive(:call).and_return(
+            Failure.new(
+              error_code: MobileSessions::ErrorCodes::INTERNAL_ERROR,
+              message: 'Could not delete this session',
+            ),
+          )
+        end
+
+        run_test!
+      end
+
       response '401', 'unauthorized' do
-        schema ERROR_SCHEMA
+        schema type: :object,
+               required: %w[error_code message],
+               properties: {
+                 error_code: { type: :string, example: 'unauthorized' },
+                 message: { type: :string, example: 'Unauthorized' }
+               }
+
         let(:uuid) { 'any-uuid' }
         let(:Authorization) { 'Bearer invalid' }
         run_test!
