@@ -48,6 +48,7 @@ RSpec.describe 'V3 Station streams (government)', type: :request do
       },
       stream_daily_averages: {
         type: :array,
+        description: 'Daily averages for the last 3 full calendar months',
         items: {
           type: :object,
           required: %w[date value],
@@ -65,12 +66,7 @@ RSpec.describe 'V3 Station streams (government)', type: :request do
       tags 'Web app: Station data (government)'
       produces 'application/json'
       security []
-      description <<~DESC
-        Returns one Station (government) pollutant stream (`station_streams.id`) from the new model,
-        with the last 2 days of `station_measurements` and 3 months of daily averages.
-        Public (no auth). A physical Station has one such stream per pollutant
-        (PM2.5 / NO2 / Ozone).
-      DESC
+      description 'A physical Station has one stream per pollutant (PM2.5 / NO2 / Ozone).'
 
       parameter name: :id, in: :path, type: :integer, required: true,
                 description: 'station_streams.id'
@@ -107,12 +103,6 @@ RSpec.describe 'V3 Station streams (government)', type: :request do
       tags 'Web app: Station data (government)'
       produces 'application/json'
       security []
-      description <<~DESC
-        Schedules a background CSV export of the given `station_stream_ids` and emails the
-        result. Public (no auth). At most #{Api::ExportLimits::STATION_STREAM_IDS_MAX}
-        station streams per request.
-      DESC
-
       parameter name: 'station_stream_ids[]', in: :query, required: true,
                 schema: { type: :array, items: { type: :integer } },
                 style: :form, explode: true,
@@ -131,7 +121,14 @@ RSpec.describe 'V3 Station streams (government)', type: :request do
       end
 
       response '400', 'validation error' do
-        schema type: :object, additionalProperties: { type: :array, items: { type: :string } }, example: { field_name: ['error message'] }
+        schema type: :object,
+               required: %w[error_code message],
+               properties: {
+                 error_code: { type: :string, example: 'validation_error' },
+                 message: { type: :string, example: 'Request body is invalid' },
+                 fields: { type: :object, additionalProperties: { type: :array, items: { type: :string } },
+                           example: { email: ['must be filled'] } },
+               }
 
         let(:'station_stream_ids[]') { [] }
         let(:email) { '' }

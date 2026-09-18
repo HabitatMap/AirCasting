@@ -119,6 +119,17 @@ Rails.application.routes.draw do
       resources :fixed_sessions, only: %i[create], param: :uuid do
         resources :measurements, only: %i[create], module: :fixed_sessions
       end
+      resources :mobile_sessions, only: %i[index show create destroy], param: :uuid do
+        resources :measurements, only: %i[index create], module: :mobile_sessions
+        # `update` is routed by hand rather than listed in `only:` because
+        # `only: %i[... update]` routes PUT as well as PATCH, and the update is
+        # partial — an omitted field is left alone, which is not what PUT
+        # promises.
+        resources :notes, only: %i[index create destroy], module: :mobile_sessions do
+          patch '/', action: :update, on: :member
+        end
+        patch '/', action: :update, on: :member
+      end
     end
 
     get 'measurements' => 'measurements#index'

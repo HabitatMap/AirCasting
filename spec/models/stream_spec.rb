@@ -44,6 +44,57 @@ describe Stream do
         .from(0)
         .to(data.size)
     end
+
+    # Rehearses the world after the partial unique index on (stream_id, time)
+    # lands. This path has no reject_existing, so ON CONFLICT is what actually
+    # fires here: without on_duplicate_key_ignore a single resent row raises
+    # RecordNotUnique and takes the whole multi-row INSERT with it.
+    context 'once (stream_id, time) is unique' do
+      # No teardown: DDL is transactional in Postgres and use_transactional_fixtures
+      # rolls the index back with the example. Dropping it explicitly would run
+      # inside an already-aborted transaction whenever an example fails on a
+      # constraint, leaving the index behind for every example after it.
+      before do
+        ActiveRecord::Base.connection.execute(
+          'CREATE UNIQUE INDEX tmp_uniq_measurements_stream_time ON measurements (stream_id, time)',
+        )
+      end
+
+      def measurement_at(seconds)
+        FactoryBot.attributes_for(
+          :measurement,
+          time: Time.utc(2026, 8, 14, 10, 0, seconds),
+          time_with_time_zone: Time.utc(2026, 8, 14, 10, 0, seconds),
+        )
+      end
+
+      it 'ignores a full resend instead of aborting the batch' do
+        stream = FactoryBot.create(:stream)
+        data = [measurement_at(0), measurement_at(1)]
+        stream.build_measurements!(data)
+
+        expect { stream.build_measurements!(data) }.not_to change { Measurement.count }
+        expect(stream.reload.measurements_count).to eq(2)
+      end
+
+      it 'counts only the rows that landed when a batch mixes resent and new' do
+        stream = FactoryBot.create(:stream)
+        stream.build_measurements!([measurement_at(0), measurement_at(1)])
+
+        expect { stream.build_measurements!([measurement_at(1), measurement_at(2)]) }
+          .to change { Measurement.count }.by(1)
+        expect(stream.reload.measurements_count).to eq(3)
+      end
+
+      it 'deduplicates within a single batch' do
+        stream = FactoryBot.create(:stream)
+
+        stream.build_measurements!([measurement_at(0), measurement_at(0), measurement_at(1)])
+
+        expect(Measurement.count).to eq(2)
+        expect(stream.reload.measurements_count).to eq(2)
+      end
+    end
   end
 
   describe '.as_json' do

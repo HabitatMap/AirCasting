@@ -2,9 +2,10 @@ require 'swagger_helper'
 
 # Mobile apps (iOS/Android): threshold (push-notification) alerts. Token auth.
 RSpec.describe 'Mobile app — threshold alerts', type: :request do
-  # Satisfies the global token_auth security scheme (test env: token check is a
-  # no-op, warden sign_in provides current_user).
-  let(:Authorization) { "Token token=#{user.authentication_token}" }
+  # These endpoints accept HTTP Basic only: user token as the username, a
+  # literal `X` as the password. The examples sign in through warden, so this
+  # header is what the docs show rather than what the test authenticates with.
+  let(:Authorization) { "Basic #{Base64.strict_encode64("#{user.authentication_token}:X")}" }
 
   ALERT_SCHEMA = {
     type: :object,
@@ -22,8 +23,8 @@ RSpec.describe 'Mobile app — threshold alerts', type: :request do
   path '/api/fixed/threshold_alerts' do
     get 'List the current user\'s threshold alerts' do
       tags 'Mobile app: Threshold alerts'
+      security [{ basic_auth: [] }]
       produces 'application/json'
-      description 'Returns all threshold alerts for the authenticated user. Auth: `Token token=<user_token>` (HTTP Basic; token as username).'
 
       response '200', 'alerts' do
         schema type: :array, items: ALERT_SCHEMA
@@ -43,9 +44,9 @@ RSpec.describe 'Mobile app — threshold alerts', type: :request do
 
     post 'Create a threshold alert' do
       tags 'Mobile app: Threshold alerts'
+      security [{ basic_auth: [] }]
       consumes 'application/json'
       produces 'application/json'
-      description 'Creates a threshold alert for a stream identified by `session_uuid` + `sensor_name`. Auth required.'
 
       parameter name: :body, in: :body, required: true, schema: {
         type: :object,
@@ -92,8 +93,8 @@ RSpec.describe 'Mobile app — threshold alerts', type: :request do
   path '/api/fixed/threshold_alerts/{id}' do
     delete 'Delete a threshold alert' do
       tags 'Mobile app: Threshold alerts'
+      security [{ basic_auth: [] }]
       produces 'application/json'
-      description 'Deletes one of the current user\'s threshold alerts. Auth required.'
 
       parameter name: :id, in: :path, type: :integer, required: true
 

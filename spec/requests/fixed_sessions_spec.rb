@@ -41,7 +41,7 @@ describe 'POST /api/v3/fixed_sessions' do
         latitude: 40.7128,
         longitude: -74.0060,
         contribute: true,
-        airbeam: { mac_address: 'AA:BB:CC:DD:EE:FF', model: 'AirBeamMini' },
+        device: { mac_address: 'AA:BB:CC:DD:EE:FF', model: 'AirBeamMini' },
         streams: [{ sensor_name: 'AirBeamMini-PM2.5', unit_symbol: 'µg/m³' }],
       }
     end
@@ -51,9 +51,11 @@ describe 'POST /api/v3/fixed_sessions' do
       create(:threshold_set, :air_beam_pm2_5, :default)
     end
 
-    # End to end through the contract, which is what decides whether the creator is
-    # reached at all — every other example for this behaviour stubs the lock or
-    # calls the service directly.
+    # End to end, which is what proves the code the client actually sees. The
+    # contract passes a well-formed uuid straight through — it checks shape only —
+    # so the refusal comes from the creator, and is session_uuid_taken/409 rather
+    # than validation_error/400: the request is not malformed, it conflicts with
+    # stored state, and so carries no `fields`.
     it 'rejects the second attempt when nothing was raced' do
       post_session(body)
       expect(response).to have_http_status(:created)
@@ -61,8 +63,10 @@ describe 'POST /api/v3/fixed_sessions' do
 
       post_session(body)
 
-      expect(response).to have_http_status(:bad_request)
-      expect(response.parsed_body['error_code']).to eq('validation_error')
+      expect(response).to have_http_status(:conflict)
+      json = response.parsed_body
+      expect(json['error_code']).to eq('session_uuid_taken')
+      expect(json).not_to have_key('fields')
       expect(Session.where(uuid: uuid).count).to eq(1)
       expect(first['session_token']).to be_present
     end
@@ -73,17 +77,17 @@ describe 'POST /api/v3/fixed_sessions' do
 
       post_session(body.merge(uuid: uuid.upcase))
 
-      expect(response).to have_http_status(:bad_request)
-      expect(response.parsed_body['error_code']).to eq('validation_error')
+      expect(response).to have_http_status(:conflict)
+      expect(response.parsed_body['error_code']).to eq('session_uuid_taken')
       expect(Session.where('LOWER(uuid) = ?', uuid.downcase).count).to eq(1)
     end
 
-    # The raced path is deliberately not exercised here. Api::CreateFixedSessionContract
-    # rule(:uuid) runs before the creator and rejects any uuid already in the table,
-    # so a second sequential request never reaches the short-circuit. In a genuine
-    # race both requests clear the contract — neither sees the other's uncommitted
-    # row — and only then does the lock decide. That path is covered by the
-    # two-thread example in spec/models/session_uuid_lock_spec.rb, which is the only
-    # place it can be reproduced.
+    # The raced path is deliberately not exercised here. A second sequential
+    # request sees the winner's committed row through the model's uniqueness
+    # validation and never reaches the unique index. In a genuine race neither
+    # request sees the other's uncommitted row, both reach the index, and only
+    # then does the loser fall into the reuse path. That is covered by the
+    # two-thread examples in spec/models/session_uuid_race_spec.rb, which is the
+    # only place it can be reproduced.
   end
 end

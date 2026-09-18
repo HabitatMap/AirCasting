@@ -11,7 +11,6 @@ RSpec.describe 'Autocomplete', type: :request do
       tags 'Web app: Autocomplete'
       produces 'application/json'
       security []
-      description 'Returns matching fixed-session tag names as a string array. Public (no auth). Uses nested q[...] params.'
 
       parameter name: 'q[input]', in: :query, type: :string, required: false, description: 'Search prefix (may be empty)'
       parameter name: 'q[time_from]', in: :query, type: :integer, required: true, description: 'Epoch seconds'
@@ -50,7 +49,6 @@ RSpec.describe 'Autocomplete', type: :request do
       tags 'Web app: Autocomplete'
       produces 'application/json'
       security []
-      description 'Returns matching mobile-session tag names as a string array. Public (no auth). Uses nested q[...] params.'
 
       parameter name: 'q[input]', in: :query, type: :string, required: false, description: 'Search prefix (may be empty)'
       parameter name: 'q[time_from]', in: :query, type: :integer, required: true, description: 'Epoch seconds'
@@ -85,7 +83,6 @@ RSpec.describe 'Autocomplete', type: :request do
       tags 'Web app: Autocomplete'
       produces 'application/json'
       security []
-      description 'Returns matching contributor usernames as a sorted, unique string array. Public (no auth). Uses nested q[...] params. Note: is_dormant is a string "true"/"false", session_type is "fixed" or "mobile".'
 
       parameter name: 'q[input]', in: :query, type: :string, required: false, description: 'Search prefix (may be empty)'
       parameter name: 'q[time_from]', in: :query, type: :integer, required: true, description: 'Epoch seconds'

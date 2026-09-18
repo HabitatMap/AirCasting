@@ -29,3 +29,39 @@
 | POST | `/api/user/sessions/update_session.json` | Update an existing session | — | ✓ |
 | POST | `/api/user/settings` | Update user settings | ✓ | ✓ |
 | POST | `/users/password.json` | Forgot password — send reset email | ✓ | ✓ |
+
+## v3 endpoints, not yet called by a shipped client
+
+The table above lists what the released iOS and Android builds call. The v3
+mobile-session API is finished and documented but no shipped client uses it
+yet, so it has no column here — it gets rows once a build calls it.
+
+**Time convention for this group.** Every timestamp on the wire is a *real UTC
+instant* — epoch milliseconds in JSON, epoch seconds inside the binary upload
+frames. Nothing is local time. The session carries `time_zone` (IANA) so a client
+can render those instants as the local time the session was recorded in. The
+`sessions.*_local` columns behind them hold local wall clock in a naive UTC
+column; that is storage, and it stops at the serializer.
+
+This differs deliberately from the web graph endpoints (`/api/v3/fixed_measurements`,
+`/api/v3/station_measurements`), which send and return *local-as-UTC* epoch ms so
+Highcharts can plot with `useUTC: true`.
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| POST | `/api/v3/mobile_sessions` | Create a mobile session and its streams |
+| GET | `/api/v3/mobile_sessions` | List the caller's mobile sessions — paginated, `{ sessions, meta }`; no notes |
+| GET | `/api/v3/mobile_sessions/{uuid}` | One session with stream metadata and notes, no measurements |
+| PATCH | `/api/v3/mobile_sessions/{uuid}` | Update title and tags. No PUT; never touches notes, streams or the device |
+| DELETE | `/api/v3/mobile_sessions/{uuid}` | Delete a session and record a tombstone. Safe to retry — an already-deleted uuid answers 204, not 404 |
+| GET | `/api/v3/mobile_sessions/{uuid}/notes` | The session's notes, ordered by `number` then `id` |
+| POST | `/api/v3/mobile_sessions/{uuid}/notes` | Add one note (optional base64 photo); `number` is server-allocated |
+| PATCH | `/api/v3/mobile_sessions/{uuid}/notes/{id}` | Edit a note's text and/or photo. No PUT. `photo: null` removes the photo |
+| DELETE | `/api/v3/mobile_sessions/{uuid}/notes/{id}` | Delete a note and its photo; remaining numbers keep their gaps |
+| GET | `/api/v3/mobile_sessions/{uuid}/measurements` | Measurements for one stream — `sensor_name` required; last 6h by default, or a ≤12h `start_time`/`end_time` window. No point cap |
+| POST | `/api/v3/mobile_sessions/{uuid}/measurements` | Upload binary measurements (25-byte frames, 3000 max per request) |
+| POST | `/api/v3/fixed_sessions` | Create a fixed session and its streams |
+| POST | `/api/v3/fixed_sessions/{uuid}/measurements` | Upload binary measurements (9-byte frames, 6000 max per request) |
+
+Request and response shapes are in `swagger/swagger.yaml`; the source is
+`spec/swagger/v3/mobile_sessions_spec.rb` and `spec/swagger/v3/fixed_sessions_spec.rb`.

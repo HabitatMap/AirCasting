@@ -1,0 +1,535 @@
+require 'rails_helper'
+
+RSpec.describe MobileSessions::BinaryProtocol::Ingester do
+  subject(:ingester) { described_class.new(monitor: monitor) }
+
+  let(:monitor) do
+    instance_double(
+      ::BinaryProtocol::Monitor,
+      report_parse_error: nil,
+      report_unknown_sensor_type: nil,
+      report_import_failure: nil,
+      report_transaction_error: nil,
+    )
+  end
+
+  let(:user) { create(:user) }
+  # NULL times, as MobileSessions::Creator leaves them — the factory's defaults
+  # would put a range here that no session reaching this endpoint ever has.
+  let(:session) do
+    create(:mobile_session, user: user, time_zone: 'America/New_York',
+                            start_time_local: nil, end_time_local: nil)
+  end
+  let!(:stream) do
+    create(:stream, session: session, sensor_name: 'AirBeamMini-PM2.5', sensor_type_id: 2)
+  end
+
+  let(:epoch) { Time.utc(2026, 8, 14, 10, 0, 0).to_i }
+
+  def frame(epoch:, type_id:, value:, lat:, lng:)
+    [epoch, type_id, value, lat, lng].pack('NCgGG')
+  end
+
+  def payload(frames)
+    header = ["\xAB\xBA", frames.size].pack('a2n')
+    body = header + frames.join
+    body + [body.bytes.inject(0, :^)].pack('C')
+  end
+
+  it 'returns Success and imports measurements with per-point location' do
+    binary = payload([frame(epoch: epoch, type_id: 2, value: 12.5, lat: 40.7128, lng: -74.006)])
+
+    expect { ingester.call(session: session, binary: binary) }
+      .to change(Measurement, :count).by(1)
+
+    m = stream.reload.measurements.last
+    expect(m.value).to be_within(0.001).of(12.5)
+    expect(m.latitude).to be_within(1e-6).of(40.7128)
+    expect(m.longitude).to be_within(1e-6).of(-74.006)
+    expect(m.location).to be_present
+  end
+
+  it 'bumps the stream measurements_count and refreshes aggregates' do
+    binary = payload([
+      frame(epoch: epoch, type_id: 2, value: 10.0, lat: 40.0, lng: -74.0),
+      frame(epoch: epoch + 5, type_id: 2, value: 20.0, lat: 41.0, lng: -75.0),
+    ])
+    ingester.call(session: session, binary: binary)
+
+    stream.reload
+    expect(stream.measurements_count).to eq(2)
+    expect(stream.average_value).to be_within(0.001).of(15.0)
+    expect(stream.min_latitude).to be_within(1e-6).of(40.0)
+    expect(stream.max_latitude).to be_within(1e-6).of(41.0)
+    expect(stream.start_latitude).to be_within(1e-6).of(40.0)
+  end
+
+  it 'updates the session end and pulls start earlier from measurement bounds' do
+    binary = payload([frame(epoch: epoch, type_id: 2, value: 1.0, lat: 40.0, lng: -74.0)])
+    ingester.call(session: session, binary: binary)
+
+    session.reload
+    # epoch 10:00 UTC = 06:00 America/New_York, stored local-as-utc
+    expect(session.start_time_local).to eq(Time.utc(2026, 8, 14, 6, 0, 0))
+    expect(session.end_time_local).to eq(Time.utc(2026, 8, 14, 6, 0, 0))
+  end
+
+  describe 'incremental aggregates' do
+    let!(:other_stream) do
+      create(:stream, session: session, sensor_name: 'AirBeamMini-RH', sensor_type_id: 3)
+    end
+
+    it 'weights the running average by the rows already stored, not by batch' do
+      # 3 rows at 10.0, then 1 row at 20.0. Weighted mean is 12.5; a mean of the
+      # two batch means would be 15.0.
+      first_batch = payload([
+        frame(epoch: epoch, type_id: 2, value: 10.0, lat: 40.0, lng: -74.0),
+        frame(epoch: epoch + 1, type_id: 2, value: 10.0, lat: 40.0, lng: -74.0),
+        frame(epoch: epoch + 2, type_id: 2, value: 10.0, lat: 40.0, lng: -74.0),
+      ])
+      second_batch = payload([frame(epoch: epoch + 3, type_id: 2, value: 20.0, lat: 40.0, lng: -74.0)])
+
+      ingester.call(session: session, binary: first_batch)
+      ingester.call(session: session, binary: second_batch)
+
+      stream.reload
+      expect(stream.measurements_count).to eq(4)
+      expect(stream.average_value).to be_within(0.001).of(12.5)
+      expect(stream.average_value).to be_within(0.001).of(Measurement.where(stream_id: stream.id).average(:value))
+    end
+
+    it 'widens stream bounds across batches and never narrows them' do
+      wide = payload([
+        frame(epoch: epoch, type_id: 2, value: 1.0, lat: 40.0, lng: -75.0),
+        frame(epoch: epoch + 1, type_id: 2, value: 1.0, lat: 42.0, lng: -73.0),
+      ])
+      narrow = payload([frame(epoch: epoch + 2, type_id: 2, value: 1.0, lat: 41.0, lng: -74.0)])
+
+      ingester.call(session: session, binary: wide)
+      ingester.call(session: session, binary: narrow)
+
+      stream.reload
+      expect(stream.min_latitude).to be_within(1e-6).of(40.0)
+      expect(stream.max_latitude).to be_within(1e-6).of(42.0)
+      expect(stream.min_longitude).to be_within(1e-6).of(-75.0)
+      expect(stream.max_longitude).to be_within(1e-6).of(-73.0)
+    end
+
+    it 'keeps start coordinates on the earliest measurement when an older batch backfills' do
+      later = payload([frame(epoch: epoch + 3600, type_id: 2, value: 1.0, lat: 41.0, lng: -75.0)])
+      earlier = payload([frame(epoch: epoch, type_id: 2, value: 1.0, lat: 40.0, lng: -74.0)])
+
+      ingester.call(session: session, binary: later)
+      ingester.call(session: session, binary: earlier)
+
+      stream.reload
+      expect(stream.start_latitude).to be_within(1e-6).of(40.0)
+      expect(stream.start_longitude).to be_within(1e-6).of(-74.0)
+    end
+
+    it 'increments measurements_count rather than replacing it' do
+      # Rows this ingester did not write: the batch has to add to them, not stand
+      # in for them.
+      Stream.update_counters(stream.id, measurements_count: 5)
+
+      binary = payload([
+        frame(epoch: epoch, type_id: 2, value: 10.0, lat: 40.0, lng: -74.0),
+        frame(epoch: epoch + 1, type_id: 2, value: 10.0, lat: 40.0, lng: -74.0),
+      ])
+      ingester.call(session: session, binary: binary)
+
+      expect(stream.reload.measurements_count).to eq(7)
+    end
+
+    # measurements_count is a counter_cache column, so Rails refuses to assign it;
+    # what is worth pinning is the shape of the writes — one increment per stream
+    # per batch, and an aggregate UPDATE that leaves the column alone.
+    it 'keeps measurements_count out of the aggregate update' do
+      statements = []
+      subscriber = ActiveSupport::Notifications.subscribe('sql.active_record') do |*, payload|
+        statements << payload[:sql] if payload[:sql].to_s.include?('UPDATE "streams"')
+      end
+
+      begin
+        binary = payload([frame(epoch: epoch, type_id: 2, value: 10.0, lat: 40.0, lng: -74.0)])
+        ingester.call(session: session, binary: binary)
+      ensure
+        ActiveSupport::Notifications.unsubscribe(subscriber)
+      end
+
+      counter_updates, aggregate_updates = statements.partition { |sql| sql.include?('COALESCE') }
+
+      expect(counter_updates.size).to eq(1)
+      expect(aggregate_updates).not_to be_empty
+      expect(aggregate_updates.select { |sql| sql.include?('measurements_count') }).to be_empty
+    end
+
+    it 'tracks each stream separately' do
+      binary = payload([
+        frame(epoch: epoch, type_id: 2, value: 10.0, lat: 40.0, lng: -74.0),
+        frame(epoch: epoch, type_id: 3, value: 50.0, lat: 40.0, lng: -74.0),
+      ])
+
+      ingester.call(session: session, binary: binary)
+
+      expect(stream.reload.average_value).to be_within(0.001).of(10.0)
+      expect(other_stream.reload.average_value).to be_within(0.001).of(50.0)
+    end
+  end
+
+  describe 'advisory locking' do
+    let!(:other_stream) do
+      create(:stream, session: session, sensor_name: 'AirBeamMini-RH', sensor_type_id: 3)
+    end
+
+    # Serialises concurrent uploads for one stream: without it reject_existing is
+    # an unguarded read-then-write and the aggregates a read-modify-write.
+    it 'takes one transaction-scoped lock per stream, in stream id order' do
+      locked = []
+      allow(ActiveRecord::Base.connection).to receive(:execute).and_wrap_original do |original, sql, *args|
+        locked << Regexp.last_match(1).to_i if sql =~ /pg_advisory_xact_lock\(\d+, (\d+)\)/
+        original.call(sql, *args)
+      end
+
+      binary = payload([
+        frame(epoch: epoch, type_id: 3, value: 50.0, lat: 40.0, lng: -74.0),
+        frame(epoch: epoch, type_id: 2, value: 10.0, lat: 40.0, lng: -74.0),
+      ])
+      ingester.call(session: session, binary: binary)
+
+      expect(locked).to eq([stream.id, other_stream.id].sort)
+    end
+  end
+
+  describe 'duplicate timestamps inside one payload' do
+    # reject_existing only sees what is already stored, so without the in-batch
+    # pass both rows land — and a unique index could then never be built.
+    it 'stores one row per timestamp' do
+      binary = payload([
+        frame(epoch: epoch, type_id: 2, value: 10.0, lat: 40.0, lng: -74.0),
+        frame(epoch: epoch, type_id: 2, value: 99.0, lat: 41.0, lng: -75.0),
+      ])
+
+      expect { ingester.call(session: session, binary: binary) }
+        .to change(Measurement, :count).by(1)
+
+      expect(stream.reload.measurements_count).to eq(1)
+    end
+
+    # Keep-first matches what ON CONFLICT DO NOTHING will do once the index
+    # exists, so the cutover does not silently change which row wins.
+    it 'keeps the first occurrence, the one the index will keep later' do
+      binary = payload([
+        frame(epoch: epoch, type_id: 2, value: 10.0, lat: 40.0, lng: -74.0),
+        frame(epoch: epoch, type_id: 2, value: 99.0, lat: 41.0, lng: -75.0),
+      ])
+      ingester.call(session: session, binary: binary)
+
+      expect(stream.reload.measurements.first.value).to be_within(0.001).of(10.0)
+    end
+
+    it 'does not collapse the same timestamp across different streams' do
+      create(:stream, session: session, sensor_name: 'AirBeamMini-RH', sensor_type_id: 3)
+      binary = payload([
+        frame(epoch: epoch, type_id: 2, value: 10.0, lat: 40.0, lng: -74.0),
+        frame(epoch: epoch, type_id: 3, value: 50.0, lat: 40.0, lng: -74.0),
+      ])
+
+      expect { ingester.call(session: session, binary: binary) }
+        .to change(Measurement, :count).by(2)
+    end
+  end
+
+  describe 'looking up what is already stored' do
+    def measurement_selects
+      queries = []
+      subscriber = ActiveSupport::Notifications.subscribe('sql.active_record') do |*, payload|
+        queries << payload[:sql] if payload[:sql] =~ /SELECT "measurements"\."time"/
+      end
+      yield
+      queries
+    ensure
+      ActiveSupport::Notifications.unsubscribe(subscriber)
+    end
+
+    it 'asks for a range when the batch is dense' do
+      binary = payload([
+        frame(epoch: epoch, type_id: 2, value: 1.0, lat: 40.0, lng: -74.0),
+        frame(epoch: epoch + 1, type_id: 2, value: 1.0, lat: 40.0, lng: -74.0),
+        frame(epoch: epoch + 2, type_id: 2, value: 1.0, lat: 40.0, lng: -74.0),
+      ])
+
+      queries = measurement_selects { ingester.call(session: session, binary: binary) }
+
+      expect(queries.size).to eq(1)
+      expect(queries.first).to match(/BETWEEN|>=/)
+      expect(queries.first).not_to match(/IN \(/)
+    end
+
+    # The frame cap bounds how many frames a batch carries, not how far apart they
+    # sit. A range over a sparse batch returns every stored row in the span.
+    it 'falls back to the explicit list when the batch is sparse' do
+      binary = payload([
+        frame(epoch: epoch, type_id: 2, value: 1.0, lat: 40.0, lng: -74.0),
+        frame(epoch: epoch + 3600, type_id: 2, value: 1.0, lat: 40.0, lng: -74.0),
+      ])
+
+      queries = measurement_selects { ingester.call(session: session, binary: binary) }
+
+      expect(queries.size).to eq(1)
+      expect(queries.first).to match(/IN \(/)
+    end
+
+    it 'is idempotent either way — a sparse resend stores nothing twice' do
+      binary = payload([
+        frame(epoch: epoch, type_id: 2, value: 1.0, lat: 40.0, lng: -74.0),
+        frame(epoch: epoch + 3600, type_id: 2, value: 1.0, lat: 40.0, lng: -74.0),
+      ])
+      ingester.call(session: session, binary: binary)
+
+      expect { ingester.call(session: session, binary: binary) }
+        .not_to change(Measurement, :count)
+      expect(stream.reload.measurements_count).to eq(2)
+    end
+  end
+
+  describe 'stream bounding box' do
+    # MobileSessions::Creator seeds it with one point, and Stream.in_rectangle asks
+    # ST_Contains(window, stream_box) — an inflated box hides the session from map
+    # windows the real track sits inside.
+    it 'replaces the seeded point with the first batch of real measurements' do
+      stream.update!(min_latitude: 10.0, max_latitude: 10.0, min_longitude: 20.0, max_longitude: 20.0)
+
+      ingester.call(session: session, binary: payload([
+        frame(epoch: epoch, type_id: 2, value: 1.0, lat: 40.0, lng: -74.0),
+        frame(epoch: epoch + 1, type_id: 2, value: 1.0, lat: 41.0, lng: -73.0),
+      ]))
+
+      stream.reload
+      expect(stream.min_latitude).to be_within(1e-6).of(40.0)
+      expect(stream.max_latitude).to be_within(1e-6).of(41.0)
+      expect(stream.min_longitude).to be_within(1e-6).of(-74.0)
+      expect(stream.max_longitude).to be_within(1e-6).of(-73.0)
+    end
+
+    it 'widens rather than replaces once the stream holds measurements' do
+      ingester.call(session: session, binary: payload([
+        frame(epoch: epoch, type_id: 2, value: 1.0, lat: 40.0, lng: -74.0),
+      ]))
+      ingester.call(session: session, binary: payload([
+        frame(epoch: epoch + 1, type_id: 2, value: 1.0, lat: 41.0, lng: -75.0),
+      ]))
+
+      stream.reload
+      expect(stream.min_latitude).to be_within(1e-6).of(40.0)
+      expect(stream.max_latitude).to be_within(1e-6).of(41.0)
+      expect(stream.min_longitude).to be_within(1e-6).of(-75.0)
+      expect(stream.max_longitude).to be_within(1e-6).of(-74.0)
+    end
+  end
+
+  describe 'when the session is deleted mid-upload' do
+    # DELETE /api/v3/mobile_sessions/:uuid takes no lock, so a delete can commit
+    # between this request loading the session and apply_session_times locking
+    # it. The import is rolled back with the transaction; the client must be told
+    # the session is gone, not handed a 500.
+    it 'answers session_not_found and imports nothing' do
+      allow(session).to receive(:lock!).and_raise(ActiveRecord::RecordNotFound)
+
+      binary = payload([frame(epoch: epoch, type_id: 2, value: 1.0, lat: 40.0, lng: -74.0)])
+
+      expect { @result = ingester.call(session: session, binary: binary) }
+        .not_to change(Measurement, :count)
+
+      expect(@result).to be_failure
+      expect(@result.errors[:error_code]).to eq('session_not_found')
+    end
+  end
+
+  describe 'lock waits' do
+    it 'answers a retryable failure when another upload holds the stream' do
+      allow(Measurement).to receive(:import)
+        .and_raise(ActiveRecord::LockWaitTimeout.new('canceling statement due to lock timeout'))
+
+      result = ingester.call(session: session, binary: payload([
+        frame(epoch: epoch, type_id: 2, value: 1.0, lat: 40.0, lng: -74.0),
+      ]))
+
+      expect(result).to be_failure
+      expect(result.errors[:error_code]).to eq('try_again_later')
+      expect(result.errors[:message]).to eq('Could not store these measurements, please retry')
+      expect(monitor).to have_received(:report_transaction_error)
+    end
+  end
+
+  describe 'database errors other than a lock wait' do
+    let(:pg_message) do
+      'PG::UndefinedColumn: ERROR: column "nope" does not exist: ' \
+      'INSERT INTO "measurements" ("value") VALUES (12.5)'
+    end
+
+    it 'reports the real error and answers without it' do
+      allow(Measurement).to receive(:import).and_raise(ActiveRecord::StatementInvalid.new(pg_message))
+
+      result = ingester.call(session: session, binary: payload([
+        frame(epoch: epoch, type_id: 2, value: 12.5, lat: 40.0, lng: -74.0),
+      ]))
+
+      expect(result).to be_failure
+      expect(result.errors[:error_code]).to eq('internal_error')
+      # A PG error quotes the failing statement and its values, and errors render
+      # straight to the client.
+      expect(result.errors[:message]).to eq('Could not store these measurements')
+      expect(monitor).to have_received(:report_transaction_error)
+        .with(hash_including(message: a_string_including('INSERT INTO')))
+    end
+
+    it 'stores nothing when the import blows up mid-transaction' do
+      allow(Measurement).to receive(:import).and_raise(ActiveRecord::StatementInvalid.new(pg_message))
+
+      expect {
+        ingester.call(session: session, binary: payload([
+          frame(epoch: epoch, type_id: 2, value: 12.5, lat: 40.0, lng: -74.0),
+        ]))
+      }.not_to change { stream.reload.measurements_count }
+    end
+  end
+
+  it 'is idempotent on resend — no duplicate rows, no counter inflation' do
+    binary = payload([frame(epoch: epoch, type_id: 2, value: 1.0, lat: 40.0, lng: -74.0)])
+    ingester.call(session: session, binary: binary)
+
+    expect { ingester.call(session: session, binary: binary) }.not_to change(Measurement, :count)
+    expect(stream.reload.measurements_count).to eq(1)
+  end
+
+  it 'sets session bounds from earliest/latest across resends (backfill does not regress end)' do
+    later = payload([frame(epoch: epoch + 3600, type_id: 2, value: 1.0, lat: 40.0, lng: -74.0)])
+    earlier = payload([frame(epoch: epoch, type_id: 2, value: 1.0, lat: 41.0, lng: -75.0)])
+
+    ingester.call(session: session, binary: later)
+    ingester.call(session: session, binary: earlier) # older batch arrives after
+
+    session.reload
+    expect(session.start_time_local).to eq(Time.utc(2026, 8, 14, 6, 0, 0))  # epoch 10:00 UTC = 06:00 NY
+    expect(session.end_time_local).to eq(Time.utc(2026, 8, 14, 7, 0, 0))    # +1h, not pulled back
+  end
+
+  # Not reachable from MobileSessions::Creator, which leaves both NULL, but the
+  # legacy sync path writes them.
+  it 'never shrinks a session that already carries a range' do
+    session.update!(start_time_local: Time.utc(2026, 8, 14, 0, 0, 0),
+                    end_time_local: Time.utc(2026, 8, 14, 23, 0, 0))
+
+    ingester.call(session: session, binary: payload([
+      frame(epoch: epoch, type_id: 2, value: 1.0, lat: 40.0, lng: -74.0),
+    ]))
+
+    session.reload
+    expect(session.start_time_local).to eq(Time.utc(2026, 8, 14, 0, 0, 0))
+    expect(session.end_time_local).to eq(Time.utc(2026, 8, 14, 23, 0, 0))
+  end
+
+  it 'rejects the whole upload when a sensor_type_id has no stream on this session' do
+    binary = payload([frame(epoch: epoch, type_id: 99, value: 1.0, lat: 40.0, lng: -74.0)])
+
+    result = nil
+    expect { result = ingester.call(session: session, binary: binary) }
+      .not_to change(Measurement, :count)
+    expect(result).to be_failure
+    expect(result.errors[:error_code]).to eq(MobileSessions::ErrorCodes::UNSUPPORTED_SENSOR_TYPE)
+    expect(result.errors[:message]).to include('99')
+  end
+
+  it 'stores nothing at all when only some of the frames name an unknown sensor' do
+    binary = payload([
+      frame(epoch: epoch, type_id: 2, value: 1.0, lat: 40.0, lng: -74.0),
+      frame(epoch: epoch + 1, type_id: 99, value: 2.0, lat: 40.0, lng: -74.0),
+    ])
+
+    expect { ingester.call(session: session, binary: binary) }.not_to change(Measurement, :count)
+    expect(stream.reload.measurements_count).to eq(0)
+  end
+
+  it 'names every unknown sensor_type_id, not just the first' do
+    binary = payload([
+      frame(epoch: epoch, type_id: 98, value: 1.0, lat: 40.0, lng: -74.0),
+      frame(epoch: epoch + 1, type_id: 99, value: 2.0, lat: 40.0, lng: -74.0),
+    ])
+
+    result = ingester.call(session: session, binary: binary)
+    expect(result.errors[:message]).to include('98, 99')
+  end
+
+  it 'returns Failure with the parser error_code on a corrupt payload' do
+    result = ingester.call(session: session, binary: 'not binary')
+    expect(result).to be_failure
+    expect(result.errors[:error_code]).to be_present
+  end
+
+  describe 'monitoring' do
+    it 'reports the rejected sensor_type_id alongside what the session does have' do
+      expect(monitor).to receive(:report_unknown_sensor_type).with(
+        session: session,
+        sensor_type_id: 99,
+        known_sensor_type_ids: [2],
+      )
+
+      ingester.call(
+        session: session,
+        binary: payload([frame(epoch: epoch, type_id: 99, value: 1.0, lat: 40.0, lng: -74.0)]),
+      )
+    end
+
+    it 'reports a parse error with the payload size and the frame count the header claimed' do
+      expect(monitor).to receive(:report_parse_error).with(
+        hash_including(
+          error_code: MobileSessions::BinaryProtocol::Parser::ErrorCodes::INVALID_CHECKSUM,
+          session: session,
+          binary_size: 30,
+          measurement_count: 1,
+        ),
+      )
+
+      binary = payload([frame(epoch: epoch, type_id: 2, value: 1.0, lat: 40.0, lng: -74.0)])
+      ingester.call(session: session, binary: binary[0..-2] + [0xFF].pack('C'))
+    end
+
+    it 'reports rows the bulk import rejected, which the 200 response hides' do
+      failed = double(errors: double(full_messages: ['Value is not a number']))
+      allow(Measurement).to receive(:import).and_return(double(failed_instances: [failed]))
+
+      expect(monitor).to receive(:report_import_failure).with(
+        session: session,
+        stream_id: stream.id,
+        failed_count: 1,
+        message: 'Value is not a number',
+      )
+
+      ingester.call(
+        session: session,
+        binary: payload([frame(epoch: epoch, type_id: 2, value: 1.0, lat: 40.0, lng: -74.0)]),
+      )
+    end
+
+    it 'stays quiet on a clean ingest' do
+      expect(monitor).not_to receive(:report_parse_error)
+      expect(monitor).not_to receive(:report_unknown_sensor_type)
+      expect(monitor).not_to receive(:report_import_failure)
+      expect(monitor).not_to receive(:report_transaction_error)
+
+      ingester.call(
+        session: session,
+        binary: payload([frame(epoch: epoch, type_id: 2, value: 1.0, lat: 40.0, lng: -74.0)]),
+      )
+    end
+
+    it 'defaults to the mobile source so events never merge with the fixed ones' do
+      expect(::BinaryProtocol::Monitor).to receive(:new)
+        .with(source: ::BinaryProtocol::Monitor::MOBILE)
+        .and_return(monitor)
+
+      described_class.new
+    end
+  end
+end

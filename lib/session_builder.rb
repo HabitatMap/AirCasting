@@ -1,6 +1,5 @@
 class SessionBuilder
-  # How long to wait for a rival's in-flight insert of the same uuid before giving
-  # up and answering 400.
+  # Bounds the wait on a rival's uncommitted index entry; nothing else does.
   LOCK_TIMEOUT = '3s'.freeze
 
   attr_reader :user
@@ -26,35 +25,26 @@ class SessionBuilder
     allowed = Session.attribute_names + %w[notes_attributes tag_list user]
     filtered = data.select { |k, _| allowed.include?(k.to_s) }
 
-    # The unique index on LOWER(uuid) is what makes a duplicate impossible; this
-    # decides what the losing request is told. Insert first and let the constraint
-    # refuse us, rather than asking whether the uuid is free — the answer to that
-    # question is stale the moment it is given.
+    # Insert and let the unique index on LOWER(uuid) refuse us, rather than asking
+    # first — the answer to "is this uuid free?" is stale by the time it is given.
+    # A late retry never gets this far: the uniqueness validation catches it and
+    # returns the 400 this path has always returned.
     #
-    # A late retry never reaches the constraint: the uniqueness validation catches
-    # it and returns the 400 this path has always returned. Only a request whose
-    # rival had not yet committed at validation time gets here.
-    # `jobs` is bound to whatever the transaction returns, so a rolled-back attempt
-    # cannot leave streams queued for measurements that no longer have a stream to
-    # belong to.
+    # `jobs` is bound to the transaction's return value, so a rolled-back attempt
+    # cannot leave streams queued for measurements with no stream to belong to.
     session, jobs =
       begin
-        # requires_new so the recovery below survives a caller that wraps this in a
-        # transaction of its own: without a SAVEPOINT the constraint violation
-        # poisons the outer transaction and reusable_session's SELECT raises
+        # requires_new: without a SAVEPOINT the violation poisons a caller's
+        # transaction, and reusable_session's SELECT raises
         # PG::InFailedSqlTransaction instead of returning the winner's row.
         ActiveRecord::Base.transaction(requires_new: true) do
-          # An INSERT that meets a rival's *uncommitted* index entry waits for that
-          # transaction to finish, and nothing here or in the server config bounds
-          # that wait. This is the bound the advisory lock used to provide: past it
-          # the client gets the 400 it would have got before, rather than a puma
-          # thread parked on someone else's slow upload.
-          # SET LOCAL is scoped to the transaction, not the savepoint: a released
-          # savepoint leaves it in force for the rest of a caller's transaction,
-          # which would hand them a 3s lock_timeout they never asked for. Only the
-          # outermost transaction is ours to bound — open_transactions is 1 then,
-          # and 2+ when a caller wraps us (transaction_open? is true either way,
-          # since it sees our own).
+          # Without this an INSERT meeting a rival's uncommitted index entry waits
+          # for that transaction with no bound — a puma thread parked on someone
+          # else's slow upload. This is what the advisory lock used to provide.
+          # SET LOCAL is transaction-scoped, not savepoint-scoped, so setting it
+          # inside a caller's transaction leaves them a lock_timeout they never
+          # asked for. open_transactions == 1 identifies the outermost one;
+          # transaction_open? is true either way, since it sees our own.
           if ActiveRecord::Base.connection.open_transactions == 1
             ActiveRecord::Base.connection.execute("SET LOCAL lock_timeout = '#{LOCK_TIMEOUT}'")
           end
@@ -73,8 +63,7 @@ class SessionBuilder
         end
       rescue ActiveRecord::RecordNotUnique
         # The winner created it; this request contributes nothing further. Re-raised
-        # when the conflict was some other constraint, or the row is not one this
-        # path could have produced — the outer rescue then answers 400, as before.
+        # for any other constraint, or a row this path could not have produced.
         [reusable_session(data, filtered) || raise, []]
       end
 
@@ -88,14 +77,12 @@ class SessionBuilder
     Rails.logger.warn(invalid.record.errors.full_messages)
     nil
   rescue ActiveRecord::LockWaitTimeout
-    # A rival's insert of this uuid is still in flight after LOCK_TIMEOUT. Same
-    # answer as an invalid session: 400, and the app retries on its next sync.
+    # Same answer as an invalid session: 400, and the app retries on its next sync.
     Rails.logger.warn("[SessionBuilder] uuid insert timed out for #{data[:uuid]}")
     nil
   rescue ActiveRecord::RecordNotUnique => e
-    # Reached only when the conflict was not a reusable session of ours — another
-    # constraint, another user's row, or one carrying a different recording. Same
-    # answer as an invalid session: the controller renders 400.
+    # Not a session we may reuse — another constraint, another user's row, or a
+    # different recording. 400, as this path has always answered.
     Rails.logger.warn("[SessionBuilder] uuid conflict for #{data[:uuid]}: #{e.message}")
     nil
   end
@@ -115,38 +102,30 @@ class SessionBuilder
     return nil if existing.nil?
 
     # A session_token means the row came from the v3 fixed create and is bound to
-    # one AirBeam, flashed with that token over BLE. Handing it to a legacy client
-    # would put two devices on one session, reporting into the same streams —
-    # silent data mixing, worse than the 400 returned instead. Nothing on this path
-    # sets a session_token, so for mobile uploads this never fires.
+    # one AirBeam over BLE. Handing it to a legacy client would put two devices on
+    # one session's streams — silent data mixing, worse than the 400 instead.
+    # Nothing on this path sets one, so mobile uploads never reach it.
     return nil if existing.session_token.present?
 
-    # Losing the race proves two requests overlapped on this uuid; it does not
-    # prove they carry the same recording. A client reusing a uuid for a different
-    # session would otherwise be told 200 and handed a location for the earlier
-    # one, silently discarding what it just uploaded.
+    # Losing the race proves two requests overlapped on this uuid, not that they
+    # carry the same recording — a client reusing a uuid for a *different* session
+    # would otherwise be handed the earlier one's location, silently discarding
+    # what it just uploaded. So this errs wide: every field that cannot legitimately
+    # differ between two uploads of one recording is compared, because adding one
+    # can only turn a silent discard into the 400 this path returned before.
     #
-    # The two ways this can be wrong are not equally bad, so it errs wide: calling
-    # two identical uploads different costs a 400, which is what this path returned
-    # before; calling two different uploads identical discards one silently. Every
-    # field that cannot legitimately differ between two uploads of one recording is
-    # therefore compared, since adding one can only turn a silent discard into a 400.
+    # Streams and measurement counts are excluded on purpose: the winner commits
+    # session and streams while Sidekiq is still inserting measurements, so it
+    # legitimately reads zero. Everything below is written in that transaction.
     #
-    # Streams and measurement counts are deliberately excluded: the winner commits
-    # its session and streams while Sidekiq is still inserting measurements, so it
-    # legitimately reads zero here. Everything below is written in that same
-    # transaction.
-    #
-    # notes_attributes is dropped from the comparison object: nothing here reads it,
-    # and building it would construct a Note per note and register an ActiveStorage
-    # attachment change for each — and those call blob.identify_without_saving,
-    # which downloads from the storage service for any blob not already identified.
+    # notes_attributes is dropped because building it constructs a Note per note and
+    # registers an ActiveStorage attachment change for each, and those call
+    # blob.identify_without_saving — a storage download per unidentified blob.
     candidate = Session.new(filtered.except(:notes_attributes))
 
     # uniq on both sides: normalize_tags turns "beach beach" into "beach,beach"
-    # while the stored row reads back one tagging. TagList dedups on assignment in
-    # the gem version in use, so both sides agree today — this keeps the comparison
-    # from depending on that.
+    # while the stored row reads back one tagging. TagList happens to dedup on
+    # assignment today; this keeps the comparison from depending on that.
     same_recording =
       existing.title == candidate.title &&
       existing.start_time_local == candidate.start_time_local &&

@@ -2,9 +2,10 @@ require 'swagger_helper'
 
 # Mobile apps (iOS/Android): account & auth.
 RSpec.describe 'Mobile app — account & auth', type: :request do
-  # Satisfies the global token_auth security scheme on authenticated operations
-  # (no-auth ops set `security []`, so this is never evaluated there).
-  let(:Authorization) { "Token token=#{user.authentication_token}" }
+  # These endpoints accept HTTP Basic only: user token as the username, a
+  # literal `X` as the password. The examples sign in through warden, so this
+  # header is what the docs show rather than what the test authenticates with.
+  let(:Authorization) { "Basic #{Base64.strict_encode64("#{user.authentication_token}:X")}" }
 
   USER_SCHEMA = {
     type: :object,
@@ -21,8 +22,8 @@ RSpec.describe 'Mobile app — account & auth', type: :request do
   path '/api/user.json' do
     get 'Sign in (fetch the current user)' do
       tags 'Mobile app: Account & auth'
+      security [{ basic_auth: [] }]
       produces 'application/json'
-      description 'Returns the authenticated user. Auth: `Token token=<user_token>` via HTTP Basic (token as username, "X" as password).'
 
       response '200', 'user' do
         schema USER_SCHEMA
@@ -37,7 +38,6 @@ RSpec.describe 'Mobile app — account & auth', type: :request do
       consumes 'application/json'
       produces 'application/json'
       security []
-      description 'Creates a new user account. No auth.'
 
       parameter name: :body, in: :body, required: true, schema: {
         type: :object,
@@ -77,9 +77,9 @@ RSpec.describe 'Mobile app — account & auth', type: :request do
   path '/api/user/settings' do
     post 'Update user settings' do
       tags 'Mobile app: Account & auth'
+      security [{ basic_auth: [] }]
       consumes 'application/json'
       produces 'application/json'
-      description 'Updates the `session_stopped_alert` preference. Auth required.'
 
       parameter name: :body, in: :body, required: true, schema: {
         type: :object,
@@ -115,8 +115,9 @@ RSpec.describe 'Mobile app — account & auth', type: :request do
   path '/api/user/delete_account_send_code' do
     post 'Send account-deletion confirmation code (email)' do
       tags 'Mobile app: Account & auth'
+      security [{ basic_auth: [] }]
       produces 'application/json'
-      description 'Emails a 4-digit confirmation code (valid 30 minutes) to the current user. Auth required. Empty 200 body.'
+      description 'The code expires 30 minutes after it is sent.'
 
       response '200', 'code sent' do
         let(:user) { create(:user) }
@@ -129,12 +130,12 @@ RSpec.describe 'Mobile app — account & auth', type: :request do
   path '/api/user/delete_account_confirm' do
     post 'Confirm account deletion with code' do
       tags 'Mobile app: Account & auth'
+      security [{ basic_auth: [] }]
       consumes 'application/json'
       produces 'application/json'
-      description 'Deletes the account if the supplied `code` matches and is unexpired. Auth required.'
 
       parameter name: :body, in: :body, required: true, schema: {
-        type: :object, required: %w[code], properties: { code: { type: :string, example: '0042' } }
+        type: :object, required: %w[code], properties: { code: { type: :string, description: 'The code from the email' } }
       }
 
       response '200', 'account deleted' do
@@ -163,7 +164,6 @@ RSpec.describe 'Mobile app — account & auth', type: :request do
       consumes 'application/json'
       produces 'application/json'
       security []
-      description 'Sends password-reset instructions to the given email (Devise). No auth. Note: this path has no /api prefix.'
 
       parameter name: :body, in: :body, required: true, schema: {
         type: :object,

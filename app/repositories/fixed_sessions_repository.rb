@@ -1,6 +1,6 @@
 class FixedSessionsRepository
   def find_by(user_id:, uuid:)
-    FixedSession.find_by(user_id: user_id, uuid: uuid)
+    FixedSession.by_uuid(uuid).find_by(user_id: user_id)
   end
 
   def active_with_streams

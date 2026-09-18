@@ -42,7 +42,6 @@ RSpec.describe 'Mobile session lists (web)', type: :request do
       tags 'Web app: Mobile sessions'
       produces 'application/json'
       security []
-      description "Returns mobile (moving) sessions with per-stream metadata. Public (no auth).\n\n#{Q_DESCRIPTION}"
 
       parameter name: :q, in: :query, type: :string, required: true, description: Q_DESCRIPTION
 
@@ -125,7 +124,6 @@ RSpec.describe 'Mobile session lists (web)', type: :request do
       tags 'Web app: Mobile sessions'
       produces 'application/json'
       security []
-      description 'Returns one mobile stream (legacy streams.id) with all its measurements and notes. Public (no auth). Times are epoch milliseconds.'
 
       parameter name: :id, in: :path, type: :integer, required: true, description: 'Legacy streams.id (mobile)'
 

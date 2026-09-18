@@ -245,7 +245,7 @@ describe SessionBuilder do
 
     it 'refuses a row bound to a device the payload does not name' do
       force_race
-      device = Device.create!(mac_address: 'AA:11:BB:22:CC:33', model: 'AirBeam3')
+      device = Device.create!(user: user, mac_address: 'AA:11:BB:22:CC:33', model: 'AirBeam3')
       winner.update_columns(device_id: device.id)
 
       expect(SessionBuilder.new(session_data.deep_dup, [], user).build!).to be_nil

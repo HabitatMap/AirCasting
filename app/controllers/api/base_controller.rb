@@ -13,8 +13,6 @@ module Api
     # via parameters. However, anyone could use Rails's token
     # authentication features to get the token from a header.
     def authenticate_user_from_token!
-      return if Rails.env.test?
-
       return unless request.authorization =~ /^Basic (.*)/m
       user_token, _password = Base64.decode64($1).split(/:/, 2) # mobile app sends token + "X" as password
 
