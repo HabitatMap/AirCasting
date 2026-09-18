@@ -274,7 +274,13 @@ RSpec.describe 'AirBeam Mobile Session Notes', type: :request do
       end
 
       response '404', 'session or note not found — `error_code` says which' do
-        schema ERROR_SCHEMA
+        schema type: :object,
+               required: %w[error_code message],
+               properties: {
+                 error_code: { type: :string, example: 'note_not_found' },
+                 message: { type: :string, example: 'Note not found' }
+               }
+
         let(:user) { create(:user) }
         let(:Authorization) { "Bearer #{user.authentication_token}" }
         let(:session_record) { create(:mobile_session, user: user) }
@@ -284,7 +290,13 @@ RSpec.describe 'AirBeam Mobile Session Notes', type: :request do
       end
 
       response '401', 'unauthorized' do
-        schema ERROR_SCHEMA
+        schema type: :object,
+               required: %w[error_code message],
+               properties: {
+                 error_code: { type: :string, example: 'unauthorized' },
+                 message: { type: :string, example: 'Unauthorized' }
+               }
+
         let(:uuid) { 'any-uuid' }
         let(:id) { 1 }
         let(:Authorization) { 'Bearer invalid' }

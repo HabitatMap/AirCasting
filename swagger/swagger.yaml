@@ -2978,24 +2978,9 @@ paths:
       summary: List the signed-in user's fixed sessions
       tags:
       - 'Mobile app: Fixed sessions'
-      description: |
-        Ordered by creation, oldest first.
+      description: 'Ordered by creation, oldest first.
 
-        The list is authoritative: walk it to the last page, and a session the
-        client holds locally but never saw has been deleted server-side.
-
-        A `page` past the end answers `200` with an empty `sessions` array.
-
-        No measurement history and no `session_token` — a stream carries only its
-        newest reading (`last_measurement`), and history is read from
-        `GET /api/v3/fixed_streams/{id}` and the measurement endpoints.
-
-        A sensor is dormant once `last_measurement_at` is more than 24 hours old.
-
-        | `error_code` | HTTP | When |
-        |---|---|---|
-        | `unauthorized` | 401 | Missing or invalid token |
-        | `validation_error` | 400 | `page` or `per_page` out of range or not a number |
+        '
       parameters:
       - name: Authorization
         in: header
@@ -3163,8 +3148,10 @@ paths:
                 properties:
                   error_code:
                     type: string
+                    example: validation_error
                   message:
                     type: string
+                    example: Query parameters are invalid
         '401':
           description: unauthorized
           content:
@@ -3177,8 +3164,10 @@ paths:
                 properties:
                   error_code:
                     type: string
+                    example: unauthorized
                   message:
                     type: string
+                    example: Unauthorized
     post:
       summary: Create a new AirBeamMini fixed session
       tags:
@@ -4247,8 +4236,10 @@ paths:
                 properties:
                   error_code:
                     type: string
+                    example: note_not_found
                   message:
                     type: string
+                    example: Note not found
         '401':
           description: unauthorized
           content:
@@ -4261,8 +4252,10 @@ paths:
                 properties:
                   error_code:
                     type: string
+                    example: unauthorized
                   message:
                     type: string
+                    example: Unauthorized
   "/api/v3/mobile_sessions":
     get:
       summary: List the signed-in user's mobile sessions
@@ -4432,8 +4425,10 @@ paths:
                 properties:
                   error_code:
                     type: string
+                    example: validation_error
                   message:
                     type: string
+                    example: Query parameters are invalid
         '401':
           description: unauthorized
           content:
@@ -4446,8 +4441,10 @@ paths:
                 properties:
                   error_code:
                     type: string
+                    example: unauthorized
                   message:
                     type: string
+                    example: Unauthorized
     post:
       summary: Create a mobile session
       tags:
@@ -5059,25 +5056,10 @@ paths:
       summary: Delete a mobile session
       tags:
       - 'Mobile app: Mobile sessions'
-      description: |
-        Cascades to the session's streams, measurements, notes and note photos. The
+      description: |+
+        Cascades to the session's streams, measurements, threshold alerts, notes and note photos. The
         uuid is matched case-insensitively.
 
-        **Safe to retry.** Deleting an already-deleted session answers `204`, so
-        retry on any network failure or 5xx. `404` means this uuid has never belonged
-        to this account — treat it as terminal.
-
-        Deleting does not cancel an upload already on the wire: a measurements upload
-        arriving after the delete answers `404`. Stop the uploader first.
-
-        ## Error codes
-
-        | `error_code` | HTTP | When |
-        |---|---|---|
-        | `unauthorized` | 401 | Missing or invalid token |
-        | `session_not_found` | 404 | No mobile session with this uuid for this user |
-        | `try_again_later` | 503 | Temporarily unavailable. `Retry-After` says how long to wait |
-        | `internal_error` | 500 | Unexpected server error; the session is left intact and the call can be retried |
       parameters:
       - name: uuid
         in: path
@@ -5105,8 +5087,42 @@ paths:
                 properties:
                   error_code:
                     type: string
+                    example: session_not_found
                   message:
                     type: string
+                    example: Session not found
+        '503':
+          description: temporarily unavailable — retry after `Retry-After` seconds
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - error_code
+                - message
+                properties:
+                  error_code:
+                    type: string
+                    example: try_again_later
+                  message:
+                    type: string
+                    example: Could not delete this session, please retry
+        '500':
+          description: session could not be deleted
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - error_code
+                - message
+                properties:
+                  error_code:
+                    type: string
+                    example: internal_error
+                  message:
+                    type: string
+                    example: Could not delete this session
         '401':
           description: unauthorized
           content:
@@ -5119,8 +5135,10 @@ paths:
                 properties:
                   error_code:
                     type: string
+                    example: unauthorized
                   message:
                     type: string
+                    example: Unauthorized
   "/api/v3/mobile_sessions/{uuid}/measurements":
     get:
       summary: Get measurements for a mobile session

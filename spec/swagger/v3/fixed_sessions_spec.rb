@@ -24,22 +24,6 @@ RSpec.describe 'AirBeamMini Fixed Sessions Binary Flow', type: :request do
       produces 'application/json'
       description <<~DESC
         Ordered by creation, oldest first.
-
-        The list is authoritative: walk it to the last page, and a session the
-        client holds locally but never saw has been deleted server-side.
-
-        A `page` past the end answers `200` with an empty `sessions` array.
-
-        No measurement history and no `session_token` — a stream carries only its
-        newest reading (`last_measurement`), and history is read from
-        `GET /api/v3/fixed_streams/{id}` and the measurement endpoints.
-
-        A sensor is dormant once `last_measurement_at` is more than 24 hours old.
-
-        | `error_code` | HTTP | When |
-        |---|---|---|
-        | `unauthorized` | 401 | Missing or invalid token |
-        | `validation_error` | 400 | `page` or `per_page` out of range or not a number |
       DESC
 
       parameter name: :Authorization, in: :header, type: :string, required: true,
@@ -140,7 +124,13 @@ RSpec.describe 'AirBeamMini Fixed Sessions Binary Flow', type: :request do
       end
 
       response '400', 'invalid pagination parameters' do
-        schema ERROR_SCHEMA
+        schema type: :object,
+               required: %w[error_code message],
+               properties: {
+                 error_code: { type: :string, example: 'validation_error' },
+                 message: { type: :string, example: 'Query parameters are invalid' }
+               }
+
         let(:user) { create(:user) }
         let(:Authorization) { "Bearer #{user.authentication_token}" }
         let(:per_page) { 0 }
@@ -148,7 +138,13 @@ RSpec.describe 'AirBeamMini Fixed Sessions Binary Flow', type: :request do
       end
 
       response '401', 'unauthorized' do
-        schema ERROR_SCHEMA
+        schema type: :object,
+               required: %w[error_code message],
+               properties: {
+                 error_code: { type: :string, example: 'unauthorized' },
+                 message: { type: :string, example: 'Unauthorized' }
+               }
+
         let(:Authorization) { 'Bearer invalid' }
         run_test!
       end
