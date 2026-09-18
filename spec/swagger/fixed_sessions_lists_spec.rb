@@ -112,7 +112,7 @@ RSpec.describe 'Fixed session lists (web map)', type: :request do
       tags 'Web app: Fixed sessions'
       produces 'application/json'
       security []
-      description "Returns active fixed sessions as map markers. Public (no auth). Response is gzipped.\n\n#{Q_DESCRIPTION}"
+      description 'Response body is gzipped.'
 
       parameter name: :q, in: :query, type: :string, required: true, description: Q_DESCRIPTION
 
@@ -144,7 +144,6 @@ RSpec.describe 'Fixed session lists (web map)', type: :request do
       tags 'Web app: Fixed sessions'
       produces 'application/json'
       security []
-      description "Returns dormant (inactive) fixed sessions with full per-stream metadata. Public (no auth).\n\n#{Q_DESCRIPTION}"
 
       parameter name: :q, in: :query, type: :string, required: true, description: Q_DESCRIPTION
 

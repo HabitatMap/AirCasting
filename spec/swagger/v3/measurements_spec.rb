@@ -26,6 +26,7 @@ RSpec.describe 'V3 Measurements', type: :request do
         type: :object,
         description: 'Per-field validation errors — only present for shape errors',
         additionalProperties: { type: :array, items: { type: :string } },
+        example: { end_time: ['must be greater than start_time'] },
       },
     },
   }.freeze
@@ -35,11 +36,6 @@ RSpec.describe 'V3 Measurements', type: :request do
       tags 'Web app: Fixed sessions'
       produces 'application/json'
       security []
-      description <<~DESC
-        Returns AirBeam fixed measurements for one legacy stream within `[start_time, end_time]`.
-        Public (no auth). `start_time`/`end_time` are epoch **milliseconds** (local-as-UTC).
-      DESC
-
       parameter name: :stream_id, in: :query, type: :string, required: true, description: 'Legacy streams.id'
       parameter name: :start_time, in: :query, required: true, schema: { type: :number, format: :int64 }, description: 'Epoch ms, inclusive'
       parameter name: :end_time, in: :query, required: true, schema: { type: :number, format: :int64 }, description: 'Epoch ms, must be > start_time'
@@ -76,12 +72,6 @@ RSpec.describe 'V3 Measurements', type: :request do
       tags 'Web app: Station data (government)'
       produces 'application/json'
       security []
-      description <<~DESC
-        Returns Station (government) `station_measurements` for one `station_stream_id` within
-        `[start_time, end_time]`. Public (no auth). `start_time`/`end_time` are epoch
-        **milliseconds** in the station-local-as-UTC domain (same convention as AirBeam).
-      DESC
-
       parameter name: :station_stream_id, in: :query, type: :string, required: true, description: 'station_streams.id'
       parameter name: :start_time, in: :query, required: true, schema: { type: :number, format: :int64 }, description: 'Epoch ms, inclusive'
       parameter name: :end_time, in: :query, required: true, schema: { type: :number, format: :int64 }, description: 'Epoch ms, must be > start_time'

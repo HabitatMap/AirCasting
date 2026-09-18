@@ -26,33 +26,13 @@ RSpec.describe 'AirBeam Mobile Sessions', type: :request do
       tags 'Mobile app: Mobile sessions'
       produces 'application/json'
       description <<~DESC
-        The authenticated user's own mobile sessions — metadata and per-stream
-        aggregates, **no measurements**. Ownership is implicit from the token.
-
-        Authoritative: a session the client holds locally but never sees while
-        walking the pages has been deleted server-side. Reach the last page
-        before acting on an absence.
-
-        Always paginated; omitting both parameters gives page 1 at the default
-        size. `meta` describes the whole collection, not the page returned:
-
-        ```json
-        { "sessions": [ ... ], "meta": { "total": 812, "page": 1, "per_page": 500, "total_pages": 2 } }
-        ```
-
-        `total_pages` is `0` for a user with no sessions. A `page` past the end
-        answers `200` with an empty `sessions` array and the true `total`.
-        Invalid `page` / `per_page` is `400 validation_error`, never an empty
-        `200`.
-
         Ordered by upload time, oldest first — not recording time. Sort by
-        `start_time` client-side if you display them in recording order. The
-        order is ascending so that a session created while you are paging cannot
-        shift the pages you already fetched.
+        `start_time` client-side to display them in recording order.
 
-        **No `notes`** — this is a whole-account summary. A session's notes come
-        with `GET /api/v3/mobile_sessions/{uuid}`, or from
-        `GET /api/v3/mobile_sessions/{uuid}/notes`.
+        The list is authoritative: walk it to the last page, and a session the
+        client holds locally but never saw has been deleted server-side.
+
+        A `page` past the end answers `200` with an empty `sessions` array.
       DESC
 
       parameter name: :Authorization, in: :header, type: :string, required: true,
@@ -105,7 +85,7 @@ RSpec.describe 'AirBeam Mobile Sessions', type: :request do
             latitude: { type: :number, format: :float, nullable: true },
             longitude: { type: :number, format: :float, nullable: true },
             share_url: { type: :string, example: 'http://aircasting.org/s/ab12c',
-                         description: 'Shareable session link' },
+                         description: 'Capability link; append `?sensor_name=<stream>` to open it' },
             device: {
               type: :object, nullable: true,
               properties: {
@@ -165,94 +145,39 @@ RSpec.describe 'AirBeam Mobile Sessions', type: :request do
       consumes 'application/json'
       produces 'application/json'
       description <<~DESC
-        Creates a new AirBeam mobile (moving) session, wrapping the legacy
-        `sessions` / `streams` model. The app calls this once at the start of a
-        recording; measurements are then streamed to
+        Call it once at the start of a recording, then stream measurements to
         `POST /api/v3/mobile_sessions/{uuid}/measurements`.
 
-        This call is configuration only. `start_time` / `end_time`
-        stay `null` until the first measurements arrive; such a session is
-        skipped by every map / search query and is visible only to its owner
-        (list, show, update, delete).
+        Creating the same `uuid` twice concurrently yields one session; both callers
+        are answered with it and its streams. A `uuid` that already existed before the
+        request is `session_uuid_taken`.
 
-        Notes vs. the fixed-session create:
-        - `time_zone` is **required** (not derived from coordinates).
-        - `start_time` / `end_time` are **not** sent — they are derived from the
-          measurement bounds on ingest.
-        - `latitude` / `longitude` are optional (the session start point); each
-          measurement carries its own location.
-        - No `session_token` is returned — the measurements upload authenticates
-          with the user token.
-        - `uuid` must be in canonical UUID form and unused.
-        - Fields outside this schema (`is_indoor`, `version`, `start_time`, …)
-          are ignored; mobile sessions are always stored as outdoor and the
-          version is server-owned (bumped by `PATCH`).
+        ## Streams
 
-        The response includes a `sensor_type_id` per stream, used to identify
-        streams in the binary measurement upload.
+        **Known sensors** (AirBeam PM1 / PM2.5 / PM10 / RH / F and `Phone Microphone`)
+        need only `sensor_name` and `unit_symbol`. Anything else is a **custom sensor**
+        and must also send `measurement_type`, `measurement_short_type`, `unit_name`
+        and `thresholds`; its fields cap at 64 characters and its `sensor_name` may
+        not reuse a built-in one.
 
-        ## share_url
-
-        `share_url` is the session's capability link (`<host>/s/<token>`).
-        Anyone holding it can open the session, which is how a private
-        (`contribute: false`) session is shared. Store it with the session — the
-        list / show / update responses return it too, so a session synced onto a
-        second device stays shareable. Append the stream before sharing:
-        `<share_url>?sensor_name=AirBeamMini-PM2.5` — the link only resolves
-        with that query parameter. It is a full URL, not a token, because the
-        backend host is configurable.
-
-        ## Thresholds
-
-        Each stream may carry `thresholds` — the colour-scale bounds shown in the app and
-        on the map. Resolution order:
-
-        1. values sent with the stream — an identical set is reused rather than duplicated,
-           and sending the sensor's default values simply reuses the default row;
-        2. the sensor's seeded default set (AirBeam sensors and `Phone Microphone` have one);
-        3. neither — `validation_error`, telling the client to send `thresholds`.
-
-        Values must ascend (`very_low ≤ low ≤ medium ≤ high ≤ very_high`); a negative floor
-        is fine, which is what a calibrated microphone scale looks like.
-
-        ## Streams — known and custom sensors
-
-        **Known sensors** (AirBeam PM1 / PM2.5 / PM10 / RH / F and `Phone Microphone`) need
-        only `sensor_name` and `unit_symbol`; the server owns their measurement type, unit
-        name and short type.
-
-        **Custom sensors** — anything else, for integrations built against this API — must
-        be described by the client: `measurement_type`, `measurement_short_type` and
-        `unit_name` are required, and `thresholds` too unless a default set already exists.
-        Fields cap at 64 characters, and a custom `sensor_name` may not reuse a built-in one.
-
-        Every stream comes back with a `sensor_type_id`, which the binary upload uses to
-        address it. Built-in ids (1–99) are globally stable — AirBeam firmware is
-        configured with them. A custom sensor is assigned one from **100–255, unique
-        within the session**, so read it from the response rather than assuming it.
-
-        Each sensor type may appear **once** per session: `AirBeamMini-PM2.5` and
-        `AirBeam2-PM2.5` are the same type (`AirBeam-PM2.5`) and cannot both be requested.
-
-        Two creates racing on one `uuid` resolve to a single session: the loser is answered
-        with the winner's session and **its** streams, so the `sensor_type_id`s it gets are
-        the ones that exist in the session its uploads will address. A `uuid` that already
-        existed before the request is `session_uuid_taken`, not a reuse.
+        Each sensor type may appear once per session: `AirBeamMini-PM2.5` and
+        `AirBeam2-PM2.5` are the same type (`AirBeam-PM2.5`). Built-in
+        `sensor_type_id`s are 1–99 and globally stable; a custom sensor is assigned
+        one from 100–255, unique within the session.
 
         ## Error codes
 
-        `{ error_code, message, fields? }`, as everywhere in v3. `fields` appears only
-        when the request *shape* is wrong, and the status carries the same meaning as
-        the code.
+        `{ error_code, message, fields? }`, as everywhere in v3. `fields` appears
+        only when the request shape is wrong.
 
         | `error_code` | HTTP | When | Client should |
         |---|---|---|---|
         | `unauthorized` | 401 | Missing or invalid token | Re-authenticate |
-        | `validation_error` | 400 | Malformed body, or a custom sensor with no `thresholds` and no seeded default | Client bug — do not retry unchanged |
+        | `validation_error` | 400 | Malformed body, or a custom sensor with no `thresholds` and no seeded default | Do not retry unchanged |
         | `session_uuid_taken` | 409 | The `uuid` is already in use | Stop retrying; continue with the existing session |
         | `unsupported_sensor_type` | 400 | Unknown `sensor_name`, or more custom sensors than the 100–255 range holds | Unrecoverable |
-        | `try_again_later` | 503 | A rival create is still in flight | Retry after the `Retry-After` header (seconds) |
-        | `internal_error` | 500 | Unresolvable write conflict | Retry with backoff |
+        | `try_again_later` | 503 | Temporarily unavailable | Retry after the `Retry-After` header (seconds) |
+        | `internal_error` | 500 | Unexpected server error | Retry with backoff |
       DESC
 
       parameter name: :Authorization, in: :header, type: :string, required: true,
@@ -262,7 +187,8 @@ RSpec.describe 'AirBeam Mobile Sessions', type: :request do
         type: :object,
         required: %w[uuid title time_zone contribute device streams],
         properties: {
-          uuid: { type: :string, format: :uuid, example: '550e8400-e29b-41d4-a716-446655440000' },
+          uuid: { type: :string, format: :uuid, example: '550e8400-e29b-41d4-a716-446655440000',
+                  description: 'Canonical UUID form; must not already be in use.' },
           title: { type: :string, example: 'Morning bike ride' },
           time_zone: { type: :string, example: 'America/New_York',
                        description: 'IANA time zone identifier (required).' },
@@ -331,7 +257,7 @@ RSpec.describe 'AirBeam Mobile Sessions', type: :request do
                  share_url: {
                    type: :string,
                    example: 'http://aircasting.org/s/ab12c',
-                   description: 'Shareable session link — see the endpoint description.'
+                   description: 'Capability link (`<host>/s/<token>`) — anyone holding it can open the session, including a private one. Append `?sensor_name=<stream>`; the link only resolves with it.'
                  },
                  streams: {
                    type: :array,
@@ -340,7 +266,8 @@ RSpec.describe 'AirBeam Mobile Sessions', type: :request do
                      required: %w[sensor_name sensor_type_id],
                      properties: {
                        sensor_name: { type: :string, example: 'AirBeamMini-PM2.5' },
-                       sensor_type_id: { type: :integer, example: 2 }
+                       sensor_type_id: { type: :integer, example: 2,
+                                         description: 'Addresses this stream in the binary measurements upload.' }
                      }
                    }
                  }
@@ -385,7 +312,8 @@ RSpec.describe 'AirBeam Mobile Sessions', type: :request do
                  fields: {
                    type: :object,
                    description: 'Per-field validation errors',
-                   additionalProperties: { type: :array, items: { type: :string } }
+                   additionalProperties: { type: :array, items: { type: :string } },
+                   example: { uuid: ['is missing'], streams: ['is missing'] }
                  }
                }
 
@@ -467,26 +395,6 @@ RSpec.describe 'AirBeam Mobile Sessions', type: :request do
     get 'Get one of the signed-in user\'s mobile sessions' do
       tags 'Mobile app: Mobile sessions'
       produces 'application/json'
-      description <<~DESC
-        Returns a single mobile session owned by the authenticated user — metadata,
-        per-stream aggregates and its `notes`, **no measurements** (fetch those
-        from the `/measurements` path). Same shape as one element of the list
-        endpoint, plus `notes` — this and `PATCH` are the only endpoints that
-        carry them, and the only way a second device learns a note's photo.
-
-        Each stream carries its `sensor_type_id`, the same value `POST
-        /api/v3/mobile_sessions` returned and the one the binary measurements
-        upload addresses the stream by. For a custom sensor it is allocated per
-        session, so this is how a client that no longer holds the create
-        response recovers it.
-
-        **It is nullable.** Only streams created through this API group have one;
-        a session uploaded by the older `POST /api/sessions` path has `null`, and
-        cannot be appended to by the binary upload. Decode it as optional — a
-        client that models it as a required integer will fail on exactly the
-        older sessions.
-      DESC
-
       parameter name: :uuid, in: :path, type: :string, required: true
       parameter name: :Authorization, in: :header, type: :string, required: true,
                 description: 'Bearer <user_token>'
@@ -508,7 +416,7 @@ RSpec.describe 'AirBeam Mobile Sessions', type: :request do
                  latitude: { type: :number, format: :float, nullable: true },
                  longitude: { type: :number, format: :float, nullable: true },
                  share_url: { type: :string, example: 'http://aircasting.org/s/ab12c',
-                              description: 'Shareable session link' },
+                              description: 'Capability link; append `?sensor_name=<stream>` to open it' },
                  device: {
                    type: :object, nullable: true,
                    properties: {
@@ -568,34 +476,12 @@ RSpec.describe 'AirBeam Mobile Sessions', type: :request do
       consumes 'application/json'
       produces 'application/json'
       description <<~DESC
-        Edits the metadata of an existing mobile session: `title` and `tag_list`.
-        At least one of the two must be sent; anything else in the body is
-        ignored. Answers with the same shape as `GET /{uuid}`.
+        **PATCH only — `PUT` is not routed.** An omitted field is left alone. Notes
+        are edited through `/{uuid}/notes`; nothing else about a session is editable.
 
-        **PATCH only — `PUT` is not routed.** The update is partial: a field you
-        omit is left alone, which is not what `PUT` promises.
-
-        Out of scope on purpose:
-        - **notes** — their own resource: `GET|POST /{uuid}/notes` and
-          `PATCH|DELETE /{uuid}/notes/{id}`. They used to be a declarative-full
-          array here, which meant editing one note resent all of them.
-        - **streams** — created by `POST /api/v3/mobile_sessions`, filled by the
-          measurements endpoint. Delete the whole session instead.
-        - **device** — a device row is shared by every session recorded with that
-          AirBeam, so it is managed by its own endpoints.
-        - **contribute, time_zone, latitude / longitude** — set once at create.
-
-        ## version
-
-        `version` is server-owned and tells every other device to re-download the
-        session. It is bumped **only when something actually changed** — re-sending
-        the title or the same tag set in another order leaves it alone, so a retry
-        never triggers a sync across the account. Writing a note bumps it too.
-
-        ## tag_list
-
-        A single string. Whitespace and commas both separate tags on the way in;
-        responses join them with `", "`. `null` or `""` clears every tag.
+        `version` is server-owned and tells the account's other devices to
+        re-download the session. It moves only when something actually changed, so
+        re-sending the same title, or the same tags in another order, leaves it alone.
       DESC
 
       parameter name: :uuid, in: :path, type: :string, required: true
@@ -605,7 +491,8 @@ RSpec.describe 'AirBeam Mobile Sessions', type: :request do
         properties: {
           title: { type: :string, example: 'Renamed ride' },
           tag_list: { type: :string, nullable: true, example: 'commute, bike',
-                      description: 'null or "" clears every tag' },
+                      description: 'A single string; whitespace and commas both separate tags. ' \
+                                   'null or "" clears every tag.' },
         }
       }
 
@@ -615,9 +502,18 @@ RSpec.describe 'AirBeam Mobile Sessions', type: :request do
           title: { type: :string },
           version: { type: :integer },
           tag_list: { type: :string, description: 'Tags joined with ", "' },
-          share_url: { type: :string, example: 'http://aircasting.org/s/ab12c', description: 'Shareable session link' },
-          device: { type: :object, nullable: true, additionalProperties: true },
-          streams: { type: :object, additionalProperties: { type: :object, additionalProperties: true } },
+          share_url: { type: :string, example: 'http://aircasting.org/s/ab12c',
+                       description: 'Capability link; append `?sensor_name=<stream>` to open it' },
+          device: { type: :object, nullable: true, additionalProperties: true,
+                    example: { mac_address: 'AA:BB:CC:DD:EE:FF', model: 'AirBeamMini', name: 'My AirBeam' } },
+          streams: { type: :object, additionalProperties: { type: :object, additionalProperties: true },
+                     example: {
+                       'AirBeamMini-PM2.5' => {
+                         sensor_name: 'AirBeamMini-PM2.5', sensor_type_id: 2,
+                         measurement_type: 'Particulate Matter',
+                         unit_symbol: 'µg/m³', measurements_count: 1440, average_value: 12.5
+                       }
+                     } },
           notes: { type: :array, description: 'Ordered by number, then id', items: V3_NOTE_SCHEMA }
         }
 
@@ -635,7 +531,7 @@ RSpec.describe 'AirBeam Mobile Sessions', type: :request do
         schema ERROR_SCHEMA.merge(
           properties: ERROR_SCHEMA[:properties].merge(
             fields: { type: :object, additionalProperties: true,
-                      example: { title: ['must be filled'] } }
+                      example: { base: ['must contain at least one of: title, tag_list'] } }
           )
         )
 
@@ -672,42 +568,24 @@ RSpec.describe 'AirBeam Mobile Sessions', type: :request do
       consumes 'application/json'
       produces 'application/json'
       description <<~DESC
-        Deletes one of the caller's mobile sessions. Cascades its streams,
-        measurements, notes and note photos, and records a tombstone so other
-        devices can drop the session (the list endpoint also reflects the
-        deletion by absence). Returns 204 No Content, with no body.
+        Cascades to the session's streams, measurements, notes and note photos. The
+        uuid is matched case-insensitively.
 
-        Only the owner's **mobile** sessions are reachable: another user's uuid,
-        and a fixed session's uuid, both answer `404 session_not_found`. The uuid
-        is matched case-insensitively, as everywhere else in this group.
+        **Safe to retry.** Deleting an already-deleted session answers `204`, so
+        retry on any network failure or 5xx. `404` means this uuid has never belonged
+        to this account — treat it as terminal.
 
-        ## Safe to retry
-
-        Deleting a session that is already deleted answers **204**, not 404 — the
-        tombstone proves this account deleted this uuid, so a retry after a lost
-        response has got what it asked for. Retry on any network failure or 5xx;
-        there is no "already gone" error to special-case.
-
-        `404` therefore means something narrower than "not here": this uuid has
-        never belonged to this account. Treat it as terminal, not retryable.
-
-        ## In-flight measurement uploads
-
-        Deleting does not cancel an upload already on the wire. A
-        `POST /api/v3/mobile_sessions/{uuid}/measurements` that arrives after
-        the delete answers `404 session_not_found`, and one that was mid-flight
-        when the delete landed is rolled back whole — no partial batch survives.
-        Stop the uploader before deleting if you want to be sure nothing is
-        rejected; nothing is corrupted either way.
+        Deleting does not cancel an upload already on the wire: a measurements upload
+        arriving after the delete answers `404`. Stop the uploader first.
 
         ## Error codes
 
         | `error_code` | HTTP | When |
         |---|---|---|
         | `unauthorized` | 401 | Missing or invalid token |
-        | `session_not_found` | 404 | No mobile session with this uuid for this user, and no record of one having been deleted |
-        | `try_again_later` | 503 | A concurrent upload holds the session's rows. `Retry-After` says how long to wait |
-        | `internal_error` | 500 | The delete could not complete; the session is left intact and the call can be retried |
+        | `session_not_found` | 404 | No mobile session with this uuid for this user |
+        | `try_again_later` | 503 | Temporarily unavailable. `Retry-After` says how long to wait |
+        | `internal_error` | 500 | Unexpected server error; the session is left intact and the call can be retried |
       DESC
 
       parameter name: :uuid, in: :path, type: :string, required: true
@@ -744,33 +622,18 @@ RSpec.describe 'AirBeam Mobile Sessions', type: :request do
       tags 'Mobile app: Mobile sessions'
       produces 'application/json'
       description <<~DESC
-        Measurements for **one** stream — an array of
-        `{ time, value, latitude, longitude }` sorted **ascending** (plot order,
-        so an older page prepends whole).
+        One stream per call; read the names from `streams[].sensor_name` on the
+        session endpoint. Omit the window to get the last 6 hours, anchored on the
+        session end.
 
-        `sensor_name` is required; there is no way to fetch every stream at once.
-        Read the names from `streams[].sensor_name` on the session endpoint.
-        `measurement_type` could not stand in as a selector — an AirBeam's PM1,
-        PM2.5 and PM10 all carry `Particulate Matter`.
+        The window bounds the answer and nothing is silently truncated — a short
+        answer means there is no more data in it. Page further back by moving
+        `end_time`. Both bounds are inclusive, so a point can repeat between adjacent
+        pages; de-duplicate by `time`. A stream with no measurements answers `200 []`.
 
-        | Request | Returns |
-        |---|---|
-        | `sensor_name` only | the **last 6 hours**, anchored on the session end — what the session screen opens with |
-        | `sensor_name` + `start_time` + `end_time` | that window, at most **12 hours** wide |
-
-        No point cap, and nothing is truncated silently: the window is the only
-        bound, so a short answer means there is no more data in it. Page further
-        back by moving `end_time`. Both bounds are **inclusive**, so a point can
-        repeat between adjacent pages — de-duplicate by `time`. A stream with no
-        measurements yet answers `200 []`.
-
-        ## Time
-
-        Every timestamp in this endpoint group — `time` here, the `start_time` /
-        `end_time` parameters, `start_time` / `end_time` on the session, and the
-        epochs inside the binary upload — is a **real UTC instant**: milliseconds
-        in JSON, seconds in the binary frames. Nothing on the wire is local time.
-        Render local with the session's `time_zone`.
+        Timestamps are real UTC instants — milliseconds in JSON, seconds in the
+        binary frames. Nothing on the wire is local time; render local with the
+        session's `time_zone`.
 
         ## Error codes
 
@@ -828,7 +691,8 @@ RSpec.describe 'AirBeam Mobile Sessions', type: :request do
                properties: {
                  error_code: { type: :string, example: 'validation_error' },
                  message: { type: :string },
-                 fields: { type: :object, additionalProperties: { type: :array, items: { type: :string } } }
+                 fields: { type: :object, additionalProperties: { type: :array, items: { type: :string } },
+                           example: { sensor_name: ['is missing'] } }
                }
 
         let(:user) { create(:user) }
@@ -864,14 +728,7 @@ RSpec.describe 'AirBeam Mobile Sessions', type: :request do
       consumes 'application/octet-stream'
       produces 'application/json'
       description <<~DESC
-        Uploads AirBeam mobile measurements as a binary payload. Authenticated with
-        the **user token** (no per-session token). Can be called live during a
-        recording or in bulk to sync measurements the AirBeam delivered late.
-
-        ## Binary Format
-
-        Each frame extends the fixed frame with per-point location. **No
-        milliseconds** — mobile records at interval sampling (1s / 5s / 1 / 5 / 10 min).
+        ## Binary format
 
         ```
         Offset     Size  Type         Description
@@ -887,29 +744,24 @@ RSpec.describe 'AirBeam Mobile Sessions', type: :request do
         4+N*25     1     uint8        XOR checksum of all preceding bytes
         ```
 
-        On ingest the session's start/end are refined from the measurement bounds
-        and the stream aggregates (bounding box, average, start coordinates) are
-        folded forward from the frames in the request. An empty body returns 200
-        (reads server time from `X-Server-Time`).
+        Timestamps carry no milliseconds and must fall between 2020-01-01 UTC and 24
+        hours ahead of server time; a frame outside that range is rejected.
 
-        Resending frames already stored is safe: a frame whose `(stream, timestamp)`
-        is already present is skipped, and the aggregates do not count it twice.
-        The same holds inside one payload — a timestamp repeated in a single
-        request is stored once, keeping the first occurrence.
+        **Resends are free.** A frame whose `(stream, timestamp)` is already stored is
+        skipped and the stream aggregates do not count it twice. The same holds
+        inside one payload — a repeated timestamp is stored once, keeping the first
+        occurrence. Order does not matter, so chunk however you like.
 
-        Timestamps must fall between 2020-01-01 UTC and 24 hours ahead of server
-        time. A device with an unset clock is rejected rather than stored, because
-        a bad timestamp permanently widens the session's time range.
+        An empty body returns `200`; use it to read the current server time from the
+        `X-Server-Time` response header.
 
-        ## Size Limit
+        ## Size limit
 
-        At most **3000 measurements** per request — ten minutes of 1 Hz sampling
-        across the five streams an AirBeam 3 records — so **75005 bytes**
-        (`4 + 3000 * 25 + 1`). Larger uploads are refused with `413`; split them
-        across requests. Order does not matter and resends are free, so a client
-        can chunk however it likes.
+        At most **3000 measurements** per request, so **75005 bytes**
+        (`4 + 3000 * 25 + 1`). A larger upload is refused with `413` and nothing is
+        stored — split it across requests.
 
-        ## Error Codes
+        ## Error codes
 
         | `error_code` | HTTP | Description |
         |---|---|---|
@@ -918,7 +770,7 @@ RSpec.describe 'AirBeam Mobile Sessions', type: :request do
         | `unsupported_sensor_type` | 400 | A frame names a `sensor_type_id` this session has no stream for. Nothing is stored — re-read the session's streams and resend |
         | `payload_too_short` / `invalid_magic_bytes` / `empty_measurement_count` / `payload_size_mismatch` / `invalid_checksum` / `invalid_epoch` / `invalid_value` / `invalid_location` | 400 | Malformed payload |
         | `payload_too_large` | 413 | More than 3000 measurements (or more than 75005 bytes). Nothing is stored — resend in smaller batches |
-        | `try_again_later` | 503 | A rival upload held this session's streams for longer than the server waits. Nothing is stored — resend after the `Retry-After` header (seconds) |
+        | `try_again_later` | 503 | Temporarily unavailable. Nothing is stored — resend after the `Retry-After` header (seconds) |
       DESC
 
       parameter name: :uuid, in: :path, type: :string, required: true,

@@ -32,18 +32,17 @@ RSpec.describe 'Mobile app — fixed map & streams', type: :request do
 
   path '/api/fixed/active/sessions.json' do
     get 'Active fixed sessions in a bounding box' do
-      tags 'Mobile app: Fixed map & streams'
+      tags 'Mobile app: Fixed sessions [DEPRECATED]'
+      deprecated true
       produces 'application/json'
       security []
-      description <<~DESC
-        Returns active fixed sessions with per-stream metadata. Public (no auth).
-        `q` is URL-encoded JSON: required `time_from`, `time_to` (Unix epoch **seconds**),
-        `sensor_name`, `measurement_type`, `unit_symbol`, `tags` (may be empty),
-        `usernames` (may be empty); optional `is_indoor` (bool), `west`/`east`/`south`/`north`
-        (float), `limit`/`offset`/`zoom_level` (int).
-      DESC
 
-      parameter name: :q, in: :query, type: :string, required: true, description: 'URL-encoded JSON filter'
+      parameter name: :q, in: :query, type: :string, required: true, description: <<~Q
+        URL-encoded JSON. Required: `time_from`, `time_to` (Unix epoch **seconds**),
+        `sensor_name`, `measurement_type`, `unit_symbol`, `tags` (may be empty),
+        `usernames` (may be empty). Optional: `is_indoor` (bool),
+        `west`/`east`/`south`/`north` (float), `limit`/`offset`/`zoom_level` (int).
+      Q
 
       response '200', 'active sessions' do
         schema type: :object,
@@ -105,11 +104,10 @@ RSpec.describe 'Mobile app — fixed map & streams', type: :request do
 
   path '/api/fixed/sessions/{id}/streams.json' do
     get 'Fixed session with all its streams and measurements' do
-      tags 'Mobile app: Fixed map & streams'
+      tags 'Mobile app: Fixed sessions [DEPRECATED]'
+      deprecated true
       produces 'application/json'
       security []
-      description 'Returns one fixed session (sessions.id) with every stream and its measurements. Public (no auth). Times are epoch milliseconds.'
-
       parameter name: :id, in: :path, type: :integer, required: true, description: 'sessions.id'
       parameter name: :measurements_limit, in: :query, type: :integer, required: false, description: 'Max measurements per stream'
 
@@ -175,11 +173,10 @@ RSpec.describe 'Mobile app — fixed map & streams', type: :request do
 
   path '/api/fixed/streams/{id}.json' do
     get 'Single fixed stream with measurements' do
-      tags 'Mobile app: Fixed map & streams'
+      tags 'Mobile app: Fixed sessions [DEPRECATED]'
+      deprecated true
       produces 'application/json'
       security []
-      description 'Returns one fixed stream (streams.id) with its measurements and notes. Public (no auth). Times are epoch milliseconds.'
-
       parameter name: :id, in: :path, type: :integer, required: true, description: 'streams.id (fixed)'
       parameter name: :measurements_limit, in: :query, type: :integer, required: false
 

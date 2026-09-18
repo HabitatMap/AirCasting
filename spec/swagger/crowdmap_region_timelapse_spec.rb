@@ -7,15 +7,13 @@ RSpec.describe 'Map aggregations (web)', type: :request do
       tags 'Web app: Map aggregations'
       produces 'application/json'
       security []
-      description <<~DESC
-        Returns averaged measurement values over a grid, for the CrowdMap. Public (no auth).
-        `q` is URL-encoded JSON with: `north`, `south`, `east`, `west` (float);
+
+      parameter name: :q, in: :query, type: :string, required: true, description: <<~Q
+        URL-encoded JSON with: `north`, `south`, `east`, `west` (float);
         `time_from`, `time_to`, `day_from`, `day_to`, `year_from`, `year_to`,
         `grid_size_x`, `grid_size_y` (int); `measurement_type`, `sensor_name`,
         `unit_symbol`, `usernames`, `tags` (string); `stream_ids` (array of int, optional).
-      DESC
-
-      parameter name: :q, in: :query, type: :string, required: true, description: 'URL-encoded JSON filter'
+      Q
 
       response '200', 'grid averages' do
         schema type: :array,
@@ -50,12 +48,6 @@ RSpec.describe 'Map aggregations (web)', type: :request do
       tags 'Web app: Map aggregations'
       produces 'application/json'
       security []
-      description <<~DESC
-        Returns a summary for a rectangular region. Public (no auth). Uses **flat** query
-        params (not a `q` wrapper): `north`, `south`, `east`, `west` (float);
-        `time_from`, `time_to`, `grid_size_x`, `grid_size_y` (int); `usernames`,
-        `tags` (string); `stream_ids` (comma-separated string).
-      DESC
 
       parameter name: :north, in: :query, type: :number, required: true
       parameter name: :south, in: :query, type: :number, required: true
@@ -99,16 +91,12 @@ RSpec.describe 'Map aggregations (web)', type: :request do
       tags 'Web app: Map aggregations'
       produces 'application/json'
       security []
-      description <<~DESC
-        Returns clustered hourly averages for the timelapse animation. Public (no auth).
-        Response is an object keyed by hour timestamp ("YYYY-MM-DD HH:MM:SS +0000"),
-        each value an array of cluster points. `q` is URL-encoded JSON validated by the
-        same contract as the fixed session lists (required: `time_from`, `time_to`
-        (epoch seconds), `sensor_name`, `measurement_type`, `unit_symbol`, `tags`,
-        `usernames`; optional bbox + `zoom_level`). Station (government) sensors are supported.
-      DESC
 
-      parameter name: :q, in: :query, type: :string, required: true, description: 'URL-encoded JSON filter'
+      parameter name: :q, in: :query, type: :string, required: true, description: <<~Q
+        URL-encoded JSON, same contract as the fixed session lists. Required:
+        `time_from`, `time_to` (epoch seconds), `sensor_name`, `measurement_type`,
+        `unit_symbol`, `tags`, `usernames`. Optional: bbox + `zoom_level`.
+      Q
 
       response '200', 'clusters keyed by hour' do
         schema type: :object,

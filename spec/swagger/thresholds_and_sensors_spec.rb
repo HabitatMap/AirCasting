@@ -8,21 +8,15 @@ RSpec.describe 'Thresholds and sensors', type: :request do
       tags 'Web app: Sensors & thresholds'
       produces 'application/json'
       security []
-      description <<~DESC
-        Returns the default (or most popular) threshold set for a sensor as an ordered
-        array of 5 stringified integers: `[very_low, low, medium, high, very_high]`.
-        Public (no auth). `id` is the sensor name and may contain dots/slashes.
-      DESC
-
       parameter name: :id, in: :path, type: :string, required: true,
-                description: 'Sensor name (e.g. AirBeam-PM2.5, Government-PM2.5)'
+                description: 'Sensor name; may contain dots and slashes (e.g. AirBeam-PM2.5, Government-PM2.5)'
       parameter name: :unit_symbol, in: :query, type: :string, required: true,
                 description: 'Unit symbol (e.g. µg/m³, ppb)'
 
       response '200', 'threshold set' do
         schema type: :array,
                minItems: 5, maxItems: 5,
-               items: { type: :string, description: 'Stringified integer threshold' },
+               items: { type: :string, description: 'Stringified integer; ordered very_low, low, medium, high, very_high' },
                example: %w[0 9 35 55 150]
 
         let(:id) { 'AirBeam-PM2.5' }
@@ -42,12 +36,7 @@ RSpec.describe 'Thresholds and sensors', type: :request do
       tags 'Web app: Sensors & thresholds'
       produces 'application/json'
       security []
-      description <<~DESC
-        Returns the aggregated built-in AirBeam sensors plus every distinct contributed
-        sensor for the given `session_type` (with a per-sensor `session_count`). Public
-        (no auth). Cached for 8 hours. Built-in aggregated rows have `id: null` and
-        `session_count: 0`.
-      DESC
+      description 'Cached for 8 hours.'
 
       parameter name: :session_type, in: :query, type: :string, required: true,
                 description: 'STI session class name: "MobileSession" or "FixedSession"'
@@ -59,7 +48,7 @@ RSpec.describe 'Thresholds and sensors', type: :request do
                  required: %w[sensor_name measurement_type unit_symbol session_count],
                  properties: {
                    id: { type: :integer, nullable: true, description: 'null for built-in aggregated sensors' },
-                   session_count: { type: :integer, example: 0 },
+                   session_count: { type: :integer, example: 0, description: '0 for built-in aggregated sensors' },
                    sensor_name: { type: :string, example: 'AirBeam-PM2.5' },
                    measurement_type: { type: :string, example: 'Particulate Matter' },
                    unit_symbol: { type: :string, example: 'µg/m³' },

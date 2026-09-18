@@ -2,7 +2,10 @@ require 'swagger_helper'
 
 # Mobile apps (iOS/Android): mobile session upload, download, sync, update, export.
 RSpec.describe 'Mobile app — sessions & sync', type: :request do
-  let(:Authorization) { "Token token=#{user.authentication_token}" }
+  # These endpoints accept HTTP Basic only: user token as the username, a
+  # literal `X` as the password. The examples sign in through warden, so this
+  # header is what the docs show rather than what the test authenticates with.
+  let(:Authorization) { "Basic #{Base64.strict_encode64("#{user.authentication_token}:X")}" }
 
   # Decoded shape of the `session` payload for uploads (SessionBuilder input).
   SESSION_PAYLOAD = {
@@ -80,26 +83,26 @@ RSpec.describe 'Mobile app — sessions & sync', type: :request do
 
   path '/api/sessions' do
     post 'Upload a mobile session' do
-      tags 'Mobile app: Sessions & sync'
+      tags 'Mobile app: Mobile sessions [DEPRECATED]'
+      deprecated true
+      security [{ basic_auth: [] }]
       consumes 'multipart/form-data'
       produces 'application/json'
       description <<~DESC
-        Uploads a completed mobile (moving) session in one request. Auth required.
-        Form fields: `session` (JSON string — Base64+gzip when `compression` is set,
-        else raw JSON; decoded shape below), `compression` (flag), `photos[]` (optional
-        Base64 images, index-paired with notes). `type` is forced to MobileSession.
+        **Deprecated** — use `POST /api/v3/mobile_sessions` plus
+        `POST /api/v3/mobile_sessions/{uuid}/measurements`.
 
-        Concurrent uploads of the same `uuid` resolve to one session: the request that
-        loses the race is answered with the session the winner created, so both receive
-        the same `location`. A `uuid` that already existed before the request is
-        rejected with a bodiless `400`, as is any payload that fails validation.
+        Uploading the same `uuid` twice concurrently yields one session; both callers
+        receive the same `location`. A `uuid` that already existed before the request
+        is a bodiless `400`.
       DESC
 
       parameter name: :body, in: :body, required: true, schema: {
         type: :object,
         properties: {
           session: { type: :string, description: 'JSON (see decoded shape). Raw when compression unset; Base64+gzip when set.' },
-          compression: { type: :boolean },
+          compression: { type: :boolean, description: 'When true, `session` is Base64-encoded gzip.' },
+          photos: { type: :array, items: { type: :string }, description: 'Sent as `photos[]`. Base64 images, index-paired with the notes in `session`.' },
           decoded_session: SESSION_PAYLOAD, # documentation only — the decoded `session`
         },
       }
@@ -118,44 +121,17 @@ RSpec.describe 'Mobile app — sessions & sync', type: :request do
     end
   end
 
-  path '/api/sessions/export_by_uuid.json' do
-    get 'Email a CSV export of one session by UUID' do
-      tags 'Mobile app: Sessions & sync'
-      produces 'application/json'
-      security []
-      description 'Schedules a CSV export of the session with the given UUID and emails it. No auth.'
-
-      parameter name: :uuid, in: :query, type: :string, required: true
-      parameter name: :email, in: :query, type: :string, required: true
-
-      response '200', 'export scheduled' do
-        schema type: :object, required: %w[success_message],
-               properties: { success_message: { type: :string, example: 'Export scheduled successfully.' } }
-        let(:session) { create(:mobile_session, uuid: 'export-uuid-1') }
-        let(:uuid) { session.uuid }
-        let(:email) { 'user@example.com' }
-        run_test!
-      end
-
-      response '400', 'unknown uuid or invalid params' do
-        schema type: :object, additionalProperties: true,
-               properties: { error: { type: :string } },
-               example: { error: "Session with uuid: abc doesn't exist" }
-        let(:uuid) { 'does-not-exist' }
-        let(:email) { 'user@example.com' }
-        run_test!
-      end
-    end
-  end
-
   path '/api/user/sessions/empty.json' do
     get 'Download session metadata by UUID (optionally with measurements)' do
-      tags 'Mobile app: Sessions & sync'
+      tags 'Mobile app: Mobile sessions [DEPRECATED]'
+      deprecated true
+      security [{ basic_auth: [] }]
       produces 'application/json'
       description <<~DESC
-        Returns one of the current user's sessions as a synchronizable object. Auth required.
-        The `:id` path segment is a placeholder ("empty"); the session is selected by the
-        `uuid` query param. Pass `stream_measurements=true` to embed measurements.
+        **Deprecated** — use `GET /api/v3/mobile_sessions/{uuid}`.
+
+        The `empty` path segment is a placeholder; the session is selected by the
+        `uuid` query param.
       DESC
 
       parameter name: :uuid, in: :query, type: :string, required: true
@@ -163,8 +139,7 @@ RSpec.describe 'Mobile app — sessions & sync', type: :request do
 
       response '200', 'session metadata' do
         schema type: :object,
-               description: 'All session columns plus injected keys',
-               additionalProperties: true,
+               description: 'Session metadata plus derived keys',
                properties: {
                  uuid: { type: :string },
                  title: { type: :string },
@@ -189,13 +164,14 @@ RSpec.describe 'Mobile app — sessions & sync', type: :request do
 
   path '/api/user/sessions/sync_with_versioning.json' do
     post 'Sync sessions (diff of what to upload/download/delete)' do
-      tags 'Mobile app: Sessions & sync'
+      tags 'Mobile app: Mobile sessions [DEPRECATED]'
+      deprecated true
+      security [{ basic_auth: [] }]
       consumes 'application/json'
       produces 'application/json'
       description <<~DESC
-        Given the app's local session list (uuid + version + deleted), returns which UUIDs
-        to upload, download, and mark deleted. Auth required. `data` is a JSON **string**
-        (a JSON array), not a JSON object body.
+        **Deprecated** — use `GET /api/v3/mobile_sessions`, which is authoritative:
+        a session the client holds but never sees while paging has been deleted.
       DESC
 
       parameter name: :body, in: :body, required: true, schema: {
@@ -238,17 +214,18 @@ RSpec.describe 'Mobile app — sessions & sync', type: :request do
 
   path '/api/user/sessions/update_session.json' do
     post 'Update a session (rename, tags, notes, delete streams)' do
-      tags 'Mobile app: Sessions & sync'
+      tags 'Mobile app: Mobile sessions [DEPRECATED]'
+      deprecated true
+      security [{ basic_auth: [] }]
       consumes 'application/json'
       produces 'application/json'
       description <<~DESC
-        Updates title/tags/notes and deletes flagged streams, bumping the session version.
-        Auth required. `data` is a JSON **string**. Streams flagged `deleted: true` are
-        removed (matched by sensor_name + sensor_package_name).
+        **Deprecated** — use `PATCH /api/v3/mobile_sessions/{uuid}` for title and
+        tags, and the `/notes` endpoints for notes.
 
-        The session is looked up among the authenticated user's own sessions. A uuid
-        that belongs to another user answers `400`, exactly as an unknown uuid does —
-        the caller cannot tell the two apart, and cannot edit a session it does not own.
+        Bumps the session version. Streams flagged `deleted: true` are removed,
+        matched by `sensor_name` + `sensor_package_name`. A uuid owned by another
+        user answers `400`, exactly as an unknown uuid does.
       DESC
 
       parameter name: :body, in: :body, required: true, schema: {
@@ -263,7 +240,7 @@ RSpec.describe 'Mobile app — sessions & sync', type: :request do
       }
 
       response '200', 'updated session' do
-        schema type: :object, additionalProperties: true,
+        schema type: :object,
                properties: {
                  uuid: { type: :string },
                  title: { type: :string },

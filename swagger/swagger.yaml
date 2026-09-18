@@ -3,59 +3,64 @@ openapi: 3.0.1
 info:
   title: AirCasting Mobile & Web API
   version: 1.0.0
-  description: Endpoints used by the AirCasting mobile apps and web frontend.
+  description: |
+    Endpoints used by the AirCasting mobile apps and web frontend.
+
+    Tags are grouped by client: `Mobile app:` (iOS/Android) and `Web app:`
+    (the web frontend). No endpoint is used by both. Tags marked
+    **[DEPRECATED]** are served only for already-released mobile builds —
+    build new clients against the `/api/v3` endpoints.
 components:
   securitySchemes:
     bearer_auth:
       type: http
       scheme: bearer
       description: "`Authorization: Bearer <user_token>` (RFC 6750). The token is
-        returned by sign-in and never rotates."
+        returned by sign-in."
     basic_auth:
       type: http
       scheme: basic
-      description: '**Deprecated.** `Authorization: Basic base64("<user_token>:X")`.'
+      description: '`Authorization: Basic base64("<user_token>:X")`. The only scheme
+        the pre-v3 `/api` endpoints accept. Not for new endpoints — `/api/v3` uses
+        bearer.'
 security:
 - bearer_auth: []
 tags:
 - name: 'Mobile app: Account & auth'
-  description: 'iOS/Android: sign in/up, user settings, account deletion, password
-    reset.'
-- name: 'Mobile app: Sessions & sync'
-  description: 'iOS/Android: upload/update AirBeam mobile sessions, sync, download
-    session metadata, email export.'
+  description: Sign in and sign up, user settings, account deletion, password reset.
 - name: 'Mobile app: Mobile sessions'
-  description: 'iOS/Android: the new AirBeam mobile (moving) session API — create/list/show/update/delete
-    a session and upload or read its measurements (POST /api/v3/mobile_sessions[/{uuid}/measurements]).'
-- name: 'Mobile app: AirBeam fixed streaming'
-  description: 'iOS/Android: create AirBeam fixed sessions and upload measurements
-    — the new AirBeamMini binary flow (POST /api/v3/fixed_sessions[/{uuid}/measurements])
-    and the legacy realtime (WiFi) flow — plus poll for new measurements.'
-- name: 'Mobile app: Fixed map & streams'
-  description: 'iOS/Android: active AirBeam fixed sessions in a bounding box, fixed
-    session/stream detail with measurements.'
+  description: 'AirBeam mobile (moving) sessions on `/api/v3`: create, list, show,
+    update and delete a session, manage its notes, upload and read its measurements.'
+- name: 'Mobile app: Mobile sessions [DEPRECATED]'
+  description: 'Legacy AirBeam mobile session upload, download, sync and update. Replaced
+    by *Mobile app: Mobile sessions*.'
+- name: 'Mobile app: Fixed sessions'
+  description: 'AirBeam fixed (roof-mounted) sessions on `/api/v3`: create a session
+    and upload its measurements.'
+- name: 'Mobile app: Fixed sessions [DEPRECATED]'
+  description: 'Legacy AirBeam fixed session create, measurement upload and polling
+    (the `realtime/*` paths), plus the fixed session and stream reads. Replaced by
+    *Mobile app: Fixed sessions*.'
 - name: 'Mobile app: Threshold alerts'
-  description: 'iOS/Android: manage threshold (push-notification) alerts.'
+  description: 'Threshold (push-notification) alerts: list, create, delete.'
+- name: 'Mobile app: Export & sharing'
+  description: Email a CSV export of one session — AirBeam mobile or AirBeam fixed.
 - name: 'Web app: Fixed sessions'
-  description: 'Web frontend: AirBeam fixed (roof-mounted) stream detail, measurements,
-    daily averages, and the fixed map lists (these lists also carry Station/government
-    data).'
+  description: AirBeam fixed map lists, stream detail, measurements and daily averages.
+    The map lists also return Station (government) data.
 - name: 'Web app: Mobile sessions'
-  description: 'Web frontend: AirBeam mobile (moving) session list and single stream
-    detail.'
+  description: AirBeam mobile (moving) session map list and single stream detail.
 - name: 'Web app: Station data (government)'
-  description: 'Web frontend: Station data — government (EEA/EPA) integration, in
-    the station_streams / station_measurements model: station stream detail, measurements,
-    daily averages, CSV export.'
+  description: Station (EEA/EPA) stream detail, measurements, daily averages and CSV
+    export, in the `station_streams` / `station_measurements` model.
 - name: 'Web app: Map aggregations'
-  description: 'Web frontend: CrowdMap grid averages, region summary, timelapse clusters.'
+  description: CrowdMap grid averages, region summary, timelapse clusters.
 - name: 'Web app: Autocomplete'
-  description: 'Web frontend: filter autocomplete for tag names and usernames.'
+  description: Filter autocomplete for tag names and usernames.
 - name: 'Web app: Sensors & thresholds'
-  description: 'Web frontend: sensor lists and threshold sets. (Mobile apps do not
-    call these — they receive threshold values embedded in session/stream responses.)'
+  description: Sensor lists and threshold sets.
 - name: 'Web app: Export & sharing'
-  description: 'Web frontend: session CSV export and short-URL creation.'
+  description: Session CSV export and short-URL creation.
 paths:
   "/api/fixed/autocomplete/tags":
     get:
@@ -63,8 +68,6 @@ paths:
       tags:
       - 'Web app: Autocomplete'
       security: []
-      description: Returns matching fixed-session tag names as a string array. Public
-        (no auth). Uses nested q[...] params.
       parameters:
       - name: q[input]
         in: query
@@ -145,8 +148,6 @@ paths:
       tags:
       - 'Web app: Autocomplete'
       security: []
-      description: Returns matching mobile-session tag names as a string array. Public
-        (no auth). Uses nested q[...] params.
       parameters:
       - name: q[input]
         in: query
@@ -216,9 +217,6 @@ paths:
       tags:
       - 'Web app: Autocomplete'
       security: []
-      description: 'Returns matching contributor usernames as a sorted, unique string
-        array. Public (no auth). Uses nested q[...] params. Note: is_dormant is a
-        string "true"/"false", session_type is "fixed" or "mobile".'
       parameters:
       - name: q[input]
         in: query
@@ -301,17 +299,15 @@ paths:
       tags:
       - 'Web app: Map aggregations'
       security: []
-      description: |
-        Returns averaged measurement values over a grid, for the CrowdMap. Public (no auth).
-        `q` is URL-encoded JSON with: `north`, `south`, `east`, `west` (float);
-        `time_from`, `time_to`, `day_from`, `day_to`, `year_from`, `year_to`,
-        `grid_size_x`, `grid_size_y` (int); `measurement_type`, `sensor_name`,
-        `unit_symbol`, `usernames`, `tags` (string); `stream_ids` (array of int, optional).
       parameters:
       - name: q
         in: query
         required: true
-        description: URL-encoded JSON filter
+        description: |
+          URL-encoded JSON with: `north`, `south`, `east`, `west` (float);
+          `time_from`, `time_to`, `day_from`, `day_to`, `year_from`, `year_to`,
+          `grid_size_x`, `grid_size_y` (int); `measurement_type`, `sensor_name`,
+          `unit_symbol`, `usernames`, `tags` (string); `stream_ids` (array of int, optional).
         schema:
           type: string
       responses:
@@ -351,11 +347,6 @@ paths:
       tags:
       - 'Web app: Map aggregations'
       security: []
-      description: |
-        Returns a summary for a rectangular region. Public (no auth). Uses **flat** query
-        params (not a `q` wrapper): `north`, `south`, `east`, `west` (float);
-        `time_from`, `time_to`, `grid_size_x`, `grid_size_y` (int); `usernames`,
-        `tags` (string); `stream_ids` (comma-separated string).
       parameters:
       - name: north
         in: query
@@ -446,18 +437,14 @@ paths:
       tags:
       - 'Web app: Map aggregations'
       security: []
-      description: |
-        Returns clustered hourly averages for the timelapse animation. Public (no auth).
-        Response is an object keyed by hour timestamp ("YYYY-MM-DD HH:MM:SS +0000"),
-        each value an array of cluster points. `q` is URL-encoded JSON validated by the
-        same contract as the fixed session lists (required: `time_from`, `time_to`
-        (epoch seconds), `sensor_name`, `measurement_type`, `unit_symbol`, `tags`,
-        `usernames`; optional bbox + `zoom_level`). Station (government) sensors are supported.
       parameters:
       - name: q
         in: query
         required: true
-        description: URL-encoded JSON filter
+        description: |
+          URL-encoded JSON, same contract as the fixed session lists. Required:
+          `time_from`, `time_to` (epoch seconds), `sensor_name`, `measurement_type`,
+          `unit_symbol`, `tags`, `usernames`. Optional: bbox + `zoom_level`.
         schema:
           type: string
       responses:
@@ -502,10 +489,6 @@ paths:
       tags:
       - 'Web app: Export & sharing'
       security: []
-      description: |
-        Schedules a background CSV export of the given sessions and emails the result.
-        Public (no auth). All ids must be the same kind (all mobile or all fixed) and,
-        for fixed sessions, must include streams.
       parameters:
       - name: session_ids[]
         in: query
@@ -516,7 +499,8 @@ paths:
             type: integer
         style: form
         explode: true
-        description: sessions.id list
+        description: sessions.id list. All of one kind — all mobile or all fixed;
+          fixed sessions must have streams.
       - name: email
         in: query
         required: true
@@ -550,8 +534,6 @@ paths:
       tags:
       - 'Web app: Export & sharing'
       security: []
-      description: Creates a shortened link for a URL on the same host. Public (no
-        auth). Returns the shortened URL; off-host URLs are rejected with 422.
       parameters: []
       responses:
         '200':
@@ -596,16 +578,7 @@ paths:
       tags:
       - 'Web app: Fixed sessions'
       security: []
-      description: |
-        Returns active fixed sessions as map markers. Public (no auth). Response is gzipped.
-
-        URL-encoded JSON object. Fields:
-        required `time_from`, `time_to` (Unix epoch **seconds**), `sensor_name`,
-        `measurement_type`, `unit_symbol`, `tags` (string, may be empty),
-        `usernames` (string, may be empty); optional `is_indoor` (bool),
-        `west`/`east`/`south`/`north` (float), `limit`/`offset`/`zoom_level` (int).
-        A `sensor_name` of government-pm2.5 / government-no2 / government-ozone
-        returns Station (government) data from the station_streams model.
+      description: Response body is gzipped.
       parameters:
       - name: q
         in: query
@@ -722,16 +695,6 @@ paths:
       tags:
       - 'Web app: Fixed sessions'
       security: []
-      description: |
-        Returns dormant (inactive) fixed sessions with full per-stream metadata. Public (no auth).
-
-        URL-encoded JSON object. Fields:
-        required `time_from`, `time_to` (Unix epoch **seconds**), `sensor_name`,
-        `measurement_type`, `unit_symbol`, `tags` (string, may be empty),
-        `usernames` (string, may be empty); optional `is_indoor` (bool),
-        `west`/`east`/`south`/`north` (float), `limit`/`offset`/`zoom_level` (int).
-        A `sensor_name` of government-pm2.5 / government-no2 / government-ozone
-        returns Station (government) data from the station_streams model.
       parameters:
       - name: q
         in: query
@@ -875,9 +838,8 @@ paths:
       summary: Sign in (fetch the current user)
       tags:
       - 'Mobile app: Account & auth'
-      description: 'Returns the authenticated user. Auth: HTTP Basic with the user
-        token as the username and a literal `X` as the password (legacy scheme; /api/v3
-        uses `Bearer <user_token>`).'
+      security:
+      - basic_auth: []
       responses:
         '200':
           description: user
@@ -909,7 +871,6 @@ paths:
       tags:
       - 'Mobile app: Account & auth'
       security: []
-      description: Creates a new user account. No auth.
       parameters: []
       responses:
         '201':
@@ -983,7 +944,8 @@ paths:
       summary: Update user settings
       tags:
       - 'Mobile app: Account & auth'
-      description: Updates the `session_stopped_alert` preference. Auth required.
+      security:
+      - basic_auth: []
       parameters: []
       responses:
         '200':
@@ -1032,8 +994,9 @@ paths:
       summary: Send account-deletion confirmation code (email)
       tags:
       - 'Mobile app: Account & auth'
-      description: Emails a 4-digit confirmation code (valid 30 minutes) to the current
-        user. Auth required. Empty 200 body.
+      security:
+      - basic_auth: []
+      description: The code expires 30 minutes after it is sent.
       responses:
         '200':
           description: code sent
@@ -1042,8 +1005,8 @@ paths:
       summary: Confirm account deletion with code
       tags:
       - 'Mobile app: Account & auth'
-      description: Deletes the account if the supplied `code` matches and is unexpired.
-        Auth required.
+      security:
+      - basic_auth: []
       parameters: []
       responses:
         '200':
@@ -1080,7 +1043,7 @@ paths:
               properties:
                 code:
                   type: string
-                  example: '0042'
+                  description: The code from the email
         required: true
   "/users/password.json":
     post:
@@ -1088,8 +1051,6 @@ paths:
       tags:
       - 'Mobile app: Account & auth'
       security: []
-      description: 'Sends password-reset instructions to the given email (Devise).
-        No auth. Note: this path has no /api prefix.'
       parameters: []
       responses:
         '201':
@@ -1115,23 +1076,64 @@ paths:
                     email:
                       type: string
         required: true
+  "/api/sessions/export_by_uuid.json":
+    get:
+      summary: Email a CSV export of one session by UUID
+      tags:
+      - 'Mobile app: Export & sharing'
+      security: []
+      parameters:
+      - name: uuid
+        in: query
+        required: true
+        schema:
+          type: string
+      - name: email
+        in: query
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: export scheduled
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - success_message
+                properties:
+                  success_message:
+                    type: string
+                    example: Export scheduled successfully.
+        '400':
+          description: unknown uuid or invalid params
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+                properties:
+                  error:
+                    type: string
+                example:
+                  error: 'Session with uuid: abc doesn''t exist'
   "/api/fixed/active/sessions.json":
     get:
       summary: Active fixed sessions in a bounding box
       tags:
-      - 'Mobile app: Fixed map & streams'
+      - 'Mobile app: Fixed sessions [DEPRECATED]'
+      deprecated: true
       security: []
-      description: |
-        Returns active fixed sessions with per-stream metadata. Public (no auth).
-        `q` is URL-encoded JSON: required `time_from`, `time_to` (Unix epoch **seconds**),
-        `sensor_name`, `measurement_type`, `unit_symbol`, `tags` (may be empty),
-        `usernames` (may be empty); optional `is_indoor` (bool), `west`/`east`/`south`/`north`
-        (float), `limit`/`offset`/`zoom_level` (int).
       parameters:
       - name: q
         in: query
         required: true
-        description: URL-encoded JSON filter
+        description: |
+          URL-encoded JSON. Required: `time_from`, `time_to` (Unix epoch **seconds**),
+          `sensor_name`, `measurement_type`, `unit_symbol`, `tags` (may be empty),
+          `usernames` (may be empty). Optional: `is_indoor` (bool),
+          `west`/`east`/`south`/`north` (float), `limit`/`offset`/`zoom_level` (int).
         schema:
           type: string
       responses:
@@ -1263,10 +1265,9 @@ paths:
     get:
       summary: Fixed session with all its streams and measurements
       tags:
-      - 'Mobile app: Fixed map & streams'
+      - 'Mobile app: Fixed sessions [DEPRECATED]'
+      deprecated: true
       security: []
-      description: Returns one fixed session (sessions.id) with every stream and its
-        measurements. Public (no auth). Times are epoch milliseconds.
       parameters:
       - name: id
         in: path
@@ -1408,10 +1409,9 @@ paths:
     get:
       summary: Single fixed stream with measurements
       tags:
-      - 'Mobile app: Fixed map & streams'
+      - 'Mobile app: Fixed sessions [DEPRECATED]'
+      deprecated: true
       security: []
-      description: Returns one fixed stream (streams.id) with its measurements and
-        notes. Public (no auth). Times are epoch milliseconds.
       parameters:
       - name: id
         in: path
@@ -1551,18 +1551,16 @@ paths:
     post:
       summary: Create an AirBeam fixed (WiFi realtime) session
       tags:
-      - 'Mobile app: AirBeam fixed streaming'
+      - 'Mobile app: Fixed sessions [DEPRECATED]'
+      deprecated: true
+      security:
+      - basic_auth: []
       description: |
-        Creates an AirBeam fixed (WiFi realtime) session. Auth required. Form fields: `session`
-        (JSON string — Base64+gzip when `compression` set, else raw), `compression` (flag),
-        `photos[]` (optional). The decoded `session` has the same shape as a mobile upload
-        (uuid, title, lat/lng, start_time/end_time, time_zone, streams keyed by sensor_name),
-        but with continuous fixed streams.
+        **Deprecated** — use `POST /api/v3/fixed_sessions`.
 
-        Concurrent uploads of the same `uuid` resolve to one session: the request that
-        loses the race is answered with the session the winner created, so both receive
-        the same `location`. A `uuid` that already existed before the request is
-        rejected with a bodiless `400`, as is any payload that fails validation.
+        Uploading the same `uuid` twice concurrently yields one session; both callers
+        receive the same `location`. A `uuid` that already existed before the request
+        is a bodiless `400`.
       parameters: []
       responses:
         '200':
@@ -1615,8 +1613,9 @@ paths:
               properties:
                 session:
                   type: string
-                  description: 'JSON (raw or Base64+gzip). See Mobile app: Sessions
-                    & sync for the decoded shape.'
+                  description: 'JSON (raw or Base64+gzip). Same shape as the mobile
+                    upload in `Mobile app: Mobile sessions [DEPRECATED]`, with continuous
+                    fixed streams.'
                 compression:
                   type: boolean
         required: true
@@ -1624,46 +1623,15 @@ paths:
     post:
       summary: Stream AirBeam fixed measurements
       tags:
-      - 'Mobile app: AirBeam fixed streaming'
+      - 'Mobile app: Fixed sessions [DEPRECATED]'
+      deprecated: true
+      security:
+      - basic_auth: []
       description: |
-        Appends measurements to one stream of an existing AirBeam fixed session. Auth required.
-        Empty 200 body on success.
+        **Deprecated** — use `POST /api/v3/fixed_sessions/{uuid}/measurements`.
 
-        **One request = one stream.** The `data` payload is a single stream descriptor plus its
-        `measurements` array.
-
-        **How measurements are matched to a stream:**
-        - **Session**: found by the authenticated user + `session_uuid`. The session must already
-          exist (created via `POST /api/realtime/sessions`); otherwise `400 "session not found"`.
-        - **Stream**: found within that session by **`sensor_name`**. If no stream with that
-          `sensor_name` exists yet, one is **created** from the descriptor
-          (`sensor_package_name`, `measurement_type`, units, thresholds). So to stream several
-          sensors, send one request per `sensor_name`.
-        - `value` must be an **integer**; `time` a parseable datetime string; measurements more
-          than 48h in the future are dropped.
-
-        **Form fields:** `data` (the JSON below), `compression` (flag). When `compression` is set,
-        `data` is Base64-encoded gzip (`:sync` flow — recalculates hourly/daily averages);
-        otherwise raw JSON (`:live` flow).
-
-        **Sample `data` (raw JSON):**
-        ```json
-        {
-          "session_uuid": "550e8400-e29b-41d4-a716-446655440000",
-          "sensor_name": "AirBeam2-PM2.5",
-          "sensor_package_name": "AirBeam2:00189610719F",
-          "measurement_type": "Particulate Matter",
-          "measurement_short_type": "PM",
-          "unit_name": "microgram per cubic meter",
-          "unit_symbol": "µg/m³",
-          "threshold_very_low": 0, "threshold_low": 9, "threshold_medium": 35,
-          "threshold_high": 55, "threshold_very_high": 150,
-          "measurements": [
-            { "longitude": -74.006, "latitude": 40.7128, "time": "2026-08-12T10:00:00", "value": 12 },
-            { "longitude": -74.006, "latitude": 40.7128, "time": "2026-08-12T10:01:00", "value": 13 }
-          ]
-        }
-        ```
+        **One request = one stream.** To stream several sensors, send one request per
+        `sensor_name`.
       parameters: []
       responses:
         '200':
@@ -1699,7 +1667,9 @@ paths:
                     cubic meter","unit_symbol":"µg/m³","threshold_very_low":0,"threshold_low":9,"threshold_medium":35,"threshold_high":55,"threshold_very_high":150,"measurements":[{"longitude":-74.006,"latitude":40.7128,"time":"2026-08-12T10:00:00","value":12},{"longitude":-74.006,"latitude":40.7128,"time":"2026-08-12T10:01:00","value":13}]}'
                 compression:
                   type: boolean
-                  description: When true, `data` is Base64-encoded gzip.
+                  description: When true, `data` is Base64-encoded gzip and hourly/daily
+                    averages are recalculated (`:sync` flow); otherwise raw JSON (`:live`
+                    flow).
                 decoded_data:
                   type: object
                   required:
@@ -1791,11 +1761,11 @@ paths:
     get:
       summary: Poll an AirBeam fixed session for new measurements
       tags:
-      - 'Mobile app: AirBeam fixed streaming'
+      - 'Mobile app: Fixed sessions [DEPRECATED]'
+      deprecated: true
       security: []
-      description: |
-        Returns an AirBeam fixed session with measurements newer than `last_measurement_sync`
-        (capped to a 24h window). Public (no auth). Times are ISO 8601 with milliseconds.
+      description: The window is capped at 24 hours, however old `last_measurement_sync`
+        is.
       parameters:
       - name: uuid
         in: query
@@ -1923,17 +1893,17 @@ paths:
     post:
       summary: Upload a mobile session
       tags:
-      - 'Mobile app: Sessions & sync'
+      - 'Mobile app: Mobile sessions [DEPRECATED]'
+      deprecated: true
+      security:
+      - basic_auth: []
       description: |
-        Uploads a completed mobile (moving) session in one request. Auth required.
-        Form fields: `session` (JSON string — Base64+gzip when `compression` is set,
-        else raw JSON; decoded shape below), `compression` (flag), `photos[]` (optional
-        Base64 images, index-paired with notes). `type` is forced to MobileSession.
+        **Deprecated** — use `POST /api/v3/mobile_sessions` plus
+        `POST /api/v3/mobile_sessions/{uuid}/measurements`.
 
-        Concurrent uploads of the same `uuid` resolve to one session: the request that
-        loses the race is answered with the session the winner created, so both receive
-        the same `location`. A `uuid` that already existed before the request is
-        rejected with a bodiless `400`, as is any payload that fails validation.
+        Uploading the same `uuid` twice concurrently yields one session; both callers
+        receive the same `location`. A `uuid` that already existed before the request
+        is a bodiless `400`.
       parameters: []
       responses:
         '200':
@@ -1991,6 +1961,13 @@ paths:
                     Base64+gzip when set.
                 compression:
                   type: boolean
+                  description: When true, `session` is Base64-encoded gzip.
+                photos:
+                  type: array
+                  items:
+                    type: string
+                  description: Sent as `photos[]`. Base64 images, index-paired with
+                    the notes in `session`.
                 decoded_session:
                   type: object
                   required:
@@ -2128,59 +2105,19 @@ paths:
                                 milliseconds:
                                   type: integer
         required: true
-  "/api/sessions/export_by_uuid.json":
-    get:
-      summary: Email a CSV export of one session by UUID
-      tags:
-      - 'Mobile app: Sessions & sync'
-      security: []
-      description: Schedules a CSV export of the session with the given UUID and emails
-        it. No auth.
-      parameters:
-      - name: uuid
-        in: query
-        required: true
-        schema:
-          type: string
-      - name: email
-        in: query
-        required: true
-        schema:
-          type: string
-      responses:
-        '200':
-          description: export scheduled
-          content:
-            application/json:
-              schema:
-                type: object
-                required:
-                - success_message
-                properties:
-                  success_message:
-                    type: string
-                    example: Export scheduled successfully.
-        '400':
-          description: unknown uuid or invalid params
-          content:
-            application/json:
-              schema:
-                type: object
-                additionalProperties: true
-                properties:
-                  error:
-                    type: string
-                example:
-                  error: 'Session with uuid: abc doesn''t exist'
   "/api/user/sessions/empty.json":
     get:
       summary: Download session metadata by UUID (optionally with measurements)
       tags:
-      - 'Mobile app: Sessions & sync'
+      - 'Mobile app: Mobile sessions [DEPRECATED]'
+      deprecated: true
+      security:
+      - basic_auth: []
       description: |
-        Returns one of the current user's sessions as a synchronizable object. Auth required.
-        The `:id` path segment is a placeholder ("empty"); the session is selected by the
-        `uuid` query param. Pass `stream_measurements=true` to embed measurements.
+        **Deprecated** — use `GET /api/v3/mobile_sessions/{uuid}`.
+
+        The `empty` path segment is a placeholder; the session is selected by the
+        `uuid` query param.
       parameters:
       - name: uuid
         in: query
@@ -2200,8 +2137,7 @@ paths:
             application/json:
               schema:
                 type: object
-                description: All session columns plus injected keys
-                additionalProperties: true
+                description: Session metadata plus derived keys
                 properties:
                   uuid:
                     type: string
@@ -2270,11 +2206,13 @@ paths:
     post:
       summary: Sync sessions (diff of what to upload/download/delete)
       tags:
-      - 'Mobile app: Sessions & sync'
+      - 'Mobile app: Mobile sessions [DEPRECATED]'
+      deprecated: true
+      security:
+      - basic_auth: []
       description: |
-        Given the app's local session list (uuid + version + deleted), returns which UUIDs
-        to upload, download, and mark deleted. Auth required. `data` is a JSON **string**
-        (a JSON array), not a JSON object body.
+        **Deprecated** — use `GET /api/v3/mobile_sessions`, which is authoritative:
+        a session the client holds but never sees while paging has been deleted.
       parameters: []
       responses:
         '200':
@@ -2332,15 +2270,17 @@ paths:
     post:
       summary: Update a session (rename, tags, notes, delete streams)
       tags:
-      - 'Mobile app: Sessions & sync'
+      - 'Mobile app: Mobile sessions [DEPRECATED]'
+      deprecated: true
+      security:
+      - basic_auth: []
       description: |
-        Updates title/tags/notes and deletes flagged streams, bumping the session version.
-        Auth required. `data` is a JSON **string**. Streams flagged `deleted: true` are
-        removed (matched by sensor_name + sensor_package_name).
+        **Deprecated** — use `PATCH /api/v3/mobile_sessions/{uuid}` for title and
+        tags, and the `/notes` endpoints for notes.
 
-        The session is looked up among the authenticated user's own sessions. A uuid
-        that belongs to another user answers `400`, exactly as an unknown uuid does —
-        the caller cannot tell the two apart, and cannot edit a session it does not own.
+        Bumps the session version. Streams flagged `deleted: true` are removed,
+        matched by `sensor_name` + `sensor_package_name`. A uuid owned by another
+        user answers `400`, exactly as an unknown uuid does.
       parameters: []
       responses:
         '200':
@@ -2349,7 +2289,6 @@ paths:
             application/json:
               schema:
                 type: object
-                additionalProperties: true
                 properties:
                   uuid:
                     type: string
@@ -2445,8 +2384,8 @@ paths:
       summary: List the current user's threshold alerts
       tags:
       - 'Mobile app: Threshold alerts'
-      description: 'Returns all threshold alerts for the authenticated user. Auth:
-        `Token token=<user_token>` (HTTP Basic; token as username).'
+      security:
+      - basic_auth: []
       responses:
         '200':
           description: alerts
@@ -2487,8 +2426,8 @@ paths:
       summary: Create a threshold alert
       tags:
       - 'Mobile app: Threshold alerts'
-      description: Creates a threshold alert for a stream identified by `session_uuid`
-        + `sensor_name`. Auth required.
+      security:
+      - basic_auth: []
       parameters: []
       responses:
         '201':
@@ -2553,7 +2492,8 @@ paths:
       summary: Delete a threshold alert
       tags:
       - 'Mobile app: Threshold alerts'
-      description: Deletes one of the current user's threshold alerts. Auth required.
+      security:
+      - basic_auth: []
       parameters:
       - name: id
         in: path
@@ -2571,13 +2511,6 @@ paths:
       tags:
       - 'Web app: Mobile sessions'
       security: []
-      description: |
-        Returns mobile (moving) sessions with per-stream metadata. Public (no auth).
-
-        URL-encoded JSON object. All fields required: `time_from`, `time_to`
-        (Unix epoch **seconds**), `sensor_name`, `measurement_type`, `unit_symbol`,
-        `tags` (string, may be empty), `usernames` (string, may be empty),
-        `west`, `east`, `south`, `north` (float), `limit`, `offset` (int).
       parameters:
       - name: q
         in: query
@@ -2725,8 +2658,6 @@ paths:
       tags:
       - 'Web app: Mobile sessions'
       security: []
-      description: Returns one mobile stream (legacy streams.id) with all its measurements
-        and notes. Public (no auth). Times are epoch milliseconds.
       parameters:
       - name: id
         in: path
@@ -2854,15 +2785,12 @@ paths:
       tags:
       - 'Web app: Sensors & thresholds'
       security: []
-      description: |
-        Returns the default (or most popular) threshold set for a sensor as an ordered
-        array of 5 stringified integers: `[very_low, low, medium, high, very_high]`.
-        Public (no auth). `id` is the sensor name and may contain dots/slashes.
       parameters:
       - name: id
         in: path
         required: true
-        description: Sensor name (e.g. AirBeam-PM2.5, Government-PM2.5)
+        description: Sensor name; may contain dots and slashes (e.g. AirBeam-PM2.5,
+          Government-PM2.5)
         schema:
           type: string
       - name: unit_symbol
@@ -2882,7 +2810,8 @@ paths:
                 maxItems: 5
                 items:
                   type: string
-                  description: Stringified integer threshold
+                  description: Stringified integer; ordered very_low, low, medium,
+                    high, very_high
                 example:
                 - '0'
                 - '9'
@@ -2895,11 +2824,7 @@ paths:
       tags:
       - 'Web app: Sensors & thresholds'
       security: []
-      description: |
-        Returns the aggregated built-in AirBeam sensors plus every distinct contributed
-        sensor for the given `session_type` (with a per-sensor `session_count`). Public
-        (no auth). Cached for 8 hours. Built-in aggregated rows have `id: null` and
-        `session_count: 0`.
+      description: Cached for 8 hours.
       parameters:
       - name: session_type
         in: query
@@ -2929,6 +2854,7 @@ paths:
                     session_count:
                       type: integer
                       example: 0
+                      description: 0 for built-in aggregated sensors
                     sensor_name:
                       type: string
                       example: AirBeam-PM2.5
@@ -2957,8 +2883,6 @@ paths:
       tags:
       - 'Web app: Fixed sessions'
       security: []
-      description: Returns daily averages for one legacy AirBeam stream within [start_date,
-        end_date]. Public (no auth).
       parameters:
       - name: stream_id
         in: query
@@ -3007,9 +2931,6 @@ paths:
       tags:
       - 'Web app: Station data (government)'
       security: []
-      description: 'Returns Station (government) daily averages for one station_stream
-        within [start_date, end_date]. Public (no auth). Note: the query param is
-        `stream_id` but its value is a `station_streams.id`.'
       parameters:
       - name: stream_id
         in: query
@@ -3056,40 +2977,25 @@ paths:
     post:
       summary: Create a new AirBeamMini fixed session
       tags:
-      - 'Mobile app: AirBeam fixed streaming'
+      - 'Mobile app: Fixed sessions'
       description: |
-        Creates a fixed session for an AirBeamMini. The app calls this before
-        configuring the device. The response carries the `session_token` to flash to
-        the AirBeam, and a `sensor_type_id` per stream that the binary upload uses to
-        address streams.
-
-        - **`uuid`** — canonical UUID form (what `UUID.randomUUID()` / `UUID()` produce),
-          not already in use.
-        - **`device`** — shipped app versions may still send this object as `airbeam`.
-          `mac_address` is any stable device id, not necessarily a hardware MAC;
-          `model` is a free-form string.
-        - **`streams`** — one per sensor type. `AirBeamMini-PM2.5` and `AirBeam2-PM2.5`
-          are the same type (`AirBeam-PM2.5`) and cannot both be requested.
-
-        Two creates racing on one `uuid` resolve to a single session: the loser is
-        answered with the winner's session, token and streams, so a device configured
-        from either response reports into the same place. A `uuid` that already existed
-        before the request is `session_uuid_taken`, not a reuse.
+        Creating the same `uuid` twice concurrently yields one session; both callers
+        are answered with it, its token and its streams. A `uuid` that already existed
+        before the request is `session_uuid_taken`.
 
         ## Error codes
 
         `{ error_code, message, fields? }`, as everywhere in v3. `fields` appears only
-        when the request *shape* is wrong, and the status carries the same meaning as
-        the code.
+        when the request shape is wrong.
 
         | `error_code` | HTTP | When | Client should |
         |---|---|---|---|
         | `unauthorized` | 401 | Missing or invalid token | Re-authenticate |
-        | `validation_error` | 400 | Malformed body, or a stream with no `thresholds` and no seeded default | Client bug — do not retry unchanged |
+        | `validation_error` | 400 | Malformed body, or a stream with no `thresholds` and no seeded default | Do not retry unchanged |
         | `session_uuid_taken` | 409 | The `uuid` is already in use | Stop retrying; continue with the existing session |
         | `unsupported_sensor_type` | 400 | A `sensor_name` is not a known AirBeam sensor | Unrecoverable |
-        | `try_again_later` | 503 | A rival create is still in flight | Retry after the `Retry-After` header (seconds) |
-        | `internal_error` | 500 | Unresolvable write conflict | Retry with backoff |
+        | `try_again_later` | 503 | Temporarily unavailable | Retry after the `Retry-After` header (seconds) |
+        | `internal_error` | 500 | Unexpected server error | Retry with backoff |
       security:
       - bearer_auth: []
       - basic_auth: []
@@ -3097,8 +3003,7 @@ paths:
       - name: Authorization
         in: header
         required: true
-        description: '`Bearer <user_token>`. `Basic base64("<user_token>:X")` also
-          works here, deprecated.'
+        description: "`Bearer <user_token>`."
         schema:
           type: string
       responses:
@@ -3170,6 +3075,11 @@ paths:
                       type: array
                       items:
                         type: string
+                    example:
+                      uuid:
+                      - is missing
+                      streams:
+                      - is missing
         '409':
           description: uuid already in use
           content:
@@ -3230,6 +3140,7 @@ paths:
                   type: string
                   format: uuid
                   example: 550e8400-e29b-41d4-a716-446655440000
+                  description: Canonical UUID form; must not already be in use.
                 title:
                   type: string
                   example: Rooftop PM2.5 monitor
@@ -3265,13 +3176,18 @@ paths:
                   required:
                   - mac_address
                   - model
+                  description: Shipped app versions may still send this object under
+                    the key `airbeam`.
                   properties:
                     mac_address:
                       type: string
                       example: AA:BB:CC:DD:EE:FF
+                      description: Any stable device id — not necessarily a hardware
+                        MAC.
                     model:
                       type: string
                       example: AirBeamMini
+                      description: Free-form model name.
                     name:
                       type: string
                       nullable: true
@@ -3279,6 +3195,8 @@ paths:
                 streams:
                   type: array
                   minItems: 1
+                  description: One per sensor type. `AirBeamMini-PM2.5` and `AirBeam2-PM2.5`
+                    are the same type (`AirBeam-PM2.5`) and cannot both be requested.
                   items:
                     type: object
                     required:
@@ -3304,12 +3222,9 @@ paths:
     post:
       summary: Upload binary measurements for an AirBeamMini session
       tags:
-      - 'Mobile app: AirBeam fixed streaming'
+      - 'Mobile app: Fixed sessions'
       description: |
-        Receives a binary measurement payload from the AirBeamMini. Can be called once per
-        minute for live uploads or in bulk after connectivity loss — both are handled identically.
-
-        ## Binary Format
+        ## Binary format
 
         ```
         Offset     Size  Type        Description
@@ -3323,22 +3238,20 @@ paths:
         4+N*9      1     uint8       XOR checksum of all preceding bytes
         ```
 
-        **Resend behaviour:** sending a measurement with an already-stored
-        `(stream_id, time_with_time_zone)` pair is silently ignored — no duplicate is created.
+        **Resends are free.** A frame whose `(stream_id, time_with_time_zone)` is
+        already stored is skipped; no duplicate is created.
 
-        **Size limit:** at most 6000 frames (54005 bytes) per request. A larger backlog
-        is split across requests; each is stored on its own and resends are idempotent.
+        **Size limit:** at most 6000 frames (54005 bytes) per request. Split a larger
+        backlog across requests.
 
-        **Unusable timestamps:** a frame whose epoch is zero, before 2020-01-01 UTC, or
-        more than 24 hours ahead of server time is dropped and the rest of the payload is
-        stored; the response is still 200. A device with an unset clock therefore keeps
-        draining its backlog instead of stalling on a batch the server refuses.
+        **Unusable timestamps:** a frame whose epoch is zero, before 2020-01-01 UTC,
+        or more than 24 hours ahead of server time is dropped; the rest of the payload
+        is stored and the response is still `200`.
 
-        **Time synchronisation:** an empty body is valid and returns 200 immediately. The AirBeamMini
-        uses this to read the current server time from the `X-Server-Time` response header
-        (Unix epoch, UTC) when its clock drifts.
+        **Time synchronisation:** an empty body returns `200` immediately. Read the
+        current server time from the `X-Server-Time` response header (Unix epoch, UTC).
 
-        ## Error Codes
+        ## Error codes
 
         All error responses share the shape `{ "error_code": "...", "message": "..." }`.
 
@@ -3353,7 +3266,7 @@ paths:
         | `invalid_checksum` | 400 | XOR checksum of payload does not match the final byte |
         | `invalid_value` | 400 | A frame's sensor value is NaN or Infinity |
         | `payload_too_large` | 413 | More than 6000 frames, or a body over 54005 bytes. Nothing is stored — resend in smaller batches |
-        | `try_again_later` | 503 | A rival writer held the session for longer than the server waits. Nothing is stored — resend after the `Retry-After` header (seconds) |
+        | `try_again_later` | 503 | Temporarily unavailable. Nothing is stored — resend after the `Retry-After` header (seconds) |
       parameters:
       - name: uuid
         in: path
@@ -3364,9 +3277,8 @@ paths:
       - name: Authorization
         in: header
         required: true
-        description: 'AirBeam: `Bearer <session_token>` (returned by session creation),
-          matched against this UUID first so it can never act as an account-wide credential.
-          Mobile app: `Bearer <user_token>`.'
+        description: 'AirBeam: `Bearer <session_token>` (returned by session creation;
+          valid for this session only). Mobile app: `Bearer <user_token>`.'
         schema:
           type: string
       responses:
@@ -3443,12 +3355,9 @@ paths:
       - 'Web app: Fixed sessions'
       security: []
       description: |
-        Returns one AirBeam fixed stream (legacy `streams.id`) with the last 2 days of
-        measurements and the last 3 full calendar months of daily averages. Public (no auth).
-
-        Times: measurement `time` is epoch **milliseconds** in local-as-UTC (station-local
-        wall clock encoded as a UTC epoch). `stream.start_time`/`end_time`/`last_update` are
-        ISO 8601 date-times. Station (government) data uses `/api/v3/station_streams/{id}` instead.
+        Epoch milliseconds here are local-as-UTC — the station-local wall clock
+        encoded as a UTC epoch. Station (government) data uses
+        `/api/v3/station_streams/{id}` instead.
       parameters:
       - name: id
         in: path
@@ -3588,9 +3497,6 @@ paths:
       tags:
       - 'Web app: Fixed sessions'
       security: []
-      description: |
-        Returns AirBeam fixed measurements for one legacy stream within `[start_time, end_time]`.
-        Public (no auth). `start_time`/`end_time` are epoch **milliseconds** (local-as-UTC).
       parameters:
       - name: stream_id
         in: query
@@ -3658,16 +3564,15 @@ paths:
                       type: array
                       items:
                         type: string
+                    example:
+                      end_time:
+                      - must be greater than start_time
   "/api/v3/station_measurements":
     get:
       summary: Station measurements in a time range (government)
       tags:
       - 'Web app: Station data (government)'
       security: []
-      description: |
-        Returns Station (government) `station_measurements` for one `station_stream_id` within
-        `[start_time, end_time]`. Public (no auth). `start_time`/`end_time` are epoch
-        **milliseconds** in the station-local-as-UTC domain (same convention as AirBeam).
       parameters:
       - name: station_stream_id
         in: query
@@ -3735,18 +3640,14 @@ paths:
                       type: array
                       items:
                         type: string
+                    example:
+                      end_time:
+                      - must be greater than start_time
   "/api/v3/mobile_sessions/{uuid}/notes":
     get:
       summary: List a session's notes
       tags:
       - 'Mobile app: Mobile sessions'
-      description: |
-        Every note on the session, ordered by `number` and then `id`.
-
-        The same array appears inline on `GET /api/v3/mobile_sessions/{uuid}`.
-        This endpoint exists so a client can refresh its notes after an edit
-        without refetching the session's stream metadata — and so a second
-        device can pick up notes it did not create itself.
       parameters:
       - name: uuid
         in: path
@@ -3823,32 +3724,15 @@ paths:
       tags:
       - 'Mobile app: Mobile sessions'
       description: |+
-        Creates one note. Answers with the created note, including the `id` you
-        need to edit or delete it later.
+        `number` is server-allocated (highest existing plus one, 0-based) and ignored
+        if you send it. It is an ordering key, not an address: deleting a note leaves
+        a gap and nothing renumbers. Address a note by its `id`.
 
-        `number` is **server-allocated** and ignored if you send it. It is the
-        highest existing number plus one, 0-based, and is only an ordering key
-        for the legacy sync path — not an address. Deleting a note leaves a gap,
-        deliberately: nothing renumbers, here or in either app.
+        Bumps the session's `version`.
 
-        Creating a note bumps the session's `version`, which is what tells the
-        user's other devices to re-download it.
-
-        ## photo
-
-        The note's image as **base64**, decoded and sniffed server-side — the content
-        type you declare is never trusted. Must decode to an `image/*` of at most
-        5 MB. Line-wrapped base64 is accepted (both apps wrap at 76 columns).
-
-        | you send | what happens |
-        |---|---|
-        | absent | keeps whatever is attached — an unchanged note costs no upload |
-        | `null` | deletes the photo, file included |
-        | base64 | replaces the photo; the old file is deleted |
-
-        Read it back as `photo_location`. A request whose `Content-Length` exceeds
-        one photo plus a small envelope is refused with `413` before the body is
-        parsed.
+        The `photo` bytes must decode to an `image/*`; the declared content type is
+        ignored. Read it back as `photo_location`. An oversized `Content-Length` is
+        refused with `413` before the body is parsed.
 
       parameters:
       - name: uuid
@@ -3989,37 +3873,15 @@ paths:
       tags:
       - 'Mobile app: Mobile sessions'
       description: |+
-        Edits one note's `text`, its `photo`, or both. At least one of the two
-        must be sent; anything else in the body is ignored.
-
-        **PATCH only — `PUT` is not routed.** The update is partial: a field you
-        omit is left alone, which is not what `PUT` promises.
-
-        `date`, `latitude`, `longitude` and `number` are **not editable**. They
-        record where the recording was when the note was taken, so moving them
-        would make the note lie — and neither app edits them.
-
-        To remove a photo without touching the text, send `{"photo": null}`.
+        **PATCH only — `PUT` is not routed.** An omitted field is left alone.
 
         The session's `version` moves only when something actually changed, so
         re-sending the text a note already has does not trigger a sync across the
         account.
 
-        ## photo
-
-        The note's image as **base64**, decoded and sniffed server-side — the content
-        type you declare is never trusted. Must decode to an `image/*` of at most
-        5 MB. Line-wrapped base64 is accepted (both apps wrap at 76 columns).
-
-        | you send | what happens |
-        |---|---|
-        | absent | keeps whatever is attached — an unchanged note costs no upload |
-        | `null` | deletes the photo, file included |
-        | base64 | replaces the photo; the old file is deleted |
-
-        Read it back as `photo_location`. A request whose `Content-Length` exceeds
-        one photo plus a small envelope is refused with `413` before the body is
-        parsed.
+        The `photo` bytes must decode to an `image/*`; the declared content type is
+        ignored. Read it back as `photo_location`. An oversized `Content-Length` is
+        refused with `413` before the body is parsed.
 
       parameters:
       - name: uuid
@@ -4085,7 +3947,7 @@ paths:
                     type: object
                     additionalProperties: true
                     example:
-                      '':
+                      base:
                       - 'must contain at least one of: text, photo'
         '413':
           description: body too large for one photo
@@ -4143,20 +4005,16 @@ paths:
                   type: string
                   nullable: true
                   description: Base64 image (line breaks allowed), max 5 MB decoded.
-                    Absent keeps, null removes.
+                    Absent keeps the current photo, null deletes it, base64 replaces
+                    it.
         required: true
     delete:
       summary: Delete a note
       tags:
       - 'Mobile app: Mobile sessions'
       description: |
-        Removes the note and its photo, the stored file included.
-
-        The remaining notes keep their `number`s — a gap is left rather than
-        renumbering. Renumbering would rewrite the key the legacy sync path
-        still matches on, underneath a client that had not synced yet.
-
-        Bumps the session's `version`.
+        Deletes the stored photo file too. The remaining notes keep their `number`s —
+        a gap is left rather than renumbering. Bumps the session's `version`.
       parameters:
       - name: uuid
         in: path
@@ -4206,33 +4064,13 @@ paths:
       tags:
       - 'Mobile app: Mobile sessions'
       description: |
-        The authenticated user's own mobile sessions — metadata and per-stream
-        aggregates, **no measurements**. Ownership is implicit from the token.
-
-        Authoritative: a session the client holds locally but never sees while
-        walking the pages has been deleted server-side. Reach the last page
-        before acting on an absence.
-
-        Always paginated; omitting both parameters gives page 1 at the default
-        size. `meta` describes the whole collection, not the page returned:
-
-        ```json
-        { "sessions": [ ... ], "meta": { "total": 812, "page": 1, "per_page": 500, "total_pages": 2 } }
-        ```
-
-        `total_pages` is `0` for a user with no sessions. A `page` past the end
-        answers `200` with an empty `sessions` array and the true `total`.
-        Invalid `page` / `per_page` is `400 validation_error`, never an empty
-        `200`.
-
         Ordered by upload time, oldest first — not recording time. Sort by
-        `start_time` client-side if you display them in recording order. The
-        order is ascending so that a session created while you are paging cannot
-        shift the pages you already fetched.
+        `start_time` client-side to display them in recording order.
 
-        **No `notes`** — this is a whole-account summary. A session's notes come
-        with `GET /api/v3/mobile_sessions/{uuid}`, or from
-        `GET /api/v3/mobile_sessions/{uuid}/notes`.
+        The list is authoritative: walk it to the last page, and a session the
+        client holds locally but never saw has been deleted server-side.
+
+        A `page` past the end answers `200` with an empty `sessions` array.
       parameters:
       - name: Authorization
         in: header
@@ -4338,7 +4176,8 @@ paths:
                         share_url:
                           type: string
                           example: http://aircasting.org/s/ab12c
-                          description: Shareable session link
+                          description: Capability link; append `?sensor_name=<stream>`
+                            to open it
                         device:
                           type: object
                           nullable: true
@@ -4409,94 +4248,39 @@ paths:
       tags:
       - 'Mobile app: Mobile sessions'
       description: |
-        Creates a new AirBeam mobile (moving) session, wrapping the legacy
-        `sessions` / `streams` model. The app calls this once at the start of a
-        recording; measurements are then streamed to
+        Call it once at the start of a recording, then stream measurements to
         `POST /api/v3/mobile_sessions/{uuid}/measurements`.
 
-        This call is configuration only. `start_time` / `end_time`
-        stay `null` until the first measurements arrive; such a session is
-        skipped by every map / search query and is visible only to its owner
-        (list, show, update, delete).
+        Creating the same `uuid` twice concurrently yields one session; both callers
+        are answered with it and its streams. A `uuid` that already existed before the
+        request is `session_uuid_taken`.
 
-        Notes vs. the fixed-session create:
-        - `time_zone` is **required** (not derived from coordinates).
-        - `start_time` / `end_time` are **not** sent — they are derived from the
-          measurement bounds on ingest.
-        - `latitude` / `longitude` are optional (the session start point); each
-          measurement carries its own location.
-        - No `session_token` is returned — the measurements upload authenticates
-          with the user token.
-        - `uuid` must be in canonical UUID form and unused.
-        - Fields outside this schema (`is_indoor`, `version`, `start_time`, …)
-          are ignored; mobile sessions are always stored as outdoor and the
-          version is server-owned (bumped by `PATCH`).
+        ## Streams
 
-        The response includes a `sensor_type_id` per stream, used to identify
-        streams in the binary measurement upload.
+        **Known sensors** (AirBeam PM1 / PM2.5 / PM10 / RH / F and `Phone Microphone`)
+        need only `sensor_name` and `unit_symbol`. Anything else is a **custom sensor**
+        and must also send `measurement_type`, `measurement_short_type`, `unit_name`
+        and `thresholds`; its fields cap at 64 characters and its `sensor_name` may
+        not reuse a built-in one.
 
-        ## share_url
-
-        `share_url` is the session's capability link (`<host>/s/<token>`).
-        Anyone holding it can open the session, which is how a private
-        (`contribute: false`) session is shared. Store it with the session — the
-        list / show / update responses return it too, so a session synced onto a
-        second device stays shareable. Append the stream before sharing:
-        `<share_url>?sensor_name=AirBeamMini-PM2.5` — the link only resolves
-        with that query parameter. It is a full URL, not a token, because the
-        backend host is configurable.
-
-        ## Thresholds
-
-        Each stream may carry `thresholds` — the colour-scale bounds shown in the app and
-        on the map. Resolution order:
-
-        1. values sent with the stream — an identical set is reused rather than duplicated,
-           and sending the sensor's default values simply reuses the default row;
-        2. the sensor's seeded default set (AirBeam sensors and `Phone Microphone` have one);
-        3. neither — `validation_error`, telling the client to send `thresholds`.
-
-        Values must ascend (`very_low ≤ low ≤ medium ≤ high ≤ very_high`); a negative floor
-        is fine, which is what a calibrated microphone scale looks like.
-
-        ## Streams — known and custom sensors
-
-        **Known sensors** (AirBeam PM1 / PM2.5 / PM10 / RH / F and `Phone Microphone`) need
-        only `sensor_name` and `unit_symbol`; the server owns their measurement type, unit
-        name and short type.
-
-        **Custom sensors** — anything else, for integrations built against this API — must
-        be described by the client: `measurement_type`, `measurement_short_type` and
-        `unit_name` are required, and `thresholds` too unless a default set already exists.
-        Fields cap at 64 characters, and a custom `sensor_name` may not reuse a built-in one.
-
-        Every stream comes back with a `sensor_type_id`, which the binary upload uses to
-        address it. Built-in ids (1–99) are globally stable — AirBeam firmware is
-        configured with them. A custom sensor is assigned one from **100–255, unique
-        within the session**, so read it from the response rather than assuming it.
-
-        Each sensor type may appear **once** per session: `AirBeamMini-PM2.5` and
-        `AirBeam2-PM2.5` are the same type (`AirBeam-PM2.5`) and cannot both be requested.
-
-        Two creates racing on one `uuid` resolve to a single session: the loser is answered
-        with the winner's session and **its** streams, so the `sensor_type_id`s it gets are
-        the ones that exist in the session its uploads will address. A `uuid` that already
-        existed before the request is `session_uuid_taken`, not a reuse.
+        Each sensor type may appear once per session: `AirBeamMini-PM2.5` and
+        `AirBeam2-PM2.5` are the same type (`AirBeam-PM2.5`). Built-in
+        `sensor_type_id`s are 1–99 and globally stable; a custom sensor is assigned
+        one from 100–255, unique within the session.
 
         ## Error codes
 
-        `{ error_code, message, fields? }`, as everywhere in v3. `fields` appears only
-        when the request *shape* is wrong, and the status carries the same meaning as
-        the code.
+        `{ error_code, message, fields? }`, as everywhere in v3. `fields` appears
+        only when the request shape is wrong.
 
         | `error_code` | HTTP | When | Client should |
         |---|---|---|---|
         | `unauthorized` | 401 | Missing or invalid token | Re-authenticate |
-        | `validation_error` | 400 | Malformed body, or a custom sensor with no `thresholds` and no seeded default | Client bug — do not retry unchanged |
+        | `validation_error` | 400 | Malformed body, or a custom sensor with no `thresholds` and no seeded default | Do not retry unchanged |
         | `session_uuid_taken` | 409 | The `uuid` is already in use | Stop retrying; continue with the existing session |
         | `unsupported_sensor_type` | 400 | Unknown `sensor_name`, or more custom sensors than the 100–255 range holds | Unrecoverable |
-        | `try_again_later` | 503 | A rival create is still in flight | Retry after the `Retry-After` header (seconds) |
-        | `internal_error` | 500 | Unresolvable write conflict | Retry with backoff |
+        | `try_again_later` | 503 | Temporarily unavailable | Retry after the `Retry-After` header (seconds) |
+        | `internal_error` | 500 | Unexpected server error | Retry with backoff |
       parameters:
       - name: Authorization
         in: header
@@ -4518,7 +4302,9 @@ paths:
                   share_url:
                     type: string
                     example: http://aircasting.org/s/ab12c
-                    description: Shareable session link — see the endpoint description.
+                    description: Capability link (`<host>/s/<token>`) — anyone holding
+                      it can open the session, including a private one. Append `?sensor_name=<stream>`;
+                      the link only resolves with it.
                   streams:
                     type: array
                     items:
@@ -4533,6 +4319,8 @@ paths:
                         sensor_type_id:
                           type: integer
                           example: 2
+                          description: Addresses this stream in the binary measurements
+                            upload.
         '400':
           description: validation error
           content:
@@ -4556,6 +4344,11 @@ paths:
                       type: array
                       items:
                         type: string
+                    example:
+                      uuid:
+                      - is missing
+                      streams:
+                      - is missing
         '409':
           description: uuid already in use
           content:
@@ -4615,6 +4408,7 @@ paths:
                   type: string
                   format: uuid
                   example: 550e8400-e29b-41d4-a716-446655440000
+                  description: Canonical UUID form; must not already be in use.
                 title:
                   type: string
                   example: Morning bike ride
@@ -4734,24 +4528,6 @@ paths:
       summary: Get one of the signed-in user's mobile sessions
       tags:
       - 'Mobile app: Mobile sessions'
-      description: |
-        Returns a single mobile session owned by the authenticated user — metadata,
-        per-stream aggregates and its `notes`, **no measurements** (fetch those
-        from the `/measurements` path). Same shape as one element of the list
-        endpoint, plus `notes` — this and `PATCH` are the only endpoints that
-        carry them, and the only way a second device learns a note's photo.
-
-        Each stream carries its `sensor_type_id`, the same value `POST
-        /api/v3/mobile_sessions` returned and the one the binary measurements
-        upload addresses the stream by. For a custom sensor it is allocated per
-        session, so this is how a client that no longer holds the create
-        response recovers it.
-
-        **It is nullable.** Only streams created through this API group have one;
-        a session uploaded by the older `POST /api/sessions` path has `null`, and
-        cannot be appended to by the binary upload. Decode it as optional — a
-        client that models it as a required integer will fail on exactly the
-        older sessions.
       parameters:
       - name: uuid
         in: path
@@ -4812,7 +4588,8 @@ paths:
                   share_url:
                     type: string
                     example: http://aircasting.org/s/ab12c
-                    description: Shareable session link
+                    description: Capability link; append `?sensor_name=<stream>` to
+                      open it
                   device:
                     type: object
                     nullable: true
@@ -4919,34 +4696,12 @@ paths:
       tags:
       - 'Mobile app: Mobile sessions'
       description: |
-        Edits the metadata of an existing mobile session: `title` and `tag_list`.
-        At least one of the two must be sent; anything else in the body is
-        ignored. Answers with the same shape as `GET /{uuid}`.
+        **PATCH only — `PUT` is not routed.** An omitted field is left alone. Notes
+        are edited through `/{uuid}/notes`; nothing else about a session is editable.
 
-        **PATCH only — `PUT` is not routed.** The update is partial: a field you
-        omit is left alone, which is not what `PUT` promises.
-
-        Out of scope on purpose:
-        - **notes** — their own resource: `GET|POST /{uuid}/notes` and
-          `PATCH|DELETE /{uuid}/notes/{id}`. They used to be a declarative-full
-          array here, which meant editing one note resent all of them.
-        - **streams** — created by `POST /api/v3/mobile_sessions`, filled by the
-          measurements endpoint. Delete the whole session instead.
-        - **device** — a device row is shared by every session recorded with that
-          AirBeam, so it is managed by its own endpoints.
-        - **contribute, time_zone, latitude / longitude** — set once at create.
-
-        ## version
-
-        `version` is server-owned and tells every other device to re-download the
-        session. It is bumped **only when something actually changed** — re-sending
-        the title or the same tag set in another order leaves it alone, so a retry
-        never triggers a sync across the account. Writing a note bumps it too.
-
-        ## tag_list
-
-        A single string. Whitespace and commas both separate tags on the way in;
-        responses join them with `", "`. `null` or `""` clears every tag.
+        `version` is server-owned and tells the account's other devices to
+        re-download the session. It moves only when something actually changed, so
+        re-sending the same title, or the same tags in another order, leaves it alone.
       parameters:
       - name: uuid
         in: path
@@ -4973,16 +4728,29 @@ paths:
                   share_url:
                     type: string
                     example: http://aircasting.org/s/ab12c
-                    description: Shareable session link
+                    description: Capability link; append `?sensor_name=<stream>` to
+                      open it
                   device:
                     type: object
                     nullable: true
                     additionalProperties: true
+                    example:
+                      mac_address: AA:BB:CC:DD:EE:FF
+                      model: AirBeamMini
+                      name: My AirBeam
                   streams:
                     type: object
                     additionalProperties:
                       type: object
                       additionalProperties: true
+                    example:
+                      AirBeamMini-PM2.5:
+                        sensor_name: AirBeamMini-PM2.5
+                        sensor_type_id: 2
+                        measurement_type: Particulate Matter
+                        unit_symbol: µg/m³
+                        measurements_count: 1440
+                        average_value: 12.5
                   notes:
                     type: array
                     description: Ordered by number, then id
@@ -5035,8 +4803,8 @@ paths:
                     type: object
                     additionalProperties: true
                     example:
-                      title:
-                      - must be filled
+                      base:
+                      - 'must contain at least one of: title, tag_list'
         '404':
           description: session not found
           content:
@@ -5079,49 +4847,32 @@ paths:
                   type: string
                   nullable: true
                   example: commute, bike
-                  description: null or "" clears every tag
+                  description: A single string; whitespace and commas both separate
+                    tags. null or "" clears every tag.
         required: true
     delete:
       summary: Delete a mobile session
       tags:
       - 'Mobile app: Mobile sessions'
       description: |
-        Deletes one of the caller's mobile sessions. Cascades its streams,
-        measurements, notes and note photos, and records a tombstone so other
-        devices can drop the session (the list endpoint also reflects the
-        deletion by absence). Returns 204 No Content, with no body.
+        Cascades to the session's streams, measurements, notes and note photos. The
+        uuid is matched case-insensitively.
 
-        Only the owner's **mobile** sessions are reachable: another user's uuid,
-        and a fixed session's uuid, both answer `404 session_not_found`. The uuid
-        is matched case-insensitively, as everywhere else in this group.
+        **Safe to retry.** Deleting an already-deleted session answers `204`, so
+        retry on any network failure or 5xx. `404` means this uuid has never belonged
+        to this account — treat it as terminal.
 
-        ## Safe to retry
-
-        Deleting a session that is already deleted answers **204**, not 404 — the
-        tombstone proves this account deleted this uuid, so a retry after a lost
-        response has got what it asked for. Retry on any network failure or 5xx;
-        there is no "already gone" error to special-case.
-
-        `404` therefore means something narrower than "not here": this uuid has
-        never belonged to this account. Treat it as terminal, not retryable.
-
-        ## In-flight measurement uploads
-
-        Deleting does not cancel an upload already on the wire. A
-        `POST /api/v3/mobile_sessions/{uuid}/measurements` that arrives after
-        the delete answers `404 session_not_found`, and one that was mid-flight
-        when the delete landed is rolled back whole — no partial batch survives.
-        Stop the uploader before deleting if you want to be sure nothing is
-        rejected; nothing is corrupted either way.
+        Deleting does not cancel an upload already on the wire: a measurements upload
+        arriving after the delete answers `404`. Stop the uploader first.
 
         ## Error codes
 
         | `error_code` | HTTP | When |
         |---|---|---|
         | `unauthorized` | 401 | Missing or invalid token |
-        | `session_not_found` | 404 | No mobile session with this uuid for this user, and no record of one having been deleted |
-        | `try_again_later` | 503 | A concurrent upload holds the session's rows. `Retry-After` says how long to wait |
-        | `internal_error` | 500 | The delete could not complete; the session is left intact and the call can be retried |
+        | `session_not_found` | 404 | No mobile session with this uuid for this user |
+        | `try_again_later` | 503 | Temporarily unavailable. `Retry-After` says how long to wait |
+        | `internal_error` | 500 | Unexpected server error; the session is left intact and the call can be retried |
       parameters:
       - name: uuid
         in: path
@@ -5171,33 +4922,18 @@ paths:
       tags:
       - 'Mobile app: Mobile sessions'
       description: |
-        Measurements for **one** stream — an array of
-        `{ time, value, latitude, longitude }` sorted **ascending** (plot order,
-        so an older page prepends whole).
+        One stream per call; read the names from `streams[].sensor_name` on the
+        session endpoint. Omit the window to get the last 6 hours, anchored on the
+        session end.
 
-        `sensor_name` is required; there is no way to fetch every stream at once.
-        Read the names from `streams[].sensor_name` on the session endpoint.
-        `measurement_type` could not stand in as a selector — an AirBeam's PM1,
-        PM2.5 and PM10 all carry `Particulate Matter`.
+        The window bounds the answer and nothing is silently truncated — a short
+        answer means there is no more data in it. Page further back by moving
+        `end_time`. Both bounds are inclusive, so a point can repeat between adjacent
+        pages; de-duplicate by `time`. A stream with no measurements answers `200 []`.
 
-        | Request | Returns |
-        |---|---|
-        | `sensor_name` only | the **last 6 hours**, anchored on the session end — what the session screen opens with |
-        | `sensor_name` + `start_time` + `end_time` | that window, at most **12 hours** wide |
-
-        No point cap, and nothing is truncated silently: the window is the only
-        bound, so a short answer means there is no more data in it. Page further
-        back by moving `end_time`. Both bounds are **inclusive**, so a point can
-        repeat between adjacent pages — de-duplicate by `time`. A stream with no
-        measurements yet answers `200 []`.
-
-        ## Time
-
-        Every timestamp in this endpoint group — `time` here, the `start_time` /
-        `end_time` parameters, `start_time` / `end_time` on the session, and the
-        epochs inside the binary upload — is a **real UTC instant**: milliseconds
-        in JSON, seconds in the binary frames. Nothing on the wire is local time.
-        Render local with the session's `time_zone`.
+        Timestamps are real UTC instants — milliseconds in JSON, seconds in the
+        binary frames. Nothing on the wire is local time; render local with the
+        session's `time_zone`.
 
         ## Error codes
 
@@ -5285,6 +5021,9 @@ paths:
                       type: array
                       items:
                         type: string
+                    example:
+                      sensor_name:
+                      - is missing
         '404':
           description: session not found, or the session has no such stream
           content:
@@ -5318,14 +5057,7 @@ paths:
       tags:
       - 'Mobile app: Mobile sessions'
       description: |
-        Uploads AirBeam mobile measurements as a binary payload. Authenticated with
-        the **user token** (no per-session token). Can be called live during a
-        recording or in bulk to sync measurements the AirBeam delivered late.
-
-        ## Binary Format
-
-        Each frame extends the fixed frame with per-point location. **No
-        milliseconds** — mobile records at interval sampling (1s / 5s / 1 / 5 / 10 min).
+        ## Binary format
 
         ```
         Offset     Size  Type         Description
@@ -5341,29 +5073,24 @@ paths:
         4+N*25     1     uint8        XOR checksum of all preceding bytes
         ```
 
-        On ingest the session's start/end are refined from the measurement bounds
-        and the stream aggregates (bounding box, average, start coordinates) are
-        folded forward from the frames in the request. An empty body returns 200
-        (reads server time from `X-Server-Time`).
+        Timestamps carry no milliseconds and must fall between 2020-01-01 UTC and 24
+        hours ahead of server time; a frame outside that range is rejected.
 
-        Resending frames already stored is safe: a frame whose `(stream, timestamp)`
-        is already present is skipped, and the aggregates do not count it twice.
-        The same holds inside one payload — a timestamp repeated in a single
-        request is stored once, keeping the first occurrence.
+        **Resends are free.** A frame whose `(stream, timestamp)` is already stored is
+        skipped and the stream aggregates do not count it twice. The same holds
+        inside one payload — a repeated timestamp is stored once, keeping the first
+        occurrence. Order does not matter, so chunk however you like.
 
-        Timestamps must fall between 2020-01-01 UTC and 24 hours ahead of server
-        time. A device with an unset clock is rejected rather than stored, because
-        a bad timestamp permanently widens the session's time range.
+        An empty body returns `200`; use it to read the current server time from the
+        `X-Server-Time` response header.
 
-        ## Size Limit
+        ## Size limit
 
-        At most **3000 measurements** per request — ten minutes of 1 Hz sampling
-        across the five streams an AirBeam 3 records — so **75005 bytes**
-        (`4 + 3000 * 25 + 1`). Larger uploads are refused with `413`; split them
-        across requests. Order does not matter and resends are free, so a client
-        can chunk however it likes.
+        At most **3000 measurements** per request, so **75005 bytes**
+        (`4 + 3000 * 25 + 1`). A larger upload is refused with `413` and nothing is
+        stored — split it across requests.
 
-        ## Error Codes
+        ## Error codes
 
         | `error_code` | HTTP | Description |
         |---|---|---|
@@ -5372,7 +5099,7 @@ paths:
         | `unsupported_sensor_type` | 400 | A frame names a `sensor_type_id` this session has no stream for. Nothing is stored — re-read the session's streams and resend |
         | `payload_too_short` / `invalid_magic_bytes` / `empty_measurement_count` / `payload_size_mismatch` / `invalid_checksum` / `invalid_epoch` / `invalid_value` / `invalid_location` | 400 | Malformed payload |
         | `payload_too_large` | 413 | More than 3000 measurements (or more than 75005 bytes). Nothing is stored — resend in smaller batches |
-        | `try_again_later` | 503 | A rival upload held this session's streams for longer than the server waits. Nothing is stored — resend after the `Retry-After` header (seconds) |
+        | `try_again_later` | 503 | Temporarily unavailable. Nothing is stored — resend after the `Retry-After` header (seconds) |
       parameters:
       - name: uuid
         in: path
@@ -5459,11 +5186,8 @@ paths:
       tags:
       - 'Web app: Station data (government)'
       security: []
-      description: |
-        Returns one Station (government) pollutant stream (`station_streams.id`) from the new model,
-        with the last 2 days of `station_measurements` and 3 months of daily averages.
-        Public (no auth). A physical Station has one such stream per pollutant
-        (PM2.5 / NO2 / Ozone).
+      description: A physical Station has one stream per pollutant (PM2.5 / NO2 /
+        Ozone).
       parameters:
       - name: id
         in: path
@@ -5582,6 +5306,7 @@ paths:
                           example: 12.5
                   stream_daily_averages:
                     type: array
+                    description: Daily averages for the last 3 full calendar months
                     items:
                       type: object
                       required:
@@ -5612,10 +5337,6 @@ paths:
       tags:
       - 'Web app: Station data (government)'
       security: []
-      description: |
-        Schedules a background CSV export of the given `station_stream_ids` and emails the
-        result. Public (no auth). At most 100
-        station streams per request.
       parameters:
       - name: station_stream_ids[]
         in: query
@@ -5663,3 +5384,6 @@ paths:
                       type: array
                       items:
                         type: string
+                    example:
+                      email:
+                      - must be filled
