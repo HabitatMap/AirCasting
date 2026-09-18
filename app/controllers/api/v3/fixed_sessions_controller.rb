@@ -1,9 +1,30 @@
 module Api
   module V3
     class FixedSessionsController < BaseController
-      before_action :authenticate_user_from_token!
+      # Basic is accepted on `create` only, for the shipped app versions that
+      # still post it. New operations are bearer-only.
+      before_action :authenticate_user_from_token!, only: :create
       before_action :authenticate_user_from_bearer_token
       before_action :require_authentication!
+
+      def index
+        contract = Api::ListFixedSessionsContract.new.call(
+          params.permit(:page, :per_page).to_h.symbolize_keys,
+        )
+        if contract.failure?
+          return render_validation_error(
+            contract.errors,
+            message: 'Query parameters are invalid',
+          )
+        end
+
+        pagination = contract.to_h
+        render json: ::FixedSessions::List.new(
+          user: current_user,
+          page: pagination[:page],
+          per_page: pagination[:per_page],
+        ).call, status: :ok
+      end
 
       def create
         contract = Api::CreateFixedSessionContract.new.call(

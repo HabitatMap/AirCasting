@@ -77,7 +77,7 @@ RSpec.configure do |config|
         { name: 'Mobile app: Mobile sessions [DEPRECATED]',
           description: 'Legacy AirBeam mobile session upload, download, sync and update. Replaced by *Mobile app: Mobile sessions*.' },
         { name: 'Mobile app: Fixed sessions',
-          description: 'AirBeam fixed (roof-mounted) sessions on `/api/v3`: create a session and upload its measurements.' },
+          description: 'AirBeam fixed (roof-mounted) sessions on `/api/v3`: create a session, list the user\'s own sessions, and upload measurements.' },
         { name: 'Mobile app: Fixed sessions [DEPRECATED]',
           description: 'Legacy AirBeam fixed session create, measurement upload and polling (the `realtime/*` paths), plus the fixed session and stream reads. Replaced by *Mobile app: Fixed sessions*.' },
         { name: 'Mobile app: Threshold alerts',

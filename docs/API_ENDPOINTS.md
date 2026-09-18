@@ -60,6 +60,7 @@ Highcharts can plot with `useUTC: true`.
 | DELETE | `/api/v3/mobile_sessions/{uuid}/notes/{id}` | Delete a note and its photo; remaining numbers keep their gaps |
 | GET | `/api/v3/mobile_sessions/{uuid}/measurements` | Measurements for one stream — `sensor_name` required; last 6h by default, or a ≤12h `start_time`/`end_time` window. No point cap |
 | POST | `/api/v3/mobile_sessions/{uuid}/measurements` | Upload binary measurements (25-byte frames, 3000 max per request) |
+| GET | `/api/v3/fixed_sessions` | List the signed-in user's fixed sessions (paginated) |
 | POST | `/api/v3/fixed_sessions` | Create a fixed session and its streams |
 | POST | `/api/v3/fixed_sessions/{uuid}/measurements` | Upload binary measurements (9-byte frames, 6000 max per request) |
 
