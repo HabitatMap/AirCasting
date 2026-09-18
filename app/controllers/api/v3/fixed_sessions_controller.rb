@@ -1,8 +1,9 @@
 module Api
   module V3
     class FixedSessionsController < BaseController
-      # Basic is accepted on `create` only, for the shipped app versions that
-      # still post it. New operations are bearer-only.
+      ErrorCodes = ::FixedSessions::BinaryProtocol::ErrorCodes
+      # Basic is only for `create`: released Android and iOS builds already post
+      # it there. Nothing else in v3 accepts it.
       before_action :authenticate_user_from_token!, only: :create
       before_action :authenticate_user_from_bearer_token
       before_action :require_authentication!
@@ -54,6 +55,29 @@ module Api
         else
           render_failure(result)
         end
+      end
+
+      def destroy
+        session = current_user.fixed_sessions.by_uuid(params[:uuid]).first
+        return already_deleted? ? head(:no_content) : session_not_found unless session
+
+        result = ::FixedSessions::Destroyer.new.call(session: session)
+        return render_failure(result) unless result.success?
+
+        head :no_content
+      end
+
+      private
+
+      def session_not_found
+        render_error(ErrorCodes::SESSION_NOT_FOUND, 'Session not found')
+      end
+
+      def already_deleted?
+        DeletedSession
+          .where(user_id: current_user.id)
+          .where('LOWER(uuid) = LOWER(?)', params[:uuid].to_s)
+          .exists?
       end
     end
   end
