@@ -9,15 +9,6 @@ require 'swagger_helper'
 # note makes the next one reuse it. Addressed by the server-side `id`, that
 # collision is gone.
 RSpec.describe 'AirBeam Mobile Session Notes', type: :request do
-  ERROR_SCHEMA = {
-    type: :object,
-    required: %w[error_code message],
-    properties: {
-      error_code: { type: :string },
-      message: { type: :string }
-    }
-  }.freeze
-
   PHOTO_DESCRIPTION = <<~DESC.freeze
     The `photo` bytes must decode to an `image/*`; the declared content type is
     ignored. Read it back as `photo_location`. An oversized `Content-Length` is
@@ -42,7 +33,12 @@ RSpec.describe 'AirBeam Mobile Session Notes', type: :request do
       end
 
       response '404', 'session not found' do
-        schema ERROR_SCHEMA
+        schema type: :object,
+               required: %w[error_code message],
+               properties: {
+                 error_code: { type: :string, example: 'session_not_found' },
+                 message: { type: :string, example: 'Session not found' }
+               }
         let(:user) { create(:user) }
         let(:Authorization) { "Bearer #{user.authentication_token}" }
         let(:uuid) { 'does-not-exist' }
@@ -50,7 +46,12 @@ RSpec.describe 'AirBeam Mobile Session Notes', type: :request do
       end
 
       response '401', 'unauthorized' do
-        schema ERROR_SCHEMA
+        schema type: :object,
+               required: %w[error_code message],
+               properties: {
+                 error_code: { type: :string, example: 'unauthorized' },
+                 message: { type: :string, example: 'Unauthorized' }
+               }
         let(:uuid) { 'any-uuid' }
         let(:Authorization) { 'Bearer invalid' }
         run_test!
@@ -103,12 +104,14 @@ RSpec.describe 'AirBeam Mobile Session Notes', type: :request do
       end
 
       response '400', 'validation error — `fields` names the offending key' do
-        schema ERROR_SCHEMA.merge(
-          properties: ERROR_SCHEMA[:properties].merge(
-            fields: { type: :object, additionalProperties: true,
-                      example: { date: ['must be an ISO 8601 date-time (e.g. 2026-08-14T10:00:00)'] } }
-          )
-        )
+        schema type: :object,
+               required: %w[error_code message],
+               properties: {
+                 error_code: { type: :string, example: 'validation_error' },
+                 message: { type: :string, example: 'Request body is invalid' },
+                 fields: { type: :object, additionalProperties: true,
+                           example: { date: ['must be an ISO 8601 date-time (e.g. 2026-08-14T10:00:00)'] } }
+               }
 
         let(:user) { create(:user) }
         let(:Authorization) { "Bearer #{user.authentication_token}" }
@@ -121,7 +124,12 @@ RSpec.describe 'AirBeam Mobile Session Notes', type: :request do
       end
 
       response '413', 'body too large for one photo' do
-        schema ERROR_SCHEMA
+        schema type: :object,
+               required: %w[error_code message],
+               properties: {
+                 error_code: { type: :string, example: 'payload_too_large' },
+                 message: { type: :string, example: 'Request body exceeds 7056046 bytes; a photo may be at most 5242880 bytes once decoded' }
+               }
         let(:user) { create(:user) }
         let(:Authorization) { "Bearer #{user.authentication_token}" }
         let(:session_record) { create(:mobile_session, user: user) }
@@ -134,7 +142,12 @@ RSpec.describe 'AirBeam Mobile Session Notes', type: :request do
       end
 
       response '404', 'session not found' do
-        schema ERROR_SCHEMA
+        schema type: :object,
+               required: %w[error_code message],
+               properties: {
+                 error_code: { type: :string, example: 'session_not_found' },
+                 message: { type: :string, example: 'Session not found' }
+               }
         let(:user) { create(:user) }
         let(:Authorization) { "Bearer #{user.authentication_token}" }
         let(:uuid) { 'does-not-exist' }
@@ -145,7 +158,12 @@ RSpec.describe 'AirBeam Mobile Session Notes', type: :request do
       end
 
       response '401', 'unauthorized' do
-        schema ERROR_SCHEMA
+        schema type: :object,
+               required: %w[error_code message],
+               properties: {
+                 error_code: { type: :string, example: 'unauthorized' },
+                 message: { type: :string, example: 'Unauthorized' }
+               }
         let(:uuid) { 'any-uuid' }
         let(:Authorization) { 'Bearer invalid' }
         let(:body) { {} }
@@ -199,12 +217,14 @@ RSpec.describe 'AirBeam Mobile Session Notes', type: :request do
       end
 
       response '400', 'validation error' do
-        schema ERROR_SCHEMA.merge(
-          properties: ERROR_SCHEMA[:properties].merge(
-            fields: { type: :object, additionalProperties: true,
-                      example: { base: ['must contain at least one of: text, photo'] } }
-          )
-        )
+        schema type: :object,
+               required: %w[error_code message],
+               properties: {
+                 error_code: { type: :string, example: 'validation_error' },
+                 message: { type: :string, example: 'Request body is invalid' },
+                 fields: { type: :object, additionalProperties: true,
+                           example: { base: ['must contain at least one of: text, photo'] } }
+               }
 
         let(:user) { create(:user) }
         let(:Authorization) { "Bearer #{user.authentication_token}" }
@@ -217,7 +237,12 @@ RSpec.describe 'AirBeam Mobile Session Notes', type: :request do
       end
 
       response '413', 'body too large for one photo' do
-        schema ERROR_SCHEMA
+        schema type: :object,
+               required: %w[error_code message],
+               properties: {
+                 error_code: { type: :string, example: 'payload_too_large' },
+                 message: { type: :string, example: 'Request body exceeds 7056046 bytes; a photo may be at most 5242880 bytes once decoded' }
+               }
         let(:user) { create(:user) }
         let(:Authorization) { "Bearer #{user.authentication_token}" }
         let(:session_record) { create(:mobile_session, user: user) }
@@ -231,7 +256,12 @@ RSpec.describe 'AirBeam Mobile Session Notes', type: :request do
       end
 
       response '404', 'session or note not found — `error_code` says which' do
-        schema ERROR_SCHEMA
+        schema type: :object,
+               required: %w[error_code message],
+               properties: {
+                 error_code: { type: :string, example: 'note_not_found' },
+                 message: { type: :string, example: 'Note not found' }
+               }
         let(:user) { create(:user) }
         let(:Authorization) { "Bearer #{user.authentication_token}" }
         let(:session_record) { create(:mobile_session, user: user) }
@@ -242,7 +272,12 @@ RSpec.describe 'AirBeam Mobile Session Notes', type: :request do
       end
 
       response '401', 'unauthorized' do
-        schema ERROR_SCHEMA
+        schema type: :object,
+               required: %w[error_code message],
+               properties: {
+                 error_code: { type: :string, example: 'unauthorized' },
+                 message: { type: :string, example: 'Unauthorized' }
+               }
         let(:uuid) { 'any-uuid' }
         let(:id) { 1 }
         let(:Authorization) { 'Bearer invalid' }

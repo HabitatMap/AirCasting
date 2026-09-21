@@ -12,15 +12,6 @@ RSpec.describe 'AirBeam Mobile Sessions', type: :request do
     payload + [checksum].pack('C')
   end
 
-  ERROR_SCHEMA = {
-    type: :object,
-    required: %w[error_code message],
-    properties: {
-      error_code: { type: :string },
-      message: { type: :string }
-    }
-  }.freeze
-
   path '/api/v3/mobile_sessions' do
     get "[ALPHA] List the signed-in user's mobile sessions" do
       tags 'Mobile app: Mobile sessions'
@@ -338,7 +329,12 @@ RSpec.describe 'AirBeam Mobile Sessions', type: :request do
       end
 
       response '409', 'uuid already in use' do
-        schema ERROR_SCHEMA
+        schema type: :object,
+               required: %w[error_code message],
+               properties: {
+                 error_code: { type: :string, example: 'session_uuid_taken' },
+                 message: { type: :string, example: 'A session with this uuid already exists' }
+               }
 
         let!(:user) { create(:user) }
         let(:Authorization) { "Bearer #{user.authentication_token}" }
@@ -365,7 +361,12 @@ RSpec.describe 'AirBeam Mobile Sessions', type: :request do
       # single-threaded request spec can produce. The mapping itself is what this
       # documents; MobileSessions::Creator's own spec covers when it is returned.
       response '500', 'session could not be created' do
-        schema ERROR_SCHEMA
+        schema type: :object,
+               required: %w[error_code message],
+               properties: {
+                 error_code: { type: :string, example: 'internal_error' },
+                 message: { type: :string, example: 'Could not create this session' }
+               }
 
         let!(:user) { create(:user) }
         let(:Authorization) { "Bearer #{user.authentication_token}" }
@@ -393,7 +394,12 @@ RSpec.describe 'AirBeam Mobile Sessions', type: :request do
       end
 
       response '401', 'unauthorized' do
-        schema ERROR_SCHEMA
+        schema type: :object,
+               required: %w[error_code message],
+               properties: {
+                 error_code: { type: :string, example: 'unauthorized' },
+                 message: { type: :string, example: 'Unauthorized' }
+               }
 
         let(:Authorization) { 'Bearer invalid' }
         let(:body) { {} }
@@ -468,7 +474,13 @@ RSpec.describe 'AirBeam Mobile Sessions', type: :request do
       end
 
       response '404', 'session not found' do
-        schema ERROR_SCHEMA
+        schema type: :object,
+               required: %w[error_code message],
+               properties: {
+                 error_code: { type: :string, example: 'session_not_found' },
+                 message: { type: :string, example: 'Session not found' }
+               }
+
         let(:user) { create(:user) }
         let(:Authorization) { "Bearer #{user.authentication_token}" }
         let(:uuid) { 'does-not-exist' }
@@ -476,7 +488,13 @@ RSpec.describe 'AirBeam Mobile Sessions', type: :request do
       end
 
       response '401', 'unauthorized' do
-        schema ERROR_SCHEMA
+        schema type: :object,
+               required: %w[error_code message],
+               properties: {
+                 error_code: { type: :string, example: 'unauthorized' },
+                 message: { type: :string, example: 'Unauthorized' }
+               }
+
         let(:uuid) { 'any-uuid' }
         let(:Authorization) { 'Bearer invalid' }
         run_test!
@@ -540,12 +558,14 @@ RSpec.describe 'AirBeam Mobile Sessions', type: :request do
       end
 
       response '400', 'validation error — `fields` carries the offending path' do
-        schema ERROR_SCHEMA.merge(
-          properties: ERROR_SCHEMA[:properties].merge(
-            fields: { type: :object, additionalProperties: true,
-                      example: { base: ['must contain at least one of: title, tag_list'] } }
-          )
-        )
+        schema type: :object,
+               required: %w[error_code message],
+               properties: {
+                 error_code: { type: :string, example: 'validation_error' },
+                 message: { type: :string, example: 'Request body is invalid' },
+                 fields: { type: :object, additionalProperties: true,
+                           example: { base: ['must contain at least one of: title, tag_list'] } }
+               }
 
         let(:user) { create(:user) }
         let(:Authorization) { "Bearer #{user.authentication_token}" }
@@ -558,7 +578,13 @@ RSpec.describe 'AirBeam Mobile Sessions', type: :request do
       end
 
       response '404', 'session not found' do
-        schema ERROR_SCHEMA
+        schema type: :object,
+               required: %w[error_code message],
+               properties: {
+                 error_code: { type: :string, example: 'session_not_found' },
+                 message: { type: :string, example: 'Session not found' }
+               }
+
         let(:user) { create(:user) }
         let(:Authorization) { "Bearer #{user.authentication_token}" }
         let(:uuid) { 'does-not-exist' }
@@ -567,7 +593,13 @@ RSpec.describe 'AirBeam Mobile Sessions', type: :request do
       end
 
       response '401', 'unauthorized' do
-        schema ERROR_SCHEMA
+        schema type: :object,
+               required: %w[error_code message],
+               properties: {
+                 error_code: { type: :string, example: 'unauthorized' },
+                 message: { type: :string, example: 'Unauthorized' }
+               }
+
         let(:uuid) { 'any-uuid' }
         let(:Authorization) { 'Bearer invalid' }
         let(:body) { { title: 'x' } }
@@ -768,7 +800,13 @@ RSpec.describe 'AirBeam Mobile Sessions', type: :request do
       end
 
       response '404', 'session not found, or the session has no such stream' do
-        schema ERROR_SCHEMA
+        schema type: :object,
+               required: %w[error_code message],
+               properties: {
+                 error_code: { type: :string, example: 'session_not_found' },
+                 message: { type: :string, example: 'Session not found' }
+               }
+
         let(:user) { create(:user) }
         let(:Authorization) { "Bearer #{user.authentication_token}" }
         let(:uuid) { 'does-not-exist' }
@@ -777,7 +815,13 @@ RSpec.describe 'AirBeam Mobile Sessions', type: :request do
       end
 
       response '401', 'unauthorized' do
-        schema ERROR_SCHEMA
+        schema type: :object,
+               required: %w[error_code message],
+               properties: {
+                 error_code: { type: :string, example: 'unauthorized' },
+                 message: { type: :string, example: 'Unauthorized' }
+               }
+
         let(:uuid) { 'any-uuid' }
         let(:Authorization) { 'Bearer invalid' }
         let(:sensor_name) { 'AirBeamMini-PM2.5' }
@@ -876,7 +920,12 @@ RSpec.describe 'AirBeam Mobile Sessions', type: :request do
       end
 
       response '400', 'invalid payload' do
-        schema ERROR_SCHEMA
+        schema type: :object,
+               required: %w[error_code message],
+               properties: {
+                 error_code: { type: :string, example: 'invalid_magic_bytes' },
+                 message: { type: :string, example: 'magic bytes are not 0xAB 0xBA' }
+               }
 
         let(:user) { create(:user) }
         let(:session) { create(:mobile_session, user: user) }
@@ -889,7 +938,12 @@ RSpec.describe 'AirBeam Mobile Sessions', type: :request do
       end
 
       response '400', 'sensor_type_id has no stream on this session' do
-        schema ERROR_SCHEMA
+        schema type: :object,
+               required: %w[error_code message],
+               properties: {
+                 error_code: { type: :string, example: 'unsupported_sensor_type' },
+                 message: { type: :string, example: 'session has no stream for sensor_type_id 99' }
+               }
 
         let(:user) { create(:user) }
         let(:session) { create(:mobile_session, user: user) }
@@ -901,7 +955,12 @@ RSpec.describe 'AirBeam Mobile Sessions', type: :request do
       end
 
       response '413', 'payload larger than one request may carry' do
-        schema ERROR_SCHEMA
+        schema type: :object,
+               required: %w[error_code message],
+               properties: {
+                 error_code: { type: :string, example: 'payload_too_large' },
+                 message: { type: :string, example: 'measurement count exceeds 3000' }
+               }
 
         let(:user) { create(:user) }
         let(:session) { create(:mobile_session, user: user) }
@@ -920,7 +979,12 @@ RSpec.describe 'AirBeam Mobile Sessions', type: :request do
       end
 
       response '404', 'session not found' do
-        schema ERROR_SCHEMA
+        schema type: :object,
+               required: %w[error_code message],
+               properties: {
+                 error_code: { type: :string, example: 'session_not_found' },
+                 message: { type: :string, example: 'Session not found' }
+               }
 
         let(:user) { create(:user) }
         let(:uuid) { 'non-existent-uuid' }
@@ -932,7 +996,12 @@ RSpec.describe 'AirBeam Mobile Sessions', type: :request do
       end
 
       response '401', 'unauthorized' do
-        schema ERROR_SCHEMA
+        schema type: :object,
+               required: %w[error_code message],
+               properties: {
+                 error_code: { type: :string, example: 'unauthorized' },
+                 message: { type: :string, example: 'Unauthorized' }
+               }
 
         let(:uuid) { 'any-uuid' }
         let(:Authorization) { 'Bearer invalid' }
