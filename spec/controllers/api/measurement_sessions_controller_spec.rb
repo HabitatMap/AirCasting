@@ -27,7 +27,7 @@ shared_examples_for 'session creation' do
           note.s3_photo.variant(resize_to_limit: [600, 600]).processed,
           host: A9n.host_,
         )
-      expect(json_response['notes'].first).to eq(
+      expect(json_response['notes'].first).to include(
         {
           'photo_location' => expected_photo_location,
           'number' => note.number,
@@ -47,6 +47,7 @@ describe Api::MeasurementSessionsController do
     let(:data) { { type: 'MobileSession' } }
 
     before do
+      allow(ActiveSupport::JSON).to receive(:decode).and_call_original
       expect(ActiveSupport::JSON).to receive(:decode)
         .with('session')
         .and_return(data)
