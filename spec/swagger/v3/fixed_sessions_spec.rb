@@ -19,7 +19,7 @@ RSpec.describe 'AirBeamMini Fixed Sessions Binary Flow', type: :request do
   }.freeze
 
   path '/api/v3/fixed_sessions' do
-    get "List the signed-in user's fixed sessions" do
+    get "[ALPHA] List the signed-in user's fixed sessions" do
       tags 'Mobile app: Fixed sessions'
       produces 'application/json'
       description <<~DESC
@@ -398,7 +398,7 @@ RSpec.describe 'AirBeamMini Fixed Sessions Binary Flow', type: :request do
   end
 
   path '/api/v3/fixed_sessions/{uuid}' do
-    delete 'Delete a fixed session' do
+    delete '[ALPHA] Delete a fixed session' do
       tags 'Mobile app: Fixed sessions'
       produces 'application/json'
       description <<~DESC
