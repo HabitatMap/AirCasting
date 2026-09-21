@@ -719,6 +719,122 @@ RSpec.describe 'AirBeamMini Fixed Sessions Binary Flow', type: :request do
   end
 
   path '/api/v3/fixed_sessions/{uuid}/measurements' do
+    get '[ALPHA] Get measurements for a fixed session' do
+      tags 'Mobile app: Fixed sessions'
+      produces 'application/json'
+      description <<~DESC
+        One stream per call; read the names from `streams[].sensor_name` on the
+        session endpoint. Omit the window to get the last 6 hours, anchored on the
+        session end.
+
+        The window bounds the answer and nothing is silently truncated — a short
+        answer means there is no more data in it. Page further back by moving
+        `end_time`. Both bounds are inclusive, so a point can repeat between adjacent
+        pages; de-duplicate by `time`. A stream with no measurements answers `200 []`.
+
+        Timestamps are real UTC instants — milliseconds in JSON, seconds in the
+        binary frames. Nothing on the wire is local time; render local with the
+        session's `time_zone`. Unlike the mobile-session equivalent, points carry no
+        `latitude`/`longitude` — a fixed session has one static location on the
+        session itself.
+
+        ## Error codes
+
+        | `error_code` | HTTP | When |
+        |---|---|---|
+        | `unauthorized` | 401 | Missing or invalid token |
+        | `validation_error` | 400 | Missing `sensor_name`, half a window, `end_time <= start_time`, a window over 12h, or a non-integer time. `fields` names the offending parameter. Answered **before** the session lookup |
+        | `session_not_found` | 404 | No fixed session with this uuid for this user/token |
+        | `not_found` | 404 | The session has no stream with this `sensor_name` |
+      DESC
+
+      parameter name: :uuid, in: :path, type: :string, required: true
+      parameter name: :Authorization, in: :header, type: :string, required: true,
+                description: 'Bearer <user_token>, or the session\'s own <session_token>'
+      parameter name: :sensor_name, in: :query, required: true, schema: { type: :string },
+                description: 'The one stream to read, e.g. `AirBeam-PM2.5`.'
+      parameter name: :start_time, in: :query, required: false, schema: { type: :integer },
+                description: 'Epoch ms. Send with end_time; omit both for the last 6h.'
+      parameter name: :end_time, in: :query, required: false, schema: { type: :integer },
+                description: 'Epoch ms. At most 12h after start_time.'
+
+      response '200', 'measurements for the named stream, oldest first' do
+        schema type: :array,
+               items: {
+                 type: :object,
+                 properties: {
+                   time: { type: :integer, format: :int64, description: 'Epoch milliseconds (UTC)' },
+                   value: { type: :number }
+                 }
+               },
+               example: [
+                 { time: 1_786_707_000_000, value: 12.5 }
+               ]
+
+        let(:user) { create(:user) }
+        let(:Authorization) { "Bearer #{user.authentication_token}" }
+        let(:session_record) do
+          create(:fixed_session, user: user, time_zone: 'UTC', end_time_local: Time.utc(2026, 8, 14, 12, 0, 0))
+        end
+        let(:uuid) { session_record.uuid }
+        let(:sensor_name) { 'AirBeam-PM2.5' }
+        before do
+          stream = create(:stream, :fixed, session: session_record, sensor_name: 'AirBeam-PM2.5')
+          create(:fixed_measurement, stream: stream, value: 12.5, time: Time.utc(2026, 8, 14, 11, 30, 0))
+        end
+        run_test!
+      end
+
+      response '400', 'missing sensor_name, or a window over 12 hours' do
+        schema type: :object,
+               required: %w[error_code message],
+               properties: {
+                 error_code: { type: :string, example: 'validation_error' },
+                 message: { type: :string },
+                 fields: { type: :object, additionalProperties: { type: :array, items: { type: :string } },
+                           example: { sensor_name: ['is missing'] } }
+               }
+
+        let(:user) { create(:user) }
+        let(:Authorization) { "Bearer #{user.authentication_token}" }
+        let(:session_record) { create(:fixed_session, user: user, time_zone: 'UTC') }
+        let(:uuid) { session_record.uuid }
+        let(:sensor_name) { 'AirBeam-PM2.5' }
+        let(:start_time) { Time.utc(2026, 8, 13, 0, 0, 0).to_i * 1_000 }
+        let(:end_time) { Time.utc(2026, 8, 14, 0, 0, 0).to_i * 1_000 }
+        run_test!
+      end
+
+      response '404', 'session not found, or the session has no such stream' do
+        schema type: :object,
+               required: %w[error_code message],
+               properties: {
+                 error_code: { type: :string, example: 'session_not_found' },
+                 message: { type: :string, example: 'Session not found' }
+               }
+
+        let(:user) { create(:user) }
+        let(:Authorization) { "Bearer #{user.authentication_token}" }
+        let(:uuid) { 'does-not-exist' }
+        let(:sensor_name) { 'AirBeam-PM2.5' }
+        run_test!
+      end
+
+      response '401', 'unauthorized' do
+        schema type: :object,
+               required: %w[error_code message],
+               properties: {
+                 error_code: { type: :string, example: 'unauthorized' },
+                 message: { type: :string, example: 'Unauthorized' }
+               }
+
+        let(:uuid) { 'any-uuid' }
+        let(:Authorization) { 'Bearer invalid' }
+        let(:sensor_name) { 'AirBeam-PM2.5' }
+        run_test!
+      end
+    end
+
     post 'Upload binary measurements for an AirBeamMini session' do
       tags 'Mobile app: Fixed sessions'
       consumes 'application/octet-stream'

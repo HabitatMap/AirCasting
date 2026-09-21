@@ -3823,6 +3823,139 @@ paths:
                     type: string
                     example: Unauthorized
   "/api/v3/fixed_sessions/{uuid}/measurements":
+    get:
+      summary: "[ALPHA] Get measurements for a fixed session"
+      tags:
+      - 'Mobile app: Fixed sessions'
+      description: |
+        One stream per call; read the names from `streams[].sensor_name` on the
+        session endpoint. Omit the window to get the last 6 hours, anchored on the
+        session end.
+
+        The window bounds the answer and nothing is silently truncated — a short
+        answer means there is no more data in it. Page further back by moving
+        `end_time`. Both bounds are inclusive, so a point can repeat between adjacent
+        pages; de-duplicate by `time`. A stream with no measurements answers `200 []`.
+
+        Timestamps are real UTC instants — milliseconds in JSON, seconds in the
+        binary frames. Nothing on the wire is local time; render local with the
+        session's `time_zone`. Unlike the mobile-session equivalent, points carry no
+        `latitude`/`longitude` — a fixed session has one static location on the
+        session itself.
+
+        ## Error codes
+
+        | `error_code` | HTTP | When |
+        |---|---|---|
+        | `unauthorized` | 401 | Missing or invalid token |
+        | `validation_error` | 400 | Missing `sensor_name`, half a window, `end_time <= start_time`, a window over 12h, or a non-integer time. `fields` names the offending parameter. Answered **before** the session lookup |
+        | `session_not_found` | 404 | No fixed session with this uuid for this user/token |
+        | `not_found` | 404 | The session has no stream with this `sensor_name` |
+      parameters:
+      - name: uuid
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: Authorization
+        in: header
+        required: true
+        description: Bearer <user_token>, or the session's own <session_token>
+        schema:
+          type: string
+      - name: sensor_name
+        in: query
+        required: true
+        schema:
+          type: string
+        description: The one stream to read, e.g. `AirBeam-PM2.5`.
+      - name: start_time
+        in: query
+        required: false
+        schema:
+          type: integer
+        description: Epoch ms. Send with end_time; omit both for the last 6h.
+      - name: end_time
+        in: query
+        required: false
+        schema:
+          type: integer
+        description: Epoch ms. At most 12h after start_time.
+      responses:
+        '200':
+          description: measurements for the named stream, oldest first
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    time:
+                      type: integer
+                      format: int64
+                      description: Epoch milliseconds (UTC)
+                    value:
+                      type: number
+                example:
+                - time: 1786707000000
+                  value: 12.5
+        '400':
+          description: missing sensor_name, or a window over 12 hours
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - error_code
+                - message
+                properties:
+                  error_code:
+                    type: string
+                    example: validation_error
+                  message:
+                    type: string
+                  fields:
+                    type: object
+                    additionalProperties:
+                      type: array
+                      items:
+                        type: string
+                    example:
+                      sensor_name:
+                      - is missing
+        '404':
+          description: session not found, or the session has no such stream
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - error_code
+                - message
+                properties:
+                  error_code:
+                    type: string
+                    example: session_not_found
+                  message:
+                    type: string
+                    example: Session not found
+        '401':
+          description: unauthorized
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - error_code
+                - message
+                properties:
+                  error_code:
+                    type: string
+                    example: unauthorized
+                  message:
+                    type: string
+                    example: Unauthorized
     post:
       summary: Upload binary measurements for an AirBeamMini session
       tags:
