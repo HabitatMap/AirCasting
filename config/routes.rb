@@ -118,6 +118,7 @@ Rails.application.routes.draw do
       get 'timelapse' => 'fixed_stream_clusters#index'
       resources :fixed_sessions, only: %i[index show create destroy], param: :uuid do
         resources :measurements, only: %i[create], module: :fixed_sessions
+        patch '/', action: :update, on: :member
       end
       resources :mobile_sessions, only: %i[index show create destroy], param: :uuid do
         resources :measurements, only: %i[index create], module: :mobile_sessions

@@ -3475,14 +3475,11 @@ paths:
                   time_zone:
                     type: string
                     example: America/New_York
-                    description: IANA zone at the sensor; render every timestamp below
-                      in it
                   start_time:
                     type: integer
                     format: int64
                     nullable: true
                     example: 1786663800000
-                    description: Epoch ms (UTC)
                   end_time:
                     type: integer
                     format: int64
@@ -3493,23 +3490,17 @@ paths:
                     format: int64
                     nullable: true
                     example: 1786707000000
-                    description: Epoch ms (UTC); null until the sensor first reports
                   version:
                     type: integer
                   latitude:
                     type: number
                     format: float
-                    example: 40.7128
-                    description: Indoor sessions carry the placeholder 200
                   longitude:
                     type: number
                     format: float
-                    example: -74.006
                   share_url:
                     type: string
                     example: https://aircasting.org/s/ab12c
-                    description: Capability link; append `?sensor_name=<stream>` to
-                      open it
                   device:
                     type: object
                     nullable: true
@@ -3523,11 +3514,6 @@ paths:
                         nullable: true
                   streams:
                     type: object
-                    description: Keyed by sensor_name. `sensor_type_id` is the handle
-                      the binary measurements upload addresses the stream by, and
-                      is `null` on a session created before this API group existed
-                      — decode it as nullable. `last_measurement` is `null` for a
-                      stream that has never reported.
                     additionalProperties:
                       type: object
                       additionalProperties: true
@@ -3535,19 +3521,11 @@ paths:
                       AirBeamMini-PM2.5:
                         sensor_name: AirBeamMini-PM2.5
                         sensor_type_id: 2
-                        sensor_package_name: AirBeamMini:aa:bb:cc:dd:ee:ff
                         measurement_type: Particulate Matter
-                        measurement_short_type: PM
-                        unit_name: microgram per cubic meter
                         unit_symbol: µg/m³
                         last_measurement:
                           value: 12.5
                           time: 1786707000000
-                        threshold_very_low: 0
-                        threshold_low: 9
-                        threshold_medium: 35
-                        threshold_high: 55
-                        threshold_very_high: 150
         '404':
           description: session not found
           content:
@@ -3580,6 +3558,189 @@ paths:
                   message:
                     type: string
                     example: Unauthorized
+    patch:
+      summary: "[ALPHA] Update a fixed session"
+      tags:
+      - 'Mobile app: Fixed sessions'
+      description: |
+        **PATCH only — `PUT` is not routed.** An omitted field is left alone.
+        Nothing else about a fixed session is editable: `is_indoor`,
+        `contribute`, `time_zone`, `latitude`/`longitude` and the device are
+        all set once at create.
+
+        `version` is server-owned. It moves only when something actually
+        changed, so re-sending the same title, or the same tags in another
+        order, leaves it alone.
+      parameters:
+      - name: uuid
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: Authorization
+        in: header
+        required: true
+        description: Bearer <user_token>
+        schema:
+          type: string
+      responses:
+        '200':
+          description: updated session
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - uuid
+                - title
+                - type
+                - tag_list
+                - contribute
+                - is_indoor
+                - time_zone
+                - version
+                - share_url
+                - streams
+                properties:
+                  uuid:
+                    type: string
+                  title:
+                    type: string
+                  type:
+                    type: string
+                    example: FixedSession
+                  tag_list:
+                    type: string
+                    example: rooftop, pm
+                  contribute:
+                    type: boolean
+                  is_indoor:
+                    type: boolean
+                  time_zone:
+                    type: string
+                    example: America/New_York
+                  start_time:
+                    type: integer
+                    format: int64
+                    nullable: true
+                    example: 1786663800000
+                  end_time:
+                    type: integer
+                    format: int64
+                    nullable: true
+                    example: 1786707000000
+                  last_measurement_at:
+                    type: integer
+                    format: int64
+                    nullable: true
+                    example: 1786707000000
+                  version:
+                    type: integer
+                  latitude:
+                    type: number
+                    format: float
+                  longitude:
+                    type: number
+                    format: float
+                  share_url:
+                    type: string
+                    example: https://aircasting.org/s/ab12c
+                  device:
+                    type: object
+                    nullable: true
+                    properties:
+                      mac_address:
+                        type: string
+                      model:
+                        type: string
+                      name:
+                        type: string
+                        nullable: true
+                  streams:
+                    type: object
+                    additionalProperties:
+                      type: object
+                      additionalProperties: true
+                    example:
+                      AirBeamMini-PM2.5:
+                        sensor_name: AirBeamMini-PM2.5
+                        sensor_type_id: 2
+                        measurement_type: Particulate Matter
+                        unit_symbol: µg/m³
+                        last_measurement:
+                          value: 12.5
+                          time: 1786707000000
+        '400':
+          description: validation error — `fields` carries the offending path
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - error_code
+                - message
+                properties:
+                  error_code:
+                    type: string
+                    example: validation_error
+                  message:
+                    type: string
+                    example: Request body is invalid
+                  fields:
+                    type: object
+                    additionalProperties: true
+                    example:
+                      base:
+                      - 'must contain at least one of: title, tag_list'
+        '404':
+          description: session not found
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - error_code
+                - message
+                properties:
+                  error_code:
+                    type: string
+                    example: session_not_found
+                  message:
+                    type: string
+                    example: Session not found
+        '401':
+          description: unauthorized
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - error_code
+                - message
+                properties:
+                  error_code:
+                    type: string
+                    example: unauthorized
+                  message:
+                    type: string
+                    example: Unauthorized
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              description: At least one of title, tag_list
+              properties:
+                title:
+                  type: string
+                  example: Rooftop PM2.5 monitor (v2)
+                tag_list:
+                  type: string
+                  nullable: true
+                  example: rooftop, pm
+                  description: A single string; whitespace and commas both separate
+                    tags. null or "" clears every tag.
+        required: true
     delete:
       summary: "[ALPHA] Delete a fixed session"
       tags:

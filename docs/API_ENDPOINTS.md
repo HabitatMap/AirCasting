@@ -63,6 +63,7 @@ Highcharts can plot with `useUTC: true`.
 | GET | `/api/v3/fixed_sessions` | List the signed-in user's fixed sessions (paginated) |
 | POST | `/api/v3/fixed_sessions` | Create a fixed session and its streams |
 | GET | `/api/v3/fixed_sessions/{uuid}` | One session, same shape as an `index` row — direct lookup by uuid |
+| PATCH | `/api/v3/fixed_sessions/{uuid}` | Update title and tags. No PUT; never touches `is_indoor`, `contribute`, `time_zone`, coordinates, streams or the device |
 | DELETE | `/api/v3/fixed_sessions/{uuid}` | Delete a session and record a tombstone. Safe to retry — an already-deleted uuid answers 204, not 404 |
 | POST | `/api/v3/fixed_sessions/{uuid}/measurements` | Upload binary measurements (9-byte frames, 6000 max per request) |
 
