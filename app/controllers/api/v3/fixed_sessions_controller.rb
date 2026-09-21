@@ -27,6 +27,13 @@ module Api
         ).call, status: :ok
       end
 
+      def show
+        session = find_owned_session
+        return session_not_found unless session
+
+        render json: serialize(session), status: :ok
+      end
+
       def create
         contract = Api::CreateFixedSessionContract.new.call(
           params.to_unsafe_h.deep_symbolize_keys,
@@ -68,6 +75,24 @@ module Api
       end
 
       private
+
+      def find_owned_session
+        current_user
+          .fixed_sessions
+          .includes(:device, :tags, streams: :threshold_set)
+          .by_uuid(params[:uuid])
+          .first
+      end
+
+      def serialize(session)
+        latest_measurements = FixedMeasurementsRepository.new.latest_by_stream_id(
+          stream_ids: session.streams.map(&:id),
+        )
+        ::FixedSessions::SessionSerializer.new.call(
+          session,
+          latest_measurements: latest_measurements,
+        )
+      end
 
       def session_not_found
         render_error(ErrorCodes::SESSION_NOT_FOUND, 'Session not found')
