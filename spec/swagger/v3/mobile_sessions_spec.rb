@@ -22,7 +22,7 @@ RSpec.describe 'AirBeam Mobile Sessions', type: :request do
   }.freeze
 
   path '/api/v3/mobile_sessions' do
-    get "List the signed-in user's mobile sessions" do
+    get "[ALPHA] List the signed-in user's mobile sessions" do
       tags 'Mobile app: Mobile sessions'
       produces 'application/json'
       description <<~DESC
@@ -152,7 +152,7 @@ RSpec.describe 'AirBeam Mobile Sessions', type: :request do
       end
     end
 
-    post 'Create a mobile session' do
+    post '[ALPHA] Create a mobile session' do
       tags 'Mobile app: Mobile sessions'
       consumes 'application/json'
       produces 'application/json'
@@ -404,7 +404,7 @@ RSpec.describe 'AirBeam Mobile Sessions', type: :request do
   end
 
   path '/api/v3/mobile_sessions/{uuid}' do
-    get 'Get one of the signed-in user\'s mobile sessions' do
+    get '[ALPHA] Get one of the signed-in user\'s mobile sessions' do
       tags 'Mobile app: Mobile sessions'
       produces 'application/json'
       parameter name: :uuid, in: :path, type: :string, required: true
@@ -483,7 +483,7 @@ RSpec.describe 'AirBeam Mobile Sessions', type: :request do
       end
     end
 
-    patch 'Update a mobile session' do
+    patch '[ALPHA] Update a mobile session' do
       tags 'Mobile app: Mobile sessions'
       consumes 'application/json'
       produces 'application/json'
@@ -575,7 +575,7 @@ RSpec.describe 'AirBeam Mobile Sessions', type: :request do
       end
     end
 
-    delete 'Delete a mobile session' do
+    delete '[ALPHA] Delete a mobile session' do
       tags 'Mobile app: Mobile sessions'
       consumes 'application/json'
       produces 'application/json'
@@ -680,7 +680,7 @@ RSpec.describe 'AirBeam Mobile Sessions', type: :request do
   end
 
   path '/api/v3/mobile_sessions/{uuid}/measurements' do
-    get 'Get measurements for a mobile session' do
+    get '[ALPHA] Get measurements for a mobile session' do
       tags 'Mobile app: Mobile sessions'
       produces 'application/json'
       description <<~DESC
@@ -785,7 +785,7 @@ RSpec.describe 'AirBeam Mobile Sessions', type: :request do
       end
     end
 
-    post 'Send binary measurements for a mobile session' do
+    post '[ALPHA] Send binary measurements for a mobile session' do
       tags 'Mobile app: Mobile sessions'
       consumes 'application/octet-stream'
       produces 'application/json'

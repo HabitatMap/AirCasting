@@ -19,7 +19,7 @@ RSpec.describe 'AirBeamMini Fixed Sessions Binary Flow', type: :request do
   }.freeze
 
   path '/api/v3/fixed_sessions' do
-    get "List the signed-in user's fixed sessions" do
+    get "[ALPHA] List the signed-in user's fixed sessions" do
       tags 'Mobile app: Fixed sessions'
       produces 'application/json'
       description <<~DESC
@@ -392,6 +392,84 @@ RSpec.describe 'AirBeamMini Fixed Sessions Binary Flow', type: :request do
         let(:Authorization) { 'Bearer invalid' }
         let(:body) { {} }
 
+        run_test!
+      end
+    end
+  end
+
+  path '/api/v3/fixed_sessions/{uuid}' do
+    delete '[ALPHA] Delete a fixed session' do
+      tags 'Mobile app: Fixed sessions'
+      produces 'application/json'
+      description <<~DESC
+        Cascades to the session's streams, their measurements and threshold alerts. The uuid is matched case-insensitively.
+      DESC
+
+      parameter name: :uuid, in: :path, type: :string, required: true
+      parameter name: :Authorization, in: :header, type: :string, required: true,
+                description: 'Bearer <user_token>'
+
+      response '204', 'deleted, or already deleted' do
+        let(:user) { create(:user) }
+        let(:Authorization) { "Bearer #{user.authentication_token}" }
+        let(:session_record) { create(:fixed_session, user: user) }
+        let(:uuid) { session_record.uuid }
+        run_test!
+      end
+
+      response '404', 'session not found' do
+        schema ERROR_SCHEMA
+        let(:user) { create(:user) }
+        let(:Authorization) { "Bearer #{user.authentication_token}" }
+        let(:uuid) { 'does-not-exist' }
+        run_test!
+      end
+
+      # Stubbed: a lock wait timeout on the delete transaction. Retry-After is set
+      # by render_error; FixedSessions::Destroyer's own spec covers when this and
+      # internal_error below are returned.
+      response '503', 'temporarily unavailable — retry after `Retry-After` seconds' do
+        schema ERROR_SCHEMA
+        let!(:user) { create(:user) }
+        let(:Authorization) { "Bearer #{user.authentication_token}" }
+        let!(:session_record) { create(:fixed_session, user: user) }
+        let(:uuid) { session_record.uuid }
+
+        before do
+          allow_any_instance_of(FixedSessions::Destroyer).to receive(:call).and_return(
+            Failure.new(
+              error_code: FixedSessions::BinaryProtocol::ErrorCodes::TRY_AGAIN_LATER,
+              message: 'Could not delete this session, please retry',
+            ),
+          )
+        end
+
+        run_test!
+      end
+
+      response '500', 'session could not be deleted' do
+        schema ERROR_SCHEMA
+        let!(:user) { create(:user) }
+        let(:Authorization) { "Bearer #{user.authentication_token}" }
+        let!(:session_record) { create(:fixed_session, user: user) }
+        let(:uuid) { session_record.uuid }
+
+        before do
+          allow_any_instance_of(FixedSessions::Destroyer).to receive(:call).and_return(
+            Failure.new(
+              error_code: FixedSessions::BinaryProtocol::ErrorCodes::INTERNAL_ERROR,
+              message: 'Could not delete this session',
+            ),
+          )
+        end
+
+        run_test!
+      end
+
+      response '401', 'unauthorized' do
+        schema ERROR_SCHEMA
+        let(:uuid) { 'any-uuid' }
+        let(:Authorization) { 'Bearer invalid' }
         run_test!
       end
     end

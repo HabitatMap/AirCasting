@@ -2975,7 +2975,7 @@ paths:
                       example: 14
   "/api/v3/fixed_sessions":
     get:
-      summary: List the signed-in user's fixed sessions
+      summary: "[ALPHA] List the signed-in user's fixed sessions"
       tags:
       - 'Mobile app: Fixed sessions'
       description: 'Ordered by creation, oldest first.
@@ -3412,6 +3412,86 @@ paths:
                   - sensor_name: AirBeamMini-PM2.5
                     unit_symbol: µg/m³
         required: true
+  "/api/v3/fixed_sessions/{uuid}":
+    delete:
+      summary: "[ALPHA] Delete a fixed session"
+      tags:
+      - 'Mobile app: Fixed sessions'
+      description: 'Cascades to the session''s streams, their measurements and threshold
+        alerts. The uuid is matched case-insensitively.
+
+        '
+      parameters:
+      - name: uuid
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: Authorization
+        in: header
+        required: true
+        description: Bearer <user_token>
+        schema:
+          type: string
+      responses:
+        '204':
+          description: deleted, or already deleted
+        '404':
+          description: session not found
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - error_code
+                - message
+                properties:
+                  error_code:
+                    type: string
+                  message:
+                    type: string
+        '503':
+          description: temporarily unavailable — retry after `Retry-After` seconds
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - error_code
+                - message
+                properties:
+                  error_code:
+                    type: string
+                  message:
+                    type: string
+        '500':
+          description: session could not be deleted
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - error_code
+                - message
+                properties:
+                  error_code:
+                    type: string
+                  message:
+                    type: string
+        '401':
+          description: unauthorized
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - error_code
+                - message
+                properties:
+                  error_code:
+                    type: string
+                  message:
+                    type: string
   "/api/v3/fixed_sessions/{uuid}/measurements":
     post:
       summary: Upload binary measurements for an AirBeamMini session
@@ -4258,7 +4338,7 @@ paths:
                     example: Unauthorized
   "/api/v3/mobile_sessions":
     get:
-      summary: List the signed-in user's mobile sessions
+      summary: "[ALPHA] List the signed-in user's mobile sessions"
       tags:
       - 'Mobile app: Mobile sessions'
       description: |
@@ -4446,7 +4526,7 @@ paths:
                     type: string
                     example: Unauthorized
     post:
-      summary: Create a mobile session
+      summary: "[ALPHA] Create a mobile session"
       tags:
       - 'Mobile app: Mobile sessions'
       description: |
@@ -4727,7 +4807,7 @@ paths:
         required: true
   "/api/v3/mobile_sessions/{uuid}":
     get:
-      summary: Get one of the signed-in user's mobile sessions
+      summary: "[ALPHA] Get one of the signed-in user's mobile sessions"
       tags:
       - 'Mobile app: Mobile sessions'
       parameters:
@@ -4894,7 +4974,7 @@ paths:
                   message:
                     type: string
     patch:
-      summary: Update a mobile session
+      summary: "[ALPHA] Update a mobile session"
       tags:
       - 'Mobile app: Mobile sessions'
       description: |
@@ -5053,7 +5133,7 @@ paths:
                     tags. null or "" clears every tag.
         required: true
     delete:
-      summary: Delete a mobile session
+      summary: "[ALPHA] Delete a mobile session"
       tags:
       - 'Mobile app: Mobile sessions'
       description: |+
@@ -5141,7 +5221,7 @@ paths:
                     example: Unauthorized
   "/api/v3/mobile_sessions/{uuid}/measurements":
     get:
-      summary: Get measurements for a mobile session
+      summary: "[ALPHA] Get measurements for a mobile session"
       tags:
       - 'Mobile app: Mobile sessions'
       description: |
@@ -5276,7 +5356,7 @@ paths:
                   message:
                     type: string
     post:
-      summary: Send binary measurements for a mobile session
+      summary: "[ALPHA] Send binary measurements for a mobile session"
       tags:
       - 'Mobile app: Mobile sessions'
       description: |
