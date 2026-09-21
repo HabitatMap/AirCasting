@@ -19,6 +19,137 @@ RSpec.describe 'AirBeamMini Fixed Sessions Binary Flow', type: :request do
   }.freeze
 
   path '/api/v3/fixed_sessions' do
+    get "[ALPHA] List the signed-in user's fixed sessions" do
+      tags 'Mobile app: Fixed sessions'
+      produces 'application/json'
+      description <<~DESC
+        Ordered by creation, oldest first.
+      DESC
+
+      parameter name: :Authorization, in: :header, type: :string, required: true,
+                description: 'Bearer <user_token>'
+      parameter name: :page, in: :query, required: false,
+                schema: { type: :integer, minimum: 1, default: 1 },
+                description: '1-based page number'
+      parameter name: :per_page, in: :query, required: false,
+                schema: {
+                  type: :integer,
+                  minimum: 1,
+                  maximum: Api::ListFixedSessionsContract::MAX_PER_PAGE,
+                  default: FixedSessions::List::DEFAULT_PER_PAGE,
+                },
+                description: "Page size, 1..#{Api::ListFixedSessionsContract::MAX_PER_PAGE}"
+
+      response '200', 'sessions' do
+        schema type: :object,
+               required: %w[sessions meta],
+               properties: {
+                 meta: {
+                   type: :object,
+                   description: 'Describes the whole collection, not the returned page',
+                   required: %w[total page per_page total_pages],
+                   properties: {
+                     total: { type: :integer, example: 3,
+                              description: 'Total fixed sessions the user owns' },
+                     page: { type: :integer, example: 1 },
+                     per_page: { type: :integer, example: 500 },
+                     total_pages: { type: :integer, example: 1,
+                                    description: '0 when the user owns no sessions' },
+                   },
+                 },
+                 sessions: {
+                   type: :array,
+                   items: {
+                     type: :object,
+                     properties: {
+                       uuid: { type: :string },
+                       title: { type: :string },
+                       type: { type: :string, example: 'FixedSession' },
+                       tag_list: { type: :string, example: 'rooftop, pm' },
+                       contribute: { type: :boolean },
+                       is_indoor: { type: :boolean },
+                       time_zone: { type: :string, example: 'America/New_York',
+                                    description: 'IANA zone at the sensor; render every timestamp below in it' },
+                       start_time: { type: :integer, format: :int64, nullable: true, example: 1_786_663_800_000,
+                                     description: 'Epoch ms (UTC)' },
+                       end_time: { type: :integer, format: :int64, nullable: true, example: 1_786_707_000_000 },
+                       last_measurement_at: { type: :integer, format: :int64, nullable: true, example: 1_786_707_000_000,
+                                              description: 'Epoch ms (UTC); null until the sensor first reports' },
+                       version: { type: :integer },
+                       latitude: { type: :number, format: :float, example: 40.7128,
+                                   description: 'Indoor sessions carry the placeholder 200' },
+                       longitude: { type: :number, format: :float, example: -74.006 },
+                       share_url: { type: :string, example: 'https://aircasting.org/s/ab12c',
+                                    description: 'Capability link; append `?sensor_name=<stream>` to open it' },
+                       device: {
+                         type: :object, nullable: true,
+                         properties: {
+                           mac_address: { type: :string },
+                           model: { type: :string },
+                           name: { type: :string, nullable: true }
+                         }
+                       },
+                       streams: {
+                         type: :object,
+                         description: 'Keyed by sensor_name. `sensor_type_id` is the handle the binary ' \
+                                      'measurements upload addresses the stream by, and is `null` on a ' \
+                                      'session created before this API group existed — decode it as nullable. ' \
+                                      '`last_measurement` is `null` for a stream that has never reported.',
+                         additionalProperties: { type: :object, additionalProperties: true },
+                         example: {
+                           'AirBeamMini-PM2.5' => {
+                             sensor_name: 'AirBeamMini-PM2.5', sensor_type_id: 2,
+                             sensor_package_name: 'AirBeamMini:aa:bb:cc:dd:ee:ff',
+                             measurement_type: 'Particulate Matter', measurement_short_type: 'PM',
+                             unit_name: 'microgram per cubic meter', unit_symbol: 'µg/m³',
+                             last_measurement: { value: 12.5, time: 1_786_707_000_000 },
+                             threshold_very_low: 0, threshold_low: 9, threshold_medium: 35,
+                             threshold_high: 55, threshold_very_high: 150
+                           }
+                         }
+                       }
+                     }
+                   },
+                 },
+               }
+
+        let(:user) { create(:user) }
+        let(:Authorization) { "Bearer #{user.authentication_token}" }
+        before do
+          session = create(:fixed_session, user: user)
+          stream = create(:stream, session: session, sensor_name: 'AirBeamMini-PM2.5')
+          create(:fixed_measurement, stream: stream)
+        end
+        run_test!
+      end
+
+      response '400', 'invalid pagination parameters' do
+        schema type: :object,
+               required: %w[error_code message],
+               properties: {
+                 error_code: { type: :string, example: 'validation_error' },
+                 message: { type: :string, example: 'Query parameters are invalid' }
+               }
+
+        let(:user) { create(:user) }
+        let(:Authorization) { "Bearer #{user.authentication_token}" }
+        let(:per_page) { 0 }
+        run_test!
+      end
+
+      response '401', 'unauthorized' do
+        schema type: :object,
+               required: %w[error_code message],
+               properties: {
+                 error_code: { type: :string, example: 'unauthorized' },
+                 message: { type: :string, example: 'Unauthorized' }
+               }
+
+        let(:Authorization) { 'Bearer invalid' }
+        run_test!
+      end
+    end
+
     post 'Create a new AirBeamMini fixed session' do
       tags 'Mobile app: Fixed sessions'
       consumes 'application/json'
@@ -261,6 +392,84 @@ RSpec.describe 'AirBeamMini Fixed Sessions Binary Flow', type: :request do
         let(:Authorization) { 'Bearer invalid' }
         let(:body) { {} }
 
+        run_test!
+      end
+    end
+  end
+
+  path '/api/v3/fixed_sessions/{uuid}' do
+    delete '[ALPHA] Delete a fixed session' do
+      tags 'Mobile app: Fixed sessions'
+      produces 'application/json'
+      description <<~DESC
+        Cascades to the session's streams, their measurements and threshold alerts. The uuid is matched case-insensitively.
+      DESC
+
+      parameter name: :uuid, in: :path, type: :string, required: true
+      parameter name: :Authorization, in: :header, type: :string, required: true,
+                description: 'Bearer <user_token>'
+
+      response '204', 'deleted, or already deleted' do
+        let(:user) { create(:user) }
+        let(:Authorization) { "Bearer #{user.authentication_token}" }
+        let(:session_record) { create(:fixed_session, user: user) }
+        let(:uuid) { session_record.uuid }
+        run_test!
+      end
+
+      response '404', 'session not found' do
+        schema ERROR_SCHEMA
+        let(:user) { create(:user) }
+        let(:Authorization) { "Bearer #{user.authentication_token}" }
+        let(:uuid) { 'does-not-exist' }
+        run_test!
+      end
+
+      # Stubbed: a lock wait timeout on the delete transaction. Retry-After is set
+      # by render_error; FixedSessions::Destroyer's own spec covers when this and
+      # internal_error below are returned.
+      response '503', 'temporarily unavailable — retry after `Retry-After` seconds' do
+        schema ERROR_SCHEMA
+        let!(:user) { create(:user) }
+        let(:Authorization) { "Bearer #{user.authentication_token}" }
+        let!(:session_record) { create(:fixed_session, user: user) }
+        let(:uuid) { session_record.uuid }
+
+        before do
+          allow_any_instance_of(FixedSessions::Destroyer).to receive(:call).and_return(
+            Failure.new(
+              error_code: FixedSessions::BinaryProtocol::ErrorCodes::TRY_AGAIN_LATER,
+              message: 'Could not delete this session, please retry',
+            ),
+          )
+        end
+
+        run_test!
+      end
+
+      response '500', 'session could not be deleted' do
+        schema ERROR_SCHEMA
+        let!(:user) { create(:user) }
+        let(:Authorization) { "Bearer #{user.authentication_token}" }
+        let!(:session_record) { create(:fixed_session, user: user) }
+        let(:uuid) { session_record.uuid }
+
+        before do
+          allow_any_instance_of(FixedSessions::Destroyer).to receive(:call).and_return(
+            Failure.new(
+              error_code: FixedSessions::BinaryProtocol::ErrorCodes::INTERNAL_ERROR,
+              message: 'Could not delete this session',
+            ),
+          )
+        end
+
+        run_test!
+      end
+
+      response '401', 'unauthorized' do
+        schema ERROR_SCHEMA
+        let(:uuid) { 'any-uuid' }
+        let(:Authorization) { 'Bearer invalid' }
         run_test!
       end
     end

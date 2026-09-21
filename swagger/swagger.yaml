@@ -35,8 +35,8 @@ tags:
   description: 'Legacy AirBeam mobile session upload, download, sync and update. Replaced
     by *Mobile app: Mobile sessions*.'
 - name: 'Mobile app: Fixed sessions'
-  description: 'AirBeam fixed (roof-mounted) sessions on `/api/v3`: create a session
-    and upload its measurements.'
+  description: 'AirBeam fixed (roof-mounted) sessions on `/api/v3`: create a session,
+    list the user''s own sessions, and upload measurements.'
 - name: 'Mobile app: Fixed sessions [DEPRECATED]'
   description: 'Legacy AirBeam fixed session create, measurement upload and polling
     (the `realtime/*` paths), plus the fixed session and stream reads. Replaced by
@@ -2974,6 +2974,200 @@ paths:
                       description: Rounded daily average
                       example: 14
   "/api/v3/fixed_sessions":
+    get:
+      summary: "[ALPHA] List the signed-in user's fixed sessions"
+      tags:
+      - 'Mobile app: Fixed sessions'
+      description: 'Ordered by creation, oldest first.
+
+        '
+      parameters:
+      - name: Authorization
+        in: header
+        required: true
+        description: Bearer <user_token>
+        schema:
+          type: string
+      - name: page
+        in: query
+        required: false
+        schema:
+          type: integer
+          minimum: 1
+          default: 1
+        description: 1-based page number
+      - name: per_page
+        in: query
+        required: false
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 500
+          default: 500
+        description: Page size, 1..500
+      responses:
+        '200':
+          description: sessions
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - sessions
+                - meta
+                properties:
+                  meta:
+                    type: object
+                    description: Describes the whole collection, not the returned
+                      page
+                    required:
+                    - total
+                    - page
+                    - per_page
+                    - total_pages
+                    properties:
+                      total:
+                        type: integer
+                        example: 3
+                        description: Total fixed sessions the user owns
+                      page:
+                        type: integer
+                        example: 1
+                      per_page:
+                        type: integer
+                        example: 500
+                      total_pages:
+                        type: integer
+                        example: 1
+                        description: 0 when the user owns no sessions
+                  sessions:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        uuid:
+                          type: string
+                        title:
+                          type: string
+                        type:
+                          type: string
+                          example: FixedSession
+                        tag_list:
+                          type: string
+                          example: rooftop, pm
+                        contribute:
+                          type: boolean
+                        is_indoor:
+                          type: boolean
+                        time_zone:
+                          type: string
+                          example: America/New_York
+                          description: IANA zone at the sensor; render every timestamp
+                            below in it
+                        start_time:
+                          type: integer
+                          format: int64
+                          nullable: true
+                          example: 1786663800000
+                          description: Epoch ms (UTC)
+                        end_time:
+                          type: integer
+                          format: int64
+                          nullable: true
+                          example: 1786707000000
+                        last_measurement_at:
+                          type: integer
+                          format: int64
+                          nullable: true
+                          example: 1786707000000
+                          description: Epoch ms (UTC); null until the sensor first
+                            reports
+                        version:
+                          type: integer
+                        latitude:
+                          type: number
+                          format: float
+                          example: 40.7128
+                          description: Indoor sessions carry the placeholder 200
+                        longitude:
+                          type: number
+                          format: float
+                          example: -74.006
+                        share_url:
+                          type: string
+                          example: https://aircasting.org/s/ab12c
+                          description: Capability link; append `?sensor_name=<stream>`
+                            to open it
+                        device:
+                          type: object
+                          nullable: true
+                          properties:
+                            mac_address:
+                              type: string
+                            model:
+                              type: string
+                            name:
+                              type: string
+                              nullable: true
+                        streams:
+                          type: object
+                          description: Keyed by sensor_name. `sensor_type_id` is the
+                            handle the binary measurements upload addresses the stream
+                            by, and is `null` on a session created before this API
+                            group existed — decode it as nullable. `last_measurement`
+                            is `null` for a stream that has never reported.
+                          additionalProperties:
+                            type: object
+                            additionalProperties: true
+                          example:
+                            AirBeamMini-PM2.5:
+                              sensor_name: AirBeamMini-PM2.5
+                              sensor_type_id: 2
+                              sensor_package_name: AirBeamMini:aa:bb:cc:dd:ee:ff
+                              measurement_type: Particulate Matter
+                              measurement_short_type: PM
+                              unit_name: microgram per cubic meter
+                              unit_symbol: µg/m³
+                              last_measurement:
+                                value: 12.5
+                                time: 1786707000000
+                              threshold_very_low: 0
+                              threshold_low: 9
+                              threshold_medium: 35
+                              threshold_high: 55
+                              threshold_very_high: 150
+        '400':
+          description: invalid pagination parameters
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - error_code
+                - message
+                properties:
+                  error_code:
+                    type: string
+                    example: validation_error
+                  message:
+                    type: string
+                    example: Query parameters are invalid
+        '401':
+          description: unauthorized
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - error_code
+                - message
+                properties:
+                  error_code:
+                    type: string
+                    example: unauthorized
+                  message:
+                    type: string
+                    example: Unauthorized
     post:
       summary: Create a new AirBeamMini fixed session
       tags:
@@ -3218,6 +3412,86 @@ paths:
                   - sensor_name: AirBeamMini-PM2.5
                     unit_symbol: µg/m³
         required: true
+  "/api/v3/fixed_sessions/{uuid}":
+    delete:
+      summary: "[ALPHA] Delete a fixed session"
+      tags:
+      - 'Mobile app: Fixed sessions'
+      description: 'Cascades to the session''s streams, their measurements and threshold
+        alerts. The uuid is matched case-insensitively.
+
+        '
+      parameters:
+      - name: uuid
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: Authorization
+        in: header
+        required: true
+        description: Bearer <user_token>
+        schema:
+          type: string
+      responses:
+        '204':
+          description: deleted, or already deleted
+        '404':
+          description: session not found
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - error_code
+                - message
+                properties:
+                  error_code:
+                    type: string
+                  message:
+                    type: string
+        '503':
+          description: temporarily unavailable — retry after `Retry-After` seconds
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - error_code
+                - message
+                properties:
+                  error_code:
+                    type: string
+                  message:
+                    type: string
+        '500':
+          description: session could not be deleted
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - error_code
+                - message
+                properties:
+                  error_code:
+                    type: string
+                  message:
+                    type: string
+        '401':
+          description: unauthorized
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - error_code
+                - message
+                properties:
+                  error_code:
+                    type: string
+                  message:
+                    type: string
   "/api/v3/fixed_sessions/{uuid}/measurements":
     post:
       summary: Upload binary measurements for an AirBeamMini session
@@ -4042,8 +4316,10 @@ paths:
                 properties:
                   error_code:
                     type: string
+                    example: note_not_found
                   message:
                     type: string
+                    example: Note not found
         '401':
           description: unauthorized
           content:
@@ -4056,11 +4332,13 @@ paths:
                 properties:
                   error_code:
                     type: string
+                    example: unauthorized
                   message:
                     type: string
+                    example: Unauthorized
   "/api/v3/mobile_sessions":
     get:
-      summary: List the signed-in user's mobile sessions
+      summary: "[ALPHA] List the signed-in user's mobile sessions"
       tags:
       - 'Mobile app: Mobile sessions'
       description: |
@@ -4227,8 +4505,10 @@ paths:
                 properties:
                   error_code:
                     type: string
+                    example: validation_error
                   message:
                     type: string
+                    example: Query parameters are invalid
         '401':
           description: unauthorized
           content:
@@ -4241,10 +4521,12 @@ paths:
                 properties:
                   error_code:
                     type: string
+                    example: unauthorized
                   message:
                     type: string
+                    example: Unauthorized
     post:
-      summary: Create a mobile session
+      summary: "[ALPHA] Create a mobile session"
       tags:
       - 'Mobile app: Mobile sessions'
       description: |
@@ -4525,7 +4807,7 @@ paths:
         required: true
   "/api/v3/mobile_sessions/{uuid}":
     get:
-      summary: Get one of the signed-in user's mobile sessions
+      summary: "[ALPHA] Get one of the signed-in user's mobile sessions"
       tags:
       - 'Mobile app: Mobile sessions'
       parameters:
@@ -4692,7 +4974,7 @@ paths:
                   message:
                     type: string
     patch:
-      summary: Update a mobile session
+      summary: "[ALPHA] Update a mobile session"
       tags:
       - 'Mobile app: Mobile sessions'
       description: |
@@ -4851,28 +5133,13 @@ paths:
                     tags. null or "" clears every tag.
         required: true
     delete:
-      summary: Delete a mobile session
+      summary: "[ALPHA] Delete a mobile session"
       tags:
       - 'Mobile app: Mobile sessions'
-      description: |
-        Cascades to the session's streams, measurements, notes and note photos. The
+      description: |+
+        Cascades to the session's streams, measurements, threshold alerts, notes and note photos. The
         uuid is matched case-insensitively.
 
-        **Safe to retry.** Deleting an already-deleted session answers `204`, so
-        retry on any network failure or 5xx. `404` means this uuid has never belonged
-        to this account — treat it as terminal.
-
-        Deleting does not cancel an upload already on the wire: a measurements upload
-        arriving after the delete answers `404`. Stop the uploader first.
-
-        ## Error codes
-
-        | `error_code` | HTTP | When |
-        |---|---|---|
-        | `unauthorized` | 401 | Missing or invalid token |
-        | `session_not_found` | 404 | No mobile session with this uuid for this user |
-        | `try_again_later` | 503 | Temporarily unavailable. `Retry-After` says how long to wait |
-        | `internal_error` | 500 | Unexpected server error; the session is left intact and the call can be retried |
       parameters:
       - name: uuid
         in: path
@@ -4900,8 +5167,42 @@ paths:
                 properties:
                   error_code:
                     type: string
+                    example: session_not_found
                   message:
                     type: string
+                    example: Session not found
+        '503':
+          description: temporarily unavailable — retry after `Retry-After` seconds
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - error_code
+                - message
+                properties:
+                  error_code:
+                    type: string
+                    example: try_again_later
+                  message:
+                    type: string
+                    example: Could not delete this session, please retry
+        '500':
+          description: session could not be deleted
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - error_code
+                - message
+                properties:
+                  error_code:
+                    type: string
+                    example: internal_error
+                  message:
+                    type: string
+                    example: Could not delete this session
         '401':
           description: unauthorized
           content:
@@ -4914,11 +5215,13 @@ paths:
                 properties:
                   error_code:
                     type: string
+                    example: unauthorized
                   message:
                     type: string
+                    example: Unauthorized
   "/api/v3/mobile_sessions/{uuid}/measurements":
     get:
-      summary: Get measurements for a mobile session
+      summary: "[ALPHA] Get measurements for a mobile session"
       tags:
       - 'Mobile app: Mobile sessions'
       description: |
@@ -5053,7 +5356,7 @@ paths:
                   message:
                     type: string
     post:
-      summary: Send binary measurements for a mobile session
+      summary: "[ALPHA] Send binary measurements for a mobile session"
       tags:
       - 'Mobile app: Mobile sessions'
       description: |
