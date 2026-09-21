@@ -65,6 +65,7 @@ Highcharts can plot with `useUTC: true`.
 | GET | `/api/v3/fixed_sessions/{uuid}` | One session, same shape as an `index` row — direct lookup by uuid |
 | PATCH | `/api/v3/fixed_sessions/{uuid}` | Update title and tags. No PUT; never touches `is_indoor`, `contribute`, `time_zone`, coordinates, streams or the device |
 | DELETE | `/api/v3/fixed_sessions/{uuid}` | Delete a session and record a tombstone. Safe to retry — an already-deleted uuid answers 204, not 404 |
+| GET | `/api/v3/fixed_sessions/{uuid}/measurements` | Measurements for one stream — `sensor_name` required; last 6h by default, or a ≤12h `start_time`/`end_time` window. No point cap. No `latitude`/`longitude` (static per-session location) |
 | POST | `/api/v3/fixed_sessions/{uuid}/measurements` | Upload binary measurements (9-byte frames, 6000 max per request) |
 
 Request and response shapes are in `swagger/swagger.yaml`; the source is
