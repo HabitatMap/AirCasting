@@ -3919,7 +3919,7 @@ paths:
                       - must be greater than start_time
   "/api/v3/mobile_sessions/{uuid}/notes":
     get:
-      summary: List a session's notes
+      summary: "[ALPHA] List a session's notes"
       tags:
       - 'Mobile app: Mobile sessions'
       parameters:
@@ -3994,7 +3994,7 @@ paths:
                   message:
                     type: string
     post:
-      summary: Add a note to a session
+      summary: "[ALPHA] Add a note to a session"
       tags:
       - 'Mobile app: Mobile sessions'
       description: |+
@@ -4143,7 +4143,7 @@ paths:
         required: true
   "/api/v3/mobile_sessions/{uuid}/notes/{id}":
     patch:
-      summary: Edit a note
+      summary: "[ALPHA] Edit a note"
       tags:
       - 'Mobile app: Mobile sessions'
       description: |+
@@ -4283,7 +4283,7 @@ paths:
                     it.
         required: true
     delete:
-      summary: Delete a note
+      summary: "[ALPHA] Delete a note"
       tags:
       - 'Mobile app: Mobile sessions'
       description: |
