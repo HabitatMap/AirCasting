@@ -25,7 +25,7 @@ RSpec.describe 'AirBeam Mobile Session Notes', type: :request do
   DESC
 
   path '/api/v3/mobile_sessions/{uuid}/notes' do
-    get "List a session's notes" do
+    get "[ALPHA] List a session's notes" do
       tags 'Mobile app: Mobile sessions'
       produces 'application/json'
       parameter name: :uuid, in: :path, type: :string, required: true
@@ -57,7 +57,7 @@ RSpec.describe 'AirBeam Mobile Session Notes', type: :request do
       end
     end
 
-    post 'Add a note to a session' do
+    post '[ALPHA] Add a note to a session' do
       tags 'Mobile app: Mobile sessions'
       consumes 'application/json'
       produces 'application/json'
@@ -155,7 +155,7 @@ RSpec.describe 'AirBeam Mobile Session Notes', type: :request do
   end
 
   path '/api/v3/mobile_sessions/{uuid}/notes/{id}' do
-    patch 'Edit a note' do
+    patch '[ALPHA] Edit a note' do
       tags 'Mobile app: Mobile sessions'
       consumes 'application/json'
       produces 'application/json'
@@ -251,7 +251,7 @@ RSpec.describe 'AirBeam Mobile Session Notes', type: :request do
       end
     end
 
-    delete 'Delete a note' do
+    delete '[ALPHA] Delete a note' do
       tags 'Mobile app: Mobile sessions'
       produces 'application/json'
       description <<~DESC
