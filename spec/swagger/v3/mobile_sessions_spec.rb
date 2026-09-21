@@ -506,12 +506,7 @@ RSpec.describe 'AirBeam Mobile Sessions', type: :request do
       consumes 'application/json'
       produces 'application/json'
       description <<~DESC
-        **PATCH only — `PUT` is not routed.** An omitted field is left alone. Notes
-        are edited through `/{uuid}/notes`; nothing else about a session is editable.
-
-        `version` is server-owned and tells the account's other devices to
-        re-download the session. It moves only when something actually changed, so
-        re-sending the same title, or the same tags in another order, leaves it alone.
+        Empty `tag_list` clears the list
       DESC
 
       parameter name: :uuid, in: :path, type: :string, required: true

@@ -1,0 +1,46 @@
+require 'rails_helper'
+
+RSpec.describe Api::UpdateFixedSessionContract do
+  subject(:contract) { described_class.new }
+
+  it 'rejects an empty payload — a no-op PATCH would bump the version for nothing' do
+    result = contract.call({})
+    expect(result).to be_failure
+    expect(result.errors.to_h[nil] || result.errors.to_h[:base]).to be_present
+  end
+
+  it 'omits absent optionals from to_h (locks partial-update semantics)' do
+    result = contract.call(title: 'Renamed')
+    expect(result).to be_success
+    expect(result.to_h).to eq(title: 'Renamed')
+    expect(result.to_h).not_to have_key(:tag_list)
+  end
+
+  it 'drops unknown top-level keys (route/wrapper params)' do
+    result = contract.call(title: 'x', controller: 'fixed_sessions', action: 'update', uuid: 'abc')
+    expect(result.to_h.keys).to eq([:title])
+  end
+
+  it 'drops device, streams, is_indoor, contribute, time_zone, latitude and longitude — set once at create' do
+    result = contract.call(
+      title: 'x',
+      device: { mac_address: 'AA:BB:CC:DD:EE:FF', model: 'AirBeamMini' },
+      streams: [{ sensor_name: 'AirBeamMini-PM2.5', deleted: true }],
+      is_indoor: true,
+      contribute: false,
+      time_zone: 'America/New_York',
+      latitude: 1.0,
+      longitude: 2.0,
+    )
+    expect(result).to be_success
+    expect(result.to_h.keys).to eq([:title])
+  end
+
+  it 'fails when title is blank' do
+    expect(contract.call(title: '')).to be_failure
+  end
+
+  it 'accepts a null tag_list (clears every tag)' do
+    expect(contract.call(tag_list: nil)).to be_success
+  end
+end

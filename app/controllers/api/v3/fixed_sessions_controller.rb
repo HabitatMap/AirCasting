@@ -64,6 +64,23 @@ module Api
         end
       end
 
+      def update
+        session = find_owned_session
+        return session_not_found unless session
+
+        contract = Api::UpdateFixedSessionContract.new.call(
+          params.to_unsafe_h.deep_symbolize_keys,
+        )
+        if contract.failure?
+          return render_validation_error(contract.errors)
+        end
+
+        result = ::FixedSessions::Updater.new.call(session: session, data: contract.to_h)
+        return render_failure(result) unless result.success?
+
+        render json: serialize(find_owned_session), status: :ok
+      end
+
       def destroy
         session = current_user.fixed_sessions.by_uuid(params[:uuid]).first
         return already_deleted? ? head(:no_content) : session_not_found unless session

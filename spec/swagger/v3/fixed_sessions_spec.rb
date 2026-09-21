@@ -427,19 +427,14 @@ RSpec.describe 'AirBeamMini Fixed Sessions Binary Flow', type: :request do
                  tag_list: { type: :string, example: 'rooftop, pm' },
                  contribute: { type: :boolean },
                  is_indoor: { type: :boolean },
-                 time_zone: { type: :string, example: 'America/New_York',
-                              description: 'IANA zone at the sensor; render every timestamp below in it' },
-                 start_time: { type: :integer, format: :int64, nullable: true, example: 1_786_663_800_000,
-                               description: 'Epoch ms (UTC)' },
+                 time_zone: { type: :string, example: 'America/New_York' },
+                 start_time: { type: :integer, format: :int64, nullable: true, example: 1_786_663_800_000 },
                  end_time: { type: :integer, format: :int64, nullable: true, example: 1_786_707_000_000 },
-                 last_measurement_at: { type: :integer, format: :int64, nullable: true, example: 1_786_707_000_000,
-                                        description: 'Epoch ms (UTC); null until the sensor first reports' },
+                 last_measurement_at: { type: :integer, format: :int64, nullable: true, example: 1_786_707_000_000 },
                  version: { type: :integer },
-                 latitude: { type: :number, format: :float, example: 40.7128,
-                             description: 'Indoor sessions carry the placeholder 200' },
-                 longitude: { type: :number, format: :float, example: -74.006 },
-                 share_url: { type: :string, example: 'https://aircasting.org/s/ab12c',
-                              description: 'Capability link; append `?sensor_name=<stream>` to open it' },
+                 latitude: { type: :number, format: :float },
+                 longitude: { type: :number, format: :float },
+                 share_url: { type: :string, example: 'https://aircasting.org/s/ab12c' },
                  device: {
                    type: :object, nullable: true,
                    properties: {
@@ -450,20 +445,12 @@ RSpec.describe 'AirBeamMini Fixed Sessions Binary Flow', type: :request do
                  },
                  streams: {
                    type: :object,
-                   description: 'Keyed by sensor_name. `sensor_type_id` is the handle the binary ' \
-                                'measurements upload addresses the stream by, and is `null` on a ' \
-                                'session created before this API group existed — decode it as nullable. ' \
-                                '`last_measurement` is `null` for a stream that has never reported.',
                    additionalProperties: { type: :object, additionalProperties: true },
                    example: {
                      'AirBeamMini-PM2.5' => {
                        sensor_name: 'AirBeamMini-PM2.5', sensor_type_id: 2,
-                       sensor_package_name: 'AirBeamMini:aa:bb:cc:dd:ee:ff',
-                       measurement_type: 'Particulate Matter', measurement_short_type: 'PM',
-                       unit_name: 'microgram per cubic meter', unit_symbol: 'µg/m³',
-                       last_measurement: { value: 12.5, time: 1_786_707_000_000 },
-                       threshold_very_low: 0, threshold_low: 9, threshold_medium: 35,
-                       threshold_high: 55, threshold_very_high: 150
+                       measurement_type: 'Particulate Matter', unit_symbol: 'µg/m³',
+                       last_measurement: { value: 12.5, time: 1_786_707_000_000 }
                      }
                    }
                  }
@@ -504,6 +491,128 @@ RSpec.describe 'AirBeamMini Fixed Sessions Binary Flow', type: :request do
 
         let(:uuid) { 'any-uuid' }
         let(:Authorization) { 'Bearer invalid' }
+        run_test!
+      end
+    end
+
+    patch '[ALPHA] Update a fixed session' do
+      tags 'Mobile app: Fixed sessions'
+      consumes 'application/json'
+      produces 'application/json'
+      description <<~DESC
+        Empty `tag_list` clears the list
+      DESC
+
+      parameter name: :uuid, in: :path, type: :string, required: true
+      parameter name: :Authorization, in: :header, type: :string, required: true,
+                description: 'Bearer <user_token>'
+      parameter name: :body, in: :body, required: true, schema: {
+        type: :object,
+        description: 'At least one of title, tag_list',
+        properties: {
+          title: { type: :string, example: 'Rooftop PM2.5 monitor (v2)' },
+          tag_list: { type: :string, nullable: true, example: 'rooftop, pm',
+                      description: 'A single string; whitespace and commas both separate tags. ' \
+                                   'null or "" clears every tag.' },
+        }
+      }
+
+      response '200', 'updated session' do
+        schema type: :object,
+               required: %w[uuid title type tag_list contribute is_indoor time_zone version share_url streams],
+               properties: {
+                 uuid: { type: :string },
+                 title: { type: :string },
+                 type: { type: :string, example: 'FixedSession' },
+                 tag_list: { type: :string, example: 'rooftop, pm' },
+                 contribute: { type: :boolean },
+                 is_indoor: { type: :boolean },
+                 time_zone: { type: :string, example: 'America/New_York' },
+                 start_time: { type: :integer, format: :int64, nullable: true, example: 1_786_663_800_000 },
+                 end_time: { type: :integer, format: :int64, nullable: true, example: 1_786_707_000_000 },
+                 last_measurement_at: { type: :integer, format: :int64, nullable: true, example: 1_786_707_000_000 },
+                 version: { type: :integer },
+                 latitude: { type: :number, format: :float },
+                 longitude: { type: :number, format: :float },
+                 share_url: { type: :string, example: 'https://aircasting.org/s/ab12c' },
+                 device: {
+                   type: :object, nullable: true,
+                   properties: {
+                     mac_address: { type: :string },
+                     model: { type: :string },
+                     name: { type: :string, nullable: true }
+                   }
+                 },
+                 streams: {
+                   type: :object,
+                   additionalProperties: { type: :object, additionalProperties: true },
+                   example: {
+                     'AirBeamMini-PM2.5' => {
+                       sensor_name: 'AirBeamMini-PM2.5', sensor_type_id: 2,
+                       measurement_type: 'Particulate Matter', unit_symbol: 'µg/m³',
+                       last_measurement: { value: 12.5, time: 1_786_707_000_000 }
+                     }
+                   }
+                 }
+               }
+
+        let(:user) { create(:user) }
+        let(:Authorization) { "Bearer #{user.authentication_token}" }
+        let(:session_record) { create(:fixed_session, user: user) }
+        let(:uuid) { session_record.uuid }
+        let(:body) do
+          { title: 'Rooftop PM2.5 monitor (v2)', tag_list: 'rooftop, pm' }
+        end
+        run_test!
+      end
+
+      response '400', 'validation error — `fields` carries the offending path' do
+        schema type: :object,
+               required: %w[error_code message],
+               properties: {
+                 error_code: { type: :string, example: 'validation_error' },
+                 message: { type: :string, example: 'Request body is invalid' },
+                 fields: {
+                   type: :object,
+                   additionalProperties: true,
+                   example: { base: ['must contain at least one of: title, tag_list'] }
+                 }
+               }
+
+        let(:user) { create(:user) }
+        let(:Authorization) { "Bearer #{user.authentication_token}" }
+        let(:session_record) { create(:fixed_session, user: user) }
+        let(:uuid) { session_record.uuid }
+        let(:body) { {} }
+        run_test!
+      end
+
+      response '404', 'session not found' do
+        schema type: :object,
+               required: %w[error_code message],
+               properties: {
+                 error_code: { type: :string, example: 'session_not_found' },
+                 message: { type: :string, example: 'Session not found' }
+               }
+
+        let(:user) { create(:user) }
+        let(:Authorization) { "Bearer #{user.authentication_token}" }
+        let(:uuid) { 'does-not-exist' }
+        let(:body) { { title: 'x' } }
+        run_test!
+      end
+
+      response '401', 'unauthorized' do
+        schema type: :object,
+               required: %w[error_code message],
+               properties: {
+                 error_code: { type: :string, example: 'unauthorized' },
+                 message: { type: :string, example: 'Unauthorized' }
+               }
+
+        let(:uuid) { 'any-uuid' }
+        let(:Authorization) { 'Bearer invalid' }
+        let(:body) { { title: 'x' } }
         run_test!
       end
     end

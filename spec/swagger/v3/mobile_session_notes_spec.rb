@@ -178,12 +178,6 @@ RSpec.describe 'AirBeam Mobile Session Notes', type: :request do
       consumes 'application/json'
       produces 'application/json'
       description <<~DESC
-        **PATCH only — `PUT` is not routed.** An omitted field is left alone.
-
-        The session's `version` moves only when something actually changed, so
-        re-sending the text a note already has does not trigger a sync across the
-        account.
-
         #{PHOTO_DESCRIPTION}
       DESC
 
