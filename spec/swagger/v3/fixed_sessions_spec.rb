@@ -9,15 +9,6 @@ RSpec.describe 'AirBeamMini Fixed Sessions Binary Flow', type: :request do
     payload + [checksum].pack('C')
   end
 
-  ERROR_SCHEMA = {
-    type: :object,
-    required: %w[error_code message],
-    properties: {
-      error_code: { type: :string },
-      message: { type: :string }
-    }
-  }.freeze
-
   path '/api/v3/fixed_sessions' do
     get "[ALPHA] List the signed-in user's fixed sessions" do
       tags 'Mobile app: Fixed sessions'
@@ -330,7 +321,12 @@ RSpec.describe 'AirBeamMini Fixed Sessions Binary Flow', type: :request do
       end
 
       response '409', 'uuid already in use' do
-        schema ERROR_SCHEMA
+        schema type: :object,
+               required: %w[error_code message],
+               properties: {
+                 error_code: { type: :string, example: 'session_uuid_taken' },
+                 message: { type: :string, example: 'A session with this uuid already exists' }
+               }
 
         let!(:user) { create(:user) }
         let(:Authorization) { "Bearer #{user.authentication_token}" }
@@ -358,7 +354,12 @@ RSpec.describe 'AirBeamMini Fixed Sessions Binary Flow', type: :request do
       # single-threaded request spec can produce. The mapping itself is what this
       # documents; FixedSessions::Creator's own spec covers when it is returned.
       response '500', 'session could not be created' do
-        schema ERROR_SCHEMA
+        schema type: :object,
+               required: %w[error_code message],
+               properties: {
+                 error_code: { type: :string, example: 'internal_error' },
+                 message: { type: :string, example: 'Could not create this session' }
+               }
 
         let!(:user) { create(:user) }
         let(:Authorization) { "Bearer #{user.authentication_token}" }
@@ -387,7 +388,12 @@ RSpec.describe 'AirBeamMini Fixed Sessions Binary Flow', type: :request do
       end
 
       response '401', 'unauthorized' do
-        schema ERROR_SCHEMA
+        schema type: :object,
+               required: %w[error_code message],
+               properties: {
+                 error_code: { type: :string, example: 'unauthorized' },
+                 message: { type: :string, example: 'Unauthorized' }
+               }
 
         let(:Authorization) { 'Bearer invalid' }
         let(:body) { {} }
@@ -475,7 +481,13 @@ RSpec.describe 'AirBeamMini Fixed Sessions Binary Flow', type: :request do
       end
 
       response '404', 'session not found' do
-        schema ERROR_SCHEMA
+        schema type: :object,
+               required: %w[error_code message],
+               properties: {
+                 error_code: { type: :string, example: 'session_not_found' },
+                 message: { type: :string, example: 'Session not found' }
+               }
+
         let(:user) { create(:user) }
         let(:Authorization) { "Bearer #{user.authentication_token}" }
         let(:uuid) { 'does-not-exist' }
@@ -483,7 +495,13 @@ RSpec.describe 'AirBeamMini Fixed Sessions Binary Flow', type: :request do
       end
 
       response '401', 'unauthorized' do
-        schema ERROR_SCHEMA
+        schema type: :object,
+               required: %w[error_code message],
+               properties: {
+                 error_code: { type: :string, example: 'unauthorized' },
+                 message: { type: :string, example: 'Unauthorized' }
+               }
+
         let(:uuid) { 'any-uuid' }
         let(:Authorization) { 'Bearer invalid' }
         run_test!
@@ -510,7 +528,13 @@ RSpec.describe 'AirBeamMini Fixed Sessions Binary Flow', type: :request do
       end
 
       response '404', 'session not found' do
-        schema ERROR_SCHEMA
+        schema type: :object,
+               required: %w[error_code message],
+               properties: {
+                 error_code: { type: :string, example: 'session_not_found' },
+                 message: { type: :string, example: 'Session not found' }
+               }
+
         let(:user) { create(:user) }
         let(:Authorization) { "Bearer #{user.authentication_token}" }
         let(:uuid) { 'does-not-exist' }
@@ -521,7 +545,13 @@ RSpec.describe 'AirBeamMini Fixed Sessions Binary Flow', type: :request do
       # by render_error; FixedSessions::Destroyer's own spec covers when this and
       # internal_error below are returned.
       response '503', 'temporarily unavailable — retry after `Retry-After` seconds' do
-        schema ERROR_SCHEMA
+        schema type: :object,
+               required: %w[error_code message],
+               properties: {
+                 error_code: { type: :string, example: 'try_again_later' },
+                 message: { type: :string, example: 'Could not delete this session, please retry' }
+               }
+
         let!(:user) { create(:user) }
         let(:Authorization) { "Bearer #{user.authentication_token}" }
         let!(:session_record) { create(:fixed_session, user: user) }
@@ -540,7 +570,13 @@ RSpec.describe 'AirBeamMini Fixed Sessions Binary Flow', type: :request do
       end
 
       response '500', 'session could not be deleted' do
-        schema ERROR_SCHEMA
+        schema type: :object,
+               required: %w[error_code message],
+               properties: {
+                 error_code: { type: :string, example: 'internal_error' },
+                 message: { type: :string, example: 'Could not delete this session' }
+               }
+
         let!(:user) { create(:user) }
         let(:Authorization) { "Bearer #{user.authentication_token}" }
         let!(:session_record) { create(:fixed_session, user: user) }
@@ -559,7 +595,13 @@ RSpec.describe 'AirBeamMini Fixed Sessions Binary Flow', type: :request do
       end
 
       response '401', 'unauthorized' do
-        schema ERROR_SCHEMA
+        schema type: :object,
+               required: %w[error_code message],
+               properties: {
+                 error_code: { type: :string, example: 'unauthorized' },
+                 message: { type: :string, example: 'Unauthorized' }
+               }
+
         let(:uuid) { 'any-uuid' }
         let(:Authorization) { 'Bearer invalid' }
         run_test!
@@ -672,7 +714,12 @@ RSpec.describe 'AirBeamMini Fixed Sessions Binary Flow', type: :request do
       end
 
       response '400', 'invalid payload or unknown sensor_type_id' do
-        schema ERROR_SCHEMA
+        schema type: :object,
+               required: %w[error_code message],
+               properties: {
+                 error_code: { type: :string, example: 'invalid_magic_bytes' },
+                 message: { type: :string, example: 'magic bytes are not 0xAB 0xBA' }
+               }
 
         let(:user) { create(:user) }
         let(:session) { create(:fixed_session, user: user) }
@@ -685,7 +732,12 @@ RSpec.describe 'AirBeamMini Fixed Sessions Binary Flow', type: :request do
       end
 
       response '413', 'payload larger than one request may carry' do
-        schema ERROR_SCHEMA
+        schema type: :object,
+               required: %w[error_code message],
+               properties: {
+                 error_code: { type: :string, example: 'payload_too_large' },
+                 message: { type: :string, example: 'measurement count exceeds 6000' }
+               }
 
         let(:user) { create(:user) }
         let(:session) { create(:fixed_session, user: user) }
@@ -703,7 +755,12 @@ RSpec.describe 'AirBeamMini Fixed Sessions Binary Flow', type: :request do
       end
 
       response '404', 'session not found' do
-        schema ERROR_SCHEMA
+        schema type: :object,
+               required: %w[error_code message],
+               properties: {
+                 error_code: { type: :string, example: 'session_not_found' },
+                 message: { type: :string, example: 'Session not found' }
+               }
 
         let(:user) { create(:user) }
         let(:uuid) { 'non-existent-uuid' }
@@ -715,7 +772,12 @@ RSpec.describe 'AirBeamMini Fixed Sessions Binary Flow', type: :request do
       end
 
       response '401', 'unauthorized' do
-        schema ERROR_SCHEMA
+        schema type: :object,
+               required: %w[error_code message],
+               properties: {
+                 error_code: { type: :string, example: 'unauthorized' },
+                 message: { type: :string, example: 'Unauthorized' }
+               }
 
         let(:uuid) { 'any-uuid' }
         let(:Authorization) { 'Bearer invalid' }

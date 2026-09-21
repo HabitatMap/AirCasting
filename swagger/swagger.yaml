@@ -3286,8 +3286,10 @@ paths:
                 properties:
                   error_code:
                     type: string
+                    example: session_uuid_taken
                   message:
                     type: string
+                    example: A session with this uuid already exists
         '500':
           description: session could not be created
           content:
@@ -3300,8 +3302,10 @@ paths:
                 properties:
                   error_code:
                     type: string
+                    example: internal_error
                   message:
                     type: string
+                    example: Could not create this session
         '401':
           description: unauthorized
           content:
@@ -3314,8 +3318,10 @@ paths:
                 properties:
                   error_code:
                     type: string
+                    example: unauthorized
                   message:
                     type: string
+                    example: Unauthorized
       requestBody:
         content:
           application/json:
@@ -3554,8 +3560,10 @@ paths:
                 properties:
                   error_code:
                     type: string
+                    example: session_not_found
                   message:
                     type: string
+                    example: Session not found
         '401':
           description: unauthorized
           content:
@@ -3568,8 +3576,10 @@ paths:
                 properties:
                   error_code:
                     type: string
+                    example: unauthorized
                   message:
                     type: string
+                    example: Unauthorized
     delete:
       summary: "[ALPHA] Delete a fixed session"
       tags:
@@ -3605,8 +3615,10 @@ paths:
                 properties:
                   error_code:
                     type: string
+                    example: session_not_found
                   message:
                     type: string
+                    example: Session not found
         '503':
           description: temporarily unavailable — retry after `Retry-After` seconds
           content:
@@ -3619,8 +3631,10 @@ paths:
                 properties:
                   error_code:
                     type: string
+                    example: try_again_later
                   message:
                     type: string
+                    example: Could not delete this session, please retry
         '500':
           description: session could not be deleted
           content:
@@ -3633,8 +3647,10 @@ paths:
                 properties:
                   error_code:
                     type: string
+                    example: internal_error
                   message:
                     type: string
+                    example: Could not delete this session
         '401':
           description: unauthorized
           content:
@@ -3647,8 +3663,10 @@ paths:
                 properties:
                   error_code:
                     type: string
+                    example: unauthorized
                   message:
                     type: string
+                    example: Unauthorized
   "/api/v3/fixed_sessions/{uuid}/measurements":
     post:
       summary: Upload binary measurements for an AirBeamMini session
@@ -3727,8 +3745,10 @@ paths:
                 properties:
                   error_code:
                     type: string
+                    example: invalid_magic_bytes
                   message:
                     type: string
+                    example: magic bytes are not 0xAB 0xBA
         '413':
           description: payload larger than one request may carry
           content:
@@ -3741,8 +3761,10 @@ paths:
                 properties:
                   error_code:
                     type: string
+                    example: payload_too_large
                   message:
                     type: string
+                    example: measurement count exceeds 6000
         '404':
           description: session not found
           content:
@@ -3755,8 +3777,10 @@ paths:
                 properties:
                   error_code:
                     type: string
+                    example: session_not_found
                   message:
                     type: string
+                    example: Session not found
         '401':
           description: unauthorized
           content:
@@ -3769,8 +3793,10 @@ paths:
                 properties:
                   error_code:
                     type: string
+                    example: unauthorized
                   message:
                     type: string
+                    example: Unauthorized
       requestBody:
         content:
           application/octet-stream:
@@ -4134,8 +4160,10 @@ paths:
                 properties:
                   error_code:
                     type: string
+                    example: session_not_found
                   message:
                     type: string
+                    example: Session not found
         '401':
           description: unauthorized
           content:
@@ -4148,8 +4176,10 @@ paths:
                 properties:
                   error_code:
                     type: string
+                    example: unauthorized
                   message:
                     type: string
+                    example: Unauthorized
     post:
       summary: "[ALPHA] Add a note to a session"
       tags:
@@ -4217,8 +4247,10 @@ paths:
                 properties:
                   error_code:
                     type: string
+                    example: validation_error
                   message:
                     type: string
+                    example: Request body is invalid
                   fields:
                     type: object
                     additionalProperties: true
@@ -4237,8 +4269,11 @@ paths:
                 properties:
                   error_code:
                     type: string
+                    example: payload_too_large
                   message:
                     type: string
+                    example: Request body exceeds 7056046 bytes; a photo may be at
+                      most 5242880 bytes once decoded
         '404':
           description: session not found
           content:
@@ -4251,8 +4286,10 @@ paths:
                 properties:
                   error_code:
                     type: string
+                    example: session_not_found
                   message:
                     type: string
+                    example: Session not found
         '401':
           description: unauthorized
           content:
@@ -4265,8 +4302,10 @@ paths:
                 properties:
                   error_code:
                     type: string
+                    example: unauthorized
                   message:
                     type: string
+                    example: Unauthorized
       requestBody:
         content:
           application/json:
@@ -4372,8 +4411,10 @@ paths:
                 properties:
                   error_code:
                     type: string
+                    example: validation_error
                   message:
                     type: string
+                    example: Request body is invalid
                   fields:
                     type: object
                     additionalProperties: true
@@ -4392,8 +4433,11 @@ paths:
                 properties:
                   error_code:
                     type: string
+                    example: payload_too_large
                   message:
                     type: string
+                    example: Request body exceeds 7056046 bytes; a photo may be at
+                      most 5242880 bytes once decoded
         '404':
           description: session or note not found — `error_code` says which
           content:
@@ -4406,8 +4450,10 @@ paths:
                 properties:
                   error_code:
                     type: string
+                    example: note_not_found
                   message:
                     type: string
+                    example: Note not found
         '401':
           description: unauthorized
           content:
@@ -4420,8 +4466,10 @@ paths:
                 properties:
                   error_code:
                     type: string
+                    example: unauthorized
                   message:
                     type: string
+                    example: Unauthorized
       requestBody:
         content:
           application/json:
@@ -4800,8 +4848,10 @@ paths:
                 properties:
                   error_code:
                     type: string
+                    example: session_uuid_taken
                   message:
                     type: string
+                    example: A session with this uuid already exists
         '500':
           description: session could not be created
           content:
@@ -4814,8 +4864,10 @@ paths:
                 properties:
                   error_code:
                     type: string
+                    example: internal_error
                   message:
                     type: string
+                    example: Could not create this session
         '401':
           description: unauthorized
           content:
@@ -4828,8 +4880,10 @@ paths:
                 properties:
                   error_code:
                     type: string
+                    example: unauthorized
                   message:
                     type: string
+                    example: Unauthorized
       requestBody:
         content:
           application/json:
@@ -5114,8 +5168,10 @@ paths:
                 properties:
                   error_code:
                     type: string
+                    example: session_not_found
                   message:
                     type: string
+                    example: Session not found
         '401':
           description: unauthorized
           content:
@@ -5128,8 +5184,10 @@ paths:
                 properties:
                   error_code:
                     type: string
+                    example: unauthorized
                   message:
                     type: string
+                    example: Unauthorized
     patch:
       summary: "[ALPHA] Update a mobile session"
       tags:
@@ -5236,8 +5294,10 @@ paths:
                 properties:
                   error_code:
                     type: string
+                    example: validation_error
                   message:
                     type: string
+                    example: Request body is invalid
                   fields:
                     type: object
                     additionalProperties: true
@@ -5256,8 +5316,10 @@ paths:
                 properties:
                   error_code:
                     type: string
+                    example: session_not_found
                   message:
                     type: string
+                    example: Session not found
         '401':
           description: unauthorized
           content:
@@ -5270,8 +5332,10 @@ paths:
                 properties:
                   error_code:
                     type: string
+                    example: unauthorized
                   message:
                     type: string
+                    example: Unauthorized
       requestBody:
         content:
           application/json:
@@ -5496,8 +5560,10 @@ paths:
                 properties:
                   error_code:
                     type: string
+                    example: session_not_found
                   message:
                     type: string
+                    example: Session not found
         '401':
           description: unauthorized
           content:
@@ -5510,8 +5576,10 @@ paths:
                 properties:
                   error_code:
                     type: string
+                    example: unauthorized
                   message:
                     type: string
+                    example: Unauthorized
     post:
       summary: "[ALPHA] Send binary measurements for a mobile session"
       tags:
@@ -5588,8 +5656,10 @@ paths:
                 properties:
                   error_code:
                     type: string
+                    example: unsupported_sensor_type
                   message:
                     type: string
+                    example: session has no stream for sensor_type_id 99
         '413':
           description: payload larger than one request may carry
           content:
@@ -5602,8 +5672,10 @@ paths:
                 properties:
                   error_code:
                     type: string
+                    example: payload_too_large
                   message:
                     type: string
+                    example: measurement count exceeds 3000
         '404':
           description: session not found
           content:
@@ -5616,8 +5688,10 @@ paths:
                 properties:
                   error_code:
                     type: string
+                    example: session_not_found
                   message:
                     type: string
+                    example: Session not found
         '401':
           description: unauthorized
           content:
@@ -5630,8 +5704,10 @@ paths:
                 properties:
                   error_code:
                     type: string
+                    example: unauthorized
                   message:
                     type: string
+                    example: Unauthorized
       requestBody:
         content:
           application/octet-stream:
