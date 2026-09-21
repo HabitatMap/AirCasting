@@ -58,7 +58,7 @@ ActiveRecord::Schema[7.0].define(version: 2026_09_01_120000) do
     t.string "name"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.bigint "user_id"
+    t.bigint "user_id", null: false
     t.index ["user_id", "mac_address"], name: "index_devices_on_user_id_and_mac_address", unique: true
     t.index ["user_id"], name: "index_devices_on_user_id"
   end
