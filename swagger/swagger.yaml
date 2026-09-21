@@ -3562,15 +3562,9 @@ paths:
       summary: "[ALPHA] Update a fixed session"
       tags:
       - 'Mobile app: Fixed sessions'
-      description: |
-        **PATCH only — `PUT` is not routed.** An omitted field is left alone.
-        Nothing else about a fixed session is editable: `is_indoor`,
-        `contribute`, `time_zone`, `latitude`/`longitude` and the device are
-        all set once at create.
+      description: 'Empty `tag_list` clears the list
 
-        `version` is server-owned. It moves only when something actually
-        changed, so re-sending the same title, or the same tags in another
-        order, leaves it alone.
+        '
       parameters:
       - name: uuid
         in: path
@@ -4504,12 +4498,6 @@ paths:
       tags:
       - 'Mobile app: Mobile sessions'
       description: |+
-        **PATCH only — `PUT` is not routed.** An omitted field is left alone.
-
-        The session's `version` moves only when something actually changed, so
-        re-sending the text a note already has does not trigger a sync across the
-        account.
-
         The `photo` bytes must decode to an `image/*`; the declared content type is
         ignored. Read it back as `photo_location`. An oversized `Content-Length` is
         refused with `413` before the body is parsed.
@@ -5353,13 +5341,9 @@ paths:
       summary: "[ALPHA] Update a mobile session"
       tags:
       - 'Mobile app: Mobile sessions'
-      description: |
-        **PATCH only — `PUT` is not routed.** An omitted field is left alone. Notes
-        are edited through `/{uuid}/notes`; nothing else about a session is editable.
+      description: 'Empty `tag_list` clears the list
 
-        `version` is server-owned and tells the account's other devices to
-        re-download the session. It moves only when something actually changed, so
-        re-sending the same title, or the same tags in another order, leaves it alone.
+        '
       parameters:
       - name: uuid
         in: path

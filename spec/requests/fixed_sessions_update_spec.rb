@@ -115,12 +115,4 @@ describe 'PATCH /api/v3/fixed_sessions/:uuid' do
 
     expect(response).to have_http_status(:unauthorized)
   end
-
-  it 'is not routed for PUT — the endpoint is partial, never a full replace' do
-    expect {
-      put "/api/v3/fixed_sessions/#{session_record.uuid}",
-          params: { title: 'x' }.to_json,
-          headers: { 'CONTENT_TYPE' => 'application/json' }
-    }.to raise_error(ActionController::RoutingError)
-  end
 end

@@ -500,14 +500,7 @@ RSpec.describe 'AirBeamMini Fixed Sessions Binary Flow', type: :request do
       consumes 'application/json'
       produces 'application/json'
       description <<~DESC
-        **PATCH only — `PUT` is not routed.** An omitted field is left alone.
-        Nothing else about a fixed session is editable: `is_indoor`,
-        `contribute`, `time_zone`, `latitude`/`longitude` and the device are
-        all set once at create.
-
-        `version` is server-owned. It moves only when something actually
-        changed, so re-sending the same title, or the same tags in another
-        order, leaves it alone.
+        Empty `tag_list` clears the list
       DESC
 
       parameter name: :uuid, in: :path, type: :string, required: true
