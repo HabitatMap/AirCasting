@@ -14,7 +14,8 @@ RSpec.describe 'AirBeamMini Fixed Sessions Binary Flow', type: :request do
       tags 'Mobile app: Fixed sessions'
       produces 'application/json'
       description <<~DESC
-        Ordered by creation, oldest first.
+        Ordered by creation, newest first — so page 1 holds the most recent
+        sessions and can be rendered while later pages load.
       DESC
 
       parameter name: :Authorization, in: :header, type: :string, required: true,

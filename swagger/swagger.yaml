@@ -2978,9 +2978,9 @@ paths:
       summary: "[ALPHA] List the signed-in user's fixed sessions"
       tags:
       - 'Mobile app: Fixed sessions'
-      description: 'Ordered by creation, oldest first.
-
-        '
+      description: |
+        Ordered by creation, newest first — so page 1 holds the most recent
+        sessions and can be rendered while later pages load.
       parameters:
       - name: Authorization
         in: header
@@ -4829,8 +4829,9 @@ paths:
       tags:
       - 'Mobile app: Mobile sessions'
       description: |
-        Ordered by upload time, oldest first — not recording time. Sort by
-        `start_time` client-side to display them in recording order.
+        Ordered by upload time, newest first — not recording time. Page 1 holds
+        the most recently uploaded sessions and can be rendered while later pages
+        load. Sort by `start_time` client-side to display them in recording order.
 
         The list is authoritative: walk it to the last page, and a session the
         client holds locally but never saw has been deleted server-side.
