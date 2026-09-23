@@ -17,8 +17,9 @@ RSpec.describe 'AirBeam Mobile Sessions', type: :request do
       tags 'Mobile app: Mobile sessions'
       produces 'application/json'
       description <<~DESC
-        Ordered by upload time, oldest first — not recording time. Sort by
-        `start_time` client-side to display them in recording order.
+        Ordered by upload time, newest first — not recording time. Page 1 holds
+        the most recently uploaded sessions and can be rendered while later pages
+        load. Sort by `start_time` client-side to display them in recording order.
 
         The list is authoritative: walk it to the last page, and a session the
         client holds locally but never saw has been deleted server-side.

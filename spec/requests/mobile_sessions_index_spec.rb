@@ -54,7 +54,7 @@ describe 'GET /api/v3/mobile_sessions' do
         seen.concat(response.parsed_body['sessions'].map { |s| s['uuid'] })
       end
 
-      expect(seen).to eq(created.map(&:uuid))
+      expect(seen).to eq(created.reverse.map(&:uuid))
     end
 
     it 'answers a page past the end with an empty list and an honest total' do
