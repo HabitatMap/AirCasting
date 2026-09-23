@@ -3,10 +3,17 @@ class SessionsRepository
     Session.includes(streams: :threshold_set).find_by(uuid: uuid)
   end
 
+  # Feeds Timelapse::ClustersCreator, which clusters the fixed map. FixedSession,
+  # not Session: mobile rows are excluded today only because their
+  # last_measurement_at is NULL and NULL fails every comparison, which stops
+  # being true once the column is populated for them.
   def active_in_last_7_days
-    Session.where('last_measurement_at > ?', Time.current - 7.days)
+    FixedSession.where('last_measurement_at > ?', Time.current - 7.days)
   end
 
+  # The `type` filter is explicit for the same reason as above: the method name
+  # says fixed, but raw SQL against `sessions` has no STI default, so it was only
+  # fixed-only while mobile last_measurement_at was NULL.
   def fixed_active_government_sessions(
     sensor_name:,
     west:,
@@ -20,7 +27,8 @@ class SessionsRepository
       WITH recent_sessions AS (
         SELECT id, latitude, longitude, last_measurement_at, end_time_local, start_time_local, is_indoor, title, uuid
         FROM sessions
-        WHERE last_measurement_at > CURRENT_TIMESTAMP - INTERVAL '24 hours'
+        WHERE type = 'FixedSession'
+          AND last_measurement_at > CURRENT_TIMESTAMP - INTERVAL '24 hours'
           AND latitude BETWEEN #{south} AND #{north}
           AND (
             (#{west} <= #{east} AND longitude BETWEEN #{west} AND #{east})
