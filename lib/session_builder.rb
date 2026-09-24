@@ -21,6 +21,7 @@ class SessionBuilder
 
     data = build_local_start_and_end_time(data)
     data[:time_zone] = time_zone_for(data)
+    data[:finished_at] = finished_at_for(data)
 
     allowed = Session.attribute_names + %w[notes_attributes tag_list user]
     filtered = data.select { |k, _| allowed.include?(k.to_s) }
@@ -157,6 +158,13 @@ class SessionBuilder
     true
   rescue TZInfo::InvalidTimezoneIdentifier
     false
+  end
+
+  # MobileSession sent as already finished here
+  def finished_at_for(data)
+    return nil unless data[:type].to_s == 'MobileSession'
+
+    Utils.from_local_as_utc(data[:end_time_local], data[:time_zone])
   end
 
   def build_local_start_and_end_time(session_data)

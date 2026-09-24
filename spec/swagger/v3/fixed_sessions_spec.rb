@@ -67,6 +67,8 @@ RSpec.describe 'AirBeamMini Fixed Sessions Binary Flow', type: :request do
                        end_time: { type: :integer, format: :int64, nullable: true, example: 1_786_707_000_000 },
                        last_measurement_at: { type: :integer, format: :int64, nullable: true, example: 1_786_707_000_000,
                                               description: 'Epoch ms (UTC); null until the sensor first reports' },
+                       finished_at: { type: :integer, format: :int64, nullable: true, example: 1_786_707_060_000,
+                                      description: 'Epoch ms (UTC) the owner decommissioned the monitor; null ' },
                        version: { type: :integer },
                        latitude: { type: :number, format: :float, example: 40.7128,
                                    description: 'Indoor sessions carry the placeholder 200' },
@@ -432,6 +434,8 @@ RSpec.describe 'AirBeamMini Fixed Sessions Binary Flow', type: :request do
                  start_time: { type: :integer, format: :int64, nullable: true, example: 1_786_663_800_000 },
                  end_time: { type: :integer, format: :int64, nullable: true, example: 1_786_707_000_000 },
                  last_measurement_at: { type: :integer, format: :int64, nullable: true, example: 1_786_707_000_000 },
+                 finished_at: { type: :integer, format: :int64, nullable: true, example: 1_786_707_060_000,
+                                description: 'Epoch ms (UTC); null while the monitor is still deployed' },
                  version: { type: :integer },
                  latitude: { type: :number, format: :float },
                  longitude: { type: :number, format: :float },
@@ -532,6 +536,8 @@ RSpec.describe 'AirBeamMini Fixed Sessions Binary Flow', type: :request do
                  start_time: { type: :integer, format: :int64, nullable: true, example: 1_786_663_800_000 },
                  end_time: { type: :integer, format: :int64, nullable: true, example: 1_786_707_000_000 },
                  last_measurement_at: { type: :integer, format: :int64, nullable: true, example: 1_786_707_000_000 },
+                 finished_at: { type: :integer, format: :int64, nullable: true, example: 1_786_707_060_000,
+                                description: 'Epoch ms (UTC); null while the monitor is still deployed' },
                  version: { type: :integer },
                  latitude: { type: :number, format: :float },
                  longitude: { type: :number, format: :float },
@@ -710,6 +716,73 @@ RSpec.describe 'AirBeamMini Fixed Sessions Binary Flow', type: :request do
                properties: {
                  error_code: { type: :string, example: 'unauthorized' },
                  message: { type: :string, example: 'Unauthorized' }
+               }
+
+        let(:uuid) { 'any-uuid' }
+        let(:Authorization) { 'Bearer invalid' }
+        run_test!
+      end
+    end
+  end
+
+  path '/api/v3/fixed_sessions/{uuid}/finish' do
+    post '[ALPHA] Finish a fixed session' do
+      tags 'Mobile app: Fixed sessions'
+      produces 'application/json'
+      description <<~DESC
+        Decommissions the monitor and stamps `finished_at`.
+        Any measurements with timestamp after finished_at sent will be discarded.
+      DESC
+
+      parameter name: :uuid, in: :path, type: :string, required: true
+      parameter name: :Authorization, in: :header, type: :string, required: true,
+                description: 'Bearer <user_token>'
+
+      response '200', 'finished session — same shape as show' do
+        schema type: :object,
+               required: %w[uuid finished_at version],
+               properties: {
+                 uuid: { type: :string },
+                 title: { type: :string },
+                 finished_at: { type: :integer, format: :int64, example: 1_786_707_060_000,
+                                description: 'Epoch ms (UTC). A real instant, not a local wall clock.' },
+                 last_measurement_at: { type: :integer, format: :int64, nullable: true,
+                                        example: 1_786_707_000_000,
+                                        description: 'Left as it was — finishing does not erase the history' },
+                 version: { type: :integer, description: 'Bumped on the call that actually finished the session' },
+                 tag_list: { type: :string },
+                 share_url: { type: :string, example: 'https://aircasting.org/s/ab12c' },
+                 device: { type: :object, nullable: true, additionalProperties: true },
+                 streams: { type: :object, additionalProperties: { type: :object, additionalProperties: true } },
+               }
+
+        let(:user) { create(:user) }
+        let(:Authorization) { "Bearer #{user.authentication_token}" }
+        let(:session_record) { create(:fixed_session, user: user) }
+        let(:uuid) { session_record.uuid }
+        run_test!
+      end
+
+      response '404', 'session not found' do
+        schema type: :object,
+               required: %w[error_code message],
+               properties: {
+                 error_code: { type: :string, example: 'session_not_found' },
+                 message: { type: :string, example: 'Session not found' },
+               }
+
+        let(:user) { create(:user) }
+        let(:Authorization) { "Bearer #{user.authentication_token}" }
+        let(:uuid) { 'does-not-exist' }
+        run_test!
+      end
+
+      response '401', 'unauthorized' do
+        schema type: :object,
+               required: %w[error_code message],
+               properties: {
+                 error_code: { type: :string, example: 'unauthorized' },
+                 message: { type: :string, example: 'Unauthorized' },
                }
 
         let(:uuid) { 'any-uuid' }

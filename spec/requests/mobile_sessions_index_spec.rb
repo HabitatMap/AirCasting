@@ -32,6 +32,18 @@ describe 'GET /api/v3/mobile_sessions' do
       expect(json['sessions'].first['streams']).to have_key('AirBeamMini-PM2.5')
     end
 
+    it 'reports finished_at on the list, so a client can tell live from ended' do
+      live = create(:mobile_session, user: user)
+      declared = Time.utc(2026, 5, 23, 11, 58, 40)
+      ended = create(:mobile_session, user: user, finished_at: declared)
+
+      get_sessions
+
+      by_uuid = response.parsed_body['sessions'].index_by { |s| s['uuid'] }
+      expect(by_uuid.fetch(live.uuid)['finished_at']).to be_nil
+      expect(by_uuid.fetch(ended.uuid)['finished_at']).to eq(declared.to_i * 1_000)
+    end
+
     it 'returns only the requesting user, ignoring fixed sessions' do
       mine = create(:mobile_session, user: user)
       create(:mobile_session)

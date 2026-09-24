@@ -34,6 +34,7 @@ module FixedSessions
         start_time: local_epoch_ms(session.start_time_local, session.time_zone),
         end_time: local_epoch_ms(session.end_time_local, session.time_zone),
         last_measurement_at: epoch_ms(session.last_measurement_at),
+        finished_at: epoch_ms(session.finished_at),
         version: session.version,
         latitude: session.latitude,
         longitude: session.longitude,
@@ -60,8 +61,9 @@ module FixedSessions
       Utils.from_local_as_utc(local_as_utc, time_zone).to_i * 1_000
     end
 
-    # `last_measurement_at` is written from `time_with_time_zone.utc` — already a
-    # real instant, unlike the `*_local` columns above.
+    # `last_measurement_at` is written from `time_with_time_zone.utc`, and
+    # `finished_at` is a timestamptz — both already real instants, unlike the
+    # `*_local` columns above, so neither needs a zone to interpret.
     def epoch_ms(timestamp)
       timestamp && timestamp.to_i * 1_000
     end

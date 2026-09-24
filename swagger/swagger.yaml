@@ -3082,6 +3082,13 @@ paths:
                           example: 1786707000000
                           description: Epoch ms (UTC); null until the sensor first
                             reports
+                        finished_at:
+                          type: integer
+                          format: int64
+                          nullable: true
+                          example: 1786707060000
+                          description: 'Epoch ms (UTC) the owner decommissioned the
+                            monitor; null '
                         version:
                           type: integer
                         latitude:
@@ -3490,6 +3497,12 @@ paths:
                     format: int64
                     nullable: true
                     example: 1786707000000
+                  finished_at:
+                    type: integer
+                    format: int64
+                    nullable: true
+                    example: 1786707060000
+                    description: Epoch ms (UTC); null while the monitor is still deployed
                   version:
                     type: integer
                   latitude:
@@ -3628,6 +3641,12 @@ paths:
                     format: int64
                     nullable: true
                     example: 1786707000000
+                  finished_at:
+                    type: integer
+                    format: int64
+                    nullable: true
+                    example: 1786707060000
+                    description: Epoch ms (UTC); null while the monitor is still deployed
                   version:
                     type: integer
                   latitude:
@@ -3806,6 +3825,103 @@ paths:
                   message:
                     type: string
                     example: Could not delete this session
+        '401':
+          description: unauthorized
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - error_code
+                - message
+                properties:
+                  error_code:
+                    type: string
+                    example: unauthorized
+                  message:
+                    type: string
+                    example: Unauthorized
+  "/api/v3/fixed_sessions/{uuid}/finish":
+    post:
+      summary: "[ALPHA] Finish a fixed session"
+      tags:
+      - 'Mobile app: Fixed sessions'
+      description: |
+        Decommissions the monitor and stamps `finished_at`.
+        Any measurements with timestamp after finished_at sent will be discarded.
+      parameters:
+      - name: uuid
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: Authorization
+        in: header
+        required: true
+        description: Bearer <user_token>
+        schema:
+          type: string
+      responses:
+        '200':
+          description: finished session — same shape as show
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - uuid
+                - finished_at
+                - version
+                properties:
+                  uuid:
+                    type: string
+                  title:
+                    type: string
+                  finished_at:
+                    type: integer
+                    format: int64
+                    example: 1786707060000
+                    description: Epoch ms (UTC). A real instant, not a local wall
+                      clock.
+                  last_measurement_at:
+                    type: integer
+                    format: int64
+                    nullable: true
+                    example: 1786707000000
+                    description: Left as it was — finishing does not erase the history
+                  version:
+                    type: integer
+                    description: Bumped on the call that actually finished the session
+                  tag_list:
+                    type: string
+                  share_url:
+                    type: string
+                    example: https://aircasting.org/s/ab12c
+                  device:
+                    type: object
+                    nullable: true
+                    additionalProperties: true
+                  streams:
+                    type: object
+                    additionalProperties:
+                      type: object
+                      additionalProperties: true
+        '404':
+          description: session not found
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - error_code
+                - message
+                properties:
+                  error_code:
+                    type: string
+                    example: session_not_found
+                  message:
+                    type: string
+                    example: Session not found
         '401':
           description: unauthorized
           content:
@@ -4929,6 +5045,13 @@ paths:
                           format: int64
                           nullable: true
                           example: 1786707000000
+                        finished_at:
+                          type: integer
+                          format: int64
+                          nullable: true
+                          example: 1786707060000
+                          description: Epoch ms (UTC) the user declared the recording
+                            over; null while it is still running.
                         version:
                           type: integer
                         latitude:
@@ -5351,6 +5474,13 @@ paths:
                     format: int64
                     nullable: true
                     example: 1786707000000
+                  finished_at:
+                    type: integer
+                    format: int64
+                    nullable: true
+                    example: 1786707060000
+                    description: Epoch ms (UTC) the user declared the recording over;
+                      null while it is still running.
                   version:
                     type: integer
                   latitude:
@@ -5498,6 +5628,13 @@ paths:
                     type: string
                   version:
                     type: integer
+                  finished_at:
+                    type: integer
+                    format: int64
+                    nullable: true
+                    example: 1786707060000
+                    description: Epoch ms (UTC); null while the recording is still
+                      running. Not editable here — see POST /finish.
                   tag_list:
                     type: string
                     description: Tags joined with ", "
@@ -5703,6 +5840,131 @@ paths:
                   message:
                     type: string
                     example: Could not delete this session
+        '401':
+          description: unauthorized
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - error_code
+                - message
+                properties:
+                  error_code:
+                    type: string
+                    example: unauthorized
+                  message:
+                    type: string
+                    example: Unauthorized
+  "/api/v3/mobile_sessions/{uuid}/finish":
+    post:
+      summary: "[ALPHA] Finish a mobile session"
+      tags:
+      - 'Mobile app: Mobile sessions'
+      description: |
+        Declares the recording over and stamps `finished_at`.
+        Any measurements with timestamp after finished_at sent will be discarded.
+      parameters:
+      - name: uuid
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: Authorization
+        in: header
+        required: true
+        description: Bearer <user_token>
+        schema:
+          type: string
+      responses:
+        '200':
+          description: finished session — same shape as show
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - uuid
+                - finished_at
+                - version
+                properties:
+                  uuid:
+                    type: string
+                  title:
+                    type: string
+                  finished_at:
+                    type: integer
+                    format: int64
+                    example: 1786707060000
+                    description: Epoch ms (UTC). A real instant, not a local wall
+                      clock.
+                  version:
+                    type: integer
+                    description: Bumped on the call that actually finished the session
+                  tag_list:
+                    type: string
+                  share_url:
+                    type: string
+                    example: http://aircasting.org/s/ab12c
+                  device:
+                    type: object
+                    nullable: true
+                    additionalProperties: true
+                  streams:
+                    type: object
+                    additionalProperties:
+                      type: object
+                      additionalProperties: true
+                  notes:
+                    type: array
+                    description: Ordered by number, then id
+                    items:
+                      type: object
+                      required:
+                      - id
+                      properties:
+                        id:
+                          type: integer
+                          description: The note's identity — use it to address the
+                            note
+                        number:
+                          type: integer
+                          nullable: true
+                          description: 'Server-allocated ordering key, 0-based. Not
+                            an address: gaps are normal and a number can be reused
+                            after a delete.'
+                        text:
+                          type: string
+                        date:
+                          type: string
+                          description: Wall clock as the recording phone saw it
+                        latitude:
+                          type: number
+                          format: float
+                        longitude:
+                          type: number
+                          format: float
+                        photo_location:
+                          type: string
+                          nullable: true
+                          description: Full URL of the note photo (600px limit), or
+                            null when there is none
+        '404':
+          description: session not found
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - error_code
+                - message
+                properties:
+                  error_code:
+                    type: string
+                    example: session_not_found
+                  message:
+                    type: string
+                    example: Session not found
         '401':
           description: unauthorized
           content:

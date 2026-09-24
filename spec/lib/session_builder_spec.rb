@@ -110,6 +110,72 @@ describe SessionBuilder do
     end
   end
 
+  describe 'finished_at' do
+    it 'stores a mobile upload as already finished, at its end time' do
+      # `end_time` is a naive wall clock carrying a misleading Z, so the instant
+      # is the session zone's 13:58:40 — 11:58:40 UTC in CEST — not 13:58:40 UTC.
+      # Getting this wrong would be invisible for a UTC user and two hours off here.
+      allow(TimeZoneFinderWrapper.instance)
+        .to receive(:time_zone_at).and_return('Europe/Warsaw')
+
+      subject.build!
+
+      expect(Session.last.finished_at).to eq(Time.utc(2024, 5, 23, 11, 58, 40))
+      expect(Session.last.end_time_local.strftime('%FT%T')).to eq('2024-05-23T13:58:40')
+    end
+
+    context 'when the session zone is elsewhere' do
+      let(:session_data) { super().merge(time_zone: 'America/New_York') }
+
+      it 'reads the end time in the session zone, not the server zone' do
+        subject.build!
+
+        expect(Session.last.finished_at).to eq(Time.utc(2024, 5, 23, 17, 58, 40))
+      end
+    end
+
+    context 'when the payload is a fixed session' do
+      # The realtime path creates an *empty* fixed session that is about to start
+      # streaming. Its end_time is a placeholder, and the recording has not even
+      # begun — the one row this builder makes that must not be born finished.
+      let(:session_data) do
+        super().merge(type: 'FixedSession', streams: {})
+      end
+
+      it 'leaves it running' do
+        subject.build!
+
+        expect(Session.last).to be_a(FixedSession)
+        expect(Session.last.finished_at).to be_nil
+      end
+    end
+
+    it 'ignores a finished_at the client supplied' do
+      # `finished_at` is in Session.attribute_names, so it passes the mass
+      # assignment filter. Without the unconditional write a client could backdate
+      # its own sessions, or hide a running one by finishing it on arrival.
+      backdated = session_data.deep_dup.merge(finished_at: '1999-01-01T00:00:00Z')
+      allow(TimeZoneFinderWrapper.instance)
+        .to receive(:time_zone_at).and_return('Europe/Warsaw')
+
+      SessionBuilder.new(backdated, [], user).build!
+
+      expect(Session.last.finished_at).to eq(Time.utc(2024, 5, 23, 11, 58, 40))
+    end
+
+    it 'ignores a finished_at the client supplied on a fixed session' do
+      forged = session_data.deep_dup.merge(
+        type: 'FixedSession',
+        streams: {},
+        finished_at: '1999-01-01T00:00:00Z',
+      )
+
+      SessionBuilder.new(forged, [], user).build!
+
+      expect(Session.last.finished_at).to be_nil
+    end
+  end
+
   describe '.normalize_tags' do
     it 'replaces spaces and commas with commas as tag delimiters' do
       expect(SessionBuilder.normalize_tags('jola misio, foo')).to eq(
