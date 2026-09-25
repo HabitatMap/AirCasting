@@ -15,7 +15,8 @@ RSpec.describe 'V3 Fixed streams', type: :request do
           min low middle high max
         ],
         properties: {
-          active: { type: :boolean, example: true },
+          active: { type: :boolean, example: true,
+                    description: 'False once the owner finishes the session, and otherwise false after 24h of silence.' },
           title: { type: :string, example: 'Rooftop monitor' },
           latitude: { type: :number, format: :float, example: 40.7128 },
           longitude: { type: :number, format: :float, example: -74.006 },

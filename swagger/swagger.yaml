@@ -4280,6 +4280,8 @@ paths:
                       active:
                         type: boolean
                         example: true
+                        description: False once the owner finishes the session, and
+                          otherwise false after 24h of silence.
                       title:
                         type: string
                         example: Rooftop monitor
