@@ -119,7 +119,7 @@ module FixedSessions
           first_measurement = all_records.min_by(&:time_with_time_zone)
           last_measurement = all_records.max_by(&:time_with_time_zone)
 
-          fixed_sessions_repository.update_end_timestamps!(
+          fixed_sessions_repository.update_timestamps_after_ingest!(
             session: session,
             last_measurement: last_measurement,
           )

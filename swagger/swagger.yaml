@@ -3084,8 +3084,11 @@ paths:
                           format: int64
                           nullable: true
                           example: 1786707000000
-                          description: Epoch ms (UTC); null until the sensor first
-                            reports
+                          description: 'Epoch ms (UTC) the monitor last reached the
+                            server — not the reading''s own timestamp, so a device
+                            syncing an old backlog reports now. Null until it first
+                            reports. (Government stations carry the other meaning
+                            here: the latest reading''s time.)'
                         finished_at:
                           type: integer
                           format: int64

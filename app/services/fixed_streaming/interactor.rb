@@ -111,15 +111,15 @@ module FixedStreaming
       )
     end
 
+    # Called for every stored batch, old readings included: the repository decides
+    # what moves. `end_time_local` only goes forward, `last_measurement_at` is the
+    # contact moment, so a backlog upload marks the AirBeam alive without
+    # rewriting the session's end.
     def update_session_end_timestamps(session, measurements)
-      last_measurement = measurements.max_by(&:time)
-
-      if last_measurement.time > session.end_time_local
-        fixed_sessions_repository.update_end_timestamps!(
-          session: session,
-          last_measurement: last_measurement,
-        )
-      end
+      fixed_sessions_repository.update_timestamps_after_ingest!(
+        session: session,
+        last_measurement: measurements.max_by(&:time),
+      )
     end
   end
 end

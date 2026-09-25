@@ -66,7 +66,7 @@ RSpec.describe 'AirBeamMini Fixed Sessions Binary Flow', type: :request do
                                      description: 'Epoch ms (UTC)' },
                        end_time: { type: :integer, format: :int64, nullable: true, example: 1_786_707_000_000 },
                        last_measurement_at: { type: :integer, format: :int64, nullable: true, example: 1_786_707_000_000,
-                                              description: 'Epoch ms (UTC); null until the sensor first reports' },
+                                              description: 'Epoch ms (UTC) the monitor last reached the server — not the reading\'s own timestamp, so a device syncing an old backlog reports now. Null until it first reports. (Government stations carry the other meaning here: the latest reading\'s time.)' },
                        finished_at: { type: :integer, format: :int64, nullable: true, example: 1_786_707_060_000,
                                       description: 'Epoch ms (UTC) the owner decommissioned the monitor; null ' },
                        version: { type: :integer },

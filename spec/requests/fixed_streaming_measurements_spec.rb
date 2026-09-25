@@ -64,8 +64,10 @@ describe 'POST api/v3/fixed_streaming/measurements' do
       expect(session.reload.end_time_local).to eq(
         Time.parse('2025-02-10 08:55:32'),
       )
-      expect(session.last_measurement_at).to eq(
-        Time.parse('2025-02-10 07:55:32'),
+      # The AirBeam rule: the moment it reached us, not the reading's own time
+      # (07:55:32 UTC here). A device syncing an old backlog is awake.
+      expect(session.last_measurement_at).to be_within(5.seconds).of(
+        Time.current,
       )
 
       ts = ThresholdSet.last

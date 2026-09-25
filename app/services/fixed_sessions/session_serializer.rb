@@ -61,8 +61,7 @@ module FixedSessions
       Utils.from_local_as_utc(local_as_utc, time_zone).to_i * 1_000
     end
 
-    # `last_measurement_at` is written from `time_with_time_zone.utc`, and
-    # `finished_at` is a timestamptz — both already real instants, unlike the
+    # `last_measurement_at` and `finished_at` are both real instants, unlike the
     # `*_local` columns above, so neither needs a zone to interpret.
     def epoch_ms(timestamp)
       timestamp && timestamp.to_i * 1_000
