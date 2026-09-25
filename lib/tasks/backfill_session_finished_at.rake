@@ -2,9 +2,12 @@
 # before Stage 4 exposes the `status` filter — otherwise `?status=active` returns
 # every mobile session a user has ever recorded.
 #
-# Every existing mobile session is a complete recording uploaded in one shot, so
-# all of them are finished. Only new v3 mobile sessions can legitimately be
-# unfinished, and none exist yet.
+# Every legacy mobile session is a complete recording uploaded in one shot by
+# SessionBuilder, which appends nothing afterwards, so all of them are finished.
+# A v3 mobile session can legitimately be mid-recording, and finishing one here
+# would arm the Stage 4b cutoff against its own phone — every later measurement
+# silently dropped. They are excluded below rather than assumed absent: the v3
+# mobile API has been on master since 42101b186 (2026-09-18).
 #
 #   bundle exec rake sessions:backfill_finished_at DRY_RUN=1
 #   bundle exec rake sessions:backfill_finished_at MAX_ID=50000
@@ -47,6 +50,17 @@ namespace :sessions do
     # which is exactly what happens when the ceiling is applied in two places.
     scope = MobileSession.where(finished_at: nil).where.not(end_time_local: nil)
     scope = scope.where(id: ..id_ceiling) if id_ceiling
+
+    # The v3 exclusion. `sensor_type_id` is the marker MobileSessions::Creator
+    # already uses to tell its own rows from SessionBuilder's in the same uuid
+    # space — legacy streams leave it NULL. The anti-join reads
+    # idx_streams_session_sensor_type_id, which is partial on
+    # `sensor_type_id IS NOT NULL` and therefore holds v3 streams only.
+    scope =
+      scope.where(
+        'NOT EXISTS (SELECT 1 FROM streams s WHERE s.session_id = sessions.id ' \
+        'AND s.sensor_type_id IS NOT NULL)',
+      )
 
     # An unrecognised zone raises mid-batch and kills the run after partial work.
     # Cheap to rule out once up front; the set can only grow, so this is checked

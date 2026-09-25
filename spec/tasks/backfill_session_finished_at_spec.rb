@@ -127,6 +127,29 @@ describe 'sessions:backfill_finished_at' do
       expect(session.reload.finished_at).to eq(declared)
     end
 
+    it 'skips a v3 mobile session, which may still be recording' do
+      # Finishing one arms the Stage 4b cutoff against the phone that owns it:
+      # every measurement it uploads afterwards is dropped, with no error the
+      # user or the app can see.
+      session = mobile_session('2024-05-23 13:58:40', 'Europe/Warsaw')
+      create(:stream, session: session, sensor_type_id: 1)
+
+      run_task
+
+      expect(session.reload.finished_at).to be_nil
+    end
+
+    it 'still finishes a legacy session that has streams' do
+      # The exclusion keys on sensor_type_id, not on having streams at all —
+      # otherwise it would skip almost every row the task exists to write.
+      session = mobile_session('2024-05-23 13:58:40', 'Europe/Warsaw')
+      create(:stream, session: session, sensor_type_id: nil)
+
+      run_task
+
+      expect(session.reload.finished_at).to eq(Time.utc(2024, 5, 23, 11, 58, 40))
+    end
+
     it 'does not bump version or updated_at' do
       # version is the mobile sync token — bumping it would push every backfilled
       # session to every syncing client.
