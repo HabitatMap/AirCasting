@@ -39,18 +39,19 @@ RSpec.describe MobileSessions::List do
   end
 
   describe 'ordering' do
-    # Ordering is by id ASC, not start_time_local: id is unique, so a page
+    # Ordering is by id DESC, not start_time_local: id is unique, so a page
     # boundary can never split or duplicate a tie. start_time_local is NULL for
     # every session that has not uploaded yet, which made every such session a
-    # tie with every other.
-    it 'returns oldest-created first and is stable across equal start times' do
+    # tie with every other. Descending so page 1 holds the newest sessions and
+    # the client can render them first.
+    it 'returns newest-created first and is stable across equal start times' do
       first  = create(:mobile_session, user: user, start_time_local: nil, end_time_local: nil)
       second = create(:mobile_session, user: user, start_time_local: nil, end_time_local: nil)
       third  = create(:mobile_session, user: user, start_time_local: nil, end_time_local: nil)
 
       result = sessions_in(described_class.new(user: user).call)
 
-      expect(result.map { |s| s[:uuid] }).to eq([first.uuid, second.uuid, third.uuid])
+      expect(result.map { |s| s[:uuid] }).to eq([third.uuid, second.uuid, first.uuid])
     end
 
     it 'partitions cleanly across pages when every session has the same start time' do
@@ -61,7 +62,7 @@ RSpec.describe MobileSessions::List do
       page3 = sessions_in(described_class.new(user: user, page: 3, per_page: 2).call)
 
       uuids = (page1 + page2 + page3).map { |s| s[:uuid] }
-      expect(uuids).to eq(created.map(&:uuid))
+      expect(uuids).to eq(created.reverse.map(&:uuid))
       expect(uuids.uniq).to eq(uuids)
     end
   end
@@ -85,29 +86,48 @@ RSpec.describe MobileSessions::List do
       seen
     end
 
-    it 'does not skip or repeat a session when one is created mid-walk' do
+    # Residue of descending + offset paging, the price of newest-first: the new
+    # row takes the highest id and lands on page 1, which the walk has already
+    # passed, so every later page shifts by one. Nothing live is lost — every
+    # pre-existing session is still seen — but one repeats, and the new session
+    # waits for the next walk. Harmless under the "absent means deleted" contract,
+    # which only cares about omissions.
+    it 'repeats one session and defers the new one when a session is created mid-walk' do
       existing = create_list(:mobile_session, 5, user: user)
+      created_mid_walk = nil
 
-      seen = walk(per_page: 2, after_first_page: -> { create(:mobile_session, user: user) })
+      seen = walk(
+        per_page: 2,
+        after_first_page: -> { created_mid_walk = create(:mobile_session, user: user) },
+      )
 
       expect(seen).to include(*existing.map(&:uuid))
-      expect(seen.uniq).to eq(seen)
-      # Ascending puts the new id past the cursor, so the walk still reaches it.
-      expect(seen).to eq(user.mobile_sessions.order(:id).pluck(:uuid))
+      expect(seen).not_to include(created_mid_walk.uuid)
+      expect(seen.size - seen.uniq.size).to eq(1)
     end
 
-    # Known residue of offset paging, documented rather than fixed: deleting a
-    # row shifts the ones behind it into the window already stepped over. Needs
-    # a user past one page (p99 is well under per_page) deleting from another
-    # device mid-walk, and the next walk returns the session. Keyset paging is
-    # the fix if that ever stops being true.
-    it 'can skip one live session when another is deleted mid-walk' do
+    # The omission case, which the contract does care about: deleting a session
+    # the walk has already passed pulls the rows behind it forward, over the
+    # cursor. Needs an account past one page (p99 is well under per_page)
+    # deleting from another device mid-walk, and the next walk returns the
+    # session. Keyset paging is the fix if that ever stops being true.
+    it 'can skip one live session when a recent one is deleted mid-walk' do
+      create_list(:mobile_session, 5, user: user)
+
+      seen = walk(per_page: 2, after_first_page: -> { user.mobile_sessions.order(:id).last.destroy! })
+
+      skipped = user.mobile_sessions.pluck(:uuid) - seen
+      expect(skipped.size).to eq(1)
+    end
+
+    # The mirror image: deleting from the tail of the order is harmless, because
+    # everything behind it has already been walked.
+    it 'skips nothing when the oldest session is deleted mid-walk' do
       create_list(:mobile_session, 5, user: user)
 
       seen = walk(per_page: 2, after_first_page: -> { user.mobile_sessions.order(:id).first.destroy! })
 
-      skipped = user.mobile_sessions.pluck(:uuid) - seen
-      expect(skipped.size).to eq(1)
+      expect(user.mobile_sessions.pluck(:uuid) - seen).to be_empty
     end
   end
 

@@ -8,11 +8,18 @@ module MobileSessions
   # Ordered by id, not start_time_local: the latter is NULL until measurements
   # land, so it ties every fresh session and offset paging drops and repeats rows.
   #
-  # Ascending, so a session created mid-walk takes the highest id and lands past
-  # the cursor instead of shifting the pages already fetched. Residue: a session
-  # deleted mid-walk shifts later rows up, so one live session can be skipped and
-  # read as deleted — self-heals on the next walk; keyset paging is the fix if
-  # that ever stops being rare.
+  # Descending, so the newest sessions are on page 1 and a client can render them
+  # while the older pages load behind it.
+  #
+  # Residue of descending + offset paging, both self-healing on the next walk.
+  # A session created mid-walk takes the highest id and lands on page 1, which
+  # the walk has already passed: every later page shifts by one, so one session
+  # repeats and the new one waits for the next walk. Nothing is omitted, so the
+  # "absent means deleted" contract holds. A session deleted mid-walk is the one
+  # that can omit — it pulls the rows behind it forward over the cursor, so one
+  # live session can be skipped and read as deleted. Acceptable because
+  # DEFAULT_PER_PAGE is 500, so only an account above that ever pages at all;
+  # keyset paging is the fix if that stops being rare.
   class List
     MAX_PER_PAGE = Api::ListMobileSessionsContract::MAX_PER_PAGE
     DEFAULT_PER_PAGE = MAX_PER_PAGE
@@ -58,7 +65,7 @@ module MobileSessions
     def scope
       base
         .includes(:device, :tags, streams: :threshold_set)
-        .order(id: :asc)
+        .order(id: :desc)
     end
 
     def paginate(relation)

@@ -36,6 +36,18 @@ describe 'GET /api/v3/fixed_sessions' do
       )
     end
 
+    it 'reports finished_at on the list, so a client can tell live from retired' do
+      live = create(:fixed_session, user: user)
+      declared = Time.utc(2026, 5, 23, 11, 58, 40)
+      retired = create(:fixed_session, user: user, finished_at: declared)
+
+      get_sessions
+
+      by_uuid = response.parsed_body['sessions'].index_by { |s| s['uuid'] }
+      expect(by_uuid.fetch(live.uuid)['finished_at']).to be_nil
+      expect(by_uuid.fetch(retired.uuid)['finished_at']).to eq(declared.to_i * 1_000)
+    end
+
     it 'returns only the requesting user, ignoring mobile sessions' do
       mine = create(:fixed_session, user: user)
       create(:fixed_session)
@@ -67,7 +79,7 @@ describe 'GET /api/v3/fixed_sessions' do
         seen.concat(response.parsed_body['sessions'].map { |s| s['uuid'] })
       end
 
-      expect(seen).to eq(created.map(&:uuid))
+      expect(seen).to eq(created.reverse.map(&:uuid))
     end
 
     it 'answers a page past the end with an empty list and an honest total' do

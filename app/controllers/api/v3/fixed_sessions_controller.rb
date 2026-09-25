@@ -27,6 +27,13 @@ module Api
         ).call, status: :ok
       end
 
+      def show
+        session = find_owned_session
+        return session_not_found unless session
+
+        render json: serialize(session), status: :ok
+      end
+
       def create
         contract = Api::CreateFixedSessionContract.new.call(
           params.to_unsafe_h.deep_symbolize_keys,
@@ -57,6 +64,33 @@ module Api
         end
       end
 
+      def update
+        session = find_owned_session
+        return session_not_found unless session
+
+        contract = Api::UpdateFixedSessionContract.new.call(
+          params.to_unsafe_h.deep_symbolize_keys,
+        )
+        if contract.failure?
+          return render_validation_error(contract.errors)
+        end
+
+        result = ::FixedSessions::Updater.new.call(session: session, data: contract.to_h)
+        return render_failure(result) unless result.success?
+
+        render json: serialize(find_owned_session), status: :ok
+      end
+
+      def finish
+        session = find_owned_session
+        return session_not_found unless session
+
+        result = ::FixedSessions::Finisher.new.call(session: session)
+        return render_failure(result) unless result.success?
+
+        render json: serialize(find_owned_session), status: :ok
+      end
+
       def destroy
         session = current_user.fixed_sessions.by_uuid(params[:uuid]).first
         return already_deleted? ? head(:no_content) : session_not_found unless session
@@ -68,6 +102,24 @@ module Api
       end
 
       private
+
+      def find_owned_session
+        current_user
+          .fixed_sessions
+          .includes(:device, :tags, streams: :threshold_set)
+          .by_uuid(params[:uuid])
+          .first
+      end
+
+      def serialize(session)
+        latest_measurements = FixedMeasurementsRepository.new.latest_by_stream_id(
+          stream_ids: session.streams.map(&:id),
+        )
+        ::FixedSessions::SessionSerializer.new.call(
+          session,
+          latest_measurements: latest_measurements,
+        )
+      end
 
       def session_not_found
         render_error(ErrorCodes::SESSION_NOT_FOUND, 'Session not found')

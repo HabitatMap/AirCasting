@@ -12,22 +12,14 @@ RSpec.describe 'AirBeam Mobile Sessions', type: :request do
     payload + [checksum].pack('C')
   end
 
-  ERROR_SCHEMA = {
-    type: :object,
-    required: %w[error_code message],
-    properties: {
-      error_code: { type: :string },
-      message: { type: :string }
-    }
-  }.freeze
-
   path '/api/v3/mobile_sessions' do
     get "[ALPHA] List the signed-in user's mobile sessions" do
       tags 'Mobile app: Mobile sessions'
       produces 'application/json'
       description <<~DESC
-        Ordered by upload time, oldest first — not recording time. Sort by
-        `start_time` client-side to display them in recording order.
+        Ordered by upload time, newest first — not recording time. Page 1 holds
+        the most recently uploaded sessions and can be rendered while later pages
+        load. Sort by `start_time` client-side to display them in recording order.
 
         The list is authoritative: walk it to the last page, and a session the
         client holds locally but never saw has been deleted server-side.
@@ -81,6 +73,9 @@ RSpec.describe 'AirBeam Mobile Sessions', type: :request do
             start_time: { type: :integer, format: :int64, nullable: true, example: 1_786_663_800_000,
                           description: 'Epoch ms (UTC); null until the first measurements arrive' },
             end_time: { type: :integer, format: :int64, nullable: true, example: 1_786_707_000_000 },
+            finished_at: { type: :integer, format: :int64, nullable: true, example: 1_786_707_060_000,
+                           description: 'Epoch ms (UTC) the user declared the recording over; null while it is ' \
+                                        'still running.' },
             version: { type: :integer },
             latitude: { type: :number, format: :float, nullable: true },
             longitude: { type: :number, format: :float, nullable: true },
@@ -338,7 +333,12 @@ RSpec.describe 'AirBeam Mobile Sessions', type: :request do
       end
 
       response '409', 'uuid already in use' do
-        schema ERROR_SCHEMA
+        schema type: :object,
+               required: %w[error_code message],
+               properties: {
+                 error_code: { type: :string, example: 'session_uuid_taken' },
+                 message: { type: :string, example: 'A session with this uuid already exists' }
+               }
 
         let!(:user) { create(:user) }
         let(:Authorization) { "Bearer #{user.authentication_token}" }
@@ -365,7 +365,12 @@ RSpec.describe 'AirBeam Mobile Sessions', type: :request do
       # single-threaded request spec can produce. The mapping itself is what this
       # documents; MobileSessions::Creator's own spec covers when it is returned.
       response '500', 'session could not be created' do
-        schema ERROR_SCHEMA
+        schema type: :object,
+               required: %w[error_code message],
+               properties: {
+                 error_code: { type: :string, example: 'internal_error' },
+                 message: { type: :string, example: 'Could not create this session' }
+               }
 
         let!(:user) { create(:user) }
         let(:Authorization) { "Bearer #{user.authentication_token}" }
@@ -393,7 +398,12 @@ RSpec.describe 'AirBeam Mobile Sessions', type: :request do
       end
 
       response '401', 'unauthorized' do
-        schema ERROR_SCHEMA
+        schema type: :object,
+               required: %w[error_code message],
+               properties: {
+                 error_code: { type: :string, example: 'unauthorized' },
+                 message: { type: :string, example: 'Unauthorized' }
+               }
 
         let(:Authorization) { 'Bearer invalid' }
         let(:body) { {} }
@@ -424,6 +434,9 @@ RSpec.describe 'AirBeam Mobile Sessions', type: :request do
                  start_time: { type: :integer, format: :int64, nullable: true, example: 1_786_663_800_000,
                                description: 'Epoch ms (UTC); null until the first measurements arrive' },
                  end_time: { type: :integer, format: :int64, nullable: true, example: 1_786_707_000_000 },
+                 finished_at: { type: :integer, format: :int64, nullable: true, example: 1_786_707_060_000,
+                                description: 'Epoch ms (UTC) the user declared the recording over; null while ' \
+                                             'it is still running.' },
                  version: { type: :integer },
                  latitude: { type: :number, format: :float, nullable: true },
                  longitude: { type: :number, format: :float, nullable: true },
@@ -468,7 +481,13 @@ RSpec.describe 'AirBeam Mobile Sessions', type: :request do
       end
 
       response '404', 'session not found' do
-        schema ERROR_SCHEMA
+        schema type: :object,
+               required: %w[error_code message],
+               properties: {
+                 error_code: { type: :string, example: 'session_not_found' },
+                 message: { type: :string, example: 'Session not found' }
+               }
+
         let(:user) { create(:user) }
         let(:Authorization) { "Bearer #{user.authentication_token}" }
         let(:uuid) { 'does-not-exist' }
@@ -476,7 +495,13 @@ RSpec.describe 'AirBeam Mobile Sessions', type: :request do
       end
 
       response '401', 'unauthorized' do
-        schema ERROR_SCHEMA
+        schema type: :object,
+               required: %w[error_code message],
+               properties: {
+                 error_code: { type: :string, example: 'unauthorized' },
+                 message: { type: :string, example: 'Unauthorized' }
+               }
+
         let(:uuid) { 'any-uuid' }
         let(:Authorization) { 'Bearer invalid' }
         run_test!
@@ -488,12 +513,7 @@ RSpec.describe 'AirBeam Mobile Sessions', type: :request do
       consumes 'application/json'
       produces 'application/json'
       description <<~DESC
-        **PATCH only — `PUT` is not routed.** An omitted field is left alone. Notes
-        are edited through `/{uuid}/notes`; nothing else about a session is editable.
-
-        `version` is server-owned and tells the account's other devices to
-        re-download the session. It moves only when something actually changed, so
-        re-sending the same title, or the same tags in another order, leaves it alone.
+        Empty `tag_list` clears the list
       DESC
 
       parameter name: :uuid, in: :path, type: :string, required: true
@@ -513,6 +533,9 @@ RSpec.describe 'AirBeam Mobile Sessions', type: :request do
           uuid: { type: :string },
           title: { type: :string },
           version: { type: :integer },
+          finished_at: { type: :integer, format: :int64, nullable: true, example: 1_786_707_060_000,
+                         description: 'Epoch ms (UTC); null while the recording is still running. ' \
+                                      'Not editable here — see POST /finish.' },
           tag_list: { type: :string, description: 'Tags joined with ", "' },
           share_url: { type: :string, example: 'http://aircasting.org/s/ab12c',
                        description: 'Capability link; append `?sensor_name=<stream>` to open it' },
@@ -540,12 +563,14 @@ RSpec.describe 'AirBeam Mobile Sessions', type: :request do
       end
 
       response '400', 'validation error — `fields` carries the offending path' do
-        schema ERROR_SCHEMA.merge(
-          properties: ERROR_SCHEMA[:properties].merge(
-            fields: { type: :object, additionalProperties: true,
-                      example: { base: ['must contain at least one of: title, tag_list'] } }
-          )
-        )
+        schema type: :object,
+               required: %w[error_code message],
+               properties: {
+                 error_code: { type: :string, example: 'validation_error' },
+                 message: { type: :string, example: 'Request body is invalid' },
+                 fields: { type: :object, additionalProperties: true,
+                           example: { base: ['must contain at least one of: title, tag_list'] } }
+               }
 
         let(:user) { create(:user) }
         let(:Authorization) { "Bearer #{user.authentication_token}" }
@@ -558,7 +583,13 @@ RSpec.describe 'AirBeam Mobile Sessions', type: :request do
       end
 
       response '404', 'session not found' do
-        schema ERROR_SCHEMA
+        schema type: :object,
+               required: %w[error_code message],
+               properties: {
+                 error_code: { type: :string, example: 'session_not_found' },
+                 message: { type: :string, example: 'Session not found' }
+               }
+
         let(:user) { create(:user) }
         let(:Authorization) { "Bearer #{user.authentication_token}" }
         let(:uuid) { 'does-not-exist' }
@@ -567,7 +598,13 @@ RSpec.describe 'AirBeam Mobile Sessions', type: :request do
       end
 
       response '401', 'unauthorized' do
-        schema ERROR_SCHEMA
+        schema type: :object,
+               required: %w[error_code message],
+               properties: {
+                 error_code: { type: :string, example: 'unauthorized' },
+                 message: { type: :string, example: 'Unauthorized' }
+               }
+
         let(:uuid) { 'any-uuid' }
         let(:Authorization) { 'Bearer invalid' }
         let(:body) { { title: 'x' } }
@@ -679,6 +716,71 @@ RSpec.describe 'AirBeam Mobile Sessions', type: :request do
     end
   end
 
+  path '/api/v3/mobile_sessions/{uuid}/finish' do
+    post '[ALPHA] Finish a mobile session' do
+      tags 'Mobile app: Mobile sessions'
+      produces 'application/json'
+      description <<~DESC
+        Declares the recording over and stamps `finished_at`.
+        Any measurements with timestamp after finished_at sent will be discarded.
+      DESC
+
+      parameter name: :uuid, in: :path, type: :string, required: true
+      parameter name: :Authorization, in: :header, type: :string, required: true,
+                description: 'Bearer <user_token>'
+
+      response '200', 'finished session — same shape as show' do
+        schema type: :object,
+               required: %w[uuid finished_at version],
+               properties: {
+                 uuid: { type: :string },
+                 title: { type: :string },
+                 finished_at: { type: :integer, format: :int64, example: 1_786_707_060_000,
+                                description: 'Epoch ms (UTC). A real instant, not a local wall clock.' },
+                 version: { type: :integer, description: 'Bumped on the call that actually finished the session' },
+                 tag_list: { type: :string },
+                 share_url: { type: :string, example: 'http://aircasting.org/s/ab12c' },
+                 device: { type: :object, nullable: true, additionalProperties: true },
+                 streams: { type: :object, additionalProperties: { type: :object, additionalProperties: true } },
+                 notes: { type: :array, description: 'Ordered by number, then id', items: V3_NOTE_SCHEMA },
+               }
+
+        let(:user) { create(:user) }
+        let(:Authorization) { "Bearer #{user.authentication_token}" }
+        let(:session_record) { create(:mobile_session, user: user) }
+        let(:uuid) { session_record.uuid }
+        run_test!
+      end
+
+      response '404', 'session not found' do
+        schema type: :object,
+               required: %w[error_code message],
+               properties: {
+                 error_code: { type: :string, example: 'session_not_found' },
+                 message: { type: :string, example: 'Session not found' },
+               }
+
+        let(:user) { create(:user) }
+        let(:Authorization) { "Bearer #{user.authentication_token}" }
+        let(:uuid) { 'does-not-exist' }
+        run_test!
+      end
+
+      response '401', 'unauthorized' do
+        schema type: :object,
+               required: %w[error_code message],
+               properties: {
+                 error_code: { type: :string, example: 'unauthorized' },
+                 message: { type: :string, example: 'Unauthorized' },
+               }
+
+        let(:uuid) { 'any-uuid' }
+        let(:Authorization) { 'Bearer invalid' }
+        run_test!
+      end
+    end
+  end
+
   path '/api/v3/mobile_sessions/{uuid}/measurements' do
     get '[ALPHA] Get measurements for a mobile session' do
       tags 'Mobile app: Mobile sessions'
@@ -768,7 +870,13 @@ RSpec.describe 'AirBeam Mobile Sessions', type: :request do
       end
 
       response '404', 'session not found, or the session has no such stream' do
-        schema ERROR_SCHEMA
+        schema type: :object,
+               required: %w[error_code message],
+               properties: {
+                 error_code: { type: :string, example: 'session_not_found' },
+                 message: { type: :string, example: 'Session not found' }
+               }
+
         let(:user) { create(:user) }
         let(:Authorization) { "Bearer #{user.authentication_token}" }
         let(:uuid) { 'does-not-exist' }
@@ -777,7 +885,13 @@ RSpec.describe 'AirBeam Mobile Sessions', type: :request do
       end
 
       response '401', 'unauthorized' do
-        schema ERROR_SCHEMA
+        schema type: :object,
+               required: %w[error_code message],
+               properties: {
+                 error_code: { type: :string, example: 'unauthorized' },
+                 message: { type: :string, example: 'Unauthorized' }
+               }
+
         let(:uuid) { 'any-uuid' }
         let(:Authorization) { 'Bearer invalid' }
         let(:sensor_name) { 'AirBeamMini-PM2.5' }
@@ -816,6 +930,16 @@ RSpec.describe 'AirBeam Mobile Sessions', type: :request do
 
         An empty body returns `200`; use it to read the current server time from the
         `X-Server-Time` response header.
+
+        ## A finished session
+
+        A session that has been finished still accepts a backlog: frames timestamped
+        **at or before** its `finished_at` are stored as usual, so a phone that was
+        offline for a week can sync everything it recorded. Frames timestamped
+        **after** `finished_at` are dropped, and the response is still `200` — the
+        recording is over and there is nothing to retry. A batch that straddles the
+        finish keeps the earlier frames and drops the later ones, so the answer does
+        not distinguish the two cases: read `finished_at` on the session to know.
 
         ## Size limit
 
@@ -876,7 +1000,12 @@ RSpec.describe 'AirBeam Mobile Sessions', type: :request do
       end
 
       response '400', 'invalid payload' do
-        schema ERROR_SCHEMA
+        schema type: :object,
+               required: %w[error_code message],
+               properties: {
+                 error_code: { type: :string, example: 'invalid_magic_bytes' },
+                 message: { type: :string, example: 'magic bytes are not 0xAB 0xBA' }
+               }
 
         let(:user) { create(:user) }
         let(:session) { create(:mobile_session, user: user) }
@@ -889,7 +1018,12 @@ RSpec.describe 'AirBeam Mobile Sessions', type: :request do
       end
 
       response '400', 'sensor_type_id has no stream on this session' do
-        schema ERROR_SCHEMA
+        schema type: :object,
+               required: %w[error_code message],
+               properties: {
+                 error_code: { type: :string, example: 'unsupported_sensor_type' },
+                 message: { type: :string, example: 'session has no stream for sensor_type_id 99' }
+               }
 
         let(:user) { create(:user) }
         let(:session) { create(:mobile_session, user: user) }
@@ -901,7 +1035,12 @@ RSpec.describe 'AirBeam Mobile Sessions', type: :request do
       end
 
       response '413', 'payload larger than one request may carry' do
-        schema ERROR_SCHEMA
+        schema type: :object,
+               required: %w[error_code message],
+               properties: {
+                 error_code: { type: :string, example: 'payload_too_large' },
+                 message: { type: :string, example: 'measurement count exceeds 3000' }
+               }
 
         let(:user) { create(:user) }
         let(:session) { create(:mobile_session, user: user) }
@@ -920,7 +1059,12 @@ RSpec.describe 'AirBeam Mobile Sessions', type: :request do
       end
 
       response '404', 'session not found' do
-        schema ERROR_SCHEMA
+        schema type: :object,
+               required: %w[error_code message],
+               properties: {
+                 error_code: { type: :string, example: 'session_not_found' },
+                 message: { type: :string, example: 'Session not found' }
+               }
 
         let(:user) { create(:user) }
         let(:uuid) { 'non-existent-uuid' }
@@ -932,7 +1076,12 @@ RSpec.describe 'AirBeam Mobile Sessions', type: :request do
       end
 
       response '401', 'unauthorized' do
-        schema ERROR_SCHEMA
+        schema type: :object,
+               required: %w[error_code message],
+               properties: {
+                 error_code: { type: :string, example: 'unauthorized' },
+                 message: { type: :string, example: 'Unauthorized' }
+               }
 
         let(:uuid) { 'any-uuid' }
         let(:Authorization) { 'Bearer invalid' }

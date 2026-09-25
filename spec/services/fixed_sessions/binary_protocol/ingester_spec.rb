@@ -73,10 +73,86 @@ RSpec.describe FixedSessions::BinaryProtocol::Ingester do
         expect(measurement.time.utc).to be_within(1.second).of(expected_local)
       end
 
-      it 'updates session end_time_local and last_measurement_at' do
+      # Client decision, 2026-09-25: on an AirBeam `last_measurement_at` is when
+      # the device last reached us, which is what the dormant/active split reads.
+      # `epoch` here is 2024, well behind the session's end — an old backlog —
+      # and it still means the monitor is alive right now.
+      it 'records the contact moment in last_measurement_at' do
+        freeze_time do
+          ingester.call(session: session, binary: binary)
+
+          expect(session.reload.last_measurement_at).to eq(Time.current)
+        end
+      end
+
+      it 'does not drag end_time_local back to an old backlog' do
+        before_end = session.end_time_local
+
         ingester.call(session: session, binary: binary)
-        session.reload
-        expect(session.last_measurement_at).not_to be_nil
+
+        expect(session.reload.end_time_local).to eq(before_end)
+      end
+
+      it 'moves end_time_local forward for a newer reading' do
+        session.update!(end_time_local: Time.at(epoch).utc - 1.hour)
+
+        ingester.call(session: session, binary: binary)
+
+        expect(session.reload.end_time_local).to eq(Time.at(epoch).utc)
+      end
+
+      # Client decision, 2026-09-24. The fixed case this protects: a
+      # decommissioned monitor whose firmware auto-resumes over Wi-Fi keeps
+      # POSTing indefinitely with a valid session_token, and every batch has to
+      # answer 2xx or it stays in flash forever.
+      context 'when the session is finished' do
+        let(:finished_at) { Time.at(epoch).utc }
+
+        before { session.update!(finished_at: finished_at) }
+
+        it 'stores what the device recorded before the finish' do
+          binary = build_binary([{ epoch: epoch - 60, sensor_type_id: 2, value: 1.0 }])
+
+          expect { ingester.call(session: session, binary: binary) }
+            .to change(FixedMeasurement, :count).by(1)
+        end
+
+        it 'keeps a frame recorded exactly at the finish' do
+          expect { ingester.call(session: session, binary: binary) }
+            .to change(FixedMeasurement, :count).by(1)
+        end
+
+        it 'drops what it recorded after, and still succeeds' do
+          binary = build_binary([{ epoch: epoch + 60, sensor_type_id: 2, value: 1.0 }])
+
+          expect { ingester.call(session: session, binary: binary) }
+            .not_to change(FixedMeasurement, :count)
+
+          expect(ingester.call(session: session, binary: binary)).to be_success
+        end
+
+        it 'splits a batch straddling the finish' do
+          binary = build_binary(
+            [
+              { epoch: epoch - 60, sensor_type_id: 2, value: 1.0 },
+              { epoch: epoch + 60, sensor_type_id: 2, value: 2.0 },
+            ],
+          )
+
+          expect { ingester.call(session: session, binary: binary) }
+            .to change(FixedMeasurement, :count).by(1)
+          expect(FixedMeasurement.last.value).to be_within(0.01).of(1.0)
+        end
+
+        # A dropped batch must not touch last_measurement_at either — that is the
+        # signal the dormant/active lists read, and a decommissioned monitor
+        # POSTing forever would otherwise look permanently live.
+        it 'does not touch the session timestamps when everything is dropped' do
+          binary = build_binary([{ epoch: epoch + 3600, sensor_type_id: 2, value: 1.0 }])
+
+          expect { ingester.call(session: session, binary: binary) }
+            .not_to change { session.reload.last_measurement_at }
+        end
       end
 
       describe 'averages recalculation heuristic' do

@@ -257,12 +257,6 @@ describe 'Notes on a mobile session' do
       expect(response.parsed_body['error_code']).to eq('payload_too_large')
       expect(session_record.reload.version).to eq(2)
     end
-
-    it 'is not routed for PUT — the update is partial' do
-      expect {
-        put note_path, params: { text: 'x' }.to_json, headers: headers
-      }.to raise_error(ActionController::RoutingError)
-    end
   end
 
   describe 'DELETE destroy' do

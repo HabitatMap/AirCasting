@@ -1632,6 +1632,10 @@ paths:
 
         **One request = one stream.** To stream several sensors, send one request per
         `sensor_name`.
+
+        **A finished session** still accepts readings timestamped at or before its
+        `finished_at`; readings after it are dropped and the response is still `200`.
+        Same rule as the v3 endpoint above.
       parameters: []
       responses:
         '200':
@@ -2978,9 +2982,9 @@ paths:
       summary: "[ALPHA] List the signed-in user's fixed sessions"
       tags:
       - 'Mobile app: Fixed sessions'
-      description: 'Ordered by creation, oldest first.
-
-        '
+      description: |
+        Ordered by creation, newest first — so page 1 holds the most recent
+        sessions and can be rendered while later pages load.
       parameters:
       - name: Authorization
         in: header
@@ -3080,8 +3084,18 @@ paths:
                           format: int64
                           nullable: true
                           example: 1786707000000
-                          description: Epoch ms (UTC); null until the sensor first
-                            reports
+                          description: 'Epoch ms (UTC) the monitor last reached the
+                            server — not the reading''s own timestamp, so a device
+                            syncing an old backlog reports now. Null until it first
+                            reports. (Government stations carry the other meaning
+                            here: the latest reading''s time.)'
+                        finished_at:
+                          type: integer
+                          format: int64
+                          nullable: true
+                          example: 1786707060000
+                          description: 'Epoch ms (UTC) the owner decommissioned the
+                            monitor; null '
                         version:
                           type: integer
                         latitude:
@@ -3286,8 +3300,10 @@ paths:
                 properties:
                   error_code:
                     type: string
+                    example: session_uuid_taken
                   message:
                     type: string
+                    example: A session with this uuid already exists
         '500':
           description: session could not be created
           content:
@@ -3300,8 +3316,10 @@ paths:
                 properties:
                   error_code:
                     type: string
+                    example: internal_error
                   message:
                     type: string
+                    example: Could not create this session
         '401':
           description: unauthorized
           content:
@@ -3314,8 +3332,10 @@ paths:
                 properties:
                   error_code:
                     type: string
+                    example: unauthorized
                   message:
                     type: string
+                    example: Unauthorized
       requestBody:
         content:
           application/json:
@@ -3413,6 +3433,334 @@ paths:
                     unit_symbol: µg/m³
         required: true
   "/api/v3/fixed_sessions/{uuid}":
+    get:
+      summary: "[ALPHA] Get one of the signed-in user's fixed sessions"
+      tags:
+      - 'Mobile app: Fixed sessions'
+      description: |
+        Same per-session shape as one entry of `GET /api/v3/fixed_sessions` —
+        this is a direct lookup by uuid, not a richer detail view. Never
+        measurement history; that lives on the stream endpoints.
+      parameters:
+      - name: uuid
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: Authorization
+        in: header
+        required: true
+        description: Bearer <user_token>
+        schema:
+          type: string
+      responses:
+        '200':
+          description: session
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - uuid
+                - title
+                - type
+                - tag_list
+                - contribute
+                - is_indoor
+                - time_zone
+                - version
+                - share_url
+                - streams
+                properties:
+                  uuid:
+                    type: string
+                  title:
+                    type: string
+                  type:
+                    type: string
+                    example: FixedSession
+                  tag_list:
+                    type: string
+                    example: rooftop, pm
+                  contribute:
+                    type: boolean
+                  is_indoor:
+                    type: boolean
+                  time_zone:
+                    type: string
+                    example: America/New_York
+                  start_time:
+                    type: integer
+                    format: int64
+                    nullable: true
+                    example: 1786663800000
+                  end_time:
+                    type: integer
+                    format: int64
+                    nullable: true
+                    example: 1786707000000
+                  last_measurement_at:
+                    type: integer
+                    format: int64
+                    nullable: true
+                    example: 1786707000000
+                  finished_at:
+                    type: integer
+                    format: int64
+                    nullable: true
+                    example: 1786707060000
+                    description: Epoch ms (UTC); null while the monitor is still deployed
+                  version:
+                    type: integer
+                  latitude:
+                    type: number
+                    format: float
+                  longitude:
+                    type: number
+                    format: float
+                  share_url:
+                    type: string
+                    example: https://aircasting.org/s/ab12c
+                  device:
+                    type: object
+                    nullable: true
+                    properties:
+                      mac_address:
+                        type: string
+                      model:
+                        type: string
+                      name:
+                        type: string
+                        nullable: true
+                  streams:
+                    type: object
+                    additionalProperties:
+                      type: object
+                      additionalProperties: true
+                    example:
+                      AirBeamMini-PM2.5:
+                        sensor_name: AirBeamMini-PM2.5
+                        sensor_type_id: 2
+                        measurement_type: Particulate Matter
+                        unit_symbol: µg/m³
+                        last_measurement:
+                          value: 12.5
+                          time: 1786707000000
+        '404':
+          description: session not found
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - error_code
+                - message
+                properties:
+                  error_code:
+                    type: string
+                    example: session_not_found
+                  message:
+                    type: string
+                    example: Session not found
+        '401':
+          description: unauthorized
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - error_code
+                - message
+                properties:
+                  error_code:
+                    type: string
+                    example: unauthorized
+                  message:
+                    type: string
+                    example: Unauthorized
+    patch:
+      summary: "[ALPHA] Update a fixed session"
+      tags:
+      - 'Mobile app: Fixed sessions'
+      description: 'Empty `tag_list` clears the list
+
+        '
+      parameters:
+      - name: uuid
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: Authorization
+        in: header
+        required: true
+        description: Bearer <user_token>
+        schema:
+          type: string
+      responses:
+        '200':
+          description: updated session
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - uuid
+                - title
+                - type
+                - tag_list
+                - contribute
+                - is_indoor
+                - time_zone
+                - version
+                - share_url
+                - streams
+                properties:
+                  uuid:
+                    type: string
+                  title:
+                    type: string
+                  type:
+                    type: string
+                    example: FixedSession
+                  tag_list:
+                    type: string
+                    example: rooftop, pm
+                  contribute:
+                    type: boolean
+                  is_indoor:
+                    type: boolean
+                  time_zone:
+                    type: string
+                    example: America/New_York
+                  start_time:
+                    type: integer
+                    format: int64
+                    nullable: true
+                    example: 1786663800000
+                  end_time:
+                    type: integer
+                    format: int64
+                    nullable: true
+                    example: 1786707000000
+                  last_measurement_at:
+                    type: integer
+                    format: int64
+                    nullable: true
+                    example: 1786707000000
+                  finished_at:
+                    type: integer
+                    format: int64
+                    nullable: true
+                    example: 1786707060000
+                    description: Epoch ms (UTC); null while the monitor is still deployed
+                  version:
+                    type: integer
+                  latitude:
+                    type: number
+                    format: float
+                  longitude:
+                    type: number
+                    format: float
+                  share_url:
+                    type: string
+                    example: https://aircasting.org/s/ab12c
+                  device:
+                    type: object
+                    nullable: true
+                    properties:
+                      mac_address:
+                        type: string
+                      model:
+                        type: string
+                      name:
+                        type: string
+                        nullable: true
+                  streams:
+                    type: object
+                    additionalProperties:
+                      type: object
+                      additionalProperties: true
+                    example:
+                      AirBeamMini-PM2.5:
+                        sensor_name: AirBeamMini-PM2.5
+                        sensor_type_id: 2
+                        measurement_type: Particulate Matter
+                        unit_symbol: µg/m³
+                        last_measurement:
+                          value: 12.5
+                          time: 1786707000000
+        '400':
+          description: validation error — `fields` carries the offending path
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - error_code
+                - message
+                properties:
+                  error_code:
+                    type: string
+                    example: validation_error
+                  message:
+                    type: string
+                    example: Request body is invalid
+                  fields:
+                    type: object
+                    additionalProperties: true
+                    example:
+                      base:
+                      - 'must contain at least one of: title, tag_list'
+        '404':
+          description: session not found
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - error_code
+                - message
+                properties:
+                  error_code:
+                    type: string
+                    example: session_not_found
+                  message:
+                    type: string
+                    example: Session not found
+        '401':
+          description: unauthorized
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - error_code
+                - message
+                properties:
+                  error_code:
+                    type: string
+                    example: unauthorized
+                  message:
+                    type: string
+                    example: Unauthorized
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              description: At least one of title, tag_list
+              properties:
+                title:
+                  type: string
+                  example: Rooftop PM2.5 monitor (v2)
+                tag_list:
+                  type: string
+                  nullable: true
+                  example: rooftop, pm
+                  description: A single string; whitespace and commas both separate
+                    tags. null or "" clears every tag.
+        required: true
     delete:
       summary: "[ALPHA] Delete a fixed session"
       tags:
@@ -3448,8 +3796,10 @@ paths:
                 properties:
                   error_code:
                     type: string
+                    example: session_not_found
                   message:
                     type: string
+                    example: Session not found
         '503':
           description: temporarily unavailable — retry after `Retry-After` seconds
           content:
@@ -3462,8 +3812,10 @@ paths:
                 properties:
                   error_code:
                     type: string
+                    example: try_again_later
                   message:
                     type: string
+                    example: Could not delete this session, please retry
         '500':
           description: session could not be deleted
           content:
@@ -3476,8 +3828,10 @@ paths:
                 properties:
                   error_code:
                     type: string
+                    example: internal_error
                   message:
                     type: string
+                    example: Could not delete this session
         '401':
           description: unauthorized
           content:
@@ -3490,9 +3844,241 @@ paths:
                 properties:
                   error_code:
                     type: string
+                    example: unauthorized
                   message:
                     type: string
+                    example: Unauthorized
+  "/api/v3/fixed_sessions/{uuid}/finish":
+    post:
+      summary: "[ALPHA] Finish a fixed session"
+      tags:
+      - 'Mobile app: Fixed sessions'
+      description: |
+        Decommissions the monitor and stamps `finished_at`.
+        Any measurements with timestamp after finished_at sent will be discarded.
+      parameters:
+      - name: uuid
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: Authorization
+        in: header
+        required: true
+        description: Bearer <user_token>
+        schema:
+          type: string
+      responses:
+        '200':
+          description: finished session — same shape as show
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - uuid
+                - finished_at
+                - version
+                properties:
+                  uuid:
+                    type: string
+                  title:
+                    type: string
+                  finished_at:
+                    type: integer
+                    format: int64
+                    example: 1786707060000
+                    description: Epoch ms (UTC). A real instant, not a local wall
+                      clock.
+                  last_measurement_at:
+                    type: integer
+                    format: int64
+                    nullable: true
+                    example: 1786707000000
+                    description: Left as it was — finishing does not erase the history
+                  version:
+                    type: integer
+                    description: Bumped on the call that actually finished the session
+                  tag_list:
+                    type: string
+                  share_url:
+                    type: string
+                    example: https://aircasting.org/s/ab12c
+                  device:
+                    type: object
+                    nullable: true
+                    additionalProperties: true
+                  streams:
+                    type: object
+                    additionalProperties:
+                      type: object
+                      additionalProperties: true
+        '404':
+          description: session not found
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - error_code
+                - message
+                properties:
+                  error_code:
+                    type: string
+                    example: session_not_found
+                  message:
+                    type: string
+                    example: Session not found
+        '401':
+          description: unauthorized
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - error_code
+                - message
+                properties:
+                  error_code:
+                    type: string
+                    example: unauthorized
+                  message:
+                    type: string
+                    example: Unauthorized
   "/api/v3/fixed_sessions/{uuid}/measurements":
+    get:
+      summary: "[ALPHA] Get measurements for a fixed session"
+      tags:
+      - 'Mobile app: Fixed sessions'
+      description: |
+        One stream per call; read the names from `streams[].sensor_name` on the
+        session endpoint. Omit the window to get the last 6 hours, anchored on the
+        session end.
+
+        The window bounds the answer and nothing is silently truncated — a short
+        answer means there is no more data in it. Page further back by moving
+        `end_time`. Both bounds are inclusive, so a point can repeat between adjacent
+        pages; de-duplicate by `time`. A stream with no measurements answers `200 []`.
+
+        Timestamps are real UTC instants — milliseconds in JSON, seconds in the
+        binary frames. Nothing on the wire is local time; render local with the
+        session's `time_zone`. Unlike the mobile-session equivalent, points carry no
+        `latitude`/`longitude` — a fixed session has one static location on the
+        session itself.
+
+        ## Error codes
+
+        | `error_code` | HTTP | When |
+        |---|---|---|
+        | `unauthorized` | 401 | Missing or invalid token |
+        | `validation_error` | 400 | Missing `sensor_name`, half a window, `end_time <= start_time`, a window over 12h, or a non-integer time. `fields` names the offending parameter. Answered **before** the session lookup |
+        | `session_not_found` | 404 | No fixed session with this uuid for this user/token |
+        | `not_found` | 404 | The session has no stream with this `sensor_name` |
+      parameters:
+      - name: uuid
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: Authorization
+        in: header
+        required: true
+        description: Bearer <user_token>, or the session's own <session_token>
+        schema:
+          type: string
+      - name: sensor_name
+        in: query
+        required: true
+        schema:
+          type: string
+        description: The one stream to read, e.g. `AirBeam-PM2.5`.
+      - name: start_time
+        in: query
+        required: false
+        schema:
+          type: integer
+        description: Epoch ms. Send with end_time; omit both for the last 6h.
+      - name: end_time
+        in: query
+        required: false
+        schema:
+          type: integer
+        description: Epoch ms. At most 12h after start_time.
+      responses:
+        '200':
+          description: measurements for the named stream, oldest first
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    time:
+                      type: integer
+                      format: int64
+                      description: Epoch milliseconds (UTC)
+                    value:
+                      type: number
+                example:
+                - time: 1786707000000
+                  value: 12.5
+        '400':
+          description: missing sensor_name, or a window over 12 hours
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - error_code
+                - message
+                properties:
+                  error_code:
+                    type: string
+                    example: validation_error
+                  message:
+                    type: string
+                  fields:
+                    type: object
+                    additionalProperties:
+                      type: array
+                      items:
+                        type: string
+                    example:
+                      sensor_name:
+                      - is missing
+        '404':
+          description: session not found, or the session has no such stream
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - error_code
+                - message
+                properties:
+                  error_code:
+                    type: string
+                    example: session_not_found
+                  message:
+                    type: string
+                    example: Session not found
+        '401':
+          description: unauthorized
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - error_code
+                - message
+                properties:
+                  error_code:
+                    type: string
+                    example: unauthorized
+                  message:
+                    type: string
+                    example: Unauthorized
     post:
       summary: Upload binary measurements for an AirBeamMini session
       tags:
@@ -3524,6 +4110,17 @@ paths:
 
         **Time synchronisation:** an empty body returns `200` immediately. Read the
         current server time from the `X-Server-Time` response header (Unix epoch, UTC).
+
+        ## A finished session
+
+        A session that has been finished still accepts a backlog: frames timestamped
+        **at or before** its `finished_at` are stored as usual, so a monitor that lost
+        its connection before being decommissioned can still upload what it buffered.
+        Frames timestamped **after** `finished_at` are dropped, and the response is
+        still `200` — the session is over and there is nothing to retry. A batch that
+        straddles the finish keeps the earlier frames and drops the later ones, so the
+        answer does not distinguish the two cases: read `finished_at` on the session
+        to know.
 
         ## Error codes
 
@@ -3570,8 +4167,10 @@ paths:
                 properties:
                   error_code:
                     type: string
+                    example: invalid_magic_bytes
                   message:
                     type: string
+                    example: magic bytes are not 0xAB 0xBA
         '413':
           description: payload larger than one request may carry
           content:
@@ -3584,8 +4183,10 @@ paths:
                 properties:
                   error_code:
                     type: string
+                    example: payload_too_large
                   message:
                     type: string
+                    example: measurement count exceeds 6000
         '404':
           description: session not found
           content:
@@ -3598,8 +4199,10 @@ paths:
                 properties:
                   error_code:
                     type: string
+                    example: session_not_found
                   message:
                     type: string
+                    example: Session not found
         '401':
           description: unauthorized
           content:
@@ -3612,8 +4215,10 @@ paths:
                 properties:
                   error_code:
                     type: string
+                    example: unauthorized
                   message:
                     type: string
+                    example: Unauthorized
       requestBody:
         content:
           application/octet-stream:
@@ -3675,6 +4280,8 @@ paths:
                       active:
                         type: boolean
                         example: true
+                        description: False once the owner finishes the session, and
+                          otherwise false after 24h of silence.
                       title:
                         type: string
                         example: Rooftop monitor
@@ -3977,8 +4584,10 @@ paths:
                 properties:
                   error_code:
                     type: string
+                    example: session_not_found
                   message:
                     type: string
+                    example: Session not found
         '401':
           description: unauthorized
           content:
@@ -3991,8 +4600,10 @@ paths:
                 properties:
                   error_code:
                     type: string
+                    example: unauthorized
                   message:
                     type: string
+                    example: Unauthorized
     post:
       summary: "[ALPHA] Add a note to a session"
       tags:
@@ -4060,8 +4671,10 @@ paths:
                 properties:
                   error_code:
                     type: string
+                    example: validation_error
                   message:
                     type: string
+                    example: Request body is invalid
                   fields:
                     type: object
                     additionalProperties: true
@@ -4080,8 +4693,11 @@ paths:
                 properties:
                   error_code:
                     type: string
+                    example: payload_too_large
                   message:
                     type: string
+                    example: Request body exceeds 7056046 bytes; a photo may be at
+                      most 5242880 bytes once decoded
         '404':
           description: session not found
           content:
@@ -4094,8 +4710,10 @@ paths:
                 properties:
                   error_code:
                     type: string
+                    example: session_not_found
                   message:
                     type: string
+                    example: Session not found
         '401':
           description: unauthorized
           content:
@@ -4108,8 +4726,10 @@ paths:
                 properties:
                   error_code:
                     type: string
+                    example: unauthorized
                   message:
                     type: string
+                    example: Unauthorized
       requestBody:
         content:
           application/json:
@@ -4147,12 +4767,6 @@ paths:
       tags:
       - 'Mobile app: Mobile sessions'
       description: |+
-        **PATCH only — `PUT` is not routed.** An omitted field is left alone.
-
-        The session's `version` moves only when something actually changed, so
-        re-sending the text a note already has does not trigger a sync across the
-        account.
-
         The `photo` bytes must decode to an `image/*`; the declared content type is
         ignored. Read it back as `photo_location`. An oversized `Content-Length` is
         refused with `413` before the body is parsed.
@@ -4215,8 +4829,10 @@ paths:
                 properties:
                   error_code:
                     type: string
+                    example: validation_error
                   message:
                     type: string
+                    example: Request body is invalid
                   fields:
                     type: object
                     additionalProperties: true
@@ -4235,8 +4851,11 @@ paths:
                 properties:
                   error_code:
                     type: string
+                    example: payload_too_large
                   message:
                     type: string
+                    example: Request body exceeds 7056046 bytes; a photo may be at
+                      most 5242880 bytes once decoded
         '404':
           description: session or note not found — `error_code` says which
           content:
@@ -4249,8 +4868,10 @@ paths:
                 properties:
                   error_code:
                     type: string
+                    example: note_not_found
                   message:
                     type: string
+                    example: Note not found
         '401':
           description: unauthorized
           content:
@@ -4263,8 +4884,10 @@ paths:
                 properties:
                   error_code:
                     type: string
+                    example: unauthorized
                   message:
                     type: string
+                    example: Unauthorized
       requestBody:
         content:
           application/json:
@@ -4342,8 +4965,9 @@ paths:
       tags:
       - 'Mobile app: Mobile sessions'
       description: |
-        Ordered by upload time, oldest first — not recording time. Sort by
-        `start_time` client-side to display them in recording order.
+        Ordered by upload time, newest first — not recording time. Page 1 holds
+        the most recently uploaded sessions and can be rendered while later pages
+        load. Sort by `start_time` client-side to display them in recording order.
 
         The list is authoritative: walk it to the last page, and a session the
         client holds locally but never saw has been deleted server-side.
@@ -4441,6 +5065,13 @@ paths:
                           format: int64
                           nullable: true
                           example: 1786707000000
+                        finished_at:
+                          type: integer
+                          format: int64
+                          nullable: true
+                          example: 1786707060000
+                          description: Epoch ms (UTC) the user declared the recording
+                            over; null while it is still running.
                         version:
                           type: integer
                         latitude:
@@ -4643,8 +5274,10 @@ paths:
                 properties:
                   error_code:
                     type: string
+                    example: session_uuid_taken
                   message:
                     type: string
+                    example: A session with this uuid already exists
         '500':
           description: session could not be created
           content:
@@ -4657,8 +5290,10 @@ paths:
                 properties:
                   error_code:
                     type: string
+                    example: internal_error
                   message:
                     type: string
+                    example: Could not create this session
         '401':
           description: unauthorized
           content:
@@ -4671,8 +5306,10 @@ paths:
                 properties:
                   error_code:
                     type: string
+                    example: unauthorized
                   message:
                     type: string
+                    example: Unauthorized
       requestBody:
         content:
           application/json:
@@ -4857,6 +5494,13 @@ paths:
                     format: int64
                     nullable: true
                     example: 1786707000000
+                  finished_at:
+                    type: integer
+                    format: int64
+                    nullable: true
+                    example: 1786707060000
+                    description: Epoch ms (UTC) the user declared the recording over;
+                      null while it is still running.
                   version:
                     type: integer
                   latitude:
@@ -4957,8 +5601,10 @@ paths:
                 properties:
                   error_code:
                     type: string
+                    example: session_not_found
                   message:
                     type: string
+                    example: Session not found
         '401':
           description: unauthorized
           content:
@@ -4971,19 +5617,17 @@ paths:
                 properties:
                   error_code:
                     type: string
+                    example: unauthorized
                   message:
                     type: string
+                    example: Unauthorized
     patch:
       summary: "[ALPHA] Update a mobile session"
       tags:
       - 'Mobile app: Mobile sessions'
-      description: |
-        **PATCH only — `PUT` is not routed.** An omitted field is left alone. Notes
-        are edited through `/{uuid}/notes`; nothing else about a session is editable.
+      description: 'Empty `tag_list` clears the list
 
-        `version` is server-owned and tells the account's other devices to
-        re-download the session. It moves only when something actually changed, so
-        re-sending the same title, or the same tags in another order, leaves it alone.
+        '
       parameters:
       - name: uuid
         in: path
@@ -5004,6 +5648,13 @@ paths:
                     type: string
                   version:
                     type: integer
+                  finished_at:
+                    type: integer
+                    format: int64
+                    nullable: true
+                    example: 1786707060000
+                    description: Epoch ms (UTC); null while the recording is still
+                      running. Not editable here — see POST /finish.
                   tag_list:
                     type: string
                     description: Tags joined with ", "
@@ -5079,8 +5730,10 @@ paths:
                 properties:
                   error_code:
                     type: string
+                    example: validation_error
                   message:
                     type: string
+                    example: Request body is invalid
                   fields:
                     type: object
                     additionalProperties: true
@@ -5099,8 +5752,10 @@ paths:
                 properties:
                   error_code:
                     type: string
+                    example: session_not_found
                   message:
                     type: string
+                    example: Session not found
         '401':
           description: unauthorized
           content:
@@ -5113,8 +5768,10 @@ paths:
                 properties:
                   error_code:
                     type: string
+                    example: unauthorized
                   message:
                     type: string
+                    example: Unauthorized
       requestBody:
         content:
           application/json:
@@ -5203,6 +5860,131 @@ paths:
                   message:
                     type: string
                     example: Could not delete this session
+        '401':
+          description: unauthorized
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - error_code
+                - message
+                properties:
+                  error_code:
+                    type: string
+                    example: unauthorized
+                  message:
+                    type: string
+                    example: Unauthorized
+  "/api/v3/mobile_sessions/{uuid}/finish":
+    post:
+      summary: "[ALPHA] Finish a mobile session"
+      tags:
+      - 'Mobile app: Mobile sessions'
+      description: |
+        Declares the recording over and stamps `finished_at`.
+        Any measurements with timestamp after finished_at sent will be discarded.
+      parameters:
+      - name: uuid
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: Authorization
+        in: header
+        required: true
+        description: Bearer <user_token>
+        schema:
+          type: string
+      responses:
+        '200':
+          description: finished session — same shape as show
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - uuid
+                - finished_at
+                - version
+                properties:
+                  uuid:
+                    type: string
+                  title:
+                    type: string
+                  finished_at:
+                    type: integer
+                    format: int64
+                    example: 1786707060000
+                    description: Epoch ms (UTC). A real instant, not a local wall
+                      clock.
+                  version:
+                    type: integer
+                    description: Bumped on the call that actually finished the session
+                  tag_list:
+                    type: string
+                  share_url:
+                    type: string
+                    example: http://aircasting.org/s/ab12c
+                  device:
+                    type: object
+                    nullable: true
+                    additionalProperties: true
+                  streams:
+                    type: object
+                    additionalProperties:
+                      type: object
+                      additionalProperties: true
+                  notes:
+                    type: array
+                    description: Ordered by number, then id
+                    items:
+                      type: object
+                      required:
+                      - id
+                      properties:
+                        id:
+                          type: integer
+                          description: The note's identity — use it to address the
+                            note
+                        number:
+                          type: integer
+                          nullable: true
+                          description: 'Server-allocated ordering key, 0-based. Not
+                            an address: gaps are normal and a number can be reused
+                            after a delete.'
+                        text:
+                          type: string
+                        date:
+                          type: string
+                          description: Wall clock as the recording phone saw it
+                        latitude:
+                          type: number
+                          format: float
+                        longitude:
+                          type: number
+                          format: float
+                        photo_location:
+                          type: string
+                          nullable: true
+                          description: Full URL of the note photo (600px limit), or
+                            null when there is none
+        '404':
+          description: session not found
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - error_code
+                - message
+                properties:
+                  error_code:
+                    type: string
+                    example: session_not_found
+                  message:
+                    type: string
+                    example: Session not found
         '401':
           description: unauthorized
           content:
@@ -5339,8 +6121,10 @@ paths:
                 properties:
                   error_code:
                     type: string
+                    example: session_not_found
                   message:
                     type: string
+                    example: Session not found
         '401':
           description: unauthorized
           content:
@@ -5353,8 +6137,10 @@ paths:
                 properties:
                   error_code:
                     type: string
+                    example: unauthorized
                   message:
                     type: string
+                    example: Unauthorized
     post:
       summary: "[ALPHA] Send binary measurements for a mobile session"
       tags:
@@ -5386,6 +6172,16 @@ paths:
 
         An empty body returns `200`; use it to read the current server time from the
         `X-Server-Time` response header.
+
+        ## A finished session
+
+        A session that has been finished still accepts a backlog: frames timestamped
+        **at or before** its `finished_at` are stored as usual, so a phone that was
+        offline for a week can sync everything it recorded. Frames timestamped
+        **after** `finished_at` are dropped, and the response is still `200` — the
+        recording is over and there is nothing to retry. A batch that straddles the
+        finish keeps the earlier frames and drops the later ones, so the answer does
+        not distinguish the two cases: read `finished_at` on the session to know.
 
         ## Size limit
 
@@ -5431,8 +6227,10 @@ paths:
                 properties:
                   error_code:
                     type: string
+                    example: unsupported_sensor_type
                   message:
                     type: string
+                    example: session has no stream for sensor_type_id 99
         '413':
           description: payload larger than one request may carry
           content:
@@ -5445,8 +6243,10 @@ paths:
                 properties:
                   error_code:
                     type: string
+                    example: payload_too_large
                   message:
                     type: string
+                    example: measurement count exceeds 3000
         '404':
           description: session not found
           content:
@@ -5459,8 +6259,10 @@ paths:
                 properties:
                   error_code:
                     type: string
+                    example: session_not_found
                   message:
                     type: string
+                    example: Session not found
         '401':
           description: unauthorized
           content:
@@ -5473,8 +6275,10 @@ paths:
                 properties:
                   error_code:
                     type: string
+                    example: unauthorized
                   message:
                     type: string
+                    example: Unauthorized
       requestBody:
         content:
           application/octet-stream:

@@ -28,8 +28,9 @@ module MobileSessions
         tag_list: tag_list(session),
         contribute: session.contribute,
         time_zone: session.time_zone,
-        start_time: epoch_ms(session.start_time_local, session.time_zone),
-        end_time: epoch_ms(session.end_time_local, session.time_zone),
+        start_time: local_epoch_ms(session.start_time_local, session.time_zone),
+        end_time: local_epoch_ms(session.end_time_local, session.time_zone),
+        finished_at: epoch_ms(session.finished_at),
         version: session.version,
         latitude: session.latitude,
         longitude: session.longitude,
@@ -66,10 +67,17 @@ module MobileSessions
     # `*_local` columns hold session-local wall clock in a naive UTC column, so
     # the real instant is recovered through the session's zone. Null until the
     # first measurements land.
-    def epoch_ms(local_as_utc, time_zone)
+    def local_epoch_ms(local_as_utc, time_zone)
       return nil unless local_as_utc
 
       Utils.from_local_as_utc(local_as_utc, time_zone).to_i * 1_000
+    end
+
+    # `finished_at` is a timestamptz — already a real instant, unlike the
+    # `*_local` columns above, so it needs no zone to interpret. Null until the
+    # user declares the recording over.
+    def epoch_ms(timestamp)
+      timestamp && timestamp.to_i * 1_000
     end
 
     # Capability link to the session — anyone holding it can view the session,

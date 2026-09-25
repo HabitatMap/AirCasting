@@ -24,10 +24,12 @@ module MobileSessions
       def initialize(
         parser: Parser.new,
         streams_repository: StreamsRepository.new,
+        cutoff: MeasurementCutoff.new,
         monitor: ::BinaryProtocol::Monitor.new(source: ::BinaryProtocol::Monitor::MOBILE)
       )
         @parser = parser
         @streams_repository = streams_repository
+        @cutoff = cutoff
         @monitor = monitor
       end
 
@@ -48,9 +50,17 @@ module MobileSessions
 
       private
 
-      attr_reader :parser, :streams_repository, :monitor
+      attr_reader :parser, :streams_repository, :cutoff, :monitor
 
       def ingest(session:, measurements:)
+        # Frames recorded after the session was finished are dropped here, before
+        # anything is locked or written, so a finished session costs a parse and
+        # nothing else. `epoch` is UTC seconds, `finished_at` a UTC instant.
+        measurements = cutoff.call(session: session, measurements: measurements) do |m|
+          Time.at(m[:epoch])
+        end
+        return Success.new('measurements ingested') if measurements.empty?
+
         grouped = measurements.group_by { |m| m[:sensor_type_id] }
         streams = resolve_streams(session, grouped.keys)
 
