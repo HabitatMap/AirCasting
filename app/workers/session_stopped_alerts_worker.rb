@@ -6,7 +6,14 @@ class SessionStoppedAlertsWorker
   def perform
     return unless A9n.sidekiq_session_stopped_alerts_enabled
 
-    Session
+    # FixedSession, not Session: a stop-alert answers "your monitor went quiet",
+    # which only a fixed session can. Mobile rows stay out of the window today
+    # only because their last_measurement_at is NULL and NULL fails BETWEEN — an
+    # accident that ends when the column is populated for mobile sessions, at
+    # which point every mobile user with the toggle on would be mailed after
+    # every recording. Whether mobile sessions should raise stop-alerts at all is
+    # a notifications question, not this one.
+    FixedSession
       .where(
         'last_measurement_at BETWEEN ? AND ?',
         Time.current - 1.hour,

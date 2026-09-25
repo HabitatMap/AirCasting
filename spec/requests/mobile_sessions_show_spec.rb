@@ -41,6 +41,9 @@ describe 'GET /api/v3/mobile_sessions/:uuid' do
     expect(body['title']).to eq('Morning bike ride')
     expect(body['type']).to eq('MobileSession')
     expect(body['time_zone']).to eq('America/New_York')
+    # Present and null until the recording is declared over — the key is what a
+    # client decodes, so it must not appear only on finished sessions.
+    expect(body).to include('finished_at' => nil)
     expect(body['share_url']).to include('/s/')
     expect(body['device']).to eq(
       'mac_address' => device.mac_address, 'model' => 'AirBeamMini', 'name' => 'My AirBeam',

@@ -73,6 +73,9 @@ RSpec.describe 'AirBeam Mobile Sessions', type: :request do
             start_time: { type: :integer, format: :int64, nullable: true, example: 1_786_663_800_000,
                           description: 'Epoch ms (UTC); null until the first measurements arrive' },
             end_time: { type: :integer, format: :int64, nullable: true, example: 1_786_707_000_000 },
+            finished_at: { type: :integer, format: :int64, nullable: true, example: 1_786_707_060_000,
+                           description: 'Epoch ms (UTC) the user declared the recording over; null while it is ' \
+                                        'still running.' },
             version: { type: :integer },
             latitude: { type: :number, format: :float, nullable: true },
             longitude: { type: :number, format: :float, nullable: true },
@@ -431,6 +434,9 @@ RSpec.describe 'AirBeam Mobile Sessions', type: :request do
                  start_time: { type: :integer, format: :int64, nullable: true, example: 1_786_663_800_000,
                                description: 'Epoch ms (UTC); null until the first measurements arrive' },
                  end_time: { type: :integer, format: :int64, nullable: true, example: 1_786_707_000_000 },
+                 finished_at: { type: :integer, format: :int64, nullable: true, example: 1_786_707_060_000,
+                                description: 'Epoch ms (UTC) the user declared the recording over; null while ' \
+                                             'it is still running.' },
                  version: { type: :integer },
                  latitude: { type: :number, format: :float, nullable: true },
                  longitude: { type: :number, format: :float, nullable: true },
@@ -527,6 +533,9 @@ RSpec.describe 'AirBeam Mobile Sessions', type: :request do
           uuid: { type: :string },
           title: { type: :string },
           version: { type: :integer },
+          finished_at: { type: :integer, format: :int64, nullable: true, example: 1_786_707_060_000,
+                         description: 'Epoch ms (UTC); null while the recording is still running. ' \
+                                      'Not editable here — see POST /finish.' },
           tag_list: { type: :string, description: 'Tags joined with ", "' },
           share_url: { type: :string, example: 'http://aircasting.org/s/ab12c',
                        description: 'Capability link; append `?sensor_name=<stream>` to open it' },
@@ -707,6 +716,71 @@ RSpec.describe 'AirBeam Mobile Sessions', type: :request do
     end
   end
 
+  path '/api/v3/mobile_sessions/{uuid}/finish' do
+    post '[ALPHA] Finish a mobile session' do
+      tags 'Mobile app: Mobile sessions'
+      produces 'application/json'
+      description <<~DESC
+        Declares the recording over and stamps `finished_at`.
+        Any measurements with timestamp after finished_at sent will be discarded.
+      DESC
+
+      parameter name: :uuid, in: :path, type: :string, required: true
+      parameter name: :Authorization, in: :header, type: :string, required: true,
+                description: 'Bearer <user_token>'
+
+      response '200', 'finished session — same shape as show' do
+        schema type: :object,
+               required: %w[uuid finished_at version],
+               properties: {
+                 uuid: { type: :string },
+                 title: { type: :string },
+                 finished_at: { type: :integer, format: :int64, example: 1_786_707_060_000,
+                                description: 'Epoch ms (UTC). A real instant, not a local wall clock.' },
+                 version: { type: :integer, description: 'Bumped on the call that actually finished the session' },
+                 tag_list: { type: :string },
+                 share_url: { type: :string, example: 'http://aircasting.org/s/ab12c' },
+                 device: { type: :object, nullable: true, additionalProperties: true },
+                 streams: { type: :object, additionalProperties: { type: :object, additionalProperties: true } },
+                 notes: { type: :array, description: 'Ordered by number, then id', items: V3_NOTE_SCHEMA },
+               }
+
+        let(:user) { create(:user) }
+        let(:Authorization) { "Bearer #{user.authentication_token}" }
+        let(:session_record) { create(:mobile_session, user: user) }
+        let(:uuid) { session_record.uuid }
+        run_test!
+      end
+
+      response '404', 'session not found' do
+        schema type: :object,
+               required: %w[error_code message],
+               properties: {
+                 error_code: { type: :string, example: 'session_not_found' },
+                 message: { type: :string, example: 'Session not found' },
+               }
+
+        let(:user) { create(:user) }
+        let(:Authorization) { "Bearer #{user.authentication_token}" }
+        let(:uuid) { 'does-not-exist' }
+        run_test!
+      end
+
+      response '401', 'unauthorized' do
+        schema type: :object,
+               required: %w[error_code message],
+               properties: {
+                 error_code: { type: :string, example: 'unauthorized' },
+                 message: { type: :string, example: 'Unauthorized' },
+               }
+
+        let(:uuid) { 'any-uuid' }
+        let(:Authorization) { 'Bearer invalid' }
+        run_test!
+      end
+    end
+  end
+
   path '/api/v3/mobile_sessions/{uuid}/measurements' do
     get '[ALPHA] Get measurements for a mobile session' do
       tags 'Mobile app: Mobile sessions'
@@ -856,6 +930,16 @@ RSpec.describe 'AirBeam Mobile Sessions', type: :request do
 
         An empty body returns `200`; use it to read the current server time from the
         `X-Server-Time` response header.
+
+        ## A finished session
+
+        A session that has been finished still accepts a backlog: frames timestamped
+        **at or before** its `finished_at` are stored as usual, so a phone that was
+        offline for a week can sync everything it recorded. Frames timestamped
+        **after** `finished_at` are dropped, and the response is still `200` — the
+        recording is over and there is nothing to retry. A batch that straddles the
+        finish keeps the earlier frames and drops the later ones, so the answer does
+        not distinguish the two cases: read `finished_at` on the session to know.
 
         ## Size limit
 

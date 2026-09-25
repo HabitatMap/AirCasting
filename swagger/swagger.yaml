@@ -1632,6 +1632,10 @@ paths:
 
         **One request = one stream.** To stream several sensors, send one request per
         `sensor_name`.
+
+        **A finished session** still accepts readings timestamped at or before its
+        `finished_at`; readings after it are dropped and the response is still `200`.
+        Same rule as the v3 endpoint above.
       parameters: []
       responses:
         '200':
@@ -3080,8 +3084,18 @@ paths:
                           format: int64
                           nullable: true
                           example: 1786707000000
-                          description: Epoch ms (UTC); null until the sensor first
-                            reports
+                          description: 'Epoch ms (UTC) the monitor last reached the
+                            server — not the reading''s own timestamp, so a device
+                            syncing an old backlog reports now. Null until it first
+                            reports. (Government stations carry the other meaning
+                            here: the latest reading''s time.)'
+                        finished_at:
+                          type: integer
+                          format: int64
+                          nullable: true
+                          example: 1786707060000
+                          description: 'Epoch ms (UTC) the owner decommissioned the
+                            monitor; null '
                         version:
                           type: integer
                         latitude:
@@ -3490,6 +3504,12 @@ paths:
                     format: int64
                     nullable: true
                     example: 1786707000000
+                  finished_at:
+                    type: integer
+                    format: int64
+                    nullable: true
+                    example: 1786707060000
+                    description: Epoch ms (UTC); null while the monitor is still deployed
                   version:
                     type: integer
                   latitude:
@@ -3628,6 +3648,12 @@ paths:
                     format: int64
                     nullable: true
                     example: 1786707000000
+                  finished_at:
+                    type: integer
+                    format: int64
+                    nullable: true
+                    example: 1786707060000
+                    description: Epoch ms (UTC); null while the monitor is still deployed
                   version:
                     type: integer
                   latitude:
@@ -3822,6 +3848,103 @@ paths:
                   message:
                     type: string
                     example: Unauthorized
+  "/api/v3/fixed_sessions/{uuid}/finish":
+    post:
+      summary: "[ALPHA] Finish a fixed session"
+      tags:
+      - 'Mobile app: Fixed sessions'
+      description: |
+        Decommissions the monitor and stamps `finished_at`.
+        Any measurements with timestamp after finished_at sent will be discarded.
+      parameters:
+      - name: uuid
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: Authorization
+        in: header
+        required: true
+        description: Bearer <user_token>
+        schema:
+          type: string
+      responses:
+        '200':
+          description: finished session — same shape as show
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - uuid
+                - finished_at
+                - version
+                properties:
+                  uuid:
+                    type: string
+                  title:
+                    type: string
+                  finished_at:
+                    type: integer
+                    format: int64
+                    example: 1786707060000
+                    description: Epoch ms (UTC). A real instant, not a local wall
+                      clock.
+                  last_measurement_at:
+                    type: integer
+                    format: int64
+                    nullable: true
+                    example: 1786707000000
+                    description: Left as it was — finishing does not erase the history
+                  version:
+                    type: integer
+                    description: Bumped on the call that actually finished the session
+                  tag_list:
+                    type: string
+                  share_url:
+                    type: string
+                    example: https://aircasting.org/s/ab12c
+                  device:
+                    type: object
+                    nullable: true
+                    additionalProperties: true
+                  streams:
+                    type: object
+                    additionalProperties:
+                      type: object
+                      additionalProperties: true
+        '404':
+          description: session not found
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - error_code
+                - message
+                properties:
+                  error_code:
+                    type: string
+                    example: session_not_found
+                  message:
+                    type: string
+                    example: Session not found
+        '401':
+          description: unauthorized
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - error_code
+                - message
+                properties:
+                  error_code:
+                    type: string
+                    example: unauthorized
+                  message:
+                    type: string
+                    example: Unauthorized
   "/api/v3/fixed_sessions/{uuid}/measurements":
     get:
       summary: "[ALPHA] Get measurements for a fixed session"
@@ -3988,6 +4111,17 @@ paths:
         **Time synchronisation:** an empty body returns `200` immediately. Read the
         current server time from the `X-Server-Time` response header (Unix epoch, UTC).
 
+        ## A finished session
+
+        A session that has been finished still accepts a backlog: frames timestamped
+        **at or before** its `finished_at` are stored as usual, so a monitor that lost
+        its connection before being decommissioned can still upload what it buffered.
+        Frames timestamped **after** `finished_at` are dropped, and the response is
+        still `200` — the session is over and there is nothing to retry. A batch that
+        straddles the finish keeps the earlier frames and drops the later ones, so the
+        answer does not distinguish the two cases: read `finished_at` on the session
+        to know.
+
         ## Error codes
 
         All error responses share the shape `{ "error_code": "...", "message": "..." }`.
@@ -4146,6 +4280,8 @@ paths:
                       active:
                         type: boolean
                         example: true
+                        description: False once the owner finishes the session, and
+                          otherwise false after 24h of silence.
                       title:
                         type: string
                         example: Rooftop monitor
@@ -4929,6 +5065,13 @@ paths:
                           format: int64
                           nullable: true
                           example: 1786707000000
+                        finished_at:
+                          type: integer
+                          format: int64
+                          nullable: true
+                          example: 1786707060000
+                          description: Epoch ms (UTC) the user declared the recording
+                            over; null while it is still running.
                         version:
                           type: integer
                         latitude:
@@ -5351,6 +5494,13 @@ paths:
                     format: int64
                     nullable: true
                     example: 1786707000000
+                  finished_at:
+                    type: integer
+                    format: int64
+                    nullable: true
+                    example: 1786707060000
+                    description: Epoch ms (UTC) the user declared the recording over;
+                      null while it is still running.
                   version:
                     type: integer
                   latitude:
@@ -5498,6 +5648,13 @@ paths:
                     type: string
                   version:
                     type: integer
+                  finished_at:
+                    type: integer
+                    format: int64
+                    nullable: true
+                    example: 1786707060000
+                    description: Epoch ms (UTC); null while the recording is still
+                      running. Not editable here — see POST /finish.
                   tag_list:
                     type: string
                     description: Tags joined with ", "
@@ -5719,6 +5876,131 @@ paths:
                   message:
                     type: string
                     example: Unauthorized
+  "/api/v3/mobile_sessions/{uuid}/finish":
+    post:
+      summary: "[ALPHA] Finish a mobile session"
+      tags:
+      - 'Mobile app: Mobile sessions'
+      description: |
+        Declares the recording over and stamps `finished_at`.
+        Any measurements with timestamp after finished_at sent will be discarded.
+      parameters:
+      - name: uuid
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: Authorization
+        in: header
+        required: true
+        description: Bearer <user_token>
+        schema:
+          type: string
+      responses:
+        '200':
+          description: finished session — same shape as show
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - uuid
+                - finished_at
+                - version
+                properties:
+                  uuid:
+                    type: string
+                  title:
+                    type: string
+                  finished_at:
+                    type: integer
+                    format: int64
+                    example: 1786707060000
+                    description: Epoch ms (UTC). A real instant, not a local wall
+                      clock.
+                  version:
+                    type: integer
+                    description: Bumped on the call that actually finished the session
+                  tag_list:
+                    type: string
+                  share_url:
+                    type: string
+                    example: http://aircasting.org/s/ab12c
+                  device:
+                    type: object
+                    nullable: true
+                    additionalProperties: true
+                  streams:
+                    type: object
+                    additionalProperties:
+                      type: object
+                      additionalProperties: true
+                  notes:
+                    type: array
+                    description: Ordered by number, then id
+                    items:
+                      type: object
+                      required:
+                      - id
+                      properties:
+                        id:
+                          type: integer
+                          description: The note's identity — use it to address the
+                            note
+                        number:
+                          type: integer
+                          nullable: true
+                          description: 'Server-allocated ordering key, 0-based. Not
+                            an address: gaps are normal and a number can be reused
+                            after a delete.'
+                        text:
+                          type: string
+                        date:
+                          type: string
+                          description: Wall clock as the recording phone saw it
+                        latitude:
+                          type: number
+                          format: float
+                        longitude:
+                          type: number
+                          format: float
+                        photo_location:
+                          type: string
+                          nullable: true
+                          description: Full URL of the note photo (600px limit), or
+                            null when there is none
+        '404':
+          description: session not found
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - error_code
+                - message
+                properties:
+                  error_code:
+                    type: string
+                    example: session_not_found
+                  message:
+                    type: string
+                    example: Session not found
+        '401':
+          description: unauthorized
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - error_code
+                - message
+                properties:
+                  error_code:
+                    type: string
+                    example: unauthorized
+                  message:
+                    type: string
+                    example: Unauthorized
   "/api/v3/mobile_sessions/{uuid}/measurements":
     get:
       summary: "[ALPHA] Get measurements for a mobile session"
@@ -5890,6 +6172,16 @@ paths:
 
         An empty body returns `200`; use it to read the current server time from the
         `X-Server-Time` response header.
+
+        ## A finished session
+
+        A session that has been finished still accepts a backlog: frames timestamped
+        **at or before** its `finished_at` are stored as usual, so a phone that was
+        offline for a week can sync everything it recorded. Frames timestamped
+        **after** `finished_at` are dropped, and the response is still `200` — the
+        recording is over and there is nothing to retry. A batch that straddles the
+        finish keeps the earlier frames and drops the later ones, so the answer does
+        not distinguish the two cases: read `finished_at` on the session to know.
 
         ## Size limit
 

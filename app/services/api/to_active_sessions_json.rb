@@ -102,6 +102,9 @@ class Api::ToActiveSessionsJson
         'users.username',
         'sessions.user_id',
         'sessions.last_measurement_at',
+        # `is_active` reads it; a narrowed select turns that into
+        # ActiveModel::MissingAttributeError.
+        'sessions.finished_at',
       ],
     )
   end

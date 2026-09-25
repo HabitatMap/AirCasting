@@ -81,6 +81,16 @@ module Api
         render json: serialize(find_owned_session), status: :ok
       end
 
+      def finish
+        session = find_owned_session
+        return session_not_found unless session
+
+        result = ::FixedSessions::Finisher.new.call(session: session)
+        return render_failure(result) unless result.success?
+
+        render json: serialize(find_owned_session), status: :ok
+      end
+
       def destroy
         session = current_user.fixed_sessions.by_uuid(params[:uuid]).first
         return already_deleted? ? head(:no_content) : session_not_found unless session

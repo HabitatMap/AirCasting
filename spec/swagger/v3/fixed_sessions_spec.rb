@@ -66,7 +66,9 @@ RSpec.describe 'AirBeamMini Fixed Sessions Binary Flow', type: :request do
                                      description: 'Epoch ms (UTC)' },
                        end_time: { type: :integer, format: :int64, nullable: true, example: 1_786_707_000_000 },
                        last_measurement_at: { type: :integer, format: :int64, nullable: true, example: 1_786_707_000_000,
-                                              description: 'Epoch ms (UTC); null until the sensor first reports' },
+                                              description: 'Epoch ms (UTC) the monitor last reached the server — not the reading\'s own timestamp, so a device syncing an old backlog reports now. Null until it first reports. (Government stations carry the other meaning here: the latest reading\'s time.)' },
+                       finished_at: { type: :integer, format: :int64, nullable: true, example: 1_786_707_060_000,
+                                      description: 'Epoch ms (UTC) the owner decommissioned the monitor; null ' },
                        version: { type: :integer },
                        latitude: { type: :number, format: :float, example: 40.7128,
                                    description: 'Indoor sessions carry the placeholder 200' },
@@ -432,6 +434,8 @@ RSpec.describe 'AirBeamMini Fixed Sessions Binary Flow', type: :request do
                  start_time: { type: :integer, format: :int64, nullable: true, example: 1_786_663_800_000 },
                  end_time: { type: :integer, format: :int64, nullable: true, example: 1_786_707_000_000 },
                  last_measurement_at: { type: :integer, format: :int64, nullable: true, example: 1_786_707_000_000 },
+                 finished_at: { type: :integer, format: :int64, nullable: true, example: 1_786_707_060_000,
+                                description: 'Epoch ms (UTC); null while the monitor is still deployed' },
                  version: { type: :integer },
                  latitude: { type: :number, format: :float },
                  longitude: { type: :number, format: :float },
@@ -532,6 +536,8 @@ RSpec.describe 'AirBeamMini Fixed Sessions Binary Flow', type: :request do
                  start_time: { type: :integer, format: :int64, nullable: true, example: 1_786_663_800_000 },
                  end_time: { type: :integer, format: :int64, nullable: true, example: 1_786_707_000_000 },
                  last_measurement_at: { type: :integer, format: :int64, nullable: true, example: 1_786_707_000_000 },
+                 finished_at: { type: :integer, format: :int64, nullable: true, example: 1_786_707_060_000,
+                                description: 'Epoch ms (UTC); null while the monitor is still deployed' },
                  version: { type: :integer },
                  latitude: { type: :number, format: :float },
                  longitude: { type: :number, format: :float },
@@ -719,6 +725,73 @@ RSpec.describe 'AirBeamMini Fixed Sessions Binary Flow', type: :request do
     end
   end
 
+  path '/api/v3/fixed_sessions/{uuid}/finish' do
+    post '[ALPHA] Finish a fixed session' do
+      tags 'Mobile app: Fixed sessions'
+      produces 'application/json'
+      description <<~DESC
+        Decommissions the monitor and stamps `finished_at`.
+        Any measurements with timestamp after finished_at sent will be discarded.
+      DESC
+
+      parameter name: :uuid, in: :path, type: :string, required: true
+      parameter name: :Authorization, in: :header, type: :string, required: true,
+                description: 'Bearer <user_token>'
+
+      response '200', 'finished session — same shape as show' do
+        schema type: :object,
+               required: %w[uuid finished_at version],
+               properties: {
+                 uuid: { type: :string },
+                 title: { type: :string },
+                 finished_at: { type: :integer, format: :int64, example: 1_786_707_060_000,
+                                description: 'Epoch ms (UTC). A real instant, not a local wall clock.' },
+                 last_measurement_at: { type: :integer, format: :int64, nullable: true,
+                                        example: 1_786_707_000_000,
+                                        description: 'Left as it was — finishing does not erase the history' },
+                 version: { type: :integer, description: 'Bumped on the call that actually finished the session' },
+                 tag_list: { type: :string },
+                 share_url: { type: :string, example: 'https://aircasting.org/s/ab12c' },
+                 device: { type: :object, nullable: true, additionalProperties: true },
+                 streams: { type: :object, additionalProperties: { type: :object, additionalProperties: true } },
+               }
+
+        let(:user) { create(:user) }
+        let(:Authorization) { "Bearer #{user.authentication_token}" }
+        let(:session_record) { create(:fixed_session, user: user) }
+        let(:uuid) { session_record.uuid }
+        run_test!
+      end
+
+      response '404', 'session not found' do
+        schema type: :object,
+               required: %w[error_code message],
+               properties: {
+                 error_code: { type: :string, example: 'session_not_found' },
+                 message: { type: :string, example: 'Session not found' },
+               }
+
+        let(:user) { create(:user) }
+        let(:Authorization) { "Bearer #{user.authentication_token}" }
+        let(:uuid) { 'does-not-exist' }
+        run_test!
+      end
+
+      response '401', 'unauthorized' do
+        schema type: :object,
+               required: %w[error_code message],
+               properties: {
+                 error_code: { type: :string, example: 'unauthorized' },
+                 message: { type: :string, example: 'Unauthorized' },
+               }
+
+        let(:uuid) { 'any-uuid' }
+        let(:Authorization) { 'Bearer invalid' }
+        run_test!
+      end
+    end
+  end
+
   path '/api/v3/fixed_sessions/{uuid}/measurements' do
     get '[ALPHA] Get measurements for a fixed session' do
       tags 'Mobile app: Fixed sessions'
@@ -867,6 +940,17 @@ RSpec.describe 'AirBeamMini Fixed Sessions Binary Flow', type: :request do
 
         **Time synchronisation:** an empty body returns `200` immediately. Read the
         current server time from the `X-Server-Time` response header (Unix epoch, UTC).
+
+        ## A finished session
+
+        A session that has been finished still accepts a backlog: frames timestamped
+        **at or before** its `finished_at` are stored as usual, so a monitor that lost
+        its connection before being decommissioned can still upload what it buffered.
+        Frames timestamped **after** `finished_at` are dropped, and the response is
+        still `200` — the session is over and there is nothing to retry. A batch that
+        straddles the finish keeps the earlier frames and drops the later ones, so the
+        answer does not distinguish the two cases: read `finished_at` on the session
+        to know.
 
         ## Error codes
 

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2026_09_01_120000) do
+ActiveRecord::Schema[7.0].define(version: 2026_09_23_120000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
   enable_extension "postgis"
@@ -262,6 +262,7 @@ ActiveRecord::Schema[7.0].define(version: 2026_09_01_120000) do
     t.string "time_zone", default: "UTC", null: false
     t.bigint "device_id"
     t.string "session_token"
+    t.timestamptz "finished_at"
     t.index "lower((uuid)::text)", name: "index_sessions_on_lower_uuid", unique: true
     t.index ["contribute"], name: "index_sessions_on_contribute"
     t.index ["device_id"], name: "index_sessions_on_device_id"
