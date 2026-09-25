@@ -941,6 +941,17 @@ RSpec.describe 'AirBeamMini Fixed Sessions Binary Flow', type: :request do
         **Time synchronisation:** an empty body returns `200` immediately. Read the
         current server time from the `X-Server-Time` response header (Unix epoch, UTC).
 
+        ## A finished session
+
+        A session that has been finished still accepts a backlog: frames timestamped
+        **at or before** its `finished_at` are stored as usual, so a monitor that lost
+        its connection before being decommissioned can still upload what it buffered.
+        Frames timestamped **after** `finished_at` are dropped, and the response is
+        still `200` — the session is over and there is nothing to retry. A batch that
+        straddles the finish keeps the earlier frames and drops the later ones, so the
+        answer does not distinguish the two cases: read `finished_at` on the session
+        to know.
+
         ## Error codes
 
         All error responses share the shape `{ "error_code": "...", "message": "..." }`.

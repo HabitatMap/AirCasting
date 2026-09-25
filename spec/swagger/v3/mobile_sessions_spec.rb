@@ -931,6 +931,16 @@ RSpec.describe 'AirBeam Mobile Sessions', type: :request do
         An empty body returns `200`; use it to read the current server time from the
         `X-Server-Time` response header.
 
+        ## A finished session
+
+        A session that has been finished still accepts a backlog: frames timestamped
+        **at or before** its `finished_at` are stored as usual, so a phone that was
+        offline for a week can sync everything it recorded. Frames timestamped
+        **after** `finished_at` are dropped, and the response is still `200` — the
+        recording is over and there is nothing to retry. A batch that straddles the
+        finish keeps the earlier frames and drops the later ones, so the answer does
+        not distinguish the two cases: read `finished_at` on the session to know.
+
         ## Size limit
 
         At most **3000 measurements** per request, so **75005 bytes**

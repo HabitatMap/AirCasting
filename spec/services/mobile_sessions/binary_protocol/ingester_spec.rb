@@ -328,6 +328,69 @@ RSpec.describe MobileSessions::BinaryProtocol::Ingester do
     end
   end
 
+  # Client decision, 2026-09-24: measurements recorded at or before `finished_at`
+  # are stored, later ones silently dropped, 200 either way. Mirrors the block in
+  # FixedSessions::BinaryProtocol::Ingester's spec.
+  describe 'when the session is finished' do
+    let(:finished_at) { Time.at(epoch).utc }
+
+    before { session.update!(finished_at: finished_at) }
+
+    it 'stores what the device recorded before the finish' do
+      binary = payload([frame(epoch: epoch - 60, type_id: 2, value: 1.0, lat: 40.0, lng: -74.0)])
+
+      expect { ingester.call(session: session, binary: binary) }
+        .to change(Measurement, :count).by(1)
+    end
+
+    it 'keeps a frame recorded exactly at the finish' do
+      binary = payload([frame(epoch: epoch, type_id: 2, value: 1.0, lat: 40.0, lng: -74.0)])
+
+      expect { ingester.call(session: session, binary: binary) }
+        .to change(Measurement, :count).by(1)
+    end
+
+    it 'drops what it recorded after, and still succeeds' do
+      binary = payload([frame(epoch: epoch + 60, type_id: 2, value: 1.0, lat: 40.0, lng: -74.0)])
+
+      expect { @result = ingester.call(session: session, binary: binary) }
+        .not_to change(Measurement, :count)
+
+      expect(@result).to be_success
+    end
+
+    it 'splits a batch straddling the finish' do
+      binary = payload(
+        [
+          frame(epoch: epoch - 60, type_id: 2, value: 1.0, lat: 40.0, lng: -74.0),
+          frame(epoch: epoch + 60, type_id: 2, value: 2.0, lat: 41.0, lng: -75.0),
+        ],
+      )
+
+      expect { ingester.call(session: session, binary: binary) }
+        .to change(Measurement, :count).by(1)
+      expect(Measurement.last.value).to be_within(0.001).of(1.0)
+    end
+
+    # The drop happens before any lock is taken, so a finished session costs a
+    # parse — no advisory lock, no stream reload, no session row update.
+    it 'takes no lock and touches no aggregate when everything is dropped' do
+      binary = payload([frame(epoch: epoch + 3600, type_id: 2, value: 1.0, lat: 40.0, lng: -74.0)])
+
+      expect(session).not_to receive(:lock!)
+      expect { ingester.call(session: session, binary: binary) }
+        .not_to change { stream.reload.measurements_count }
+    end
+
+    it 'rejects nothing when the session is still running' do
+      session.update!(finished_at: nil)
+      binary = payload([frame(epoch: epoch + 60, type_id: 2, value: 1.0, lat: 40.0, lng: -74.0)])
+
+      expect { ingester.call(session: session, binary: binary) }
+        .to change(Measurement, :count).by(1)
+    end
+  end
+
   describe 'when the session is deleted mid-upload' do
     # DELETE /api/v3/mobile_sessions/:uuid takes no lock, so a delete can commit
     # between this request loading the session and apply_session_times locking

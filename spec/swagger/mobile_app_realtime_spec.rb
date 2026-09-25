@@ -112,6 +112,10 @@ RSpec.describe 'Mobile app — realtime (fixed WiFi)', type: :request do
 
         **One request = one stream.** To stream several sensors, send one request per
         `sensor_name`.
+
+        **A finished session** still accepts readings timestamped at or before its
+        `finished_at`; readings after it are dropped and the response is still `200`.
+        Same rule as the v3 endpoint above.
       DESC
 
       parameter name: :body, in: :body, required: true, schema: {

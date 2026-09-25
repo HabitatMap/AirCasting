@@ -79,6 +79,60 @@ RSpec.describe FixedSessions::BinaryProtocol::Ingester do
         expect(session.last_measurement_at).not_to be_nil
       end
 
+      # Client decision, 2026-09-24. The fixed case this protects: a
+      # decommissioned monitor whose firmware auto-resumes over Wi-Fi keeps
+      # POSTing indefinitely with a valid session_token, and every batch has to
+      # answer 2xx or it stays in flash forever.
+      context 'when the session is finished' do
+        let(:finished_at) { Time.at(epoch).utc }
+
+        before { session.update!(finished_at: finished_at) }
+
+        it 'stores what the device recorded before the finish' do
+          binary = build_binary([{ epoch: epoch - 60, sensor_type_id: 2, value: 1.0 }])
+
+          expect { ingester.call(session: session, binary: binary) }
+            .to change(FixedMeasurement, :count).by(1)
+        end
+
+        it 'keeps a frame recorded exactly at the finish' do
+          expect { ingester.call(session: session, binary: binary) }
+            .to change(FixedMeasurement, :count).by(1)
+        end
+
+        it 'drops what it recorded after, and still succeeds' do
+          binary = build_binary([{ epoch: epoch + 60, sensor_type_id: 2, value: 1.0 }])
+
+          expect { ingester.call(session: session, binary: binary) }
+            .not_to change(FixedMeasurement, :count)
+
+          expect(ingester.call(session: session, binary: binary)).to be_success
+        end
+
+        it 'splits a batch straddling the finish' do
+          binary = build_binary(
+            [
+              { epoch: epoch - 60, sensor_type_id: 2, value: 1.0 },
+              { epoch: epoch + 60, sensor_type_id: 2, value: 2.0 },
+            ],
+          )
+
+          expect { ingester.call(session: session, binary: binary) }
+            .to change(FixedMeasurement, :count).by(1)
+          expect(FixedMeasurement.last.value).to be_within(0.01).of(1.0)
+        end
+
+        # A dropped batch must not touch last_measurement_at either — that is the
+        # signal the dormant/active lists read, and a decommissioned monitor
+        # POSTing forever would otherwise look permanently live.
+        it 'does not touch the session timestamps when everything is dropped' do
+          binary = build_binary([{ epoch: epoch + 3600, sensor_type_id: 2, value: 1.0 }])
+
+          expect { ingester.call(session: session, binary: binary) }
+            .not_to change { session.reload.last_measurement_at }
+        end
+      end
+
       describe 'averages recalculation heuristic' do
         # Pin time to 14:30 so we can construct epochs relative to it reliably
         around { |example| travel_to(Time.zone.parse('2026-04-07 14:30:00')) { example.run } }

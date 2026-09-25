@@ -90,6 +90,84 @@ describe 'POST api/v3/fixed_streaming/measurements' do
       expect(fm.time_with_time_zone).to eq(Time.parse('2025-02-10 07:55:32'))
     end
 
+    # Client decision, 2026-09-24. This is the path a decommissioned AirBeam
+    # keeps hitting: the firmware auto-resumes over Wi-Fi and POSTs forever.
+    # `time` here is a local wall clock, so 08:55:32 in Europe/Warsaw is
+    # 07:55:32 UTC — the comparison happens on the instant, not the reading.
+    context 'when the session is finished' do
+      let!(:stream) { create(:stream, session: session, sensor_name: 'AirBeam3-PM1') }
+
+      def post_data
+        post '/api/realtime/measurements',
+             headers: headers,
+             params: { data: data, compression: false }.to_json
+      end
+
+      it 'stores what the device recorded before the finish' do
+        session.update!(finished_at: Time.utc(2025, 2, 10, 8, 0, 0))
+
+        expect { post_data }.to change(FixedMeasurement, :count).by(1)
+        expect(response).to be_successful
+      end
+
+      it 'keeps a reading taken exactly at the finish' do
+        session.update!(finished_at: Time.utc(2025, 2, 10, 7, 55, 32))
+
+        expect { post_data }.to change(FixedMeasurement, :count).by(1)
+      end
+
+      it 'silently drops what it recorded after, and still answers 200' do
+        session.update!(finished_at: Time.utc(2025, 2, 10, 7, 0, 0))
+
+        expect { post_data }.not_to change(FixedMeasurement, :count)
+        expect(response).to be_successful
+      end
+
+      # Regression: the cutoff used to read the wall clock with bare `Time.parse`,
+      # which builds the Time in the *OS* zone. Ansible pins the servers to Etc/UTC
+      # so it agreed by luck, but under any zone with DST a reading inside the
+      # spring-forward gap comes back an hour late — 02:30 parses as 03:30 in
+      # Europe/Warsaw — and a measurement recorded before the finish would be
+      # silently dropped. The session zone here is UTC, so only the process zone is
+      # under test.
+      context 'when the process runs in a zone with a DST gap' do
+        around do |example|
+          original = ENV['TZ']
+          ENV['TZ'] = 'Europe/Warsaw'
+          example.run
+        ensure
+          ENV['TZ'] = original
+        end
+
+        let(:gap_data) do
+          JSON
+            .parse(data)
+            .merge('measurements' => [JSON.parse(data)['measurements'].first.merge('time' => '2025-03-30T02:30:00')])
+            .to_json
+        end
+
+        it 'reads a gap timestamp as written, not an hour later' do
+          session.update!(time_zone: 'UTC', finished_at: Time.utc(2025, 3, 30, 3, 0, 0))
+
+          expect {
+            post '/api/realtime/measurements',
+                 headers: headers,
+                 params: { data: gap_data, compression: false }.to_json
+          }.to change(FixedMeasurement, :count).by(1)
+        end
+      end
+
+      it 'does not move the session end timestamps' do
+        session.update!(finished_at: Time.utc(2025, 2, 10, 7, 0, 0))
+        before_end = session.end_time_local
+
+        post_data
+
+        expect(session.reload.end_time_local).to eq(before_end)
+        expect(session.last_measurement_at).to be_nil
+      end
+    end
+
     context 'when threshold set already exists' do
       it 'creates stream and measurement' do
         threshold_set =

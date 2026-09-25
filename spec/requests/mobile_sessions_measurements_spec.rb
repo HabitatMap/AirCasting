@@ -157,6 +157,98 @@ describe 'POST /api/v3/mobile_sessions/:mobile_session_uuid/measurements' do
     end
   end
 
+  # Client decision, 2026-09-24: a finished session still takes what was recorded
+  # before the finish — a phone offline for a week syncing its backlog — and
+  # silently drops what was recorded after, answering 200 either way.
+  describe 'a finished session' do
+    let(:finished_at) { Time.current.change(usec: 0) - 1.hour }
+
+    before { session.update!(finished_at: finished_at) }
+
+    def build_frames(*epochs)
+      header = ["\xAB\xBA", epochs.size].pack('a2n')
+      payload = header + epochs.map { |epoch|
+        [epoch, 2, 12.5, 40.7128, -74.006].pack('NCgGG')
+      }.join
+      payload + [payload.bytes.inject(0, :^)].pack('C')
+    end
+
+    it 'stores a backlog recorded before the finish' do
+      expect {
+        post_measurements(
+          uuid: session.uuid,
+          body: build_frames(finished_at.to_i - 120, finished_at.to_i - 60),
+          headers: bearer(user.authentication_token),
+        )
+      }.to change { stream.measurements.count }.by(2)
+
+      expect(response).to have_http_status(:ok)
+    end
+
+    it 'keeps a frame recorded exactly at the finish' do
+      expect {
+        post_measurements(
+          uuid: session.uuid,
+          body: build_frames(finished_at.to_i),
+          headers: bearer(user.authentication_token),
+        )
+      }.to change { stream.measurements.count }.by(1)
+    end
+
+    it 'silently drops frames recorded after the finish, still answering 200' do
+      expect {
+        post_measurements(
+          uuid: session.uuid,
+          body: build_frames(finished_at.to_i + 1, finished_at.to_i + 60),
+          headers: bearer(user.authentication_token),
+        )
+      }.not_to change(Measurement, :count)
+
+      expect(response).to have_http_status(:ok)
+      expect(response.body).to be_empty
+    end
+
+    it 'splits a batch that straddles the finish' do
+      expect {
+        post_measurements(
+          uuid: session.uuid,
+          body: build_frames(finished_at.to_i - 60, finished_at.to_i + 60),
+          headers: bearer(user.authentication_token),
+        )
+      }.to change { stream.measurements.count }.by(1)
+
+      stored = Utils.from_local_as_utc(stream.measurements.first.time, session.time_zone)
+      expect(stored).to eq(finished_at - 60)
+    end
+
+    # The session bounds fold in only what was stored, so a dropped frame cannot
+    # push end_time_local past the moment the user finished the recording.
+    it 'does not move end_time_local past the finish' do
+      before_end = session.end_time_local
+
+      post_measurements(
+        uuid: session.uuid,
+        body: build_frames(finished_at.to_i + 3600),
+        headers: bearer(user.authentication_token),
+      )
+
+      expect(session.reload.end_time_local).to eq(before_end)
+      expect(Measurement.count).to eq(0)
+    end
+
+    it 'leaves a running session taking everything' do
+      session.update!(finished_at: nil)
+
+      expect {
+        post_measurements(
+          uuid: session.uuid,
+          body: build_frames(finished_at.to_i + 60),
+          headers: bearer(user.authentication_token),
+        )
+      }.to change { stream.measurements.count }.by(1)
+    end
+  end
+
   describe 'a rival upload holding the stream' do
     it 'answers 503 with Retry-After so the client knows to come back' do
       allow(Measurement).to receive(:import)

@@ -14,6 +14,7 @@ module FixedSessions
         fixed_sessions_repository: FixedSessionsRepository.new,
         daily_averages_recalculator: FixedStreaming::StreamDailyAveragesRecalculator.new,
         hourly_averages_recalculator: FixedStreaming::StreamHourlyAveragesRecalculator.new,
+        cutoff: MeasurementCutoff.new,
         monitor: ::BinaryProtocol::Monitor.new(source: ::BinaryProtocol::Monitor::FIXED)
       )
         @parser = parser
@@ -22,6 +23,7 @@ module FixedSessions
         @fixed_sessions_repository = fixed_sessions_repository
         @daily_averages_recalculator = daily_averages_recalculator
         @hourly_averages_recalculator = hourly_averages_recalculator
+        @cutoff = cutoff
         @monitor = monitor
       end
 
@@ -49,7 +51,7 @@ module FixedSessions
 
       attr_reader :parser, :streams_repository, :fixed_measurements_repository,
                   :fixed_sessions_repository, :daily_averages_recalculator,
-                  :hourly_averages_recalculator, :monitor
+                  :hourly_averages_recalculator, :cutoff, :monitor
 
       def report_skipped_frames(session, result)
         total = result.measurements.size + result.skipped.size
@@ -66,6 +68,14 @@ module FixedSessions
       end
 
       def ingest(session:, measurements:)
+        # Frames recorded after the session was finished are dropped here, before
+        # anything is written, so a decommissioned monitor that keeps POSTing over
+        # Wi-Fi costs a parse and nothing else. `epoch` is UTC seconds,
+        # `finished_at` a UTC instant.
+        measurements = cutoff.call(session: session, measurements: measurements) do |m|
+          Time.at(m[:epoch])
+        end
+
         # A payload whose every frame was dropped still answers 2xx: the Mini only
         # trims the batch from flash on a 2xx, and anything else leaves that batch
         # in flash being re-POSTed for the life of the device.
