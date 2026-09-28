@@ -40,7 +40,15 @@ AirCasting::Application.configure do
   # config.logger = SyslogLogger.new
 
   # Use a different cache store in production
-  # config.cache_store = :mem_cache_store
+  # See production.rb for rationale (separate Redis logical DB, TTL'd keys).
+  redis_base = (ENV['REDIS_URL'].presence || 'redis://localhost:6379').sub(%r{/\d+\z}, '')
+  config.cache_store = :redis_cache_store, {
+    url: "#{redis_base}/2",
+    namespace: 'cache',
+    error_handler: ->(method:, returning:, exception:) {
+      Rails.logger.warn("[cache] #{method} failed: #{exception.class} #{exception.message}")
+    },
+  }
 
   # Enable serving of images, stylesheets, and JavaScripts from an asset server
   # config.action_controller.asset_host = "http://assets.example.com"
