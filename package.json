@@ -39,7 +39,7 @@
     "lodash": "^4.17.23",
     "luminous-lightbox": "^2.3.2",
     "mini-css-extract-plugin": "^2.7.6",
-    "moment": "2.29.4",
+    "moment": "2.31.0",
     "moment-timezone": "^0.5.47",
     "nouislider": "^13.1.4",
     "react": "^18.2.0",
