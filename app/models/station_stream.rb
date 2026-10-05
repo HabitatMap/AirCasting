@@ -3,6 +3,7 @@ class StationStream < ApplicationRecord
 
   belongs_to :source
   belongs_to :stream_configuration
+  belongs_to :station, optional: true
   has_many :station_measurements
   has_many :station_stream_daily_averages
 

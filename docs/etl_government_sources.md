@@ -32,13 +32,33 @@ A physical monitoring station may report multiple pollutants, but each measureme
 Each station stream holds:
 - `source_id` — which source this stream belongs to (EEA or EPA)
 - `stream_configuration_id` — which measurement type and unit
-- `external_ref` — the source's identifier for the station (e.g., sampling point ID for EEA, AQSID for EPA)
+- `external_ref` — the source's identifier for the stream (sampling point ID for EEA, AirNow `StationID` for EPA — the id HourlyData reports under)
 - `location` — geographic position (PostGIS point, SRID 4326)
 - `time_zone` — IANA time zone (e.g., `"Europe/Warsaw"`)
 - `first_measured_at` / `last_measured_at` — aggregate time bounds, kept up-to-date after each ingestion batch
 - `title`, `url_token` — display and URL fields
+- `station_id` — the station this stream comes off (nullable while the backfill is in progress, see `rake gov:stations:build`)
 
 **Unique constraint:** `(source_id, stream_configuration_id, external_ref)` — this prevents duplicate streams and is the key used for upserts during station import.
+
+### Station
+
+A **station** (`stations`) is the physical monitoring site that station streams come off. One station has one stream per measurement type it reports, and occasionally more than one (several EEA sampling points for one pollutant).
+
+Each station holds:
+- `source_id` — EEA or EPA
+- `external_ref` — the source's own site key: EPA `FullAQSID` from `Monitoring_Site_Locations_V2.dat`, EEA `Air Quality Station EoI Code`. Unique per source.
+- `title`, `location`, `time_zone` — the site's attributes
+- `excluded_reason` — why the station is hidden from the map, or NULL if shown
+
+**Excluded reasons.** An excluded station keeps its streams and keeps ingesting measurements; it is only left out of the map endpoints that read `station_streams` (web and older mobile apps). The allowed values are `Station::EXCLUDED_REASONS`:
+
+| Reason | Meaning |
+|---|---|
+| `temporary` | EPA `MonitorType` is `Temporary`: a portable unit that keeps its id while it moves between deployments, so its coordinates do not describe a fixed site |
+| `no_coordinates` | The source publishes no real position for the site (0,0 or 90,0) |
+
+There is no DB check constraint on the column, so adding a reason needs no migration: add it to the constant and to this table. Station imports write with `upsert_all`, which skips model validations, so always set the value through the constant.
 
 ### Station Measurements
 
@@ -342,6 +362,21 @@ The mechanics of importing differ per source:
 |--------|--------|
 | EEA | CSV files bundled with the application (`app/services/eea/stations/data/`) |
 | EPA | API call to AirNow S3 (`monitoring_site_locations.dat`) |
+
+The EEA files are an extract of the EEA Table publisher dataset
+`Airquality_Dissem.b2g.measurements`, taken 2026-02-02..04 (#1122). Which
+download filters were used is not recorded. A fresh extract is a zip holding
+one `DataExtract.csv` covering every pollutant:
+
+```sh
+curl -L -o extract.zip \
+  'https://discomap.eea.europa.eu/App/AQViewer/download?fqn=Airquality_Dissem.b2g.measurements&f=csv'
+```
+
+Split it on `Air Pollutant` (`NO2` / `O3` / `PM2.5`) to get the three bundled
+file names. Note that both readers glob `data/*.csv` non-recursively, so a new
+extract replaces the bundled files rather than sitting beside them — dated
+snapshots are kept one level down in `data/snapshots/`, see the README there.
 
 Despite the different data sources, both follow the same processing pipeline using the shared `GovernmentSources` station components:
 
