@@ -42,11 +42,80 @@ module GovernmentSources
       StreamConfiguration.where(canonical: true).index_by(&:measurement_type)
     end
 
-    def upsert_station_streams(records:)
-      StationStream.upsert_all(
+    # Insert only. An existing stream is never rewritten from here: its
+    # `url_token` must survive, and StationStreamsUpdater owns the columns that
+    # may change.
+    def insert_station_streams(records:)
+      StationStream.insert_all(
         records,
         unique_by: %i[source_id stream_configuration_id external_ref],
       )
+    end
+
+    def station_streams_by_key(source_name:)
+      StationStream
+        .joins(:stream_configuration)
+        .where(source_id: source_id(source_name: source_name))
+        .select(
+          :id,
+          :station_id,
+          :location,
+          :time_zone,
+          :external_ref,
+          'stream_configurations.measurement_type AS measurement_type',
+        )
+        .index_by { |s| [s.measurement_type, s.external_ref] }
+    end
+
+    # changes: [{ id:, station_id:, latitude:, longitude:, time_zone: }]
+    def update_station_streams(changes:, batch_size: 500)
+      conn = StationStream.connection
+
+      changes.each_slice(batch_size) do |batch|
+        values_sql =
+          batch
+            .map do |c|
+              "(#{conn.quote(c[:id])}::bigint, #{conn.quote(c[:station_id])}::bigint, " \
+                "#{conn.quote(c[:longitude])}::float8, #{conn.quote(c[:latitude])}::float8, " \
+                "#{conn.quote(c[:time_zone])})"
+            end
+            .join(', ')
+
+        conn.execute(<<~SQL.squish)
+          UPDATE station_streams
+          SET
+            station_id = v.station_id,
+            location = ST_SetSRID(ST_MakePoint(v.lon, v.lat), 4326),
+            time_zone = v.time_zone,
+            updated_at = NOW()
+          FROM (VALUES #{values_sql}) AS v(id, station_id, lon, lat, time_zone)
+          WHERE station_streams.id = v.id
+        SQL
+      end
+    end
+
+    def stations_by_external_ref(source_id:)
+      ::Station.where(source_id: source_id).index_by(&:external_ref)
+    end
+
+    def station_ids_by_external_ref(source_id:)
+      ::Station.where(source_id: source_id).pluck(:external_ref, :id).to_h
+    end
+
+    # upsert_all skips validations: excluded_reason must come from
+    # ::Station::EXCLUDED_REASONS.
+    def upsert_stations(records:)
+      return if records.empty?
+
+      ::Station.upsert_all(
+        records,
+        unique_by: %i[source_id external_ref],
+        update_only: %i[title location time_zone excluded_reason],
+      )
+    end
+
+    def delete_station_stream_daily_averages(stream_ids:)
+      StationStreamDailyAverage.where(station_stream_id: stream_ids).delete_all
     end
 
     def existing_station_stream_keys(source_name:)

@@ -45,6 +45,22 @@ describe GovernmentSources::StationEnricher do
 
       expect(result[1].stream_configuration_id).to eq(ozone_config.id)
     end
+
+    it 'keeps a location and time zone already set by the stations upserter' do
+      create(:source, name: 'EPA')
+      time_zone_finder = double(time_zone_at: 'Should/Not/Be/Used')
+      location = RGeo::Geographic.spherical_factory(srid: 4326).point(-80, 27)
+      station = build_station(location: location, time_zone: 'America/New_York')
+
+      result =
+        described_class
+          .new(time_zone_finder: time_zone_finder)
+          .call(stations: [station], source_name: :epa)
+
+      expect(result[0].location).to eq(location)
+      expect(result[0].time_zone).to eq('America/New_York')
+      expect(time_zone_finder).not_to have_received(:time_zone_at)
+    end
   end
 
   private

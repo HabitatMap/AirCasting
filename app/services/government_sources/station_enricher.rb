@@ -17,8 +17,10 @@ module GovernmentSources
       stream_configurations = repository.stream_configurations
 
       stations.each do |station|
-        station.location = build_location(station.latitude, station.longitude)
-        station.time_zone = time_zone_for(station.latitude, station.longitude)
+        # Already set when StationsUpserter ran first: the stream takes its
+        # station's point and zone, and the zone lookup is not repeated.
+        station.location ||= build_location(station.latitude, station.longitude)
+        station.time_zone ||= time_zone_for(station.latitude, station.longitude)
         station.source_id = source_id
         station.stream_configuration_id =
           stream_configurations[station.measurement_type]&.id

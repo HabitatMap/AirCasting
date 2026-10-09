@@ -9,7 +9,7 @@ describe Epa::ApiClient do
       described_class.new(client: client).fetch_locations
 
       expect(client).to have_received(:get)
-        .with('/files.airnowtech.org/airnow/today/monitoring_site_locations.dat')
+        .with('/files.airnowtech.org/airnow/today/Monitoring_Site_Locations_V2.dat')
     end
 
     it 'returns response from client' do
