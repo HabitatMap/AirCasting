@@ -33,13 +33,30 @@ describe GovernmentSources::StationStreamsCreator do
       expect(station_stream.uuid).to be_present
     end
 
-    it 'upserts existing station streams by unique key' do
+    it 'sets the station' do
+      station = create(:station, source: source)
+
+      subject.call(
+        stations: [
+          build_station(
+            source_id: source.id,
+            stream_configuration_id: stream_configuration.id,
+            station_id: station.id,
+          ),
+        ],
+      )
+
+      expect(StationStream.last.station_id).to eq(station.id)
+    end
+
+    it 'never rewrites an existing station stream' do
       create(
         :station_stream,
         external_ref: 'REF123',
         source: source,
         stream_configuration: stream_configuration,
         title: 'Original Station',
+        url_token: 'keepme',
       )
 
       station =
@@ -54,7 +71,8 @@ describe GovernmentSources::StationStreamsCreator do
         :count,
       )
 
-      expect(StationStream.last.title).to eq('Updated Station')
+      expect(StationStream.last.title).to eq('Original Station')
+      expect(StationStream.last.url_token).to eq('keepme')
     end
   end
 

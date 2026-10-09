@@ -8,7 +8,7 @@ module GovernmentSources
       return if stations.empty?
 
       records = build_station_streams(stations)
-      repository.upsert_station_streams(records:)
+      repository.insert_station_streams(records:)
     end
 
     private
@@ -29,6 +29,7 @@ module GovernmentSources
         url_token: station.url_token,
         source_id: station.source_id,
         stream_configuration_id: station.stream_configuration_id,
+        station_id: station.station_id,
         created_at: current_time,
         updated_at: current_time,
       }
