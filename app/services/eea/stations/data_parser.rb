@@ -2,21 +2,21 @@ module Eea
   module Stations
     class DataParser
       def call(file_path:)
-        stations = []
+        rows = []
 
-        CSV.foreach(file_path, headers: true) do |row|
-          measurement_type = normalized_measurement_type(row['Air Pollutant'])
-          unless GovernmentSources::Stations.supported_measurement_type?(
+        CSV.foreach(file_path, headers: true) do |csv_row|
+          measurement_type = normalized_measurement_type(csv_row['Air Pollutant'])
+          unless GovernmentSources::StationStreamRows.supported_measurement_type?(
                    measurement_type,
                  )
             next
           end
 
-          station = build_station(row, measurement_type)
-          stations << station if station.valid?
+          row = build_row(csv_row, measurement_type)
+          rows << row if row.valid?
         end
 
-        GovernmentSources::Stations.deduplicate(stations)
+        GovernmentSources::StationStreamRows.deduplicate(rows)
       end
 
       private
@@ -25,15 +25,15 @@ module Eea
         pollutant == 'O3' ? 'Ozone' : pollutant
       end
 
-      def build_station(row, measurement_type)
-        GovernmentSources::Station.new(
-          external_ref: row['Sampling Point Id'],
+      def build_row(csv_row, measurement_type)
+        GovernmentSources::StationStreamRow.new(
+          external_ref: csv_row['Sampling Point Id'],
           measurement_type: measurement_type,
-          latitude: GovernmentSources.to_float(row['Latitude']),
-          longitude: GovernmentSources.to_float(row['Longitude']),
+          latitude: GovernmentSources.to_float(csv_row['Latitude']),
+          longitude: GovernmentSources.to_float(csv_row['Longitude']),
           title:
-            row['Air Quality Station Name'].presence ||
-              row['Sampling Point Id'],
+            csv_row['Air Quality Station Name'].presence ||
+              csv_row['Sampling Point Id'],
         )
       end
     end

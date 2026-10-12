@@ -14,9 +14,9 @@ module Epa
     end
   end
 
+  # AirNow files are UTF-8 but arrive from the HTTP client tagged as binary.
+  # Read them as UTF-8 and replace only byte sequences that are not valid UTF-8.
   def sanitize_data(data)
-    data
-      .force_encoding('ASCII-8BIT')
-      .encode('UTF-8', invalid: :replace, undef: :replace, replace: "\uFFFD")
+    data.dup.force_encoding('UTF-8').scrub("\uFFFD")
   end
 end

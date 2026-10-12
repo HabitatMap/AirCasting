@@ -74,8 +74,8 @@ RSpec.describe DataFixes::EpaDataMigrator do
         )
       end
 
-      let(:api_station) do
-        GovernmentSources::Station.new(
+      let(:api_row) do
+        GovernmentSources::StationStreamRow.new(
           external_ref: 'ABC123',
           measurement_type: 'PM2.5',
           latitude: latitude,
@@ -84,7 +84,7 @@ RSpec.describe DataFixes::EpaDataMigrator do
         )
       end
 
-      before { allow(data_parser).to receive(:call).and_return([api_station]) }
+      before { allow(data_parser).to receive(:call).and_return([api_row]) }
 
       it 'creates a StationStream record' do
         expect { subject.call }.to change(StationStream, :count).by(1)
@@ -212,16 +212,16 @@ RSpec.describe DataFixes::EpaDataMigrator do
         create(:stream_daily_average, stream: stream2, date: Date.new(2025, 1, 15), value: 20)
       end
 
-      let(:api_stations) do
+      let(:api_rows) do
         [
-          GovernmentSources::Station.new(
+          GovernmentSources::StationStreamRow.new(
             external_ref: 'STATION1',
             measurement_type: 'PM2.5',
             latitude: latitude1,
             longitude: longitude1,
             title: 'Station 1',
           ),
-          GovernmentSources::Station.new(
+          GovernmentSources::StationStreamRow.new(
             external_ref: 'STATION2',
             measurement_type: 'PM2.5',
             latitude: latitude2,
@@ -231,7 +231,7 @@ RSpec.describe DataFixes::EpaDataMigrator do
         ]
       end
 
-      before { allow(data_parser).to receive(:call).and_return(api_stations) }
+      before { allow(data_parser).to receive(:call).and_return(api_rows) }
 
       it 'migrates all streams' do
         expect { subject.call }.to change(StationStream, :count).by(2)
@@ -280,8 +280,8 @@ RSpec.describe DataFixes::EpaDataMigrator do
         )
       end
 
-      let(:api_station) do
-        GovernmentSources::Station.new(
+      let(:api_row) do
+        GovernmentSources::StationStreamRow.new(
           external_ref: 'ABC123',
           measurement_type: 'PM2.5',
           latitude: latitude,
@@ -290,7 +290,7 @@ RSpec.describe DataFixes::EpaDataMigrator do
         )
       end
 
-      before { allow(data_parser).to receive(:call).and_return([api_station]) }
+      before { allow(data_parser).to receive(:call).and_return([api_row]) }
 
       it 'does not create duplicate StationStream' do
         expect { subject.call }.not_to change(StationStream, :count)
@@ -323,8 +323,8 @@ RSpec.describe DataFixes::EpaDataMigrator do
         )
       end
 
-      let(:api_station) do
-        GovernmentSources::Station.new(
+      let(:api_row) do
+        GovernmentSources::StationStreamRow.new(
           external_ref: 'ABC123',
           measurement_type: 'PM2.5',
           latitude: 99.999,
@@ -333,7 +333,7 @@ RSpec.describe DataFixes::EpaDataMigrator do
         )
       end
 
-      before { allow(data_parser).to receive(:call).and_return([api_station]) }
+      before { allow(data_parser).to receive(:call).and_return([api_row]) }
 
       it 'creates StationStream with a fake external ref' do
         expect { subject.call }.to change(StationStream, :count).by(1)
@@ -372,8 +372,8 @@ RSpec.describe DataFixes::EpaDataMigrator do
         )
       end
 
-      let(:api_station) do
-        GovernmentSources::Station.new(
+      let(:api_row) do
+        GovernmentSources::StationStreamRow.new(
           external_ref: 'ABC123',
           measurement_type: 'PM2.5',
           latitude: latitude,
@@ -382,7 +382,7 @@ RSpec.describe DataFixes::EpaDataMigrator do
         )
       end
 
-      before { allow(data_parser).to receive(:call).and_return([api_station]) }
+      before { allow(data_parser).to receive(:call).and_return([api_row]) }
 
       it 'does not create StationStream' do
         expect { subject.call }.not_to change(StationStream, :count)
@@ -415,8 +415,8 @@ RSpec.describe DataFixes::EpaDataMigrator do
       end
       let!(:measurement) { create(:fixed_measurement, stream: stream) }
 
-      let(:api_station) do
-        GovernmentSources::Station.new(
+      let(:api_row) do
+        GovernmentSources::StationStreamRow.new(
           external_ref: 'ABC123',
           measurement_type: 'PM2.5',
           latitude: 40.1231,
@@ -425,7 +425,7 @@ RSpec.describe DataFixes::EpaDataMigrator do
         )
       end
 
-      before { allow(data_parser).to receive(:call).and_return([api_station]) }
+      before { allow(data_parser).to receive(:call).and_return([api_row]) }
 
       it 'matches stations when coordinates round to same 3 decimal places' do
         expect { subject.call }.to change(StationStream, :count).by(1)
@@ -460,8 +460,8 @@ RSpec.describe DataFixes::EpaDataMigrator do
       end
       let!(:measurement) { create(:fixed_measurement, stream: stream) }
 
-      let(:api_station) do
-        GovernmentSources::Station.new(
+      let(:api_row) do
+        GovernmentSources::StationStreamRow.new(
           external_ref: 'NO2STATION',
           measurement_type: 'NO2',
           latitude: latitude,
@@ -470,7 +470,7 @@ RSpec.describe DataFixes::EpaDataMigrator do
         )
       end
 
-      before { allow(data_parser).to receive(:call).and_return([api_station]) }
+      before { allow(data_parser).to receive(:call).and_return([api_row]) }
 
       it 'matches stream to station with same measurement type' do
         subject.call
@@ -501,8 +501,8 @@ RSpec.describe DataFixes::EpaDataMigrator do
         )
       end
 
-      let(:api_station) do
-        GovernmentSources::Station.new(
+      let(:api_row) do
+        GovernmentSources::StationStreamRow.new(
           external_ref: 'ABC123',
           measurement_type: 'PM2.5',
           latitude: latitude,
@@ -511,7 +511,7 @@ RSpec.describe DataFixes::EpaDataMigrator do
         )
       end
 
-      before { allow(data_parser).to receive(:call).and_return([api_station]) }
+      before { allow(data_parser).to receive(:call).and_return([api_row]) }
 
       it 'creates StationStream with nil timestamps' do
         subject.call
@@ -566,8 +566,8 @@ RSpec.describe DataFixes::EpaDataMigrator do
         )
       end
 
-      let(:api_station) do
-        GovernmentSources::Station.new(
+      let(:api_row) do
+        GovernmentSources::StationStreamRow.new(
           external_ref: 'ABC123',
           measurement_type: 'PM2.5',
           latitude: latitude,
@@ -576,7 +576,7 @@ RSpec.describe DataFixes::EpaDataMigrator do
         )
       end
 
-      before { allow(data_parser).to receive(:call).and_return([api_station]) }
+      before { allow(data_parser).to receive(:call).and_return([api_row]) }
 
       it 'does not duplicate records on second run' do
         subject.call
@@ -637,7 +637,7 @@ RSpec.describe DataFixes::EpaDataMigrator do
     let(:longitude_base) { -74.0 }
 
     before do
-      stations = []
+      rows = []
 
       5.times do |i|
         lat = (latitude_base + i * 0.001).round(3)
@@ -655,8 +655,8 @@ RSpec.describe DataFixes::EpaDataMigrator do
         create(:fixed_measurement, stream: stream, value: 10.0 + i)
         create(:stream_daily_average, stream: stream, date: Date.new(2025, 1, 15) + i, value: 10 + i)
 
-        stations <<
-          GovernmentSources::Station.new(
+        rows <<
+          GovernmentSources::StationStreamRow.new(
             external_ref: "STATION#{i}",
             measurement_type: 'PM2.5',
             latitude: lat,
@@ -665,7 +665,7 @@ RSpec.describe DataFixes::EpaDataMigrator do
           )
       end
 
-      allow(data_parser).to receive(:call).and_return(stations)
+      allow(data_parser).to receive(:call).and_return(rows)
     end
 
     it 'migrates all streams in batch' do

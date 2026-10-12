@@ -6,9 +6,11 @@ module Epa
       @client = client
     end
 
+    # V2, not v1: only V2 carries the FullAQSID that groups streams into
+    # stations, and the MonitorType that marks temporary monitors.
     def fetch_locations
       client.get(
-        '/files.airnowtech.org/airnow/today/monitoring_site_locations.dat',
+        '/files.airnowtech.org/airnow/today/Monitoring_Site_Locations_V2.dat',
       )
     end
 

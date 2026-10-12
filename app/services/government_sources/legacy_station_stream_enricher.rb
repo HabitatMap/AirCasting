@@ -1,5 +1,5 @@
 module GovernmentSources
-  class StationEnricher
+  class LegacyStationStreamEnricher
     def initialize(
       repository: Repository.new,
       time_zone_finder: TimeZoneFinderWrapper.instance,
@@ -10,22 +10,22 @@ module GovernmentSources
       @token_generator = token_generator
     end
 
-    def call(stations:, source_name:)
-      return [] if stations.empty?
+    def call(rows:, source_name:)
+      return [] if rows.empty?
 
       source_id = repository.source_id(source_name: source_name)
       stream_configurations = repository.stream_configurations
 
-      stations.each do |station|
-        station.location = build_location(station.latitude, station.longitude)
-        station.time_zone = time_zone_for(station.latitude, station.longitude)
-        station.source_id = source_id
-        station.stream_configuration_id =
-          stream_configurations[station.measurement_type]&.id
-        station.url_token = generate_url_token
+      rows.each do |row|
+        row.location = build_location(row.latitude, row.longitude)
+        row.time_zone = time_zone_for(row.latitude, row.longitude)
+        row.source_id = source_id
+        row.stream_configuration_id =
+          stream_configurations[row.measurement_type]&.id
+        row.url_token = generate_url_token
       end
 
-      stations
+      rows
     end
 
     private
@@ -44,7 +44,7 @@ module GovernmentSources
 
     def generate_url_token
       token_generator.generate_unique(6) do |token|
-        repository.station_stream_url_token_available?(token)
+        FixedStream.where(url_token: token).count.zero?
       end
     end
   end

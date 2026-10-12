@@ -184,16 +184,16 @@ module DataFixes
 
     def build_aqsid_lookup
       data = api_client.fetch_locations
-      stations = data_parser.call(data: data)
+      rows = data_parser.call(data: data)
 
-      stations.each_with_object({}) do |station, lookup|
+      rows.each_with_object({}) do |row, lookup|
         key =
           location_key(
-            station.latitude,
-            station.longitude,
-            station.measurement_type,
+            row.latitude,
+            row.longitude,
+            row.measurement_type,
           )
-        lookup[key] = station.external_ref
+        lookup[key] = row.external_ref
       end
     end
 
