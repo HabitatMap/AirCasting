@@ -626,7 +626,7 @@ describe GovernmentSources::Repository do
   end
 
   describe '#update_station_streams' do
-    it 'writes station, point and time zone, and bumps updated_at' do
+    it 'writes station, point, time zone and title, and bumps updated_at' do
       station = create(:station)
       stream =
         create(:station_stream, time_zone: 'UTC', updated_at: 2.days.ago)
@@ -640,6 +640,7 @@ describe GovernmentSources::Repository do
             latitude: 27.123456,
             longitude: -81.654321,
             time_zone: 'America/New_York',
+            title: 'Wildwood',
           },
         ],
       )
@@ -649,6 +650,7 @@ describe GovernmentSources::Repository do
       expect(stream.location.y).to eq(27.123456)
       expect(stream.location.x).to eq(-81.654321)
       expect(stream.time_zone).to eq('America/New_York')
+      expect(stream.title).to eq('Wildwood')
       expect(stream.url_token).to eq(url_token)
       expect(stream.updated_at).to be > 1.minute.ago
     end

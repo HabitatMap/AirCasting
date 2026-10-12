@@ -49,6 +49,24 @@ describe GovernmentSources::StationStreamsUpdater do
       expect(rebuilder).to have_received(:perform_async).with([rezoned.id])
     end
 
+    it 'takes the title from the site list' do
+      stream = create_stream(station: station, title: 'Old Name')
+
+      subject.call(rows: [build_row(title: 'New Name')], source_name: :epa)
+
+      expect(stream.reload.title).to eq('New Name')
+    end
+
+    it 'keeps the title when the site list has no name for the site' do
+      stream = create_stream(title: 'Kapolei')
+
+      subject.call(rows: [build_row(title: 'SID1')], source_name: :epa)
+
+      stream.reload
+      expect(stream.title).to eq('Kapolei')
+      expect(stream.station_id).to eq(station.id)
+    end
+
     it 'logs a move over 1 km' do
       create_stream(location: 'SRID=4326;POINT(0 0)')
 
@@ -69,6 +87,7 @@ describe GovernmentSources::StationStreamsUpdater do
         external_ref: 'SID1',
         location: 'SRID=4326;POINT(-80.25 27.5)',
         time_zone: 'America/New_York',
+        title: 'Site 1',
       }.merge(overrides),
     )
   end
@@ -83,6 +102,7 @@ describe GovernmentSources::StationStreamsUpdater do
         longitude: -80.25,
         location: RGeo::Geographic.spherical_factory(srid: 4326).point(-80.25, 27.5),
         time_zone: 'America/New_York',
+        title: 'Site 1',
         station_id: station.id,
       }.merge(overrides),
     )

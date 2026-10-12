@@ -1,7 +1,10 @@
 module GovernmentSources
-  # Brings existing streams in line with the site list: their station, point and
-  # time zone. Nothing else is touched -- in particular not `url_token`, which
-  # the enricher regenerates for every row it sees.
+  # Brings existing streams in line with the site list: their station, point,
+  # time zone and title. Nothing else is touched -- in particular not
+  # `url_token`, which the enricher regenerates for every row it sees.
+  #
+  # A row with no real site name carries its external_ref as the title; that
+  # never replaces the name a stream already has.
   #
   # Only rows that actually change are written, so `updated_at` (which the
   # daily-average calculator selects on) moves only for real changes.
@@ -27,7 +30,8 @@ module GovernmentSources
         rows.filter_map do |row|
           current = existing[[row.measurement_type, row.external_ref]]
           next unless current
-          next if unchanged?(row, current)
+          title = title_for(row, current)
+          next if unchanged?(row, current, title)
 
           log_move(source_name, row, current)
           {
@@ -36,6 +40,7 @@ module GovernmentSources
             latitude: row.location.y,
             longitude: row.location.x,
             time_zone: row.time_zone,
+            title: title,
             time_zone_changed: row.time_zone != current.time_zone,
           }
         end
@@ -52,9 +57,14 @@ module GovernmentSources
 
     attr_reader :repository, :daily_averages_rebuilder, :logger
 
-    def unchanged?(row, current)
+    def title_for(row, current)
+      row.title == row.external_ref ? current.title : row.title
+    end
+
+    def unchanged?(row, current, title)
       current.station_id == row.station_id &&
         current.time_zone == row.time_zone &&
+        current.title == title &&
         GovernmentSources.same_point?(current.location, row.location.y, row.location.x)
     end
 

@@ -70,6 +70,25 @@ describe Epa::Stations::DataParser do
       expect(row.title).to eq('060010011')
     end
 
+    it 'uses StationID as title when the site name is a placeholder' do
+      data =
+        '150030010|150030010|840150030010|PM2.5|Permanent|0010|' \
+          "n/a|Active|HI1|Hawaii|R9|21.3239|-158.0882||-10.00|US||||||\n"
+      rows = parser.call(data: data)
+
+      expect(rows.first.title).to eq('150030010')
+    end
+
+    it 'keeps accented site names from binary UTF-8 data' do
+      data =
+        '000050128|000050128|124000050128|PM2.5|Permanent|0128|' \
+          'Aéroport de Montréal 1|Active|QC1|Quebec|CA|45.4673|-73.7417||' \
+          "-5.00|CA||||||\n"
+      rows = parser.call(data: data.b)
+
+      expect(rows.first.title).to eq('Aéroport de Montréal 1')
+    end
+
     it 'deduplicates rows by external_ref and measurement_type' do
       rows = parser.call(data: sample_data)
       pm25_rows = rows.select { |s| s.external_ref == '060010007' && s.measurement_type == 'PM2.5' }

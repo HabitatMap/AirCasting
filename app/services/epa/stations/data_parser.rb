@@ -15,6 +15,8 @@ module Epa
       FIELD_LONGITUDE = 12
 
       MONITOR_TYPE_TEMPORARY = 'Temporary'.freeze
+      # Site names that stand for "no name"; treated like a blank one.
+      PLACEHOLDER_SITE_NAMES = %w[n/a na unknown].freeze
 
       def call(data:)
         rows = []
@@ -73,6 +75,7 @@ module Epa
 
       def sanitize_title(title)
         return nil if title.blank?
+        return nil if PLACEHOLDER_SITE_NAMES.include?(title.strip.downcase)
 
         Epa.sanitize_data(title)
       end

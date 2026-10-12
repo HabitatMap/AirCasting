@@ -61,13 +61,14 @@ module GovernmentSources
           :station_id,
           :location,
           :time_zone,
+          :title,
           :external_ref,
           'stream_configurations.measurement_type AS measurement_type',
         )
         .index_by { |s| [s.measurement_type, s.external_ref] }
     end
 
-    # changes: [{ id:, station_id:, latitude:, longitude:, time_zone: }]
+    # changes: [{ id:, station_id:, latitude:, longitude:, time_zone:, title: }]
     def update_station_streams(changes:, batch_size: 500)
       conn = StationStream.connection
 
@@ -77,7 +78,7 @@ module GovernmentSources
             .map do |c|
               "(#{conn.quote(c[:id])}::bigint, #{conn.quote(c[:station_id])}::bigint, " \
                 "#{conn.quote(c[:longitude])}::float8, #{conn.quote(c[:latitude])}::float8, " \
-                "#{conn.quote(c[:time_zone])})"
+                "#{conn.quote(c[:time_zone])}, #{conn.quote(c[:title])})"
             end
             .join(', ')
 
@@ -87,8 +88,9 @@ module GovernmentSources
             station_id = v.station_id,
             location = ST_SetSRID(ST_MakePoint(v.lon, v.lat), 4326),
             time_zone = v.time_zone,
+            title = v.title,
             updated_at = NOW()
-          FROM (VALUES #{values_sql}) AS v(id, station_id, lon, lat, time_zone)
+          FROM (VALUES #{values_sql}) AS v(id, station_id, lon, lat, time_zone, title)
           WHERE station_streams.id = v.id
         SQL
       end

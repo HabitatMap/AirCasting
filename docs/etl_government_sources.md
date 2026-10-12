@@ -355,7 +355,7 @@ Deletes and recomputes the full daily-average history (from `first_measured_at`)
 Used during station import (see [Section 9](#9-station-import)). The unit passed between them is `GovernmentSources::StationStreamRow`: one stream (one pollutant at one site) as the source's site list describes it, before it is written. Its `station_*` fields describe the site it belongs to. Inside the module, refer to the model as `::Station`.
 
 - **StationsUpserter** — groups incoming streams by site, upserts one `stations` row per site (only sites that changed), then hands every stream its station's id, point and time zone. The time zone is looked up only for a new site or a moved one; a point with no zone (at sea) falls back to `UTC`
-- **StationStreamsUpdater** — writes `station_id`, `location` and `time_zone` to existing streams in batched UPDATEs, only for rows that changed. Never touches `url_token`. Logs moves over 1 km and enqueues the daily-average rebuild for streams whose time zone changed
+- **StationStreamsUpdater** — writes `station_id`, `location`, `time_zone` and `title` to existing streams in batched UPDATEs, only for rows that changed. A row whose site name is blank or a placeholder (`N/A`, `Unknown`) carries its `external_ref` as the title; that never replaces the title a stream already has. Never touches `url_token`. Logs moves over 1 km and enqueues the daily-average rebuild for streams whose time zone changed
 - **StationStreamFilter** — skips rows whose stream already exists, so only new ones go on
 - **StationStreamEnricher** — adds derived fields: PostGIS location and IANA time zone (via `TimeZoneFinderWrapper`) unless `StationsUpserter` already set them, `source_id`, `stream_configuration_id`, `url_token`
 - **StationStreamsCreator** — inserts new `station_streams` (`insert_all`, conflicts skipped); an existing row is never overwritten from here
@@ -395,7 +395,7 @@ snapshots are kept one level down in `data/snapshots/`, see the README there.
 ```
 Epa::Stations::DataParser (V2 rows → GovernmentSources::StationStreamRow, deduplicated)
   └─ StationsUpserter (stations rows; station id, point, zone onto every stream)
-       ├─ StationStreamsUpdater (existing streams: station_id, location, time_zone)
+       ├─ StationStreamsUpdater (existing streams: station_id, location, time_zone, title)
        └─ StationStreamFilter (new streams only)
             └─ StationStreamEnricher (source config, url_token)
                  └─ StationStreamsCreator (insert station_streams with station_id)
@@ -407,7 +407,7 @@ Rules:
 - **No `Status` filter.** Inactive rows are imported too; activity is decided by our own measurements.
 - **Temporary monitors** (`MonitorType` = `Temporary`) are imported and keep ingesting, but their station gets `excluded_reason = temporary`. The import sets `excluded_reason` from `MonitorType` on every run, so a reason set by hand on a site that is still in V2 is overwritten.
 - **No position, no row.** A row at 0,0 or 90,0 is dropped before anything is written: no new stream is created there, and an existing stream keeps the point it has.
-- **Streams follow their station.** An existing stream takes its station's point and time zone; its title and `url_token` are left alone.
+- **Streams follow their station.** An existing stream takes its station's point and time zone, and its title follows the site name in the site list, so renames and fixed encodings reach existing streams. `url_token` is left alone.
 - **Re-running is cheap.** Only changed stations and streams are written; an unchanged file writes nothing.
 
 ### EEA
