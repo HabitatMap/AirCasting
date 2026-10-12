@@ -17,7 +17,7 @@ module Epa
       MONITOR_TYPE_TEMPORARY = 'Temporary'.freeze
 
       def call(data:)
-        stations = []
+        rows = []
 
         data.each_line do |line|
           fields = line.strip.split('|', -1)
@@ -25,23 +25,23 @@ module Epa
 
           measurement_type =
             Epa.normalized_measurement_type(fields[FIELD_PARAMETER_NAME])
-          unless GovernmentSources::Stations.supported_measurement_type?(
+          unless GovernmentSources::StationStreamRows.supported_measurement_type?(
                    measurement_type,
                  )
             next
           end
 
-          station = build_station(fields, measurement_type)
-          stations << station if importable?(station)
+          row = build_row(fields, measurement_type)
+          rows << row if importable?(row)
         end
 
-        GovernmentSources::Stations.deduplicate(stations)
+        GovernmentSources::StationStreamRows.deduplicate(rows)
       end
 
       private
 
-      def build_station(fields, measurement_type)
-        GovernmentSources::Station.new(
+      def build_row(fields, measurement_type)
+        GovernmentSources::StationStreamRow.new(
           external_ref: fields[FIELD_STATION_ID],
           station_external_ref: fields[FIELD_FULL_AQSID],
           measurement_type: measurement_type,
@@ -55,11 +55,11 @@ module Epa
 
       # A row without a real position is dropped whole: a new stream is not
       # created at 0,0, and an existing one keeps the point it already has.
-      def importable?(station)
-        station.valid? && station.station_external_ref.present? &&
-          GovernmentSources::Stations.real_position?(
-            station.latitude,
-            station.longitude,
+      def importable?(row)
+        row.valid? && row.station_external_ref.present? &&
+          GovernmentSources.real_position?(
+            row.latitude,
+            row.longitude,
           )
       end
 

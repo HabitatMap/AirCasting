@@ -1,16 +1,16 @@
 require 'rails_helper'
 
-describe GovernmentSources::StationEnricher do
+describe GovernmentSources::StationStreamEnricher do
   subject { described_class.new }
 
   describe '#call' do
-    it 'returns empty array when given empty stations' do
-      result = subject.call(stations: [], source_name: :epa)
+    it 'returns empty array when given no rows' do
+      result = subject.call(rows: [], source_name: :epa)
 
       expect(result).to eq([])
     end
 
-    it 'enriches stations with location, time_zone, source_id, stream_configuration_id, and url_token' do
+    it 'enriches rows with location, time_zone, source_id, stream_configuration_id, and url_token' do
       source = create(:source, name: 'EPA')
       pm25_config =
         create(
@@ -25,16 +25,16 @@ describe GovernmentSources::StationEnricher do
           canonical: true,
         )
 
-      pm25_station = build_station(measurement_type: 'PM2.5')
-      ozone_station =
-        build_station(
+      pm25_row = build_row(measurement_type: 'PM2.5')
+      ozone_row =
+        build_row(
           measurement_type: 'Ozone',
           latitude: 51.5074,
           longitude: -0.1278,
         )
 
       result =
-        subject.call(stations: [pm25_station, ozone_station], source_name: :epa)
+        subject.call(rows: [pm25_row, ozone_row], source_name: :epa)
 
       expect(result[0].location.latitude).to eq(40.7128)
       expect(result[0].location.longitude).to eq(-74.006)
@@ -50,12 +50,12 @@ describe GovernmentSources::StationEnricher do
       create(:source, name: 'EPA')
       time_zone_finder = double(time_zone_at: 'Should/Not/Be/Used')
       location = RGeo::Geographic.spherical_factory(srid: 4326).point(-80, 27)
-      station = build_station(location: location, time_zone: 'America/New_York')
+      row = build_row(location: location, time_zone: 'America/New_York')
 
       result =
         described_class
           .new(time_zone_finder: time_zone_finder)
-          .call(stations: [station], source_name: :epa)
+          .call(rows: [row], source_name: :epa)
 
       expect(result[0].location).to eq(location)
       expect(result[0].time_zone).to eq('America/New_York')
@@ -65,8 +65,8 @@ describe GovernmentSources::StationEnricher do
 
   private
 
-  def build_station(overrides = {})
-    GovernmentSources::Station.new(
+  def build_row(overrides = {})
+    GovernmentSources::StationStreamRow.new(
       {
         external_ref: 'REF123',
         measurement_type: 'PM2.5',

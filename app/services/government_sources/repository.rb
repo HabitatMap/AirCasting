@@ -14,7 +14,7 @@ module GovernmentSources
       },
     }.freeze
 
-    def existing_station_keys(source_name:)
+    def existing_fixed_stream_keys(source_name:)
       FixedStream
         .joins(:stream_configuration)
         .where(source_id: source_id(source_name: source_name))

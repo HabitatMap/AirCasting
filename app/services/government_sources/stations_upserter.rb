@@ -16,14 +16,14 @@ module GovernmentSources
       @time_zone_finder = time_zone_finder
     end
 
-    def call(stations:, source_name:)
-      return [] if stations.empty?
+    def call(rows:, source_name:)
+      return [] if rows.empty?
 
       source_id = repository.source_id(source_name: source_name)
       existing = repository.stations_by_external_ref(source_id: source_id)
 
       sites =
-        stations.group_by(&:station_external_ref).to_h do |ref, members|
+        rows.group_by(&:station_external_ref).to_h do |ref, members|
           [ref, build_site(source_id, ref, members.first, existing[ref])]
         end
 
@@ -31,12 +31,12 @@ module GovernmentSources
       repository.upsert_stations(records: changed)
 
       station_ids = repository.station_ids_by_external_ref(source_id: source_id)
-      stations.each do |station|
-        site = sites.fetch(station.station_external_ref)
-        station.station_id = station_ids.fetch(station.station_external_ref)
-        station.source_id = source_id
-        station.location = site[:location]
-        station.time_zone = site[:time_zone]
+      rows.each do |row|
+        site = sites.fetch(row.station_external_ref)
+        row.station_id = station_ids.fetch(row.station_external_ref)
+        row.source_id = source_id
+        row.location = site[:location]
+        row.time_zone = site[:time_zone]
       end
     end
 
@@ -58,7 +58,8 @@ module GovernmentSources
     end
 
     def time_zone_for(row, current)
-      if current && Stations.same_point?(current.location, row.latitude, row.longitude)
+      if current &&
+           GovernmentSources.same_point?(current.location, row.latitude, row.longitude)
         return current.time_zone
       end
 
@@ -70,7 +71,11 @@ module GovernmentSources
 
     def unchanged?(site, current)
       current.present? && current.title == site[:title] &&
-        Stations.same_point?(current.location, site[:location].y, site[:location].x) &&
+        GovernmentSources.same_point?(
+          current.location,
+          site[:location].y,
+          site[:location].x,
+        ) &&
         current.time_zone == site[:time_zone] &&
         current.excluded_reason == site[:excluded_reason]
     end

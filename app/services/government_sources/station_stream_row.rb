@@ -1,8 +1,8 @@
 module GovernmentSources
-  # One stream as a source's site list describes it. Despite the name this is a
-  # stream (one pollutant at one site), not a `::Station` row; the `station_*`
-  # fields describe the site it belongs to.
-  Station =
+  # One stream (one pollutant at one site) as a source's site list describes
+  # it, before it is written to `station_streams`. The `station_*` fields
+  # describe the site it belongs to.
+  StationStreamRow =
     Struct.new(
       :external_ref,
       :measurement_type,

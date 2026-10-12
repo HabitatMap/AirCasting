@@ -10,13 +10,13 @@ describe GovernmentSources::StationStreamsCreator do
 
   describe '#call' do
     it 'creates StationStream with correct attributes' do
-      station =
-        build_station(
+      row =
+        build_row(
           source_id: source.id,
           stream_configuration_id: stream_configuration.id,
         )
 
-      expect { subject.call(stations: [station]) }.to change(
+      expect { subject.call(rows: [row]) }.to change(
         StationStream,
         :count,
       ).by(1)
@@ -37,8 +37,8 @@ describe GovernmentSources::StationStreamsCreator do
       station = create(:station, source: source)
 
       subject.call(
-        stations: [
-          build_station(
+        rows: [
+          build_row(
             source_id: source.id,
             stream_configuration_id: stream_configuration.id,
             station_id: station.id,
@@ -59,14 +59,14 @@ describe GovernmentSources::StationStreamsCreator do
         url_token: 'keepme',
       )
 
-      station =
-        build_station(
+      row =
+        build_row(
           source_id: source.id,
           stream_configuration_id: stream_configuration.id,
           title: 'Updated Station',
         )
 
-      expect { subject.call(stations: [station]) }.not_to change(
+      expect { subject.call(rows: [row]) }.not_to change(
         StationStream,
         :count,
       )
@@ -78,10 +78,10 @@ describe GovernmentSources::StationStreamsCreator do
 
   private
 
-  def build_station(overrides = {})
+  def build_row(overrides = {})
     factory = RGeo::Geographic.spherical_factory(srid: 4326)
 
-    GovernmentSources::Station.new(
+    GovernmentSources::StationStreamRow.new(
       {
         external_ref: 'REF123',
         measurement_type: 'PM2.5',

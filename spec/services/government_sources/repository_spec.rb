@@ -3,7 +3,7 @@ require 'rails_helper'
 describe GovernmentSources::Repository do
   subject { described_class.new }
 
-  describe '#existing_station_keys' do
+  describe '#existing_fixed_stream_keys' do
     it 'returns set of measurement_type and external_ref pairs for EPA source' do
       source = create(:source, name: 'EPA')
       stream_config =
@@ -19,7 +19,7 @@ describe GovernmentSources::Repository do
         external_ref: 'REF123',
       )
 
-      keys = subject.existing_station_keys(source_name: :epa)
+      keys = subject.existing_fixed_stream_keys(source_name: :epa)
 
       expect(keys).to include(%w[PM2.5 REF123])
     end
@@ -39,7 +39,7 @@ describe GovernmentSources::Repository do
         external_ref: 'EEA_REF',
       )
 
-      keys = subject.existing_station_keys(source_name: :eea)
+      keys = subject.existing_fixed_stream_keys(source_name: :eea)
 
       expect(keys).to include(%w[Ozone EEA_REF])
     end
@@ -60,7 +60,7 @@ describe GovernmentSources::Repository do
         external_ref: 'EPA_REF',
       )
 
-      keys = subject.existing_station_keys(source_name: :eea)
+      keys = subject.existing_fixed_stream_keys(source_name: :eea)
 
       expect(keys).not_to include(%w[PM2.5 EPA_REF])
     end

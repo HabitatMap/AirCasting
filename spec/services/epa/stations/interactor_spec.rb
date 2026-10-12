@@ -27,8 +27,8 @@ describe Epa::Stations::Interactor do
         GovernmentSources::StationsUpserter.new(time_zone_finder: time_zone_finder),
       station_streams_updater:
         GovernmentSources::StationStreamsUpdater.new(daily_averages_rebuilder: rebuilder),
-      station_enricher:
-        GovernmentSources::StationEnricher.new(time_zone_finder: time_zone_finder),
+      station_stream_enricher:
+        GovernmentSources::StationStreamEnricher.new(time_zone_finder: time_zone_finder),
     )
   end
 

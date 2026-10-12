@@ -7,8 +7,8 @@ describe GovernmentSources::StationsUpserter do
   subject { described_class.new(time_zone_finder: time_zone_finder) }
 
   describe '#call' do
-    it 'returns empty array when given empty stations' do
-      expect(subject.call(stations: [], source_name: :epa)).to eq([])
+    it 'returns empty array when given no rows' do
+      expect(subject.call(rows: [], source_name: :epa)).to eq([])
     end
 
     it 'creates one station per site and hands it to every stream of the site' do
@@ -16,7 +16,7 @@ describe GovernmentSources::StationsUpserter do
       ozone = build_row(external_ref: 'SID1', measurement_type: 'Ozone')
 
       expect {
-        subject.call(stations: [pm25, ozone], source_name: :epa)
+        subject.call(rows: [pm25, ozone], source_name: :epa)
       }.to change(Station, :count).by(1)
 
       station = Station.last
@@ -42,7 +42,7 @@ describe GovernmentSources::StationsUpserter do
       row =
         build_row(excluded_reason: Station::EXCLUDED_REASONS[:temporary])
 
-      subject.call(stations: [row], source_name: :epa)
+      subject.call(rows: [row], source_name: :epa)
 
       expect(Station.last.excluded_reason).to eq('temporary')
     end
@@ -57,7 +57,7 @@ describe GovernmentSources::StationsUpserter do
       )
       row = build_row
 
-      subject.call(stations: [row], source_name: :epa)
+      subject.call(rows: [row], source_name: :epa)
 
       expect(time_zone_finder).not_to have_received(:time_zone_at)
       expect(row.time_zone).to eq('America/Chicago')
@@ -73,7 +73,7 @@ describe GovernmentSources::StationsUpserter do
           time_zone: 'UTC',
         )
 
-      subject.call(stations: [build_row], source_name: :epa)
+      subject.call(rows: [build_row], source_name: :epa)
 
       station.reload
       expect(time_zone_finder).to have_received(:time_zone_at).with(
@@ -87,7 +87,7 @@ describe GovernmentSources::StationsUpserter do
     it 'falls back to UTC where the point has no time zone' do
       allow(time_zone_finder).to receive(:time_zone_at).and_return(nil)
 
-      subject.call(stations: [build_row(latitude: 50.0, longitude: -150.0)], source_name: :epa)
+      subject.call(rows: [build_row(latitude: 50.0, longitude: -150.0)], source_name: :epa)
 
       expect(Station.last.time_zone).to eq('UTC')
     end
@@ -104,7 +104,7 @@ describe GovernmentSources::StationsUpserter do
           updated_at: 2.days.ago,
         )
 
-      subject.call(stations: [build_row], source_name: :epa)
+      subject.call(rows: [build_row], source_name: :epa)
 
       expect(station.reload.updated_at).to be < 1.day.ago
     end
@@ -113,7 +113,7 @@ describe GovernmentSources::StationsUpserter do
   private
 
   def build_row(overrides = {})
-    GovernmentSources::Station.new(
+    GovernmentSources::StationStreamRow.new(
       {
         external_ref: 'SID1',
         station_external_ref: 'FULL1',

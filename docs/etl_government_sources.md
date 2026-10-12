@@ -352,15 +352,15 @@ Deletes and recomputes the full daily-average history (from `first_measured_at`)
 
 ### Station import components
 
-Used during station import (see [Section 9](#9-station-import)). Despite its name, `GovernmentSources::Station` is one incoming **stream** (one pollutant at one site); its `station_*` fields describe the site it belongs to. Inside the module, refer to the model as `::Station`.
+Used during station import (see [Section 9](#9-station-import)). The unit passed between them is `GovernmentSources::StationStreamRow`: one stream (one pollutant at one site) as the source's site list describes it, before it is written. Its `station_*` fields describe the site it belongs to. Inside the module, refer to the model as `::Station`.
 
 - **StationsUpserter** — groups incoming streams by site, upserts one `stations` row per site (only sites that changed), then hands every stream its station's id, point and time zone. The time zone is looked up only for a new site or a moved one; a point with no zone (at sea) falls back to `UTC`
 - **StationStreamsUpdater** — writes `station_id`, `location` and `time_zone` to existing streams in batched UPDATEs, only for rows that changed. Never touches `url_token`. Logs moves over 1 km and enqueues the daily-average rebuild for streams whose time zone changed
-- **StationFilter** — skips streams that already exist, so only new ones go on
-- **StationEnricher** — adds derived fields: PostGIS location and IANA time zone (via `TimeZoneFinderWrapper`) unless `StationsUpserter` already set them, `source_id`, `stream_configuration_id`, `url_token`
+- **StationStreamFilter** — skips rows whose stream already exists, so only new ones go on
+- **StationStreamEnricher** — adds derived fields: PostGIS location and IANA time zone (via `TimeZoneFinderWrapper`) unless `StationsUpserter` already set them, `source_id`, `stream_configuration_id`, `url_token`
 - **StationStreamsCreator** — inserts new `station_streams` (`insert_all`, conflicts skipped); an existing row is never overwritten from here
 
-Deduplication of incoming rows happens earlier, in the parser (`GovernmentSources::Stations.deduplicate`).
+Deduplication of incoming rows happens earlier, in the parser (`GovernmentSources::StationStreamRows.deduplicate`). Point helpers (`real_position?`, `same_point?`, `distance_m`) live on `GovernmentSources` itself.
 
 ---
 
@@ -393,11 +393,11 @@ snapshots are kept one level down in `data/snapshots/`, see the README there.
 ### EPA
 
 ```
-Epa::Stations::DataParser (V2 rows → GovernmentSources::Station, deduplicated)
+Epa::Stations::DataParser (V2 rows → GovernmentSources::StationStreamRow, deduplicated)
   └─ StationsUpserter (stations rows; station id, point, zone onto every stream)
        ├─ StationStreamsUpdater (existing streams: station_id, location, time_zone)
-       └─ StationFilter (new streams only)
-            └─ StationEnricher (source config, url_token)
+       └─ StationStreamFilter (new streams only)
+            └─ StationStreamEnricher (source config, url_token)
                  └─ StationStreamsCreator (insert station_streams with station_id)
 ```
 
@@ -412,7 +412,7 @@ Rules:
 
 ### EEA
 
-EEA's import still goes through the legacy path (`LegacyStationFilter` → `LegacyStationEnricher` → `FixedStreamsCreator`) and does not create `stations` yet.
+EEA's import still goes through the legacy path (`LegacyStationStreamFilter` → `LegacyStationStreamEnricher` → `FixedStreamsCreator`) and does not create `stations` yet.
 
 ---
 
@@ -580,7 +580,7 @@ scheduler:
 ### Step 9: Station Import
 
 Create `app/services/new_source/stations/` with:
-- `data_parser.rb` — parses the source-specific station list format and returns an array of `GovernmentSources::Station` objects
+- `data_parser.rb` — parses the source-specific station list format and returns an array of `GovernmentSources::StationStreamRow` objects
 - `interactor.rb` — orchestrates the station import pipeline using shared components:
 
 ```ruby
@@ -588,12 +588,11 @@ module NewSource
   module Stations
     class Interactor
       def call(stations_data)
-        stations = DataParser.new(stations_data).call
-        source = Source.find_by!(name: 'NewSource')
+        rows = DataParser.new.call(data: stations_data)
 
-        filtered  = GovernmentSources::StationFilter.new(stations, source).call
-        enriched  = GovernmentSources::StationEnricher.new(filtered, source).call
-        GovernmentSources::StationStreamsCreator.new(enriched).call
+        rows = GovernmentSources::StationStreamFilter.new.call(rows:, source_name: :new_source)
+        rows = GovernmentSources::StationStreamEnricher.new.call(rows:, source_name: :new_source)
+        GovernmentSources::StationStreamsCreator.new.call(rows:)
       end
     end
   end
