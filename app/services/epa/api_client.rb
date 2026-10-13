@@ -14,6 +14,21 @@ module Epa
       )
     end
 
+    # The site list as published on a past day. AirNow keeps V2 from 2023 on.
+    def fetch_locations_on(date:)
+      client.get(
+        "/files.airnowtech.org/airnow/#{date.strftime('%Y/%Y%m%d')}/Monitoring_Site_Locations_V2.dat",
+      )
+    end
+
+    # The legacy (v1) site list as published on a past day: the file
+    # AirNowStreaming keys its sessions from.
+    def fetch_v1_locations_on(date:)
+      client.get(
+        "/files.airnowtech.org/airnow/#{date.strftime('%Y/%Y%m%d')}/monitoring_site_locations.dat",
+      )
+    end
+
     def fetch_hourly_data(measured_at:)
       folder_path = measured_at.strftime('%Y/%Y%m%d')
       file_timestamp = measured_at.strftime('%Y%m%d%H')
