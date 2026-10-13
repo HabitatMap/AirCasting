@@ -27,6 +27,14 @@ namespace :epa do
     )
   end
 
+  desc 'Delete EPA streams with no station that were never measured. Run ' \
+         'after merge_unmatched_streams. Dry run; APPLY=1 writes'
+  task delete_never_measured_streams: :environment do
+    DataFixes::EpaNeverMeasuredStreamsDeleter.new.call(
+      apply: ENV['APPLY'] == '1',
+    )
+  end
+
   task migrate_data_to_station_streams: :environment do
     DataFixes::EpaDataMigrator.new.call
   end
