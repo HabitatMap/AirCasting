@@ -17,6 +17,16 @@ namespace :epa do
       .call(apply: ENV['APPLY'] == '1')
   end
 
+  desc 'Merge UNMATCHED EPA streams into the stream of the same station and ' \
+         'type. Run after link_stationless_streams. Dry run; APPLY=1 writes, ' \
+         'LIMIT=n caps the streams merged per run'
+  task merge_unmatched_streams: :environment do
+    DataFixes::EpaUnmatchedStreamsMerger.new.call(
+      apply: ENV['APPLY'] == '1',
+      limit: ENV['LIMIT'].presence&.to_i,
+    )
+  end
+
   task migrate_data_to_station_streams: :environment do
     DataFixes::EpaDataMigrator.new.call
   end

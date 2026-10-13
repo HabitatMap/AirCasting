@@ -420,6 +420,13 @@ The import links only streams whose ref is in today's V2. Two kinds are left ove
 - An `UNMATCHED` stream whose match is a single ref also takes that ref, so ingest feeds it again. A stream for that ref that has never measured anything (the import creates one for every V2 ref) is deleted first; if it has data, the `UNMATCHED` stream is only linked, so its station holds two streams of that type.
 - Point, time zone and title are left alone; the import aligns them once the ref is in today's V2.
 
+`rake epa:merge_unmatched_streams` (`DataFixes::EpaUnmatchedStreamsMerger`) then folds each linked `UNMATCHED` stream into the one real-ref stream of its station and measurement type, so a station holds one stream per type. Dry run by default; `APPLY=1` writes, `LIMIT=n` caps the streams merged per run.
+
+- One transaction per stream, `lock_timeout` 5s. Measurements for hours the target already has are dropped (the target's value wins); the rest move to the target. The target's measured range is widened, the `UNMATCHED` stream and its daily averages are deleted, and the target's daily averages are rebuilt.
+- The target keeps its id, uuid, url_token, point and time zone. A target over 1 km away is logged as `far=`.
+- `HAND_CHECKED` adds streams checked by hand against HourlyData, keyed by ref, as stream ids differ between environments. An entry old ref → new ref merges the old ref's stream into the new ref's stream of the same type, whether or not it has a station: Kent-S 236th `840530330090` → `840530330095` (AirNow re-keyed the site), and EBAM-14's `UNMATCHED` stream → `840MMSC00014`. An entry with `[until, ref]` pairs splits the stream by date instead, each piece into its own ref's stream of the same type: `CC0096625`, the legacy 0,0 bucket, holds St. Pete Midtown `840121030028` hours before 2025-03-01 and Ft. Dodge `840191870013` hours after. A piece without hours needs no target, and the stream is deleted once its pieces are moved, so the never-measured `CC0096625` streams go too. The dry run logs each piece's target, hours moved and dropped, and first and last hour.
+- A stream whose station has no stream of its type, or several, is left alone and logged. A lock timeout or a unique violation (ingest wrote the same hour meanwhile) rolls that stream back; it is retried by the next run.
+
 ### EEA
 
 EEA's import still goes through the legacy path (`LegacyStationStreamFilter` → `LegacyStationStreamEnricher` → `FixedStreamsCreator`) and does not create `stations` yet.
