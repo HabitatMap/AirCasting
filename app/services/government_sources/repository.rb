@@ -82,7 +82,9 @@ module GovernmentSources
             end
             .join(', ')
 
-        conn.execute(<<~SQL.squish)
+        # Not squished: the titles are literals in this SQL, and squish would
+        # collapse their spaces too, so the next import would see a change again.
+        conn.execute(<<~SQL)
           UPDATE station_streams
           SET
             station_id = v.station_id,

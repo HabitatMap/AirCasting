@@ -63,6 +63,32 @@ describe Epa::Stations::DataParser do
       )
     end
 
+    it 'marks a site at a whole-degree placeholder point as having no coordinates' do
+      rows =
+        parser.call(
+          data:
+            '210890008|210890008|840210890008|O3|Permanent|0008|' \
+              "N/A|Active|KY1|Kentucky|R4|50.000000|-150.000000||-6.00|US||||||\n",
+        )
+
+      expect(rows.first.excluded_reason).to eq(
+        Station::EXCLUDED_REASONS[:no_coordinates],
+      )
+    end
+
+    it 'prefers no coordinates over temporary' do
+      rows =
+        parser.call(
+          data:
+            'MMTEST001|MMTEST001|840MMTEST001|PM2.5|Temporary|0001|' \
+              "Unit1|Active|CA1|California|R9|40.000000|-120.000000||-8.00|US||||||\n",
+        )
+
+      expect(rows.first.excluded_reason).to eq(
+        Station::EXCLUDED_REASONS[:no_coordinates],
+      )
+    end
+
     it 'uses StationID as title when the site name is missing' do
       rows = parser.call(data: sample_data)
       row = rows.find { |s| s.external_ref == '060010011' }
@@ -87,6 +113,16 @@ describe Epa::Stations::DataParser do
       rows = parser.call(data: data.b)
 
       expect(rows.first.title).to eq('Aéroport de Montréal 1')
+    end
+
+    it 'collapses runs of spaces in site names' do
+      data =
+        '060070008|060070008|840060070008|PM2.5|Permanent|0008|' \
+          "Chico -  East |Active|CA1|California|R9|39.76168|-121.84047||" \
+          "-8.00|US||||||\n"
+      rows = parser.call(data: data)
+
+      expect(rows.first.title).to eq('Chico - East')
     end
 
     it 'deduplicates rows by external_ref and measurement_type' do
