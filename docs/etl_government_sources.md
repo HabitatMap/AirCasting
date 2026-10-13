@@ -387,8 +387,8 @@ curl -L -o extract.zip \
 
 Split it on `Air Pollutant` (`NO2` / `O3` / `PM2.5`) to get the three bundled
 file names. Note that both readers glob `data/*.csv` non-recursively, so a new
-extract replaces the bundled files rather than sitting beside them — dated
-snapshots are kept one level down in `data/snapshots/`, see the README there.
+extract replaces the bundled files rather than sitting beside them; keep older
+extracts outside `data/`.
 
 ### EPA
 
@@ -415,23 +415,17 @@ Rules:
 
 #### Streams the import leaves without a station
 
-The import links only streams whose ref and measurement type are in today's V2. Three kinds are left over: streams of sites that have since left V2, streams of a parameter the site no longer lists (AirNow drops a site's O3 row at the end of its ozone season and the site stays listed with its other parameters), and `UNMATCHED-<session uuid>` streams that `DataFixes::EpaDataMigrator` could not key. `rake epa:link_stationless_streams` (`DataFixes::EpaStationlessStreamsLinker`) links them, one-off, against the V2 published on the day each stream last reported (`airnow/YYYY/YYYYMMDD/Monitoring_Site_Locations_V2.dat`, kept from 2023 on). Dry run by default; `APPLY=1` writes, `CACHE_DIR=path` keeps the downloaded files.
+The import links only streams whose ref and measurement type are in today's V2. Left over: streams of sites that have left V2, streams of a parameter the site no longer lists (AirNow drops a site's O3 row when its ozone season ends), and `UNMATCHED-<session uuid>` streams that `DataFixes::EpaDataMigrator` could not key. Three one-off rake tasks, run in order, each a dry run unless `APPLY=1`, each safe to re-run.
 
-- A real ref is matched by ref and measurement type, and, when that day's V2 lacks the row, against the previous day's V2: AirNow drops the row on the day the site stops reporting the parameter, and the stream's last hour often falls on that day (logged `via=previous_day`). An `UNMATCHED` stream is matched the migrator's way, by its point rounded to 3 decimals plus measurement type.
-- A stream is linked only when every matching row belongs to one station. A station missing from `stations` is created from that day's row.
-- An `UNMATCHED` stream that day's V2 leaves unmatched or ambiguous falls back to its legacy session (the uuid in its ref). `AirNowStreaming` created and fed that session from the v1 list (`monitoring_site_locations.dat`), keying each AQSID by the point of its first row rounded to 3 decimals. The v1 list of the day it last fed the session (±1 day, as it reads AirNow's `today` folder), else of the day it created it, must hold exactly one AQSID with that measurement type at the session's point; the V2 of the same day gives the station.
-- An `UNMATCHED` stream whose match is a single ref also takes that ref, so ingest feeds it again. A stream for that ref that has never measured anything (the import creates one for every V2 ref) is deleted first; if it has data, the `UNMATCHED` stream is only linked, so its station holds two streams of that type.
-- Point, time zone and title are left alone; the import aligns them once the ref is in today's V2.
-- Refs in the merger's `HAND_CHECKED` (below) are skipped and logged `hand_checked`: the merger moves them whether or not they have a station, and linking them first could create a station the merge leaves empty (Kent `840530330090` is still listed the day before its last hour).
+`rake epa:link_stationless_streams` (`DataFixes::EpaStationlessStreamsLinker`, `CACHE_DIR=path` keeps downloads) matches each stream against the V2 of the day it last reported (`airnow/YYYY/YYYYMMDD/Monitoring_Site_Locations_V2.dat`, kept from 2023 on):
+- A real ref by ref and measurement type, falling back to the previous day's V2 (`via=previous_day`) for a parameter dropped that day. An `UNMATCHED` stream by its point rounded to 3 decimals plus type, falling back to the v1 list (`monitoring_site_locations.dat`) of the day its legacy `AirNowStreaming` session was last fed (or created), keyed the way that session was.
+- Linked only when every matching row belongs to one station; a missing station is created from that day's row. Point, time zone and title are left to the import.
+- An `UNMATCHED` stream matched to a single ref takes that ref, replacing the ref's stream if it never measured anything; if that stream has data, the two are only linked and the merger folds them.
+- Refs in the merger's `HAND_CHECKED` are skipped (`hand_checked`).
 
-`rake epa:merge_unmatched_streams` (`DataFixes::EpaUnmatchedStreamsMerger`) then folds each linked `UNMATCHED` stream into the one real-ref stream of its station and measurement type, so a station holds one stream per type. Dry run by default; `APPLY=1` writes, `LIMIT=n` caps the streams merged per run.
+`rake epa:merge_unmatched_streams` (`DataFixes::EpaUnmatchedStreamsMerger`, `LIMIT=n` caps streams per run) folds each linked `UNMATCHED` stream into the one real-ref stream of its station and type, so a station holds one stream per type. One transaction per stream, `lock_timeout` 5s; hours the target already has are dropped (the target's value wins), the rest move; daily averages are rebuilt. The target keeps its id, uuid, url_token, point and zone; one over 1 km away is logged `far=`. A lock timeout or unique violation rolls the stream back for the next run. `HAND_CHECKED` holds cases checked by hand against HourlyData, keyed by ref: old ref → new ref merges (a re-keyed site), or `[until, ref]` pairs that split a stream by date (the legacy 0,0 bucket `CC0096625`).
 
-- One transaction per stream, `lock_timeout` 5s. Measurements for hours the target already has are dropped (the target's value wins); the rest move to the target. The target's measured range is widened, the `UNMATCHED` stream and its daily averages are deleted, and the target's daily averages are rebuilt.
-- The target keeps its id, uuid, url_token, point and time zone. A target over 1 km away is logged as `far=`.
-- `HAND_CHECKED` adds streams checked by hand against HourlyData, keyed by ref, as stream ids differ between environments. An entry old ref → new ref merges the old ref's stream into the new ref's stream of the same type, whether or not it has a station: Kent-S 236th `840530330090` → `840530330095` (AirNow re-keyed the site), and EBAM-14's `UNMATCHED` stream → `840MMSC00014`. An entry with `[until, ref]` pairs splits the stream by date instead, each piece into its own ref's stream of the same type: `CC0096625`, the legacy 0,0 bucket, holds St. Pete Midtown `840121030028` hours before 2025-03-01 and Ft. Dodge `840191870013` hours after. A piece without hours needs no target, and the stream is deleted once its pieces are moved, so the never-measured `CC0096625` streams go too. The dry run logs each piece's target, hours moved and dropped, and first and last hour.
-- A stream whose station has no stream of its type, or several, is left alone and logged. A lock timeout or a unique violation (ingest wrote the same hour meanwhile) rolls that stream back; it is retried by the next run.
-
-`rake epa:delete_never_measured_streams` (`DataFixes::EpaNeverMeasuredStreamsDeleter`) last deletes the EPA streams that still have no station and were never measured: no measured range, no measurements, no daily averages. They came from the old v1 site list for monitors that never reported and are not in V2 (or sit at 0,0, which the import drops), so the import does not recreate them. A never-measured stream with a station is a V2 monitor and is kept. Dry run by default, logging each stream; `APPLY=1` deletes in one statement that repeats every condition, so a stream ingest writes to meanwhile is kept.
+`rake epa:delete_never_measured_streams` (`DataFixes::EpaNeverMeasuredStreamsDeleter`) deletes EPA streams that still have no station and never measured anything — v1-era monitors that never reported and that the import does not recreate. The delete repeats every condition, so a stream ingest writes to meanwhile is kept.
 
 ### EEA
 
