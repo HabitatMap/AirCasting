@@ -56,7 +56,7 @@ Each station holds:
 | Reason | Meaning |
 |---|---|
 | `temporary` | EPA `MonitorType` is `Temporary`: a portable unit that keeps its id while it moves between deployments, so its coordinates do not describe a fixed site |
-| `no_coordinates` | The source publishes no real position for the site (0,0 or 90,0) |
+| `no_coordinates` | The source publishes no real position for the site. EPA: a site listed on a whole degree in both axes, a placeholder such as 50,−150 (rows at 0,0 or 90,0 are dropped before import instead) |
 
 There is no DB check constraint on the column, so adding a reason needs no migration: add it to the constant and to this table. Station imports write with `upsert_all`, which skips model validations, so always set the value through the constant.
 
@@ -405,7 +405,9 @@ Rules:
 - **Keys.** A stream's `external_ref` is V2 `StationID`, the id HourlyData reports under. A station's `external_ref` is V2 `FullAQSID`; one `StationID` always belongs to one `FullAQSID`, and every row of one `FullAQSID` carries the same name, point and monitor type.
 - **Everything in V2 is imported.** EPA support describes V2 as the complete site list, so streams are created for every supported row, including sites that are not reporting right now. A stream that never reports gets no measurements and is never shown on the web map, which requires `last_measured_at`.
 - **No `Status` filter.** Inactive rows are imported too; activity is decided by our own measurements.
-- **Temporary monitors** (`MonitorType` = `Temporary`) are imported and keep ingesting, but their station gets `excluded_reason = temporary`. The import sets `excluded_reason` from `MonitorType` on every run, so a reason set by hand on a site that is still in V2 is overwritten.
+- **Temporary monitors** (`MonitorType` = `Temporary`) are imported and keep ingesting, but their station gets `excluded_reason = temporary`.
+- **Placeholder points.** A site listed on a whole degree in both axes (50,−150; 0,−50; 1,−51 — five sites in October 2026, all `N/A`) is imported but gets `excluded_reason = no_coordinates`, which wins over `temporary`. Real positions are listed to 4–6 decimals.
+- The import sets `excluded_reason` from `MonitorType` and the point on every run, so a reason set by hand on a site that is still in V2 is overwritten.
 - **No position, no row.** A row at 0,0 or 90,0 is dropped before anything is written: no new stream is created there, and an existing stream keeps the point it has.
 - **Streams follow their station.** An existing stream takes its station's point and time zone, and its title follows the site name in the site list, so renames and fixed encodings reach existing streams. `url_token` is left alone.
 - **Re-running is cheap.** Only changed stations and streams are written; an unchanged file writes nothing.

@@ -43,15 +43,19 @@ module Epa
       private
 
       def build_row(fields, measurement_type)
+        latitude = GovernmentSources.to_float(fields[FIELD_LATITUDE])
+        longitude = GovernmentSources.to_float(fields[FIELD_LONGITUDE])
+
         GovernmentSources::StationStreamRow.new(
           external_ref: fields[FIELD_STATION_ID],
           station_external_ref: fields[FIELD_FULL_AQSID],
           measurement_type: measurement_type,
-          latitude: GovernmentSources.to_float(fields[FIELD_LATITUDE]),
-          longitude: GovernmentSources.to_float(fields[FIELD_LONGITUDE]),
+          latitude: latitude,
+          longitude: longitude,
           title:
             sanitize_title(fields[FIELD_SITE_NAME]) || fields[FIELD_STATION_ID],
-          excluded_reason: excluded_reason(fields[FIELD_MONITOR_TYPE]),
+          excluded_reason:
+            excluded_reason(fields[FIELD_MONITOR_TYPE], latitude, longitude),
         )
       end
 
@@ -65,12 +69,24 @@ module Epa
           )
       end
 
-      # Temporary monitors keep their id while they move between deployments,
-      # so their coordinates do not describe a fixed site.
-      def excluded_reason(monitor_type)
-        return unless monitor_type == MONITOR_TYPE_TEMPORARY
+      # A placeholder point says nothing about where the site is, so it wins
+      # over temporary. Temporary monitors keep their id while they move
+      # between deployments, so their coordinates do not describe a fixed site.
+      def excluded_reason(monitor_type, latitude, longitude)
+        if placeholder_point?(latitude, longitude)
+          ::Station::EXCLUDED_REASONS[:no_coordinates]
+        elsif monitor_type == MONITOR_TYPE_TEMPORARY
+          ::Station::EXCLUDED_REASONS[:temporary]
+        end
+      end
 
-        ::Station::EXCLUDED_REASONS[:temporary]
+      # AirNow parks some sites it has no position for on whole degrees
+      # (50,-150; 0,-50; 1,-51). Real positions are listed to 4-6 decimals, so
+      # a site does not land on a whole degree in both axes by chance.
+      def placeholder_point?(latitude, longitude)
+        return false if latitude.nil? || longitude.nil?
+
+        latitude == latitude.round && longitude == longitude.round
       end
 
       def sanitize_title(title)
