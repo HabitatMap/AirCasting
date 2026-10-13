@@ -654,6 +654,25 @@ describe GovernmentSources::Repository do
       expect(stream.url_token).to eq(url_token)
       expect(stream.updated_at).to be > 1.minute.ago
     end
+
+    it 'writes the title exactly as given, inner spaces included' do
+      stream = create(:station_stream, title: 'Chico - East')
+
+      subject.update_station_streams(
+        changes: [
+          {
+            id: stream.id,
+            station_id: nil,
+            latitude: 39.76168,
+            longitude: -121.84047,
+            time_zone: 'America/Los_Angeles',
+            title: 'Chico -  East',
+          },
+        ],
+      )
+
+      expect(stream.reload.title).to eq('Chico -  East')
+    end
   end
 
   describe '#upsert_stations' do

@@ -35,6 +35,9 @@ namespace :epa do
     )
   end
 
+  desc "One-off: copy the 'US EPA AirNow' user's streams, measurements and " \
+         'daily averages into station_streams. Writes at once (no dry run); ' \
+         'skips streams already copied. Logs to log/epa_migration.log'
   task migrate_data_to_station_streams: :environment do
     DataFixes::EpaDataMigrator.new.call
   end

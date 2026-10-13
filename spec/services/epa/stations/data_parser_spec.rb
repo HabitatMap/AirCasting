@@ -115,6 +115,16 @@ describe Epa::Stations::DataParser do
       expect(rows.first.title).to eq('Aéroport de Montréal 1')
     end
 
+    it 'collapses runs of spaces in site names' do
+      data =
+        '060070008|060070008|840060070008|PM2.5|Permanent|0008|' \
+          "Chico -  East |Active|CA1|California|R9|39.76168|-121.84047||" \
+          "-8.00|US||||||\n"
+      rows = parser.call(data: data)
+
+      expect(rows.first.title).to eq('Chico - East')
+    end
+
     it 'deduplicates rows by external_ref and measurement_type' do
       rows = parser.call(data: sample_data)
       pm25_rows = rows.select { |s| s.external_ref == '060010007' && s.measurement_type == 'PM2.5' }

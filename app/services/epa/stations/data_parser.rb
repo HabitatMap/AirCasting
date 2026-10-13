@@ -93,7 +93,8 @@ module Epa
         return nil if title.blank?
         return nil if PLACEHOLDER_SITE_NAMES.include?(title.strip.downcase)
 
-        Epa.sanitize_data(title)
+        # AirNow has stray double spaces in a few names ("Chico -  East").
+        Epa.sanitize_data(title).squish
       end
     end
   end

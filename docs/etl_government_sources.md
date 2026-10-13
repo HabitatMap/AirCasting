@@ -407,6 +407,7 @@ Rules:
 - **No `Status` filter.** Inactive rows are imported too; activity is decided by our own measurements.
 - **Temporary monitors** (`MonitorType` = `Temporary`) are imported and keep ingesting, but their station gets `excluded_reason = temporary`.
 - **Placeholder points.** A site listed on a whole degree in both axes (50,−150; 0,−50; 1,−51 — five sites in October 2026, all `N/A`) is imported but gets `excluded_reason = no_coordinates`, which wins over `temporary`. Real positions are listed to 4–6 decimals.
+- **Site names are squished**: trimmed, runs of spaces collapsed. V2 of October 2026 has a trailing space on 40 names and a double space in 4 (`Chico -  East`). `N/A`, `NA` and `Unknown` count as no name, and the title falls back to the `StationID`.
 - The import sets `excluded_reason` from `MonitorType` and the point on every run, so a reason set by hand on a site that is still in V2 is overwritten.
 - **No position, no row.** A row at 0,0 or 90,0 is dropped before anything is written: no new stream is created there, and an existing stream keeps the point it has.
 - **Streams follow their station.** An existing stream takes its station's point and time zone, and its title follows the site name in the site list, so renames and fixed encodings reach existing streams. `url_token` is left alone.
