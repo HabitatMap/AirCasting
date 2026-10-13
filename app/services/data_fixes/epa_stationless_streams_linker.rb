@@ -6,7 +6,10 @@ module DataFixes
   # could not key.
   #
   # Matching, against the site list of the stream's last_measured_at date (UTC):
-  # - a real ref by (ref, measurement type);
+  # - a real ref by (ref, measurement type); if that day's list lacks the
+  #   row, by the previous day's list. AirNow drops a parameter's row on the
+  #   day the site stops reporting it (O3 at the end of its season), and the
+  #   stream's last hour often falls on that day;
   # - an UNMATCHED stream the way EpaDataMigrator matched it: its point rounded
   #   to 3 decimals, plus measurement type.
   # A stream is linked only when every matching row belongs to one station. A
@@ -25,6 +28,10 @@ module DataFixes
   #
   # Point, time zone and title are left alone: the import aligns them once the
   # stream's ref is in its site list.
+  #
+  # Refs in EpaUnmatchedStreamsMerger::HAND_CHECKED are left to the merger,
+  # which moves them by hand-checked rules whether or not they have a station;
+  # linking them first could create a station the merge then leaves empty.
   class EpaStationlessStreamsLinker
     UNMATCHED_PREFIX = 'UNMATCHED-'.freeze
     V1_FIELD_AQSID = 0
@@ -64,9 +71,14 @@ module DataFixes
           .includes(:stream_configuration)
           .order(:id)
           .to_a
-      never_measured, measured = streams.partition { |s| s.last_measured_at.nil? }
+      hand_checked, rest =
+        streams.partition do |s|
+          EpaUnmatchedStreamsMerger::HAND_CHECKED.key?(s.external_ref)
+        end
+      never_measured, measured = rest.partition { |s| s.last_measured_at.nil? }
 
       log("#{apply ? 'APPLY' : 'DRY RUN'}: #{streams.size} streams without a station")
+      hand_checked.each { |stream| report(stream, nil, :hand_checked) }
       never_measured.each { |stream| report(stream, nil, :never_measured) }
 
       # Newest first, so a station missing from `stations` is created from
@@ -118,6 +130,11 @@ module DataFixes
           end
         end
         next report(stream, date, :no_site_list) unless site_list(date)
+
+        if candidates.empty? && !unmatched?(stream)
+          previous = previous_day_row(stream, type, date)
+          next link(stream, date - 1, [previous], 'via=previous_day') if previous
+        end
 
         link(stream, date, candidates)
       end
@@ -243,6 +260,12 @@ module DataFixes
     def station_id_for(row)
       station_ids[row.station_external_ref] ||=
         stations_upserter.call(rows: [row], source_name: :epa).first.station_id
+    end
+
+    def previous_day_row(stream, type, date)
+      (site_list(date - 1) || []).find do |row|
+        row.external_ref == stream.external_ref && row.measurement_type == type
+      end
     end
 
     def site_list(date)

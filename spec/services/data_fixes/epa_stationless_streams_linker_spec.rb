@@ -121,6 +121,37 @@ describe DataFixes::EpaStationlessStreamsLinker do
       end
     end
 
+    context 'when that day no longer lists the stream\'s row' do
+      before do
+        allow(api_client).to receive(:fetch_locations_on)
+          .with(date: Date.new(2024, 6, 26))
+          .and_return(v2_line('530330099', '840530330099', 47.6, -122.1))
+      end
+
+      it 'links it by the previous day\'s list' do
+        stream = create_stream(external_ref: '530330010')
+
+        counts = subject.call(apply: true)
+
+        expect(stream.reload.station.external_ref).to eq('840530330010')
+        expect(counts[:link]).to eq(1)
+        expect(api_client).to have_received(:fetch_locations_on)
+          .with(date: Date.new(2024, 6, 25))
+      end
+
+      it 'leaves it alone when the previous day does not list it either' do
+        allow(api_client).to receive(:fetch_locations_on)
+          .with(date: Date.new(2024, 6, 25))
+          .and_return(v2_line('530330099', '840530330099', 47.6, -122.1))
+        stream = create_stream(external_ref: '530330010')
+
+        counts = subject.call(apply: true)
+
+        expect(stream.reload.station_id).to be_nil
+        expect(counts[:no_match]).to eq(1)
+      end
+    end
+
     it 'leaves streams with no match alone' do
       stream = create_stream(external_ref: 'UNMATCHED-1', location: point(40.0, -100.0))
 
@@ -217,6 +248,18 @@ describe DataFixes::EpaStationlessStreamsLinker do
 
       expect(stream.reload.station_id).to be_nil
       expect(counts[:no_site_list]).to eq(1)
+    end
+
+    it 'leaves hand-checked refs to the merger' do
+      allow(api_client).to receive(:fetch_locations_on)
+        .and_return(v2_line('840530330090', '840530330090', 47.4, -122.3))
+      stream = create_stream(external_ref: '840530330090')
+
+      counts = subject.call(apply: true)
+
+      expect(stream.reload.station_id).to be_nil
+      expect(Station.count).to eq(0)
+      expect(counts[:hand_checked]).to eq(1)
     end
 
     it 'skips streams that never measured anything' do
