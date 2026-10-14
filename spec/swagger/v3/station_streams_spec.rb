@@ -89,7 +89,7 @@ RSpec.describe 'V3 Station streams (government)', type: :request do
         run_test!
       end
 
-      response '404', 'station stream not found' do
+      response '404', 'station stream not found, or it has no measurements' do
         schema type: :object, properties: { id: { type: :array, items: { type: :string } } }
 
         let(:id) { 0 }
