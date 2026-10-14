@@ -51,7 +51,7 @@ Each station holds:
 - `title`, `location`, `time_zone` — the site's attributes
 - `excluded_reason` — why the station is hidden from the map, or NULL if shown
 
-**Excluded reasons.** An excluded station keeps its streams and keeps ingesting measurements; it is only left out of the map endpoints that read `station_streams` (web and older mobile apps). The allowed values are `Station::EXCLUDED_REASONS`:
+**Excluded reasons.** An excluded station keeps its streams and keeps ingesting measurements; it is only left out of the web map's station-stream lists (`StationStreamsRepository`: active, dormant, timelapse; scope `StationStream.shown`). The stream stays reachable by id (`/api/v3/station_streams/:id`, measurements, CSV export), so an existing link keeps working. The mobile apps read legacy `FixedSession`, not `station_streams`. The allowed values are `Station::EXCLUDED_REASONS`:
 
 | Reason | Meaning |
 |---|---|
