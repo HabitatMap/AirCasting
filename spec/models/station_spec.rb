@@ -28,4 +28,22 @@ describe Station do
       expect(described_class.shown).to contain_exactly(shown)
     end
   end
+
+  describe '#is_active' do
+    it 'is false when no stream ever reported' do
+      station = create(:station)
+      create(:station_stream, station: station, last_measured_at: nil)
+
+      expect(station.is_active).to be(false)
+    end
+
+    it 'is true when any stream reported within StationStream::ACTIVE_FOR' do
+      station = create(:station)
+      stream_configuration = create(:stream_configuration)
+      create(:station_stream, station: station, stream_configuration: stream_configuration, last_measured_at: nil)
+      create(:station_stream, station: station, stream_configuration: stream_configuration, last_measured_at: 1.hour.ago)
+
+      expect(station.is_active).to be(true)
+    end
+  end
 end

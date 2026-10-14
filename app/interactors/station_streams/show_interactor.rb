@@ -14,7 +14,10 @@ module StationStreams
 
     def call(station_stream_id:)
       station_stream = repository.find(station_stream_id)
-      return Failure.new({ id: ['not found'] }) unless station_stream
+      # A stream that never reported has nothing to show.
+      unless station_stream&.last_measured_at
+        return Failure.new({ id: ['not found'] })
+      end
 
       measurements =
         measurements_repository.last_2_days(

@@ -20,7 +20,8 @@ class StationStream < ApplicationRecord
             }
   validates :url_token, uniqueness: true
 
+  # A stream that never reported is not active.
   def is_active
-    last_measured_at > (Time.current - ACTIVE_FOR)
+    last_measured_at.present? && last_measured_at > (Time.current - ACTIVE_FOR)
   end
 end
