@@ -3,7 +3,7 @@ require 'rails_helper'
 describe GovernmentSources::Repository do
   subject { described_class.new }
 
-  describe '#existing_station_keys' do
+  describe '#existing_fixed_stream_keys' do
     it 'returns set of measurement_type and external_ref pairs for EPA source' do
       source = create(:source, name: 'EPA')
       stream_config =
@@ -19,7 +19,7 @@ describe GovernmentSources::Repository do
         external_ref: 'REF123',
       )
 
-      keys = subject.existing_station_keys(source_name: :epa)
+      keys = subject.existing_fixed_stream_keys(source_name: :epa)
 
       expect(keys).to include(%w[PM2.5 REF123])
     end
@@ -39,7 +39,7 @@ describe GovernmentSources::Repository do
         external_ref: 'EEA_REF',
       )
 
-      keys = subject.existing_station_keys(source_name: :eea)
+      keys = subject.existing_fixed_stream_keys(source_name: :eea)
 
       expect(keys).to include(%w[Ozone EEA_REF])
     end
@@ -60,7 +60,7 @@ describe GovernmentSources::Repository do
         external_ref: 'EPA_REF',
       )
 
-      keys = subject.existing_station_keys(source_name: :eea)
+      keys = subject.existing_fixed_stream_keys(source_name: :eea)
 
       expect(keys).not_to include(%w[PM2.5 EPA_REF])
     end
@@ -563,7 +563,7 @@ describe GovernmentSources::Repository do
     end
   end
 
-  describe '#upsert_station_streams' do
+  describe '#insert_station_streams' do
     it 'creates new station streams' do
       source = create(:source, name: 'EPA')
       stream_config = create(:stream_configuration, canonical: true)
@@ -583,13 +583,13 @@ describe GovernmentSources::Repository do
         },
       ]
 
-      expect { subject.upsert_station_streams(records: records) }.to change(
+      expect { subject.insert_station_streams(records: records) }.to change(
         StationStream,
         :count,
       ).by(1)
     end
 
-    it 'updates existing station streams on conflict' do
+    it 'leaves an existing station stream untouched on conflict' do
       source = create(:source, name: 'EPA')
       stream_config = create(:stream_configuration, canonical: true)
       factory = RGeo::Geographic.spherical_factory(srid: 4326)
@@ -616,11 +616,91 @@ describe GovernmentSources::Repository do
         },
       ]
 
-      expect { subject.upsert_station_streams(records: records) }.not_to change(
+      expect { subject.insert_station_streams(records: records) }.not_to change(
         StationStream,
         :count,
       )
-      expect(StationStream.last.title).to eq('New Title')
+      expect(StationStream.last.title).to eq('Old Title')
+      expect(StationStream.last.url_token).not_to eq('xyz789')
+    end
+  end
+
+  describe '#update_station_streams' do
+    it 'writes station, point, time zone and title, and bumps updated_at' do
+      station = create(:station)
+      stream =
+        create(:station_stream, time_zone: 'UTC', updated_at: 2.days.ago)
+      url_token = stream.url_token
+
+      subject.update_station_streams(
+        changes: [
+          {
+            id: stream.id,
+            station_id: station.id,
+            latitude: 27.123456,
+            longitude: -81.654321,
+            time_zone: 'America/New_York',
+            title: 'Wildwood',
+          },
+        ],
+      )
+
+      stream.reload
+      expect(stream.station_id).to eq(station.id)
+      expect(stream.location.y).to eq(27.123456)
+      expect(stream.location.x).to eq(-81.654321)
+      expect(stream.time_zone).to eq('America/New_York')
+      expect(stream.title).to eq('Wildwood')
+      expect(stream.url_token).to eq(url_token)
+      expect(stream.updated_at).to be > 1.minute.ago
+    end
+
+    it 'writes the title exactly as given, inner spaces included' do
+      stream = create(:station_stream, title: 'Chico - East')
+
+      subject.update_station_streams(
+        changes: [
+          {
+            id: stream.id,
+            station_id: nil,
+            latitude: 39.76168,
+            longitude: -121.84047,
+            time_zone: 'America/Los_Angeles',
+            title: 'Chico -  East',
+          },
+        ],
+      )
+
+      expect(stream.reload.title).to eq('Chico -  East')
+    end
+  end
+
+  describe '#upsert_stations' do
+    it 'creates new stations and updates existing ones by source and ref' do
+      source = create(:source, name: 'EPA')
+      existing = create(:station, source: source, external_ref: 'A', title: 'Old')
+      factory = RGeo::Geographic.spherical_factory(srid: 4326)
+      records =
+        %w[A B].map do |ref|
+          {
+            source_id: source.id,
+            external_ref: ref,
+            title: "Site #{ref}",
+            location: factory.point(-74.0, 40.7),
+            time_zone: 'America/New_York',
+            excluded_reason: Station::EXCLUDED_REASONS[:temporary],
+          }
+        end
+
+      expect { subject.upsert_stations(records: records) }.to change(
+        Station,
+        :count,
+      ).by(1)
+      expect(existing.reload).to have_attributes(
+        title: 'Site A',
+        time_zone: 'America/New_York',
+        excluded_reason: 'temporary',
+      )
     end
   end
 end

@@ -4,31 +4,32 @@ module GovernmentSources
       @repository = repository
     end
 
-    def call(stations:)
-      return if stations.empty?
+    def call(rows:)
+      return if rows.empty?
 
-      records = build_station_streams(stations)
-      repository.upsert_station_streams(records:)
+      records = build_station_streams(rows)
+      repository.insert_station_streams(records:)
     end
 
     private
 
     attr_reader :repository
 
-    def build_station_streams(stations)
+    def build_station_streams(rows)
       current_time = Time.current
-      stations.map { |station| build_station_stream(station, current_time) }
+      rows.map { |row| build_station_stream(row, current_time) }
     end
 
-    def build_station_stream(station, current_time)
+    def build_station_stream(row, current_time)
       {
-        external_ref: station.external_ref,
-        location: station.location,
-        time_zone: station.time_zone,
-        title: station.title,
-        url_token: station.url_token,
-        source_id: station.source_id,
-        stream_configuration_id: station.stream_configuration_id,
+        external_ref: row.external_ref,
+        location: row.location,
+        time_zone: row.time_zone,
+        title: row.title,
+        url_token: row.url_token,
+        source_id: row.source_id,
+        stream_configuration_id: row.stream_configuration_id,
+        station_id: row.station_id,
         created_at: current_time,
         updated_at: current_time,
       }

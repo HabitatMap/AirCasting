@@ -32,13 +32,33 @@ A physical monitoring station may report multiple pollutants, but each measureme
 Each station stream holds:
 - `source_id` — which source this stream belongs to (EEA or EPA)
 - `stream_configuration_id` — which measurement type and unit
-- `external_ref` — the source's identifier for the station (e.g., sampling point ID for EEA, AQSID for EPA)
+- `external_ref` — the source's identifier for the stream (sampling point ID for EEA, AirNow `StationID` for EPA — the id HourlyData reports under)
 - `location` — geographic position (PostGIS point, SRID 4326)
 - `time_zone` — IANA time zone (e.g., `"Europe/Warsaw"`)
 - `first_measured_at` / `last_measured_at` — aggregate time bounds, kept up-to-date after each ingestion batch
 - `title`, `url_token` — display and URL fields
+- `station_id` — the station this stream comes off. Set by the EPA station import; nullable, because EEA streams and EPA streams missing from the V2 site list have no station yet
 
-**Unique constraint:** `(source_id, stream_configuration_id, external_ref)` — this prevents duplicate streams and is the key used for upserts during station import.
+**Unique constraint:** `(source_id, stream_configuration_id, external_ref)` — this prevents duplicate streams and is the key the station import matches incoming rows on.
+
+### Station
+
+A **station** (`stations`) is the physical monitoring site that station streams come off. One station has one stream per measurement type it reports, and occasionally more than one (several EEA sampling points for one pollutant).
+
+Each station holds:
+- `source_id` — EEA or EPA
+- `external_ref` — the source's own site key: EPA `FullAQSID` from `Monitoring_Site_Locations_V2.dat`, EEA `Air Quality Station EoI Code`. Unique per source.
+- `title`, `location`, `time_zone` — the site's attributes
+- `excluded_reason` — why the station is hidden from the map, or NULL if shown
+
+**Excluded reasons.** An excluded station keeps its streams and keeps ingesting measurements; it is only left out of the web map's station-stream lists (`StationStreamsRepository`: active, dormant, timelapse; scope `StationStream.shown`). The stream stays reachable by id (`/api/v3/station_streams/:id`, measurements, CSV export), so an existing link keeps working. The mobile apps read legacy `FixedSession`, not `station_streams`. The allowed values are `Station::EXCLUDED_REASONS`:
+
+| Reason | Meaning |
+|---|---|
+| `temporary` | EPA `MonitorType` is `Temporary`: a portable unit that keeps its id while it moves between deployments, so its coordinates do not describe a fixed site |
+| `no_coordinates` | The source publishes no real position for the site. EPA: a site listed on a whole degree in both axes, a placeholder such as 50,−150 (rows at 0,0 or 90,0 are dropped before import instead) |
+
+There is no DB check constraint on the column, so adding a reason needs no migration: add it to the constant and to this table. Station imports write with `upsert_all`, which skips model validations, so always set the value through the constant.
 
 ### Station Measurements
 
@@ -168,12 +188,15 @@ The destination tables are the authoritative store for air quality data served t
 
 - Updated after each load batch: `first_measured_at` and `last_measured_at` reflect the actual range of data in `station_measurements`
 - Timestamp updates only extend the range — they never shrink it based on a single batch
+- The EPA station import may rewrite `station_id`, `location` and `time_zone` of an existing stream (see [Section 9](#9-station-import)); it never rewrites `url_token`
+- `updated_at` moves whenever a row really changes — new measurements or a station import update — and is what the daily-average calculator selects on
 
 ### station_stream_daily_averages
 
-- Recalculated for streams that received new measurements within the last hour
+- Recalculated for streams updated within the last hour (last 2 days only)
 - Grouped by the stream's local time zone (so "2025-01-15" means January 15 in the station's local time)
 - Values are rounded integers
+- When a stream's time zone changes, its whole history is deleted and recomputed in the new zone by `RebuildStationStreamDailyAveragesWorker` — every day boundary moves, and a date that existed only under the old zone would otherwise keep a stale value
 
 ---
 
@@ -323,12 +346,21 @@ Computes `MIN(measured_at)` and `MAX(measured_at)` from the current batch and bu
 
 Recalculates daily averages for streams updated within the last hour. Groups by the stream's time zone to ensure dates align with local calendar days.
 
-### StationStreamsCreator / StationEnricher / StationFilter
+### StationStreamDailyAveragesRebuilder
 
-Used during station import (see [Section 9](#9-station-import)):
-- **StationFilter** — deduplicates incoming station data and skips stations whose streams already exist
-- **StationEnricher** — adds derived fields: PostGIS location, IANA time zone (via `TimeZoneFinderWrapper`), `source_id`, `stream_configuration_id`, `url_token`
-- **StationStreamsCreator** — builds and upserts `station_streams` records
+Deletes and recomputes the full daily-average history (from `first_measured_at`) of the given streams, in one transaction per time zone. Run by `RebuildStationStreamDailyAveragesWorker` (`slow` queue, gated by `sidekiq_averages_calculation_enabled`), which `StationStreamsUpdater` enqueues for streams whose time zone changed.
+
+### Station import components
+
+Used during station import (see [Section 9](#9-station-import)). The unit passed between them is `GovernmentSources::StationStreamRow`: one stream (one pollutant at one site) as the source's site list describes it, before it is written. Its `station_*` fields describe the site it belongs to. Inside the module, refer to the model as `::Station`.
+
+- **StationsUpserter** — groups incoming streams by site, upserts one `stations` row per site (only sites that changed), then hands every stream its station's id, point and time zone. The time zone is looked up only for a new site or a moved one; a point with no zone (at sea) falls back to `UTC`
+- **StationStreamsUpdater** — writes `station_id`, `location`, `time_zone` and `title` to existing streams in batched UPDATEs, only for rows that changed. A row whose site name is blank or a placeholder (`N/A`, `Unknown`) carries its `external_ref` as the title; that never replaces the title a stream already has. Never touches `url_token`. Logs moves over 1 km and enqueues the daily-average rebuild for streams whose time zone changed
+- **StationStreamFilter** — skips rows whose stream already exists, so only new ones go on
+- **StationStreamEnricher** — adds derived fields: PostGIS location and IANA time zone (via `TimeZoneFinderWrapper`) unless `StationsUpserter` already set them, `source_id`, `stream_configuration_id`, `url_token`
+- **StationStreamsCreator** — inserts new `station_streams` (`insert_all`, conflicts skipped); an existing row is never overwritten from here
+
+Deduplication of incoming rows happens earlier, in the parser (`GovernmentSources::StationStreamRows.deduplicate`). Point helpers (`real_position?`, `same_point?`, `distance_m`) live on `GovernmentSources` itself.
 
 ---
 
@@ -341,17 +373,63 @@ The mechanics of importing differ per source:
 | Source | Method |
 |--------|--------|
 | EEA | CSV files bundled with the application (`app/services/eea/stations/data/`) |
-| EPA | API call to AirNow S3 (`monitoring_site_locations.dat`) |
+| EPA | AirNow S3 file `Monitoring_Site_Locations_V2.dat`, fetched hourly at `:20` by `Epa::ImportStationsWorker` |
 
-Despite the different data sources, both follow the same processing pipeline using the shared `GovernmentSources` station components:
+The EEA files are an extract of the EEA Table publisher dataset
+`Airquality_Dissem.b2g.measurements`, taken 2026-02-02..04 (#1122). Which
+download filters were used is not recorded. A fresh extract is a zip holding
+one `DataExtract.csv` covering every pollutant:
+
+```sh
+curl -L -o extract.zip \
+  'https://discomap.eea.europa.eu/App/AQViewer/download?fqn=Airquality_Dissem.b2g.measurements&f=csv'
+```
+
+Split it on `Air Pollutant` (`NO2` / `O3` / `PM2.5`) to get the three bundled
+file names. Note that both readers glob `data/*.csv` non-recursively, so a new
+extract replaces the bundled files rather than sitting beside them; keep older
+extracts outside `data/`.
+
+### EPA
 
 ```
-Parse source data (CSV / API response)
-  └─ Build GovernmentSources::Station objects
-       └─ StationFilter (deduplicate, skip existing)
-            └─ StationEnricher (add location, timezone, source config)
-                 └─ StationStreamsCreator (upsert station_streams)
+Epa::Stations::DataParser (V2 rows → GovernmentSources::StationStreamRow, deduplicated)
+  └─ StationsUpserter (stations rows; station id, point, zone onto every stream)
+       ├─ StationStreamsUpdater (existing streams: station_id, location, time_zone, title)
+       └─ StationStreamFilter (new streams only)
+            └─ StationStreamEnricher (source config, url_token)
+                 └─ StationStreamsCreator (insert station_streams with station_id)
 ```
+
+Rules:
+- **Keys.** A stream's `external_ref` is V2 `StationID`, the id HourlyData reports under. A station's `external_ref` is V2 `FullAQSID`; one `StationID` always belongs to one `FullAQSID`, and every row of one `FullAQSID` carries the same name, point and monitor type.
+- **Everything in V2 is imported.** EPA support describes V2 as the complete site list, so streams are created for every supported row, including sites that are not reporting right now. A stream that never reports gets no measurements and is never shown on the web map, which requires `last_measured_at`.
+- **No `Status` filter.** Inactive rows are imported too; activity is decided by our own measurements.
+- **Temporary monitors** (`MonitorType` = `Temporary`) are imported and keep ingesting, but their station gets `excluded_reason = temporary`.
+- **Placeholder points.** A site listed on a whole degree in both axes (50,−150; 0,−50; 1,−51 — five sites in October 2026, all `N/A`) is imported but gets `excluded_reason = no_coordinates`, which wins over `temporary`. Real positions are listed to 4–6 decimals.
+- **Site names are squished**: trimmed, runs of spaces collapsed. V2 of October 2026 has a trailing space on 40 names and a double space in 4 (`Chico -  East`). `N/A`, `NA` and `Unknown` count as no name, and the title falls back to the `StationID`.
+- The import sets `excluded_reason` from `MonitorType` and the point on every run, so a reason set by hand on a site that is still in V2 is overwritten.
+- **No position, no row.** A row at 0,0 or 90,0 is dropped before anything is written: no new stream is created there, and an existing stream keeps the point it has.
+- **Streams follow their station.** An existing stream takes its station's point and time zone, and its title follows the site name in the site list, so renames and fixed encodings reach existing streams. `url_token` is left alone.
+- **Re-running is cheap.** Only changed stations and streams are written; an unchanged file writes nothing.
+
+#### Streams the import leaves without a station
+
+The import links only streams whose ref and measurement type are in today's V2. Left over: streams of sites that have left V2, streams of a parameter the site no longer lists (AirNow drops a site's O3 row when its ozone season ends), and `UNMATCHED-<session uuid>` streams that `DataFixes::EpaDataMigrator` could not key. Three one-off rake tasks, run in order, each a dry run unless `APPLY=1`, each safe to re-run.
+
+`rake epa:link_stationless_streams` (`DataFixes::EpaStationlessStreamsLinker`, `CACHE_DIR=path` keeps downloads) matches each stream against the V2 of the day it last reported (`airnow/YYYY/YYYYMMDD/Monitoring_Site_Locations_V2.dat`, kept from 2023 on):
+- A real ref by ref and measurement type, falling back to the previous day's V2 (`via=previous_day`) for a parameter dropped that day. An `UNMATCHED` stream by its point rounded to 3 decimals plus type, falling back to the v1 list (`monitoring_site_locations.dat`) of the day its legacy `AirNowStreaming` session was last fed (or created), keyed the way that session was.
+- Linked only when every matching row belongs to one station; a missing station is created from that day's row. Point, time zone and title are left to the import.
+- An `UNMATCHED` stream matched to a single ref takes that ref, replacing the ref's stream if it never measured anything; if that stream has data, the two are only linked and the merger folds them.
+- Refs in the merger's `HAND_CHECKED` are skipped (`hand_checked`).
+
+`rake epa:merge_unmatched_streams` (`DataFixes::EpaUnmatchedStreamsMerger`, `LIMIT=n` caps streams per run) folds each linked `UNMATCHED` stream into the one real-ref stream of its station and type, so a station holds one stream per type. One transaction per stream, `lock_timeout` 5s; hours the target already has are dropped (the target's value wins), the rest move; daily averages are rebuilt. The target keeps its id, uuid, url_token, point and zone; one over 1 km away is logged `far=`. A lock timeout or unique violation rolls the stream back for the next run. `HAND_CHECKED` holds cases checked by hand against HourlyData, keyed by ref: old ref → new ref merges (a re-keyed site), or `[until, ref]` pairs that split a stream by date (the legacy 0,0 bucket `CC0096625`).
+
+`rake epa:delete_never_measured_streams` (`DataFixes::EpaNeverMeasuredStreamsDeleter`) deletes EPA streams that still have no station and never measured anything — v1-era monitors that never reported and that the import does not recreate. The delete repeats every condition, so a stream ingest writes to meanwhile is kept.
+
+### EEA
+
+EEA's import still goes through the legacy path (`LegacyStationStreamFilter` → `LegacyStationStreamEnricher` → `FixedStreamsCreator`) and does not create `stations` yet.
 
 ---
 
@@ -519,7 +597,7 @@ scheduler:
 ### Step 9: Station Import
 
 Create `app/services/new_source/stations/` with:
-- `data_parser.rb` — parses the source-specific station list format and returns an array of `GovernmentSources::Station` objects
+- `data_parser.rb` — parses the source-specific station list format and returns an array of `GovernmentSources::StationStreamRow` objects
 - `interactor.rb` — orchestrates the station import pipeline using shared components:
 
 ```ruby
@@ -527,12 +605,11 @@ module NewSource
   module Stations
     class Interactor
       def call(stations_data)
-        stations = DataParser.new(stations_data).call
-        source = Source.find_by!(name: 'NewSource')
+        rows = DataParser.new.call(data: stations_data)
 
-        filtered  = GovernmentSources::StationFilter.new(stations, source).call
-        enriched  = GovernmentSources::StationEnricher.new(filtered, source).call
-        GovernmentSources::StationStreamsCreator.new(enriched).call
+        rows = GovernmentSources::StationStreamFilter.new.call(rows:, source_name: :new_source)
+        rows = GovernmentSources::StationStreamEnricher.new.call(rows:, source_name: :new_source)
+        GovernmentSources::StationStreamsCreator.new.call(rows:)
       end
     end
   end
@@ -540,6 +617,8 @@ end
 ```
 
 Create a worker (`ImportStationsWorker`) and trigger it as needed (e.g., daily or on first setup).
+
+If the source publishes a site id that groups its streams into stations, set `station_external_ref` in the parser and follow `Epa::Stations::Interactor`, which adds `StationsUpserter` and `StationStreamsUpdater` in front of the filter (see [Section 9](#9-station-import)).
 
 ### Step 10: Purger
 

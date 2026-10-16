@@ -1,16 +1,16 @@
 module GovernmentSources
-  class StationFilter
+  class StationStreamFilter
     def initialize(repository: Repository.new)
       @repository = repository
     end
 
-    def call(stations:, source_name:)
-      return [] if stations.empty?
+    def call(rows:, source_name:)
+      return [] if rows.empty?
 
       existing_keys = repository.existing_station_stream_keys(source_name: source_name)
 
-      stations.reject do |station|
-        existing_keys.include?([station.measurement_type, station.external_ref])
+      rows.reject do |row|
+        existing_keys.include?([row.measurement_type, row.external_ref])
       end
     end
 

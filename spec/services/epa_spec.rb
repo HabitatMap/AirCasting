@@ -37,6 +37,21 @@ describe Epa do
       expect(result.encoding).to eq(Encoding::UTF_8)
     end
 
+    it 'keeps multi-byte UTF-8 characters delivered as binary' do
+      data = 'Aéroport de Montréal'.b
+      result = described_class.sanitize_data(data)
+
+      expect(result).to eq('Aéroport de Montréal')
+      expect(result.encoding).to eq(Encoding::UTF_8)
+    end
+
+    it 'does not change the encoding of the given string' do
+      data = 'Rivière'.b
+      described_class.sanitize_data(data)
+
+      expect(data.encoding).to eq(Encoding::ASCII_8BIT)
+    end
+
     it 'handles ASCII-8BIT encoded data' do
       data = "Test\xFFData".force_encoding('ASCII-8BIT')
       result = described_class.sanitize_data(data)

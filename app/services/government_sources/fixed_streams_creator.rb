@@ -5,51 +5,51 @@ module GovernmentSources
       @stream_defaults = stream_defaults
     end
 
-    def call(stations:, source_name:)
-      return if stations.empty?
+    def call(rows:, source_name:)
+      return if rows.empty?
 
-      create_fixed_streams(stations, source_name)
+      create_fixed_streams(rows, source_name)
     end
 
     private
 
     attr_reader :repository, :stream_defaults
 
-    def create_fixed_streams(stations, source_name)
+    def create_fixed_streams(rows, source_name)
       defaults = stream_defaults.call
       current_time = Time.current
 
       ApplicationRecord.transaction do
-        session_ids = create_sessions(stations, current_time, source_name)
+        session_ids = create_sessions(rows, current_time, source_name)
         stream_ids =
           create_streams(
-            stations,
+            rows,
             session_ids,
             defaults,
             current_time,
             source_name,
           )
-        create_fixed_stream_records(stations, stream_ids, current_time)
+        create_fixed_stream_records(rows, stream_ids, current_time)
       end
     end
 
     # LEGACY: Creates FixedSession records for backwards compatibility with
     # the existing Session-based model. These link to the legacy User model.
     # TODO: Remove when migrating to FixedStream-only model.
-    def create_sessions(stations, current_time, source_name)
+    def create_sessions(rows, current_time, source_name)
       user = repository.user(source_name: source_name)
 
       session_params =
-        stations.map do |station|
+        rows.map do |row|
           {
             user_id: user.id,
             type: 'FixedSession',
-            title: station.title,
-            latitude: station.latitude,
-            longitude: station.longitude,
-            time_zone: station.time_zone,
+            title: row.title,
+            latitude: row.latitude,
+            longitude: row.longitude,
+            time_zone: row.time_zone,
             uuid: SecureRandom.uuid,
-            url_token: station.url_token,
+            url_token: row.url_token,
             contribute: true,
             is_indoor: false,
             created_at: current_time,
@@ -64,7 +64,7 @@ module GovernmentSources
     # Streams store measurement metadata and link to the legacy Session model.
     # TODO: Remove when migrating to FixedStream-only model.
     def create_streams(
-      stations,
+      rows,
       session_ids,
       defaults,
       current_time,
@@ -73,24 +73,24 @@ module GovernmentSources
       sensor_package = repository.sensor_package_name(source_name: source_name)
 
       stream_params =
-        stations.each_with_index.map do |station, idx|
-          station_defaults = defaults[station.measurement_type]
+        rows.each_with_index.map do |row, idx|
+          stream_defaults = defaults[row.measurement_type]
           {
             session_id: session_ids[idx],
-            sensor_name: station_defaults.fetch(:sensor_name),
-            unit_name: station_defaults.fetch(:unit_name),
-            measurement_type: station_defaults.fetch(:measurement_type),
+            sensor_name: stream_defaults.fetch(:sensor_name),
+            unit_name: stream_defaults.fetch(:unit_name),
+            measurement_type: stream_defaults.fetch(:measurement_type),
             measurement_short_type:
-              station_defaults.fetch(:measurement_short_type),
-            unit_symbol: station_defaults.fetch(:unit_symbol),
+              stream_defaults.fetch(:measurement_short_type),
+            unit_symbol: stream_defaults.fetch(:unit_symbol),
             sensor_package_name: sensor_package,
-            threshold_set_id: station_defaults.fetch(:threshold_set_id),
-            min_latitude: station.latitude,
-            max_latitude: station.latitude,
-            min_longitude: station.longitude,
-            max_longitude: station.longitude,
-            start_latitude: station.latitude,
-            start_longitude: station.longitude,
+            threshold_set_id: stream_defaults.fetch(:threshold_set_id),
+            min_latitude: row.latitude,
+            max_latitude: row.latitude,
+            min_longitude: row.longitude,
+            max_longitude: row.longitude,
+            start_latitude: row.latitude,
+            start_longitude: row.longitude,
           }
         end
 
@@ -98,17 +98,17 @@ module GovernmentSources
     end
 
     # FixedStream is the target model - this is NOT legacy
-    def create_fixed_stream_records(stations, stream_ids, current_time)
+    def create_fixed_stream_records(rows, stream_ids, current_time)
       fixed_streams_params =
-        stations.each_with_index.map do |station, idx|
+        rows.each_with_index.map do |row, idx|
           {
-            external_ref: station.external_ref,
-            location: station.location,
-            time_zone: station.time_zone,
-            title: station.title,
-            url_token: station.url_token,
-            source_id: station.source_id,
-            stream_configuration_id: station.stream_configuration_id,
+            external_ref: row.external_ref,
+            location: row.location,
+            time_zone: row.time_zone,
+            title: row.title,
+            url_token: row.url_token,
+            source_id: row.source_id,
+            stream_configuration_id: row.stream_configuration_id,
             stream_id: stream_ids[idx],
             created_at: current_time,
             updated_at: current_time,
