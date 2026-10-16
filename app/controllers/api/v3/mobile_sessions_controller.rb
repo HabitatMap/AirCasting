@@ -56,7 +56,17 @@ module Api
         session = find_owned_session
         return session_not_found unless session
 
-        result = ::MobileSessions::Finisher.new.call(session: session)
+        contract = Api::FinishMobileSessionContract.new.call(
+          params.to_unsafe_h.deep_symbolize_keys,
+        )
+        if contract.failure?
+          return render_validation_error(contract.errors)
+        end
+
+        result = ::MobileSessions::Finisher.new.call(
+          session: session,
+          finished_at: declared_finish_instant(contract[:finished_at]),
+        )
         return render_failure(result) unless result.success?
 
         render json: serialize(find_owned_session), status: :ok
@@ -109,6 +119,14 @@ module Api
           .includes(:device, :tags, { streams: :threshold_set })
           .by_uuid(params[:uuid])
           .first
+      end
+
+      # Truncated to whole seconds, because that is the resolution the serializer
+      # puts back on the wire (`to_i * 1_000`) — storing the sub-second part
+      # would hand a client a `finished_at` it never sent, and the measurement
+      # cutoff compares against this value.
+      def declared_finish_instant(epoch_ms)
+        epoch_ms && Time.at(epoch_ms / 1_000).utc
       end
 
       def session_not_found

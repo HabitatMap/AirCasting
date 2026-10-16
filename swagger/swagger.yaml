@@ -5969,6 +5969,28 @@ paths:
                           nullable: true
                           description: Full URL of the note photo (600px limit), or
                             null when there is none
+        '400':
+          description: finished_at is in the future
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - error_code
+                - message
+                properties:
+                  error_code:
+                    type: string
+                    example: validation_error
+                  message:
+                    type: string
+                    example: Request body is invalid
+                  fields:
+                    type: object
+                    additionalProperties: true
+                    example:
+                      finished_at:
+                      - must not be in the future
         '404':
           description: session not found
           content:
@@ -6001,6 +6023,19 @@ paths:
                   message:
                     type: string
                     example: Unauthorized
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                finished_at:
+                  type: integer
+                  format: int64
+                  nullable: true
+                  example: 1786707060000
+                  description: Epoch ms (UTC) the user stopped recording.Omit or null
+                    to have the server stamp its own clock.
   "/api/v3/mobile_sessions/{uuid}/measurements":
     get:
       summary: "[ALPHA] Get measurements for a mobile session"
