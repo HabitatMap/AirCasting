@@ -719,6 +719,7 @@ RSpec.describe 'AirBeam Mobile Sessions', type: :request do
   path '/api/v3/mobile_sessions/{uuid}/finish' do
     post '[ALPHA] Finish a mobile session' do
       tags 'Mobile app: Mobile sessions'
+      consumes 'application/json'
       produces 'application/json'
       description <<~DESC
         Declares the recording over and stamps `finished_at`.
@@ -728,6 +729,17 @@ RSpec.describe 'AirBeam Mobile Sessions', type: :request do
       parameter name: :uuid, in: :path, type: :string, required: true
       parameter name: :Authorization, in: :header, type: :string, required: true,
                 description: 'Bearer <user_token>'
+
+      parameter name: :body, in: :body, required: false, schema: {
+        type: :object,
+        properties: {
+          finished_at: {
+            type: :integer, format: :int64, nullable: true, example: 1_786_707_060_000,
+            description: 'Epoch ms (UTC) the user stopped recording.' \
+                         'Omit or null to have the server stamp its own clock.',
+          },
+        },
+      }
 
       response '200', 'finished session — same shape as show' do
         schema type: :object,
@@ -749,6 +761,26 @@ RSpec.describe 'AirBeam Mobile Sessions', type: :request do
         let(:Authorization) { "Bearer #{user.authentication_token}" }
         let(:session_record) { create(:mobile_session, user: user) }
         let(:uuid) { session_record.uuid }
+        let(:body) { { finished_at: 1_786_707_060_000 } }
+        before { travel_to(Time.at(1_786_707_060).utc) }
+        run_test!
+      end
+
+      response '400', 'finished_at is in the future' do
+        schema type: :object,
+               required: %w[error_code message],
+               properties: {
+                 error_code: { type: :string, example: 'validation_error' },
+                 message: { type: :string, example: 'Request body is invalid' },
+                 fields: { type: :object, additionalProperties: true,
+                           example: { finished_at: ['must not be in the future'] } },
+               }
+
+        let(:user) { create(:user) }
+        let(:Authorization) { "Bearer #{user.authentication_token}" }
+        let(:session_record) { create(:mobile_session, user: user) }
+        let(:uuid) { session_record.uuid }
+        let(:body) { { finished_at: 1.hour.from_now.to_i * 1_000 } }
         run_test!
       end
 
@@ -763,6 +795,7 @@ RSpec.describe 'AirBeam Mobile Sessions', type: :request do
         let(:user) { create(:user) }
         let(:Authorization) { "Bearer #{user.authentication_token}" }
         let(:uuid) { 'does-not-exist' }
+        let(:body) { nil }
         run_test!
       end
 
@@ -776,6 +809,7 @@ RSpec.describe 'AirBeam Mobile Sessions', type: :request do
 
         let(:uuid) { 'any-uuid' }
         let(:Authorization) { 'Bearer invalid' }
+        let(:body) { nil }
         run_test!
       end
     end
