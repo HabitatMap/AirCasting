@@ -5,14 +5,19 @@ module MobileSessions
   # timestamp and bumps `version` once. `version` moves because it is what tells
   # the user's other devices to re-download. Cannot fail — one UPDATE, and
   # "matched nothing" means already finished.
+  #
   class Finisher
-    def call(session:)
+    def call(session:, finished_at: nil)
       now = Time.current
 
       MobileSession
         .where(id: session.id, finished_at: nil)
         .update_all(
-          ['finished_at = ?, version = version + 1, updated_at = ?', now, now],
+          [
+            'finished_at = ?, version = version + 1, updated_at = ?',
+            finished_at || now,
+            now,
+          ],
         )
 
       Success.new(session: session)
