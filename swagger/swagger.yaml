@@ -41,6 +41,9 @@ tags:
   description: 'Legacy AirBeam fixed session create, measurement upload and polling
     (the `realtime/*` paths), plus the fixed session and stream reads. Replaced by
     *Mobile app: Fixed sessions*.'
+- name: 'Mobile app: Explore map'
+  description: Public map of active AirBeam fixed sessions and government stations
+    together, clustered on the server.
 - name: 'Mobile app: Threshold alerts'
   description: 'Threshold (push-notification) alerts: list, create, delete.'
 - name: 'Mobile app: Export & sharing'
@@ -2977,6 +2980,247 @@ paths:
                       type: integer
                       description: Rounded daily average
                       example: 14
+  "/api/v3/explore/map":
+    get:
+      summary: "[ALPHA] Active AirBeam fixed sessions and government stations in a
+        viewport, clustered"
+      tags:
+      - 'Mobile app: Explore map'
+      security: []
+      description: |
+        Active, outdoor, public AirBeam fixed sessions and government stations
+        (EPA) that have any of the selected parameters, in one list.
+
+        The viewport is snapped outward to whole grid cells before querying, so
+        markers just off-screen can be returned. Items sharing a grid cell
+        become one `cluster`; a lone item stays a `station`. From zoom
+        16 on nothing is clustered.
+
+        An item is identified by `uuid`. Items and clusters carry a `value` only
+        when exactly one measurement type is selected.
+      parameters:
+      - name: west
+        in: query
+        required: true
+        schema:
+          type: number
+          format: double
+          minimum: -180
+          maximum: 180
+        description: Greater than `east` when the viewport crosses the antimeridian
+      - name: east
+        in: query
+        required: true
+        schema:
+          type: number
+          format: double
+          minimum: -180
+          maximum: 180
+      - name: south
+        in: query
+        required: true
+        schema:
+          type: number
+          format: double
+          minimum: -90
+          maximum: 90
+      - name: north
+        in: query
+        required: true
+        schema:
+          type: number
+          format: double
+          minimum: -90
+          maximum: 90
+        description: Not less than `south`
+      - name: zoom
+        in: query
+        required: true
+        schema:
+          type: integer
+          minimum: 0
+          maximum: 22
+        description: The map's zoom rounded to a whole number, as the web map does
+      - name: sources
+        in: query
+        required: false
+        style: form
+        explode: false
+        schema:
+          type: array
+          items:
+            type: string
+            enum:
+            - airbeam
+            - government
+        description: 'Comma-separated. Omitted or empty: all. An unknown value is
+          a 400'
+      - name: measurement_types
+        in: query
+        required: false
+        style: form
+        explode: false
+        schema:
+          type: array
+          items:
+            type: string
+            enum:
+            - Particulate Matter
+            - Nitrogen Dioxide
+            - Ozone
+            - Temperature
+            - Humidity
+        description: 'Comma-separated `measurement_type` values, as in `/api/sensors`.
+          Omitted or empty: all. An item is returned when it measures any of them.
+          An unknown value is a 400'
+      responses:
+        '200':
+          description: map items and clusters
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - items
+                properties:
+                  items:
+                    type: array
+                    items:
+                      oneOf:
+                      - type: object
+                        required:
+                        - type
+                        - uuid
+                        - source
+                        - title
+                        - provider
+                        - latitude
+                        - longitude
+                        - last_measured_at
+                        - measurement_types
+                        properties:
+                          type:
+                            type: string
+                            enum:
+                            - station
+                          uuid:
+                            type: string
+                            format: uuid
+                            example: 0b7e3f5a-6c1d-4e2f-9a8b-3c4d5e6f7a8b
+                            description: "`sessions.uuid` for AirBeam, `stations.uuid`
+                              for government"
+                          source:
+                            type: string
+                            enum:
+                            - airbeam
+                            - government
+                            example: government
+                          title:
+                            type: string
+                            example: CCNY
+                          provider:
+                            type: string
+                            example: US EPA AirNow
+                            description: 'AirBeam: the owner''s username. Government:
+                              the source''s full name'
+                          latitude:
+                            type: number
+                            format: double
+                            example: 40.8198
+                          longitude:
+                            type: number
+                            format: double
+                            example: -73.9483
+                          last_measured_at:
+                            type: integer
+                            format: int64
+                            example: 1792152000000
+                            description: 'Epoch milliseconds, UTC: the newest of its
+                              selected streams'
+                          measurement_types:
+                            type: array
+                            description: The selected measurement types this item
+                              measures, in catalogue order
+                            items:
+                              type: string
+                              enum:
+                              - Particulate Matter
+                              - Nitrogen Dioxide
+                              - Ozone
+                              - Temperature
+                              - Humidity
+                            example:
+                            - Particulate Matter
+                            - Nitrogen Dioxide
+                          value:
+                            type: integer
+                            description: 'Present only when exactly one measurement
+                              type is selected; rounded to a whole number. AirBeam:
+                              last hourly average, or the newest reading while the
+                              session has none yet. Government: newest reading. Several
+                              streams of the type: their mean'
+                            example: 12
+                      - type: object
+                        required:
+                        - type
+                        - latitude
+                        - longitude
+                        - count
+                        properties:
+                          type:
+                            type: string
+                            enum:
+                            - cluster
+                          latitude:
+                            type: number
+                            format: double
+                            description: Mean of its members
+                            example: 40.7484
+                          longitude:
+                            type: number
+                            format: double
+                            description: Mean of its members
+                            example: -73.9857
+                          count:
+                            type: integer
+                            minimum: 2
+                            example: 37
+                          value:
+                            type: integer
+                            description: 'Mean of its members'' values. Present only
+                              when exactly one measurement type is selected; rounded
+                              to a whole number. AirBeam: last hourly average, or
+                              the newest reading while the session has none yet. Government:
+                              newest reading. Several streams of the type: their mean'
+                            example: 12
+        '400':
+          description: invalid query parameters
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - error_code
+                - message
+                properties:
+                  error_code:
+                    type: string
+                    example: validation_error
+                  message:
+                    type: string
+                    example: Query parameters are invalid
+                  fields:
+                    type: object
+                    description: Per-parameter validation errors
+                    additionalProperties:
+                      type: array
+                      items:
+                        type: string
+                    example:
+                      zoom:
+                      - must be an integer
+                      measurement_types:
+                      - 'unknown: PM10'
   "/api/v3/fixed_sessions":
     get:
       summary: "[ALPHA] List the signed-in user's fixed sessions"
