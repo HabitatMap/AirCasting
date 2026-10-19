@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2026_09_28_120001) do
+ActiveRecord::Schema[7.0].define(version: 2026_10_15_120000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
   enable_extension "postgis"
@@ -359,8 +359,10 @@ ActiveRecord::Schema[7.0].define(version: 2026_09_28_120001) do
     t.string "excluded_reason"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.uuid "uuid", default: -> { "gen_random_uuid()" }, null: false
     t.index ["location"], name: "index_stations_on_location", using: :gist
     t.index ["source_id", "external_ref"], name: "idx_stations_src_ref_uniq", unique: true
+    t.index ["uuid"], name: "index_stations_on_uuid", unique: true
   end
 
   create_table "stream_configurations", force: :cascade do |t|

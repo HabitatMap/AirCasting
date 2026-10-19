@@ -92,6 +92,18 @@ describe GovernmentSources::StationsUpserter do
       expect(Station.last.time_zone).to eq('UTC')
     end
 
+    it 'keeps the uuid of a station it updates' do
+      station =
+        create(:station, source: source, external_ref: 'FULL1', title: 'Old title')
+      uuid = station.reload.uuid
+
+      subject.call(rows: [build_row], source_name: :epa)
+
+      station.reload
+      expect(station.title).to eq('Site')
+      expect(station.uuid).to eq(uuid)
+    end
+
     it 'does not write a station that did not change' do
       station =
         create(
