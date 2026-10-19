@@ -8,20 +8,20 @@ describe Explore::Parameters do
     end
 
     it 'keeps catalogue order and drops repeats' do
-      expect(described_class.select(%w[ozone pm ozone]).keys).to eq(%w[pm ozone])
+      expect(described_class.select(['Ozone', 'Particulate Matter', 'Ozone']).keys).to eq(['Particulate Matter', 'Ozone'])
     end
 
     it 'rejects a parameter that is not in the catalogue' do
-      expect { described_class.select(%w[pm pm10]) }.to raise_error(
+      expect { described_class.select(['Particulate Matter', 'PM10']) }.to raise_error(
         described_class::UnknownParameter,
-        /pm10/,
+        /PM10/,
       )
     end
   end
 
   describe '#airbeam_sensor_names' do
     it 'matches every model spelling of PM2.5 and the canonical name' do
-      expect(described_class.select(%w[pm]).airbeam_sensor_names).to contain_exactly(
+      expect(described_class.select(['Particulate Matter']).airbeam_sensor_names).to contain_exactly(
         'airbeam-pm2.5',
         'airbeam-pm',
         'airbeam2-pm2.5',
@@ -37,7 +37,7 @@ describe Explore::Parameters do
     end
 
     it 'unions the spellings of every selected parameter' do
-      names = described_class.select(%w[temperature humidity]).airbeam_sensor_names
+      names = described_class.select(['Temperature', 'Humidity']).airbeam_sensor_names
 
       expect(names).to include('airbeam3-f', 'airbeam-f', 'airbeammini-rh', 'airbeam-rh')
     end
@@ -45,7 +45,7 @@ describe Explore::Parameters do
 
   describe '#government_measurement_types' do
     it 'lists the measurement types of the selected parameters' do
-      expect(described_class.select(%w[pm ozone]).government_measurement_types).to eq(
+      expect(described_class.select(['Particulate Matter', 'Ozone']).government_measurement_types).to eq(
         %w[PM2.5 Ozone],
       )
     end
@@ -53,14 +53,14 @@ describe Explore::Parameters do
 
   describe 'sources without a selected parameter' do
     it 'needs no government query for temperature and humidity' do
-      selection = described_class.select(%w[temperature humidity])
+      selection = described_class.select(['Temperature', 'Humidity'])
 
       expect(selection.government?).to be(false)
       expect(selection.airbeam?).to be(true)
     end
 
     it 'needs no AirBeam query for NO2 and ozone' do
-      selection = described_class.select(%w[no2 ozone])
+      selection = described_class.select(['Nitrogen Dioxide', 'Ozone'])
 
       expect(selection.airbeam?).to be(false)
       expect(selection.government?).to be(true)
@@ -68,11 +68,11 @@ describe Explore::Parameters do
   end
 
   describe '#parameter_for_airbeam' do
-    subject { described_class.select(%w[pm humidity]) }
+    subject { described_class.select(['Particulate Matter', 'Humidity']) }
 
     it 'maps a stored sensor name back to its parameter, ignoring case' do
-      expect(subject.parameter_for_airbeam('AirBeamMini-PM2.5')).to eq('pm')
-      expect(subject.parameter_for_airbeam('AIRBEAM3-RH')).to eq('humidity')
+      expect(subject.parameter_for_airbeam('AirBeamMini-PM2.5')).to eq('Particulate Matter')
+      expect(subject.parameter_for_airbeam('AIRBEAM3-RH')).to eq('Humidity')
     end
 
     it 'returns nil for a sensor of an unselected parameter' do
@@ -86,9 +86,9 @@ describe Explore::Parameters do
 
   describe '#parameter_for_government' do
     it 'maps a measurement type back to its parameter' do
-      selection = described_class.select(%w[no2])
+      selection = described_class.select(['Nitrogen Dioxide'])
 
-      expect(selection.parameter_for_government('NO2')).to eq('no2')
+      expect(selection.parameter_for_government('NO2')).to eq('Nitrogen Dioxide')
       expect(selection.parameter_for_government('PM2.5')).to be_nil
     end
   end
