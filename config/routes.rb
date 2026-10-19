@@ -116,6 +116,7 @@ Rails.application.routes.draw do
       resources :station_stream_daily_averages, only: %i[index]
       resources :sessions, only: %i[index]
       get 'timelapse' => 'fixed_stream_clusters#index'
+      get 'explore/map' => 'explore#map'
       resources :fixed_sessions, only: %i[index show create destroy], param: :uuid do
         patch '/', action: :update, on: :member
         post 'finish', action: :finish, on: :member
