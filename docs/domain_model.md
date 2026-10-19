@@ -262,10 +262,12 @@ Epa::ImportStationsWorker
  └─► Epa::Stations::Interactor
       │  Epa::ApiClient#fetch_locations
       │  Epa::Stations::DataParser      ─► parses pipe-delimited location data
-      │  GovernmentSources::StationFilter    ─► filters to EPA-relevant stations
-      │  GovernmentSources::StationEnricher  ─► adds time_zone, stream_configuration_id
+      │  GovernmentSources::StationsUpserter      ─► upserts stations, one per site
+      │  GovernmentSources::StationStreamsUpdater ─► moves existing streams to their station
+      │  GovernmentSources::StationStreamFilter   ─► keeps rows with no stream yet
+      │  GovernmentSources::StationStreamEnricher ─► adds time_zone, stream_configuration_id
       └─► GovernmentSources::StationStreamsCreator
-               └─► upserts station_streams (by source_id + stream_configuration_id + external_ref)
+               └─► inserts station_streams (by source_id + stream_configuration_id + external_ref)
 ```
 
 #### Measurement ingest (separate cron, runs hourly)

@@ -10,13 +10,13 @@ describe GovernmentSources::StationStreamsCreator do
 
   describe '#call' do
     it 'creates StationStream with correct attributes' do
-      station =
-        build_station(
+      row =
+        build_row(
           source_id: source.id,
           stream_configuration_id: stream_configuration.id,
         )
 
-      expect { subject.call(stations: [station]) }.to change(
+      expect { subject.call(rows: [row]) }.to change(
         StationStream,
         :count,
       ).by(1)
@@ -33,37 +33,55 @@ describe GovernmentSources::StationStreamsCreator do
       expect(station_stream.uuid).to be_present
     end
 
-    it 'upserts existing station streams by unique key' do
+    it 'sets the station' do
+      station = create(:station, source: source)
+
+      subject.call(
+        rows: [
+          build_row(
+            source_id: source.id,
+            stream_configuration_id: stream_configuration.id,
+            station_id: station.id,
+          ),
+        ],
+      )
+
+      expect(StationStream.last.station_id).to eq(station.id)
+    end
+
+    it 'never rewrites an existing station stream' do
       create(
         :station_stream,
         external_ref: 'REF123',
         source: source,
         stream_configuration: stream_configuration,
         title: 'Original Station',
+        url_token: 'keepme',
       )
 
-      station =
-        build_station(
+      row =
+        build_row(
           source_id: source.id,
           stream_configuration_id: stream_configuration.id,
           title: 'Updated Station',
         )
 
-      expect { subject.call(stations: [station]) }.not_to change(
+      expect { subject.call(rows: [row]) }.not_to change(
         StationStream,
         :count,
       )
 
-      expect(StationStream.last.title).to eq('Updated Station')
+      expect(StationStream.last.title).to eq('Original Station')
+      expect(StationStream.last.url_token).to eq('keepme')
     end
   end
 
   private
 
-  def build_station(overrides = {})
+  def build_row(overrides = {})
     factory = RGeo::Geographic.spherical_factory(srid: 4326)
 
-    GovernmentSources::Station.new(
+    GovernmentSources::StationStreamRow.new(
       {
         external_ref: 'REF123',
         measurement_type: 'PM2.5',

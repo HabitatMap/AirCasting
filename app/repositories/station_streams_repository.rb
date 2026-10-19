@@ -14,6 +14,7 @@ class StationStreamsRepository
     return [] unless measurement_type
 
     query = StationStream
+      .shown
       .select('station_streams.*, station_measurements.value AS last_measurement_value')
       .joins(:stream_configuration)
       .joins(
@@ -50,6 +51,7 @@ class StationStreamsRepository
     return [] unless measurement_type
 
     query = StationStream
+      .shown
       .select('station_streams.*, station_measurements.value AS last_measurement_value')
       .joins(:stream_configuration)
       .joins(
@@ -87,6 +89,7 @@ class StationStreamsRepository
 
     query =
       StationStream
+        .shown
         .joins(:stream_configuration)
         .where(
           stream_configurations: {

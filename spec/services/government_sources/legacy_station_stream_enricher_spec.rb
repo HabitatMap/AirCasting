@@ -1,16 +1,16 @@
 require 'rails_helper'
 
-describe GovernmentSources::LegacyStationEnricher do
+describe GovernmentSources::LegacyStationStreamEnricher do
   subject { described_class.new }
 
   describe '#call' do
-    it 'returns empty array when given empty stations' do
-      result = subject.call(stations: [], source_name: :epa)
+    it 'returns empty array when given no rows' do
+      result = subject.call(rows: [], source_name: :epa)
 
       expect(result).to eq([])
     end
 
-    it 'enriches stations with location, time_zone, source_id, stream_configuration_id, and url_token' do
+    it 'enriches rows with location, time_zone, source_id, stream_configuration_id, and url_token' do
       source = create(:source, name: 'EPA')
       pm25_config =
         create(
@@ -25,16 +25,16 @@ describe GovernmentSources::LegacyStationEnricher do
           canonical: true,
         )
 
-      pm25_station = build_station(measurement_type: 'PM2.5')
-      ozone_station =
-        build_station(
+      pm25_row = build_row(measurement_type: 'PM2.5')
+      ozone_row =
+        build_row(
           measurement_type: 'Ozone',
           latitude: 51.5074,
           longitude: -0.1278,
         )
 
       result =
-        subject.call(stations: [pm25_station, ozone_station], source_name: :epa)
+        subject.call(rows: [pm25_row, ozone_row], source_name: :epa)
 
       expect(result[0].location.latitude).to eq(40.7128)
       expect(result[0].location.longitude).to eq(-74.006)
@@ -49,8 +49,8 @@ describe GovernmentSources::LegacyStationEnricher do
 
   private
 
-  def build_station(overrides = {})
-    GovernmentSources::Station.new(
+  def build_row(overrides = {})
+    GovernmentSources::StationStreamRow.new(
       {
         external_ref: 'REF123',
         measurement_type: 'PM2.5',

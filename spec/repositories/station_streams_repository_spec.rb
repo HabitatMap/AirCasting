@@ -348,6 +348,43 @@ RSpec.describe StationStreamsRepository do
 
       expect(result.first.association(:stream_configuration).loaded?).to be(true)
     end
+
+    it 'excludes streams on excluded stations and keeps streams without a station' do
+      on_shown_station = nil
+      without_station = nil
+      [
+        create(:station),
+        create(:station, excluded_reason: Station::EXCLUDED_REASONS[:temporary]),
+        create(:station, excluded_reason: Station::EXCLUDED_REASONS[:no_coordinates]),
+        nil,
+      ].each_with_index do |station, i|
+        stream = create(
+          :station_stream,
+          station: station,
+          stream_configuration: stream_configuration,
+          location: 'SRID=4326;POINT(10.0 50.0)',
+          first_measured_at: 1.hour.ago - 1.hour,
+          last_measured_at: 1.hour.ago,
+        )
+        create(
+          :station_measurement,
+          station_stream: stream,
+          measured_at: stream.last_measured_at,
+        )
+        on_shown_station = stream if i == 0
+        without_station = stream if i == 3
+      end
+
+      result = subject.active_in_rectangle(
+        sensor_name: 'government-pm2.5',
+        west: 5.0,
+        east: 15.0,
+        north: 55.0,
+        south: 45.0,
+      )
+
+      expect(result.map(&:id)).to contain_exactly(on_shown_station.id, without_station.id)
+    end
   end
 
   describe '#dormant_in_rectangle' do
@@ -454,6 +491,43 @@ RSpec.describe StationStreamsRepository do
       )
 
       expect(result.map(&:id)).to eq([dormant_in_range.id])
+    end
+
+    it 'excludes streams on excluded stations and keeps streams without a station' do
+      on_shown_station = nil
+      without_station = nil
+      [
+        create(:station),
+        create(:station, excluded_reason: Station::EXCLUDED_REASONS[:temporary]),
+        create(:station, excluded_reason: Station::EXCLUDED_REASONS[:no_coordinates]),
+        nil,
+      ].each_with_index do |station, i|
+        stream = create(
+          :station_stream,
+          station: station,
+          stream_configuration: stream_configuration,
+          location: 'SRID=4326;POINT(10.0 50.0)',
+          first_measured_at: 2.days.ago - 1.hour,
+          last_measured_at: 2.days.ago,
+        )
+        create(
+          :station_measurement,
+          station_stream: stream,
+          measured_at: stream.last_measured_at,
+        )
+        on_shown_station = stream if i == 0
+        without_station = stream if i == 3
+      end
+
+      result = subject.dormant_in_rectangle(
+        sensor_name: 'government-pm2.5',
+        west: 5.0,
+        east: 15.0,
+        north: 55.0,
+        south: 45.0,
+      )
+
+      expect(result.map(&:id)).to contain_exactly(on_shown_station.id, without_station.id)
     end
   end
 
@@ -613,6 +687,38 @@ RSpec.describe StationStreamsRepository do
       )
 
       expect(result.map(&:id)).to contain_exactly(stream_east.id, stream_west.id)
+    end
+
+    it 'excludes streams on excluded stations and keeps streams without a station' do
+      on_shown_station = nil
+      without_station = nil
+      [
+        create(:station),
+        create(:station, excluded_reason: Station::EXCLUDED_REASONS[:temporary]),
+        create(:station, excluded_reason: Station::EXCLUDED_REASONS[:no_coordinates]),
+        nil,
+      ].each_with_index do |station, i|
+        stream = create(
+          :station_stream,
+          station: station,
+          stream_configuration: stream_configuration,
+          location: 'SRID=4326;POINT(10.0 50.0)',
+          first_measured_at: 1.hour.ago - 1.hour,
+          last_measured_at: 1.hour.ago,
+        )
+        on_shown_station = stream if i == 0
+        without_station = stream if i == 3
+      end
+
+      result = subject.active_in_last_7_days_in_rectangle(
+        sensor_name: 'government-pm2.5',
+        west: 5.0,
+        east: 15.0,
+        north: 55.0,
+        south: 45.0,
+      )
+
+      expect(result.map(&:id)).to contain_exactly(on_shown_station.id, without_station.id)
     end
   end
 end

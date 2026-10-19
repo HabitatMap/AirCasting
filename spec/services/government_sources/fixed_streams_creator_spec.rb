@@ -13,19 +13,19 @@ describe GovernmentSources::FixedStreamsCreator do
   subject { described_class.new }
 
   describe '#call' do
-    it 'creates FixedSession, Stream, and FixedStream for stations' do
+    it 'creates FixedSession, Stream, and FixedStream for rows' do
       source
       user
       stream_configuration
       threshold_set
 
-      station =
-        build_station(
+      row =
+        build_row(
           source_id: source.id,
           stream_configuration_id: stream_configuration.id,
         )
 
-      expect { subject.call(stations: [station], source_name: :epa) }.to change(
+      expect { subject.call(rows: [row], source_name: :epa) }.to change(
         FixedSession,
         :count,
       ).by(1).and change(Stream, :count).by(1).and change(FixedStream, :count)
@@ -38,13 +38,13 @@ describe GovernmentSources::FixedStreamsCreator do
       stream_configuration
       threshold_set
 
-      station =
-        build_station(
+      row =
+        build_row(
           source_id: source.id,
           stream_configuration_id: stream_configuration.id,
         )
 
-      subject.call(stations: [station], source_name: :epa)
+      subject.call(rows: [row], source_name: :epa)
 
       session = FixedSession.last
       expect(session.user_id).to eq(user.id)
@@ -62,13 +62,13 @@ describe GovernmentSources::FixedStreamsCreator do
       stream_configuration
       threshold_set
 
-      station =
-        build_station(
+      row =
+        build_row(
           source_id: source.id,
           stream_configuration_id: stream_configuration.id,
         )
 
-      subject.call(stations: [station], source_name: :epa)
+      subject.call(rows: [row], source_name: :epa)
 
       stream = Stream.last
       expect(stream.sensor_name).to eq('Government-PM2.5')
@@ -84,13 +84,13 @@ describe GovernmentSources::FixedStreamsCreator do
       stream_configuration
       threshold_set
 
-      station =
-        build_station(
+      row =
+        build_row(
           source_id: source.id,
           stream_configuration_id: stream_configuration.id,
         )
 
-      subject.call(stations: [station], source_name: :epa)
+      subject.call(rows: [row], source_name: :epa)
 
       fixed_stream = FixedStream.last
       expect(fixed_stream.external_ref).to eq('REF123')
@@ -102,8 +102,8 @@ describe GovernmentSources::FixedStreamsCreator do
       expect(fixed_stream.time_zone).to eq('America/New_York')
     end
 
-    it 'does nothing when stations array is empty' do
-      expect { subject.call(stations: [], source_name: :epa) }.not_to change(
+    it 'does nothing when given no rows' do
+      expect { subject.call(rows: [], source_name: :epa) }.not_to change(
         FixedStream,
         :count,
       )
@@ -115,13 +115,13 @@ describe GovernmentSources::FixedStreamsCreator do
       stream_configuration
       threshold_set
 
-      station =
-        build_station(
+      row =
+        build_row(
           source_id: eea_source.id,
           stream_configuration_id: stream_configuration.id,
         )
 
-      subject.call(stations: [station], source_name: :eea)
+      subject.call(rows: [row], source_name: :eea)
 
       session = FixedSession.last
       expect(session.user_id).to eq(eea_user.id)
@@ -133,10 +133,10 @@ describe GovernmentSources::FixedStreamsCreator do
 
   private
 
-  def build_station(overrides = {})
+  def build_row(overrides = {})
     factory = RGeo::Geographic.spherical_factory(srid: 4326)
 
-    GovernmentSources::Station.new(
+    GovernmentSources::StationStreamRow.new(
       {
         external_ref: 'REF123',
         measurement_type: 'PM2.5',

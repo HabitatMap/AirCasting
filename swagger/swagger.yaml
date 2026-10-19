@@ -6463,7 +6463,7 @@ paths:
                           type: integer
                           example: 10
         '404':
-          description: station stream not found
+          description: station stream not found, or it has no measurements
           content:
             application/json:
               schema:

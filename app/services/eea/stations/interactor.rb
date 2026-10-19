@@ -5,13 +5,13 @@ module Eea
 
       def initialize(
         data_parser: DataParser.new,
-        station_filter: GovernmentSources::LegacyStationFilter.new,
-        station_enricher: GovernmentSources::LegacyStationEnricher.new,
+        station_stream_filter: GovernmentSources::LegacyStationStreamFilter.new,
+        station_stream_enricher: GovernmentSources::LegacyStationStreamEnricher.new,
         fixed_streams_creator: GovernmentSources::FixedStreamsCreator.new
       )
         @data_parser = data_parser
-        @station_filter = station_filter
-        @station_enricher = station_enricher
+        @station_stream_filter = station_stream_filter
+        @station_stream_enricher = station_stream_enricher
         @fixed_streams_creator = fixed_streams_creator
       end
 
@@ -19,20 +19,20 @@ module Eea
         csv_paths = Dir.glob(File.join(directory, '*.csv'))
 
         csv_paths.each do |csv_path|
-          stations = data_parser.call(file_path: csv_path)
-          stations = station_filter.call(stations: stations, source_name: :eea)
-          stations =
-            station_enricher.call(stations: stations, source_name: :eea)
+          rows = data_parser.call(file_path: csv_path)
+          rows = station_stream_filter.call(rows: rows, source_name: :eea)
+          rows =
+            station_stream_enricher.call(rows: rows, source_name: :eea)
 
-          fixed_streams_creator.call(stations: stations, source_name: :eea)
+          fixed_streams_creator.call(rows: rows, source_name: :eea)
         end
       end
 
       private
 
       attr_reader :data_parser,
-                  :station_filter,
-                  :station_enricher,
+                  :station_stream_filter,
+                  :station_stream_enricher,
                   :fixed_streams_creator
     end
   end

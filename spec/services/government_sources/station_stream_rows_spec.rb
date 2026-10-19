@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe GovernmentSources::Stations do
+describe GovernmentSources::StationStreamRows do
   describe '.supported_measurement_type?' do
     it 'returns true for PM2.5' do
       expect(described_class.supported_measurement_type?('PM2.5')).to be true
@@ -21,34 +21,34 @@ describe GovernmentSources::Stations do
   end
 
   describe '.deduplicate' do
-    it 'removes duplicate stations by external_ref and measurement_type' do
-      station1 =
-        GovernmentSources::Station.new(
+    it 'removes duplicate rows by external_ref and measurement_type' do
+      row1 =
+        GovernmentSources::StationStreamRow.new(
           external_ref: 'REF1',
           measurement_type: 'PM2.5',
           latitude: 40.0,
           longitude: -74.0,
         )
-      station2 =
-        GovernmentSources::Station.new(
+      row2 =
+        GovernmentSources::StationStreamRow.new(
           external_ref: 'REF1',
           measurement_type: 'PM2.5',
           latitude: 41.0,
           longitude: -75.0,
         )
-      station3 =
-        GovernmentSources::Station.new(
+      row3 =
+        GovernmentSources::StationStreamRow.new(
           external_ref: 'REF1',
           measurement_type: 'Ozone',
           latitude: 40.0,
           longitude: -74.0,
         )
 
-      result = described_class.deduplicate([station1, station2, station3])
+      result = described_class.deduplicate([row1, row2, row3])
 
       expect(result.count).to eq(2)
-      expect(result).to include(station1)
-      expect(result).to include(station3)
+      expect(result).to include(row1)
+      expect(result).to include(row3)
     end
 
     it 'returns empty array for empty input' do
