@@ -7,12 +7,16 @@ module Explore
   # (AirBeamMini-PM2.5) or the canonical one (AirBeam-PM2.5) — the v3 creator
   # stores sensor_name verbatim and accepts both.
   class Parameters
+    # Keyed by the measurement_type the API already exposes for these streams
+    # (`streams.measurement_type`, `/api/sensors`, the web filters). Government
+    # stream configurations store a shorter spelling ('PM2.5', 'NO2'), mapped
+    # here as GovernmentSources::StreamDefaults maps it for the legacy streams.
     CATALOGUE = {
-      'pm' => { airbeam: 'AirBeam-PM2.5', government: 'PM2.5' },
-      'no2' => { airbeam: nil, government: 'NO2' },
-      'ozone' => { airbeam: nil, government: 'Ozone' },
-      'temperature' => { airbeam: 'AirBeam-F', government: nil },
-      'humidity' => { airbeam: 'AirBeam-RH', government: nil },
+      'Particulate Matter' => { airbeam: 'AirBeam-PM2.5', government: 'PM2.5' },
+      'Nitrogen Dioxide' => { airbeam: nil, government: 'NO2' },
+      'Ozone' => { airbeam: nil, government: 'Ozone' },
+      'Temperature' => { airbeam: 'AirBeam-F', government: nil },
+      'Humidity' => { airbeam: 'AirBeam-RH', government: nil },
     }.freeze
 
     KEYS = CATALOGUE.keys.freeze

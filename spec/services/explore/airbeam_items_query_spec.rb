@@ -60,7 +60,7 @@ describe Explore::AirbeamItemsQuery do
       last_measured_at: newest,
     )
     expect(items.first.streams.map { |s| [s.sensor_name, s.parameter, s.last_value] }).to eq(
-      [['AirBeam3-PM2.5', 'pm', 12.0], ['AirBeam3-RH', 'humidity', 55.0]],
+      [['AirBeam3-PM2.5', 'Particulate Matter', 12.0], ['AirBeam3-RH', 'Humidity', 55.0]],
     )
   end
 
@@ -86,7 +86,7 @@ describe Explore::AirbeamItemsQuery do
     session = airbeam(sensor_names: %w[AirBeam-PM2.5])
     reading(session, 'AirBeam-PM2.5', value: 9.0, at: 1.minute.ago)
 
-    expect(call(parameters: %w[pm]).map(&:uuid)).to eq([session.uuid])
+    expect(call(parameters: ['Particulate Matter']).map(&:uuid)).to eq([session.uuid])
   end
 
   it 'returns only the selected parameters, and no session without one' do
@@ -96,10 +96,10 @@ describe Explore::AirbeamItemsQuery do
     temperature_only = airbeam(sensor_names: %w[AirBeam3-F])
     reading(temperature_only, 'AirBeam3-F', value: 70.0, at: 1.minute.ago)
 
-    items = call(parameters: %w[pm])
+    items = call(parameters: ['Particulate Matter'])
 
     expect(items.map(&:uuid)).to eq([both.uuid])
-    expect(items.first.streams.map(&:parameter)).to eq(%w[pm])
+    expect(items.first.streams.map(&:parameter)).to eq(['Particulate Matter'])
   end
 
   it 'leaves out PM1, PM10 and sensors outside the catalogue' do
@@ -164,6 +164,6 @@ describe Explore::AirbeamItemsQuery do
   it 'does not query when no selected parameter is measured by AirBeams' do
     expect(FixedSession).not_to receive(:active)
 
-    expect(call(parameters: %w[no2 ozone])).to eq([])
+    expect(call(parameters: ['Nitrogen Dioxide', 'Ozone'])).to eq([])
   end
 end

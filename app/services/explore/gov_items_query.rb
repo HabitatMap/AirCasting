@@ -10,7 +10,7 @@ module Explore
     COLUMNS = [
       'stations.uuid',
       'stations.title',
-      'sources.name',
+      Arel.sql('COALESCE(sources.full_name, sources.name)'),
       Arel.sql('ST_Y(stations.location)'),
       Arel.sql('ST_X(stations.location)'),
       'stream_configurations.measurement_type',

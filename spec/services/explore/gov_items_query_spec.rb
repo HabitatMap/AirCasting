@@ -1,7 +1,7 @@
 require 'rails_helper'
 
 describe Explore::GovItemsQuery do
-  let(:source) { create(:source, name: 'EPA') }
+  let(:source) { create(:source, name: 'EPA', full_name: 'US EPA AirNow') }
   let(:pm) { create(:stream_configuration, measurement_type: 'PM2.5', unit_symbol: 'µg/m³') }
   let(:ozone) { create(:stream_configuration, measurement_type: 'Ozone', unit_symbol: 'ppb') }
   let(:measured_at) { 1.hour.ago.change(usec: 0) }
@@ -56,16 +56,16 @@ describe Explore::GovItemsQuery do
       source: 'government',
       uuid: site.reload.uuid,
       title: 'Queens College',
-      provider: 'EPA',
+      provider: 'US EPA AirNow',
       latitude: 40.74,
       longitude: -73.82,
       last_measured_at: measured_at,
     )
     expect(items.first.streams.map(&:to_h)).to eq(
       [
-        { sensor_name: 'Government-PM2.5', parameter: 'pm', unit_symbol: 'µg/m³',
+        { sensor_name: 'Government-PM2.5', parameter: 'Particulate Matter', unit_symbol: 'µg/m³',
           last_value: 8.5, last_measured_at: measured_at },
-        { sensor_name: 'Government-Ozone', parameter: 'ozone', unit_symbol: 'ppb',
+        { sensor_name: 'Government-Ozone', parameter: 'Ozone', unit_symbol: 'ppb',
           last_value: 31.0, last_measured_at: measured_at },
       ],
     )
@@ -78,10 +78,10 @@ describe Explore::GovItemsQuery do
     ozone_only = station
     stream(ozone_only, ozone)
 
-    items = call(parameters: %w[pm])
+    items = call(parameters: ['Particulate Matter'])
 
     expect(items.map(&:uuid)).to eq([both.reload.uuid])
-    expect(items.first.streams.map(&:parameter)).to eq(%w[pm])
+    expect(items.first.streams.map(&:parameter)).to eq(['Particulate Matter'])
   end
 
   it 'leaves out a station that was excluded' do
@@ -144,6 +144,6 @@ describe Explore::GovItemsQuery do
   it 'does not query when no selected parameter is measured by government sources' do
     expect(StationStream).not_to receive(:joins)
 
-    expect(call(parameters: %w[temperature humidity])).to eq([])
+    expect(call(parameters: ['Temperature', 'Humidity'])).to eq([])
   end
 end
