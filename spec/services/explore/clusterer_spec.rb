@@ -1,61 +1,39 @@
 require 'rails_helper'
 
 describe Explore::Clusterer do
-  def item(latitude:, longitude:, source: 'airbeam', values: { 'pm' => 10.0 })
+  def item(latitude:, longitude:, source: 'airbeam', value: nil)
     Explore::Item.new(
       source: source,
       uuid: SecureRandom.uuid,
       latitude: latitude,
       longitude: longitude,
-      streams:
-        values.map do |parameter, value|
-          Explore::ItemStream.new(parameter: parameter, last_value: value)
-        end,
+      streams: [],
+      value: value,
     )
   end
 
-  it 'merges items sharing a cell into one cluster' do
-    airbeam = item(latitude: 40.70, longitude: -74.00, values: { 'pm' => 10.0, 'humidity' => 50.0 })
-    station = item(latitude: 40.74, longitude: -73.82, source: 'government', values: { 'ozone' => 30.0, 'pm' => 20.0 })
-    other_station = item(latitude: 40.80, longitude: -73.90, source: 'government', values: { 'pm' => 30.0 })
+  it 'merges items sharing a cell into one cluster at their mean centre' do
+    items = [
+      item(latitude: 40.70, longitude: -74.00),
+      item(latitude: 40.74, longitude: -73.82, source: 'government'),
+      item(latitude: 40.80, longitude: -73.90, source: 'government'),
+    ]
 
-    result = described_class.new(5).call([airbeam, station, other_station])
+    result = described_class.new(5).call(items)
 
     expect(result.size).to eq(1)
-    expect(result.first).to have_attributes(
-      count: 3,
-      sources: { 'airbeam' => 1, 'government' => 2 },
-      bounds: { west: -74.00, east: -73.82, south: 40.70, north: 40.80 },
-    )
+    expect(result.first).to have_attributes(count: 3, value: nil)
     expect(result.first.latitude).to be_within(1e-9).of((40.70 + 40.74 + 40.80) / 3)
     expect(result.first.longitude).to be_within(1e-9).of((-74.00 - 73.82 - 73.90) / 3)
   end
 
-  it 'averages each parameter over the items that have it, in catalogue order' do
+  it "averages its members' values when they have one" do
     items = [
-      item(latitude: 40.70, longitude: -74.00, values: { 'ozone' => 30.0, 'pm' => 10.0 }),
-      item(latitude: 40.71, longitude: -74.01, values: { 'pm' => 20.0 }),
+      item(latitude: 40.70, longitude: -74.00, value: 10.0),
+      item(latitude: 40.71, longitude: -74.01, value: 15.0),
     ]
 
-    averages = described_class.new(5).call(items).first.averages
-
-    expect(averages).to eq('pm' => 15.0, 'ozone' => 30.0)
-    expect(averages.keys).to eq(%w[pm ozone])
-  end
-
-  it 'counts an item once per parameter, however many streams it has of it' do
-    two_pm_streams =
-      Explore::Item.new(
-        source: 'government',
-        latitude: 40.70,
-        longitude: -74.00,
-        streams: [10.0, 20.0].map { |value| Explore::ItemStream.new(parameter: 'pm', last_value: value) },
-      )
-    one_pm_stream = item(latitude: 40.71, longitude: -74.01, values: { 'pm' => 45.0 })
-
-    averages = described_class.new(5).call([two_pm_streams, one_pm_stream]).first.averages
-
-    expect(averages).to eq('pm' => 30.0)
+    expect(described_class.new(5).call(items).first.value).to eq(12.5)
   end
 
   it 'leaves a lone item, and items in other cells, as items' do
@@ -79,11 +57,6 @@ describe Explore::Clusterer do
     expect(described_class.new(described_class::NO_CLUSTER_ZOOM - 1).call([roof, site]).first)
       .to be_a(Explore::Cluster)
     expect(described_class.new(described_class::NO_CLUSTER_ZOOM).call([roof, site])).to eq([roof, site])
-  end
-
-  it 'rounds a fractional zoom the way the web map does' do
-    expect(described_class.new(15.5).grid.zoom).to eq(16)
-    expect(described_class.new(15.4).grid.zoom).to eq(15)
   end
 
   it 'returns nothing for no items' do

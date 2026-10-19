@@ -11,10 +11,10 @@ module Explore
 
     attr_reader :grid
 
-    # The web map clusters at Math.round(zoom); a fractional zoom from the
-    # apps lands on the same grid.
+    # A whole-number zoom: the web map clusters at Math.round of its zoom, and
+    # the API takes the client's rounded zoom the same way.
     def initialize(zoom)
-      @grid = MapGrid.new(zoom.round)
+      @grid = MapGrid.new(zoom)
     end
 
     def call(items)
@@ -34,44 +34,17 @@ module Explore
 
     private
 
-    # Members share one cell, and no cell spans the antimeridian, so plain
-    # min/max and means of the longitudes are correct.
+    # Members share one cell, and no cell spans the antimeridian, so a plain
+    # mean of the longitudes is correct.
     def cluster(items)
-      latitudes = items.map(&:latitude)
-      longitudes = items.map(&:longitude)
+      values = items.map(&:value)
 
       Cluster.new(
-        latitude: mean(latitudes),
-        longitude: mean(longitudes),
+        latitude: mean(items.map(&:latitude)),
+        longitude: mean(items.map(&:longitude)),
         count: items.size,
-        sources: items.map(&:source).tally,
-        bounds: {
-          west: longitudes.min,
-          east: longitudes.max,
-          south: latitudes.min,
-          north: latitudes.max,
-        },
-        averages: averages(items),
+        value: values.all? ? mean(values) : nil,
       )
-    end
-
-    # Each item counts once per parameter, whatever its number of streams of
-    # that parameter.
-    def averages(items)
-      item_means = Hash.new { |hash, parameter| hash[parameter] = [] }
-
-      items.each do |item|
-        item
-          .streams
-          .group_by(&:parameter)
-          .each do |parameter, streams|
-            item_means[parameter] << mean(streams.map(&:last_value))
-          end
-      end
-
-      item_means
-        .sort_by { |parameter, _| Parameters::KEYS.index(parameter) }
-        .to_h { |parameter, means| [parameter, mean(means)] }
     end
 
     def mean(values)
