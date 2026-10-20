@@ -46,8 +46,13 @@ class User < ApplicationRecord
   def self.find_for_database_authentication(conditions)
     conditions = conditions.dup
 
-    # login if coming from mobile || email if coming from web
-    login = conditions.delete(:login) || conditions.fetch(:email)
+    # login if coming from mobile || email if coming from web. Both keys are
+    # optional (`config.authentication_keys` marks each `false`), so read the
+    # second one rather than `fetch`ing it — a body carrying neither used to
+    # raise KeyError and answer 500. A blank value matches nothing, so skip the
+    # query instead of running `lower(email) = ''` against every row.
+    login = conditions.delete(:login).presence || conditions[:email].presence
+    return if login.blank?
 
     where(
       [
@@ -59,10 +64,18 @@ class User < ApplicationRecord
   end
 
   # Inspired by Devise wiki
+  #
+  # Devise's `PasswordsController#create` feeds whatever this returns straight
+  # into `successfully_sent?`, which calls `.errors` on it. Returning `nil` for
+  # an unrecognised login therefore raised `NoMethodError` and answered 500 —
+  # the Android app's forgot-password dialog reported a generic failure and no
+  # mail went out. An unsaved record has no errors, so the controller answers
+  # the same 201 it does for a real account: no crash, and no oracle telling a
+  # caller which logins exist.
   def self.send_reset_password_instructions(conditions = {})
     record = find_for_database_authentication(conditions)
-    record.send_reset_password_instructions if record
-    record
+    record&.send_reset_password_instructions
+    record || new
   end
 
   def admin?

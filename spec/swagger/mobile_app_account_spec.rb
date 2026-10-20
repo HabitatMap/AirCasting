@@ -161,6 +161,12 @@ RSpec.describe 'Mobile app — account & auth', type: :request do
   path '/users/password.json' do
     post 'Request a password-reset email' do
       tags 'Mobile app: Account & auth'
+      description <<~TEXT
+        `login` accepts either the email address or the profile name. Answers
+        201 whether or not an account matches, so the endpoint cannot be used
+        to discover which addresses are registered — a client learns nothing
+        from the response either way.
+      TEXT
       consumes 'application/json'
       produces 'application/json'
       security []
@@ -168,13 +174,21 @@ RSpec.describe 'Mobile app — account & auth', type: :request do
       parameter name: :body, in: :body, required: true, schema: {
         type: :object,
         required: %w[user],
-        properties: { user: { type: :object, required: %w[email], properties: { email: { type: :string } } } },
+        properties: {
+          user: {
+            type: :object,
+            properties: {
+              login: { type: :string, description: 'Email address or profile name. What both mobile apps send.' },
+              email: { type: :string, description: 'Email address. What the web form sends; equivalent to `login`.' },
+            },
+          },
+        },
       }
 
-      response '201', 'reset email sent' do
+      response '201', 'request accepted — a mail is sent only if an account matched' do
         schema type: :object, description: 'Empty object'
         let(:existing) { create(:user, email: 'reset@example.com') }
-        let(:body) { { user: { email: existing.email } } }
+        let(:body) { { user: { login: existing.email } } }
         run_test!
       end
     end

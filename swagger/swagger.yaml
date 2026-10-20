@@ -1053,11 +1053,16 @@ paths:
       summary: Request a password-reset email
       tags:
       - 'Mobile app: Account & auth'
+      description: |
+        `login` accepts either the email address or the profile name. Answers
+        201 whether or not an account matches, so the endpoint cannot be used
+        to discover which addresses are registered — a client learns nothing
+        from the response either way.
       security: []
       parameters: []
       responses:
         '201':
-          description: reset email sent
+          description: request accepted — a mail is sent only if an account matched
           content:
             application/json:
               schema:
@@ -1073,11 +1078,15 @@ paths:
               properties:
                 user:
                   type: object
-                  required:
-                  - email
                   properties:
+                    login:
+                      type: string
+                      description: Email address or profile name. What both mobile
+                        apps send.
                     email:
                       type: string
+                      description: Email address. What the web form sends; equivalent
+                        to `login`.
         required: true
   "/api/sessions/export_by_uuid.json":
     get:
