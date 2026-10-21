@@ -29,6 +29,8 @@ class DualWriteCheckWorker
   ].freeze
 
   def perform
+    return unless A9n.sidekiq_eea_import_enabled
+
     window_end   = 1.hour.ago.beginning_of_hour
     window_start = window_end - 1.hour
 
