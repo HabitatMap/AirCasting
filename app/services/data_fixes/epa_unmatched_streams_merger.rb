@@ -39,6 +39,14 @@ module DataFixes
         [Time.utc(2025, 3, 1), '840121030028'],
         [nil, '840191870013'],
       ],
+      # Mammoth Lakes EBAM at a point no AirNow list has. HourlyData: only
+      # MMGBU1000 reports PM2.5 there 2024-11-27 16:00 to 11-28 00:00 UTC, the
+      # same 9 values production has; MMGBU1000 has none of those hours.
+      'UNMATCHED-479c44b2-8ef2-473e-acfa-6ebe5a0e98a7' => 'MMGBU1000',
+      # The ozone side of the 0,0 bucket. 040217003 itself reports nothing;
+      # HourlyData: St. Pete Midtown ozone 2025-02-07 04:00 to 10:00 UTC, the
+      # same 7 values production has; St. Pete's stream starts the hour after.
+      '040217003' => '840121030028',
     }.freeze
 
     Piece =
