@@ -4,7 +4,9 @@ class Api::ScheduleStationStreamExport
   end
 
   def call
-    return Failure.new(contract.errors.to_h) if contract.failure?
+    # The message set, not `to_h`: `to_h` throws away the failing predicate,
+    # and `ValidationErrorsSerializer` needs it to give each field a code.
+    return Failure.new(contract.errors) if contract.failure?
 
     ExportStationStreamsWorker.perform_async(data[:station_stream_ids], data[:email])
 
