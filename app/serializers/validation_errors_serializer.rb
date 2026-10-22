@@ -9,10 +9,18 @@
 # values interpolated into that prose, so the client can rebuild the sentence
 # in its own language rather than parse ours.
 #
-# Takes either a dry-validation message set — the rich case, where the failing
-# predicate is still attached — or a hash that has already been through
-# `errors.to_h` somewhere upstream, which has lost it. The output shape is the
-# same either way; the degraded input just yields `invalid` codes.
+# Takes any of three inputs and answers the same shape for all of them:
+#
+# - a dry-validation message set — rich, the failing predicate still attached;
+# - an `ActiveModel::Errors` — also rich, carrying its own type symbol and the
+#   values interpolated into the message;
+# - a hash that has already been through `to_h` upstream, which has lost both
+#   and so degrades to `invalid` codes.
+#
+# The two rich inputs are the same bug twice over: `Dry::Schema#to_h` drops the
+# predicate and `ActiveModel::Errors#to_hash` drops the type, and both leave a
+# client holding English prose it cannot switch on. Callers pass the error
+# object itself so neither is thrown away before it gets here.
 class ValidationErrorsSerializer
   # dry-schema's predicate names are an implementation detail. These codes are
   # the published contract, so they are mapped deliberately rather than derived
@@ -56,6 +64,61 @@ class ValidationErrorsSerializer
     format?: :format,
   }.freeze
 
+  # ActiveModel's type symbols, mapped onto the same published vocabulary the
+  # predicates use — a too-short value is `too_short` whichever library caught
+  # it, so a client needs one branch, not one per backend.
+  #
+  # `:invalid` stays generic on purpose. ActiveModel uses it both for a value
+  # that failed a format (an unparseable email) and, by convention, for one
+  # that was simply wrong — `UpdateUserAccount` adds it to `current_password`
+  # to mean "that is not your password". Mapping it to `invalid_format` would
+  # be a lie half the time, so the client falls back to `message` and the
+  # services that want better say so with a type of their own.
+  CODE_BY_ACTIVE_MODEL_TYPE = {
+    blank: 'blank',
+    empty: 'empty',
+    present: 'must_be_blank',
+    taken: 'taken',
+    confirmation: 'confirmation_mismatch',
+    accepted: 'not_accepted',
+    too_short: 'too_short',
+    too_long: 'too_long',
+    wrong_length: 'wrong_size',
+    not_a_number: 'not_a_number',
+    not_an_integer: 'not_an_integer',
+    greater_than: 'too_small',
+    greater_than_or_equal_to: 'too_small',
+    less_than: 'too_large',
+    less_than_or_equal_to: 'too_large',
+    equal_to: 'wrong_value',
+    other_than: 'wrong_value',
+    inclusion: 'not_included',
+    exclusion: 'reserved',
+    invalid: 'invalid',
+  }.freeze
+
+  # Which option each type interpolates, under the same name the predicate
+  # path uses: `{ min: 8 }`, never `{ count: 8 }`.
+  #
+  # A whitelist rather than a filter, and that is a security property, not
+  # tidiness: `options` also carries `:value` — the input that was rejected.
+  # Passing the hash through would echo a rejected password back in the
+  # response body the first time anyone puts a `format:` validator on one.
+  #
+  # `:inclusion` has no entry because ActiveModel deletes `:in` from the
+  # options before adding the error, so the allowed set is not available here.
+  PARAM_BY_ACTIVE_MODEL_TYPE = {
+    too_short: { min: :count },
+    too_long: { max: :count },
+    wrong_length: { size: :count },
+    greater_than: { min: :count },
+    greater_than_or_equal_to: { min: :count },
+    less_than: { max: :count },
+    less_than_or_equal_to: { max: :count },
+    equal_to: { expected: :count },
+    other_than: { rejected: :count },
+  }.freeze
+
   # A rule that wrote prose but no code yet. Not a failure state: a client
   # switching on `code` falls through to `message`, which is exactly what it
   # has to do today. Lets the 40 `key.failure` sites convert one at a time
@@ -71,6 +134,7 @@ class ValidationErrorsSerializer
   end
 
   def call
+    return from_active_model if errors.is_a?(ActiveModel::Errors)
     return from_messages if message_set?
 
     from_hash(coerced_hash)
@@ -153,6 +217,43 @@ class ValidationErrorsSerializer
 
   def meta_for(message)
     (message.respond_to?(:meta) ? message.meta : nil) || {}
+  end
+
+  # Flat, because ActiveModel attributes are flat. A nested resource reports as
+  # the single attribute `:"streams.sensor_name"`, and splitting that into a
+  # tree would invent nesting the model itself does not claim.
+  def from_active_model
+    errors.each_with_object({}) do |error, acc|
+      (acc[error.attribute] ||= []) << active_model_entry_for(error)
+    end
+  end
+
+  def active_model_entry_for(error)
+    entry = { code: active_model_code_for(error), message: error.message }
+    params = active_model_params_for(error)
+    entry[:params] = params if params.present?
+    entry
+  end
+
+  # `errors.add(:base, 'No attributes given')` makes the sentence itself the
+  # type. Only a symbol was ever chosen as a code, so anything else falls back
+  # rather than publishing a whole sentence as one.
+  def active_model_code_for(error)
+    type = error.type
+    return UNSPECIFIED_CODE unless type.is_a?(Symbol)
+
+    CODE_BY_ACTIVE_MODEL_TYPE.fetch(type) { type.to_s }
+  end
+
+  def active_model_params_for(error)
+    mapping = PARAM_BY_ACTIVE_MODEL_TYPE[error.type]
+    return nil if mapping.nil?
+
+    options = error.options || {}
+    mapping.each_with_object({}) do |(name, option), acc|
+      value = options[option]
+      acc[name] = value unless value.nil?
+    end
   end
 
   def coerced_hash

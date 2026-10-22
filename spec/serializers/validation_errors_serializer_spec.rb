@@ -189,6 +189,130 @@ describe ValidationErrorsSerializer do
     end
   end
 
+  # A real ActiveModel class for the same reason the contracts above are real:
+  # the option keys and type symbols are the thing under test, and a double
+  # would only assert our memory of them.
+  describe 'an ActiveModel::Errors' do
+    let(:model_class) do
+      Class.new do
+        include ActiveModel::Model
+
+        attr_accessor :username, :email, :password, :password_confirmation, :age, :role
+
+        def self.name = 'Account'
+
+        validates :username, presence: true
+        validates :password, length: { minimum: 8 }, confirmation: true, allow_nil: true
+        validates :email, format: { with: /@/ }, allow_nil: true
+        validates :age, numericality: { greater_than_or_equal_to: 18 }, allow_nil: true
+        validates :role, inclusion: { in: %w[admin user] }, allow_nil: true
+      end
+    end
+
+    def serialized(attributes)
+      model = model_class.new(**attributes)
+      model.valid?
+      described_class.call(model.errors)
+    end
+
+    it 'names a missing value blank' do
+      expect(serialized({})[:username])
+        .to eq([{ code: 'blank', message: "can't be blank" }])
+    end
+
+    it 'carries the bound of a length failure as min' do
+      expect(serialized(username: 'a', password: 'short')[:password])
+        .to include(code: 'too_short',
+                    message: 'is too short (minimum is 8 characters)',
+                    params: { min: 8 })
+    end
+
+    it 'maps a numeric bound onto the same code a predicate would give' do
+      expect(serialized(username: 'a', age: 5)[:age])
+        .to eq([{ code: 'too_small',
+                  message: 'must be greater than or equal to 18',
+                  params: { min: 18 } }])
+    end
+
+    it 'names a mismatched confirmation' do
+      errors = serialized(
+        username: 'a',
+        password: 'long-enough',
+        password_confirmation: 'something-else',
+      )
+
+      expect(errors[:password_confirmation])
+        .to eq([{ code: 'confirmation_mismatch', message: "doesn't match Password" }])
+    end
+
+    it 'leaves a format failure generic, because ActiveModel does' do
+      expect(serialized(username: 'a', email: 'nope')[:email])
+        .to eq([{ code: 'invalid', message: 'is invalid' }])
+    end
+
+    # ActiveModel drops `:in` from the options before adding the error, so
+    # there is no allowed set to publish — only the code.
+    it 'names an inclusion failure without inventing an allowed list' do
+      expect(serialized(username: 'a', role: 'nope')[:role])
+        .to eq([{ code: 'not_included', message: 'is not included in the list' }])
+    end
+
+    it 'maps a type added by hand' do
+      model = model_class.new(username: 'a')
+      model.errors.add(:email, :taken)
+
+      expect(described_class.call(model.errors)[:email])
+        .to eq([{ code: 'taken', message: 'has already been taken' }])
+    end
+
+    # `errors.add(:base, 'a sentence')` makes the sentence the type. Publishing
+    # that as a code would be worse than having none.
+    it 'does not publish a literal message as a code' do
+      model = model_class.new(username: 'a')
+      model.errors.add(:base, 'No attributes given to update')
+
+      expect(described_class.call(model.errors)[:base])
+        .to eq([{ code: 'invalid', message: 'No attributes given to update' }])
+    end
+
+    it 'keeps every failure on one attribute' do
+      model = model_class.new(username: 'a', password: 'short')
+      model.valid?
+      model.errors.add(:password, :taken)
+
+      expect(described_class.call(model.errors)[:password].map { |e| e[:code] })
+        .to eq(%w[too_short taken])
+    end
+
+    # `options` also carries `:value` — the input that was rejected. Echoing
+    # it back would publish a rejected password the first time anyone puts a
+    # format validator on one.
+    it 'never echoes the rejected value back' do
+      serialized(username: 'a', email: 'nope', age: 5).each_value do |entries|
+        entries.each do |entry|
+          expect(entry).not_to have_key(:value)
+          expect(entry.fetch(:params, {})).not_to have_key(:value)
+        end
+      end
+    end
+
+    it 'survives a JSON round trip with the keys a client reads' do
+      body = JSON.parse(serialized(username: 'a', password: 'short').to_json)
+
+      expect(body.dig('password', 0))
+        .to eq('code' => 'too_short',
+               'message' => 'is too short (minimum is 8 characters)',
+               'params' => { 'min' => 8 })
+    end
+
+    it 'renders a model with no errors as an empty hash' do
+      model = model_class.new(username: 'a')
+      model.valid?
+
+      expect(described_class.call(model.errors)).to eq({})
+    end
+  end
+
   describe 'input that is not a validation result at all' do
     it 'puts a bare string under base' do
       expect(described_class.call('session not found')).to eq(
