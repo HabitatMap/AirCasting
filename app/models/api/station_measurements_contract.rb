@@ -8,7 +8,11 @@ module Api
 
     rule(:end_time, :start_time) do
       if values[:end_time] <= values[:start_time]
-        key(:end_time).failure('must be greater than start_time')
+        key(:end_time).failure(
+          text: 'must be greater than start_time',
+          code: 'greater_than',
+          params: { other: 'start_time' },
+        )
       end
     end
   end

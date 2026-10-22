@@ -42,7 +42,7 @@ module Api
     end
 
     rule(:streams) do
-      key.failure('must have at least one stream') if value.empty?
+      key.failure(text: 'must have at least one stream', code: 'empty') if value.empty?
     end
 
     rule(:streams) do
@@ -53,7 +53,8 @@ module Api
         ordered = thresholds.values_at(:very_low, :low, :medium, :high, :very_high)
         if ordered.each_cons(2).any? { |a, b| a > b }
           key([:streams, i, :thresholds]).failure(
-            'must be in ascending order (very_low ≤ low ≤ medium ≤ high ≤ very_high)',
+            text: 'must be in ascending order (very_low ≤ low ≤ medium ≤ high ≤ very_high)',
+            code: 'out_of_order',
           )
         end
       end
@@ -63,7 +64,11 @@ module Api
     # FixedSessions::Creator checks that and answers with `session_uuid_taken`.
     rule(:uuid) do
       if key? && value && !UUID_FORMAT.match?(value)
-        key.failure('must be a UUID (e.g. 550e8400-e29b-41d4-a716-446655440000)')
+        key.failure(
+          text: 'must be a UUID (e.g. 550e8400-e29b-41d4-a716-446655440000)',
+          code: 'invalid_format',
+          params: { format: 'uuid' },
+        )
       end
     end
 
@@ -72,7 +77,11 @@ module Api
         begin
           TZInfo::Timezone.get(value)
         rescue TZInfo::InvalidTimezoneIdentifier
-          key.failure('must be a valid IANA time zone identifier (e.g. Europe/Warsaw)')
+          key.failure(
+            text: 'must be a valid IANA time zone identifier (e.g. Europe/Warsaw)',
+            code: 'invalid_format',
+            params: { format: 'iana_time_zone' },
+          )
         end
       end
     end
@@ -87,13 +96,19 @@ module Api
         canonical = Sensor.canonical_sensor_name(stream[:sensor_name])
 
         unless Sensor::CANONICAL_SENSOR_TYPE_IDS.key?(canonical)
-          key([:streams, i, :sensor_name]).failure("'#{stream[:sensor_name]}' is not a supported sensor type")
+          key([:streams, i, :sensor_name]).failure(
+            text: "'#{stream[:sensor_name]}' is not a supported sensor type",
+            code: 'unsupported_sensor_type',
+            params: { sensor_name: stream[:sensor_name].to_s },
+          )
           next
         end
 
         if seen.key?(canonical)
           key([:streams, i, :sensor_name]).failure(
-            "duplicates the #{canonical} stream already requested at index #{seen[canonical]}",
+            text: "duplicates the #{canonical} stream already requested at index #{seen[canonical]}",
+            code: 'duplicate',
+            params: { sensor_name: canonical, index: seen[canonical] },
           )
           next
         end
@@ -102,7 +117,9 @@ module Api
         expected_unit = Sensor::CANONICAL_UNIT_SYMBOLS[canonical]
         if stream[:unit_symbol] != expected_unit
           key([:streams, i, :unit_symbol]).failure(
-            "expected '#{expected_unit}' for #{canonical}, got '#{stream[:unit_symbol]}'",
+            text: "expected '#{expected_unit}' for #{canonical}, got '#{stream[:unit_symbol]}'",
+            code: 'unexpected_unit',
+            params: { expected: expected_unit, sensor_name: canonical },
           )
         end
       end

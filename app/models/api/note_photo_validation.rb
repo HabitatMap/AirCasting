@@ -17,7 +17,9 @@ module Api
     # the schema and then fail Note's presence validation as a raw ActiveRecord
     # message. Caught here instead, so the client gets a `text` field error.
     def validate_text(error_key, value)
-      error_key.failure('must not be blank') if value.to_s.strip.empty?
+      return unless value.to_s.strip.empty?
+
+      error_key.failure(text: 'must not be blank', code: 'blank')
     end
 
     # Both apps send `yyyy-MM-dd'T'HH:mm:ss` in the phone's local wall clock;
@@ -27,7 +29,11 @@ module Api
     def validate_date(error_key, value)
       DateTime.iso8601(value)
     rescue ArgumentError, TypeError
-      error_key.failure('must be an ISO 8601 date-time (e.g. 2026-08-14T10:00:00)')
+      error_key.failure(
+        text: 'must be an ISO 8601 date-time (e.g. 2026-08-14T10:00:00)',
+        code: 'invalid_format',
+        params: { format: 'iso8601' },
+      )
     end
 
     def validate_photo(error_key, encoded)
@@ -42,17 +48,29 @@ module Api
       compact = encoded.gsub(/\s+/, '')
 
       if compact.bytesize > MAX_PHOTO_BASE64_BYTES
-        return error_key.failure("must be at most #{MAX_PHOTO_BYTES} bytes once decoded")
+        return error_key.failure(
+          text: "must be at most #{MAX_PHOTO_BYTES} bytes once decoded",
+          code: 'too_large',
+          params: { max_bytes: MAX_PHOTO_BYTES },
+        )
       end
 
       begin
         decoded = Base64.strict_decode64(compact)
       rescue ArgumentError
-        return error_key.failure('must be base64-encoded')
+        return error_key.failure(
+          text: 'must be base64-encoded',
+          code: 'invalid_format',
+          params: { format: 'base64' },
+        )
       end
 
       if decoded.bytesize > MAX_PHOTO_BYTES
-        return error_key.failure("must be at most #{MAX_PHOTO_BYTES} bytes once decoded")
+        return error_key.failure(
+          text: "must be at most #{MAX_PHOTO_BYTES} bytes once decoded",
+          code: 'too_large',
+          params: { max_bytes: MAX_PHOTO_BYTES },
+        )
       end
 
       # Sniffed from the bytes, never taken from the client: this blob is served
@@ -60,7 +78,11 @@ module Api
       content_type = Marcel::MimeType.for(StringIO.new(decoded))
       return if content_type.to_s.start_with?('image/')
 
-      error_key.failure("must be an image, got '#{content_type}'")
+      error_key.failure(
+        text: "must be an image, got '#{content_type}'",
+        code: 'not_an_image',
+        params: { content_type: content_type.to_s },
+      )
     end
   end
 end
