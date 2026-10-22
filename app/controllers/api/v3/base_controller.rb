@@ -11,9 +11,21 @@ module Api
     # wrong. The HTTP status carries the same meaning, so a client can react
     # correctly without reading the body at all.
     #
+    # Inside `fields`, every leaf is a list of objects rather than of strings:
+    #
+    #   "fields": { "streams": { "0": { "sensor_name": [
+    #     { "code": "blank", "message": "must be filled" }
+    #   ] } } }
+    #
+    # The mobile apps ship in several languages and this API is not localised,
+    # so `code` is what they switch on to pick their own sentence. See
+    # `ValidationErrorsSerializer` for the vocabulary.
+    #
     # Two endpoints deliberately opt out and keep the raw response they shipped
     # with — `POST /api/realtime/measurements` and `GET /api/realtime/sync_measurements`.
-    # AirBeams post to those directly and their firmware cannot be inspected.
+    # AirBeam 3 and AirBeam Mini V1 post to those directly; both close the
+    # connection without reading the body, so the shape is frozen by habit
+    # rather than by need.
     class BaseController < Api::BaseController
       STATUS_BY_ERROR_CODE = {
         'validation_error' => :bad_request,
@@ -48,7 +60,7 @@ module Api
         render json: {
           error_code: ErrorCodes::VALIDATION_ERROR,
           message: message,
-          fields: errors.respond_to?(:to_h) ? errors.to_h : errors,
+          fields: ValidationErrorsSerializer.call(errors),
         }, status: status
       end
 

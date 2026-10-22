@@ -3308,16 +3308,46 @@ paths:
                     example: Query parameters are invalid
                   fields:
                     type: object
-                    description: Per-parameter validation errors
-                    additionalProperties:
-                      type: array
-                      items:
-                        type: string
+                    description: |
+                      Per-field validation errors. Present only when the request shape is wrong.
+
+                      Keys are the parameters that failed, nested exactly as they were sent — a
+                      bad stream appears under its index in the array. Every leaf is a list of
+                      objects, one per failure:
+
+                      - `code` — machine-readable. Switch on this to show your own translated
+                        message; this API is not localised.
+                      - `message` — English, a fallback for codes you do not handle yet. Never
+                        parse it.
+                      - `params` — present when the message interpolates a value, so the
+                        sentence can be rebuilt in another language. `too_small` carries `min`,
+                        `not_included` carries `allowed`.
+
+                      Codes for a value of the wrong shape are the same on every endpoint:
+
+                      `missing`, `blank`, `not_a_string`, `not_an_integer`, `not_a_float`,
+                      `not_a_boolean`, `not_a_time`, `not_a_date`, `not_a_date_time`,
+                      `not_an_array`, `not_a_hash`, `too_small` (`min`), `too_large` (`max`),
+                      `too_short` (`min`), `too_long` (`max`), `not_included` (`allowed`),
+                      `invalid_format` (`format`), `wrong_size` (`size`).
+
+                      Codes for a rule the endpoint enforces are specific to it — `greater_than`,
+                      `window_too_long`, `unknown_value`, `duplicate`, `requires_one_of` and so
+                      on. Each operation's `fields` example shows the ones it can return.
+
+                      New codes are added as the API grows, and `invalid` is used wherever a
+                      failure has prose but no code assigned yet. Treat both the same way: fall
+                      back to `message`. A client must never break on a code it does not know.
                     example:
                       zoom:
-                      - must be an integer
+                      - code: not_an_integer
+                        message: must be an integer
                       measurement_types:
-                      - 'unknown: PM10'
+                      - code: unknown_value
+                        message: 'unknown: PM10'
+                        params:
+                          unknown:
+                          - PM10
   "/api/v3/fixed_sessions":
     get:
       summary: "[ALPHA] List the signed-in user's fixed sessions"
@@ -3619,16 +3649,43 @@ paths:
                     example: Request body is invalid
                   fields:
                     type: object
-                    description: Per-field validation errors
-                    additionalProperties:
-                      type: array
-                      items:
-                        type: string
+                    description: |
+                      Per-field validation errors. Present only when the request shape is wrong.
+
+                      Keys are the parameters that failed, nested exactly as they were sent — a
+                      bad stream appears under its index in the array. Every leaf is a list of
+                      objects, one per failure:
+
+                      - `code` — machine-readable. Switch on this to show your own translated
+                        message; this API is not localised.
+                      - `message` — English, a fallback for codes you do not handle yet. Never
+                        parse it.
+                      - `params` — present when the message interpolates a value, so the
+                        sentence can be rebuilt in another language. `too_small` carries `min`,
+                        `not_included` carries `allowed`.
+
+                      Codes for a value of the wrong shape are the same on every endpoint:
+
+                      `missing`, `blank`, `not_a_string`, `not_an_integer`, `not_a_float`,
+                      `not_a_boolean`, `not_a_time`, `not_a_date`, `not_a_date_time`,
+                      `not_an_array`, `not_a_hash`, `too_small` (`min`), `too_large` (`max`),
+                      `too_short` (`min`), `too_long` (`max`), `not_included` (`allowed`),
+                      `invalid_format` (`format`), `wrong_size` (`size`).
+
+                      Codes for a rule the endpoint enforces are specific to it — `greater_than`,
+                      `window_too_long`, `unknown_value`, `duplicate`, `requires_one_of` and so
+                      on. Each operation's `fields` example shows the ones it can return.
+
+                      New codes are added as the API grows, and `invalid` is used wherever a
+                      failure has prose but no code assigned yet. Treat both the same way: fall
+                      back to `message`. A client must never break on a code it does not know.
                     example:
                       uuid:
-                      - is missing
+                      - code: blank
+                        message: must be filled
                       streams:
-                      - is missing
+                      - code: missing
+                        message: is missing
         '409':
           description: uuid already in use
           content:
@@ -4049,10 +4106,44 @@ paths:
                     example: Request body is invalid
                   fields:
                     type: object
-                    additionalProperties: true
+                    description: |
+                      Per-field validation errors. Present only when the request shape is wrong.
+
+                      Keys are the parameters that failed, nested exactly as they were sent — a
+                      bad stream appears under its index in the array. Every leaf is a list of
+                      objects, one per failure:
+
+                      - `code` — machine-readable. Switch on this to show your own translated
+                        message; this API is not localised.
+                      - `message` — English, a fallback for codes you do not handle yet. Never
+                        parse it.
+                      - `params` — present when the message interpolates a value, so the
+                        sentence can be rebuilt in another language. `too_small` carries `min`,
+                        `not_included` carries `allowed`.
+
+                      Codes for a value of the wrong shape are the same on every endpoint:
+
+                      `missing`, `blank`, `not_a_string`, `not_an_integer`, `not_a_float`,
+                      `not_a_boolean`, `not_a_time`, `not_a_date`, `not_a_date_time`,
+                      `not_an_array`, `not_a_hash`, `too_small` (`min`), `too_large` (`max`),
+                      `too_short` (`min`), `too_long` (`max`), `not_included` (`allowed`),
+                      `invalid_format` (`format`), `wrong_size` (`size`).
+
+                      Codes for a rule the endpoint enforces are specific to it — `greater_than`,
+                      `window_too_long`, `unknown_value`, `duplicate`, `requires_one_of` and so
+                      on. Each operation's `fields` example shows the ones it can return.
+
+                      New codes are added as the API grows, and `invalid` is used wherever a
+                      failure has prose but no code assigned yet. Treat both the same way: fall
+                      back to `message`. A client must never break on a code it does not know.
                     example:
                       base:
-                      - 'must contain at least one of: title, tag_list'
+                      - code: requires_one_of
+                        message: 'must contain at least one of: title, tag_list'
+                        params:
+                          allowed:
+                          - title
+                          - tag_list
         '404':
           description: session not found
           content:
@@ -4381,13 +4472,40 @@ paths:
                     type: string
                   fields:
                     type: object
-                    additionalProperties:
-                      type: array
-                      items:
-                        type: string
+                    description: |
+                      Per-field validation errors. Present only when the request shape is wrong.
+
+                      Keys are the parameters that failed, nested exactly as they were sent — a
+                      bad stream appears under its index in the array. Every leaf is a list of
+                      objects, one per failure:
+
+                      - `code` — machine-readable. Switch on this to show your own translated
+                        message; this API is not localised.
+                      - `message` — English, a fallback for codes you do not handle yet. Never
+                        parse it.
+                      - `params` — present when the message interpolates a value, so the
+                        sentence can be rebuilt in another language. `too_small` carries `min`,
+                        `not_included` carries `allowed`.
+
+                      Codes for a value of the wrong shape are the same on every endpoint:
+
+                      `missing`, `blank`, `not_a_string`, `not_an_integer`, `not_a_float`,
+                      `not_a_boolean`, `not_a_time`, `not_a_date`, `not_a_date_time`,
+                      `not_an_array`, `not_a_hash`, `too_small` (`min`), `too_large` (`max`),
+                      `too_short` (`min`), `too_long` (`max`), `not_included` (`allowed`),
+                      `invalid_format` (`format`), `wrong_size` (`size`).
+
+                      Codes for a rule the endpoint enforces are specific to it — `greater_than`,
+                      `window_too_long`, `unknown_value`, `duplicate`, `requires_one_of` and so
+                      on. Each operation's `fields` example shows the ones it can return.
+
+                      New codes are added as the API grows, and `invalid` is used wherever a
+                      failure has prose but no code assigned yet. Treat both the same way: fall
+                      back to `message`. A client must never break on a code it does not know.
                     example:
                       sensor_name:
-                      - is missing
+                      - code: missing
+                        message: is missing
         '404':
           description: session not found, or the session has no such stream
           content:
@@ -4780,15 +4898,42 @@ paths:
                     example: Request body is invalid
                   fields:
                     type: object
-                    description: Per-field validation errors — only present for shape
-                      errors
-                    additionalProperties:
-                      type: array
-                      items:
-                        type: string
+                    description: |
+                      Per-field validation errors. Present only when the request shape is wrong.
+
+                      Keys are the parameters that failed, nested exactly as they were sent — a
+                      bad stream appears under its index in the array. Every leaf is a list of
+                      objects, one per failure:
+
+                      - `code` — machine-readable. Switch on this to show your own translated
+                        message; this API is not localised.
+                      - `message` — English, a fallback for codes you do not handle yet. Never
+                        parse it.
+                      - `params` — present when the message interpolates a value, so the
+                        sentence can be rebuilt in another language. `too_small` carries `min`,
+                        `not_included` carries `allowed`.
+
+                      Codes for a value of the wrong shape are the same on every endpoint:
+
+                      `missing`, `blank`, `not_a_string`, `not_an_integer`, `not_a_float`,
+                      `not_a_boolean`, `not_a_time`, `not_a_date`, `not_a_date_time`,
+                      `not_an_array`, `not_a_hash`, `too_small` (`min`), `too_large` (`max`),
+                      `too_short` (`min`), `too_long` (`max`), `not_included` (`allowed`),
+                      `invalid_format` (`format`), `wrong_size` (`size`).
+
+                      Codes for a rule the endpoint enforces are specific to it — `greater_than`,
+                      `window_too_long`, `unknown_value`, `duplicate`, `requires_one_of` and so
+                      on. Each operation's `fields` example shows the ones it can return.
+
+                      New codes are added as the API grows, and `invalid` is used wherever a
+                      failure has prose but no code assigned yet. Treat both the same way: fall
+                      back to `message`. A client must never break on a code it does not know.
                     example:
                       end_time:
-                      - must be greater than start_time
+                      - code: greater_than
+                        message: must be greater than start_time
+                        params:
+                          other: start_time
   "/api/v3/station_measurements":
     get:
       summary: Station measurements in a time range (government)
@@ -4856,15 +5001,42 @@ paths:
                     example: Request body is invalid
                   fields:
                     type: object
-                    description: Per-field validation errors — only present for shape
-                      errors
-                    additionalProperties:
-                      type: array
-                      items:
-                        type: string
+                    description: |
+                      Per-field validation errors. Present only when the request shape is wrong.
+
+                      Keys are the parameters that failed, nested exactly as they were sent — a
+                      bad stream appears under its index in the array. Every leaf is a list of
+                      objects, one per failure:
+
+                      - `code` — machine-readable. Switch on this to show your own translated
+                        message; this API is not localised.
+                      - `message` — English, a fallback for codes you do not handle yet. Never
+                        parse it.
+                      - `params` — present when the message interpolates a value, so the
+                        sentence can be rebuilt in another language. `too_small` carries `min`,
+                        `not_included` carries `allowed`.
+
+                      Codes for a value of the wrong shape are the same on every endpoint:
+
+                      `missing`, `blank`, `not_a_string`, `not_an_integer`, `not_a_float`,
+                      `not_a_boolean`, `not_a_time`, `not_a_date`, `not_a_date_time`,
+                      `not_an_array`, `not_a_hash`, `too_small` (`min`), `too_large` (`max`),
+                      `too_short` (`min`), `too_long` (`max`), `not_included` (`allowed`),
+                      `invalid_format` (`format`), `wrong_size` (`size`).
+
+                      Codes for a rule the endpoint enforces are specific to it — `greater_than`,
+                      `window_too_long`, `unknown_value`, `duplicate`, `requires_one_of` and so
+                      on. Each operation's `fields` example shows the ones it can return.
+
+                      New codes are added as the API grows, and `invalid` is used wherever a
+                      failure has prose but no code assigned yet. Treat both the same way: fall
+                      back to `message`. A client must never break on a code it does not know.
                     example:
                       end_time:
-                      - must be greater than start_time
+                      - code: greater_than
+                        message: must be greater than start_time
+                        params:
+                          other: start_time
   "/api/v3/mobile_sessions/{uuid}/notes":
     get:
       summary: "[ALPHA] List a session's notes"
@@ -5018,10 +5190,42 @@ paths:
                     example: Request body is invalid
                   fields:
                     type: object
-                    additionalProperties: true
+                    description: |
+                      Per-field validation errors. Present only when the request shape is wrong.
+
+                      Keys are the parameters that failed, nested exactly as they were sent — a
+                      bad stream appears under its index in the array. Every leaf is a list of
+                      objects, one per failure:
+
+                      - `code` — machine-readable. Switch on this to show your own translated
+                        message; this API is not localised.
+                      - `message` — English, a fallback for codes you do not handle yet. Never
+                        parse it.
+                      - `params` — present when the message interpolates a value, so the
+                        sentence can be rebuilt in another language. `too_small` carries `min`,
+                        `not_included` carries `allowed`.
+
+                      Codes for a value of the wrong shape are the same on every endpoint:
+
+                      `missing`, `blank`, `not_a_string`, `not_an_integer`, `not_a_float`,
+                      `not_a_boolean`, `not_a_time`, `not_a_date`, `not_a_date_time`,
+                      `not_an_array`, `not_a_hash`, `too_small` (`min`), `too_large` (`max`),
+                      `too_short` (`min`), `too_long` (`max`), `not_included` (`allowed`),
+                      `invalid_format` (`format`), `wrong_size` (`size`).
+
+                      Codes for a rule the endpoint enforces are specific to it — `greater_than`,
+                      `window_too_long`, `unknown_value`, `duplicate`, `requires_one_of` and so
+                      on. Each operation's `fields` example shows the ones it can return.
+
+                      New codes are added as the API grows, and `invalid` is used wherever a
+                      failure has prose but no code assigned yet. Treat both the same way: fall
+                      back to `message`. A client must never break on a code it does not know.
                     example:
                       date:
-                      - must be an ISO 8601 date-time (e.g. 2026-08-14T10:00:00)
+                      - code: invalid_format
+                        message: must be an ISO 8601 date-time (e.g. 2026-08-14T10:00:00)
+                        params:
+                          format: iso8601
         '413':
           description: body too large for one photo
           content:
@@ -5176,10 +5380,44 @@ paths:
                     example: Request body is invalid
                   fields:
                     type: object
-                    additionalProperties: true
+                    description: |
+                      Per-field validation errors. Present only when the request shape is wrong.
+
+                      Keys are the parameters that failed, nested exactly as they were sent — a
+                      bad stream appears under its index in the array. Every leaf is a list of
+                      objects, one per failure:
+
+                      - `code` — machine-readable. Switch on this to show your own translated
+                        message; this API is not localised.
+                      - `message` — English, a fallback for codes you do not handle yet. Never
+                        parse it.
+                      - `params` — present when the message interpolates a value, so the
+                        sentence can be rebuilt in another language. `too_small` carries `min`,
+                        `not_included` carries `allowed`.
+
+                      Codes for a value of the wrong shape are the same on every endpoint:
+
+                      `missing`, `blank`, `not_a_string`, `not_an_integer`, `not_a_float`,
+                      `not_a_boolean`, `not_a_time`, `not_a_date`, `not_a_date_time`,
+                      `not_an_array`, `not_a_hash`, `too_small` (`min`), `too_large` (`max`),
+                      `too_short` (`min`), `too_long` (`max`), `not_included` (`allowed`),
+                      `invalid_format` (`format`), `wrong_size` (`size`).
+
+                      Codes for a rule the endpoint enforces are specific to it — `greater_than`,
+                      `window_too_long`, `unknown_value`, `duplicate`, `requires_one_of` and so
+                      on. Each operation's `fields` example shows the ones it can return.
+
+                      New codes are added as the API grows, and `invalid` is used wherever a
+                      failure has prose but no code assigned yet. Treat both the same way: fall
+                      back to `message`. A client must never break on a code it does not know.
                     example:
                       base:
-                      - 'must contain at least one of: text, photo'
+                      - code: requires_one_of
+                        message: 'must contain at least one of: text, photo'
+                        params:
+                          allowed:
+                          - text
+                          - photo
         '413':
           description: body too large for one photo
           content:
@@ -5593,16 +5831,43 @@ paths:
                     example: Request body is invalid
                   fields:
                     type: object
-                    description: Per-field validation errors
-                    additionalProperties:
-                      type: array
-                      items:
-                        type: string
+                    description: |
+                      Per-field validation errors. Present only when the request shape is wrong.
+
+                      Keys are the parameters that failed, nested exactly as they were sent — a
+                      bad stream appears under its index in the array. Every leaf is a list of
+                      objects, one per failure:
+
+                      - `code` — machine-readable. Switch on this to show your own translated
+                        message; this API is not localised.
+                      - `message` — English, a fallback for codes you do not handle yet. Never
+                        parse it.
+                      - `params` — present when the message interpolates a value, so the
+                        sentence can be rebuilt in another language. `too_small` carries `min`,
+                        `not_included` carries `allowed`.
+
+                      Codes for a value of the wrong shape are the same on every endpoint:
+
+                      `missing`, `blank`, `not_a_string`, `not_an_integer`, `not_a_float`,
+                      `not_a_boolean`, `not_a_time`, `not_a_date`, `not_a_date_time`,
+                      `not_an_array`, `not_a_hash`, `too_small` (`min`), `too_large` (`max`),
+                      `too_short` (`min`), `too_long` (`max`), `not_included` (`allowed`),
+                      `invalid_format` (`format`), `wrong_size` (`size`).
+
+                      Codes for a rule the endpoint enforces are specific to it — `greater_than`,
+                      `window_too_long`, `unknown_value`, `duplicate`, `requires_one_of` and so
+                      on. Each operation's `fields` example shows the ones it can return.
+
+                      New codes are added as the API grows, and `invalid` is used wherever a
+                      failure has prose but no code assigned yet. Treat both the same way: fall
+                      back to `message`. A client must never break on a code it does not know.
                     example:
                       uuid:
-                      - is missing
+                      - code: blank
+                        message: must be filled
                       streams:
-                      - is missing
+                      - code: missing
+                        message: is missing
         '409':
           description: uuid already in use
           content:
@@ -6077,10 +6342,44 @@ paths:
                     example: Request body is invalid
                   fields:
                     type: object
-                    additionalProperties: true
+                    description: |
+                      Per-field validation errors. Present only when the request shape is wrong.
+
+                      Keys are the parameters that failed, nested exactly as they were sent — a
+                      bad stream appears under its index in the array. Every leaf is a list of
+                      objects, one per failure:
+
+                      - `code` — machine-readable. Switch on this to show your own translated
+                        message; this API is not localised.
+                      - `message` — English, a fallback for codes you do not handle yet. Never
+                        parse it.
+                      - `params` — present when the message interpolates a value, so the
+                        sentence can be rebuilt in another language. `too_small` carries `min`,
+                        `not_included` carries `allowed`.
+
+                      Codes for a value of the wrong shape are the same on every endpoint:
+
+                      `missing`, `blank`, `not_a_string`, `not_an_integer`, `not_a_float`,
+                      `not_a_boolean`, `not_a_time`, `not_a_date`, `not_a_date_time`,
+                      `not_an_array`, `not_a_hash`, `too_small` (`min`), `too_large` (`max`),
+                      `too_short` (`min`), `too_long` (`max`), `not_included` (`allowed`),
+                      `invalid_format` (`format`), `wrong_size` (`size`).
+
+                      Codes for a rule the endpoint enforces are specific to it — `greater_than`,
+                      `window_too_long`, `unknown_value`, `duplicate`, `requires_one_of` and so
+                      on. Each operation's `fields` example shows the ones it can return.
+
+                      New codes are added as the API grows, and `invalid` is used wherever a
+                      failure has prose but no code assigned yet. Treat both the same way: fall
+                      back to `message`. A client must never break on a code it does not know.
                     example:
                       base:
-                      - 'must contain at least one of: title, tag_list'
+                      - code: requires_one_of
+                        message: 'must contain at least one of: title, tag_list'
+                        params:
+                          allowed:
+                          - title
+                          - tag_list
         '404':
           description: session not found
           content:
@@ -6328,10 +6627,40 @@ paths:
                     example: Request body is invalid
                   fields:
                     type: object
-                    additionalProperties: true
+                    description: |
+                      Per-field validation errors. Present only when the request shape is wrong.
+
+                      Keys are the parameters that failed, nested exactly as they were sent — a
+                      bad stream appears under its index in the array. Every leaf is a list of
+                      objects, one per failure:
+
+                      - `code` — machine-readable. Switch on this to show your own translated
+                        message; this API is not localised.
+                      - `message` — English, a fallback for codes you do not handle yet. Never
+                        parse it.
+                      - `params` — present when the message interpolates a value, so the
+                        sentence can be rebuilt in another language. `too_small` carries `min`,
+                        `not_included` carries `allowed`.
+
+                      Codes for a value of the wrong shape are the same on every endpoint:
+
+                      `missing`, `blank`, `not_a_string`, `not_an_integer`, `not_a_float`,
+                      `not_a_boolean`, `not_a_time`, `not_a_date`, `not_a_date_time`,
+                      `not_an_array`, `not_a_hash`, `too_small` (`min`), `too_large` (`max`),
+                      `too_short` (`min`), `too_long` (`max`), `not_included` (`allowed`),
+                      `invalid_format` (`format`), `wrong_size` (`size`).
+
+                      Codes for a rule the endpoint enforces are specific to it — `greater_than`,
+                      `window_too_long`, `unknown_value`, `duplicate`, `requires_one_of` and so
+                      on. Each operation's `fields` example shows the ones it can return.
+
+                      New codes are added as the API grows, and `invalid` is used wherever a
+                      failure has prose but no code assigned yet. Treat both the same way: fall
+                      back to `message`. A client must never break on a code it does not know.
                     example:
                       finished_at:
-                      - must not be in the future
+                      - code: in_the_future
+                        message: must not be in the future
         '404':
           description: session not found
           content:
@@ -6478,13 +6807,40 @@ paths:
                     type: string
                   fields:
                     type: object
-                    additionalProperties:
-                      type: array
-                      items:
-                        type: string
+                    description: |
+                      Per-field validation errors. Present only when the request shape is wrong.
+
+                      Keys are the parameters that failed, nested exactly as they were sent — a
+                      bad stream appears under its index in the array. Every leaf is a list of
+                      objects, one per failure:
+
+                      - `code` — machine-readable. Switch on this to show your own translated
+                        message; this API is not localised.
+                      - `message` — English, a fallback for codes you do not handle yet. Never
+                        parse it.
+                      - `params` — present when the message interpolates a value, so the
+                        sentence can be rebuilt in another language. `too_small` carries `min`,
+                        `not_included` carries `allowed`.
+
+                      Codes for a value of the wrong shape are the same on every endpoint:
+
+                      `missing`, `blank`, `not_a_string`, `not_an_integer`, `not_a_float`,
+                      `not_a_boolean`, `not_a_time`, `not_a_date`, `not_a_date_time`,
+                      `not_an_array`, `not_a_hash`, `too_small` (`min`), `too_large` (`max`),
+                      `too_short` (`min`), `too_long` (`max`), `not_included` (`allowed`),
+                      `invalid_format` (`format`), `wrong_size` (`size`).
+
+                      Codes for a rule the endpoint enforces are specific to it — `greater_than`,
+                      `window_too_long`, `unknown_value`, `duplicate`, `requires_one_of` and so
+                      on. Each operation's `fields` example shows the ones it can return.
+
+                      New codes are added as the API grows, and `invalid` is used wherever a
+                      failure has prose but no code assigned yet. Treat both the same way: fall
+                      back to `message`. A client must never break on a code it does not know.
                     example:
                       sensor_name:
-                      - is missing
+                      - code: missing
+                        message: is missing
         '404':
           description: session not found, or the session has no such stream
           content:
@@ -6863,10 +7219,40 @@ paths:
                     example: Request body is invalid
                   fields:
                     type: object
-                    additionalProperties:
-                      type: array
-                      items:
-                        type: string
+                    description: |
+                      Per-field validation errors. Present only when the request shape is wrong.
+
+                      Keys are the parameters that failed, nested exactly as they were sent — a
+                      bad stream appears under its index in the array. Every leaf is a list of
+                      objects, one per failure:
+
+                      - `code` — machine-readable. Switch on this to show your own translated
+                        message; this API is not localised.
+                      - `message` — English, a fallback for codes you do not handle yet. Never
+                        parse it.
+                      - `params` — present when the message interpolates a value, so the
+                        sentence can be rebuilt in another language. `too_small` carries `min`,
+                        `not_included` carries `allowed`.
+
+                      Codes for a value of the wrong shape are the same on every endpoint:
+
+                      `missing`, `blank`, `not_a_string`, `not_an_integer`, `not_a_float`,
+                      `not_a_boolean`, `not_a_time`, `not_a_date`, `not_a_date_time`,
+                      `not_an_array`, `not_a_hash`, `too_small` (`min`), `too_large` (`max`),
+                      `too_short` (`min`), `too_long` (`max`), `not_included` (`allowed`),
+                      `invalid_format` (`format`), `wrong_size` (`size`).
+
+                      Codes for a rule the endpoint enforces are specific to it — `greater_than`,
+                      `window_too_long`, `unknown_value`, `duplicate`, `requires_one_of` and so
+                      on. Each operation's `fields` example shows the ones it can return.
+
+                      New codes are added as the API grows, and `invalid` is used wherever a
+                      failure has prose but no code assigned yet. Treat both the same way: fall
+                      back to `message`. A client must never break on a code it does not know.
                     example:
                       email:
-                      - must be filled
+                      - code: blank
+                        message: must be filled
+                      station_stream_ids:
+                      - code: missing
+                        message: is missing

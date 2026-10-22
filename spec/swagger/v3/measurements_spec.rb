@@ -22,12 +22,15 @@ RSpec.describe 'V3 Measurements', type: :request do
     properties: {
       error_code: { type: :string, example: 'validation_error' },
       message: { type: :string, example: 'Request body is invalid' },
-      fields: {
-        type: :object,
-        description: 'Per-field validation errors — only present for shape errors',
-        additionalProperties: { type: :array, items: { type: :string } },
-        example: { end_time: ['must be greater than start_time'] },
-      },
+      fields: V3_ERROR_FIELDS_SCHEMA.merge(
+        example: {
+          end_time: [
+            { code: 'greater_than',
+              message: 'must be greater than start_time',
+              params: { other: 'start_time' } },
+          ],
+        },
+      ),
     },
   }.freeze
 

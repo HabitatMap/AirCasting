@@ -24,11 +24,45 @@ describe 'POST /api/v3/fixed_sessions' do
       expect(json['fields']).to be_a(Hash)
     end
 
-    it 'includes per-field details in fields' do
+    # The mobile apps ship in several languages and this API is not localised,
+    # so every leaf carries a `code` for them to switch on. `message` is the
+    # English fallback and the only part they may not parse.
+    it 'answers each field with a machine-readable code, not a bare string' do
       post_session({ uuid: '' })
 
-      fields = response.parsed_body['fields']
-      expect(fields).to have_key('uuid')
+      expect(response.parsed_body['fields']['uuid'])
+        .to include('code' => 'blank', 'message' => 'must be filled')
+    end
+
+    it 'nests a failure inside a stream under its index' do
+      post_session(
+        {
+          uuid: SecureRandom.uuid,
+          title: 'Roof Session',
+          time_zone: 'Europe/Warsaw',
+          streams: [{ sensor_name: '' }],
+        },
+      )
+
+      expect(response.parsed_body.dig('fields', 'streams', '0', 'sensor_name'))
+        .to include('code' => 'blank', 'message' => 'must be filled')
+    end
+
+    # A bound a client cannot translate without knowing the number is useless
+    # to it, so the number travels beside the code rather than only inside the
+    # English sentence.
+    it 'carries an interpolated bound as params' do
+      get '/api/v3/fixed_sessions',
+          params: { page: 0 },
+          headers: { 'ACCEPT' => 'application/json' }
+
+      expect(response).to have_http_status(:bad_request)
+      expect(response.parsed_body['fields']['page'])
+        .to include(
+          'code' => 'too_small',
+          'message' => 'must be greater than or equal to 1',
+          'params' => { 'min' => 1 },
+        )
     end
   end
 

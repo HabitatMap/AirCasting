@@ -109,8 +109,15 @@ RSpec.describe 'AirBeam Mobile Session Notes', type: :request do
                properties: {
                  error_code: { type: :string, example: 'validation_error' },
                  message: { type: :string, example: 'Request body is invalid' },
-                 fields: { type: :object, additionalProperties: true,
-                           example: { date: ['must be an ISO 8601 date-time (e.g. 2026-08-14T10:00:00)'] } }
+                 fields: V3_ERROR_FIELDS_SCHEMA.merge(
+                   example: {
+                     date: [
+                       { code: 'invalid_format',
+                         message: 'must be an ISO 8601 date-time (e.g. 2026-08-14T10:00:00)',
+                         params: { format: 'iso8601' } }
+                     ]
+                   }
+                 )
                }
 
         let(:user) { create(:user) }
@@ -216,8 +223,15 @@ RSpec.describe 'AirBeam Mobile Session Notes', type: :request do
                properties: {
                  error_code: { type: :string, example: 'validation_error' },
                  message: { type: :string, example: 'Request body is invalid' },
-                 fields: { type: :object, additionalProperties: true,
-                           example: { base: ['must contain at least one of: text, photo'] } }
+                 fields: V3_ERROR_FIELDS_SCHEMA.merge(
+                   example: {
+                     base: [
+                       { code: 'requires_one_of',
+                         message: 'must contain at least one of: text, photo',
+                         params: { allowed: %i[text photo] } }
+                     ]
+                   }
+                 )
                }
 
         let(:user) { create(:user) }

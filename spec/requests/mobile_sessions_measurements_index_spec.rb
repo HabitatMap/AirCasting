@@ -103,7 +103,8 @@ describe 'GET /api/v3/mobile_sessions/:mobile_session_uuid/measurements' do
       get_measurements(params: window.merge(start_time: epoch_ms(Time.utc(2026, 8, 13, 23, 0, 0))))
 
       expect(response).to have_http_status(:bad_request)
-      expect(response.parsed_body['fields']['end_time'].join).to include('12 hours')
+      expect(response.parsed_body['fields']['end_time'])
+        .to include(a_hash_including('code' => 'window_too_long', 'params' => { 'max_ms' => 43_200_000 }))
     end
 
     it 'accepts a window of exactly 12 hours' do
@@ -116,7 +117,8 @@ describe 'GET /api/v3/mobile_sessions/:mobile_session_uuid/measurements' do
       get_measurements(params: window.merge(start_time: window[:end_time]))
 
       expect(response).to have_http_status(:bad_request)
-      expect(response.parsed_body['fields']['end_time'].join).to include('greater than start_time')
+      expect(response.parsed_body['fields']['end_time'])
+        .to include(a_hash_including('code' => 'greater_than', 'params' => { 'other' => 'start_time' }))
     end
 
     it 'rejects half a window' do
