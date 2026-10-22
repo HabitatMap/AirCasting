@@ -37,26 +37,10 @@ module Api
 
       private
 
-      def authenticate_user_from_bearer_token
-        return if current_user
-        return if bearer_token.blank?
-
-        user = User.find_by(authentication_token: bearer_token)
-        sign_in user, store: false if user
-      end
-
       def require_authentication!
         return if current_user
 
         render_error(ErrorCodes::UNAUTHORIZED, 'Unauthorized')
-      end
-
-      def bearer_token
-        return @bearer_token if defined?(@bearer_token)
-
-        auth = request.authorization
-        @bearer_token =
-          auth&.start_with?('Bearer ') ? auth.delete_prefix('Bearer ').strip : nil
       end
 
       # A dry-validation failure: the payload itself is malformed.

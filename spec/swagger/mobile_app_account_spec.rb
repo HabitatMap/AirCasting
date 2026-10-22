@@ -2,10 +2,13 @@ require 'swagger_helper'
 
 # Mobile apps (iOS/Android): account & auth.
 RSpec.describe 'Mobile app — account & auth', type: :request do
-  # These endpoints accept HTTP Basic only: user token as the username, a
-  # literal `X` as the password. The examples sign in through warden, so this
-  # header is what the docs show rather than what the test authenticates with.
-  let(:Authorization) { "Basic #{Base64.strict_encode64("#{user.authentication_token}:X")}" }
+  # These endpoints take either scheme, both carrying the same
+  # `authentication_token`: `Bearer <token>`, or HTTP Basic with the token as
+  # the username and a literal `X` as the password. Every shipped build sends
+  # Basic; bearer is there for new clients and matches v3. The examples sign in
+  # through warden, so this header is what the docs show rather than what the
+  # test authenticates with.
+  let(:Authorization) { "Bearer #{user.authentication_token}" }
 
   USER_SCHEMA = {
     type: :object,
@@ -22,7 +25,7 @@ RSpec.describe 'Mobile app — account & auth', type: :request do
   path '/api/user.json' do
     get 'Sign in (fetch the current user)' do
       tags 'Mobile app: Account & auth'
-      security [{ basic_auth: [] }]
+      security [{ bearer_auth: [] }, { basic_auth: [] }]
       produces 'application/json'
 
       response '200', 'user' do
@@ -45,12 +48,17 @@ RSpec.describe 'Mobile app — account & auth', type: :request do
         properties: {
           user: {
             type: :object,
-            required: %w[username email password password_confirmation],
+            required: %w[username email password],
             properties: {
               username: { type: :string },
               email: { type: :string },
               password: { type: :string },
-              password_confirmation: { type: :string },
+              password_confirmation: {
+                type: :string,
+                description: 'Optional, and checked only when sent — omit it and the account is ' \
+                             'created. Both released apps omit it. Send it from a new client; `""` ' \
+                             'counts as sent and fails to match.',
+              },
               send_emails: { type: :boolean, nullable: true },
             },
           },
@@ -72,12 +80,56 @@ RSpec.describe 'Mobile app — account & auth', type: :request do
         run_test!
       end
     end
+
+    patch 'Update the account (email, profile name, password)' do
+      tags 'Mobile app: Account & auth'
+      security [{ bearer_auth: [] }, { basic_auth: [] }]
+      consumes 'application/json'
+      produces 'application/json'
+
+      parameter name: :body, in: :body, required: true, schema: {
+        type: :object,
+        required: %w[user],
+        properties: {
+          user: {
+            type: :object,
+            properties: {
+              username: { type: :string, description: 'Optional. New profile name' },
+              email: { type: :string, description: 'Optional. New email address, applied immediately' },
+              password: { type: :string, description: 'Optional. New password; requires `current_password` and `password_confirmation`' },
+              password_confirmation: { type: :string, description: 'Must equal `password`. Required whenever `password` is sent.' },
+              current_password: { type: :string, description: 'The password in force now. Required only when `password` is sent.' },
+            },
+          },
+        },
+      }
+
+      response '200', 'updated — the full user, same shape as GET' do
+        schema USER_SCHEMA
+        let(:user) { create(:user) }
+        let(:body) { { user: { username: 'new-profile-name' } } }
+        before { sign_in user }
+        run_test!
+      end
+
+      response '422', 'validation error, a wrong `current_password`, or nothing to change' do
+        schema type: :object, additionalProperties: { type: :array, items: { type: :string } },
+               example: { current_password: ['is invalid'] }
+        let(:user) { create(:user) }
+        let(:body) do
+          { user: { password: 'a-new-password', password_confirmation: 'a-new-password',
+                    current_password: 'wrong' } }
+        end
+        before { sign_in user }
+        run_test!
+      end
+    end
   end
 
   path '/api/user/settings' do
     post 'Update user settings' do
       tags 'Mobile app: Account & auth'
-      security [{ basic_auth: [] }]
+      security [{ bearer_auth: [] }, { basic_auth: [] }]
       consumes 'application/json'
       produces 'application/json'
 
@@ -115,7 +167,7 @@ RSpec.describe 'Mobile app — account & auth', type: :request do
   path '/api/user/delete_account_send_code' do
     post 'Send account-deletion confirmation code (email)' do
       tags 'Mobile app: Account & auth'
-      security [{ basic_auth: [] }]
+      security [{ bearer_auth: [] }, { basic_auth: [] }]
       produces 'application/json'
       description 'The code expires 30 minutes after it is sent.'
 
@@ -130,7 +182,7 @@ RSpec.describe 'Mobile app — account & auth', type: :request do
   path '/api/user/delete_account_confirm' do
     post 'Confirm account deletion with code' do
       tags 'Mobile app: Account & auth'
-      security [{ basic_auth: [] }]
+      security [{ bearer_auth: [] }, { basic_auth: [] }]
       consumes 'application/json'
       produces 'application/json'
 

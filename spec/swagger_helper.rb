@@ -46,14 +46,14 @@ RSpec.configure do |config|
           bearer_auth: {
             type: :http,
             scheme: :bearer,
-            description: '`Authorization: Bearer <user_token>` (RFC 6750). The token is returned by sign-in.'
+            description: '`Authorization: Bearer <user_token>` (RFC 6750). The token is returned by sign-in. Preferred — send this from any new client.'
           },
           # Opted into per operation, never globally: every authenticated
           # pre-v3 endpoint, plus POST /api/v3/fixed_sessions.
           basic_auth: {
             type: :http,
             scheme: :basic,
-            description: '`Authorization: Basic base64("<user_token>:X")`. The only scheme the pre-v3 `/api` endpoints accept. Not for new endpoints — `/api/v3` uses bearer.'
+            description: '`Authorization: Basic base64("<user_token>:X")`. What every shipped build sends to the pre-v3 `/api` endpoints, and the only scheme most of them accept. Not for new endpoints — `/api/v3`, and the `/api/user` account operations, take bearer.'
           }
         }
       },
@@ -71,7 +71,9 @@ RSpec.configure do |config|
       tags: [
         # --- Mobile apps (iOS + Android) ---
         { name: 'Mobile app: Account & auth',
-          description: 'Sign in and sign up, user settings, account deletion, password reset.' },
+          description: 'Sign in and sign up, account settings, account deletion, password reset. ' \
+                       'Where an operation lists both `bearer_auth` and `basic_auth` it accepts either, ' \
+                       'both carrying the same token — prefer bearer; basic is kept for already-released builds.' },
         { name: 'Mobile app: Mobile sessions',
           description: 'AirBeam mobile (moving) sessions on `/api/v3`: create, list, show, update and delete a session, manage its notes, upload and read its measurements.' },
         { name: 'Mobile app: Mobile sessions [DEPRECATED]',

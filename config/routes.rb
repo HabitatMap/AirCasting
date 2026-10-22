@@ -58,7 +58,7 @@ Rails.application.routes.draw do
     resources :thresholds, only: %i[show], id: /.*/
     resource :region, only: %i[show], controller: 'mobile_regions'
     resource :fixed_region, only: %i[show]
-    resource :user, only: %i[show create destroy] do
+    resource :user, only: %i[show create update destroy] do
       resources :sessions, only: %i[show], controller: 'user_sessions' do
         collection do
           post :sync_with_versioning

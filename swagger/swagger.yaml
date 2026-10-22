@@ -16,18 +16,22 @@ components:
       type: http
       scheme: bearer
       description: "`Authorization: Bearer <user_token>` (RFC 6750). The token is
-        returned by sign-in."
+        returned by sign-in. Preferred — send this from any new client."
     basic_auth:
       type: http
       scheme: basic
-      description: '`Authorization: Basic base64("<user_token>:X")`. The only scheme
-        the pre-v3 `/api` endpoints accept. Not for new endpoints — `/api/v3` uses
-        bearer.'
+      description: '`Authorization: Basic base64("<user_token>:X")`. What every shipped
+        build sends to the pre-v3 `/api` endpoints, and the only scheme most of them
+        accept. Not for new endpoints — `/api/v3`, and the `/api/user` account operations,
+        take bearer.'
 security:
 - bearer_auth: []
 tags:
 - name: 'Mobile app: Account & auth'
-  description: Sign in and sign up, user settings, account deletion, password reset.
+  description: Sign in and sign up, account settings, account deletion, password reset.
+    Where an operation lists both `bearer_auth` and `basic_auth` it accepts either,
+    both carrying the same token — prefer bearer; basic is kept for already-released
+    builds.
 - name: 'Mobile app: Mobile sessions'
   description: 'AirBeam mobile (moving) sessions on `/api/v3`: create, list, show,
     update and delete a session, manage its notes, upload and read its measurements.'
@@ -842,6 +846,7 @@ paths:
       tags:
       - 'Mobile app: Account & auth'
       security:
+      - bearer_auth: []
       - basic_auth: []
       responses:
         '200':
@@ -928,7 +933,6 @@ paths:
                   - username
                   - email
                   - password
-                  - password_confirmation
                   properties:
                     username:
                       type: string
@@ -938,9 +942,90 @@ paths:
                       type: string
                     password_confirmation:
                       type: string
+                      description: Optional, and checked only when sent — omit it
+                        and the account is created. Both released apps omit it. Send
+                        it from a new client; `""` counts as sent and fails to match.
                     send_emails:
                       type: boolean
                       nullable: true
+        required: true
+    patch:
+      summary: Update the account (email, profile name, password)
+      tags:
+      - 'Mobile app: Account & auth'
+      security:
+      - bearer_auth: []
+      - basic_auth: []
+      parameters: []
+      responses:
+        '200':
+          description: updated — the full user, same shape as GET
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - id
+                - email
+                - username
+                - authentication_token
+                - session_stopped_alert
+                properties:
+                  id:
+                    type: integer
+                  email:
+                    type: string
+                  username:
+                    type: string
+                  authentication_token:
+                    type: string
+                    description: API token; sent back as the HTTP Basic username on
+                      authenticated requests
+                  session_stopped_alert:
+                    type: boolean
+        '422':
+          description: validation error, a wrong `current_password`, or nothing to
+            change
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties:
+                  type: array
+                  items:
+                    type: string
+                example:
+                  current_password:
+                  - is invalid
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+              - user
+              properties:
+                user:
+                  type: object
+                  properties:
+                    username:
+                      type: string
+                      description: Optional. New profile name
+                    email:
+                      type: string
+                      description: Optional. New email address, applied immediately
+                    password:
+                      type: string
+                      description: Optional. New password; requires `current_password`
+                        and `password_confirmation`
+                    password_confirmation:
+                      type: string
+                      description: Must equal `password`. Required whenever `password`
+                        is sent.
+                    current_password:
+                      type: string
+                      description: The password in force now. Required only when `password`
+                        is sent.
         required: true
   "/api/user/settings":
     post:
@@ -948,6 +1033,7 @@ paths:
       tags:
       - 'Mobile app: Account & auth'
       security:
+      - bearer_auth: []
       - basic_auth: []
       parameters: []
       responses:
@@ -998,6 +1084,7 @@ paths:
       tags:
       - 'Mobile app: Account & auth'
       security:
+      - bearer_auth: []
       - basic_auth: []
       description: The code expires 30 minutes after it is sent.
       responses:
@@ -1009,6 +1096,7 @@ paths:
       tags:
       - 'Mobile app: Account & auth'
       security:
+      - bearer_auth: []
       - basic_auth: []
       parameters: []
       responses:
