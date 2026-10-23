@@ -22,7 +22,7 @@ RSpec.describe 'V3 Measurements', type: :request do
     properties: {
       error_code: { type: :string, example: 'validation_error' },
       message: { type: :string, example: 'Request body is invalid' },
-      fields: V3_ERROR_FIELDS_SCHEMA.merge(
+      fields: ERROR_FIELDS_SCHEMA.merge(
         example: {
           end_time: [
             { code: 'greater_than',

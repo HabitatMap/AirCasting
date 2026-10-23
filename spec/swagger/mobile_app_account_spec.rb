@@ -113,8 +113,22 @@ RSpec.describe 'Mobile app — account & auth', type: :request do
       end
 
       response '422', 'validation error, a wrong `current_password`, or nothing to change' do
-        schema type: :object, additionalProperties: { type: :array, items: { type: :string } },
-               example: { current_password: ['is invalid'] }
+        schema type: :object,
+               required: %w[error_code message],
+               properties: {
+                 error_code: { type: :string, example: 'validation_error' },
+                 message: { type: :string, example: 'Account could not be updated' },
+                 fields: ERROR_FIELDS_SCHEMA.merge(
+                   example: {
+                     current_password: [{ code: 'invalid', message: 'is invalid' }],
+                     password: [
+                       { code: 'too_short',
+                         message: 'is too short (minimum is 8 characters)',
+                         params: { min: 8 } },
+                     ],
+                   },
+                 ),
+               }
         let(:user) { create(:user) }
         let(:body) do
           { user: { password: 'a-new-password', password_confirmation: 'a-new-password',
@@ -155,7 +169,17 @@ RSpec.describe 'Mobile app — account & auth', type: :request do
       end
 
       response '400', 'validation error' do
-        schema type: :object, additionalProperties: { type: :array, items: { type: :string } }, example: { field_name: ['error message'] }
+        schema type: :object,
+               required: %w[error_code message],
+               properties: {
+                 error_code: { type: :string, example: 'validation_error' },
+                 message: { type: :string, example: 'Settings are invalid' },
+                 fields: ERROR_FIELDS_SCHEMA.merge(
+                   example: {
+                     session_stopped_alert: [{ code: 'missing', message: 'is missing' }],
+                   },
+                 ),
+               }
         let(:user) { create(:user) }
         let(:body) { { data: {} } }
         before { sign_in user }
@@ -200,8 +224,11 @@ RSpec.describe 'Mobile app — account & auth', type: :request do
       end
 
       response '401', 'invalid or expired code' do
-        schema type: :object, required: %w[error],
-               properties: { error: { type: :string, example: 'Invalid or expired confirmation code.' } }
+        schema type: :object, required: %w[error_code message],
+               properties: {
+                 error_code: { type: :string, example: 'unauthorized' },
+                 message: { type: :string, example: 'Invalid or expired confirmation code.' },
+               }
         let(:user) { create(:user, deletion_confirmation_code: '0042', deletion_code_valid_until: 10.minutes.from_now) }
         let(:body) { { code: '9999' } }
         before { sign_in user }

@@ -23,15 +23,16 @@ V3_NOTE_SCHEMA = {
   }
 }.freeze
 
-# The `fields` half of a v3 error body. Defined here because six spec files
+# The `fields` half of the shared error body — every `/api/v3` endpoint and
+# the `/api/user` account operations. Defined here because seven spec files
 # need it and copies would drift — and because rswag spec constants leak to the
 # top level, so two definitions silently override each other.
 #
 # Deliberately carries no `additionalProperties`: the keys are whatever the
 # client got wrong, so a structural schema could only say "object", which
 # documents nothing. Each operation overrides `example` with a real failure
-# from that endpoint instead — `V3_ERROR_FIELDS_SCHEMA.merge(example: {...})`.
-V3_ERROR_FIELDS_SCHEMA = {
+# from that endpoint instead — `ERROR_FIELDS_SCHEMA.merge(example: {...})`.
+ERROR_FIELDS_SCHEMA = {
   type: :object,
   description: <<~DESC,
     Per-field validation errors. Present only when the request shape is wrong.

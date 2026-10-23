@@ -109,7 +109,7 @@ RSpec.describe 'AirBeam Mobile Session Notes', type: :request do
                properties: {
                  error_code: { type: :string, example: 'validation_error' },
                  message: { type: :string, example: 'Request body is invalid' },
-                 fields: V3_ERROR_FIELDS_SCHEMA.merge(
+                 fields: ERROR_FIELDS_SCHEMA.merge(
                    example: {
                      date: [
                        { code: 'invalid_format',
@@ -223,7 +223,7 @@ RSpec.describe 'AirBeam Mobile Session Notes', type: :request do
                properties: {
                  error_code: { type: :string, example: 'validation_error' },
                  message: { type: :string, example: 'Request body is invalid' },
-                 fields: V3_ERROR_FIELDS_SCHEMA.merge(
+                 fields: ERROR_FIELDS_SCHEMA.merge(
                    example: {
                      base: [
                        { code: 'requires_one_of',

@@ -27,6 +27,17 @@ describe 'PATCH /api/user', type: :request do
     patch '/api/user', params: { user: body }, headers: headers, as: :json
   end
 
+  # Errors answer the shared envelope, so every per-field failure lives under
+  # `fields` and carries a code the app switches on rather than a sentence it
+  # would have to translate.
+  def fields
+    JSON.parse(response.body).fetch('fields')
+  end
+
+  def codes_for(field)
+    fields.fetch(field, []).map { |failure| failure['code'] }
+  end
+
   describe 'change username' do
     it 'updates it and answers the current user' do
       patch_user(username: 'adam-smith')
@@ -42,7 +53,7 @@ describe 'PATCH /api/user', type: :request do
       patch_user(username: 'TAKEN')
 
       expect(response).to have_http_status(422)
-      expect(JSON.parse(response.body)).to have_key('username')
+      expect(codes_for('username')).to include('taken')
       expect(user.reload.username).to eq('adam')
     end
   end
@@ -61,7 +72,7 @@ describe 'PATCH /api/user', type: :request do
       patch_user(email: 'taken@example.com')
 
       expect(response).to have_http_status(422)
-      expect(JSON.parse(response.body)).to have_key('email')
+      expect(codes_for('email')).to include('taken')
       expect(user.reload.email).to eq('adam@example.com')
     end
 
@@ -105,7 +116,7 @@ describe 'PATCH /api/user', type: :request do
       change_password(current_password: nil)
 
       expect(response).to have_http_status(422)
-      expect(JSON.parse(response.body)).to have_key('current_password')
+      expect(codes_for('current_password')).to include('blank')
       expect(user.reload.valid_password?(password)).to be(true)
     end
 
@@ -113,7 +124,7 @@ describe 'PATCH /api/user', type: :request do
       change_password(current_password: 'wrong')
 
       expect(response).to have_http_status(422)
-      expect(JSON.parse(response.body)).to have_key('current_password')
+      expect(codes_for('current_password')).to include('invalid')
       expect(user.reload.valid_password?(password)).to be(true)
     end
 
@@ -124,7 +135,7 @@ describe 'PATCH /api/user', type: :request do
       change_password(password_confirmation: nil)
 
       expect(response).to have_http_status(422)
-      expect(JSON.parse(response.body)).to have_key('password_confirmation')
+      expect(codes_for('password_confirmation')).to include('blank')
       expect(user.reload.valid_password?(password)).to be(true)
     end
 
@@ -132,7 +143,7 @@ describe 'PATCH /api/user', type: :request do
       change_password(password_confirmation: 'something-else')
 
       expect(response).to have_http_status(422)
-      expect(JSON.parse(response.body)).to have_key('password_confirmation')
+      expect(codes_for('password_confirmation')).to include('confirmation_mismatch')
       expect(user.reload.valid_password?(password)).to be(true)
     end
 
@@ -140,7 +151,14 @@ describe 'PATCH /api/user', type: :request do
       change_password(password: 'short', password_confirmation: 'short')
 
       expect(response).to have_http_status(422)
-      expect(JSON.parse(response.body)).to have_key('password')
+      # The bound travels as a param so the app can write its own sentence
+      # around it rather than parse ours.
+      expect(fields['password']).to include(
+        a_hash_including(
+          'code' => 'too_short',
+          'params' => { 'min' => Devise.password_length.min },
+        ),
+      )
       expect(user.reload.valid_password?(password)).to be(true)
     end
 
@@ -148,9 +166,9 @@ describe 'PATCH /api/user', type: :request do
       change_password(password: 'short', password_confirmation: nil, current_password: 'wrong')
 
       body = JSON.parse(response.body)
-      expect(body).to have_key('current_password')
-      expect(body).to have_key('password_confirmation')
-      expect(body).to have_key('password')
+      expect(body['error_code']).to eq('validation_error')
+      expect(body['fields'].keys)
+        .to include('current_password', 'password_confirmation', 'password')
     end
   end
 
@@ -213,14 +231,14 @@ describe 'PATCH /api/user', type: :request do
       patch_user({})
 
       expect(response).to have_http_status(422)
-      expect(JSON.parse(response.body)).to have_key('base')
+      expect(codes_for('base')).to eq(['no_attributes'])
     end
 
     it 'rejects an empty body' do
       patch '/api/user', params: {}, headers: auth_header, as: :json
 
       expect(response).to have_http_status(422)
-      expect(JSON.parse(response.body)).to have_key('base')
+      expect(codes_for('base')).to eq(['no_attributes'])
       expect(user.reload.username).to eq('adam')
     end
 
@@ -228,7 +246,7 @@ describe 'PATCH /api/user', type: :request do
       patch '/api/user', params: { user: 'oops' }, headers: auth_header, as: :json
 
       expect(response).to have_http_status(422)
-      expect(JSON.parse(response.body)).to have_key('base')
+      expect(codes_for('base')).to eq(['no_attributes'])
     end
 
     # `wrap_parameters` puts a bare JSON body under `user` before the action

@@ -307,7 +307,7 @@ RSpec.describe 'AirBeamMini Fixed Sessions Binary Flow', type: :request do
                properties: {
                  error_code: { type: :string, example: 'validation_error' },
                  message: { type: :string, example: 'Request body is invalid' },
-                 fields: V3_ERROR_FIELDS_SCHEMA.merge(
+                 fields: ERROR_FIELDS_SCHEMA.merge(
                    example: {
                      uuid: [{ code: 'blank', message: 'must be filled' }],
                      streams: [{ code: 'missing', message: 'is missing' }]
@@ -579,7 +579,7 @@ RSpec.describe 'AirBeamMini Fixed Sessions Binary Flow', type: :request do
                properties: {
                  error_code: { type: :string, example: 'validation_error' },
                  message: { type: :string, example: 'Request body is invalid' },
-                 fields: V3_ERROR_FIELDS_SCHEMA.merge(
+                 fields: ERROR_FIELDS_SCHEMA.merge(
                    example: {
                      base: [
                        { code: 'requires_one_of',
@@ -869,7 +869,7 @@ RSpec.describe 'AirBeamMini Fixed Sessions Binary Flow', type: :request do
                properties: {
                  error_code: { type: :string, example: 'validation_error' },
                  message: { type: :string },
-                 fields: V3_ERROR_FIELDS_SCHEMA.merge(
+                 fields: ERROR_FIELDS_SCHEMA.merge(
                    example: { sensor_name: [{ code: 'missing', message: 'is missing' }] }
                  )
                }

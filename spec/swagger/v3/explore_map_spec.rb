@@ -170,7 +170,7 @@ RSpec.describe 'Explore map', type: :request do
                properties: {
                  error_code: { type: :string, example: 'validation_error' },
                  message: { type: :string, example: 'Query parameters are invalid' },
-                 fields: V3_ERROR_FIELDS_SCHEMA.merge(
+                 fields: ERROR_FIELDS_SCHEMA.merge(
                    example: {
                      zoom: [{ code: 'not_an_integer', message: 'must be an integer' }],
                      measurement_types: [

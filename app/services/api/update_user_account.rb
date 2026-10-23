@@ -2,9 +2,10 @@
 # email, change username, change password) all post here with whichever subset
 # of fields they own.
 #
-# Errors come back as ActiveModel's `{field => [messages]}` hash, the same
-# shape `POST /api/user.json` already answers 422 with, so a client that
-# renders sign-up errors per field renders these with no new code.
+# Errors come back as the `ActiveModel::Errors` object itself, not its
+# `to_hash`. `to_hash` keeps only the English sentence and drops `type` — the
+# machine code the client actually needs — so the controller is handed the
+# object and `ValidationErrorsSerializer` reads the type off it.
 class Api::UpdateUserAccount
   # Everything a client may send. Deliberately *not* the controller's existing
   # `user_params`, which is `permit!`: `authentication_token` is burned into
@@ -19,7 +20,7 @@ class Api::UpdateUserAccount
   end
 
   def call
-    return Failure.new(base: ['No attributes given to update']) if attributes.empty?
+    return Failure.new(no_attributes_error) if attributes.empty?
 
     if changing_password? && password_change_errors.any?
       # `assign_attributes` + `valid?` so the response carries every problem at
@@ -28,13 +29,13 @@ class Api::UpdateUserAccount
       user.assign_attributes(attributes)
       user.valid?
       password_change_errors.each { |field, type| user.errors.add(field, type) }
-      return Failure.new(errors_hash)
+      return Failure.new(user.errors)
     end
 
     if user.update(attributes)
       Success.new(user)
     else
-      Failure.new(errors_hash)
+      Failure.new(user.errors)
     end
   ensure
     user.clean_up_passwords
@@ -89,7 +90,12 @@ class Api::UpdateUserAccount
       end
   end
 
-  def errors_hash
-    user.errors.to_hash
+  # `:base` needs a type of its own because ActiveModel has no stock one for
+  # "you sent nothing to change" — unlike every other failure here, which uses
+  # the type ActiveModel already assigns. Adding it to `user.errors` rather
+  # than returning a bare hash keeps every failure path answering one object.
+  def no_attributes_error
+    user.errors.add(:base, :no_attributes, message: 'No attributes given to update')
+    user.errors
   end
 end

@@ -110,14 +110,16 @@ describe Api::UsersController do
       it 'returns an error message when the code is wrong' do
         post :delete_account_with_confirmation_code, params: { code: 'wrong_code' }, format: :json
         expect(response).to have_http_status(:unauthorized)
-        expect(json_response['error']).to eq('Invalid or expired confirmation code.')
+        expect(json_response['error_code']).to eq('unauthorized')
+        expect(json_response['message']).to eq('Invalid or expired confirmation code.')
       end
 
       it 'returns an error message when the code has expired' do
         user.update(deletion_confirmation_code: '1234', deletion_code_valid_until: 1.minute.ago)
         post :delete_account_with_confirmation_code, params: { code: '1234' }, format: :json
         expect(response).to have_http_status(:unauthorized)
-        expect(json_response['error']).to eq('Invalid or expired confirmation code.')
+        expect(json_response['error_code']).to eq('unauthorized')
+        expect(json_response['message']).to eq('Invalid or expired confirmation code.')
       end
     end
   end

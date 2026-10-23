@@ -72,8 +72,12 @@ class ValidationErrorsSerializer
   # that failed a format (an unparseable email) and, by convention, for one
   # that was simply wrong — `UpdateUserAccount` adds it to `current_password`
   # to mean "that is not your password". Mapping it to `invalid_format` would
-  # be a lie half the time, so the client falls back to `message` and the
-  # services that want better say so with a type of their own.
+  # be a lie half the time, so it keeps the generic code and the client falls
+  # back to `message`.
+  #
+  # An unmapped symbol passes through as its own name, so a service *can*
+  # mint a code. Reach for that only where ActiveModel has nothing to say:
+  # every custom type is one more word in the published vocabulary.
   CODE_BY_ACTIVE_MODEL_TYPE = {
     blank: 'blank',
     empty: 'empty',

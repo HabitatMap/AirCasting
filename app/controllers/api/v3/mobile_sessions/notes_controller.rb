@@ -74,7 +74,7 @@ module Api
           return if request.content_length.to_i <= MAX_BODY_BYTES
 
           render_error(
-            ::Api::V3::ErrorCodes::PAYLOAD_TOO_LARGE,
+            ::Api::ErrorCodes::PAYLOAD_TOO_LARGE,
             "Request body exceeds #{MAX_BODY_BYTES} bytes; " \
             "a photo may be at most #{::Api::NotePhotoValidation::MAX_PHOTO_BYTES} bytes once decoded",
           )

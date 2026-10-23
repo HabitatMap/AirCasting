@@ -1,5 +1,11 @@
 module Api
   class UsersController < BaseController
+    # `create` is the exception: Android and iOS both decode its 422 body as
+    # `{field => [String]}` to drive the signup form, so it keeps the shape it
+    # shipped with. The rest of `/api/user` has no client reading the body at
+    # all and answers the shared envelope.
+    include Api::ErrorRendering
+
     # TokenAuthenticatable was removed from Devise in 3.1
     # https://gist.github.com/josevalim/fb706b1e933ef01e4fb6
     before_action :authenticate_user_from_token!, except: :create
@@ -36,7 +42,13 @@ module Api
       if result.success?
         render json: result.value, status: :ok
       else
-        render json: result.errors, status: 422
+        # 422, not the envelope's default 400: the body parsed fine, it is the
+        # account the server will not accept.
+        render_validation_error(
+          result.errors,
+          message: 'Account could not be updated',
+          status: :unprocessable_entity,
+        )
       end
     end
 
@@ -50,7 +62,7 @@ module Api
         current_user.destroy
         render_success_message('Account successfully deleted.')
       else
-        render_error_message('Invalid or expired confirmation code.')
+        render_error(ErrorCodes::UNAUTHORIZED, 'Invalid or expired confirmation code.')
       end
     end
 
@@ -63,7 +75,7 @@ module Api
       if result.success?
         render json: result.value, status: :ok
       else
-        render json: result.errors, status: :bad_request
+        render_validation_error(result.errors, message: 'Settings are invalid')
       end
     end
 
@@ -95,10 +107,6 @@ module Api
 
     def render_success_message(message)
       render json: { message: message }, status: :ok
-    end
-
-    def render_error_message(error)
-      render json: { error: error }, status: :unauthorized
     end
   end
 end
