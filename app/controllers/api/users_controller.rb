@@ -1,9 +1,8 @@
 module Api
   class UsersController < BaseController
-    # `create` is the exception: Android and iOS both decode its 422 body as
-    # `{field => [String]}` to drive the signup form, so it keeps the shape it
-    # shipped with. The rest of `/api/user` has no client reading the body at
-    # all and answers the shared envelope.
+    # `create` is the exception: it answers the envelope *and* the flat shape
+    # it shipped with, side by side. See `render_signup_errors`. Everything
+    # else here has no client reading the body and answers the envelope alone.
     include Api::ErrorRendering
 
     # TokenAuthenticatable was removed from Devise in 3.1
@@ -26,7 +25,7 @@ module Api
       if user.save
         respond_with user, location: api_user_url
       else
-        render json: user.errors, status: 422
+        render_signup_errors(user.errors)
       end
     end
 
@@ -98,6 +97,33 @@ module Api
       return ActionController::Parameters.new.permit! unless user.is_a?(ActionController::Parameters)
 
       user.permit(:username, :email, :password, :password_confirmation, :current_password)
+    end
+
+    # The one endpoint whose error body is read by shipped builds, so the one
+    # that cannot simply move to the envelope.
+    #
+    # Android decodes this into `CreateAccountErrorResponse(email, password,
+    # username)` with Gson and puts each list straight under the matching form
+    # field; iOS decodes `username`/`email` and tests the string for the exact
+    # substring "has already been taken". Both parsers date from 2022, both
+    # would quietly lose every per-field message if the leaves became objects
+    # or moved under `fields`, and sign-up is a first-run screen — so the
+    # oldest installed build still hits it. Assume the flat keys stay forever.
+    #
+    # Both parsers ignore keys they do not declare, so the envelope is added
+    # alongside rather than wrapped around. This endpoint therefore answers
+    # more keys than any other, on purpose. New clients read `fields` and
+    # ignore the rest.
+    #
+    # Three things must not change here: the flat leaves stay arrays of plain
+    # strings, the uniqueness message keeps the literal "has already been
+    # taken", and the status stays 422.
+    def render_signup_errors(errors)
+      render json: errors.to_hash.merge(
+        error_code: ErrorCodes::VALIDATION_ERROR,
+        message: 'Account could not be created',
+        fields: ValidationErrorsSerializer.call(errors),
+      ), status: 422
     end
 
     def confirmation_code_valid?

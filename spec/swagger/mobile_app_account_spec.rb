@@ -75,7 +75,41 @@ RSpec.describe 'Mobile app — account & auth', type: :request do
       end
 
       response '422', 'validation error' do
-        schema type: :object, additionalProperties: { type: :array, items: { type: :string } }, example: { field_name: ['error message'] }
+        schema type: :object,
+               required: %w[error_code message],
+               description: <<~DESC,
+                 Carries two shapes at once, and will keep doing so.
+
+                 Alongside the envelope, each failing field also appears as a
+                 top-level key holding an array of plain English strings —
+                 `"email": ["has already been taken"]`. That is what the
+                 released Android and iOS builds decode to fill in their
+                 sign-up forms, and sign-up is a first-run screen, so the
+                 oldest installed build still reaches it. Those keys are not
+                 going away.
+
+                 Build a new client against `fields`, which carries a code per
+                 failure, and ignore the flat keys.
+               DESC
+               properties: {
+                 error_code: { type: :string, example: 'validation_error' },
+                 message: { type: :string, example: 'Account could not be created' },
+                 fields: ERROR_FIELDS_SCHEMA,
+               },
+               example: {
+                 email: ['has already been taken'],
+                 password: ['is too short (minimum is 8 characters)'],
+                 error_code: 'validation_error',
+                 message: 'Account could not be created',
+                 fields: {
+                   email: [{ code: 'taken', message: 'has already been taken' }],
+                   password: [
+                     { code: 'too_short',
+                       message: 'is too short (minimum is 8 characters)',
+                       params: { min: 8 } },
+                   ],
+                 },
+               }
         let(:body) { { user: { username: '', email: 'bad' } } }
         run_test!
       end
