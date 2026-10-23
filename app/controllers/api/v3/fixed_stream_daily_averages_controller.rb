@@ -4,15 +4,13 @@ module Api
       def index
         result =
           ::FixedStreamDailyAverages::IndexInteractor.new.call(
-            stream_id: params[:stream_id],
-            start_date: params[:start_date],
-            end_date: params[:end_date],
+            params: params.to_unsafe_hash,
           )
 
         if result.success?
           render json: result.value, status: :ok
         else
-          render_failure(result)
+          render_failure(result, message: 'Query parameters are invalid')
         end
       end
     end

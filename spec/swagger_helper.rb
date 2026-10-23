@@ -58,8 +58,10 @@ ERROR_FIELDS_SCHEMA = {
     `invalid_format` (`format`), `wrong_size` (`size`).
 
     Codes for a rule the endpoint enforces are specific to it — `greater_than`,
-    `window_too_long`, `unknown_value`, `duplicate`, `requires_one_of` and so
-    on. Each operation's `fields` example shows the ones it can return.
+    `greater_than_or_equal`, `window_too_long`, `unknown_value`, `duplicate`,
+    `requires_one_of` and so on. Each one that compares two parameters carries
+    the other's name in `params.other`. Each operation's `fields` example shows
+    the codes it can return.
 
     New codes are added as the API grows, and `invalid` is used wherever a
     failure has prose but no code assigned yet. Treat both the same way: fall

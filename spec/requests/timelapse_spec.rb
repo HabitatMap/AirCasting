@@ -289,4 +289,58 @@ describe 'GET api/v3/timelapse', type: :request do
       expect(isolated['value']).to eq(30.0)
     end
   end
+
+  # `q` is decoded before any contract sees it, so these three used to be 500s.
+  describe 'an unreadable q' do
+    let(:expected_fields) do
+      {
+        'q' => [
+          { 'code' => 'invalid_format',
+            'message' => 'must be JSON carrying time_from and time_to as epoch seconds' },
+        ],
+      }
+    end
+
+    it 'answers 400 when q is absent' do
+      get '/api/v3/timelapse'
+
+      expect(response.status).to eq(400)
+      expect(JSON.parse(response.body)).to eq(
+        'error_code' => 'validation_error',
+        'message' => 'Query parameters are invalid',
+        'fields' => expected_fields,
+      )
+    end
+
+    it 'answers 400 when q is not JSON' do
+      get '/api/v3/timelapse', params: { q: '{not json' }
+
+      expect(response.status).to eq(400)
+      expect(JSON.parse(response.body)['fields']).to eq(expected_fields)
+    end
+
+    it 'answers 400 when q is JSON but not an object' do
+      get '/api/v3/timelapse', params: { q: '[1, 2]' }
+
+      expect(response.status).to eq(400)
+      expect(JSON.parse(response.body)['fields']).to eq(expected_fields)
+    end
+
+    it 'answers 400 when the times are not epoch seconds' do
+      get '/api/v3/timelapse', params: { q: '{"time_from":"abc","time_to":"def"}' }
+
+      expect(response.status).to eq(400)
+      expect(JSON.parse(response.body)['fields']).to eq(expected_fields)
+    end
+
+    # Past the decode, the contract takes over and names each missing field.
+    it 'answers 400 naming the fields the contract requires' do
+      get '/api/v3/timelapse',
+          params: { q: { time_from: 1.day.ago.to_i, time_to: Time.current.to_i }.to_json }
+
+      expect(response.status).to eq(400)
+      expect(JSON.parse(response.body)['fields'].keys)
+        .to match_array(%w[sensor_name measurement_type unit_symbol tags usernames])
+    end
+  end
 end

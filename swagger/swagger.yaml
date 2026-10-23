@@ -454,6 +454,11 @@ paths:
           `unit_symbol`, `tags`, `usernames`. Optional: bbox + `zoom_level`.
         schema:
           type: string
+      description: |
+        Two stages fail the same way. `q` itself can be absent, not JSON, not
+        a JSON object, or carry `time_from`/`time_to` that are not epoch
+        seconds — all of which report under the key `q`. Past that the
+        contract reports per field, as everywhere else.
       responses:
         '200':
           description: clusters keyed by hour
@@ -490,6 +495,61 @@ paths:
                       sessions:
                         type: integer
                         description: Number of streams in the cluster
+        '400':
+          description: q is unreadable, or the contract rejects it
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - error_code
+                - message
+                properties:
+                  error_code:
+                    type: string
+                    example: validation_error
+                  message:
+                    type: string
+                    example: Query parameters are invalid
+                  fields:
+                    type: object
+                    description: |
+                      Per-field validation errors. Present only when the request shape is wrong.
+
+                      Keys are the parameters that failed, nested exactly as they were sent — a
+                      bad stream appears under its index in the array. Every leaf is a list of
+                      objects, one per failure:
+
+                      - `code` — machine-readable. Switch on this to show your own translated
+                        message; this API is not localised.
+                      - `message` — English, a fallback for codes you do not handle yet. Never
+                        parse it.
+                      - `params` — present when the message interpolates a value, so the
+                        sentence can be rebuilt in another language. `too_small` carries `min`,
+                        `not_included` carries `allowed`.
+
+                      Codes for a value of the wrong shape are the same on every endpoint:
+
+                      `missing`, `blank`, `not_a_string`, `not_an_integer`, `not_a_float`,
+                      `not_a_boolean`, `not_a_time`, `not_a_date`, `not_a_date_time`,
+                      `not_an_array`, `not_a_hash`, `too_small` (`min`), `too_large` (`max`),
+                      `too_short` (`min`), `too_long` (`max`), `not_included` (`allowed`),
+                      `invalid_format` (`format`), `wrong_size` (`size`).
+
+                      Codes for a rule the endpoint enforces are specific to it — `greater_than`,
+                      `greater_than_or_equal`, `window_too_long`, `unknown_value`, `duplicate`,
+                      `requires_one_of` and so on. Each one that compares two parameters carries
+                      the other's name in `params.other`. Each operation's `fields` example shows
+                      the codes it can return.
+
+                      New codes are added as the API grows, and `invalid` is used wherever a
+                      failure has prose but no code assigned yet. Treat both the same way: fall
+                      back to `message`. A client must never break on a code it does not know.
+                    example:
+                      q:
+                      - code: invalid_format
+                        message: must be JSON carrying time_from and time_to as epoch
+                          seconds
   "/api/sessions/export.json":
     get:
       summary: Schedule a CSV export of sessions (emailed)
@@ -961,8 +1021,10 @@ paths:
                       `invalid_format` (`format`), `wrong_size` (`size`).
 
                       Codes for a rule the endpoint enforces are specific to it — `greater_than`,
-                      `window_too_long`, `unknown_value`, `duplicate`, `requires_one_of` and so
-                      on. Each operation's `fields` example shows the ones it can return.
+                      `greater_than_or_equal`, `window_too_long`, `unknown_value`, `duplicate`,
+                      `requires_one_of` and so on. Each one that compares two parameters carries
+                      the other's name in `params.other`. Each operation's `fields` example shows
+                      the codes it can return.
 
                       New codes are added as the API grows, and `invalid` is used wherever a
                       failure has prose but no code assigned yet. Treat both the same way: fall
@@ -1090,8 +1152,10 @@ paths:
                       `invalid_format` (`format`), `wrong_size` (`size`).
 
                       Codes for a rule the endpoint enforces are specific to it — `greater_than`,
-                      `window_too_long`, `unknown_value`, `duplicate`, `requires_one_of` and so
-                      on. Each operation's `fields` example shows the ones it can return.
+                      `greater_than_or_equal`, `window_too_long`, `unknown_value`, `duplicate`,
+                      `requires_one_of` and so on. Each one that compares two parameters carries
+                      the other's name in `params.other`. Each operation's `fields` example shows
+                      the codes it can return.
 
                       New codes are added as the API grows, and `invalid` is used wherever a
                       failure has prose but no code assigned yet. Treat both the same way: fall
@@ -1199,8 +1263,10 @@ paths:
                       `invalid_format` (`format`), `wrong_size` (`size`).
 
                       Codes for a rule the endpoint enforces are specific to it — `greater_than`,
-                      `window_too_long`, `unknown_value`, `duplicate`, `requires_one_of` and so
-                      on. Each operation's `fields` example shows the ones it can return.
+                      `greater_than_or_equal`, `window_too_long`, `unknown_value`, `duplicate`,
+                      `requires_one_of` and so on. Each one that compares two parameters carries
+                      the other's name in `params.other`. Each operation's `fields` example shows
+                      the codes it can return.
 
                       New codes are added as the API grows, and `invalid` is used wherever a
                       failure has prose but no code assigned yet. Treat both the same way: fall
@@ -3151,14 +3217,16 @@ paths:
         schema:
           type: string
           format: date
-        description: YYYY-MM-DD (inclusive)
+        description: YYYY-MM-DD, inclusive. An ISO 8601 datetime is accepted and truncated
+          to its date
       - name: end_date
         in: query
         required: true
         schema:
           type: string
           format: date
-        description: YYYY-MM-DD (inclusive)
+        description: YYYY-MM-DD, inclusive. An ISO 8601 datetime is accepted and truncated
+          to its date
       responses:
         '200':
           description: daily averages
@@ -3180,6 +3248,65 @@ paths:
                       type: integer
                       description: Rounded daily average
                       example: 14
+        '400':
+          description: invalid query parameters
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - error_code
+                - message
+                properties:
+                  error_code:
+                    type: string
+                    example: validation_error
+                  message:
+                    type: string
+                    example: Query parameters are invalid
+                  fields:
+                    type: object
+                    description: |
+                      Per-field validation errors. Present only when the request shape is wrong.
+
+                      Keys are the parameters that failed, nested exactly as they were sent — a
+                      bad stream appears under its index in the array. Every leaf is a list of
+                      objects, one per failure:
+
+                      - `code` — machine-readable. Switch on this to show your own translated
+                        message; this API is not localised.
+                      - `message` — English, a fallback for codes you do not handle yet. Never
+                        parse it.
+                      - `params` — present when the message interpolates a value, so the
+                        sentence can be rebuilt in another language. `too_small` carries `min`,
+                        `not_included` carries `allowed`.
+
+                      Codes for a value of the wrong shape are the same on every endpoint:
+
+                      `missing`, `blank`, `not_a_string`, `not_an_integer`, `not_a_float`,
+                      `not_a_boolean`, `not_a_time`, `not_a_date`, `not_a_date_time`,
+                      `not_an_array`, `not_a_hash`, `too_small` (`min`), `too_large` (`max`),
+                      `too_short` (`min`), `too_long` (`max`), `not_included` (`allowed`),
+                      `invalid_format` (`format`), `wrong_size` (`size`).
+
+                      Codes for a rule the endpoint enforces are specific to it — `greater_than`,
+                      `greater_than_or_equal`, `window_too_long`, `unknown_value`, `duplicate`,
+                      `requires_one_of` and so on. Each one that compares two parameters carries
+                      the other's name in `params.other`. Each operation's `fields` example shows
+                      the codes it can return.
+
+                      New codes are added as the API grows, and `invalid` is used wherever a
+                      failure has prose but no code assigned yet. Treat both the same way: fall
+                      back to `message`. A client must never break on a code it does not know.
+                    example:
+                      start_date:
+                      - code: not_a_date
+                        message: must be a date
+                      end_date:
+                      - code: greater_than_or_equal
+                        message: must not be before start_date
+                        params:
+                          other: start_date
   "/api/v3/station_stream_daily_averages":
     get:
       summary: Station daily averages in a date range (government)
@@ -3199,14 +3326,16 @@ paths:
         schema:
           type: string
           format: date
-        description: YYYY-MM-DD (inclusive)
+        description: YYYY-MM-DD, inclusive. An ISO 8601 datetime is accepted and truncated
+          to its date
       - name: end_date
         in: query
         required: true
         schema:
           type: string
           format: date
-        description: YYYY-MM-DD (inclusive)
+        description: YYYY-MM-DD, inclusive. An ISO 8601 datetime is accepted and truncated
+          to its date
       responses:
         '200':
           description: daily averages
@@ -3228,6 +3357,65 @@ paths:
                       type: integer
                       description: Rounded daily average
                       example: 14
+        '400':
+          description: invalid query parameters
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - error_code
+                - message
+                properties:
+                  error_code:
+                    type: string
+                    example: validation_error
+                  message:
+                    type: string
+                    example: Query parameters are invalid
+                  fields:
+                    type: object
+                    description: |
+                      Per-field validation errors. Present only when the request shape is wrong.
+
+                      Keys are the parameters that failed, nested exactly as they were sent — a
+                      bad stream appears under its index in the array. Every leaf is a list of
+                      objects, one per failure:
+
+                      - `code` — machine-readable. Switch on this to show your own translated
+                        message; this API is not localised.
+                      - `message` — English, a fallback for codes you do not handle yet. Never
+                        parse it.
+                      - `params` — present when the message interpolates a value, so the
+                        sentence can be rebuilt in another language. `too_small` carries `min`,
+                        `not_included` carries `allowed`.
+
+                      Codes for a value of the wrong shape are the same on every endpoint:
+
+                      `missing`, `blank`, `not_a_string`, `not_an_integer`, `not_a_float`,
+                      `not_a_boolean`, `not_a_time`, `not_a_date`, `not_a_date_time`,
+                      `not_an_array`, `not_a_hash`, `too_small` (`min`), `too_large` (`max`),
+                      `too_short` (`min`), `too_long` (`max`), `not_included` (`allowed`),
+                      `invalid_format` (`format`), `wrong_size` (`size`).
+
+                      Codes for a rule the endpoint enforces are specific to it — `greater_than`,
+                      `greater_than_or_equal`, `window_too_long`, `unknown_value`, `duplicate`,
+                      `requires_one_of` and so on. Each one that compares two parameters carries
+                      the other's name in `params.other`. Each operation's `fields` example shows
+                      the codes it can return.
+
+                      New codes are added as the API grows, and `invalid` is used wherever a
+                      failure has prose but no code assigned yet. Treat both the same way: fall
+                      back to `message`. A client must never break on a code it does not know.
+                    example:
+                      start_date:
+                      - code: not_a_date
+                        message: must be a date
+                      end_date:
+                      - code: greater_than_or_equal
+                        message: must not be before start_date
+                        params:
+                          other: start_date
   "/api/v3/explore/map":
     get:
       summary: "[ALPHA] Active AirBeam fixed sessions and government stations in a
@@ -3483,8 +3671,10 @@ paths:
                       `invalid_format` (`format`), `wrong_size` (`size`).
 
                       Codes for a rule the endpoint enforces are specific to it — `greater_than`,
-                      `window_too_long`, `unknown_value`, `duplicate`, `requires_one_of` and so
-                      on. Each operation's `fields` example shows the ones it can return.
+                      `greater_than_or_equal`, `window_too_long`, `unknown_value`, `duplicate`,
+                      `requires_one_of` and so on. Each one that compares two parameters carries
+                      the other's name in `params.other`. Each operation's `fields` example shows
+                      the codes it can return.
 
                       New codes are added as the API grows, and `invalid` is used wherever a
                       failure has prose but no code assigned yet. Treat both the same way: fall
@@ -3824,8 +4014,10 @@ paths:
                       `invalid_format` (`format`), `wrong_size` (`size`).
 
                       Codes for a rule the endpoint enforces are specific to it — `greater_than`,
-                      `window_too_long`, `unknown_value`, `duplicate`, `requires_one_of` and so
-                      on. Each operation's `fields` example shows the ones it can return.
+                      `greater_than_or_equal`, `window_too_long`, `unknown_value`, `duplicate`,
+                      `requires_one_of` and so on. Each one that compares two parameters carries
+                      the other's name in `params.other`. Each operation's `fields` example shows
+                      the codes it can return.
 
                       New codes are added as the API grows, and `invalid` is used wherever a
                       failure has prose but no code assigned yet. Treat both the same way: fall
@@ -4281,8 +4473,10 @@ paths:
                       `invalid_format` (`format`), `wrong_size` (`size`).
 
                       Codes for a rule the endpoint enforces are specific to it — `greater_than`,
-                      `window_too_long`, `unknown_value`, `duplicate`, `requires_one_of` and so
-                      on. Each operation's `fields` example shows the ones it can return.
+                      `greater_than_or_equal`, `window_too_long`, `unknown_value`, `duplicate`,
+                      `requires_one_of` and so on. Each one that compares two parameters carries
+                      the other's name in `params.other`. Each operation's `fields` example shows
+                      the codes it can return.
 
                       New codes are added as the API grows, and `invalid` is used wherever a
                       failure has prose but no code assigned yet. Treat both the same way: fall
@@ -4647,8 +4841,10 @@ paths:
                       `invalid_format` (`format`), `wrong_size` (`size`).
 
                       Codes for a rule the endpoint enforces are specific to it — `greater_than`,
-                      `window_too_long`, `unknown_value`, `duplicate`, `requires_one_of` and so
-                      on. Each operation's `fields` example shows the ones it can return.
+                      `greater_than_or_equal`, `window_too_long`, `unknown_value`, `duplicate`,
+                      `requires_one_of` and so on. Each one that compares two parameters carries
+                      the other's name in `params.other`. Each operation's `fields` example shows
+                      the codes it can return.
 
                       New codes are added as the API grows, and `invalid` is used wherever a
                       failure has prose but no code assigned yet. Treat both the same way: fall
@@ -4982,6 +5178,22 @@ paths:
                           type: integer
                           description: Rounded daily average
                           example: 14
+        '404':
+          description: no stream with that id
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - error_code
+                - message
+                properties:
+                  error_code:
+                    type: string
+                    example: not_found
+                  message:
+                    type: string
+                    example: Fixed stream not found
   "/api/v3/fixed_measurements":
     get:
       summary: AirBeam fixed measurements in a time range
@@ -5073,8 +5285,10 @@ paths:
                       `invalid_format` (`format`), `wrong_size` (`size`).
 
                       Codes for a rule the endpoint enforces are specific to it — `greater_than`,
-                      `window_too_long`, `unknown_value`, `duplicate`, `requires_one_of` and so
-                      on. Each operation's `fields` example shows the ones it can return.
+                      `greater_than_or_equal`, `window_too_long`, `unknown_value`, `duplicate`,
+                      `requires_one_of` and so on. Each one that compares two parameters carries
+                      the other's name in `params.other`. Each operation's `fields` example shows
+                      the codes it can return.
 
                       New codes are added as the API grows, and `invalid` is used wherever a
                       failure has prose but no code assigned yet. Treat both the same way: fall
@@ -5176,8 +5390,10 @@ paths:
                       `invalid_format` (`format`), `wrong_size` (`size`).
 
                       Codes for a rule the endpoint enforces are specific to it — `greater_than`,
-                      `window_too_long`, `unknown_value`, `duplicate`, `requires_one_of` and so
-                      on. Each operation's `fields` example shows the ones it can return.
+                      `greater_than_or_equal`, `window_too_long`, `unknown_value`, `duplicate`,
+                      `requires_one_of` and so on. Each one that compares two parameters carries
+                      the other's name in `params.other`. Each operation's `fields` example shows
+                      the codes it can return.
 
                       New codes are added as the API grows, and `invalid` is used wherever a
                       failure has prose but no code assigned yet. Treat both the same way: fall
@@ -5365,8 +5581,10 @@ paths:
                       `invalid_format` (`format`), `wrong_size` (`size`).
 
                       Codes for a rule the endpoint enforces are specific to it — `greater_than`,
-                      `window_too_long`, `unknown_value`, `duplicate`, `requires_one_of` and so
-                      on. Each operation's `fields` example shows the ones it can return.
+                      `greater_than_or_equal`, `window_too_long`, `unknown_value`, `duplicate`,
+                      `requires_one_of` and so on. Each one that compares two parameters carries
+                      the other's name in `params.other`. Each operation's `fields` example shows
+                      the codes it can return.
 
                       New codes are added as the API grows, and `invalid` is used wherever a
                       failure has prose but no code assigned yet. Treat both the same way: fall
@@ -5555,8 +5773,10 @@ paths:
                       `invalid_format` (`format`), `wrong_size` (`size`).
 
                       Codes for a rule the endpoint enforces are specific to it — `greater_than`,
-                      `window_too_long`, `unknown_value`, `duplicate`, `requires_one_of` and so
-                      on. Each operation's `fields` example shows the ones it can return.
+                      `greater_than_or_equal`, `window_too_long`, `unknown_value`, `duplicate`,
+                      `requires_one_of` and so on. Each one that compares two parameters carries
+                      the other's name in `params.other`. Each operation's `fields` example shows
+                      the codes it can return.
 
                       New codes are added as the API grows, and `invalid` is used wherever a
                       failure has prose but no code assigned yet. Treat both the same way: fall
@@ -6006,8 +6226,10 @@ paths:
                       `invalid_format` (`format`), `wrong_size` (`size`).
 
                       Codes for a rule the endpoint enforces are specific to it — `greater_than`,
-                      `window_too_long`, `unknown_value`, `duplicate`, `requires_one_of` and so
-                      on. Each operation's `fields` example shows the ones it can return.
+                      `greater_than_or_equal`, `window_too_long`, `unknown_value`, `duplicate`,
+                      `requires_one_of` and so on. Each one that compares two parameters carries
+                      the other's name in `params.other`. Each operation's `fields` example shows
+                      the codes it can return.
 
                       New codes are added as the API grows, and `invalid` is used wherever a
                       failure has prose but no code assigned yet. Treat both the same way: fall
@@ -6517,8 +6739,10 @@ paths:
                       `invalid_format` (`format`), `wrong_size` (`size`).
 
                       Codes for a rule the endpoint enforces are specific to it — `greater_than`,
-                      `window_too_long`, `unknown_value`, `duplicate`, `requires_one_of` and so
-                      on. Each operation's `fields` example shows the ones it can return.
+                      `greater_than_or_equal`, `window_too_long`, `unknown_value`, `duplicate`,
+                      `requires_one_of` and so on. Each one that compares two parameters carries
+                      the other's name in `params.other`. Each operation's `fields` example shows
+                      the codes it can return.
 
                       New codes are added as the API grows, and `invalid` is used wherever a
                       failure has prose but no code assigned yet. Treat both the same way: fall
@@ -6802,8 +7026,10 @@ paths:
                       `invalid_format` (`format`), `wrong_size` (`size`).
 
                       Codes for a rule the endpoint enforces are specific to it — `greater_than`,
-                      `window_too_long`, `unknown_value`, `duplicate`, `requires_one_of` and so
-                      on. Each operation's `fields` example shows the ones it can return.
+                      `greater_than_or_equal`, `window_too_long`, `unknown_value`, `duplicate`,
+                      `requires_one_of` and so on. Each one that compares two parameters carries
+                      the other's name in `params.other`. Each operation's `fields` example shows
+                      the codes it can return.
 
                       New codes are added as the API grows, and `invalid` is used wherever a
                       failure has prose but no code assigned yet. Treat both the same way: fall
@@ -6982,8 +7208,10 @@ paths:
                       `invalid_format` (`format`), `wrong_size` (`size`).
 
                       Codes for a rule the endpoint enforces are specific to it — `greater_than`,
-                      `window_too_long`, `unknown_value`, `duplicate`, `requires_one_of` and so
-                      on. Each operation's `fields` example shows the ones it can return.
+                      `greater_than_or_equal`, `window_too_long`, `unknown_value`, `duplicate`,
+                      `requires_one_of` and so on. Each one that compares two parameters carries
+                      the other's name in `params.other`. Each operation's `fields` example shows
+                      the codes it can return.
 
                       New codes are added as the API grows, and `invalid` is used wherever a
                       failure has prose but no code assigned yet. Treat both the same way: fall
@@ -7316,11 +7544,16 @@ paths:
             application/json:
               schema:
                 type: object
+                required:
+                - error_code
+                - message
                 properties:
-                  id:
-                    type: array
-                    items:
-                      type: string
+                  error_code:
+                    type: string
+                    example: not_found
+                  message:
+                    type: string
+                    example: Station stream not found
   "/api/v3/station_streams/export":
     get:
       summary: Export Station (government) streams as CSV (emailed)
@@ -7394,8 +7627,10 @@ paths:
                       `invalid_format` (`format`), `wrong_size` (`size`).
 
                       Codes for a rule the endpoint enforces are specific to it — `greater_than`,
-                      `window_too_long`, `unknown_value`, `duplicate`, `requires_one_of` and so
-                      on. Each operation's `fields` example shows the ones it can return.
+                      `greater_than_or_equal`, `window_too_long`, `unknown_value`, `duplicate`,
+                      `requires_one_of` and so on. Each one that compares two parameters carries
+                      the other's name in `params.other`. Each operation's `fields` example shows
+                      the codes it can return.
 
                       New codes are added as the API grows, and `invalid` is used wherever a
                       failure has prose but no code assigned yet. Treat both the same way: fall
