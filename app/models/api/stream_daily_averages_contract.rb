@@ -20,8 +20,8 @@ module Api
       next if values[:end_date] >= values[:start_date]
 
       key(:end_date).failure(
-        text: 'must not be before start_date',
-        code: 'greater_than_or_equal',
+        text: 'must be greater than or equal to start_date',
+        code: 'greater_than_or_equal_to',
         params: { other: 'start_date' },
       )
     end

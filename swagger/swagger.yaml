@@ -537,7 +537,7 @@ paths:
                       `invalid_format` (`format`), `wrong_size` (`size`).
 
                       Codes for a rule the endpoint enforces are specific to it — `greater_than`,
-                      `greater_than_or_equal`, `window_too_long`, `unknown_value`, `duplicate`,
+                      `greater_than_or_equal_to`, `window_too_long`, `unknown_value`, `duplicate`,
                       `requires_one_of` and so on. Each one that compares two parameters carries
                       the other's name in `params.other`. Each operation's `fields` example shows
                       the codes it can return.
@@ -1021,7 +1021,7 @@ paths:
                       `invalid_format` (`format`), `wrong_size` (`size`).
 
                       Codes for a rule the endpoint enforces are specific to it — `greater_than`,
-                      `greater_than_or_equal`, `window_too_long`, `unknown_value`, `duplicate`,
+                      `greater_than_or_equal_to`, `window_too_long`, `unknown_value`, `duplicate`,
                       `requires_one_of` and so on. Each one that compares two parameters carries
                       the other's name in `params.other`. Each operation's `fields` example shows
                       the codes it can return.
@@ -1152,7 +1152,7 @@ paths:
                       `invalid_format` (`format`), `wrong_size` (`size`).
 
                       Codes for a rule the endpoint enforces are specific to it — `greater_than`,
-                      `greater_than_or_equal`, `window_too_long`, `unknown_value`, `duplicate`,
+                      `greater_than_or_equal_to`, `window_too_long`, `unknown_value`, `duplicate`,
                       `requires_one_of` and so on. Each one that compares two parameters carries
                       the other's name in `params.other`. Each operation's `fields` example shows
                       the codes it can return.
@@ -1263,7 +1263,7 @@ paths:
                       `invalid_format` (`format`), `wrong_size` (`size`).
 
                       Codes for a rule the endpoint enforces are specific to it — `greater_than`,
-                      `greater_than_or_equal`, `window_too_long`, `unknown_value`, `duplicate`,
+                      `greater_than_or_equal_to`, `window_too_long`, `unknown_value`, `duplicate`,
                       `requires_one_of` and so on. Each one that compares two parameters carries
                       the other's name in `params.other`. Each operation's `fields` example shows
                       the codes it can return.
@@ -3290,7 +3290,7 @@ paths:
                       `invalid_format` (`format`), `wrong_size` (`size`).
 
                       Codes for a rule the endpoint enforces are specific to it — `greater_than`,
-                      `greater_than_or_equal`, `window_too_long`, `unknown_value`, `duplicate`,
+                      `greater_than_or_equal_to`, `window_too_long`, `unknown_value`, `duplicate`,
                       `requires_one_of` and so on. Each one that compares two parameters carries
                       the other's name in `params.other`. Each operation's `fields` example shows
                       the codes it can return.
@@ -3303,8 +3303,8 @@ paths:
                       - code: not_a_date
                         message: must be a date
                       end_date:
-                      - code: greater_than_or_equal
-                        message: must not be before start_date
+                      - code: greater_than_or_equal_to
+                        message: must be greater than or equal to start_date
                         params:
                           other: start_date
   "/api/v3/station_stream_daily_averages":
@@ -3399,7 +3399,7 @@ paths:
                       `invalid_format` (`format`), `wrong_size` (`size`).
 
                       Codes for a rule the endpoint enforces are specific to it — `greater_than`,
-                      `greater_than_or_equal`, `window_too_long`, `unknown_value`, `duplicate`,
+                      `greater_than_or_equal_to`, `window_too_long`, `unknown_value`, `duplicate`,
                       `requires_one_of` and so on. Each one that compares two parameters carries
                       the other's name in `params.other`. Each operation's `fields` example shows
                       the codes it can return.
@@ -3412,8 +3412,8 @@ paths:
                       - code: not_a_date
                         message: must be a date
                       end_date:
-                      - code: greater_than_or_equal
-                        message: must not be before start_date
+                      - code: greater_than_or_equal_to
+                        message: must be greater than or equal to start_date
                         params:
                           other: start_date
   "/api/v3/explore/map":
@@ -3671,7 +3671,7 @@ paths:
                       `invalid_format` (`format`), `wrong_size` (`size`).
 
                       Codes for a rule the endpoint enforces are specific to it — `greater_than`,
-                      `greater_than_or_equal`, `window_too_long`, `unknown_value`, `duplicate`,
+                      `greater_than_or_equal_to`, `window_too_long`, `unknown_value`, `duplicate`,
                       `requires_one_of` and so on. Each one that compares two parameters carries
                       the other's name in `params.other`. Each operation's `fields` example shows
                       the codes it can return.
@@ -4014,7 +4014,7 @@ paths:
                       `invalid_format` (`format`), `wrong_size` (`size`).
 
                       Codes for a rule the endpoint enforces are specific to it — `greater_than`,
-                      `greater_than_or_equal`, `window_too_long`, `unknown_value`, `duplicate`,
+                      `greater_than_or_equal_to`, `window_too_long`, `unknown_value`, `duplicate`,
                       `requires_one_of` and so on. Each one that compares two parameters carries
                       the other's name in `params.other`. Each operation's `fields` example shows
                       the codes it can return.
@@ -4473,7 +4473,7 @@ paths:
                       `invalid_format` (`format`), `wrong_size` (`size`).
 
                       Codes for a rule the endpoint enforces are specific to it — `greater_than`,
-                      `greater_than_or_equal`, `window_too_long`, `unknown_value`, `duplicate`,
+                      `greater_than_or_equal_to`, `window_too_long`, `unknown_value`, `duplicate`,
                       `requires_one_of` and so on. Each one that compares two parameters carries
                       the other's name in `params.other`. Each operation's `fields` example shows
                       the codes it can return.
@@ -4841,7 +4841,7 @@ paths:
                       `invalid_format` (`format`), `wrong_size` (`size`).
 
                       Codes for a rule the endpoint enforces are specific to it — `greater_than`,
-                      `greater_than_or_equal`, `window_too_long`, `unknown_value`, `duplicate`,
+                      `greater_than_or_equal_to`, `window_too_long`, `unknown_value`, `duplicate`,
                       `requires_one_of` and so on. Each one that compares two parameters carries
                       the other's name in `params.other`. Each operation's `fields` example shows
                       the codes it can return.
@@ -5285,7 +5285,7 @@ paths:
                       `invalid_format` (`format`), `wrong_size` (`size`).
 
                       Codes for a rule the endpoint enforces are specific to it — `greater_than`,
-                      `greater_than_or_equal`, `window_too_long`, `unknown_value`, `duplicate`,
+                      `greater_than_or_equal_to`, `window_too_long`, `unknown_value`, `duplicate`,
                       `requires_one_of` and so on. Each one that compares two parameters carries
                       the other's name in `params.other`. Each operation's `fields` example shows
                       the codes it can return.
@@ -5390,7 +5390,7 @@ paths:
                       `invalid_format` (`format`), `wrong_size` (`size`).
 
                       Codes for a rule the endpoint enforces are specific to it — `greater_than`,
-                      `greater_than_or_equal`, `window_too_long`, `unknown_value`, `duplicate`,
+                      `greater_than_or_equal_to`, `window_too_long`, `unknown_value`, `duplicate`,
                       `requires_one_of` and so on. Each one that compares two parameters carries
                       the other's name in `params.other`. Each operation's `fields` example shows
                       the codes it can return.
@@ -5581,7 +5581,7 @@ paths:
                       `invalid_format` (`format`), `wrong_size` (`size`).
 
                       Codes for a rule the endpoint enforces are specific to it — `greater_than`,
-                      `greater_than_or_equal`, `window_too_long`, `unknown_value`, `duplicate`,
+                      `greater_than_or_equal_to`, `window_too_long`, `unknown_value`, `duplicate`,
                       `requires_one_of` and so on. Each one that compares two parameters carries
                       the other's name in `params.other`. Each operation's `fields` example shows
                       the codes it can return.
@@ -5773,7 +5773,7 @@ paths:
                       `invalid_format` (`format`), `wrong_size` (`size`).
 
                       Codes for a rule the endpoint enforces are specific to it — `greater_than`,
-                      `greater_than_or_equal`, `window_too_long`, `unknown_value`, `duplicate`,
+                      `greater_than_or_equal_to`, `window_too_long`, `unknown_value`, `duplicate`,
                       `requires_one_of` and so on. Each one that compares two parameters carries
                       the other's name in `params.other`. Each operation's `fields` example shows
                       the codes it can return.
@@ -6226,7 +6226,7 @@ paths:
                       `invalid_format` (`format`), `wrong_size` (`size`).
 
                       Codes for a rule the endpoint enforces are specific to it — `greater_than`,
-                      `greater_than_or_equal`, `window_too_long`, `unknown_value`, `duplicate`,
+                      `greater_than_or_equal_to`, `window_too_long`, `unknown_value`, `duplicate`,
                       `requires_one_of` and so on. Each one that compares two parameters carries
                       the other's name in `params.other`. Each operation's `fields` example shows
                       the codes it can return.
@@ -6739,7 +6739,7 @@ paths:
                       `invalid_format` (`format`), `wrong_size` (`size`).
 
                       Codes for a rule the endpoint enforces are specific to it — `greater_than`,
-                      `greater_than_or_equal`, `window_too_long`, `unknown_value`, `duplicate`,
+                      `greater_than_or_equal_to`, `window_too_long`, `unknown_value`, `duplicate`,
                       `requires_one_of` and so on. Each one that compares two parameters carries
                       the other's name in `params.other`. Each operation's `fields` example shows
                       the codes it can return.
@@ -7026,7 +7026,7 @@ paths:
                       `invalid_format` (`format`), `wrong_size` (`size`).
 
                       Codes for a rule the endpoint enforces are specific to it — `greater_than`,
-                      `greater_than_or_equal`, `window_too_long`, `unknown_value`, `duplicate`,
+                      `greater_than_or_equal_to`, `window_too_long`, `unknown_value`, `duplicate`,
                       `requires_one_of` and so on. Each one that compares two parameters carries
                       the other's name in `params.other`. Each operation's `fields` example shows
                       the codes it can return.
@@ -7208,7 +7208,7 @@ paths:
                       `invalid_format` (`format`), `wrong_size` (`size`).
 
                       Codes for a rule the endpoint enforces are specific to it — `greater_than`,
-                      `greater_than_or_equal`, `window_too_long`, `unknown_value`, `duplicate`,
+                      `greater_than_or_equal_to`, `window_too_long`, `unknown_value`, `duplicate`,
                       `requires_one_of` and so on. Each one that compares two parameters carries
                       the other's name in `params.other`. Each operation's `fields` example shows
                       the codes it can return.
@@ -7627,7 +7627,7 @@ paths:
                       `invalid_format` (`format`), `wrong_size` (`size`).
 
                       Codes for a rule the endpoint enforces are specific to it — `greater_than`,
-                      `greater_than_or_equal`, `window_too_long`, `unknown_value`, `duplicate`,
+                      `greater_than_or_equal_to`, `window_too_long`, `unknown_value`, `duplicate`,
                       `requires_one_of` and so on. Each one that compares two parameters carries
                       the other's name in `params.other`. Each operation's `fields` example shows
                       the codes it can return.

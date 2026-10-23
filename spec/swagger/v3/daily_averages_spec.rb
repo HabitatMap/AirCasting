@@ -50,8 +50,8 @@ RSpec.describe 'V3 Daily averages', type: :request do
                    example: {
                      start_date: [{ code: 'not_a_date', message: 'must be a date' }],
                      end_date: [
-                       { code: 'greater_than_or_equal',
-                         message: 'must not be before start_date',
+                       { code: 'greater_than_or_equal_to',
+                         message: 'must be greater than or equal to start_date',
                          params: { other: 'start_date' } },
                      ],
                    },
@@ -100,8 +100,8 @@ RSpec.describe 'V3 Daily averages', type: :request do
                    example: {
                      start_date: [{ code: 'not_a_date', message: 'must be a date' }],
                      end_date: [
-                       { code: 'greater_than_or_equal',
-                         message: 'must not be before start_date',
+                       { code: 'greater_than_or_equal_to',
+                         message: 'must be greater than or equal to start_date',
                          params: { other: 'start_date' } },
                      ],
                    },

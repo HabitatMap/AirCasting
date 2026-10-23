@@ -59,8 +59,8 @@ describe 'GET api/v3/fixed_stream_daily_averages' do
       expect(response.status).to eq(400)
       expect(JSON.parse(response.body)['fields']).to eq(
         'end_date' => [
-          { 'code' => 'greater_than_or_equal',
-            'message' => 'must not be before start_date',
+          { 'code' => 'greater_than_or_equal_to',
+            'message' => 'must be greater than or equal to start_date',
             'params' => { 'other' => 'start_date' } },
         ],
       )
