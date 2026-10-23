@@ -26,10 +26,19 @@ class ApplicationController < ActionController::Base
 
   protected
 
+  # Deliberately *not* `authentication_token`. It is a bearer credential, not a
+  # profile field: `Api::BaseController` accepts it as the HTTP Basic username
+  # and as a bearer token, and the AirBeam firmware sends it on every upload
+  # with no way to refresh it short of re-pairing the device over BLE. Letting
+  # a form body write it meant a user could silently stop every one of their
+  # own devices uploading — and, because a blank token is not NULL, could save
+  # an empty one that any unauthenticated request then matched.
+  #
+  # No client or view has ever posted it. `:sign_in` does not need it either;
+  # `User.find_for_database_authentication` keys off `login`.
   def configure_permitted_parameters
     attrs = %i[
       login
-      authentication_token
       email
       password
       password_confirmation

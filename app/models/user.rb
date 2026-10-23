@@ -19,10 +19,16 @@ class User < ApplicationRecord
   # Virtual attribute for devise
   attr_accessor :login
 
-  before_create :ensure_authentication_token
+  # `before_validation`, not `before_create`: validation runs first, so a token
+  # blanked on an existing row has to be regenerated before the presence check
+  # sees it. Together they make an empty token unwritable through any path
+  # that goes near validation — an empty one is matched by an unauthenticated
+  # `Basic` header carrying no username.
+  before_validation :ensure_authentication_token
   before_save :chomp_username_attribute!
 
   validates :username, presence: true
+  validates :authentication_token, presence: true
   validates_uniqueness_of :username, case_sensitive: false
   validates_uniqueness_of :email, case_sensitive: false
 
