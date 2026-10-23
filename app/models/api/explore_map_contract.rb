@@ -29,18 +29,34 @@ module Api
     # west > east is valid: the viewport crosses the antimeridian.
     rule(:north, :south) do
       if values[:north] < values[:south]
-        key(:north).failure('must be greater than or equal to south')
+        key(:north).failure(
+          text: 'must be greater than or equal to south',
+          code: 'greater_than_or_equal_to',
+          params: { other: 'south' },
+        )
       end
     end
 
     rule(:sources) do
       unknown = ExploreMapContract.list(value) - Explore::Map::SOURCES
-      key.failure("unknown: #{unknown.join(', ')}") if unknown.any?
+      next if unknown.empty?
+
+      key.failure(
+        text: "unknown: #{unknown.join(', ')}",
+        code: 'unknown_value',
+        params: { unknown: unknown, allowed: Explore::Map::SOURCES },
+      )
     end
 
     rule(:measurement_types) do
       unknown = ExploreMapContract.list(value) - Explore::Parameters::KEYS
-      key.failure("unknown: #{unknown.join(', ')}") if unknown.any?
+      next if unknown.empty?
+
+      key.failure(
+        text: "unknown: #{unknown.join(', ')}",
+        code: 'unknown_value',
+        params: { unknown: unknown, allowed: Explore::Parameters::KEYS },
+      )
     end
   end
 end

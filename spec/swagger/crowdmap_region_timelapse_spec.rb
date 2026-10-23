@@ -130,6 +130,33 @@ RSpec.describe 'Map aggregations (web)', type: :request do
         end
         run_test!
       end
+
+      response '400', 'q is unreadable, or the contract rejects it' do
+        description <<~DESC
+          Two stages fail the same way. `q` itself can be absent, not JSON, not
+          a JSON object, or carry `time_from`/`time_to` that are not epoch
+          seconds — all of which report under the key `q`. Past that the
+          contract reports per field, as everywhere else.
+        DESC
+
+        schema type: :object,
+               required: %w[error_code message],
+               properties: {
+                 error_code: { type: :string, example: 'validation_error' },
+                 message: { type: :string, example: 'Query parameters are invalid' },
+                 fields: ERROR_FIELDS_SCHEMA.merge(
+                   example: {
+                     q: [
+                       { code: 'invalid_format',
+                         message: 'must be JSON carrying time_from and time_to as epoch seconds' },
+                     ],
+                   },
+                 ),
+               }
+
+        let(:q) { '{not json' }
+        run_test!
+      end
     end
   end
 end

@@ -103,7 +103,7 @@ describe 'GET api/v3/sessions' do
   end
 
   context 'when end_datetime is before start_datetime' do
-    it 'returns 400' do
+    it 'returns 400 with the rule\'s own code' do
       get '/api/v3/sessions',
           params: {
             start_datetime: '2025-01-15T00:00',
@@ -111,6 +111,13 @@ describe 'GET api/v3/sessions' do
           }
 
       expect(response.status).to eq(400)
+      expect(JSON.parse(response.body)['fields']).to eq(
+        'end_datetime' => [
+          { 'code' => 'greater_than',
+            'message' => 'must be greater than start_datetime',
+            'params' => { 'other' => 'start_datetime' } },
+        ],
+      )
     end
   end
 end

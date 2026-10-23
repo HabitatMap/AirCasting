@@ -6,7 +6,7 @@ module MobileSessions
   # BinaryProtocol::Parser::ErrorCodes).
   #
   # `unauthorized` is intentionally absent: it comes from the shared
-  # `Api::V3::ErrorCodes` via `Api::V3::BaseController#require_authentication!`,
+  # `Api::ErrorCodes` via `Api::V3::BaseController#require_authentication!`,
   # which is what these endpoints render on a 401.
   module ErrorCodes
     UNSUPPORTED_SENSOR_TYPE = 'unsupported_sensor_type'

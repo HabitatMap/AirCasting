@@ -90,7 +90,8 @@ RSpec.describe Api::CreateNoteContract do
       result = contract.call(payload(photo: Base64.strict_encode64('plain text')))
 
       expect(result).to be_failure
-      expect(result.errors.to_h[:photo].first).to include('must be an image')
+      expect(result.errors.to_h[:photo].first)
+        .to include(code: 'not_an_image', params: { content_type: 'application/octet-stream' })
     end
 
     it 'rejects a photo over the size cap' do

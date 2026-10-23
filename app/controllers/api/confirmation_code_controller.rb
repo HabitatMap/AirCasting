@@ -1,6 +1,9 @@
 module Api
   class ConfirmationCodeController < BaseController
     before_action :authenticate_user_from_token!
+    # Same pair as UsersController — the delete-account screens sit next to the
+    # account-settings ones and must not need a second auth scheme.
+    before_action :authenticate_user_from_bearer_token
     before_action :authenticate_user!
 
     respond_to :json

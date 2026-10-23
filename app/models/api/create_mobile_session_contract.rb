@@ -49,7 +49,7 @@ module Api
     end
 
     rule(:streams) do
-      key.failure('must have at least one stream') if value.empty?
+      key.failure(text: 'must have at least one stream', code: 'empty') if value.empty?
     end
 
     rule(:streams) do
@@ -60,7 +60,8 @@ module Api
         ordered = thresholds.values_at(:very_low, :low, :medium, :high, :very_high)
         if ordered.each_cons(2).any? { |a, b| a > b }
           key([:streams, i, :thresholds]).failure(
-            'must be in ascending order (very_low ≤ low ≤ medium ≤ high ≤ very_high)',
+            text: 'must be in ascending order (very_low ≤ low ≤ medium ≤ high ≤ very_high)',
+            code: 'out_of_order',
           )
         end
       end
@@ -70,7 +71,11 @@ module Api
     # MobileSessions::Creator checks that and answers with `session_uuid_taken`.
     rule(:uuid) do
       if key? && value && !UUID_FORMAT.match?(value)
-        key.failure('must be a UUID (e.g. 550e8400-e29b-41d4-a716-446655440000)')
+        key.failure(
+          text: 'must be a UUID (e.g. 550e8400-e29b-41d4-a716-446655440000)',
+          code: 'invalid_format',
+          params: { format: 'uuid' },
+        )
       end
     end
 
@@ -79,7 +84,11 @@ module Api
         begin
           TZInfo::Timezone.get(value)
         rescue TZInfo::InvalidTimezoneIdentifier
-          key.failure('must be a valid IANA time zone identifier (e.g. Europe/Warsaw)')
+          key.failure(
+            text: 'must be a valid IANA time zone identifier (e.g. Europe/Warsaw)',
+            code: 'invalid_format',
+            params: { format: 'iana_time_zone' },
+          )
         end
       end
     end
@@ -102,7 +111,9 @@ module Api
 
         if seen.key?(canonical)
           key([:streams, i, :sensor_name]).failure(
-            "duplicates the #{canonical} stream already requested at index #{seen[canonical]}",
+            text: "duplicates the #{canonical} stream already requested at index #{seen[canonical]}",
+            code: 'duplicate',
+            params: { sensor_name: canonical, index: seen[canonical] },
           )
           next
         end
@@ -112,7 +123,9 @@ module Api
           expected_unit = Sensor::CANONICAL_UNIT_SYMBOLS[canonical]
           if stream[:unit_symbol] != expected_unit
             key([:streams, i, :unit_symbol]).failure(
-              "expected '#{expected_unit}' for #{canonical}, got '#{stream[:unit_symbol]}'",
+              text: "expected '#{expected_unit}' for #{canonical}, got '#{stream[:unit_symbol]}'",
+              code: 'unexpected_unit',
+              params: { expected: expected_unit, sensor_name: canonical },
             )
           end
           next
@@ -123,7 +136,9 @@ module Api
           next if stream[field].to_s.strip.present?
 
           key([:streams, i, field]).failure(
-            "is required for '#{name}', which is not a sensor the server knows",
+            text: "is required for '#{name}', which is not a sensor the server knows",
+            code: 'missing',
+            params: { sensor_name: name },
           )
         end
 
@@ -131,12 +146,18 @@ module Api
           text = stream[field].to_s.strip
           next if text.empty? || text.length <= MAX_SENSOR_FIELD_LENGTH
 
-          key([:streams, i, field]).failure("must be at most #{MAX_SENSOR_FIELD_LENGTH} characters")
+          key([:streams, i, field]).failure(
+            text: "must be at most #{MAX_SENSOR_FIELD_LENGTH} characters",
+            code: 'too_long',
+            params: { max: MAX_SENSOR_FIELD_LENGTH },
+          )
         end
 
         if BUILTIN_SENSOR_NAMES.include?(name.downcase)
           key([:streams, i, :sensor_name]).failure(
-            "'#{name}' is a built-in sensor name — send it with its own unit and no custom metadata",
+            text: "'#{name}' is a built-in sensor name — send it with its own unit and no custom metadata",
+            code: 'builtin_sensor_name',
+            params: { sensor_name: name },
           )
         end
       end

@@ -14,9 +14,14 @@ module StationStreams
 
     def call(station_stream_id:)
       station_stream = repository.find(station_stream_id)
-      # A stream that never reported has nothing to show.
+      # A stream that never reported has nothing to show. The payload is the
+      # envelope's own shape so the controller can hand it to `render_failure`
+      # — it used to be `{ id: ['not found'] }`, which nothing ever read.
       unless station_stream&.last_measured_at
-        return Failure.new({ id: ['not found'] })
+        return Failure.new(
+          error_code: Api::ErrorCodes::NOT_FOUND,
+          message: 'Station stream not found',
+        )
       end
 
       measurements =

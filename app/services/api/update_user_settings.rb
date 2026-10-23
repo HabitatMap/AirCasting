@@ -5,7 +5,9 @@ class Api::UpdateUserSettings
   end
 
   def call
-    return Failure.new(contract.errors.to_h) if contract.failure?
+    # The message set, not `to_h`: `to_h` throws away the failing predicate,
+    # and `ValidationErrorsSerializer` needs it to give each field a code.
+    return Failure.new(contract.errors) if contract.failure?
 
     user.session_stopped_alert = session_stopped_alert
     user.save

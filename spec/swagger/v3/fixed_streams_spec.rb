@@ -93,6 +93,18 @@ RSpec.describe 'V3 Fixed streams', type: :request do
 
         run_test!
       end
+
+      response '404', 'no stream with that id' do
+        schema type: :object,
+               required: %w[error_code message],
+               properties: {
+                 error_code: { type: :string, example: 'not_found' },
+                 message: { type: :string, example: 'Fixed stream not found' },
+               }
+
+        let(:id) { 0 }
+        run_test!
+      end
     end
   end
 end

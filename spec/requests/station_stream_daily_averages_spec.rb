@@ -28,4 +28,32 @@ describe 'GET api/v3/station_stream_daily_averages' do
     get '/api/v3/station_stream_daily_averages?stream_id=1&start_date=2021-01-01&end_date=2021-01-02'
     expect(JSON.parse(response.body)).to eq([])
   end
+
+  # The same contract as the AirBeam endpoint, so only the shape is re-pinned
+  # here — the full code vocabulary is covered in
+  # `spec/requests/fixed_stream_daily_averages_spec.rb`.
+  describe 'invalid query parameters' do
+    it 'answers 400 rather than an empty list when the dates are missing' do
+      get '/api/v3/station_stream_daily_averages'
+
+      expect(response.status).to eq(400)
+      expect(JSON.parse(response.body)).to eq(
+        'error_code' => 'validation_error',
+        'message' => 'Query parameters are invalid',
+        'fields' => {
+          'stream_id' => [{ 'code' => 'missing', 'message' => 'is missing' }],
+          'start_date' => [{ 'code' => 'missing', 'message' => 'is missing' }],
+          'end_date' => [{ 'code' => 'missing', 'message' => 'is missing' }],
+        },
+      )
+    end
+
+    it 'answers 400 rather than a PG error when a date is unparseable' do
+      get '/api/v3/station_stream_daily_averages',
+          params: { stream_id: 1, start_date: 'abc', end_date: 'xyz' }
+
+      expect(response.status).to eq(400)
+      expect(JSON.parse(response.body)['fields'].keys).to match_array(%w[start_date end_date])
+    end
+  end
 end

@@ -160,7 +160,8 @@ describe 'POST /api/v3/mobile_sessions/:uuid/finish' do
 
       expect(response).to have_http_status(:bad_request)
       expect(response.parsed_body['error_code']).to eq('validation_error')
-      expect(response.parsed_body['fields']['finished_at']).to include('must not be in the future')
+      expect(response.parsed_body['fields']['finished_at'])
+        .to include('code' => 'in_the_future', 'message' => 'must not be in the future')
       expect(session_record.reload.finished_at).to be_nil
     end
 

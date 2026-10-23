@@ -19,8 +19,7 @@ RSpec.describe Api::ExportStationStreamsContract do
       contract.call(email: 'a@b.com', station_stream_ids: [1, 2, 3])
 
     expect(result.success?).to be false
-    expect(result.errors.to_h[:station_stream_ids]).to include(
-      a_string_matching(/cannot export more than 2/),
-    )
+    expect(result.errors.to_h[:station_stream_ids].first)
+      .to include(code: 'too_many', params: { max: 2 })
   end
 end

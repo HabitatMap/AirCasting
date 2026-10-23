@@ -170,12 +170,16 @@ RSpec.describe 'Explore map', type: :request do
                properties: {
                  error_code: { type: :string, example: 'validation_error' },
                  message: { type: :string, example: 'Query parameters are invalid' },
-                 fields: {
-                   type: :object,
-                   description: 'Per-parameter validation errors',
-                   additionalProperties: { type: :array, items: { type: :string } },
-                   example: { zoom: ['must be an integer'], measurement_types: ['unknown: PM10'] },
-                 },
+                 fields: ERROR_FIELDS_SCHEMA.merge(
+                   example: {
+                     zoom: [{ code: 'not_an_integer', message: 'must be an integer' }],
+                     measurement_types: [
+                       { code: 'unknown_value',
+                         message: 'unknown: PM10',
+                         params: { unknown: ['PM10'] } },
+                     ],
+                   },
+                 ),
                }
 
         let(:zoom) { 9.5 }
@@ -185,8 +189,14 @@ RSpec.describe 'Explore map', type: :request do
           fields = JSON.parse(response.body)['fields']
 
           expect(fields).to eq(
-            'zoom' => ['must be an integer'],
-            'sources' => ['unknown: purpleair'],
+            'zoom' => [{ 'code' => 'not_an_integer', 'message' => 'must be an integer' }],
+            'sources' => [
+              {
+                'code' => 'unknown_value',
+                'message' => 'unknown: purpleair',
+                'params' => { 'unknown' => ['purpleair'], 'allowed' => %w[airbeam government] },
+              },
+            ],
           )
         end
       end

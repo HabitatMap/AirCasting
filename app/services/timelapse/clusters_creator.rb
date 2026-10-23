@@ -11,7 +11,9 @@ module Timelapse
     end
 
     def call(contract:)
-      return Failure.new(contract.errors.to_h) if contract.failure?
+      # The message set, not `to_h`: `to_h` throws away the failing predicate,
+      # and `ValidationErrorsSerializer` needs it to give each field a code.
+      return Failure.new(contract.errors) if contract.failure?
       params = contract.to_h
 
       result =

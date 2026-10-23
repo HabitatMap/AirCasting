@@ -30,6 +30,22 @@
 | POST | `/api/user/settings` | Update user settings | ✓ | ✓ |
 | POST | `/users/password.json` | Forgot password — send reset email | ✓ | ✓ |
 
+## Account settings, not yet called by a shipped client
+
+Added for the account-settings screens. v1, same path family as the rest of
+`/api/user`; it gets a column above once a build calls it.
+
+**Auth.** `/api/user`, `/api/user/settings`, `/api/user/delete_account_send_code`
+and `/api/user/delete_account_confirm` take either `Authorization: Bearer <token>`
+— the v3 scheme — or the original HTTP Basic `base64("<token>:X")`. Same
+`authentication_token` either way; the bearer form is additive, and every
+shipped build keeps working. `/api/user/sessions/*` is a different controller
+and stays Basic-only.
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| PATCH | `/api/user` | Change email, profile name and/or password. Send only the fields being changed — `""` means untouched. A password change requires `current_password` and a matching `password_confirmation`; an email or name change requires neither. The email applies immediately, with no confirmation mail. `authentication_token` is never rewritten or rotated, including on a password change — AirBeams hold it in EEPROM and cannot pick up a new one |
+
 ## v3 endpoints, not yet called by a shipped client
 
 The table above lists what the released iOS and Android builds call. The v3

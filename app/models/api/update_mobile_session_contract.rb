@@ -28,7 +28,11 @@ module Api
     # re-download the session for no change at all.
     rule do
       if EDITABLE_KEYS.none? { |key| values.key?(key) }
-        key(:base).failure("must contain at least one of: #{EDITABLE_KEYS.join(', ')}")
+        key(:base).failure(
+          text: "must contain at least one of: #{EDITABLE_KEYS.join(', ')}",
+          code: 'requires_one_of',
+          params: { allowed: EDITABLE_KEYS },
+        )
       end
     end
   end

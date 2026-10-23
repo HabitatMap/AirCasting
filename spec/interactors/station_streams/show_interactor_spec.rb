@@ -20,7 +20,10 @@ RSpec.describe StationStreams::ShowInteractor do
       result = subject.call(station_stream_id: 0)
 
       expect(result.success?).to be(false)
-      expect(result.errors).to eq({ id: ['not found'] })
+      expect(result.errors).to eq(
+        error_code: 'not_found',
+        message: 'Station stream not found',
+      )
     end
 
     it 'returns Failure for a stream that never reported' do
@@ -29,7 +32,10 @@ RSpec.describe StationStreams::ShowInteractor do
       result = subject.call(station_stream_id: station_stream.id)
 
       expect(result.success?).to be(false)
-      expect(result.errors).to eq({ id: ['not found'] })
+      expect(result.errors).to eq(
+        error_code: 'not_found',
+        message: 'Station stream not found',
+      )
     end
   end
 end

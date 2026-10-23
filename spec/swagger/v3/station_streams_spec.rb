@@ -90,7 +90,12 @@ RSpec.describe 'V3 Station streams (government)', type: :request do
       end
 
       response '404', 'station stream not found, or it has no measurements' do
-        schema type: :object, properties: { id: { type: :array, items: { type: :string } } }
+        schema type: :object,
+               required: %w[error_code message],
+               properties: {
+                 error_code: { type: :string, example: 'not_found' },
+                 message: { type: :string, example: 'Station stream not found' },
+               }
 
         let(:id) { 0 }
         run_test!
@@ -126,8 +131,12 @@ RSpec.describe 'V3 Station streams (government)', type: :request do
                properties: {
                  error_code: { type: :string, example: 'validation_error' },
                  message: { type: :string, example: 'Request body is invalid' },
-                 fields: { type: :object, additionalProperties: { type: :array, items: { type: :string } },
-                           example: { email: ['must be filled'] } },
+                 fields: ERROR_FIELDS_SCHEMA.merge(
+                   example: {
+                     email: [{ code: 'blank', message: 'must be filled' }],
+                     station_stream_ids: [{ code: 'missing', message: 'is missing' }],
+                   },
+                 ),
                }
 
         let(:'station_stream_ids[]') { [] }
