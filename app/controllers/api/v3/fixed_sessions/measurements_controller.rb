@@ -62,7 +62,7 @@ module Api
         # empty one — an empty array would read as "recorded nothing here".
         def stream_not_found(sensor_name)
           render_error(
-            ::Api::V3::ErrorCodes::NOT_FOUND,
+            ::Api::ErrorCodes::NOT_FOUND,
             "Session has no stream named #{sensor_name}",
           )
         end

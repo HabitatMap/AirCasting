@@ -30,9 +30,17 @@ module Api
     # session end, so "from X onwards" has no meaning the server can guess.
     rule(:start_time, :end_time) do
       if values[:start_time] && values[:end_time].nil?
-        key(:end_time).failure('must be sent together with start_time')
+        key(:end_time).failure(
+          text: 'must be sent together with start_time',
+          code: 'requires',
+          params: { other: 'start_time' },
+        )
       elsif values[:end_time] && values[:start_time].nil?
-        key(:start_time).failure('must be sent together with end_time')
+        key(:start_time).failure(
+          text: 'must be sent together with end_time',
+          code: 'requires',
+          params: { other: 'end_time' },
+        )
       end
     end
 
@@ -42,11 +50,17 @@ module Api
       next unless values[:start_time] && values[:end_time]
 
       if values[:end_time] <= values[:start_time]
-        key(:end_time).failure('must be greater than start_time')
+        key(:end_time).failure(
+          text: 'must be greater than start_time',
+          code: 'greater_than',
+          params: { other: 'start_time' },
+        )
       elsif values[:end_time] - values[:start_time] > MAX_WINDOW_MS
         key(:end_time).failure(
-          "window must not exceed #{MAX_WINDOW_MS} ms (12 hours); " \
-          'page older data backwards with end_time',
+          text: "window must not exceed #{MAX_WINDOW_MS} ms (12 hours); " \
+                'page older data backwards with end_time',
+          code: 'window_too_long',
+          params: { max_ms: MAX_WINDOW_MS },
         )
       end
     end

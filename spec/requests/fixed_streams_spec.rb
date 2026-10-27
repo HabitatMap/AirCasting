@@ -56,4 +56,25 @@ describe 'GET api/v3/fixed_streams/:id' do
     expect(response.status).to eq(200)
     expect(JSON.parse(response.body)).to eq(expected_response.as_json)
   end
+
+  # `Stream.find` used to raise here, so the 404 came from Rails in a shape
+  # nothing else on /api/v3 answers.
+  describe 'a stream that cannot be shown' do
+    it 'answers the shared envelope for an unknown id' do
+      get '/api/v3/fixed_streams/0'
+
+      expect(response.status).to eq(404)
+      expect(JSON.parse(response.body)).to eq(
+        'error_code' => 'not_found',
+        'message' => 'Fixed stream not found',
+      )
+    end
+
+    it 'answers the same for an id that is not a number' do
+      get '/api/v3/fixed_streams/abc'
+
+      expect(response.status).to eq(404)
+      expect(JSON.parse(response.body)['error_code']).to eq('not_found')
+    end
+  end
 end

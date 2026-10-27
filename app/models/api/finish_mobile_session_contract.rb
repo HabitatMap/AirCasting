@@ -8,7 +8,9 @@ module Api
     rule(:finished_at) do
       next unless key? && value
 
-      key.failure('must not be in the future') if (value / 1_000) > Time.current.to_i
+      next if (value / 1_000) <= Time.current.to_i
+
+      key.failure(text: 'must not be in the future', code: 'in_the_future')
     end
   end
 end

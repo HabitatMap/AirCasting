@@ -27,7 +27,8 @@ RSpec.describe Api::CreateMobileSessionContract do
   it 'fails when uuid is not a UUID' do
     result = contract.call(valid_params.merge(uuid: 'test-uuid-abc'))
     expect(result).to be_failure
-    expect(result.errors[:uuid].first).to match(/must be a UUID/)
+    expect(result.errors[:uuid].first)
+      .to include(code: 'invalid_format', params: { format: 'uuid' })
   end
 
   it 'accepts an uppercase UUID' do
@@ -98,7 +99,8 @@ RSpec.describe Api::CreateMobileSessionContract do
         streams: [custom_stream.merge(measurement_type: 'x' * 65)],
       ))
       expect(result).to be_failure
-      expect(result.errors.to_h.dig(:streams, 0, :measurement_type).first).to match(/at most 64/)
+      expect(result.errors.to_h.dig(:streams, 0, :measurement_type).first)
+        .to include(code: 'too_long', params: { max: 64 })
     end
 
     it 'rejects a custom sensor that reuses a built-in name' do
@@ -106,7 +108,8 @@ RSpec.describe Api::CreateMobileSessionContract do
         streams: [custom_stream.merge(sensor_name: 'airbeam2-pm2.5')],
       ))
       expect(result).to be_failure
-      expect(result.errors.to_h.dig(:streams, 0, :sensor_name).first).to match(/built-in sensor name/)
+      expect(result.errors.to_h.dig(:streams, 0, :sensor_name).first)
+        .to include(code: 'builtin_sensor_name', params: { sensor_name: 'airbeam2-pm2.5' })
     end
 
     it 'does not ask a known sensor for metadata' do
@@ -135,7 +138,8 @@ RSpec.describe Api::CreateMobileSessionContract do
     )
     result = contract.call(params)
     expect(result).to be_failure
-    expect(result.errors.to_h.dig(:streams, 1, :sensor_name).first).to match(/duplicates the AirBeam-PM2.5 stream/)
+    expect(result.errors.to_h.dig(:streams, 1, :sensor_name).first)
+      .to include(code: 'duplicate', params: { sensor_name: 'AirBeam-PM2.5', index: 0 })
   end
 
   it 'fails when two aliases of one sensor type are requested' do
@@ -172,7 +176,8 @@ RSpec.describe Api::CreateMobileSessionContract do
                   thresholds: { very_low: 50.0, low: 20.0, medium: 70.0, high: 80.0, very_high: 100.0 } }],
     ))
     expect(result).to be_failure
-    expect(result.errors.to_h.dig(:streams, 0, :thresholds).first).to match(/ascending order/)
+    expect(result.errors.to_h.dig(:streams, 0, :thresholds).first)
+      .to include(code: 'out_of_order')
   end
 
   it 'accepts a calibrated mic scale with a negative floor' do

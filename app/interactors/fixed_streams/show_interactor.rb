@@ -13,7 +13,18 @@ module FixedStreams
     end
 
     def call(stream_id:)
-      stream, measurements, stream_daily_averages = fetch_data(stream_id)
+      # `find_by_id`, not `find`: an id naming no stream — or not an integer at
+      # all — is a 404 the client can read, not an `ActiveRecord::RecordNotFound`
+      # rendered by Rails in a shape nothing else on `/api/v3` uses.
+      stream = streams_repository.find_by_id(stream_id)
+      unless stream
+        return Failure.new(
+          error_code: Api::ErrorCodes::NOT_FOUND,
+          message: 'Fixed stream not found',
+        )
+      end
+
+      measurements, stream_daily_averages = fetch_data(stream_id)
 
       serialize_data =
         fixed_stream_serializer.call(
@@ -33,7 +44,6 @@ module FixedStreams
                 :fixed_stream_serializer
 
     def fetch_data(stream_id)
-      stream = streams_repository.find(stream_id)
       fixed_measurements =
         fixed_measurements_repository.last_2_days(stream_id: stream_id)
       stream_daily_averages =
@@ -41,7 +51,7 @@ module FixedStreams
           stream_id: stream_id,
         )
 
-      [stream, fixed_measurements, stream_daily_averages]
+      [fixed_measurements, stream_daily_averages]
     end
   end
 end

@@ -31,7 +31,8 @@ RSpec.describe Api::ExploreMapContract do
   it 'rejects north below south' do
     result = contract.call(viewport.merge(south: '41', north: '40'))
 
-    expect(result.errors[:north]).to eq(['must be greater than or equal to south'])
+    expect(result.errors[:north].first)
+      .to include(code: 'greater_than_or_equal_to', params: { other: 'south' })
   end
 
   describe 'zoom' do
@@ -59,8 +60,10 @@ RSpec.describe Api::ExploreMapContract do
     it 'rejects an unknown value instead of ignoring it' do
       result = contract.call(viewport.merge(sources: 'airbeam,purpleair', measurement_types: 'Particulate Matter,PM10'))
 
-      expect(result.errors[:sources]).to eq(['unknown: purpleair'])
-      expect(result.errors[:measurement_types]).to eq(['unknown: PM10'])
+      expect(result.errors[:sources].first)
+        .to include(code: 'unknown_value', params: hash_including(unknown: ['purpleair']))
+      expect(result.errors[:measurement_types].first)
+        .to include(code: 'unknown_value', params: hash_including(unknown: ['PM10']))
     end
   end
 

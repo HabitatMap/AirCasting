@@ -8,11 +8,14 @@ module Sessions
     end
 
     rule(:end_datetime, :start_datetime) do
-      if values[:start_datetime] && values[:end_datetime]
-        if values[:end_datetime] <= values[:start_datetime]
-          key(:end_datetime).failure('must be greater than start_datetime')
-        end
-      end
+      next unless values[:start_datetime] && values[:end_datetime]
+      next if values[:end_datetime] > values[:start_datetime]
+
+      key(:end_datetime).failure(
+        text: 'must be greater than start_datetime',
+        code: 'greater_than',
+        params: { other: 'start_datetime' },
+      )
     end
   end
 end

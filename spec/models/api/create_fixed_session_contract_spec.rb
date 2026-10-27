@@ -106,7 +106,8 @@ RSpec.describe Api::CreateFixedSessionContract do
   it 'fails when uuid is not a UUID' do
     result = contract.call(valid_params.merge(uuid: 'test-uuid-abc'))
     expect(result).to be_failure
-    expect(result.errors[:uuid].first).to match(/must be a UUID/)
+    expect(result.errors[:uuid].first)
+      .to include(code: 'invalid_format', params: { format: 'uuid' })
   end
 
   it 'accepts an uppercase UUID' do
@@ -122,7 +123,8 @@ RSpec.describe Api::CreateFixedSessionContract do
     )
     result = contract.call(params)
     expect(result).to be_failure
-    expect(result.errors.to_h.dig(:streams, 1, :sensor_name).first).to match(/duplicates the AirBeam-PM2.5 stream/)
+    expect(result.errors.to_h.dig(:streams, 1, :sensor_name).first)
+      .to include(code: 'duplicate', params: { sensor_name: 'AirBeam-PM2.5', index: 0 })
   end
 
   it 'succeeds without a time_zone (optional)' do
@@ -163,7 +165,8 @@ RSpec.describe Api::CreateFixedSessionContract do
                   thresholds: { very_low: 50.0, low: 20.0, medium: 70.0, high: 80.0, very_high: 100.0 } }],
     ))
     expect(result).to be_failure
-    expect(result.errors.to_h.dig(:streams, 0, :thresholds).first).to match(/ascending order/)
+    expect(result.errors.to_h.dig(:streams, 0, :thresholds).first)
+      .to include(code: 'out_of_order')
   end
 
   it 'accepts a calibrated mic scale with a negative floor' do

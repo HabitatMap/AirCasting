@@ -10,7 +10,9 @@ module Api
       next if ids.size <= Api::ExportLimits::STATION_STREAM_IDS_MAX
 
       key.failure(
-        "cannot export more than #{Api::ExportLimits::STATION_STREAM_IDS_MAX} station streams at once",
+        text: "cannot export more than #{Api::ExportLimits::STATION_STREAM_IDS_MAX} station streams at once",
+        code: 'too_many',
+        params: { max: Api::ExportLimits::STATION_STREAM_IDS_MAX },
       )
     end
   end

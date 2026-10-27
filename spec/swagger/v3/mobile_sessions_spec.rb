@@ -316,12 +316,12 @@ RSpec.describe 'AirBeam Mobile Sessions', type: :request do
                properties: {
                  error_code: { type: :string, example: 'validation_error' },
                  message: { type: :string, example: 'Request body is invalid' },
-                 fields: {
-                   type: :object,
-                   description: 'Per-field validation errors',
-                   additionalProperties: { type: :array, items: { type: :string } },
-                   example: { uuid: ['is missing'], streams: ['is missing'] }
-                 }
+                 fields: ERROR_FIELDS_SCHEMA.merge(
+                   example: {
+                     uuid: [{ code: 'blank', message: 'must be filled' }],
+                     streams: [{ code: 'missing', message: 'is missing' }]
+                   }
+                 )
                }
 
         let(:user) { create(:user) }
@@ -568,8 +568,15 @@ RSpec.describe 'AirBeam Mobile Sessions', type: :request do
                properties: {
                  error_code: { type: :string, example: 'validation_error' },
                  message: { type: :string, example: 'Request body is invalid' },
-                 fields: { type: :object, additionalProperties: true,
-                           example: { base: ['must contain at least one of: title, tag_list'] } }
+                 fields: ERROR_FIELDS_SCHEMA.merge(
+                   example: {
+                     base: [
+                       { code: 'requires_one_of',
+                         message: 'must contain at least one of: title, tag_list',
+                         params: { allowed: %i[title tag_list] } }
+                     ]
+                   }
+                 )
                }
 
         let(:user) { create(:user) }
@@ -772,8 +779,11 @@ RSpec.describe 'AirBeam Mobile Sessions', type: :request do
                properties: {
                  error_code: { type: :string, example: 'validation_error' },
                  message: { type: :string, example: 'Request body is invalid' },
-                 fields: { type: :object, additionalProperties: true,
-                           example: { finished_at: ['must not be in the future'] } },
+                 fields: ERROR_FIELDS_SCHEMA.merge(
+                   example: {
+                     finished_at: [{ code: 'in_the_future', message: 'must not be in the future' }],
+                   },
+                 ),
                }
 
         let(:user) { create(:user) }
@@ -889,8 +899,9 @@ RSpec.describe 'AirBeam Mobile Sessions', type: :request do
                properties: {
                  error_code: { type: :string, example: 'validation_error' },
                  message: { type: :string },
-                 fields: { type: :object, additionalProperties: { type: :array, items: { type: :string } },
-                           example: { sensor_name: ['is missing'] } }
+                 fields: ERROR_FIELDS_SCHEMA.merge(
+                   example: { sensor_name: [{ code: 'missing', message: 'is missing' }] }
+                 )
                }
 
         let(:user) { create(:user) }

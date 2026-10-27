@@ -34,7 +34,9 @@ module FixedMeasurements
 
     def validate(params)
       result = contract.call(params)
-      return Failure.new(result.errors.to_h) if result.failure?
+      # The message set, not `to_h`: `to_h` throws away the failing predicate,
+      # and `ValidationErrorsSerializer` needs it to give each field a code.
+      return Failure.new(result.errors) if result.failure?
 
       result.to_h
     end
