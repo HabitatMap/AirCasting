@@ -1,0 +1,214 @@
+# Mobile app setup data, served by GET /api/v3/app_config.
+#
+# `post_slug` on a Learn more card is a cross-property analytics join key, not
+# a local id — read docs/API_ENDPOINTS.md before touching one.
+#
+# Thumbnails go through the Netlify Image CDN, not the legacy `?nf_resize=`
+# transform. Measured on aircastingmapdots.png at 192x192: nf_resize=smartcrop
+# gives a 54.5 kB PNG, this gives a 6.0 kB WebP. nf_resize cannot emit WebP at
+# all — it ignores `Accept: image/webp`. 192px covers a 64pt thumbnail at @3x.
+#
+#   /.netlify/images?url=<site-relative path>&w=192&h=192&fit=cover&fm=webp&q=70
+
+default_locale: en-US
+
+# The only tags the endpoint serves. `?locale=` is matched against this list
+# exactly (case-insensitively); anything else gets default_locale, and so does
+# any single string with no entry for the asked-for locale.
+supported_locales:
+  - en-US
+  - en-GB
+  - es
+  - fr
+  - de
+  - pt
+  - it
+
+# Card labels, referenced by key from `learn_more[].category`.
+categories:
+  news:
+    en-US: News
+    es: Noticias
+    fr: Actualités
+    de: Neuigkeiten
+    pt: Notícias
+    it: Notizie
+  actions: AirCasting Actions
+
+# "Help" list.
+help:
+  - url: https://www.habitatmap.org/airbeam/faq
+    title:
+      en-US: FAQ
+      es: "Preguntas frecuentes"
+      fr: "Questions fréquentes"
+      de: "Häufige Fragen"
+      pt: "Perguntas frequentes"
+      it: "Domande frequenti"
+  - url: https://www.habitatmap.org/airbeam/how-it-works
+    title:
+      en-US: How Recording Works
+      es: "Cómo funciona la grabación"
+      fr: "Comment fonctionne l’enregistrement"
+      de: "So funktioniert die Aufzeichnung"
+      pt: "Como funciona a gravação"
+      it: "Come funziona la registrazione"
+  - url: https://www.habitatmap.org/aircasting-app-privacy-policy
+    title:
+      en-US: Privacy & Data Settings
+      es: "Privacidad y ajustes de datos"
+      fr: "Confidentialité et paramètres de données"
+      de: "Datenschutz und Dateneinstellungen"
+      pt: "Privacidade e configurações de dados"
+      it: "Privacy e impostazioni dei dati"
+
+# "AIRCASTING ACTIONS" list. Rendered as rows with a chevron.
+aircasting_actions:
+  - url: https://aircastingactions.org/air-quality-101/
+    title:
+      en-US: Air Quality 101
+      es: Conceptos básicos sobre la calidad del aire
+      fr: La qualité de l’air, les bases
+      de: Luftqualität – Grundlagen
+      pt: "Qualidade do ar: noções básicas"
+      it: "Qualità dell’aria: le basi"
+
+  - url: https://aircastingactions.org/individuals-get-started/
+    title:
+      en-US: Why Measure With AirBeam
+      es: Por qué medir con AirBeam
+      fr: Pourquoi mesurer avec AirBeam
+      de: Warum mit AirBeam messen
+      pt: Por que medir com o AirBeam
+      it: Perché misurare con AirBeam
+
+  - url: https://www.habitatmap.org/airbeam/users-guide-airbeammini#videos
+    title:
+      en-US: Set Up Your AirBeam
+      es: Configura tu AirBeam
+      fr: Configurez votre AirBeam
+      de: AirBeam einrichten
+      pt: Configure seu AirBeam
+      it: Configura il tuo AirBeam
+
+# "Learn more" cards. Rendered as thumbnail + category label + title.
+learn_more:
+  - post_slug: what-do-those-colored-circles-mean-understanding-air-quality-on-the-aircasting-map
+    url: https://www.habitatmap.org/blog/what-do-those-colored-circles-mean-understanding-air-quality-on-the-aircasting-map
+    thumbnail_url: https://www.habitatmap.org/.netlify/images?url=/images/uploads/aircastingmapdots.png&w=192&h=192&fit=cover&fm=webp&q=70
+    category: news
+    title:
+      en-US: What Do Those Colored Dots Mean? Understanding the Air Quality Index (AQI)
+      es: "¿Qué significan esos puntos de colores? Entender el Índice de Calidad del Aire (ICA)"
+      fr: "Que signifient ces points colorés ? Comprendre l’indice de qualité de l’air (IQA)"
+      de: "Was bedeuten diese farbigen Punkte? Der Luftqualitätsindex (AQI) erklärt"
+      pt: "O que significam esses pontos coloridos? Entender o Índice de Qualidade do Ar (IQA)"
+      it: "Cosa significano quei punti colorati? Capire l’indice di qualità dell’aria (AQI)"
+
+  - post_slug: when-fresh-scents-turn-toxic-how-candles-and-incense-impact-your-health
+    url: https://www.habitatmap.org/blog/when-fresh-scents-turn-toxic-how-candles-and-incense-impact-your-health
+    thumbnail_url: https://www.habitatmap.org/.netlify/images?url=/images/uploads/burning-candles-zz-230419-5dd288.avif&w=192&h=192&fit=cover&fm=webp&q=70
+    category: news
+    title:
+      en-US: 'When Fresh Scents Turn Toxic: How Candles and Incense Impact Your Health'
+      es: "Cuando los aromas frescos se vuelven tóxicos: cómo las velas y el incienso afectan a tu salud"
+      fr: "Quand les parfums d’ambiance deviennent toxiques : l’impact des bougies et de l’encens sur votre santé"
+      de: "Wenn frische Düfte giftig werden: Wie sich Kerzen und Räucherstäbchen auf deine Gesundheit auswirken"
+      pt: "Quando os aromas frescos se tornam tóxicos: como as velas e o incenso afetam sua saúde"
+      it: "Quando i profumi freschi diventano tossici: come candele e incenso influiscono sulla tua salute"
+
+  - post_slug: think-your-air-is-clean-check-again
+    url: https://www.habitatmap.org/blog/think-your-air-is-clean-check-again
+    thumbnail_url: https://www.habitatmap.org/.netlify/images?url=/images/uploads/7db0f75d-5536-4974-8666-6baa3aae6275.jpg&w=192&h=192&fit=cover&fm=webp&q=70
+    category: news
+    title:
+      en-US: 'Indoor Air Pollution: Think Your Air Is Clean?'
+      es: "Contaminación del aire interior: ¿crees que tu aire está limpio?"
+      fr: "Pollution de l’air intérieur : votre air est-il vraiment sain ?"
+      de: "Luftverschmutzung in Innenräumen: Ist deine Luft wirklich sauber?"
+      pt: "Poluição do ar em espaços fechados: você acha que seu ar está limpo?"
+      it: "Inquinamento dell’aria indoor: pensi che la tua aria sia pulita?"
+
+  - post_slug: wildfire-smoke-is-getting-worse-heres-what-you-need-to-know
+    url: https://www.habitatmap.org/blog/wildfire-smoke-is-getting-worse-heres-what-you-need-to-know
+    thumbnail_url: https://www.habitatmap.org/.netlify/images?url=/images/uploads/wildfire-smoke-drifting-over-los-angeles.jpg&w=192&h=192&fit=cover&fm=webp&q=70
+    category: news
+    title:
+      en-US: 'Wildfire Smoke Is Getting Worse: How to Protect Your Air'
+      es: "El humo de los incendios forestales empeora: cómo proteger tu aire"
+      fr: "La fumée des feux de forêt s’aggrave : comment protéger votre air"
+      de: "Rauch von Waldbränden wird schlimmer: So schützt du deine Luft"
+      pt: "A fumaça dos incêndios florestais está piorando: como proteger seu ar"
+      it: "Il fumo degli incendi boschivi peggiora: come proteggere la tua aria"
+
+  - post_slug: how-to-record-airbeam-mini-data-without-wi-fi-or-internet
+    url: https://www.habitatmap.org/blog/how-to-record-airbeam-mini-data-without-wi-fi-or-internet
+    thumbnail_url: https://www.habitatmap.org/.netlify/images?url=/images/uploads/airbeam-new-.jpg&w=192&h=192&fit=cover&fm=webp&q=70
+    category: news
+    title:
+      en-US: How to Record AirBeam Mini Data Without Wi-Fi or Internet
+      es: "Cómo grabar datos del AirBeam Mini sin Wi-Fi ni internet"
+      fr: "Comment enregistrer les données de l’AirBeam Mini sans Wi-Fi ni Internet"
+      de: "AirBeam-Mini-Daten ohne WLAN oder Internet aufzeichnen"
+      pt: "Como gravar dados do AirBeam Mini sem Wi-Fi nem internet"
+      it: "Come registrare i dati di AirBeam Mini senza Wi-Fi né internet"
+
+  - post_slug: can-an-app-make-our-cities-more-breathable
+    url: https://www.habitatmap.org/blog/can-an-app-make-our-cities-more-breathable
+    thumbnail_url: https://www.habitatmap.org/.netlify/images?url=/images/uploads/elpuente-airbeam.png&w=192&h=192&fit=cover&fm=webp&q=70
+    category: news
+    title:
+      en-US: Can an App Make Our Cities More Breathable?
+      es: "¿Puede una app hacer que se respire mejor en nuestras ciudades?"
+      fr: "Une application peut-elle rendre nos villes plus respirables ?"
+      de: "Kann eine App die Luft in unseren Städten verbessern?"
+      pt: "Um aplicativo pode tornar nossas cidades mais respiráveis?"
+      it: "Un’app può rendere le nostre città più respirabili?"
+
+  - post_slug: using-citizen-science-open-source-tools-to-promote-community-health
+    url: https://www.habitatmap.org/blog/using-citizen-science-open-source-tools-to-promote-community-health
+    thumbnail_url: https://www.habitatmap.org/.netlify/images?url=/images/uploads/scienceofcollectivediscovery_exacto.jpg&w=192&h=192&fit=cover&fm=webp&q=70
+    category: news
+    title:
+      en-US: Using Community Science & Open Source Tools to Promote Community Health
+      es: "Ciencia comunitaria y herramientas de código abierto para promover la salud de la comunidad"
+      fr: "La science communautaire et les outils open source au service de la santé des communautés"
+      de: "Community Science und Open-Source-Tools für die Gesundheit der Gemeinschaft"
+      pt: "Ciência comunitária e ferramentas de código aberto para promover a saúde da comunidade"
+      it: "Scienza partecipata e strumenti open source per promuovere la salute della comunità"
+
+  - post_slug: new-york-times-reports-on-personal-pollution-exposures-using-airbeam2
+    url: https://www.habitatmap.org/blog/new-york-times-reports-on-personal-pollution-exposures-using-airbeam2
+    thumbnail_url: https://www.habitatmap.org/.netlify/images?url=/images/uploads/personal_pollution_exposures.png&w=192&h=192&fit=cover&fm=webp&q=70
+    category: news
+    title:
+      en-US: New York Times Reports on Personal Pollution Exposures Using AirBeam2
+      es: "The New York Times informa sobre la exposición personal a la contaminación medida con AirBeam2"
+      fr: "Le New York Times consacre un article aux expositions personnelles à la pollution mesurées avec l’AirBeam2"
+      de: "Die New York Times berichtet über persönliche Schadstoffbelastung, gemessen mit dem AirBeam2"
+      pt: "O New York Times noticia exposições pessoais à poluição medidas com o AirBeam2"
+      it: "Il New York Times racconta le esposizioni personali all’inquinamento misurate con AirBeam2"
+
+  - post_slug: nyc-community-organizations-use-aircasting-to-study-hyperlocal-air-quality-1
+    url: https://www.habitatmap.org/blog/nyc-community-organizations-use-aircasting-to-study-hyperlocal-air-quality-1
+    thumbnail_url: https://www.habitatmap.org/.netlify/images?url=/images/uploads/williamsburghexagonmap.png&w=192&h=192&fit=cover&fm=webp&q=70
+    category: news
+    title:
+      en-US: NYC Community Organizations Use AirCasting to Study Hyperlocal Air Quality
+      es: "Organizaciones comunitarias de Nueva York usan AirCasting para estudiar la calidad del aire hiperlocal"
+      fr: "Des associations new-yorkaises utilisent AirCasting pour étudier la qualité de l’air hyperlocale"
+      de: "Stadtteilinitiativen in New York untersuchen mit AirCasting die hyperlokale Luftqualität"
+      pt: "Organizações comunitárias de Nova York usam o AirCasting para estudar a qualidade do ar hiperlocal"
+      it: "Organizzazioni di quartiere di New York usano AirCasting per studiare la qualità dell’aria iperlocale"
+
+  - post_slug: to-improve-childrens-health-empower-communities
+    url: https://www.habitatmap.org/blog/to-improve-childrens-health-empower-communities
+    thumbnail_url: https://www.habitatmap.org/.netlify/images?url=/images/uploads/aq-child.jpg&w=192&h=192&fit=cover&fm=webp&q=70
+    category: news
+    title:
+      en-US: To Improve Children’s Health, Empower Communities
+      es: "Para mejorar la salud infantil, hay que empoderar a las comunidades"
+      fr: "Pour améliorer la santé des enfants, donnons aux communautés les moyens d’agir"
+      de: "Für die Gesundheit von Kindern: Gemeinschaften stärken"
+      pt: "Para melhorar a saúde das crianças, capacitar as comunidades"
+      it: "Per migliorare la salute dei bambini, dare forza alle comunità"
