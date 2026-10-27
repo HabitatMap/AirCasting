@@ -106,6 +106,7 @@ Rails.application.routes.draw do
     end
 
     namespace :v3 do
+      resource :app_config, only: %i[show], controller: 'app_config'
       resources :fixed_streams, only: %i[show]
       resources :station_streams, only: %i[show] do
         collection { get :export }

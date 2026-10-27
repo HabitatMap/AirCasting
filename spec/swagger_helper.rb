@@ -134,6 +134,8 @@ RSpec.configure do |config|
           description: 'Threshold (push-notification) alerts: list, create, delete.' },
         { name: 'Mobile app: Export & sharing',
           description: 'Email a CSV export of one session — AirBeam mobile or AirBeam fixed.' },
+        { name: 'Mobile app: App configuration',
+          description: 'Setup data the app reads at start — the Help, AirCasting Actions and Learn more link lists, translated. Served from a config file so content changes need no app release.' },
         # --- Web frontend ---
         { name: 'Web app: Fixed sessions',
           description: 'AirBeam fixed map lists, stream detail, measurements and daily averages. The map lists also return Station (government) data.' },

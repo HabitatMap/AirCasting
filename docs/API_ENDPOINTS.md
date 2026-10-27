@@ -65,6 +65,7 @@ Highcharts can plot with `useUTC: true`.
 
 | Method | Endpoint | Description |
 |--------|----------|-------------|
+| GET | `/api/v3/app_config` | App setup data: the Help, AirCasting Actions and Learn more link lists, titles translated. No auth |
 | POST | `/api/v3/mobile_sessions` | Create a mobile session and its streams |
 | GET | `/api/v3/mobile_sessions` | List the caller's mobile sessions — paginated, `{ sessions, meta }`; no notes |
 | GET | `/api/v3/mobile_sessions/{uuid}` | One session with stream metadata and notes, no measurements |
@@ -89,3 +90,60 @@ Highcharts can plot with `useUTC: true`.
 
 Request and response shapes are in `swagger/swagger.yaml`; the source is
 `spec/swagger/v3/mobile_sessions_spec.rb` and `spec/swagger/v3/fixed_sessions_spec.rb`.
+
+### `/api/v3/app_config` — content lives in a file, not the database
+
+`config/app_config.yml` holds all three link lists and every translation of
+their titles. Editing a link, a title or the order is a deploy of that one
+file — no migration, no app release. `spec/swagger/v3/app_config_spec.rb`
+documents the response.
+
+Language is one exact match, deliberately: `?locale=` is compared against
+`supported_locales` in the file (case-insensitively) and anything else — an
+unlisted tag, an unlisted region like `pt-BR`, or no parameter — is served as
+`en-US`. There is no `Accept-Language` negotiation, no q-values and no
+narrowing of a region to its base language. The response echoes `locale` so
+the caller can see what it got. A single string with no entry for the asked-for
+locale falls back to `en-US`, so no field is ever null for want of a
+translation. The list of tags is `supported_locales` in the file — read it
+there rather than from a copy here, which drifts. Adding one is not enough on
+its own, either: the app's own UI strings ship in the binary, so a new language
+still needs a new app build.
+
+For the same reason the client should send the language it has resolved for
+its **own** UI, not the device language. The two differ in practice: a Spanish
+phone running a build that ships only English strings would otherwise get
+Spanish rows inside an English screen.
+
+It must also send the bare language code, not the raw platform identifier.
+iOS `Locale.current.identifier` gives `es_MX`, Android `toLanguageTag()` gives
+`pt-BR`, and with exact matching both land silently on `en-US` — pass
+`languageCode` / the base tag instead.
+
+Three things in the file are easy to get wrong when editing content:
+
+- **`post_slug` on a Learn more card is a cross-property contract**, not a local
+  id. It is the HabitatMap post's own URL slug (`page.slug`), and it is the GA4
+  join key: HabitatMap reports it as `post_slug`, the outbound link carries it as
+  `ac_post`, and the web map's banner already sends the same value from
+  `BlogPost.postSlug` in
+  `app/javascript/react/components/organisms/Modals/InfoBanner/config.ts`. A
+  mobile tap and a web banner tap on the same article must land in the same GA4
+  series. Set it by hand and make it match — nothing derives it from the URL,
+  because a silently wrong value on a join key is worse than a missing one. See
+  `HabitatMap/docs/analytics-tracking.md` §1.3 and §3.3. Help and AirCasting
+  Actions rows have no identifier; they are not blog posts.
+- **`category` on a card is a key into the `categories` map**, not a label. An
+  unknown key is passed through verbatim, so a typo reaches a phone instead of
+  raising — `spec/services/app_config/catalog_spec.rb` checks the keys against
+  the map instead. A label may be a bare string rather than a locale map when
+  it is a product name that does not translate (`actions: AirCasting Actions`).
+  The key is `actions`, deliberately not `aircasting_actions`, so it cannot be
+  confused with the top-level list of that name.
+- **Learn more thumbnails are pre-sized server-side**, via the Netlify Image
+  CDN rather than the older `?nf_resize=` transform:
+  `/.netlify/images?url=<site-relative path>&w=192&h=192&fit=cover&fm=webp&q=70`.
+  That is a 192×192 WebP of a few kB; the same crop through `nf_resize=smartcrop`
+  is a ~55 kB PNG, because `nf_resize` cannot emit WebP at all. 192px covers a
+  64pt thumbnail at @3x. `fit=cover` crops from the centre — add `&position=top`
+  where that cuts the subject. There is no content-aware crop on that endpoint.
