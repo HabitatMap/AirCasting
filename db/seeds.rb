@@ -24,7 +24,8 @@ unless session
   threshold_set =
     ThresholdSet.create!(
       threshold_very_low: 0,
-      threshold_low: 12,
+      # Same scale as AirBeam-PM2.5 — one pollutant, one colour scale.
+      threshold_low: 9,
       threshold_medium: 35,
       threshold_high: 55,
       threshold_very_high: 150,
