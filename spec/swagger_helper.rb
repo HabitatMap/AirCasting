@@ -130,8 +130,9 @@ RSpec.configure do |config|
           description: 'Legacy AirBeam fixed session create, measurement upload and polling (the `realtime/*` paths), plus the fixed session and stream reads. Replaced by *Mobile app: Fixed sessions*.' },
         { name: 'Mobile app: Explore map',
           description: 'Public map of active AirBeam fixed sessions and government stations together, clustered on the server.' },
-        { name: 'Mobile app: Threshold alerts',
-          description: 'Threshold (push-notification) alerts: list, create, delete.' },
+        { name: 'Mobile app: Thresholds',
+          description: 'The default colour-scale bands for every measurement AirCasting serves. ' \
+                       'Also the threshold (push-notification) alerts: list, create, delete.' },
         { name: 'Mobile app: Export & sharing',
           description: 'Email a CSV export of one session — AirBeam mobile or AirBeam fixed.' },
         { name: 'Mobile app: App configuration',

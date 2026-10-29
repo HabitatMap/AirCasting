@@ -48,8 +48,9 @@ tags:
 - name: 'Mobile app: Explore map'
   description: Public map of active AirBeam fixed sessions and government stations
     together, clustered on the server.
-- name: 'Mobile app: Threshold alerts'
-  description: 'Threshold (push-notification) alerts: list, create, delete.'
+- name: 'Mobile app: Thresholds'
+  description: 'The default colour-scale bands for every measurement AirCasting serves.
+    Also the threshold (push-notification) alerts: list, create, delete.'
 - name: 'Mobile app: Export & sharing'
   description: Email a CSV export of one session — AirBeam mobile or AirBeam fixed.
 - name: 'Mobile app: App configuration'
@@ -2708,7 +2709,7 @@ paths:
     get:
       summary: List the current user's threshold alerts
       tags:
-      - 'Mobile app: Threshold alerts'
+      - 'Mobile app: Thresholds'
       security:
       - basic_auth: []
       responses:
@@ -2750,7 +2751,7 @@ paths:
     post:
       summary: Create a threshold alert
       tags:
-      - 'Mobile app: Threshold alerts'
+      - 'Mobile app: Thresholds'
       security:
       - basic_auth: []
       parameters: []
@@ -2816,7 +2817,7 @@ paths:
     delete:
       summary: Delete a threshold alert
       tags:
-      - 'Mobile app: Threshold alerts'
+      - 'Mobile app: Thresholds'
       security:
       - basic_auth: []
       parameters:
@@ -7808,3 +7809,114 @@ paths:
                       station_stream_ids:
                       - code: missing
                         message: is missing
+  "/api/v3/threshold_sets":
+    get:
+      summary: Default threshold sets
+      tags:
+      - 'Mobile app: Thresholds'
+      security: []
+      description: |
+        The colour-scale bands for every measurement AirCasting serves. Read
+        these instead of shipping a copy — the apps that hardcoded them had
+        drifted apart from each other and from the server.
+
+        One entry per measurement **parameter**, not per AirBeam model:
+        `AirBeam3-PM2.5` and `AirBeamMini-PM2.5` are the same parameter and
+        share one entry, listed under its `aliases`. Government parameters
+        (`Government-NO2`, `Government-Ozone`) appear as entries of their own;
+        government PM2.5 shares the `AirBeam-PM2.5` entry.
+
+        These are also the bands the server assigns when a session is created
+        without `thresholds` for a known sensor, so a client that omits them on
+        upload and renders from this endpoint will always agree with the server.
+
+        No authentication. Cacheable for an hour; the values change rarely.
+
+        **Not what a user sees if they have edited their own bands** — a client
+        storing per-user overrides keeps showing those. These are the defaults
+        to seed from and to reset to.
+      responses:
+        '200':
+          description: default threshold sets
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - threshold_sets
+                properties:
+                  threshold_sets:
+                    type: array
+                    items:
+                      type: object
+                      required:
+                      - sensor_name
+                      - measurement_type
+                      - unit_symbol
+                      - aliases
+                      - thresholds
+                      properties:
+                        sensor_name:
+                          type: string
+                          description: The canonical name for this parameter. Stable;
+                            use it as the key.
+                          example: AirBeam-PM2.5
+                        measurement_type:
+                          type: string
+                          description: What is being measured. Not unique — PM1, PM2.5
+                            and PM10 are all "Particulate Matter", which is why `sensor_name`
+                            is the key.
+                          example: Particulate Matter
+                        unit_symbol:
+                          type: string
+                          example: µg/m³
+                        aliases:
+                          type: array
+                          items:
+                            type: string
+                          description: Every sensor name that resolves to this entry.
+                            A stream is stored under the raw name its device reports
+                            — `AirBeamMini-PM2.5` off the BLE line, `AirBeam2-PM2.5`
+                            from a followed session — so match an incoming name against
+                            this list rather than reimplementing the model-prefix
+                            rules. Always contains `sensor_name` itself.
+                          example:
+                          - AirBeam-PM
+                          - AirBeam-PM2.5
+                          - AirBeam2-PM2.5
+                          - AirBeam3-PM2.5
+                          - AirBeamMini-PM2.5
+                          - Government-PM2.5
+                        thresholds:
+                          type: object
+                          required:
+                          - very_low
+                          - low
+                          - medium
+                          - high
+                          - very_high
+                          description: Colour-scale bounds, ascending. Spelled exactly
+                            as the `thresholds` object that POST /api/v3/mobile_sessions
+                            and POST /api/v3/fixed_sessions accept, so a client offering
+                            threshold editing can send a modified set straight back.
+                          properties:
+                            very_low:
+                              type: number
+                              format: float
+                              example: 0
+                            low:
+                              type: number
+                              format: float
+                              example: 9
+                            medium:
+                              type: number
+                              format: float
+                              example: 35
+                            high:
+                              type: number
+                              format: float
+                              example: 55
+                            very_high:
+                              type: number
+                              format: float
+                              example: 150
