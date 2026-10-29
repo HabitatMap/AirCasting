@@ -3,7 +3,7 @@ require 'rails_helper'
 describe Explore::MapSerializer do
   let(:measured_at) { Time.utc(2026, 10, 16, 12, 0, 0) }
 
-  def station(value: nil)
+  def station
     Explore::Item.new(
       source: 'government',
       uuid: 'a1b2',
@@ -13,14 +13,27 @@ describe Explore::MapSerializer do
       longitude: -73.95,
       last_measured_at: measured_at,
       streams: [
-        Explore::ItemStream.new(parameter: 'Particulate Matter', last_value: 8.5),
-        Explore::ItemStream.new(parameter: 'Nitrogen Dioxide', last_value: 21.0),
+        Explore::ItemStream.new(
+          id: 11,
+          sensor_name: 'Government-PM2.5',
+          parameter: 'Particulate Matter',
+          unit_symbol: 'µg/m³',
+          last_value: 8.5,
+          last_measured_at: measured_at,
+        ),
+        Explore::ItemStream.new(
+          id: 12,
+          sensor_name: 'Government-NO2',
+          parameter: 'Nitrogen Dioxide',
+          unit_symbol: 'ppb',
+          last_value: 21.0,
+          last_measured_at: measured_at - 1.hour,
+        ),
       ],
-      value: value,
     )
   end
 
-  it 'serializes an item with its measurement types and epoch-millisecond time' do
+  it 'serializes an item with one entry per stream, values rounded and times in epoch milliseconds' do
     expect(subject.call([station])).to eq(
       items: [
         {
@@ -31,15 +44,25 @@ describe Explore::MapSerializer do
           provider: 'US EPA AirNow',
           latitude: 40.82,
           longitude: -73.95,
-          last_measured_at: 1_792_152_000_000,
-          measurement_types: ['Particulate Matter', 'Nitrogen Dioxide'],
+          streams: [
+            {
+              stream_id: 11,
+              sensor_name: 'Government-PM2.5',
+              measurement_type: 'Particulate Matter',
+              unit_symbol: 'µg/m³',
+              last_measurement: { value: 9, time: 1_792_152_000_000 },
+            },
+            {
+              stream_id: 12,
+              sensor_name: 'Government-NO2',
+              measurement_type: 'Nitrogen Dioxide',
+              unit_symbol: 'ppb',
+              last_measurement: { value: 21, time: 1_792_148_400_000 },
+            },
+          ],
         },
       ],
     )
-  end
-
-  it 'adds the value, as a whole number, when there is one' do
-    expect(subject.call([station(value: 8.5)])[:items].first[:value]).to eq(9)
   end
 
   it 'serializes a cluster minimally' do

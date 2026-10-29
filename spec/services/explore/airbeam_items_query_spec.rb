@@ -59,8 +59,13 @@ describe Explore::AirbeamItemsQuery do
       longitude: -73.9,
       last_measured_at: newest,
     )
-    expect(items.first.streams.map { |s| [s.sensor_name, s.parameter, s.last_value] }).to eq(
-      [['AirBeam3-PM2.5', 'Particulate Matter', 12.0], ['AirBeam3-RH', 'Humidity', 55.0]],
+    expect(items.first.streams.map { |s| [s.id, s.sensor_name, s.parameter, s.last_value] }).to eq(
+      [
+        [session.streams.find_by!(sensor_name: 'AirBeam3-PM2.5').id,
+         'AirBeam3-PM2.5', 'Particulate Matter', 12.0],
+        [session.streams.find_by!(sensor_name: 'AirBeam3-RH').id,
+         'AirBeam3-RH', 'Humidity', 55.0],
+      ],
     )
   end
 

@@ -24,6 +24,7 @@ module Explore
       users.username
       sessions.latitude
       sessions.longitude
+      streams.id
       stream_value.measured_at
       streams.sensor_name
       streams.unit_symbol
@@ -112,9 +113,10 @@ module Explore
     end
 
     def stream(row, parameters)
-      _, _, _, _, _, last_measured_at, sensor_name, unit_symbol, value = row
+      _, _, _, _, _, id, last_measured_at, sensor_name, unit_symbol, value = row
 
       ItemStream.new(
+        id: id,
         sensor_name: sensor_name,
         parameter: parameters.parameter_for_airbeam(sensor_name),
         unit_symbol: unit_symbol,

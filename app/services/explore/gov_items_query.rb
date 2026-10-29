@@ -13,6 +13,7 @@ module Explore
       Arel.sql('COALESCE(sources.full_name, sources.name)'),
       Arel.sql('ST_Y(stations.location)'),
       Arel.sql('ST_X(stations.location)'),
+      'station_streams.id',
       'stream_configurations.measurement_type',
       'stream_configurations.unit_symbol',
       'station_streams.last_measured_at',
@@ -75,9 +76,10 @@ module Explore
     end
 
     def stream(row, parameters)
-      _, _, _, _, _, measurement_type, unit_symbol, last_measured_at, value = row
+      _, _, _, _, _, id, measurement_type, unit_symbol, last_measured_at, value = row
 
       ItemStream.new(
+        id: id,
         sensor_name: "Government-#{measurement_type}",
         parameter: parameters.parameter_for_government(measurement_type),
         unit_symbol: unit_symbol,
