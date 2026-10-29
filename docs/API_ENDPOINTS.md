@@ -86,7 +86,7 @@ Highcharts can plot with `useUTC: true`.
 | GET | `/api/v3/fixed_sessions/{uuid}/measurements` | Measurements for one stream — `sensor_name` required; last 6h by default, or a ≤12h `start_time`/`end_time` window. No point cap. No `latitude`/`longitude` (static per-session location) |
 | POST | `/api/v3/fixed_sessions/{uuid}/finish` | Decommission a monitor. Takes no body — server time; unlike the mobile route it has no `finished_at` |
 | POST | `/api/v3/fixed_sessions/{uuid}/measurements` | Upload binary measurements (9-byte frames, 6000 max per request) |
-| GET | `/api/v3/explore/map` | Public. Active outdoor AirBeam fixed sessions and EPA stations in a viewport, clustered on the server. `sources` and `measurement_types` are comma-separated, empty = all; whole-number `zoom`. Stations carry title, provider and measurement types; clusters only position and count. `value` (integer) only when one measurement type is selected |
+| GET | `/api/v3/explore/map` | Public. Active outdoor AirBeam fixed sessions and EPA stations in a viewport, clustered on the server. `sources` and `measurement_types` are comma-separated, empty = all; whole-number `zoom`. Stations carry title, provider and a `streams` array — one entry per selected stream with `stream_id`, `sensor_name`, `measurement_type`, `unit_symbol` and a `last_measurement` `{value, time}` shaped as on `/api/v3/fixed_sessions`, `value` rounded to an integer; clusters only position and count, plus `value` when one measurement type is selected |
 
 Request and response shapes are in `swagger/swagger.yaml`; the source is
 `spec/swagger/v3/mobile_sessions_spec.rb` and `spec/swagger/v3/fixed_sessions_spec.rb`.

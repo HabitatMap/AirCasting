@@ -1,17 +1,58 @@
 require 'swagger_helper'
 
 RSpec.describe 'Explore map', type: :request do
-  value_schema = {
+  stream_schema = {
+    type: :object,
+    required: %w[stream_id sensor_name measurement_type unit_symbol last_measurement],
+    properties: {
+      stream_id: {
+        type: :integer, example: 4_821,
+        description: '`streams.id` for AirBeam, `station_streams.id` for government — two tables, ' \
+                     'so it is unique only within a `source`. Key an item\'s streams by ' \
+                     '(`source`, `stream_id`)',
+      },
+      sensor_name: {
+        type: :string, example: 'Government-NO2',
+        description: 'The sensor the reading comes from, as in `/api/sensors` — the key to the ' \
+                     "user's thresholds",
+      },
+      measurement_type: { type: :string, enum: Explore::Parameters::KEYS, example: 'Nitrogen Dioxide' },
+      unit_symbol: {
+        type: :string, example: 'ppb',
+        description: 'The unit the value is in. Temperature is Fahrenheit, the server default',
+      },
+      last_measurement: {
+        type: :object,
+        required: %w[value time],
+        description: 'Shaped as `last_measurement` on `GET /api/v3/fixed_sessions`, so one client ' \
+                     'type decodes both. Never null: a stream with no reading is not returned',
+        properties: {
+          value: {
+            type: :integer, example: 12,
+            description: 'Rounded to a whole number, as the map draws it — unlike the session ' \
+                         'list, which sends the raw reading. AirBeam: the last hourly average, ' \
+                         'or the newest reading while the stream has none yet. Government: the ' \
+                         'newest reading',
+          },
+          time: {
+            type: :integer, format: :int64, example: 1_792_152_000_000,
+            description: 'Epoch milliseconds, UTC: when this reading was measured',
+          },
+        },
+      },
+    },
+  }
+
+  cluster_value_schema = {
     type: :integer,
-    description: 'Present only when exactly one measurement type is selected; rounded to a whole number. ' \
-                 'AirBeam: last hourly average, or the newest reading while the session has none yet. ' \
-                 'Government: newest reading. Several streams of the type: their mean',
+    description: "Mean of its members' values, rounded to a whole number. Present only when exactly " \
+                 'one measurement type is selected',
     example: 12,
   }
 
   station_schema = {
     type: :object,
-    required: %w[type uuid source title provider latitude longitude last_measured_at measurement_types],
+    required: %w[type uuid source title provider latitude longitude streams],
     properties: {
       type: { type: :string, enum: ['station'] },
       uuid: {
@@ -26,17 +67,13 @@ RSpec.describe 'Explore map', type: :request do
       },
       latitude: { type: :number, format: :double, example: 40.8198 },
       longitude: { type: :number, format: :double, example: -73.9483 },
-      last_measured_at: {
-        type: :integer, format: :int64, example: 1_792_152_000_000,
-        description: 'Epoch milliseconds, UTC: the newest of its selected streams',
-      },
-      measurement_types: {
+      streams: {
         type: :array,
-        description: 'The selected measurement types this item measures, in catalogue order',
-        items: { type: :string, enum: Explore::Parameters::KEYS },
-        example: ['Particulate Matter', 'Nitrogen Dioxide'],
+        minItems: 1,
+        description: 'One entry per selected stream of this item, in catalogue order, each with ' \
+                     'its own `last_measurement`',
+        items: stream_schema,
       },
-      value: value_schema,
     },
   }
 
@@ -48,7 +85,7 @@ RSpec.describe 'Explore map', type: :request do
       latitude: { type: :number, format: :double, description: 'Mean of its members', example: 40.7484 },
       longitude: { type: :number, format: :double, description: 'Mean of its members', example: -73.9857 },
       count: { type: :integer, minimum: 2, example: 37 },
-      value: value_schema.merge(description: "Mean of its members' values. #{value_schema[:description]}"),
+      value: cluster_value_schema,
     },
   }
 
@@ -66,8 +103,11 @@ RSpec.describe 'Explore map', type: :request do
         become one `cluster`; a lone item stays a `station`. From zoom
         #{Explore::Clusterer::NO_CLUSTER_ZOOM} on nothing is clustered.
 
-        An item is identified by `uuid`. Items and clusters carry a `value` only
-        when exactly one measurement type is selected.
+        An item is identified by `uuid` and carries one `streams` entry per
+        selected measurement type it reports, each with its own
+        `last_measurement` — the same shape `GET /api/v3/fixed_sessions` uses.
+        A `cluster` carries a `value` only when exactly one measurement type is
+        selected.
       DESC
 
       parameter name: :west, in: :query, required: true,
@@ -152,15 +192,31 @@ RSpec.describe 'Explore map', type: :request do
               ['station', 'government', station.reload.uuid],
             )
           airbeam = items.find { |item| item['source'] == 'airbeam' }
-          expect(airbeam).to include(
-            'title' => 'Roof',
-            'provider' => session.user.username,
-            'last_measured_at' => measured_at.to_i * 1_000,
-            'measurement_types' => ['Particulate Matter'],
-            'value' => 12,
+          expect(airbeam).to include('title' => 'Roof', 'provider' => session.user.username)
+          expect(airbeam['streams']).to eq(
+            [
+              {
+                'stream_id' => session.streams.first.id,
+                'sensor_name' => 'AirBeamMini-PM2.5',
+                'measurement_type' => 'Particulate Matter',
+                'unit_symbol' => session.streams.first.unit_symbol,
+                'last_measurement' => { 'value' => 12, 'time' => measured_at.to_i * 1_000 },
+              },
+            ],
           )
           government = items.find { |item| item['source'] == 'government' }
-          expect(government).to include('title' => 'CCNY', 'provider' => 'US EPA AirNow', 'value' => 9)
+          expect(government).to include('title' => 'CCNY', 'provider' => 'US EPA AirNow')
+          expect(government['streams']).to eq(
+            [
+              {
+                'stream_id' => station_stream.id,
+                'sensor_name' => 'Government-PM2.5',
+                'measurement_type' => 'Particulate Matter',
+                'unit_symbol' => 'µg/m³',
+                'last_measurement' => { 'value' => 9, 'time' => measured_at.to_i * 1_000 },
+              },
+            ],
+          )
         end
       end
 

@@ -46,8 +46,8 @@ describe Explore::GovItemsQuery do
 
   it 'returns an active station with the latest value of each stream' do
     site = station(title: 'Queens College', longitude: -73.82, latitude: 40.74)
-    stream(site, ozone, value: 31.0)
-    stream(site, pm, value: 8.5)
+    ozone_stream = stream(site, ozone, value: 31.0)
+    pm_stream = stream(site, pm, value: 8.5)
 
     items = call
 
@@ -63,10 +63,10 @@ describe Explore::GovItemsQuery do
     )
     expect(items.first.streams.map(&:to_h)).to eq(
       [
-        { sensor_name: 'Government-PM2.5', parameter: 'Particulate Matter', unit_symbol: 'µg/m³',
-          last_value: 8.5, last_measured_at: measured_at },
-        { sensor_name: 'Government-Ozone', parameter: 'Ozone', unit_symbol: 'ppb',
-          last_value: 31.0, last_measured_at: measured_at },
+        { id: pm_stream.id, sensor_name: 'Government-PM2.5', parameter: 'Particulate Matter',
+          unit_symbol: 'µg/m³', last_value: 8.5, last_measured_at: measured_at },
+        { id: ozone_stream.id, sensor_name: 'Government-Ozone', parameter: 'Ozone',
+          unit_symbol: 'ppb', last_value: 31.0, last_measured_at: measured_at },
       ],
     )
   end
