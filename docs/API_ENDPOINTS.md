@@ -87,9 +87,25 @@ Highcharts can plot with `useUTC: true`.
 | POST | `/api/v3/fixed_sessions/{uuid}/finish` | Decommission a monitor. Takes no body — server time; unlike the mobile route it has no `finished_at` |
 | POST | `/api/v3/fixed_sessions/{uuid}/measurements` | Upload binary measurements (9-byte frames, 6000 max per request) |
 | GET | `/api/v3/explore/map` | Public. Active outdoor AirBeam fixed sessions and EPA stations in a viewport, clustered on the server. `sources` and `measurement_types` are comma-separated, empty = all; whole-number `zoom`. Stations carry title, provider and a `streams` array — one entry per selected stream with `stream_id`, `sensor_name`, `measurement_type`, `unit_symbol` and a `last_measurement` `{value, time}` shaped as on `/api/v3/fixed_sessions`, `value` rounded to an integer; clusters only position and count, plus `value` when one measurement type is selected |
+| GET | `/api/v3/threshold_sets` | Public. Default colour-scale bands, one entry per measurement parameter (not per AirBeam model); device spellings listed in `aliases`. The same bands the server assigns when a session is created without `thresholds`. Cacheable 1h |
 
 Request and response shapes are in `swagger/swagger.yaml`; the source is
 `spec/swagger/v3/mobile_sessions_spec.rb` and `spec/swagger/v3/fixed_sessions_spec.rb`.
+
+### `/api/v3/threshold_sets` — two tables behind one list
+
+Bands live in `threshold_sets` (keyed by `sensor_name` + `unit_symbol`, AirBeam
+and the phone mic) and in `stream_configurations` (keyed by `measurement_type` +
+`unit_symbol`, government stations). The endpoint merges them so a client never
+learns which table owns what. Government bands come from `stream_configurations`
+because that is what `StationStreamSerializer` serves for a station's detail
+view — reading them elsewhere would let the explore map colour a station
+differently from its own detail screen.
+
+Selection is an explicit list of canonical names, never `where(is_default: true)`:
+production has nineteen rows carrying that flag, including a second
+`AirBeam3-PM10` whose bands are the sound-level ones. `spec/swagger/v3/threshold_sets_spec.rb`
+documents the response.
 
 ### `/api/v3/app_config` — content lives in a file, not the database
 

@@ -22,7 +22,7 @@ RSpec.describe 'Mobile app — threshold alerts', type: :request do
 
   path '/api/fixed/threshold_alerts' do
     get 'List the current user\'s threshold alerts' do
-      tags 'Mobile app: Threshold alerts'
+      tags 'Mobile app: Thresholds'
       security [{ basic_auth: [] }]
       produces 'application/json'
 
@@ -43,7 +43,7 @@ RSpec.describe 'Mobile app — threshold alerts', type: :request do
     end
 
     post 'Create a threshold alert' do
-      tags 'Mobile app: Threshold alerts'
+      tags 'Mobile app: Thresholds'
       security [{ basic_auth: [] }]
       consumes 'application/json'
       produces 'application/json'
@@ -92,7 +92,7 @@ RSpec.describe 'Mobile app — threshold alerts', type: :request do
 
   path '/api/fixed/threshold_alerts/{id}' do
     delete 'Delete a threshold alert' do
-      tags 'Mobile app: Threshold alerts'
+      tags 'Mobile app: Thresholds'
       security [{ basic_auth: [] }]
       produces 'application/json'
 
