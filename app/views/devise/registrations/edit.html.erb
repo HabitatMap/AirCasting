@@ -1,39 +1,79 @@
-<h2>Edit <%= resource_name.to_s.humanize %></h2>
+<%# No Figma frame exists for this screen, so it is assembled from the same kit
+    as the others. Fields are exactly the ones the previous template had.
+    The `devise_mapping.confirmable?` branch that used to sit under the email
+    field is gone: the User model does not enable :confirmable, so it could
+    never render. %>
+<div class="auth-card">
+  <h1 class="auth-card__title">Your account</h1>
+  <p class="auth-card__subtitle">
+    Update your email or change your password. Leave the password fields blank to keep your current one.
+  </p>
 
-<%= form_for(resource, as: resource_name, url: registration_path(resource_name), html: { method: :put }) do |f| %>
-  <%= devise_error_messages! %>
+  <%= render "shared/flash" %>
 
-  <div class="field">
-    <%= f.label :email %><br />
-    <%= f.email_field :email, autofocus: true %>
-  </div>
+  <%= render "devise/shared/error_summary", resource: resource,
+             inline_attributes: [:email, :password, :password_confirmation, :current_password],
+             lead: "We couldn't save your changes. Check the fields below." %>
 
-  <% if devise_mapping.confirmable? && resource.pending_reconfirmation? %>
-    <div>Currently waiting confirmation for: <%= resource.unconfirmed_email %></div>
+  <%= form_for(resource, as: resource_name, url: registration_path(resource_name), html: { method: :put, class: "auth-form" }) do |f| %>
+    <div class="auth-field">
+      <%= f.label :email, "Email", class: "auth-field__label" %>
+      <%= f.email_field :email,
+            autofocus: true,
+            autocomplete: "email",
+            class: "auth-input",
+            "aria-invalid": resource.errors[:email].any?.to_s,
+            "aria-describedby": (resource.errors[:email].any? ? "email_error" : nil) %>
+      <%= render "devise/shared/field_error", resource: resource, attribute: :email %>
+    </div>
+
+    <div class="auth-field">
+      <%= f.label :password, "New password", class: "auth-field__label" %>
+      <%= f.password_field :password,
+            autocomplete: "new-password",
+            placeholder: "Leave blank to keep your current password",
+            class: "auth-input",
+            "aria-invalid": resource.errors[:password].any?.to_s,
+            "aria-describedby": [("password_error" if resource.errors[:password].any?), "password_hint"].compact.join(" ") %>
+      <% if @minimum_password_length %>
+        <p class="auth-field__hint" id="password_hint">At least <%= @minimum_password_length %> characters.</p>
+      <% end %>
+      <%= render "devise/shared/field_error", resource: resource, attribute: :password %>
+    </div>
+
+    <div class="auth-field">
+      <%= f.label :password_confirmation, "Confirm new password", class: "auth-field__label" %>
+      <%= f.password_field :password_confirmation,
+            autocomplete: "new-password",
+            class: "auth-input",
+            "aria-invalid": resource.errors[:password_confirmation].any?.to_s,
+            "aria-describedby": (resource.errors[:password_confirmation].any? ? "password_confirmation_error" : nil) %>
+      <%= render "devise/shared/field_error", resource: resource, attribute: :password_confirmation %>
+    </div>
+
+    <div class="auth-field">
+      <%= f.label :current_password, "Current password", class: "auth-field__label" %>
+      <%= f.password_field :current_password,
+            autocomplete: "current-password",
+            class: "auth-input",
+            "aria-invalid": resource.errors[:current_password].any?.to_s,
+            "aria-describedby": [("current_password_error" if resource.errors[:current_password].any?), "current_password_hint"].compact.join(" ") %>
+      <p class="auth-field__hint" id="current_password_hint">We need your current password to confirm your changes.</p>
+      <%= render "devise/shared/field_error", resource: resource, attribute: :current_password %>
+    </div>
+
+    <%= f.submit "Update", class: "auth-button" %>
   <% end %>
 
-  <div class="field">
-    <%= f.label :password %> <i>(leave blank if you don't want to change it)</i><br />
-    <%= f.password_field :password, autocomplete: "off" %>
-  </div>
+  <hr class="auth-card__divider" />
 
-  <div class="field">
-    <%= f.label :password_confirmation %><br />
-    <%= f.password_field :password_confirmation, autocomplete: "off" %>
-  </div>
+  <h2 class="auth-card__section-title">Cancel my account</h2>
+  <p class="auth-card__subtitle">This deletes your account and everything on it. It cannot be undone.</p>
+  <%= button_to "Cancel my account", registration_path(resource_name),
+        method: :delete,
+        form_class: "auth-form",
+        class: "auth-button auth-button--danger",
+        data: { confirm: "Are you sure?" } %>
 
-  <div class="field">
-    <%= f.label :current_password %> <i>(we need your current password to confirm your changes)</i><br />
-    <%= f.password_field :current_password, autocomplete: "off" %>
-  </div>
-
-  <div class="actions">
-    <%= f.submit "Update" %>
-  </div>
-<% end %>
-
-<h3>Cancel my account</h3>
-
-<p>Unhappy? <%= button_to "Cancel my account", registration_path(resource_name), data: { confirm: "Are you sure?" }, method: :delete %></p>
-
-<%= link_to "Back", :back %>
+  <%= link_to "Back", :back, class: "auth-link auth-link--back" %>
+</div>

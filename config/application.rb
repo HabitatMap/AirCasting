@@ -21,6 +21,13 @@ module AirCasting
     # Initialize configuration defaults for originally generated Rails version.
     config.load_defaults 6.1
 
+    # Lets a locale override the *whole* full message for one attribute via an
+    # `errors.models.<model>.attributes.<attr>.format` key, instead of always
+    # prefixing it with the humanized attribute name. Off by default in Rails
+    # and not set by load_defaults; with no such key present nothing changes.
+    # Used by config/locales/en.yml for user.password_confirmation.
+    config.active_model.i18n_customize_full_message = true
+
     # Configuration for the application, engines, and railties goes here.
     #
     # These settings can be overridden in specific environments using the files

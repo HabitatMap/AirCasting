@@ -1,0 +1,32 @@
+-# Layout for the account screens (Devise): sign in, sign up, edit account,
+-# password reset. Deliberately separate from `client_app`, which renders the
+-# map: the `auth` webpack entry is the only stylesheet loaded here, so none of
+-# its rules — the :focus-visible ring in particular — can reach the map view.
+!!! 5
+%html{lang: 'en'}
+  %head
+    %meta{charset: 'utf-8'}/
+    %meta{name: 'viewport', content: 'width=device-width, initial-scale=1'}/
+    %meta{
+name: 'description',
+content: 'AirCasting is an open-source, end-to-end solution for collecting, displaying, and sharing health and environmental data.'
+}/
+    %title AirCasting
+    = stylesheet_link_tag *webpack_asset_urls('auth', 'css')
+    -# Only script on these screens: the password reveal toggles. `defer` so it
+    -# runs after the fields exist and never blocks the form from rendering.
+    = javascript_include_tag *webpack_asset_urls('auth', 'js'), defer: true
+    = render partial: 'shared/gtm'
+    = csrf_meta_tags
+    = render partial: 'shared/favicon'
+  %body.auth-page
+    = render partial: 'shared/noscript_gtm'
+    %a.auth-skip-link{href: '#auth-main'} Skip to content
+    %header.auth-header
+      = link_to root_path, class: 'auth-header__logo' do
+        %span.auth-visually-hidden AirCasting
+      = link_to 'Back to the map', root_path, class: 'auth-header__link'
+    %main#auth-main.auth-main
+      -# The flash is rendered inside each card, not here: the design puts the
+      -# banner directly above the first field, not floating above the card.
+      = yield

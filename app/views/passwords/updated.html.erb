@@ -1,0 +1,20 @@
+<%# Figma frame 09. `config.sign_in_after_reset_password` is left at its default
+    of true, so by the time this renders the user is signed in — which is why
+    the body can promise it, and why this screen carries no back link.
+
+    Devise's own behaviour is to redirect straight to the map. That is fine for
+    a browser and useless on a phone, where the reset started in a mail app and
+    the map is not what the user came for. This says the thing they need to
+    know, and leaves going to the map as a choice. %>
+<div class="auth-card">
+  <div class="auth-badge auth-badge--success">
+    <%= render "shared/auth_icon", name: :check_circle, size: 28 %>
+  </div>
+
+  <h1 class="auth-card__title">Password updated</h1>
+  <p class="auth-card__subtitle">
+    You're logged in to AirCasting and ready to go.
+  </p>
+
+  <%= link_to "Go to the map", root_path, class: "auth-button" %>
+</div>

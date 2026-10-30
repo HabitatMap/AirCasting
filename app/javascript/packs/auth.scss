@@ -1,0 +1,4 @@
+// Webpack entry for the account (Devise) screens.
+// Built as its own bundle so nothing here is loaded by the map view, which
+// uses the `react-app` entry. See app/views/layouts/auth.html.haml.
+@import "../stylesheets/auth";

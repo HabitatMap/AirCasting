@@ -1,34 +1,66 @@
-<h2>Sign up</h2>
+<div class="auth-card">
+  <h1 class="auth-card__title">Create your account</h1>
+  <p class="auth-card__subtitle">
+    An account lets you upload sessions from the AirCasting app and set threshold alerts on places you care about.
+  </p>
 
-<%= form_for(resource, as: resource_name, url: registration_path(resource_name)) do |f| %>
-  <%= devise_error_messages! %>
+  <%= render "shared/flash" %>
 
-  <div class="field">
-    <%= f.label :email %><br />
-    <%= f.email_field :email, autofocus: true %>
-  </div>
+  <%= render "devise/shared/error_summary", resource: resource,
+             inline_attributes: [:email, :username, :password, :password_confirmation],
+             lead: "We couldn't create your account. Check the fields below." %>
 
-  <div class="field">
-    <%= f.label :username, "Profile Name" %><br />
-    <%= f.text_field :username %>
-  </div>
+  <%= form_for(resource, as: resource_name, url: registration_path(resource_name), html: { class: "auth-form" }) do |f| %>
+    <div class="auth-field">
+      <%= f.label :email, "Email", class: "auth-field__label" %>
+      <%= f.email_field :email,
+            autofocus: true,
+            autocomplete: "email",
+            placeholder: "you@example.com",
+            class: "auth-input",
+            "aria-invalid": resource.errors[:email].any?.to_s,
+            "aria-describedby": (resource.errors[:email].any? ? "email_error" : nil) %>
+      <%= render "devise/shared/field_error", resource: resource, attribute: :email %>
+    </div>
 
-  <div class="field">
-    <%= f.label :password %>
-    <% if @minimum_password_length %>
-    <em>(<%= @minimum_password_length %> characters minimum)</em>
-    <% end %><br />
-    <%= f.password_field :password, autocomplete: "off" %>
-  </div>
+    <div class="auth-field">
+      <%= f.label :username, "Profile name", class: "auth-field__label" %>
+      <%= f.text_field :username,
+            autocomplete: "username",
+            placeholder: "How you'll appear on shared sessions",
+            class: "auth-input",
+            "aria-invalid": resource.errors[:username].any?.to_s,
+            "aria-describedby": (resource.errors[:username].any? ? "username_error" : nil) %>
+      <%= render "devise/shared/field_error", resource: resource, attribute: :username %>
+    </div>
 
-  <div class="field">
-    <%= f.label :password_confirmation %><br />
-    <%= f.password_field :password_confirmation, autocomplete: "off" %>
-  </div>
+    <div class="auth-field">
+      <%= f.label :password, "Password", class: "auth-field__label" %>
+      <%= f.password_field :password,
+            autocomplete: "new-password",
+            placeholder: "Create a password",
+            class: "auth-input",
+            "aria-invalid": resource.errors[:password].any?.to_s,
+            "aria-describedby": [("password_error" if resource.errors[:password].any?), "password_hint"].compact.join(" ") %>
+      <% if @minimum_password_length %>
+        <p class="auth-field__hint" id="password_hint">At least <%= @minimum_password_length %> characters.</p>
+      <% end %>
+      <%= render "devise/shared/field_error", resource: resource, attribute: :password %>
+    </div>
 
-  <div class="actions">
-    <%= f.submit "Sign up" %>
-  </div>
-<% end %>
+    <div class="auth-field">
+      <%= f.label :password_confirmation, "Confirm password", class: "auth-field__label" %>
+      <%= f.password_field :password_confirmation,
+            autocomplete: "new-password",
+            placeholder: "Repeat password",
+            class: "auth-input",
+            "aria-invalid": resource.errors[:password_confirmation].any?.to_s,
+            "aria-describedby": (resource.errors[:password_confirmation].any? ? "password_confirmation_error" : nil) %>
+      <%= render "devise/shared/field_error", resource: resource, attribute: :password_confirmation %>
+    </div>
 
-<%= render "devise/shared/links" %>
+    <%= f.submit "Sign up", class: "auth-button" %>
+  <% end %>
+
+  <%= render "devise/shared/links" %>
+</div>

@@ -22,6 +22,17 @@ Rails.application.routes.draw do
                passwords: 'passwords',
              }
 
+  # Devise has no standalone screen for either end of a password reset: `create`
+  # redirects to the sign-in form with a flash, `update` signs the user in and
+  # drops them on the map. Neither is where someone mid-reset wants to be, and
+  # nearly all of these flows start in a mail app on a phone. These two GETs give
+  # those moments a page. Inside `devise_scope` so `devise_mapping` is set and
+  # the Devise view helpers work — see app/controllers/passwords_controller.rb.
+  devise_scope :user do
+    get 'users/password/sent', to: 'passwords#sent', as: :password_sent
+    get 'users/password/updated', to: 'passwords#updated', as: :password_updated
+  end
+
   get 'map', to: redirect('/', status: 302)
   get 'mobile_map', to: redirect('/new_map', status: 302)
   get 'fixed_map', to: redirect('/new_map', status: 302)

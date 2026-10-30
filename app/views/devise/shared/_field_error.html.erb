@@ -1,0 +1,9 @@
+<%# Per-field message, rendered under the field it belongs to. The matching
+    input carries aria-invalid="true" and aria-describedby="<attribute>_error". %>
+<% messages = resource.errors.full_messages_for(attribute) %>
+<% if messages.any? %>
+  <div class="auth-field__error" id="<%= attribute %>_error">
+    <%= render "shared/auth_icon", name: :alert_circle, size: 16 %>
+    <span><%= messages.to_sentence %></span>
+  </div>
+<% end %>
