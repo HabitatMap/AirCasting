@@ -4,6 +4,9 @@ class NotAcceptable < StandardError
 end
 
 class ApplicationController < ActionController::Base
+  # `:json` is not decorative: POST /users/password.json is the forgot-password
+  # endpoint the mobile apps call, and dropping it here makes that route raise
+  # ActionController::UnknownFormat. See spec/requests/password_reset_spec.rb.
   respond_to :html, :json
 
   protect_from_forgery with: :null_session
