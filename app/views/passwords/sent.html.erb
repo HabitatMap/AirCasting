@@ -1,0 +1,33 @@
+<%# Figma frame 06. Devise has no screen here — `create` redirects to the
+    sign-in form with a flash, which is a page the user has no reason to read.
+
+    No form fields: the address is already known, it came in with the redirect.
+    The only action is resending to that same address, so it is a POST back to
+    the same endpoint rather than a link, and the address rides in a hidden
+    field instead of the URL — a reset email in a query string ends up in logs
+    and in the Referer of anything the page links to.
+
+    Copy is the designer's apart from the body, which that frame's export did
+    not include. %>
+<div class="auth-card">
+  <div class="auth-badge auth-badge--info">
+    <%= render "shared/auth_icon", name: :mail, size: 28 %>
+  </div>
+
+  <h1 class="auth-card__title">Check your email</h1>
+  <%# Neutral about whether it matched, because the endpoint is: see
+      User.send_reset_password_instructions. Says "matches" rather than naming
+      it an email address — the mobile apps send `login`, which may be a
+      username. %>
+  <p class="auth-card__subtitle">
+    If <strong><%= @reset_email %></strong> matches an AirCasting account, a link
+    to reset the password is on its way. It stays valid for 6 hours.
+  </p>
+
+  <%= form_tag password_path(resource_name), method: :post, class: "auth-form" do %>
+    <%= hidden_field_tag "user[login]", @reset_email %>
+    <%= submit_tag "Send it again", class: "auth-button" %>
+  <% end %>
+
+  <%= render "devise/shared/links" %>
+</div>

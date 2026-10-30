@@ -84,12 +84,15 @@ describe 'the account screens', type: :request do
       expect(response.body).to include('Incorrect email or password. Please try again.')
     end
 
-    it 'shows the reset-sent notice as a success alert' do
+    # Devise's own reset-sent notice no longer lands anywhere: a browser POST
+    # now redirects to passwords#sent, which says it in the page and drops the
+    # flash. The partial is still exercised by the success path below.
+    it 'drops the reset-sent notice, since the screen it lands on says it' do
       post user_password_path, params: { user: { login: user.email } }
-      get new_user_session_path
+      follow_redirect!
 
-      expect(response.body).to include('auth-alert--success')
-      expect(response.body).to include('You will receive an email with instructions')
+      expect(response.body).to include('Check your email')
+      expect(response.body).not_to include('auth-alert')
     end
 
     it 'renders the alert inside the card, above the form' do
