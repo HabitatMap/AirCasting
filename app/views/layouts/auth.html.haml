@@ -13,6 +13,9 @@ content: 'AirCasting is an open-source, end-to-end solution for collecting, disp
 }/
     %title AirCasting
     = stylesheet_link_tag *webpack_asset_urls('auth', 'css')
+    -# Only script on these screens: the password reveal toggles. `defer` so it
+    -# runs after the fields exist and never blocks the form from rendering.
+    = javascript_include_tag *webpack_asset_urls('auth', 'js'), defer: true
     = render partial: 'shared/gtm'
     = csrf_meta_tags
     = render partial: 'shared/favicon'

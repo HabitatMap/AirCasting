@@ -271,6 +271,43 @@ $control-height: 48px;
   }
 }
 
+// Wrapper and button are both created by app/javascript/auth/passwordToggle.ts,
+// so these rules only ever apply where scripting is on.
+.auth-input-wrap {
+  position: relative;
+  display: flex;
+
+  // Room for the 20px icon plus its 14px gutter on each side.
+  .auth-input {
+    padding-right: 48px;
+  }
+}
+
+.auth-input-toggle {
+  position: absolute;
+  top: 50%;
+  right: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  // 44px square: the field is 48px tall, and this is the smallest comfortable
+  // touch target (WCAG 2.5.5), which matters because these screens are mostly
+  // opened on a phone.
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  color: $text-muted;
+  background: none;
+  border: 0;
+  border-radius: 6px;
+  transform: translateY(-50%);
+  cursor: pointer;
+
+  &:hover {
+    color: $text-strong;
+  }
+}
+
 .auth-button {
   display: inline-flex;
   align-items: center;

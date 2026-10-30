@@ -39,6 +39,15 @@ describe 'the account screens', type: :request do
       end
     end
 
+    # The password reveal toggles are built in JS; if the `auth` entry ever
+    # stops emitting a js asset, `webpack_asset_urls` raises in the layout and
+    # every one of these screens 500s, so the tag is worth pinning.
+    it 'loads the auth script, deferred, on the sign-in screen' do
+      get '/users/sign_in'
+
+      expect(response.body).to match(%r{<script src="[^"]*packs/auth[^"]*\.js" defer})
+    end
+
     it 'renders the change-password screen when a token is in the query' do
       token = user.send_reset_password_instructions
 
