@@ -312,6 +312,11 @@ $control-height: 48px;
   border-radius: 6px;
   transform: translateY(-50%);
   cursor: pointer;
+  // Without this a tap paints the browser's default highlight as a square
+  // block inside the rounded field — the one thing on these screens that
+  // looked broken on a phone. The :focus-visible ring still shows for a
+  // keyboard, which is the state that needs to be visible.
+  -webkit-tap-highlight-color: transparent;
 
   &:hover {
     color: $text-strong;
