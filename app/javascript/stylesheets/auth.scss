@@ -149,6 +149,22 @@ $control-height: 48px;
   box-shadow: 1px 1px 8px rgba(215, 215, 215, 0.5);
 }
 
+// Figma draws the badge as the first child of the card, above the title. The
+// card is a 24px-gap flex column, so it needs no margin of its own.
+.auth-badge {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 64px;
+  height: 64px;
+  border-radius: 32px;
+}
+
+.auth-badge--warning {
+  color: $warning;
+  background: $warning-bg;
+}
+
 .auth-card__title {
   margin: 0;
   font-size: 28px;

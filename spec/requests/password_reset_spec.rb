@@ -111,3 +111,82 @@ describe 'POST /users/password.json', type: :request do
     end
   end
 end
+
+# Devise checks the reset token on PUT only; `edit` used to render the form for
+# any string, so a dead link looked live until the user had chosen a password
+# and typed it twice. PasswordsController#edit now checks it up front.
+describe 'GET /users/password/edit', type: :request do
+  let!(:user) do
+    FactoryBot.create(:user, email: 'expiry@example.com', username: 'expiry')
+  end
+
+  let(:token) { user.send_reset_password_instructions }
+
+  def expired?
+    response.body.include?('This reset link has expired')
+  end
+
+  it 'renders the password form while the token is live' do
+    get "/users/password/edit?reset_password_token=#{token}"
+
+    expect(response).to have_http_status(:ok)
+    expect(response.body).to include('Choose a new password')
+    expect(expired?).to be(false)
+  end
+
+  # Devise.reset_password_within is 6.hours.
+  it 'shows the expired state once the token is past its window' do
+    token
+    user.update_column(:reset_password_sent_at, 7.hours.ago)
+
+    get "/users/password/edit?reset_password_token=#{token}"
+
+    expect(response).to have_http_status(:ok)
+    expect(expired?).to be(true)
+    expect(response.body).to include('auth-badge--warning')
+  end
+
+  it 'offers a form that posts straight back to the reset endpoint' do
+    token
+    user.update_column(:reset_password_sent_at, 7.hours.ago)
+
+    get "/users/password/edit?reset_password_token=#{token}"
+
+    expect(response.body).to include("action=\"#{user_password_path}\"")
+    expect(response.body).to include('Send a new link')
+  end
+
+  # A token that never existed and one that has expired must look identical,
+  # or the screen tells an attacker which of their guesses was a real token.
+  it 'answers a garbage token with the same screen' do
+    get '/users/password/edit?reset_password_token=not-a-real-token'
+
+    expect(response).to have_http_status(:ok)
+    expect(expired?).to be(true)
+  end
+
+  it 'leaves the no-token case to Devise, which bounces to sign in' do
+    get '/users/password/edit'
+
+    expect(response).to redirect_to(new_user_session_path)
+  end
+
+  # The PUT-side check is Devise's and still has to catch a token that dies
+  # between this GET and the submit.
+  it 'still refuses an expired token on submit' do
+    token
+    user.update_column(:reset_password_sent_at, 7.hours.ago)
+
+    put '/users/password',
+        params: {
+          user: {
+            reset_password_token: token,
+            password: 'brandnew123',
+            password_confirmation: 'brandnew123',
+          },
+        }
+
+    expect(user.reload.valid_password?('brandnew123')).to be(false)
+    expect(response.body).to include('expired')
+  end
+end
