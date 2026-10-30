@@ -1,25 +1,37 @@
-<%- if controller_name != 'sessions' %>
-  <%= link_to "Log in", new_session_path(resource_name) %><br />
-<% end -%>
+<%# Same link set and same conditions as before — only the markup and the
+    wording changed, except that Devise's stock confirmable and lockable
+    branches are gone: the User model enables neither module, so the routes they
+    linked to do not exist and the guards could never be true. Their views were
+    deleted with them.
 
-<%- if devise_mapping.registerable? && controller_name != 'registrations' %>
-  <%= link_to "Sign up", new_registration_path(resource_name) %><br />
-<% end -%>
+    "Forgot your password?" is excluded on sessions because sessions/new renders
+    it inline next to the remember-me checkbox, as the design has it. %>
+<div class="auth-links">
+  <% if controller_name == 'registrations' %>
+    <p class="auth-crosslink">
+      <span>Already have an account?</span>
+      <%= link_to "Sign in", new_session_path(resource_name) %>
+    </p>
+  <% else %>
+    <% if controller_name != 'sessions' %>
+      <%= link_to "Back to sign in", new_session_path(resource_name), class: "auth-link auth-link--back" %>
+    <% end %>
 
-<%- if devise_mapping.recoverable? && controller_name != 'passwords' && controller_name != 'registrations' %>
-  <%= link_to "Forgot your password?", new_password_path(resource_name) %><br />
-<% end -%>
+    <% if devise_mapping.registerable? %>
+      <p class="auth-crosslink">
+        <span>Don't have an account?</span>
+        <%= link_to "Sign up", new_registration_path(resource_name) %>
+      </p>
+    <% end %>
+  <% end %>
 
-<%- if devise_mapping.confirmable? && controller_name != 'confirmations' %>
-  <%= link_to "Didn't receive confirmation instructions?", new_confirmation_path(resource_name) %><br />
-<% end -%>
+  <% if devise_mapping.recoverable? && !%w[sessions passwords registrations].include?(controller_name) %>
+    <%= link_to "Forgot your password?", new_password_path(resource_name), class: "auth-link" %>
+  <% end %>
 
-<%- if devise_mapping.lockable? && resource_class.unlock_strategy_enabled?(:email) && controller_name != 'unlocks' %>
-  <%= link_to "Didn't receive unlock instructions?", new_unlock_path(resource_name) %><br />
-<% end -%>
-
-<%- if devise_mapping.omniauthable? %>
-  <%- resource_class.omniauth_providers.each do |provider| %>
-    <%= link_to "Sign in with #{OmniAuth::Utils.camelize(provider)}", omniauth_authorize_path(resource_name, provider) %><br />
-  <% end -%>
-<% end -%>
+  <% if devise_mapping.omniauthable? %>
+    <% resource_class.omniauth_providers.each do |provider| %>
+      <%= link_to "Sign in with #{OmniAuth::Utils.camelize(provider)}", omniauth_authorize_path(resource_name, provider), class: "auth-link" %>
+    <% end %>
+  <% end %>
+</div>

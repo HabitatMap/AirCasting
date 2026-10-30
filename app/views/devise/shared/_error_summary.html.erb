@@ -1,0 +1,26 @@
+<%# Form-level error banner. Replaces `devise_error_messages!`, which rendered a
+    bare <div id="error_explanation"> with no role, so screen readers never
+    announced it (WCAG 4.1.3).
+
+    `inline_attributes` are the ones the view already prints under their own
+    field; their messages are left out of the list here so the same sentence is
+    not read twice. Anything else — notably an expired reset_password_token,
+    which belongs to a hidden field — still shows up, which is the whole reason
+    the list exists. %>
+<% inline_attributes = Array(defined?(inline_attributes) ? inline_attributes : []).map(&:to_sym) %>
+<% if resource.errors.any? %>
+  <% extra = resource.errors.reject { |error| inline_attributes.include?(error.attribute) } %>
+  <div class="auth-alert auth-alert--error" role="alert">
+    <%= render "shared/auth_icon", name: :alert_circle, size: 20 %>
+    <div>
+      <p><%= local_assigns.fetch(:lead, "We couldn't save your changes. Check the fields below.") %></p>
+      <% if extra.any? %>
+        <ul>
+          <% extra.each do |error| %>
+            <li><%= error.full_message %></li>
+          <% end %>
+        </ul>
+      <% end %>
+    </div>
+  </div>
+<% end %>

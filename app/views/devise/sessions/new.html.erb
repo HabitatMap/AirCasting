@@ -1,26 +1,40 @@
-<h2>Log in</h2>
+<%# A failed sign-in does not re-render this template: CustomFailure redirects
+    back to it with flash[:alert], which "shared/flash" below renders. %>
+<div class="auth-card">
+  <h1 class="auth-card__title">Sign in</h1>
 
-<%= form_for(resource, as: resource_name, url: session_path(resource_name)) do |f| %>
-  <div class="field">
-    <%= f.label :email %><br />
-    <%= f.email_field :email, autofocus: true %>
-  </div>
+  <%= render "shared/flash" %>
 
-  <div class="field">
-    <%= f.label :password %><br />
-    <%= f.password_field :password, autocomplete: "off" %>
-  </div>
-
-  <% if devise_mapping.rememberable? -%>
-    <div class="field">
-      <%= f.check_box :remember_me %>
-      <%= f.label :remember_me %>
+  <%= form_for(resource, as: resource_name, url: session_path(resource_name), html: { class: "auth-form" }) do |f| %>
+    <div class="auth-field">
+      <%= f.label :email, "Email", class: "auth-field__label" %>
+      <%= f.email_field :email,
+            autofocus: true,
+            autocomplete: "email",
+            placeholder: "you@example.com",
+            class: "auth-input" %>
     </div>
-  <% end -%>
 
-  <div class="actions">
-    <%= f.submit "Log in" %>
-  </div>
-<% end %>
+    <div class="auth-field">
+      <%= f.label :password, "Password", class: "auth-field__label" %>
+      <%= f.password_field :password,
+            autocomplete: "current-password",
+            placeholder: "Enter your password",
+            class: "auth-input" %>
+    </div>
 
-<%= render "devise/shared/links" %>
+    <div class="auth-remember">
+      <% if devise_mapping.rememberable? %>
+        <%= f.label :remember_me, class: "auth-checkbox" do %>
+          <%= f.check_box :remember_me %>
+          <span>Remember me</span>
+        <% end %>
+      <% end %>
+      <%= link_to "Forgot your password?", new_password_path(resource_name), class: "auth-link" %>
+    </div>
+
+    <%= f.submit "Sign in", class: "auth-button" %>
+  <% end %>
+
+  <%= render "devise/shared/links" %>
+</div>

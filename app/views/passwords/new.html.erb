@@ -1,12 +1,35 @@
-<h2>Forgot your password?</h2>
+<%# Rendered by PasswordsController (app/controllers/passwords_controller.rb),
+    which takes view-lookup precedence over devise/passwords/. %>
+<div class="auth-card">
+  <h1 class="auth-card__title">Forgot your password?</h1>
+  <p class="auth-card__subtitle">
+    Enter the email address for your AirCasting account and we'll send a link to reset your password.
+  </p>
 
-<%= form_for(resource, :as => resource_name, :url => password_path(resource_name), :html => { :method => :post }) do |f| %>
-  <%= devise_error_messages! %>
+  <%= render "shared/flash" %>
 
-  <div><%= f.label :email %><br />
-  <%= f.email_field :email %></div>
+  <%= render "devise/shared/error_summary", resource: resource, inline_attributes: [:email],
+             lead: "We couldn't send the link. Check the field below." %>
 
-  <div><%= f.submit "Send me reset password instructions" %></div>
-<% end %>
+  <%= form_for(resource, as: resource_name, url: password_path(resource_name), html: { method: :post, class: "auth-form" }) do |f| %>
+    <div class="auth-field">
+      <%= f.label :email, "Email", class: "auth-field__label" %>
+      <%= f.email_field :email,
+            autofocus: true,
+            autocomplete: "email",
+            placeholder: "you@example.com",
+            class: "auth-input",
+            "aria-invalid": resource.errors[:email].any?.to_s,
+            "aria-describedby": (resource.errors[:email].any? ? "email_error" : nil) %>
+      <%= render "devise/shared/field_error", resource: resource, attribute: :email %>
+    </div>
 
-<%= render :partial => "devise/shared/links" %>
+    <div class="auth-field">
+      <%= f.submit "Send reset link", class: "auth-button" %>
+      <%# Matches config.reset_password_within = 6.hours in config/initializers/devise.rb. %>
+      <p class="auth-field__hint">The link stays valid for 6 hours.</p>
+    </div>
+  <% end %>
+
+  <%= render "devise/shared/links" %>
+</div>

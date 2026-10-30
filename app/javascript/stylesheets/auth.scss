@@ -1,0 +1,523 @@
+// Account screens (Devise): sign in, sign up, edit account, password reset.
+//
+// Loaded only by app/views/layouts/auth.html.haml, through its own webpack
+// entry (app/javascript/packs/auth.scss). Every rule below is additionally
+// nested under `.auth-page`, so none of it — the focus ring in particular —
+// can reach the map view, which renders through layouts/client_app.
+//
+// Colours come from the Figma account kit. Where that kit disagrees with the
+// app's existing palette the kit wins, because the kit's values were picked
+// for contrast: acBlue #00b2ef is 2.44:1 on white and cannot carry a focus
+// ring or a border (WCAG 1.4.11 wants 3:1).
+//
+// Only 400 and 500 are declared. There is no Roboto 600 in this repo:
+// react/assets/fonts/Roboto-600.woff2 is mislabelled — its name table reads
+// "Roboto Cn" / "Roboto-Condensed", usWidthClass 3, usWeightClass 400. Loading
+// it for weight 600 renders every heading in Condensed. Titles therefore use
+// 500 until a real Roboto SemiBold or Bold is added.
+
+@font-face {
+  font-family: "Roboto";
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+  src: url("../react/assets/fonts/Roboto-400.woff2") format("woff2");
+  unicode-range: U+000-5FF;
+}
+
+@font-face {
+  font-family: "Roboto";
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+  src: url("../react/assets/fonts/Roboto-500.woff2") format("woff2");
+  unicode-range: U+000-5FF;
+}
+
+$page-bg: #f4f6f9;
+$surface: #ffffff;
+
+$text-strong: #3e4449;
+$text-body: #5e6267;
+$text-prompt: #44474a;
+$text-muted: #7d858c;
+
+$link: #0a7da3;
+$link-deep: #0a7093;
+$border-field: #7d8b99;
+$border-button: #0096c9;
+$border-disabled: #c0c9d1;
+
+$error: #ca3131;
+$error-border: #e95f5f;
+$error-bg: #fdecec;
+$success: #2f7522;
+$success-bg: #edf7ea;
+$warning: #9c570b;
+$warning-bg: #fef4e7;
+$info: #0a7093;
+$info-bg: #e6f7fd;
+
+$card-width: 520px;
+$content-width: 424px;
+$control-height: 48px;
+
+.auth-page {
+  font-family: "Roboto", Helvetica, Arial, sans-serif;
+  min-height: 100vh;
+  margin: 0;
+  background-color: $page-bg;
+  color: $text-body;
+  -webkit-font-smoothing: antialiased;
+
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+  }
+}
+
+.auth-skip-link {
+  position: absolute;
+  left: -9999px;
+  top: 0;
+  z-index: 10;
+  padding: 12px 16px;
+  background: $surface;
+  color: $link;
+  font-size: 14px;
+  font-weight: 500;
+
+  &:focus {
+    left: 0;
+  }
+}
+
+.auth-header {
+  // Lifted above .auth-main so the shadow is not painted over by the card's
+  // white background on mobile, where the two are flush.
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 80px;
+  padding: 0 32px;
+  background: $surface;
+  box-shadow: 0 5px 3px -4px rgba(51, 51, 51, 0.1);
+}
+
+.auth-header__logo {
+  display: block;
+  width: 160px;
+  height: 46px;
+  background: url("../../assets/images/aircasting-logo-nav.svg") no-repeat left
+    center;
+  background-size: contain;
+}
+
+.auth-header__link {
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 20px;
+  letter-spacing: 0.14px;
+  color: $link;
+  text-decoration: none;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+.auth-main {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  padding: 88px 16px 48px;
+}
+
+.auth-card {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  width: 100%;
+  max-width: $card-width;
+  padding: 48px 48px 40px;
+  background: $surface;
+  border-radius: 8px;
+  box-shadow: 1px 1px 8px rgba(215, 215, 215, 0.5);
+}
+
+.auth-card__title {
+  margin: 0;
+  font-size: 28px;
+  font-weight: 500;
+  line-height: 34px;
+  color: $text-strong;
+}
+
+.auth-card__subtitle {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 24px;
+  color: $text-body;
+}
+
+.auth-card__section-title {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 500;
+  line-height: 26px;
+  color: $text-strong;
+}
+
+.auth-card__divider {
+  height: 1px;
+  margin: 0;
+  border: 0;
+  background: #dfe7f2;
+}
+
+.auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  margin: 0;
+}
+
+.auth-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.auth-field__label {
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 18px;
+  letter-spacing: 0.14px;
+  color: $text-strong;
+}
+
+.auth-field__hint {
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 16px;
+  letter-spacing: 0.12px;
+  color: $text-body;
+}
+
+.auth-field__error {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 16px;
+  letter-spacing: 0.12px;
+  color: $error;
+
+  svg {
+    flex: none;
+    margin-top: 1px;
+  }
+}
+
+.auth-input {
+  width: 100%;
+  height: $control-height;
+  padding: 0 14px;
+  font-family: inherit;
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 24px;
+  color: $text-strong;
+  background: $surface;
+  border: 1px solid $border-field;
+  border-radius: 6px;
+
+  &::placeholder {
+    color: $text-muted;
+  }
+
+  // The active/typing state stays grey, matching the map's SearchInput — the
+  // only colour change on a field is the error border below.
+  &[aria-invalid="true"] {
+    border-width: 2px;
+    border-color: $error-border;
+  }
+
+  &:disabled {
+    border-color: $border-disabled;
+    color: $text-muted;
+  }
+}
+
+.auth-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: $control-height;
+  padding: 0 28px;
+  font-family: inherit;
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 20px;
+  letter-spacing: 0.16px;
+  color: $link;
+  background: $surface;
+  border: 2px solid $border-button;
+  border-radius: 10px;
+  cursor: pointer;
+
+  &:hover {
+    background: #f4fafd;
+  }
+
+  &:disabled {
+    color: $text-muted;
+    border-color: $border-disabled;
+    cursor: default;
+  }
+}
+
+.auth-button--danger {
+  color: $error;
+  border-color: $error-border;
+
+  &:hover {
+    background: $error-bg;
+  }
+}
+
+.auth-remember {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.auth-checkbox {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 18px;
+  letter-spacing: 0.14px;
+  color: $text-strong;
+
+  input[type="checkbox"] {
+    appearance: none;
+    -webkit-appearance: none;
+    flex: none;
+    // 24px, not the kit's original 20px: WCAG 2.5.8 wants a 24px target.
+    width: 24px;
+    height: 24px;
+    margin: 0;
+    background: $surface;
+    border: 1px solid $border-field;
+    border-radius: 4px;
+    cursor: pointer;
+
+    &:checked {
+      background-color: $link;
+      border-color: $link;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23ffffff' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='20 6 9 17 4 12'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: center;
+      background-size: 16px 16px;
+    }
+  }
+}
+
+.auth-link {
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 20px;
+  letter-spacing: 0.14px;
+  color: $link;
+  text-decoration: none;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+.auth-links {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+}
+
+.auth-link--back {
+  width: 100%;
+  text-align: center;
+  font-size: 16px;
+  line-height: 24px;
+  letter-spacing: 0.15px;
+}
+
+.auth-crosslink {
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 6px;
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 24px;
+  letter-spacing: 0.5px;
+  color: $text-prompt;
+
+  a {
+    font-weight: 500;
+    letter-spacing: 0.15px;
+    color: $link-deep;
+    text-decoration: none;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+}
+
+.auth-alert {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 14px 16px;
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 22px;
+  letter-spacing: 0.14px;
+  border: 1px solid;
+  border-radius: 6px;
+
+  svg {
+    flex: none;
+    margin-top: 1px;
+  }
+
+  p {
+    margin: 0;
+  }
+
+  ul {
+    margin: 4px 0 0;
+    padding-left: 18px;
+  }
+}
+
+.auth-alert--error {
+  color: $error;
+  background: $error-bg;
+  border-color: $error-border;
+}
+
+.auth-alert--success {
+  color: $success;
+  background: $success-bg;
+  border-color: $success;
+}
+
+.auth-alert--warning {
+  color: $warning;
+  background: $warning-bg;
+  border-color: $warning;
+}
+
+.auth-alert--info {
+  color: $info;
+  background: $info-bg;
+  border-color: $info;
+}
+
+.auth-flash {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+}
+
+// Keyboard focus only. :focus-visible never matches a mouse or touch press, so
+// the grey typing state on the design's "Typing" frame is unaffected. #0a7da3
+// is 4.69:1 on white; acBlue would have been 2.44:1 and would not qualify.
+//
+// A solid 4px ring flush against the field border, which is what the design
+// renders. Figma exported it as `0 0 0 4px #0A7DA3, 0 0 0 2px #FFFFFF`; that
+// second white shadow is painted under the first and never shows, so it is
+// dropped rather than reordered — reordering it produces a 2px ring with a
+// white gap, which is not the design.
+.auth-page {
+  :focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 4px $link;
+    border-radius: 6px;
+  }
+
+  .auth-button:focus-visible {
+    border-radius: 10px;
+  }
+}
+
+.auth-visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  border: 0;
+}
+
+// Mobile, per the "18 Mobile — Sign up" frame (390px). The card stops being a
+// card: the page background goes white, the radius and shadow drop, and the
+// content runs full bleed with its own 24px gutter. The only line left between
+// the header and the content is the header's own shadow.
+@media (max-width: 600px) {
+  .auth-page {
+    background-color: $surface;
+  }
+
+  .auth-header {
+    height: 64px;
+    padding: 0 20px;
+  }
+
+  .auth-header__logo {
+    width: 120px;
+    height: 35px;
+  }
+
+  // The mobile frames show the logo alone in the header. Hidden rather than
+  // removed from the markup: the map is still one tap away via the logo, which
+  // links to the same place.
+  .auth-header__link {
+    display: none;
+  }
+
+  .auth-main {
+    align-items: stretch;
+    gap: 0;
+    padding: 0;
+  }
+
+  .auth-card {
+    max-width: none;
+    padding: 28px 24px 32px;
+    border-radius: 0;
+    box-shadow: none;
+  }
+
+  // 342px fits "Remember me" and "Forgot your password?" side by side, but the
+  // label wraps on a 320px device, so let the row break rather than squash.
+  .auth-remember {
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+}

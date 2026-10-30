@@ -1,0 +1,17 @@
+<%# Nothing in this app rendered `flash` before this partial existed, so every
+    Devise notice — reset link sent, password changed, signed out — was set and
+    then silently dropped. role="status" / role="alert" so the message is
+    announced rather than only drawn (WCAG 4.1.3). %>
+<% tones = { notice: :success, success: :success, alert: :error, error: :error } %>
+<% visible = flash.to_hash.select { |key, value| tones.key?(key.to_sym) && value.present? } %>
+<% if visible.any? %>
+  <div class="auth-flash">
+    <% visible.each do |key, message| %>
+      <% tone = tones[key.to_sym] %>
+      <div class="auth-alert auth-alert--<%= tone %>" role="<%= tone == :error ? "alert" : "status" %>">
+        <%= render "shared/auth_icon", name: (tone == :error ? :alert_circle : :check_circle), size: 20 %>
+        <p><%= message %></p>
+      </div>
+    <% end %>
+  </div>
+<% end %>

@@ -1,16 +1,52 @@
-<h2>Change your password</h2>
+<%# Rendered by PasswordsController (app/controllers/passwords_controller.rb),
+    which takes view-lookup precedence over devise/passwords/.
 
-<%= form_for(resource, :as => resource_name, :url => password_path(resource_name), :html => { :method => :put }) do |f| %>
-  <%= devise_error_messages! %>
-  <%= f.hidden_field :reset_password_token %>
+    An expired or already-used token only surfaces here, on PUT: Devise does not
+    check the token on GET. It lands in resource.errors[:reset_password_token],
+    which belongs to a hidden field, so the summary banner is what surfaces it. %>
+<div class="auth-card">
+  <h1 class="auth-card__title">Choose a new password</h1>
+  <p class="auth-card__subtitle">
+    Pick a password you don't use anywhere else. You'll be signed in as soon as it's saved.
+  </p>
 
-  <div><%= f.label :password, "New password" %><br />
-  <%= f.password_field :password %></div>
+  <%= render "shared/flash" %>
 
-  <div><%= f.label :password_confirmation, "Confirm new password" %><br />
-  <%= f.password_field :password_confirmation %></div>
+  <%= render "devise/shared/error_summary", resource: resource,
+             inline_attributes: [:password, :password_confirmation],
+             lead: "Your password couldn't be saved. Check the two fields below." %>
 
-  <div><%= f.submit "Change my password" %></div>
-<% end %>
+  <%= form_for(resource, as: resource_name, url: password_path(resource_name), html: { method: :put, class: "auth-form" }) do |f| %>
+    <%= f.hidden_field :reset_password_token %>
 
-<%= render :partial => "devise/shared/links" %>
+    <div class="auth-field">
+      <%= f.label :password, "New password", class: "auth-field__label" %>
+      <%= f.password_field :password,
+            autofocus: true,
+            autocomplete: "new-password",
+            placeholder: "Enter a new password",
+            class: "auth-input",
+            "aria-invalid": resource.errors[:password].any?.to_s,
+            "aria-describedby": [("password_error" if resource.errors[:password].any?), "password_hint"].compact.join(" ") %>
+      <% if @minimum_password_length %>
+        <p class="auth-field__hint" id="password_hint">At least <%= @minimum_password_length %> characters.</p>
+      <% end %>
+      <%= render "devise/shared/field_error", resource: resource, attribute: :password %>
+    </div>
+
+    <div class="auth-field">
+      <%= f.label :password_confirmation, "Confirm new password", class: "auth-field__label" %>
+      <%= f.password_field :password_confirmation,
+            autocomplete: "new-password",
+            placeholder: "Type it once more",
+            class: "auth-input",
+            "aria-invalid": resource.errors[:password_confirmation].any?.to_s,
+            "aria-describedby": (resource.errors[:password_confirmation].any? ? "password_confirmation_error" : nil) %>
+      <%= render "devise/shared/field_error", resource: resource, attribute: :password_confirmation %>
+    </div>
+
+    <%= f.submit "Change my password", class: "auth-button" %>
+  <% end %>
+
+  <%= render "devise/shared/links" %>
+</div>
