@@ -34,3 +34,15 @@ en:
     attributes:
       user:
         login: "Username or email"
+    errors:
+      models:
+        user:
+          attributes:
+            password_confirmation:
+              # Rails' default full message is "Password confirmation doesn't match
+              # Password", which repeats the field label the user has just read.
+              # `format` drops the attribute prefix for this one attribute; it is
+              # only honoured because config.active_model.i18n_customize_full_message
+              # is enabled in config/application.rb.
+              format: "%{message}"
+              confirmation: "Doesn't match the password above"

@@ -51,11 +51,19 @@ describe 'POST /api/user.json', type: :request do
 
     # Worth knowing before a new client renders the field: blank is "sent",
     # not "absent", and the message is a mismatch rather than a presence error.
+    #
+    # The wording is overridden in config/locales/en.yml for the web account
+    # screens, and this body carries the same raw message, so a client that
+    # displays it verbatim shows the web copy. Deliberate: nothing parses the
+    # string, the contract is the key and the array-of-strings shape pinned
+    # below, and a copy change is not a breaking change.
     it 'treats an empty string as sent, and fails the match' do
       signup(password_confirmation: '')
 
       expect(response).to have_http_status(422)
-      expect(JSON.parse(response.body)['password_confirmation']).to eq(["doesn't match Password"])
+      expect(JSON.parse(response.body)['password_confirmation']).to eq(
+        ["Doesn't match the password above"],
+      )
     end
   end
 
