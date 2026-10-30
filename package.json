@@ -32,7 +32,7 @@
     "dotenv-webpack": "^8.0.1",
     "downshift": "^9.0.4",
     "esbuild-loader": "^4.0.2",
-    "highcharts": "^11.4.8",
+    "highcharts": "^11.4.9",
     "highcharts-react-official": "^3.2.1",
     "humps": "^2.0.1",
     "i18next": "^23.7.8",
