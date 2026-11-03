@@ -108,6 +108,12 @@ module GovernmentSources
 
     # upsert_all skips validations: excluded_reason must come from
     # ::Station::EXCLUDED_REASONS.
+    #
+    # url_token is deliberately absent from update_only: it is written once, on
+    # insert, and never again. A share link that rotated when a site list
+    # redescribed its station would break every copy already shared. Stations
+    # stored before the column existed are filled by
+    # `rake stations:backfill_url_tokens`, not here.
     def upsert_stations(records:)
       return if records.empty?
 
@@ -128,6 +134,10 @@ module GovernmentSources
         .where(source_id: source_id(source_name: source_name))
         .pluck('stream_configurations.measurement_type', :external_ref)
         .to_set
+    end
+
+    def station_url_token_available?(token)
+      !::Station.where(url_token: token).exists?
     end
 
     def station_stream_url_token_available?(token)

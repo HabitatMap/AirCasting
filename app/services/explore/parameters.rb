@@ -21,6 +21,23 @@ module Explore
 
     KEYS = CATALOGUE.keys.freeze
 
+    # The catalogue key a government stream configuration's measurement_type
+    # stands for ('PM2.5' => 'Particulate Matter'), for readers that report
+    # every stream of a station rather than a selection of them. A pollutant
+    # the catalogue does not name yet keeps its own spelling: the station detail
+    # shows it, the filter chips do not offer it.
+    GOVERNMENT_KEY_BY_MEASUREMENT_TYPE =
+      CATALOGUE
+        .filter_map do |key, spellings|
+          [spellings[:government], key] if spellings[:government]
+        end
+        .to_h
+        .freeze
+
+    def self.government_key(measurement_type)
+      GOVERNMENT_KEY_BY_MEASUREMENT_TYPE.fetch(measurement_type, measurement_type)
+    end
+
     # canonical name => every lowercased spelling stored for it
     AIRBEAM_SPELLINGS =
       Sensor::CANONICAL_SENSOR_NAME_MAP

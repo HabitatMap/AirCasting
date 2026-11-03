@@ -3109,6 +3109,133 @@ paths:
                           nullable: true
                         number:
                           type: integer
+  "/s/{url_token}":
+    get:
+      summary: Open a shared AirBeam session on the web map
+      tags:
+      - 'Web app: Export & sharing'
+      security: []
+      description: |
+        Opens one stream of a shared item on the web map, as a `302`. This is what
+        the `share_url` fields point at — follow one in a browser rather than
+        parsing its target, whose query string is internal.
+
+        **`sensor_name` is required.** The map shows one stream at a time, so the
+        link has to name which. Use a value the item itself reported, from its
+        `streams[].sensor_name`.
+
+        **A bare token with no query string does not reach this route.** It falls
+        through to the single-page app, which answers `200` with the map's HTML —
+        looks like success, selects nothing.
+      parameters:
+      - name: url_token
+        in: path
+        required: true
+        schema:
+          type: string
+        example: ab12c
+        description: The token embedded in a session `share_url`
+      - name: sensor_name
+        in: query
+        required: true
+        schema:
+          type: string
+        example: AirBeamMini-PM2.5
+        description: Which stream of the session to open
+      responses:
+        '302':
+          description: redirect to the web map, opened on that stream
+          headers:
+            Location:
+              schema:
+                type: string
+              description: The web map URL, with the stream and its thresholds
+        '400':
+          description: "`sensor_name` missing"
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties:
+                  type: array
+                  items:
+                    type: string
+                example:
+                  sensor_name:
+                  - is missing
+        '404':
+          description: no such token, or the session has no such stream
+          content:
+            application/json:
+              schema:
+                type: string
+                example: 404 Not Found
+  "/g/{url_token}":
+    get:
+      summary: Open a shared government station on the web map
+      tags:
+      - 'Web app: Export & sharing'
+      security: []
+      description: |
+        Opens one stream of a shared item on the web map, as a `302`. This is what
+        the `share_url` fields point at — follow one in a browser rather than
+        parsing its target, whose query string is internal.
+
+        **`sensor_name` is required.** The map shows one stream at a time, so the
+        link has to name which. Use a value the item itself reported, from its
+        `streams[].sensor_name`.
+
+        **A bare token with no query string does not reach this route.** It falls
+        through to the single-page app, which answers `200` with the map's HTML —
+        looks like success, selects nothing.
+
+        A separate namespace from `/s/` on purpose: the two kinds of token are
+        drawn from the same alphabet and may collide, so the path segment is
+        what says which kind this one is. A government `sensor_name` is
+        `Government-<measurement type>`, matched case-insensitively.
+      parameters:
+      - name: url_token
+        in: path
+        required: true
+        schema:
+          type: string
+        example: ab3k9
+        description: The token embedded in a station `share_url`
+      - name: sensor_name
+        in: query
+        required: true
+        schema:
+          type: string
+        example: Government-PM2.5
+        description: Which stream of the station to open
+      responses:
+        '302':
+          description: redirect to the web map, opened on that stream
+          headers:
+            Location:
+              schema:
+                type: string
+              description: The web map URL, with the stream and its thresholds
+        '400':
+          description: "`sensor_name` missing"
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties:
+                  type: array
+                  items:
+                    type: string
+                example:
+                  sensor_name:
+                  - is missing
+        '404':
+          description: no such token, or the station has no such stream
+          content:
+            application/json:
+              schema:
+                type: string
+                example: 404 Not Found
   "/api/thresholds/{id}":
     get:
       summary: Threshold set for a sensor
@@ -3860,6 +3987,206 @@ paths:
                         params:
                           unknown:
                           - PM10
+  "/api/v3/explore/stations/{uuid}":
+    get:
+      summary: "[ALPHA] One AirBeam fixed session or government station in full"
+      tags:
+      - 'Mobile app: Explore map'
+      security: []
+      description: |
+        One station in full, behind a marker on `GET /api/v3/explore/map`: the same item, plus
+        `device_model`, `share_url`, `time_zone`, `is_active` and each stream's
+        `update_frequency` and 24-hour range.
+
+        **Every stream is returned**, not only those matching the map's filter chips — an
+        AirBeam session lists PM1 and PM10 next to PM2.5.
+
+        **A station that stopped reporting still answers.** The map shows only what reported in
+        the last 24 hours; this endpoint has no such filter, so a station that went quiet still
+        opens, with `is_active: false`, its last reading at its real age, and `last_24h: null`.
+
+        `uuid` alone addresses both sources: `sessions.uuid` for AirBeam, `stations.uuid` for
+        government. The two never overlap, so a client can follow a marker without carrying its
+        `source` back.
+      parameters:
+      - name: uuid
+        in: path
+        required: true
+        schema:
+          type: string
+        description: The `uuid` of an item returned by `GET /api/v3/explore/map`
+      responses:
+        '200':
+          description: the station detail
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - uuid
+                - source
+                - title
+                - provider
+                - latitude
+                - longitude
+                - time_zone
+                - device_model
+                - is_active
+                - streams
+                properties:
+                  uuid:
+                    type: string
+                    example: 0b7e3f5a-6c1d-4e2f-9a8b-3c4d5e6f7a8b
+                    description: "`sessions.uuid` for AirBeam, `stations.uuid` for
+                      government"
+                  source:
+                    type: string
+                    enum:
+                    - airbeam
+                    - government
+                    example: airbeam
+                  title:
+                    type: string
+                    example: Home AirBeam Garden
+                  provider:
+                    type: string
+                    example: jane
+                    description: 'AirBeam: the owner''s username. Government: the
+                      source''s full name'
+                  latitude:
+                    type: number
+                    format: double
+                    example: 40.1
+                  longitude:
+                    type: number
+                    format: double
+                    example: -73.2
+                  time_zone:
+                    type: string
+                    example: America/New_York
+                    description: IANA zone of the station. Use it to render `last_measurement.time`
+                      as local time at the sensor
+                  device_model:
+                    type: string
+                    nullable: true
+                    example: AirBeamMini
+                    description: The AirBeam model, where it is known — never the
+                      MAC address, and never the owner's own name for their device.
+                      Null for a government station, and for an AirBeam session whose
+                      streams name no model the server recognises
+                  share_url:
+                    type: string
+                    example: https://aircasting.org/s/ab12c
+                    description: 'A link to this item on the web map: `/s/<token>`
+                      for an AirBeam session, `/g/<token>` for a government station.
+                      Append `?sensor_name=<stream>` — both routes require it, because
+                      the web shows one stream at a time. **May be absent** for a
+                      government station that has no token yet; treat absent as "not
+                      shareable", not as an error'
+                  is_active:
+                    type: boolean
+                    example: true
+                    description: Whether the station reported within the last 24 hours
+                      and was not finished by its owner
+                  streams:
+                    type: array
+                    minItems: 1
+                    description: Every stream of the station, catalogue order first
+                      and the rest by sensor name
+                    items:
+                      type: object
+                      required:
+                      - stream_id
+                      - sensor_name
+                      - measurement_type
+                      - unit_symbol
+                      - update_frequency
+                      - last_measurement
+                      - last_24h
+                      properties:
+                        stream_id:
+                          type: integer
+                          example: 35404
+                          description: "`streams.id` for AirBeam, `station_streams.id`
+                            for government, so it is unique only within a `source`.
+                            The same id `GET /api/v3/explore/map` sends"
+                        sensor_name:
+                          type: string
+                          example: AirBeam-PM1
+                          description: The sensor the reading comes from, as in `/api/sensors`
+                        measurement_type:
+                          type: string
+                          example: Particulate Matter
+                          description: As `/api/sensors` spells it. Every stream is
+                            listed, so a pollutant that is not one of the map's filter
+                            chips appears under its own spelling
+                        unit_symbol:
+                          type: string
+                          example: µg/m³
+                          description: The unit the value is in. Temperature is Fahrenheit
+                        update_frequency:
+                          type: string
+                          enum:
+                          - 1 minute
+                          - 1 hour
+                          example: 1 minute
+                          description: How often this stream reports. Display text,
+                            not a duration to parse
+                        last_measurement:
+                          type: object
+                          nullable: true
+                          required:
+                          - value
+                          - time
+                          description: Same shape as `last_measurement` on `GET /api/v3/explore/map`.
+                            Null when the stream has never reported
+                          properties:
+                            value:
+                              type: integer
+                              example: 8
+                              description: 'Rounded to a whole number. AirBeam: the
+                                last hourly average, or the newest reading while there
+                                is none. Government: the newest reading'
+                            time:
+                              type: integer
+                              format: int64
+                              example: 1793282400000
+                              description: Epoch milliseconds, UTC. May be days old
+                                on a station that stopped reporting
+                        last_24h:
+                          type: object
+                          nullable: true
+                          required:
+                          - min
+                          - max
+                          description: This stream's lowest and highest reading over
+                            the last 24 hours, from raw readings rather than hourly
+                            averages. Null when it reported nothing in that window
+                          properties:
+                            min:
+                              type: integer
+                              example: 3
+                              description: Rounded to a whole number
+                            max:
+                              type: integer
+                              example: 10
+                              description: Rounded to a whole number
+        '404':
+          description: no public item of either source has this uuid
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - error_code
+                - message
+                properties:
+                  error_code:
+                    type: string
+                    example: not_found
+                  message:
+                    type: string
+                    example: Station not found
   "/api/v3/fixed_sessions":
     get:
       summary: "[ALPHA] List the signed-in user's fixed sessions"

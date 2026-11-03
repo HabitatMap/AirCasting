@@ -31,34 +31,19 @@ module Explore
       stream_value.value
     ].freeze
 
-    # One row per stream. The Limit stops the Append after its first row, so
-    # the fixed_measurements branch only runs for a stream without an hourly
-    # average. That branch is a top-1 probe of
-    # index_fixed_measurements_on_stream_id_and_time_with_time_zone; a
-    # DISTINCT ON over the stream ids would read every row of every stream.
-    # A stream with neither has never reported and drops out.
-    # stream_hourly_averages.date_time is UTC without a zone and marks the end
-    # of the hour it averages.
-    CURRENT_VALUE_JOIN = <<~SQL.freeze
-      LEFT JOIN stream_hourly_averages
-        ON stream_hourly_averages.id = streams.last_hourly_average_id
-      JOIN LATERAL (
-        (
-          SELECT stream_hourly_averages.value::float8 AS value,
-                 stream_hourly_averages.date_time AT TIME ZONE 'UTC' AS measured_at
-          WHERE stream_hourly_averages.id IS NOT NULL
-        )
-        UNION ALL
-        (
-          SELECT value, time_with_time_zone
-          FROM fixed_measurements
-          WHERE fixed_measurements.stream_id = streams.id
-          ORDER BY time_with_time_zone DESC
-          LIMIT 1
-        )
-        LIMIT 1
-      ) stream_value ON true
-    SQL
+    CURRENT_VALUE_JOIN = CurrentValueJoin.sql(required: true).freeze
+
+    # What "public" means, shared with Explore::StationQuery so the two cannot
+    # drift: a contributed, outdoor session that is not the legacy government
+    # ingest wearing a user account. Liveness is deliberately not part of it —
+    # the map adds `.active` below, the detail endpoint serves dormant and finished
+    # sessions too.
+    def self.public_scope
+      FixedSession
+        .joins(:user, :streams)
+        .where(contribute: true, is_indoor: false)
+        .where.not(users: { username: GOVERNMENT_USERNAMES })
+    end
 
     def call(bounds:, parameters:, title: nil)
       return [] unless parameters.airbeam?
@@ -84,17 +69,17 @@ module Explore
 
     private
 
-    # `active` first: last_measurement_at is the one indexed column here and
-    # shrinks the set before the bounds, which sessions has no index for.
-    # is_indoor = false also drops NULL, an unknown we would rather not place
+    # `active` is the map's own filter on top of the shared public scope:
+    # last_measurement_at is the one indexed column here and shrinks the set
+    # before the bounds, which sessions has no index for. is_indoor = false,
+    # in public_scope, also drops NULL — an unknown we would rather not place
     # on a public map.
     def scope(bounds, parameters, title)
       query =
-        FixedSession
+        self
+          .class
+          .public_scope
           .active
-          .joins(:user, :streams)
-          .where(contribute: true, is_indoor: false)
-          .where.not(users: { username: GOVERNMENT_USERNAMES })
           .where(
             bounds.between_condition('sessions.latitude', 'sessions.longitude'),
           )

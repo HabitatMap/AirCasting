@@ -64,9 +64,11 @@ describe Explore::GovItemsQuery do
     expect(items.first.streams.map(&:to_h)).to eq(
       [
         { id: pm_stream.id, sensor_name: 'Government-PM2.5', parameter: 'Particulate Matter',
-          unit_symbol: 'µg/m³', last_value: 8.5, last_measured_at: measured_at },
+          unit_symbol: 'µg/m³', last_value: 8.5, last_measured_at: measured_at,
+          update_frequency: nil, min_24h: nil, max_24h: nil },
         { id: ozone_stream.id, sensor_name: 'Government-Ozone', parameter: 'Ozone',
-          unit_symbol: 'ppb', last_value: 31.0, last_measured_at: measured_at },
+          unit_symbol: 'ppb', last_value: 31.0, last_measured_at: measured_at,
+          update_frequency: nil, min_24h: nil, max_24h: nil },
       ],
     )
   end

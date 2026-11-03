@@ -87,6 +87,7 @@ Highcharts can plot with `useUTC: true`.
 | POST | `/api/v3/fixed_sessions/{uuid}/finish` | Decommission a monitor. Takes no body — server time; unlike the mobile route it has no `finished_at` |
 | POST | `/api/v3/fixed_sessions/{uuid}/measurements` | Upload binary measurements (9-byte frames, 6000 max per request) |
 | GET | `/api/v3/explore/map` | Public. Active outdoor AirBeam fixed sessions and EPA stations in a viewport, clustered on the server. `sources` and `measurement_types` are comma-separated, empty = all; whole-number `zoom`. Stations carry title, provider and a `streams` array — one entry per selected stream with `stream_id`, `sensor_name`, `measurement_type`, `unit_symbol` and a `last_measurement` `{value, time}` shaped as on `/api/v3/fixed_sessions`, `value` rounded to an integer; clusters only position and count, plus `value` when one measurement type is selected |
+| GET | `/api/v3/explore/stations/{uuid}` | Public. One station in full, behind a marker on `/api/v3/explore/map`, AirBeam session or EPA/EEA station, addressed by `uuid` alone — `sessions.uuid` or `stations.uuid`. A superset of the map's item: adds `device_model` (model only, never the MAC or the owner's device name; null for a station), `is_active`, `time_zone` (IANA zone **of the sensor**, so a client renders the epoch-ms timestamps as local time where the station stands, not where the reader is; non-null for both sources), `share_url` (`/s/<token>` for an AirBeam session, `/g/<token>` for a government station; **absent, not null**, for a station stored before `stations.url_token` existed and not yet backfilled), and per stream `update_frequency` plus `last_24h` `{min, max}` from raw readings. Returns **every** stream, not only the map's filter parameters, and has **no liveness filter** — a favourite that stopped reporting still opens, with `is_active: false` and `last_24h: null`. Private, indoor, excluded and unknown all answer the same 404 |
 | GET | `/api/v3/threshold_sets` | Public. Default colour-scale bands, one entry per measurement parameter (not per AirBeam model); device spellings listed in `aliases`. The same bands the server assigns when a session is created without `thresholds`. Cacheable 1h |
 
 Request and response shapes are in `swagger/swagger.yaml`; the source is
@@ -182,3 +183,29 @@ lookup stays on `index_streams_on_sensor_package_name`. `:` and `-` stay
 distinct: live Bluetooth recordings use `:`, fixed sessions over WiFi and
 SD-card syncs use `-`. `spec/swagger/v3/sessions_spec.rb` documents the
 response.
+
+## Share links
+
+Not JSON endpoints — each answers a `302` to the web map, opened on one stream.
+These are what the `share_url` fields of the session and explore endpoints point
+at; follow one, do not rebuild it from the token.
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/s/{url_token}` | An AirBeam session. `sessions.url_token` |
+| GET | `/g/{url_token}` | A government station. `stations.url_token` |
+
+`sensor_name` is a **required** query parameter on both — the map shows one
+stream at a time, so the link has to name which. Use a value the item itself
+reported in `streams[].sensor_name`; for a station that is
+`Government-<measurement type>`, matched case-insensitively. Missing it is a
+`400`; an unknown token, or a stream the item does not have, is a `404`.
+
+A bare token with no query string never reaches either route: the
+`query_string: /.+/` constraint misses and the `get '*path'` catch-all serves
+the single-page app, a `200` of map HTML that selects nothing.
+
+The two token namespaces are deliberately separate. Both draw from the same
+base-36 alphabet over different tables, so the same token can name a session and
+a station at once — the path segment is what disambiguates.
+`spec/swagger/share_links_spec.rb` documents both.

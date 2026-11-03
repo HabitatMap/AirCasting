@@ -37,11 +37,19 @@ Rails.application.routes.draw do
   get 'mobile_map', to: redirect('/new_map', status: 302)
   get 'fixed_map', to: redirect('/new_map', status: 302)
 
+  # AB session share url
   get 's/:url_token' => 'measurement_sessions#show',
       :constraints => {
         query_string: /.+/,
       },
       :as => :short_session
+
+  # GOV session share url
+  get 'g/:url_token' => 'station_links#show',
+      :constraints => {
+        query_string: /.+/,
+      },
+      :as => :short_station
 
   get 'l/:slug' => 'shortened_urls#show', as: :short_link
 
@@ -130,6 +138,7 @@ Rails.application.routes.draw do
       resources :sessions, only: %i[index]
       get 'timelapse' => 'fixed_stream_clusters#index'
       get 'explore/map' => 'explore#map'
+      get 'explore/stations/:uuid' => 'explore#station'
       resources :fixed_sessions, only: %i[index show create destroy], param: :uuid do
         patch '/', action: :update, on: :member
         post 'finish', action: :finish, on: :member
