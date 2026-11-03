@@ -98,6 +98,6 @@ class SessionsRepository
   end
 
   def with_sensor_package_name(query, sensor_package_name)
-    query.where('streams.sensor_package_name = ?', sensor_package_name)
+    query.where(streams: { sensor_package_name: sensor_package_name })
   end
 end

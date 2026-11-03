@@ -6,8 +6,9 @@ info:
   description: |
     Endpoints used by the AirCasting mobile apps and web frontend.
 
-    Tags are grouped by client: `Mobile app:` (iOS/Android) and `Web app:`
-    (the web frontend). No endpoint is used by both. Tags marked
+    Tags are grouped by client: `Mobile app:` (iOS/Android), `Web app:`
+    (the web frontend) and `Data access:` (external data pipelines). No
+    endpoint is used by more than one. Tags marked
     **[DEPRECATED]** are served only for already-released mobile builds —
     build new clients against the `/api/v3` endpoints.
 components:
@@ -73,6 +74,9 @@ tags:
   description: Sensor lists and threshold sets.
 - name: 'Web app: Export & sharing'
   description: Session CSV export and short-URL creation.
+- name: 'Data access: Sessions'
+  description: Public lookup of AirBeam sessions by device id, tags and date range,
+    for pulling data into external tools.
 paths:
   "/api/fixed/autocomplete/tags":
     get:
@@ -7565,6 +7569,169 @@ paths:
               format: binary
               description: Binary payload as described above
         required: true
+  "/api/v3/sessions":
+    get:
+      summary: Sessions by device, tags and date range
+      tags:
+      - 'Data access: Sessions'
+      security: []
+      description: Not paginated and in no guaranteed order — narrow the window rather
+        than page. Sessions without streams are never returned.
+      parameters:
+      - name: sensor_package_name
+        in: query
+        required: false
+        description: "`<Model>:<device id>`, e.g. `AirBeamMini:CC8DA2692E7C`. The
+          device id matches in lowercase or uppercase; the rest matches exactly. `:`
+          and `-` are different values: live Bluetooth recordings are stored as `AirBeam3:<id>`,
+          fixed sessions over WiFi and SD-card syncs as `AirBeam3-<id>` — query both
+          for all of a device's sessions."
+        schema:
+          type: string
+      - name: start_datetime
+        in: query
+        required: false
+        schema:
+          type: string
+          format: date-time
+        description: 'Compared with the session start, in the wall clock where it
+          was recorded. Default: start of the day 30 days ago'
+      - name: end_datetime
+        in: query
+        required: false
+        schema:
+          type: string
+          format: date-time
+        description: 'Same clock as `start_datetime`. Default: end of today'
+      - name: tags[]
+        in: query
+        required: false
+        schema:
+          type: array
+          items:
+            type: string
+        style: form
+        explode: true
+        description: Sessions carrying any of these tags
+      responses:
+        '200':
+          description: matching sessions
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - sessions
+                properties:
+                  sessions:
+                    type: array
+                    items:
+                      type: object
+                      required:
+                      - id
+                      - title
+                      - start_datetime
+                      - end_datetime
+                      - type
+                      - streams
+                      properties:
+                        id:
+                          type: integer
+                          example: 1977171
+                        title:
+                          type: string
+                          example: Yaba Hub
+                        start_datetime:
+                          type: string
+                          description: Wall clock where the session was recorded,
+                            no offset
+                          example: '2026-10-27T19:24:00'
+                        end_datetime:
+                          type: string
+                          description: Wall clock where the session was recorded,
+                            no offset
+                          example: '2026-10-27T20:10:00'
+                        type:
+                          type: string
+                          enum:
+                          - MobileSession
+                          - FixedSession
+                        streams:
+                          type: array
+                          description: With `sensor_package_name`, only the streams
+                            of that device; otherwise every stream of the session.
+                          items:
+                            type: object
+                            required:
+                            - id
+                            - sensor_name
+                            - measurement_type
+                            properties:
+                              id:
+                                type: integer
+                              sensor_name:
+                                type: string
+                                example: AirBeamMini-PM2.5
+                              measurement_type:
+                                type: string
+                                example: Particulate Matter
+        '400':
+          description: invalid query parameters
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - error_code
+                - message
+                - fields
+                properties:
+                  error_code:
+                    type: string
+                    example: validation_error
+                  message:
+                    type: string
+                    example: Request body is invalid
+                  fields:
+                    type: object
+                    description: |
+                      Per-field validation errors. Present only when the request shape is wrong.
+
+                      Keys are the parameters that failed, nested exactly as they were sent — a
+                      bad stream appears under its index in the array. Every leaf is a list of
+                      objects, one per failure:
+
+                      - `code` — machine-readable. Switch on this to show your own translated
+                        message; this API is not localised.
+                      - `message` — English, a fallback for codes you do not handle yet. Never
+                        parse it.
+                      - `params` — present when the message interpolates a value, so the
+                        sentence can be rebuilt in another language. `too_small` carries `min`,
+                        `not_included` carries `allowed`.
+
+                      Codes for a value of the wrong shape are the same on every endpoint:
+
+                      `missing`, `blank`, `not_a_string`, `not_an_integer`, `not_a_float`,
+                      `not_a_boolean`, `not_a_time`, `not_a_date`, `not_a_date_time`,
+                      `not_an_array`, `not_a_hash`, `too_small` (`min`), `too_large` (`max`),
+                      `too_short` (`min`), `too_long` (`max`), `not_included` (`allowed`),
+                      `invalid_format` (`format`), `wrong_size` (`size`).
+
+                      Codes for a rule the endpoint enforces are specific to it — `greater_than`,
+                      `greater_than_or_equal_to`, `window_too_long`, `unknown_value`, `duplicate`,
+                      `requires_one_of` and so on. Each one that compares two parameters carries
+                      the other's name in `params.other`. Each operation's `fields` example shows
+                      the codes it can return.
+
+                      New codes are added as the API grows, and `invalid` is used wherever a
+                      failure has prose but no code assigned yet. Treat both the same way: fall
+                      back to `message`. A client must never break on a code it does not know.
+                    example:
+                      end_datetime:
+                      - code: greater_than
+                        message: must be greater than start_datetime
+                        params:
+                          other: start_datetime
   "/api/v3/station_streams/{id}":
     get:
       summary: Station stream detail (government, new model)

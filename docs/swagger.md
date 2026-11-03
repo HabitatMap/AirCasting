@@ -3,13 +3,15 @@
 ## How the docs are organised
 
 Every operation belongs to exactly one tag, and the tag name is the grouping
-shown in the Swagger UI sidebar. Two families:
+shown in the Swagger UI sidebar. Three families:
 
 - **`Mobile app:`** — called by the released iOS and Android builds.
 - **`Web app:`** — called by the React frontend.
+- **`Data access:`** — public reads for external data pipelines; no AirCasting
+  client calls them.
 
-No endpoint belongs to both: the two clients use separate paths even where the
-data overlaps (`/api/fixed/active/sessions.json` vs `sessions2.json`,
+No endpoint belongs to more than one: the apps and the frontend use separate
+paths even where the data overlaps (`/api/fixed/active/sessions.json` vs `sessions2.json`,
 `/api/sessions/export_by_uuid.json` vs `/api/sessions/export.json`, which is why
 each client has its own *Export & sharing* tag). If that
 ever changes, list the operation under the client it is documented *for* rather
@@ -54,6 +56,12 @@ the docs. `swagger/swagger.yaml` is generated — never edit it by hand.
 | Autocomplete | `autocomplete_spec.rb` |
 | Sensors & thresholds | `thresholds_and_sensors_spec.rb` |
 | Export & sharing | `exports_and_short_url_spec.rb` |
+
+### Data access
+
+| Tag | Spec file |
+|---|---|
+| Sessions | `v3/sessions_spec.rb` |
 
 `v3/measurements_spec.rb` and `v3/daily_averages_spec.rb` each hold the AirBeam
 and the Station variant of one endpoint pair, so they appear under two tags.

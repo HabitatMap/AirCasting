@@ -128,6 +128,26 @@ describe SessionsRepository do
       expect(result).to match_array([session_1, session_2])
     end
 
+    it 'returns sessions matching any of the given sensor_package_names' do
+      session_1 = create(:mobile_session)
+      session_2 = create(:mobile_session)
+      create(:stream, session: session_1, sensor_package_name: 'AirBeamMini:cc8d')
+      create(:stream, session: session_2, sensor_package_name: 'AirBeamMini:CC8D')
+      _another_session = create(:mobile_session)
+      create(
+        :stream,
+        session: _another_session,
+        sensor_package_name: 'AirBeamMini:ab12',
+      )
+
+      result =
+        subject.filter(
+          params: { sensor_package_name: %w[AirBeamMini:cc8d AirBeamMini:CC8D] },
+        )
+
+      expect(result).to match_array([session_1, session_2])
+    end
+
     it 'returns sessions filtered only by date range' do
       session_1 = create(:mobile_session, start_time_local: '2025-01-15T09:00')
       session_2 = create(:mobile_session, start_time_local: '2025-01-18T09:00')

@@ -52,6 +52,37 @@ describe 'GET api/v3/sessions' do
     end
   end
 
+  context 'when stored sensor_package_names differ in case' do
+    it 'returns sessions for both lowercase and uppercase device ids' do
+      lowercase_session = create(:mobile_session, start_time_local: 1.day.ago)
+      uppercase_session = create(:mobile_session, start_time_local: 1.day.ago)
+      create(
+        :stream,
+        session: lowercase_session,
+        sensor_package_name: 'AirBeamMini:cc8da2692e7c',
+      )
+      create(
+        :stream,
+        session: uppercase_session,
+        sensor_package_name: 'AirBeamMini:CC8DA2692E7C',
+      )
+      _another_session = create(:mobile_session, start_time_local: 1.day.ago)
+      create(
+        :stream,
+        session: _another_session,
+        sensor_package_name: 'AirBeamMini:CC8DA26B0768',
+      )
+
+      %w[AirBeamMini:cc8da2692e7c AirBeamMini:CC8DA2692E7C].each do |name|
+        get '/api/v3/sessions', params: { sensor_package_name: name }
+
+        expect(response.status).to eq(200)
+        ids = JSON.parse(response.body)['sessions'].map { |s| s['id'] }
+        expect(ids).to contain_exactly(lowercase_session.id, uppercase_session.id)
+      end
+    end
+  end
+
   context 'params not provided' do
     it 'returns all sessions from last 30 days' do
       session_1 = create(:mobile_session, start_time_local: 30.days.ago)
