@@ -30,6 +30,19 @@ module Api
 
         render json: ::Explore::MapSerializer.new.call(markers), status: :ok
       end
+
+      # One station in full, behind one marker, addressed by uuid alone. A uuid that is
+      # not public, not outdoor, or not there at all answers the same 404 —
+      # a private session must not be distinguishable from a missing one.
+      def station
+        item = ::Explore::StationQuery.new.call(uuid: params[:uuid])
+
+        unless item
+          return render_error(ErrorCodes::NOT_FOUND, 'Station not found')
+        end
+
+        render json: ::Explore::StationSerializer.new.call(item), status: :ok
+      end
     end
   end
 end
