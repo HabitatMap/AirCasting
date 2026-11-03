@@ -1,8 +1,14 @@
 module ApplicationHelper
+  # public/packs is gitignored and written by webpack, so a fresh checkout has
+  # no manifest until something builds one. The old rescue only raised when
+  # `assets.compile` was false — which is production alone — so in test and
+  # development it returned nil and every caller died on
+  # `undefined method [] for nil` thirteen frames away from the cause.
   def load_webpack_manifest
     JSON.parse(File.read('public/packs/manifest.json'))
   rescue Errno::ENOENT
-    fail "The webpack manifest file does not exist." unless Rails.configuration.assets.compile
+    raise 'public/packs/manifest.json does not exist. Run `yarn build:test` ' \
+          'to write it, or `yarn dev`, which writes it on its way to serving it.'
   end
 
   def webpack_manifest
