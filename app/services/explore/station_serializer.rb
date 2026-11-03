@@ -9,7 +9,11 @@ module Explore
   # range.
   #
   # Values are rounded to whole numbers as the map draws them. Timestamps are
-  # real UTC instants in epoch milliseconds, like the rest of the v3 mobile API.
+  # real UTC instants in epoch milliseconds, like the rest of the v3 mobile API
+  # — `time_zone` is the IANA zone of the station itself, which is what a client
+  # needs to render those instants as the local time at the sensor rather than
+  # the local time of whoever is reading. Non-null for both sources: NOT NULL on
+  # `sessions.time_zone` and on `stations.time_zone`.
   class StationSerializer
     def call(item)
       json = {
@@ -19,6 +23,7 @@ module Explore
         provider: item.provider,
         latitude: item.latitude,
         longitude: item.longitude,
+        time_zone: item.time_zone,
         device_model: item.device_model,
         share_url: item.share_url,
         is_active: item.is_active,

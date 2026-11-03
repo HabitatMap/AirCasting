@@ -9,6 +9,7 @@ describe Explore::AirbeamStationQuery do
       title: 'Roof',
       latitude: 40.7,
       longitude: -74.0,
+      time_zone: 'America/New_York',
       last_measurement_at: 5.minutes.ago,
       **attributes,
     )
@@ -45,6 +46,7 @@ describe Explore::AirbeamStationQuery do
       provider: fixed.user.username,
       latitude: 40.7,
       longitude: -74.0,
+      time_zone: 'America/New_York',
       device_model: 'AirBeamMini',
       is_active: true,
       share_url: "http://#{A9n.host_}/s/#{fixed.url_token}",

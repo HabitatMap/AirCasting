@@ -13,6 +13,7 @@ describe 'GET /api/v3/explore/stations/:uuid', type: :request do
       :fixed_session,
       latitude: 40.1,
       longitude: -73.2,
+      time_zone: 'America/New_York',
       last_measurement_at: 5.minutes.ago,
       **attributes,
     ).tap do |session|
@@ -52,7 +53,10 @@ describe 'GET /api/v3/explore/stations/:uuid', type: :request do
     json = get_station(session.uuid)
 
     expect(response).to have_http_status(:ok)
-    expect(json).to include('source' => 'airbeam', 'uuid' => session.uuid, 'is_active' => true)
+    expect(json).to include(
+      'source' => 'airbeam', 'uuid' => session.uuid, 'is_active' => true,
+      'time_zone' => 'America/New_York',
+    )
     expect(json['share_url']).to end_with("/s/#{session.url_token}")
   end
 
@@ -62,7 +66,10 @@ describe 'GET /api/v3/explore/stations/:uuid', type: :request do
     json = get_station(station.uuid)
 
     expect(response).to have_http_status(:ok)
-    expect(json).to include('source' => 'government', 'uuid' => station.uuid, 'device_model' => nil)
+    expect(json).to include(
+      'source' => 'government', 'uuid' => station.uuid, 'device_model' => nil,
+      'time_zone' => 'Europe/Warsaw',
+    )
     expect(json['share_url']).to end_with('/g/ab3k9')
   end
 

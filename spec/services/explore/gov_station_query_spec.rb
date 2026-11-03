@@ -47,6 +47,7 @@ describe Explore::GovStationQuery do
       provider: 'US EPA AirNow',
       latitude: 40.74,
       longitude: -73.82,
+      time_zone: 'Europe/Warsaw',
       device_model: nil,
       share_url: "http://#{A9n.host_}/g/ab3k9",
       is_active: true,
