@@ -81,8 +81,9 @@ RSpec.configure do |config|
         description: <<~DESC
           Endpoints used by the AirCasting mobile apps and web frontend.
 
-          Tags are grouped by client: `Mobile app:` (iOS/Android) and `Web app:`
-          (the web frontend). No endpoint is used by both. Tags marked
+          Tags are grouped by client: `Mobile app:` (iOS/Android), `Web app:`
+          (the web frontend) and `Data access:` (external data pipelines). No
+          endpoint is used by more than one. Tags marked
           **[DEPRECATED]** are served only for already-released mobile builds —
           build new clients against the `/api/v3` endpoints.
         DESC
@@ -105,7 +106,8 @@ RSpec.configure do |config|
       },
       security: [{ bearer_auth: [] }],
       # Tag order + descriptions control the grouping shown in Swagger UI.
-      # Two families, mobile app then web app; no endpoint belongs to both.
+      # Three families, mobile app, web app, then data access; no endpoint
+      # belongs to more than one.
       # A legacy tag sits directly after the tag that replaces it.
       #
       # Unified data vocabulary across the whole API:
@@ -151,7 +153,10 @@ RSpec.configure do |config|
         { name: 'Web app: Sensors & thresholds',
           description: 'Sensor lists and threshold sets.' },
         { name: 'Web app: Export & sharing',
-          description: 'Session CSV export and short-URL creation.' }
+          description: 'Session CSV export and short-URL creation.' },
+        # --- External data pipelines ---
+        { name: 'Data access: Sessions',
+          description: 'Public lookup of AirBeam sessions by device id, tags and date range, for pulling data into external tools.' }
       ],
       paths: {}
     }

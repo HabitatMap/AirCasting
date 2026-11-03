@@ -163,3 +163,22 @@ Three things in the file are easy to get wrong when editing content:
   is a ~55 kB PNG, because `nf_resize` cannot emit WebP at all. 192px covers a
   64pt thumbnail at @3x. `fit=cover` crops from the centre — add `&position=top`
   where that cuts the subject. There is no content-aware crop on that endpoint.
+
+## Data access, not called by any AirCasting client
+
+Public reads for external data pipelines. No auth.
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/api/v3/sessions` | Sessions by `sensor_package_name`, `tags[]` (any of) and a `start_datetime`/`end_datetime` window on the session's local start, default last 30 days. Not paginated. With `sensor_package_name`, each session lists only that device's streams |
+
+### `/api/v3/sessions` — the device id is a string, not a column
+
+A device is identified only by `streams.sensor_package_name`, `<Model>:<id>`,
+stored as the client sent it. The id after the first `:` or `-` matches in
+lowercase or uppercase — AirBeam Mini FW 1.0.0 writes it uppercase where older
+firmware wrote lowercase — and both variants are sent as exact values so the
+lookup stays on `index_streams_on_sensor_package_name`. `:` and `-` stay
+distinct: live Bluetooth recordings use `:`, fixed sessions over WiFi and
+SD-card syncs use `-`. `spec/swagger/v3/sessions_spec.rb` documents the
+response.
