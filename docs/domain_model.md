@@ -469,6 +469,45 @@ Needed to track physical hardware by MAC address. Powers a "see all sessions rec
 7. Update `FixedStreams::ShowInteractor` and `FixedMeasurements::IndexInteractor` to query via `fixed_stream_id`
 8. Delete AirBeam `sessions/streams` rows; drop the `fixed_measurements.stream_id` column
 
+### 7.4 Later: drop `url_token` from `fixed_streams` and `station_streams`
+
+Both columns are an artefact of the in-between plan where `fixed_streams` was
+going to be the government "session". That role later moved to
+`station_streams`, and the column came along with it — but by then neither
+design had the grouping `stations` model we eventually added, so a share link
+was being hung on the wrong grain. A share link belongs to a station, not to
+one of its streams.
+
+Both are **write-only**. Three writers — `GovernmentSources::StationStreamEnricher`,
+`GovernmentSources::LegacyStationStreamEnricher`, `GovernmentSources::StationStreamsCreator`
+— and no reader anywhere: `/s/:url_token` resolves a `Session`
+(`app/services/api/to_link.rb`), `/g/:url_token` a `Station`
+(`app/services/api/to_station_link.rb`), and nothing in `app/javascript`
+touches either column.
+
+They are not free:
+
+- `StationStreamEnricher` regenerates a token for **every** row on every ETL
+  run and discards it for rows that already exist — one `exists?` round trip
+  per row, tens of thousands per run, buying nothing.
+- `fixed_streams.url_token` has **no index at all**, and
+  `LegacyStationStreamEnricher` probes it with `FixedStream.where(url_token:).count`
+  — a sequential scan per token generated. Tolerable only because the table is
+  small.
+- `station_streams.url_token` carries a UNIQUE index, and the creator's
+  `insert_all` scopes `ON CONFLICT` to `(source_id, stream_configuration_id, external_ref)`
+  only. A token collision inside one batch therefore aborts the whole batch.
+  Negligible on incremental runs; ~4% on a first import the size of the
+  original EEA load.
+
+The government share link has since been built where it belongs:
+`stations.url_token`, resolved by `/g/:url_token`
+(`app/services/api/to_station_link.rb`). Neither stream column feeds it, which
+is what leaves both of them with no reader at all.
+
+Order, whenever this is picked up: stop generating (drop the enricher calls),
+then drop `station_streams.url_token` and `fixed_streams.url_token`.
+
 ---
 
 ## 8. Reference: Stream Configurations
