@@ -8,6 +8,7 @@
     "coverage:lcov": "NODE_ENV=test nyc --require @babel/register --reporter=lcov blue-tape app/javascript/javascript/tests/**/*.test.js",
     "build": "webpack --config ./config/webpack/webpack.config.js --mode production --progress",
     "dev": "webpack serve --config ./config/webpack/webpack.config.js --mode development --progress",
+    "build:test": "webpack --config ./config/webpack/webpack.config.js --mode development",
     "test": "jest --testPathPattern=\"app/javascript/.*\\.test\\.tsx?$\""
   },
   "dependencies": {
