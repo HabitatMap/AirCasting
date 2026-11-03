@@ -171,6 +171,18 @@ describe GovernmentSources::Repository do
     end
   end
 
+  describe '#station_url_token_available?' do
+    it 'returns false when a station holds the token' do
+      create(:station, source: create(:source, name: 'EPA'), url_token: 'ab3k9')
+
+      expect(subject.station_url_token_available?('ab3k9')).to be false
+    end
+
+    it 'returns true when no station holds it' do
+      expect(subject.station_url_token_available?('ab3k9')).to be true
+    end
+  end
+
   describe '#station_stream_url_token_available?' do
     it 'returns false when token exists' do
       source = create(:source, name: 'EPA')

@@ -104,6 +104,80 @@ describe GovernmentSources::StationsUpserter do
       expect(station.uuid).to eq(uuid)
     end
 
+    describe 'url_token' do
+      it 'mints a short token on insert' do
+        subject.call(rows: [build_row], source_name: :epa)
+
+        expect(Station.last.url_token).to match(/\A[0-9a-z]{5}\z/)
+      end
+
+      it 'gives two stations of one run distinct tokens' do
+        # A generator that repeats itself. The tokens of a run are not in the
+        # database yet when the next one is minted, so a probe against the
+        # database alone would let both through and the whole insert_all would
+        # abort on the unique index.
+        generator = instance_double(TokenGenerator)
+        allow(generator).to receive(:generate_unique) do |_length, &available|
+          %w[aaaaa aaaaa bbbbb].find { |candidate| available.call(candidate) }
+        end
+
+        described_class
+          .new(time_zone_finder: time_zone_finder, token_generator: generator)
+          .call(
+            rows: [
+              build_row(station_external_ref: 'FULL1'),
+              build_row(station_external_ref: 'FULL2', title: 'Other site'),
+            ],
+            source_name: :epa,
+          )
+
+        expect(Station.pluck(:url_token)).to contain_exactly('aaaaa', 'bbbbb')
+      end
+
+      it 'skips a token another station already holds' do
+        create(:station, source: source, external_ref: 'OTHER', url_token: 'aaaaa')
+        generator = instance_double(TokenGenerator)
+        allow(generator).to receive(:generate_unique) do |_length, &available|
+          %w[aaaaa bbbbb].find { |candidate| available.call(candidate) }
+        end
+
+        described_class
+          .new(time_zone_finder: time_zone_finder, token_generator: generator)
+          .call(rows: [build_row], source_name: :epa)
+
+        expect(Station.find_by(external_ref: 'FULL1').url_token).to eq('bbbbb')
+      end
+
+      it 'leaves a station stored before the column to the backfill' do
+        station =
+          create(:station, source: source, external_ref: 'FULL1', url_token: nil)
+        generator = instance_double(TokenGenerator)
+        allow(generator).to receive(:generate_unique).and_return('zzzzz')
+
+        described_class
+          .new(time_zone_finder: time_zone_finder, token_generator: generator)
+          .call(rows: [build_row(title: 'New title')], source_name: :epa)
+
+        expect(generator).not_to have_received(:generate_unique)
+        expect(station.reload).to have_attributes(title: 'New title', url_token: nil)
+      end
+
+      it 'keeps the stored token when the site list redescribes the station' do
+        station =
+          create(
+            :station,
+            source: source,
+            external_ref: 'FULL1',
+            title: 'Old title',
+            url_token: 'keep1',
+          )
+
+        subject.call(rows: [build_row], source_name: :epa)
+
+        expect(station.reload).to have_attributes(title: 'Site', url_token: 'keep1')
+      end
+    end
+
     it 'does not write a station that did not change' do
       station =
         create(
