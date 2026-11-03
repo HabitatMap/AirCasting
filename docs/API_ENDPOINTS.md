@@ -183,3 +183,29 @@ lookup stays on `index_streams_on_sensor_package_name`. `:` and `-` stay
 distinct: live Bluetooth recordings use `:`, fixed sessions over WiFi and
 SD-card syncs use `-`. `spec/swagger/v3/sessions_spec.rb` documents the
 response.
+
+## Share links
+
+Not JSON endpoints — each answers a `302` to the web map, opened on one stream.
+These are what the `share_url` fields of the session and explore endpoints point
+at; follow one, do not rebuild it from the token.
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/s/{url_token}` | An AirBeam session. `sessions.url_token` |
+| GET | `/g/{url_token}` | A government station. `stations.url_token` |
+
+`sensor_name` is a **required** query parameter on both — the map shows one
+stream at a time, so the link has to name which. Use a value the item itself
+reported in `streams[].sensor_name`; for a station that is
+`Government-<measurement type>`, matched case-insensitively. Missing it is a
+`400`; an unknown token, or a stream the item does not have, is a `404`.
+
+A bare token with no query string never reaches either route: the
+`query_string: /.+/` constraint misses and the `get '*path'` catch-all serves
+the single-page app, a `200` of map HTML that selects nothing.
+
+The two token namespaces are deliberately separate. Both draw from the same
+base-36 alphabet over different tables, so the same token can name a session and
+a station at once — the path segment is what disambiguates.
+`spec/swagger/share_links_spec.rb` documents both.

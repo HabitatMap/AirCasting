@@ -3109,6 +3109,133 @@ paths:
                           nullable: true
                         number:
                           type: integer
+  "/s/{url_token}":
+    get:
+      summary: Open a shared AirBeam session on the web map
+      tags:
+      - 'Web app: Export & sharing'
+      security: []
+      description: |
+        Opens one stream of a shared item on the web map, as a `302`. This is what
+        the `share_url` fields point at — follow one in a browser rather than
+        parsing its target, whose query string is internal.
+
+        **`sensor_name` is required.** The map shows one stream at a time, so the
+        link has to name which. Use a value the item itself reported, from its
+        `streams[].sensor_name`.
+
+        **A bare token with no query string does not reach this route.** It falls
+        through to the single-page app, which answers `200` with the map's HTML —
+        looks like success, selects nothing.
+      parameters:
+      - name: url_token
+        in: path
+        required: true
+        schema:
+          type: string
+        example: ab12c
+        description: The token embedded in a session `share_url`
+      - name: sensor_name
+        in: query
+        required: true
+        schema:
+          type: string
+        example: AirBeamMini-PM2.5
+        description: Which stream of the session to open
+      responses:
+        '302':
+          description: redirect to the web map, opened on that stream
+          headers:
+            Location:
+              schema:
+                type: string
+              description: The web map URL, with the stream and its thresholds
+        '400':
+          description: "`sensor_name` missing"
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties:
+                  type: array
+                  items:
+                    type: string
+                example:
+                  sensor_name:
+                  - is missing
+        '404':
+          description: no such token, or the session has no such stream
+          content:
+            application/json:
+              schema:
+                type: string
+                example: 404 Not Found
+  "/g/{url_token}":
+    get:
+      summary: Open a shared government station on the web map
+      tags:
+      - 'Web app: Export & sharing'
+      security: []
+      description: |
+        Opens one stream of a shared item on the web map, as a `302`. This is what
+        the `share_url` fields point at — follow one in a browser rather than
+        parsing its target, whose query string is internal.
+
+        **`sensor_name` is required.** The map shows one stream at a time, so the
+        link has to name which. Use a value the item itself reported, from its
+        `streams[].sensor_name`.
+
+        **A bare token with no query string does not reach this route.** It falls
+        through to the single-page app, which answers `200` with the map's HTML —
+        looks like success, selects nothing.
+
+        A separate namespace from `/s/` on purpose: the two kinds of token are
+        drawn from the same alphabet and may collide, so the path segment is
+        what says which kind this one is. A government `sensor_name` is
+        `Government-<measurement type>`, matched case-insensitively.
+      parameters:
+      - name: url_token
+        in: path
+        required: true
+        schema:
+          type: string
+        example: ab3k9
+        description: The token embedded in a station `share_url`
+      - name: sensor_name
+        in: query
+        required: true
+        schema:
+          type: string
+        example: Government-PM2.5
+        description: Which stream of the station to open
+      responses:
+        '302':
+          description: redirect to the web map, opened on that stream
+          headers:
+            Location:
+              schema:
+                type: string
+              description: The web map URL, with the stream and its thresholds
+        '400':
+          description: "`sensor_name` missing"
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties:
+                  type: array
+                  items:
+                    type: string
+                example:
+                  sensor_name:
+                  - is missing
+        '404':
+          description: no such token, or the station has no such stream
+          content:
+            application/json:
+              schema:
+                type: string
+                example: 404 Not Found
   "/api/thresholds/{id}":
     get:
       summary: Threshold set for a sensor
