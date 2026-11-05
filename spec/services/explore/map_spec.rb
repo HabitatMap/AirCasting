@@ -11,13 +11,13 @@ describe Explore::Map do
   end
 
   def item(source:, values: [10.0], latitude: 40.7, longitude: -74.0)
-    Explore::Item.new(
+    Explore::StationItem.new(
       source: source,
       latitude: latitude,
       longitude: longitude,
       streams:
         values.map do |value|
-          Explore::ItemStream.new(parameter: 'Particulate Matter', last_value: value)
+          Explore::StreamItemRich.new(parameter: 'Particulate Matter', last_value: value)
         end,
     )
   end

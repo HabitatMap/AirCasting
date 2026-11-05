@@ -7,17 +7,19 @@ module Explore
   # ascending inside the window: plot order, so a client prepends an older page
   # whole.
   #
-  # Two differences from the session endpoints, both because this one is public
-  # and source-agnostic:
+  # Epochs are real UTC instants, on the wire and in the window, same as the
+  # session endpoints. They get there differently: FixedSessions::MeasurementsQuery
+  # reads the local-as-UTC `time` column and converts both ways with
+  # Utils.to_local_as_utc / from_local_as_utc, while this one reads
+  # `fixed_measurements.time_with_time_zone`, which is already a real instant.
+  # Same answer for the same row — the ingester writes both columns from one
+  # timestamp — except in the hour that repeats on a DST fall-back, where the
+  # conversion has to pick one of the two instants a wall clock could mean and
+  # this path never has to. Utils.from_local_as_utc says as much.
   #
-  #   * Timestamps are real UTC instants, not the station's local clock. The
-  #     rest of the explore family already publishes real instants — the
-  #     detail endpoint's `last_measurement.time` is one — and a client renders
-  #     them with the `time_zone` that endpoint returns. So AirBeam readings are
-  #     read off `fixed_measurements.time_with_time_zone` rather than the
-  #     local-as-UTC `time` column the fixed-session endpoint uses.
-  #   * No latitude/longitude. Both sources stand still; the station's position
-  #     is on the detail endpoint and does not change per reading.
+  # The one shape difference from the session endpoints is latitude/longitude,
+  # absent here: both sources stand still, so the position is on the station
+  # detail rather than repeated on every reading.
   #
   # The stream is already known to exist — Explore::StationStreamsQuery resolved
   # it — so there is no nil case here; an empty window is an empty array.

@@ -4,7 +4,7 @@ describe Explore::MapSerializer do
   let(:measured_at) { Time.utc(2026, 10, 16, 12, 0, 0) }
 
   def station
-    Explore::Item.new(
+    Explore::StationItem.new(
       source: 'government',
       uuid: 'a1b2',
       title: 'CCNY',
@@ -13,7 +13,7 @@ describe Explore::MapSerializer do
       longitude: -73.95,
       last_measured_at: measured_at,
       streams: [
-        Explore::ItemStream.new(
+        Explore::StreamItemRich.new(
           id: 11,
           sensor_name: 'Government-PM2.5',
           parameter: 'Particulate Matter',
@@ -21,7 +21,7 @@ describe Explore::MapSerializer do
           last_value: 8.5,
           last_measured_at: measured_at,
         ),
-        Explore::ItemStream.new(
+        Explore::StreamItemRich.new(
           id: 12,
           sensor_name: 'Government-NO2',
           parameter: 'Nitrogen Dioxide',

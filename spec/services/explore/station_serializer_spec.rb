@@ -4,7 +4,7 @@ describe Explore::StationSerializer do
   let(:measured_at) { Time.zone.at(1_793_282_400) }
 
   def stream(**attributes)
-    Explore::ItemStream.new(
+    Explore::StreamItemRich.new(
       id: 35_404,
       sensor_name: 'AirBeam-PM1',
       parameter: 'Particulate Matter',
@@ -19,7 +19,7 @@ describe Explore::StationSerializer do
   end
 
   def item(**attributes)
-    Explore::Item.new(
+    Explore::StationItem.new(
       source: 'airbeam',
       uuid: '0b7e3f5a-6c1d-4e2f-9a8b-3c4d5e6f7a8b',
       title: 'Home AirBeam Garden',

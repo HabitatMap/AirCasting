@@ -3,14 +3,9 @@ module Api
   #
   # Mirrors FixedSessionMeasurementsContract and
   # MobileSessionMeasurementsContract — `sensor_name` is always required, the
-  # window is optional and comes in one piece or not at all, capped at 12h. See
+  # window is optional and comes in one piece or not at all, capped at 12h, and
+  # the epochs are real UTC instants in all three. See
   # MobileSessionMeasurementsContract for the full reasoning.
-  #
-  # The one difference is what the epochs mean. The session endpoints speak the
-  # session's own local clock, because that is what their measurement rows
-  # store; the explore family publishes real UTC instants throughout, so a
-  # window here is a window on the wall clock in Greenwich whatever zone the
-  # station stands in.
   class ExploreStationMeasurementsContract < Dry::Validation::Contract
     MAX_WINDOW_MS = 12 * 60 * 60 * 1_000
 

@@ -3987,6 +3987,148 @@ paths:
                         params:
                           unknown:
                           - PM10
+  "/api/v3/explore/stations/{uuid}/measurements":
+    get:
+      summary: "[ALPHA] Measurements for one stream of a public station"
+      tags:
+      - 'Mobile app: Explore map'
+      security: []
+      description: |
+        The readings behind one stream of public station (GOV or AirBeam)
+
+        Read the names from `streams[].sensor_name` on the station detail. Omit the
+        window to get the last 6 hours, anchored on the station's last reading — so a station
+        that went quiet still answers with its final hours rather than an empty array.
+
+        **Timestamps are real UTC instants**, milliseconds in JSON — render local with the `time_zone` the station detail returns.
+
+        ## Error codes
+
+        | `error_code` | HTTP | When |
+        |---|---|---|
+        | `validation_error` | 400 | Missing `sensor_name`, half a window, `end_time <= start_time`, a window over 12h, or a non-integer time. `fields` names the offending parameter. Answered **before** the uuid lookup |
+        | `not_found` | 404 | No public station with this uuid — private, indoor, excluded and unknown are deliberately indistinguishable — **or** the station has no stream with this `sensor_name`. The `message` tells the two apart; the code does not |
+      parameters:
+      - name: uuid
+        in: path
+        required: true
+        description: The `uuid` of an item returned by `GET /api/v3/explore/map`
+        schema:
+          type: string
+      - name: sensor_name
+        in: query
+        required: true
+        schema:
+          type: string
+        description: The one stream to read, as `GET /api/v3/explore/stations/{uuid}`
+          spells it — e.g. `AirBeam-PM2.5` or `Government-PM2.5`.
+      - name: start_time
+        in: query
+        required: false
+        schema:
+          type: integer
+        description: Epoch ms, UTC. Send with end_time; omit both for the last 6h.
+      - name: end_time
+        in: query
+        required: false
+        schema:
+          type: integer
+        description: Epoch ms, UTC. At most 12h after start_time.
+      responses:
+        '200':
+          description: measurements for the named stream, oldest first
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  required:
+                  - time
+                  - value
+                  properties:
+                    time:
+                      type: integer
+                      format: int64
+                      description: Epoch milliseconds, UTC — a real instant, not local
+                        time
+                    value:
+                      type: number
+                      description: The raw reading, unrounded. Unlike the station
+                        detail, which rounds the numbers it draws
+                example:
+                - time: 1786707000000
+                  value: 12.5
+        '400':
+          description: missing sensor_name, or a window over 12 hours
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - error_code
+                - message
+                properties:
+                  error_code:
+                    type: string
+                    example: validation_error
+                  message:
+                    type: string
+                    example: Query is invalid
+                  fields:
+                    type: object
+                    description: |
+                      Per-field validation errors. Present only when the request shape is wrong.
+
+                      Keys are the parameters that failed, nested exactly as they were sent — a
+                      bad stream appears under its index in the array. Every leaf is a list of
+                      objects, one per failure:
+
+                      - `code` — machine-readable. Switch on this to show your own translated
+                        message; this API is not localised.
+                      - `message` — English, a fallback for codes you do not handle yet. Never
+                        parse it.
+                      - `params` — present when the message interpolates a value, so the
+                        sentence can be rebuilt in another language. `too_small` carries `min`,
+                        `not_included` carries `allowed`.
+
+                      Codes for a value of the wrong shape are the same on every endpoint:
+
+                      `missing`, `blank`, `not_a_string`, `not_an_integer`, `not_a_float`,
+                      `not_a_boolean`, `not_a_time`, `not_a_date`, `not_a_date_time`,
+                      `not_an_array`, `not_a_hash`, `too_small` (`min`), `too_large` (`max`),
+                      `too_short` (`min`), `too_long` (`max`), `not_included` (`allowed`),
+                      `invalid_format` (`format`), `wrong_size` (`size`).
+
+                      Codes for a rule the endpoint enforces are specific to it — `greater_than`,
+                      `greater_than_or_equal_to`, `window_too_long`, `unknown_value`, `duplicate`,
+                      `requires_one_of` and so on. Each one that compares two parameters carries
+                      the other's name in `params.other`. Each operation's `fields` example shows
+                      the codes it can return.
+
+                      New codes are added as the API grows, and `invalid` is used wherever a
+                      failure has prose but no code assigned yet. Treat both the same way: fall
+                      back to `message`. A client must never break on a code it does not know.
+                    example:
+                      sensor_name:
+                      - code: missing
+                        message: is missing
+        '404':
+          description: no public station with this uuid, or no such stream on it
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - error_code
+                - message
+                properties:
+                  error_code:
+                    type: string
+                    example: not_found
+                  message:
+                    type: string
+                    example: Station not found
   "/api/v3/explore/stations/{uuid}":
     get:
       summary: "[ALPHA] One AirBeam fixed session or government station in full"
