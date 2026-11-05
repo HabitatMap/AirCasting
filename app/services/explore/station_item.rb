@@ -6,7 +6,7 @@ module Explore
   # `device_model`, `share_url`, `is_active` and `time_zone` are filled only by
   # the station detail (GET /api/v3/explore/stations/{uuid}) and are nil on the
   # map, which draws none of them.
-  Item =
+  StationItem =
     Struct.new(
       :source,
       :uuid,

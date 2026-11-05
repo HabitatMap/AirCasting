@@ -3,6 +3,14 @@ module Explore
     SOURCE = GovItemsQuery::SOURCE
     UPDATE_FREQUENCY = '1 hour'.freeze
 
+    # A government stream has no sensor to name, so one is synthesised from the
+    # pollutant. Shared with Explore::StationStreamsQuery, which has to resolve
+    # the same name back to a row when a client sends it to
+    # GET /api/v3/explore/stations/{uuid}/measurements.
+    def self.sensor_name(measurement_type)
+      "Government-#{measurement_type}"
+    end
+
     COLUMNS = {
       uuid: 'stations.uuid',
       title: 'stations.title',
@@ -51,7 +59,7 @@ module Explore
       ranges = last_24h_query.government(rows.map { |row| row[:stream_id] })
       last_measured_at = rows.filter_map { |row| row[:last_measured_at] }.max
 
-      Item.new(
+      StationItem.new(
         source: SOURCE,
         uuid: station[:uuid],
         title: station[:title],
@@ -89,9 +97,9 @@ module Explore
       range = ranges[row[:stream_id]]
       measurement_type = row[:measurement_type]
 
-      ItemStream.new(
+      StreamItemRich.new(
         id: row[:stream_id],
-        sensor_name: "Government-#{measurement_type}",
+        sensor_name: self.class.sensor_name(measurement_type),
         parameter: Parameters.government_key(measurement_type),
         unit_symbol: row[:unit_symbol],
         last_value: row[:last_value],

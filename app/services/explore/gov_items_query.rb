@@ -1,5 +1,5 @@
 module Explore
-  # Active government stations in the bounds, one Item per station with its
+  # Active government stations in the bounds, one StationItem per station with its
   # selected streams.
   #
   # Only streams grouped into a station are read: the INNER JOIN on stations
@@ -30,7 +30,7 @@ module Explore
         .map do |uuid, station_rows|
           _, station_title, provider, latitude, longitude = station_rows.first
 
-          Item.with_streams(
+          StationItem.with_streams(
             source: SOURCE,
             uuid: uuid,
             title: station_title,
@@ -78,7 +78,7 @@ module Explore
     def stream(row, parameters)
       _, _, _, _, _, id, measurement_type, unit_symbol, last_measured_at, value = row
 
-      ItemStream.new(
+      StreamItemRich.new(
         id: id,
         sensor_name: "Government-#{measurement_type}",
         parameter: parameters.parameter_for_government(measurement_type),

@@ -1,0 +1,58 @@
+module Api
+  # Query contract for GET /api/v3/explore/stations/:uuid/measurements.
+  #
+  # Mirrors FixedSessionMeasurementsContract and
+  # MobileSessionMeasurementsContract — `sensor_name` is always required, the
+  # window is optional and comes in one piece or not at all, capped at 12h. See
+  # MobileSessionMeasurementsContract for the full reasoning.
+  #
+  # The one difference is what the epochs mean. The session endpoints speak the
+  # session's own local clock, because that is what their measurement rows
+  # store; the explore family publishes real UTC instants throughout, so a
+  # window here is a window on the wall clock in Greenwich whatever zone the
+  # station stands in.
+  class ExploreStationMeasurementsContract < Dry::Validation::Contract
+    MAX_WINDOW_MS = 12 * 60 * 60 * 1_000
+
+    params do
+      required(:sensor_name).filled(:string)
+      optional(:start_time).filled(:integer)
+      optional(:end_time).filled(:integer)
+    end
+
+    rule(:start_time, :end_time) do
+      if values[:start_time] && values[:end_time].nil?
+        key(:end_time).failure(
+          text: 'must be sent together with start_time',
+          code: 'requires',
+          params: { other: 'start_time' },
+        )
+      elsif values[:end_time] && values[:start_time].nil?
+        key(:start_time).failure(
+          text: 'must be sent together with end_time',
+          code: 'requires',
+          params: { other: 'end_time' },
+        )
+      end
+    end
+
+    rule(:end_time, :start_time) do
+      next unless values[:start_time] && values[:end_time]
+
+      if values[:end_time] <= values[:start_time]
+        key(:end_time).failure(
+          text: 'must be greater than start_time',
+          code: 'greater_than',
+          params: { other: 'start_time' },
+        )
+      elsif values[:end_time] - values[:start_time] > MAX_WINDOW_MS
+        key(:end_time).failure(
+          text: "window must not exceed #{MAX_WINDOW_MS} ms (12 hours); " \
+                'page older data backwards with end_time',
+          code: 'window_too_long',
+          params: { max_ms: MAX_WINDOW_MS },
+        )
+      end
+    end
+  end
+end
