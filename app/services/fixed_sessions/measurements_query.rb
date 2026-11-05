@@ -6,6 +6,16 @@ module FixedSessions
   # (the session's own latitude/longitude), so there is no per-point lat/lng to
   # return. Window and defaulting semantics otherwise match
   # MobileSessions::MeasurementsQuery exactly; see that class for the reasoning.
+  #
+  # Both the window and the answer are real UTC instants, read straight off
+  # `time_with_time_zone`. The mobile equivalent cannot do this — the legacy
+  # `measurements` table has the column but leaves it nullable and indexes only
+  # `(stream_id, time)` — so it works in the session's local clock and converts
+  # on both edges. Here the timestamptz is NOT NULL and carries the only
+  # composite index there is, `(stream_id, time_with_time_zone)`, so reading the
+  # local-as-UTC `time` column instead would mean filtering every row of the
+  # stream rather than scanning the window, and would collapse the two readings
+  # an hour apart in a DST fall-back onto one epoch.
   class MeasurementsQuery
     DEFAULT_WINDOW = 6.hours
 
@@ -36,9 +46,9 @@ module FixedSessions
     def points
       stream
         .fixed_measurements
-        .where(time: window)
-        .reorder(time: :asc)
-        .pluck(:time, :value)
+        .where(time_with_time_zone: window)
+        .reorder(time_with_time_zone: :asc)
+        .pluck(:time_with_time_zone, :value)
         .map { |time, value| { time: to_epoch_ms(time), value: value } }
     end
 
@@ -48,20 +58,29 @@ module FixedSessions
       @window =
         if start_time && end_time
           from_epoch_ms(start_time)..from_epoch_ms(end_time)
-        elsif session.end_time_local
-          (session.end_time_local - DEFAULT_WINDOW)..session.end_time_local
+        elsif anchor
+          (anchor - DEFAULT_WINDOW)..anchor
         end
     end
 
-    # `fixed_measurements.time` holds the session's local time in a UTC column,
-    # same trick as the legacy table — see FixedSessions::BinaryProtocol::Ingester
-    # #build_records, which writes it with Utils.to_local_as_utc.
+    # `sessions.end_time_local` is the one value still in the session's local
+    # clock — sessions have no timestamptz column to anchor on — so the default
+    # window's anchor is converted once, here, rather than every row being
+    # converted on the way out.
+    def anchor
+      return @anchor if defined?(@anchor)
+
+      @anchor =
+        session.end_time_local &&
+        Utils.from_local_as_utc(session.end_time_local, session.time_zone)
+    end
+
     def from_epoch_ms(value)
-      Utils.to_local_as_utc(Time.at(value / 1000.0), session.time_zone)
+      Time.at(value / 1000.0).utc
     end
 
     def to_epoch_ms(time)
-      Utils.from_local_as_utc(time, session.time_zone).to_i * 1_000
+      time.to_i * 1_000
     end
   end
 end

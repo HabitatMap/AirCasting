@@ -1,5 +1,5 @@
 module Explore
-  # Active, public, outdoor AirBeam fixed sessions in the bounds, one Item per
+  # Active, public, outdoor AirBeam fixed sessions in the bounds, one StationItem per
   # session with its selected streams.
   #
   # A stream's value is its last hourly average, the number the web map pins
@@ -55,7 +55,7 @@ module Explore
         .map do |uuid, session_rows|
           _, session_title, username, latitude, longitude = session_rows.first
 
-          Item.with_streams(
+          StationItem.with_streams(
             source: SOURCE,
             uuid: uuid,
             title: session_title,
@@ -100,7 +100,7 @@ module Explore
     def stream(row, parameters)
       _, _, _, _, _, id, last_measured_at, sensor_name, unit_symbol, value = row
 
-      ItemStream.new(
+      StreamItemRich.new(
         id: id,
         sensor_name: sensor_name,
         parameter: parameters.parameter_for_airbeam(sensor_name),

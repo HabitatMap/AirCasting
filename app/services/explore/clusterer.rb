@@ -1,6 +1,6 @@
 module Explore
   # Groups items into the web map's grid cells (MapGrid). A cell with two or
-  # more items becomes one Cluster; a lone item stays an Item. Everything is
+  # more items becomes one Cluster; a lone item stays a StationItem. Everything is
   # computed from the items already loaded — no query per cluster.
   class Clusterer
     MINIMUM_CLUSTER_SIZE = 2

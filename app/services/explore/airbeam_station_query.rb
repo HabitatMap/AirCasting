@@ -71,7 +71,7 @@ module Explore
       session = rows.first
       ranges = last_24h_query.airbeam(rows.map { |row| row[:stream_id] })
 
-      Item.new(
+      StationItem.new(
         source: SOURCE,
         uuid: session[:uuid],
         title: session[:title],
@@ -114,7 +114,7 @@ module Explore
     def stream(row, ranges)
       range = ranges[row[:stream_id]]
 
-      ItemStream.new(
+      StreamItemRich.new(
         id: row[:stream_id],
         sensor_name: row[:sensor_name],
         parameter: row[:measurement_type],

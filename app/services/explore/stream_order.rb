@@ -2,7 +2,7 @@ module Explore
   # The order the station detail lists its streams in: the catalogue's order for
   # the parameters it names, then everything else, each group by sensor name.
   #
-  # The map sorts by Parameters::KEYS alone (Item.with_streams) because it only
+  # The map sorts by Parameters::KEYS alone (StationItem.with_streams) because it only
   # ever holds catalogue streams. The detail carries every stream of a session, so
   # a parameter the catalogue does not name — a legacy sensor, or a government
   # pollutant not yet on the filter chips — must not raise on a nil index.

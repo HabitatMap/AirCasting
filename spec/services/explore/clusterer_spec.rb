@@ -2,7 +2,7 @@ require 'rails_helper'
 
 describe Explore::Clusterer do
   def item(latitude:, longitude:, source: 'airbeam', value: nil)
-    Explore::Item.new(
+    Explore::StationItem.new(
       source: source,
       uuid: SecureRandom.uuid,
       latitude: latitude,

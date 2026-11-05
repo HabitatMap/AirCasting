@@ -139,6 +139,7 @@ Rails.application.routes.draw do
       get 'timelapse' => 'fixed_stream_clusters#index'
       get 'explore/map' => 'explore#map'
       get 'explore/stations/:uuid' => 'explore#station'
+      get 'explore/stations/:uuid/measurements' => 'explore#measurements'
       resources :fixed_sessions, only: %i[index show create destroy], param: :uuid do
         patch '/', action: :update, on: :member
         post 'finish', action: :finish, on: :member
