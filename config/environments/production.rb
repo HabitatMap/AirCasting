@@ -57,7 +57,21 @@ Rails.application.configure do
   config.log_tags = [:request_id]
 
   # Use a different cache store in production.
-  # config.cache_store = :mem_cache_store
+  # Reuses the Sidekiq Redis instance but on a separate logical DB (index 2)
+  # so cache keys never collide with Sidekiq (db 0) or ActionCable (db 1).
+  # REDIS_URL is unset in this environment, so we fall back to localhost (the
+  # same default Sidekiq and the redis client use). Any DB index already in the
+  # URL is stripped and forced to /2. Keys are TTL'd (see GeoConsent), so we
+  # don't rely on maxmemory eviction — the instance stays `noeviction` as
+  # Sidekiq requires.
+  redis_base = (ENV['REDIS_URL'].presence || 'redis://localhost:6379').sub(%r{/\d+\z}, '')
+  config.cache_store = :redis_cache_store, {
+    url: "#{redis_base}/2",
+    namespace: 'cache',
+    error_handler: ->(method:, returning:, exception:) {
+      Rails.logger.warn("[cache] #{method} failed: #{exception.class} #{exception.message}")
+    },
+  }
 
   # Use a real queuing backend for Active Job (and separate queues per environment).
   # config.active_job.queue_adapter     = :resque
