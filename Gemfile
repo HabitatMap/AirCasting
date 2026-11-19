@@ -11,6 +11,7 @@ gem 'aws-sdk-s3', '~> 1', require: false
 gem 'bcrypt_pbkdf', require: false
 gem 'bootsnap', '>= 1.1.0', require: false
 gem 'colored', require: false
+gem 'coverband'
 gem 'concurrent-ruby', '1.3.4'
 gem 'devise'
 gem 'dotenv-rails'
